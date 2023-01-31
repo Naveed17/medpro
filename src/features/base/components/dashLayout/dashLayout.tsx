@@ -94,7 +94,6 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (calendarStatus) {
-            console.log(calendarStatus.import_data?.length);
             if (calendarStatus.import_data?.length === 0) {
                 localStorage.removeItem("import-data");
                 closeSnackbar();

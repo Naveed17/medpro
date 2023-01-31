@@ -16,7 +16,6 @@ import {
     IconButton,
     InputAdornment,
     MenuItem,
-    Select,
     Stack,
     TextField,
     Typography,
@@ -66,6 +65,7 @@ function AddPatientStep2({...props}) {
     const {data: session, status} = useSession();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
+    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const RegisterSchema = Yup.object().shape({
@@ -206,6 +206,8 @@ function AddPatientStep2({...props}) {
         if (countries) {
             const defaultCountry = countries.find(country =>
                 country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
+            setCountriesData(countries.sort((country: CountryModel) =>
+                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
             setFieldValue("nationality", defaultCountry);
             setFieldValue("country", defaultCountry);
         }
@@ -334,53 +336,63 @@ function AddPatientStep2({...props}) {
                                 {t("add-patient.nationality")}
                             </Typography>
                             <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
+                                <Autocomplete
                                     id={"nationality"}
-                                    disabled={!countries}
+                                    disabled={!countriesData}
+                                    autoHighlight
+                                    disableClearable
                                     size="small"
-                                    {...getFieldProps("nationality")}
-                                    displayEmpty
+                                    value={countriesData.find(country => country.uuid === getFieldProps("nationality").value) ?
+                                        countriesData.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                    onChange={(e, v: any) => {
+                                        setFieldValue("nationality", v.uuid);
+                                    }}
                                     sx={{color: "text.secondary"}}
-                                    renderValue={selected => {
-                                        if (selected?.length === 0) {
-                                            return <em>{t("add-patient.nationality-placeholder")}</em>;
-                                        }
-
-                                        const country = countries?.find(country => country.uuid === selected);
-                                        return (
-                                            <Stack direction={"row"} alignItems={"center"}>
-                                                {country?.code && <Avatar
-                                                    sx={{
-                                                        width: 26,
-                                                        height: 18,
-                                                        borderRadius: 0.4,
-                                                        ml: 0,
-                                                        mr: ".5rem"
-                                                    }}
-                                                    alt="flag"
-                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                />}
-                                                <Typography>{country?.nationality}</Typography>
-                                            </Stack>)
-                                    }}>
-                                    {countries?.map((country) => (
+                                    options={countriesData}
+                                    loading={countriesData.length === 0}
+                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
+                                    renderOption={(props, option) => (
                                         <MenuItem
-                                            key={country.uuid}
-                                            value={country.uuid}>
-                                            {country?.code && <Avatar
+                                            {...props}
+                                            key={`nationality-${option.uuid}`}
+                                            value={option.uuid}>
+                                            {option?.code && <Avatar
                                                 sx={{
                                                     width: 26,
                                                     height: 18,
                                                     borderRadius: 0.4
                                                 }}
                                                 alt={"flags"}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
-                                        </MenuItem>)
+                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                        </MenuItem>
                                     )}
-                                </Select>
+                                    renderInput={params => {
+                                        const country = countries?.find(country => country.uuid === getFieldProps("nationality").value);
+                                        params.InputProps.startAdornment = country && (
+                                            <InputAdornment position="start">
+                                                {country?.code && <Avatar
+                                                    sx={{
+                                                        width: 24,
+                                                        height: 16,
+                                                        borderRadius: 0.4,
+                                                        ml: ".5rem",
+                                                        mr: -.8
+                                                    }}
+                                                    alt={country.name}
+                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                />}
+                                            </InputAdornment>
+                                        );
+
+                                        return <TextField color={"info"}
+                                                          {...params}
+                                                          sx={{paddingLeft: 0}}
+                                                          placeholder={t("add-patient.nationality-placeholder")}
+                                                          variant="outlined" fullWidth/>;
+                                    }}/>
                             </FormControl>
                         </Box>
                         <Box>
@@ -406,52 +418,63 @@ function AddPatientStep2({...props}) {
                                 {t("add-patient.country")}
                             </Typography>
                             <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
+                                <Autocomplete
                                     id={"country"}
-                                    disabled={!countries}
+                                    disabled={!countriesData}
+                                    autoHighlight
+                                    disableClearable
                                     size="small"
-                                    {...getFieldProps("country")}
-                                    displayEmpty
+                                    value={countriesData.find(country => country.uuid === getFieldProps("country").value) ?
+                                        countriesData.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                    onChange={(e, v: any) => {
+                                        setFieldValue("country", v.uuid);
+                                    }}
                                     sx={{color: "text.secondary"}}
-                                    renderValue={selected => {
-                                        if (selected?.length === 0) {
-                                            return <em>{t("add-patient.country-placeholder")}</em>;
-                                        }
-                                        const country = countries?.find(country => country.uuid === selected);
-                                        return (
-                                            <Stack direction={"row"} alignItems={"center"}>
-                                                {country?.code && <Avatar
-                                                    sx={{
-                                                        width: 26,
-                                                        height: 18,
-                                                        borderRadius: 0.4,
-                                                        ml: 0,
-                                                        mr: ".5rem"
-                                                    }}
-                                                    alt="flag"
-                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                />}
-                                                <Typography>{country?.name}</Typography>
-                                            </Stack>)
-                                    }}>
-                                    {countries?.filter(country => country.hasState).map((country) => (
+                                    options={countriesData}
+                                    loading={countriesData.length === 0}
+                                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                    renderOption={(props, option) => (
                                         <MenuItem
-                                            key={country.uuid}
-                                            value={country.uuid}>
-                                            {country?.code && <Avatar
+                                            {...props}
+                                            key={`country-${option.uuid}`}
+                                            value={option.uuid}>
+                                            {option?.code && <Avatar
                                                 sx={{
                                                     width: 26,
                                                     height: 18,
                                                     borderRadius: 0.4
                                                 }}
                                                 alt={"flags"}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                        </MenuItem>)
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                        </MenuItem>
                                     )}
-                                </Select>
+                                    renderInput={params => {
+                                        const country = countries?.find(country => country.uuid === getFieldProps("country").value);
+                                        params.InputProps.startAdornment = country && (
+                                            <InputAdornment position="start">
+                                                {country?.code && <Avatar
+                                                    sx={{
+                                                        width: 24,
+                                                        height: 16,
+                                                        borderRadius: 0.4,
+                                                        ml: ".5rem",
+                                                        mr: -.8
+                                                    }}
+                                                    alt={country.name}
+                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                />}
+                                            </InputAdornment>
+                                        );
+
+                                        return <TextField color={"info"}
+                                                          {...params}
+                                                          sx={{paddingLeft: 0}}
+                                                          placeholder={t("add-patient.country-placeholder")}
+                                                          variant="outlined" fullWidth/>;
+                                    }}/>
                             </FormControl>
                         </Box>
                         <Box>
@@ -464,35 +487,36 @@ function AddPatientStep2({...props}) {
                                         {t("add-patient.region")}
                                     </Typography>
                                     <FormControl fullWidth>
-                                        <Select
-                                            labelId="region-select-label"
+                                        <Autocomplete
                                             id={"region"}
-                                            disabled={!values.country && !states}
+                                            disabled={!states}
+                                            autoHighlight
+                                            disableClearable
                                             size="small"
-                                            {...getFieldProps("region")}
-                                            onChange={event => {
-                                                const stateUuid = event.target.value;
-                                                setFieldValue("region", stateUuid);
-                                                const state = states?.find(state => state.uuid === stateUuid);
-                                                state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                            value={states?.find(country => country.uuid === getFieldProps("region").value) ?
+                                                states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                            onChange={(e, state: any) => {
+                                                setFieldValue("region", state.uuid);
+                                                setFieldValue("zip_code", state.zipCode);
                                             }}
-                                            displayEmpty={true}
                                             sx={{color: "text.secondary"}}
-                                            renderValue={selected => {
-                                                if (selected?.length === 0) {
-                                                    return <em>{t("add-patient.region-placeholder")}</em>;
-                                                }
-                                                const state = states?.find(state => state.uuid === selected);
-                                                return <Typography>{state?.name}</Typography>
-                                            }}>
-                                            {states?.map((state) => (
+                                            options={states ? states : []}
+                                            loading={states?.length === 0}
+                                            getOptionLabel={(option) => option?.name ? option.name : ""}
+                                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                            renderOption={(props, option) => (
                                                 <MenuItem
-                                                    key={state.uuid}
-                                                    value={state.uuid}>
-                                                    {state.name}
-                                                </MenuItem>)
+                                                    {...props}
+                                                    key={option.uuid}
+                                                    value={option.uuid}>
+                                                    <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                </MenuItem>
                                             )}
-                                        </Select>
+                                            renderInput={params => <TextField color={"info"}
+                                                                              {...params}
+                                                                              placeholder={t("add-patient.region-placeholder")}
+                                                                              sx={{paddingLeft: 0}}
+                                                                              variant="outlined" fullWidth/>}/>
                                     </FormControl>
                                 </Grid>
                                 <Grid item md={6} xs={12}>
@@ -605,39 +629,22 @@ function AddPatientStep2({...props}) {
                                                 spacing={2}>
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
-                                                        <Select
-                                                            id={"assurance"}
-                                                            size="small"
-                                                            {...getFieldProps(`insurance[${index}].insurance_uuid`)}
-                                                            error={Boolean(touched.insurance &&
-                                                                (touched.insurance as any)[index]?.insurance_uuid &&
-                                                                errors.insurance && (errors.insurance as any)[index]?.insurance_uuid)}
-                                                            displayEmpty
-                                                            renderValue={(selected) => {
-                                                                if (selected?.length === 0) {
-                                                                    return <em>{t("add-patient.assurance-placeholder")}</em>;
-                                                                }
-                                                                const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                return (
-                                                                    <Stack direction={"row"}>
-                                                                        {insurance && <Avatar
-                                                                            sx={{
-                                                                                width: 20,
-                                                                                height: 20,
-                                                                                borderRadius: 0.4
-                                                                            }}
-                                                                            alt={"insurance"}
-                                                                            src={insurance.logoUrl}
-                                                                        />}
-                                                                        <Typography className={"insurance-label"}
-                                                                                    ml={1}>{insurance?.name}</Typography>
-                                                                    </Stack>)
+                                                        <Autocomplete
+                                                            size={"small"}
+                                                            value={insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) ?
+                                                                insurances.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) : ""}
+                                                            onChange={(event, insurance: any) => {
+                                                                setFieldValue(`insurance[${index}].insurance_uuid`, insurance?.uuid);
                                                             }}
-                                                        >
-                                                            {insurances?.map(insurance => (
+                                                            id={"assurance"}
+                                                            options={insurances ? insurances : []}
+                                                            getOptionLabel={option => option?.name ? option.name : ""}
+                                                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                            renderOption={(params, option) => (
                                                                 <MenuItem
-                                                                    key={insurance.uuid}
-                                                                    value={insurance.uuid}>
+                                                                    {...params}
+                                                                    key={option.uuid}
+                                                                    value={option.uuid}>
                                                                     <Avatar
                                                                         sx={{
                                                                             width: 20,
@@ -645,13 +652,35 @@ function AddPatientStep2({...props}) {
                                                                             borderRadius: 0.4
                                                                         }}
                                                                         alt={"insurance"}
-                                                                        src={insurance.logoUrl}
+                                                                        src={option.logoUrl}
                                                                     />
                                                                     <Typography
-                                                                        sx={{ml: 1}}>{insurance.name}</Typography>
-                                                                </MenuItem>)
-                                                            )}
-                                                        </Select>
+                                                                        sx={{ml: 1}}>{option.name}</Typography>
+                                                                </MenuItem>)}
+                                                            renderInput={(params) => {
+                                                                const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
+                                                                params.InputProps.startAdornment = insurance && (
+                                                                    <InputAdornment position="start">
+                                                                        {insurance?.logoUrl &&
+                                                                            <Avatar
+                                                                                sx={{
+                                                                                    width: 20,
+                                                                                    height: 20,
+                                                                                    borderRadius: 0.4
+                                                                                }}
+                                                                                alt="insurance"
+                                                                                src={insurance?.logoUrl}
+                                                                            />}
+                                                                    </InputAdornment>
+                                                                );
+
+                                                                return <TextField color={"info"}
+                                                                                  {...params}
+                                                                                  sx={{paddingLeft: 0}}
+                                                                                  placeholder={t("add-patient.assurance-placeholder")}
+                                                                                  variant="outlined"
+                                                                                  fullWidth/>;
+                                                            }}/>
                                                         {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
                                                             <FormHelperText error sx={{px: 2, mx: 0}}>
                                                                 {(errors.insurance as any)[index].insurance_uuid}

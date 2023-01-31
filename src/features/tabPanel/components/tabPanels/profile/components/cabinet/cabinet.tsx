@@ -14,7 +14,7 @@ import {
     Button
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { CountryCodeSelect } from "@features/countryCodeSelect";
+import { CountrySelect } from "@features/countrySelect";
 import { Schedules } from "@features/schedules";
 import { useTranslation } from "next-i18next";
 import moment from "moment-timezone";
@@ -202,7 +202,7 @@ function Cabinet() {
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                         <Grid container spacing={2}>
                             <Grid item lg={3} md={3} sm={6} xs={12}>
-                                <CountryCodeSelect selected={(v: string) => console.log(v)} />
+                                <CountrySelect selected={(v: string) => console.log(v)} />
                             </Grid>
                             <Grid item lg={6} md={6} sm={8} xs={12}>
                                 <TextField

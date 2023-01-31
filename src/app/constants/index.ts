@@ -1,7 +1,7 @@
 import {countries} from "@features/countrySelect/countries";
 
 export const SocialInsured = [
-    {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "L'assuré social"},
+    {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "Lui-même"},
     {grouped: "Le conjoint", key: "partner", value: "1", label: "Le conjoint"},
     {grouped: "L'ascendant", key: "father", value: "2", label: "Le Pére"},
     {grouped: "L'ascendant", key: "mother", value: "3", label: "La Mére"},
