@@ -1,4 +1,4 @@
-import React, {ReactElement, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import {
     AppBar,
@@ -47,6 +47,7 @@ import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {EventDef} from "@fullcalendar/react";
 
 function AppointmentDetail({...props}) {
     const {
@@ -74,24 +75,26 @@ function AppointmentDetail({...props}) {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>;
 
     const {t, ready} = useTranslation("common");
-    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {
         trigger: updateInstructionTrigger
     } = useRequestMutation(null, "/agenda/update/instruction",
         TriggerWithoutValidation);
 
-    const {data: httpPatientPhotoResponse} = useRequest(data?.extendedProps?.patient?.hasPhoto ? {
+    const {
+        data: httpPatientPhotoResponse,
+        mutate: mutatePatientPhoto
+    } = useRequest(appointment?.extendedProps?.patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${data.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
 
-    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const [instruction, setInstruction] = useState(data?.extendedProps?.instruction ? data?.extendedProps?.instruction : "");
-    const [openTooltip, setOpenTooltip] = useState(false);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [instruction, setInstruction] = useState(appointment?.extendedProps?.instruction ? appointment?.extendedProps?.instruction : "");
     const [edited, setEdited] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -102,7 +105,7 @@ function AppointmentDetail({...props}) {
         form.append('value', instruction);
         updateInstructionTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.publicId ? data?.publicId : (data as any)?.id}/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointment?.publicId ? appointment?.publicId : (appointment as any)?.id}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
@@ -113,18 +116,6 @@ function AppointmentDetail({...props}) {
             }
         });
     }
-
-    const onClickTooltipItem = (item: {
-        title: string;
-        icon: ReactElement;
-        action: string;
-    }) => {
-        switch (item.action) {
-            case "onOpenPatientDrawer":
-                console.log("onOpenPatientDrawer");
-                break;
-        }
-    };
 
     const handleQr = () => {
         handleClickDialog()
@@ -145,7 +136,14 @@ function AppointmentDetail({...props}) {
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
+    useEffect(() => {
+        if (appointment && appointment.extendedProps.photo) {
+            mutatePatientPhoto();
+        }
+    }, [appointment]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
 
     return (
         <RootStyled>
@@ -177,13 +175,13 @@ function AppointmentDetail({...props}) {
                                 startIcon={<PlayCircleIcon/>}
                                 onClick={() => {
                                     setLoading(true);
-                                    ["FINISHED", "ON_GOING"].includes(data?.extendedProps.status.key) ? OnConsultationView(data) : OnConsultation(data);
+                                    ["FINISHED", "ON_GOING"].includes(appointment?.extendedProps.status.key) ? OnConsultationView(appointment) : OnConsultation(appointment);
                                 }}
                             >
-                                {t(["FINISHED", "ON_GOING"].includes(data?.extendedProps.status.key) ? 'view_the_consultation' : 'event.start')}
+                                {t(["FINISHED", "ON_GOING"].includes(appointment?.extendedProps.status.key) ? 'view_the_consultation' : 'event.start')}
                             </LoadingButton>}
                     </Stack>
-                    {data?.extendedProps.hasErrors?.map((error: string, index: number) => (
+                    {appointment?.extendedProps.hasErrors?.map((error: string, index: number) => (
                         <Stack key={`error${index}`}
                                sx={{mt: 2}} spacing={2}
                                direction="row" justifyContent='space-between'
@@ -203,7 +201,7 @@ function AppointmentDetail({...props}) {
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
                                     <Avatar
-                                        src={patientPhoto ? patientPhoto : (data?.extendedProps?.patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                        src={patientPhoto ? patientPhoto : (appointment?.extendedProps?.patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                         sx={{
                                             "& .injected-svg": {
                                                 margin: 0
@@ -214,8 +212,9 @@ function AppointmentDetail({...props}) {
                                         }}>
                                         <IconUrl width={"24"} height={"24"} path="men-avatar"/>
                                     </Avatar>
-                                    <Typography className={"user-name"} variant="body1" color="primary" fontWeight={700}>
-                                        {data?.title}
+                                    <Typography className={"user-name"} variant="body1" color="primary"
+                                                fontWeight={700}>
+                                        {appointment?.title}
                                     </Typography>
                                 </Stack>
                                 <IconButton size="small"
@@ -229,21 +228,21 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data?.extendedProps.patient?.birthdate}
-                                        ({moment().diff(moment(data?.extendedProps.patient?.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        {appointment?.extendedProps.patient?.birthdate} {" "}
+                                        ({moment().diff(moment(appointment?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
-                                {data?.extendedProps.patient?.email && <ListItem>
+                                {appointment?.extendedProps.patient.email && <ListItem>
                                     <IconUrl path='ic-message-contour'/>
-                                    <Link underline="none" href={`mailto:${data?.extendedProps.patient?.email}`}
+                                    <Link underline="none" href={`mailto:${appointment?.extendedProps.patient.email}`}
                                           sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="primary" fontWeight={400}>
-                                        {data?.extendedProps.patient?.email}
+                                        {appointment?.extendedProps.patient.email}
                                     </Link>
                                 </ListItem>}
-                                {data?.extendedProps.patient?.contact.length > 0 && <ListItem>
+                                {appointment?.extendedProps.patient.contact.length > 0 && <ListItem>
                                     <IconUrl path='ic-tel'/>
-                                    {data?.extendedProps.patient?.contact[0].code &&
+                                    {appointment?.extendedProps.patient.contact[0].code &&
                                         <Avatar
                                             sx={{
                                                 width: 18,
@@ -252,14 +251,14 @@ function AppointmentDetail({...props}) {
                                                 ml: ".5rem"
                                             }}
                                             alt="flag"
-                                            src={`https://flagcdn.com/${getCountryByCode(data.extendedProps.patient.contact[0].code)?.code.toLowerCase()}.svg`}
+                                            src={`https://flagcdn.com/${getCountryByCode(appointment?.extendedProps.patient.contact[0].code)?.code.toLowerCase()}.svg`}
                                         />}
                                     <Link underline="none"
-                                          href={`tel:${data?.extendedProps.patient.contact[0].code}${data?.extendedProps.patient.contact[0].value}`}
+                                          href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                           sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="text.secondary" fontWeight={400}>
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {data?.extendedProps.patient.contact[0].value}
+                                            {appointment?.extendedProps.patient.contact[0].value}
                                             <KeyboardArrowRightRoundedIcon color={"disabled"} fontSize={"small"}/>
                                         </Stack>
                                     </Link>
@@ -269,7 +268,8 @@ function AppointmentDetail({...props}) {
                         </CardContent>
                     </Card>
 
-                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors?.length > 1 ? 0 : 2}} variant="body1"
+                    <Typography sx={{mb: 1, mt: appointment?.extendedProps.hasErrors?.length > 1 ? 0 : 2}}
+                                variant="body1"
                                 fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
@@ -278,12 +278,12 @@ function AppointmentDetail({...props}) {
                         onDataUpdated={OnDataUpdated}
                         data={
                             {
-                                uuid: data?.publicId ? data?.publicId : (data as any)?.id,
-                                date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
-                                time: moment(data?.extendedProps.time).format("HH:mm"),
-                                motif: data?.extendedProps.motif,
-                                status: data?.extendedProps.status,
-                                type: data?.extendedProps.type
+                                uuid: appointment?.publicId ? appointment?.publicId : (appointment as any)?.id,
+                                date: moment(appointment?.extendedProps.time).format("DD-MM-YYYY"),
+                                time: moment(appointment?.extendedProps.time).format("HH:mm"),
+                                motif: appointment?.extendedProps.motif,
+                                status: appointment?.extendedProps.status,
+                                type: appointment?.extendedProps.type
                             }
                         }
                     />
@@ -354,10 +354,10 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: data?.extendedProps.status.key !== "PENDING" ? "none" : "flex"
+                                    display: appointment?.extendedProps.status.key !== "PENDING" ? "none" : "flex"
                                 }}
                                 onClick={() => {
-                                    OnConfirmAppointment(data);
+                                    OnConfirmAppointment(appointment);
                                 }}
                                 color={"success"}
                                 fullWidth variant='contained'
@@ -366,10 +366,10 @@ function AppointmentDetail({...props}) {
                             </LoadingButton>
                             <LoadingButton
                                 {...{loading}}
-                                onClick={() => OnWaiting(data)}
+                                onClick={() => OnWaiting(appointment)}
                                 sx={{
-                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                        ["PENDING", "WAITING_ROOM", "ON_GOING"].includes(data?.extendedProps.status.key)) ? "none" : "flex"
+                                    display: (moment().format("DD-MM-YYYY") !== moment(appointment?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        ["PENDING", "WAITING_ROOM", "ON_GOING"].includes(appointment?.extendedProps.status.key)) ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained'
@@ -378,10 +378,10 @@ function AppointmentDetail({...props}) {
                             </LoadingButton>
                             <LoadingButton
                                 {...{loading}}
-                                onClick={() => OnLeaveWaiting(data)}
+                                onClick={() => OnLeaveWaiting(appointment)}
                                 sx={{
-                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                        data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                    display: (moment().format("DD-MM-YYYY") !== moment(appointment?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        appointment?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained'
@@ -391,11 +391,11 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: (moment().isBefore(data?.extendedProps.time) ||
-                                        data?.extendedProps.status.key === "FINISHED" ||
-                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
+                                    display: (moment().isBefore(appointment?.extendedProps.time) ||
+                                        appointment?.extendedProps.status.key === "FINISHED" ||
+                                        appointment?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                 }}
-                                onClick={() => OnPatientNoShow(data)}
+                                onClick={() => OnPatientNoShow(appointment)}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
                                 {t('event.missPatient')}
@@ -403,12 +403,12 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                                    display: moment().isBefore(appointment?.extendedProps.time) ? "none" : "flex"
                                 }}
                                 onClick={() => {
                                     dispatch(setMoveDateTime({
-                                        date: new Date(data?.extendedProps.time),
-                                        time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                        date: new Date(appointment?.extendedProps.time),
+                                        time: moment(new Date(appointment?.extendedProps.time)).format("HH:mm"),
                                         action: "reschedule",
                                         selected: false
                                     }));
@@ -421,12 +421,12 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
+                                    display: moment().isAfter(appointment?.extendedProps.time) ? "none" : "flex"
                                 }}
                                 onClick={() => {
                                     dispatch(setMoveDateTime({
-                                        date: new Date(data?.extendedProps.time),
-                                        time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                        date: new Date(appointment?.extendedProps.time),
+                                        time: moment(new Date(appointment?.extendedProps.time)).format("HH:mm"),
                                         action: "move",
                                         selected: false
                                     }));
@@ -443,16 +443,16 @@ function AppointmentDetail({...props}) {
                                 variant='contained-white'
                                 color="error"
                                 sx={{
-                                    display: (data?.extendedProps.status.key === "CANCELED" ||
-                                        data?.extendedProps.status.key === "FINISHED" ||
-                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex",
+                                    display: (appointment?.extendedProps.status.key === "CANCELED" ||
+                                        appointment?.extendedProps.status.key === "FINISHED" ||
+                                        appointment?.extendedProps.status.key === "ON_GOING") ? "none" : "flex",
                                     '& svg': {
                                         width: 16,
                                         height: 16
                                     }
                                 }}
                                 startIcon={<IconUrl path='icdelete'
-                                                    color={data?.extendedProps.status.key === "CANCELED" ?
+                                                    color={appointment?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>
                                 {t('event.cancel')}
                             </LoadingButton>
@@ -460,9 +460,9 @@ function AppointmentDetail({...props}) {
                                 {...{loading}}
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
-                                    display: (data?.extendedProps.status.key === "CANCELED" ||
-                                        data?.extendedProps.status.key === "FINISHED" ||
-                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
+                                    display: (appointment?.extendedProps.status.key === "CANCELED" ||
+                                        appointment?.extendedProps.status.key === "FINISHED" ||
+                                        appointment?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained-white'
@@ -474,7 +474,7 @@ function AppointmentDetail({...props}) {
                     </CardActions>}
             </Box>
 
-            <Dialog action={() => <QrCodeDialog data={data}/>}
+            <Dialog action={() => <QrCodeDialog data={appointment}/>}
                     open={openDialog}
                     onClose={handleCloseDialog}
                     direction={'ltr'}

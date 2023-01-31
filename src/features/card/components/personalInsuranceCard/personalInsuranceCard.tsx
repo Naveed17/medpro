@@ -36,7 +36,10 @@ import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function PersonalInsuranceCard({...props}) {
-    const {patient, mutatePatientDetails, mutatePatientList = null, loading, editable} = props;
+    const {
+        patient, mutatePatientDetails, mutatePatientList = null,
+        mutateAgenda = null, loading, editable
+    } = props;
 
     const {data: session} = useSession();
     const theme = useTheme();
@@ -277,10 +280,9 @@ function PersonalInsuranceCard({...props}) {
             data: params,
         }).then(() => {
             setLoadingRequest(false);
-            mutatePatientDetails();
-            if (mutatePatientList) {
-                mutatePatientList();
-            }
+            mutatePatientDetails && mutatePatientDetails();
+            mutatePatientList && mutatePatientList();
+            mutateAgenda && mutateAgenda();
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
     }
