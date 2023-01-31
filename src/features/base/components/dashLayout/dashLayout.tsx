@@ -41,7 +41,7 @@ function DashLayout({children}: LayoutProps) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {t, ready} = useTranslation('common');
+    const {t} = useTranslation('common');
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
@@ -91,12 +91,18 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (calendarStatus) {
+            if (calendarStatus.import_data?.length === 0) {
+                localStorage.removeItem("import-data");
+            }
+
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
+                import_data: calendarStatus.import_data,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
-            }))
+            }));
+
         }
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 

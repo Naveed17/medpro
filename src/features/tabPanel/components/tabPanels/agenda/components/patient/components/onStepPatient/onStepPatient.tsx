@@ -38,8 +38,6 @@ import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -47,7 +45,6 @@ import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import _ from "lodash";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 

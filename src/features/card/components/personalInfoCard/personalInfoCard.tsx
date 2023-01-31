@@ -34,6 +34,8 @@ import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -44,10 +46,11 @@ MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null,
+        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null,
         loading, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
     } = props;
 
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -58,6 +61,7 @@ function PersonalInfo({...props}) {
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
@@ -146,9 +150,24 @@ function PersonalInfo({...props}) {
         }).then(() => {
             setLoadingRequest(false);
             setEditable(false);
-            mutatePatientDetails();
-            if (mutatePatientList) {
-                mutatePatientList();
+            mutatePatientDetails && mutatePatientDetails();
+            mutatePatientList && mutatePatientList();
+            mutateAgenda && mutateAgenda();
+
+            if (appointment) {
+                const event = {
+                    ...appointment,
+                    title: `${values.firstName} ${values.lastName}`,
+                    extendedProps: {
+                        ...appointment.extendedProps,
+                        patient: {
+                            ...appointment.extendedProps.patient,
+                            ...values,
+                            gender: values.gender === '1' ? 'M' : 'F'
+                        }
+                    }
+                } as any;
+                dispatch(setSelectedEvent(event));
             }
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });

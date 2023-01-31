@@ -3,39 +3,34 @@ import * as React from "react";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
+
 interface SpeedDialProps {
-  icon: React.ReactElement;
-  name: string;
+    icon: React.ReactElement;
+    name: string;
 }
-export default function SpeedDialTooltipOpen({ ...props }) {
-  const { actions, handleitemclick } = props;
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
-  const onClickAction = (action: SpeedDialProps) => () => {
-    handleitemclick(action);
-    setOpen(false);
-  };
+export default function SpeedDialTooltipOpen({...props}) {
+    const {actions, sx, open, onClose, onOpen, handleItemClick} = props;
 
-  return (
-    <SpeedDial
-      ariaLabel="SpeedDial tooltip example"
-      icon={<SpeedDialIcon />}
-      onClose={handleClose}
-      onOpen={handleOpen}
-      open={open}
-      {...props}
-    >
-      {actions.map((action: SpeedDialProps) => (
-        <SpeedDialAction
-          key={action.name}
-          icon={action.icon}
-          tooltipTitle={action.name}
-          tooltipOpen
-          onClick={onClickAction(action)}
-        />
-      ))}
-    </SpeedDial>
-  );
+    const onClickAction = (action: SpeedDialProps) => () => {
+        handleItemClick(action);
+    };
+
+    return (
+        <SpeedDial
+            {...{sx, open, onClose, onOpen}}
+            ariaLabel="SpeedDial tooltip example"
+            icon={<SpeedDialIcon/>}
+        >
+            {actions.map((action: SpeedDialProps) => (
+                <SpeedDialAction
+                    key={action.name}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                    tooltipOpen
+                    onClick={onClickAction(action)}
+                />
+            ))}
+        </SpeedDial>
+    );
 }

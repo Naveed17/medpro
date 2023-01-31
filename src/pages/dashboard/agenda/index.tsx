@@ -8,7 +8,7 @@ import {
     Box,
     Button,
     Container,
-    Drawer, Fab,
+    Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
     Theme,
     Typography,
@@ -27,7 +27,7 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
-import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
+import FullCalendar, {DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
@@ -67,7 +67,6 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {BusinessHoursInput} from "@fullcalendar/common";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
@@ -147,8 +146,8 @@ function Agenda() {
             disabled: true
         }
     ]);
-    const [date, setDate] = useState(currentDate.date);
-    const [event, setEvent] = useState<EventDef>();
+
+    const [event, setEvent] = useState<EventDef | null>();
     const [slotMinTime, setSlotMinTime] = useState(8);
     const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
@@ -256,6 +255,7 @@ function Agenda() {
             } else {
                 events.current = [...eventsUpdated, ...events.current];
             }
+
             // this gives an object with dates as keys
             const groups: any = events.current.reduce(
                 (groups: any, data: any) => {
@@ -284,10 +284,9 @@ function Agenda() {
                     .sort((a, b) =>
                         new Date(a.date).getTime() - new Date(b.date).getTime());
             }
-
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {
@@ -1075,6 +1074,7 @@ function Agenda() {
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
+                                mutateAgenda={() => refreshData()}
                                 onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
