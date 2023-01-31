@@ -732,7 +732,7 @@ function OnStepPatient({...props}) {
                                             setFieldValue("country", v.uuid);
                                         }}
                                         sx={{color: "text.secondary"}}
-                                        options={countriesData}
+                                        options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
                                         getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}

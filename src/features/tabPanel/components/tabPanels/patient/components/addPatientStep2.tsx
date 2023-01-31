@@ -348,7 +348,7 @@ function AddPatientStep2({...props}) {
                                         setFieldValue("nationality", v.uuid);
                                     }}
                                     sx={{color: "text.secondary"}}
-                                    options={countriesData}
+                                    options={countriesData.filter(country => country.hasState)}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
