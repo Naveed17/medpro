@@ -29,19 +29,24 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import Icon from "@themes/urlIcon";
 import {DefaultCountry, PhoneRegExp} from "@app/constants";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null, loading,
+        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null, loading,
         editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
     } = props;
+
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
 
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
@@ -169,9 +174,26 @@ function PatientContactDetailCard({...props}) {
             data: params,
         }).then(() => {
             setLoadingRequest(false);
-            mutatePatientDetails();
-            if (mutatePatientList) {
-                mutatePatientList();
+            mutatePatientDetails && mutatePatientDetails();
+            mutatePatientList && mutatePatientList();
+            mutateAgenda && mutateAgenda();
+            if (appointment) {
+                const event = {
+                    ...appointment,
+                    extendedProps: {
+                        ...appointment.extendedProps,
+                        patient: {
+                            ...appointment.extendedProps.patient,
+                            contact: [
+                                {
+                                    ...appointment.extendedProps.patient.contact[0],
+                                    code: values.phones[0].code,
+                                    value: values.phones[0].value
+                                }]
+                        }
+                    }
+                } as any;
+                dispatch(setSelectedEvent(event));
             }
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });

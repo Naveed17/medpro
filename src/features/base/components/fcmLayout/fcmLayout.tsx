@@ -114,6 +114,9 @@ function FcmLayout({...props}) {
                             setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                        } else if (data.body.action === "update") {
+                            // update pending notifications status
+                            agendaConfig?.mutate[1]();
                         }
                         break;
                     case "waiting-room":
@@ -227,20 +230,6 @@ function FcmLayout({...props}) {
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
-            });
-        }
-
-        const importData = localStorage.getItem("import-data");
-        if (importData) {
-            enqueueSnackbar("Importing data in progress", {
-                persist: true,
-                preventDuplicate: true,
-                anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'right'
-                },
-                content: (key, message) =>
-                    <CircularProgressbarCard id={key} message={message}/>,
             });
         }
     });

@@ -37,9 +37,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import {HtmlTooltip} from "@features/tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, loading} = props;
+    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
+
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -56,6 +60,7 @@ function PatientDetailsCard({...props}) {
         },
     });
 
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
@@ -112,6 +117,18 @@ function PatientDetailsCard({...props}) {
             }).then(() => {
                 setRequestLoading(false);
                 mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            photo:  values.picture.file
+                        }
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
             });
         }
     }
@@ -260,11 +277,11 @@ function PatientDetailsCard({...props}) {
                                         className="email-link">
                                         {loading ? (
                                             <Skeleton variant="text" width={100}/>
-                                        ) : (
+                                        ) : patient?.email && (
                                             <>
                                                 <Icon path="ic-message-contour"/>
                                                 <Typography {...(!patient?.email && {color: "primary"})}
-                                                            variant={"body2"}>{patient?.email ? patient?.email : t('add-email')}</Typography>
+                                                            variant={"body2"}>{patient?.email}</Typography>
                                             </>
                                         )}
                                     </Typography>
