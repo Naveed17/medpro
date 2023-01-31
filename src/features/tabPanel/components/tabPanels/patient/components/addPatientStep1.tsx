@@ -12,9 +12,8 @@ import {
     Grid,
     InputAdornment,
     Button,
-    Select,
     Stack,
-    FormHelperText, MenuItem, IconButton, Avatar,
+    FormHelperText, IconButton, Avatar,
 } from "@mui/material";
 import {addPatientSelector, InputStyled, onAddPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -32,8 +31,6 @@ import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {DatePicker} from "@features/datepicker";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import {LocalizationProvider} from "@mui/x-date-pickers";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -62,7 +59,7 @@ function AddPatientStep1({...props}) {
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const {t, ready} = useTranslation(translationKey, {
-        keyPrefix: translationPrefix,
+        keyPrefix: translationPrefix
     });
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);

@@ -7,7 +7,7 @@ import {
     MenuItem,
     Select,
     FormGroup,
-    Checkbox, Stack, OutlinedInput, Chip, InputLabel,
+    Checkbox, Stack, OutlinedInput, Chip, InputLabel, Avatar,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import _ from "lodash";
@@ -130,24 +130,34 @@ function PlaceFilter({ ...props }) {
                         const country = countries?.find(country => country.uuid === selected);
                         return (
                             <Stack direction={"row"}>
-                                {country?.code && <Image
-                                    alt={"flag"}
-                                    width={20}
-                                    height={14}
-                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>}
+                                {country?.code && <Avatar
+                                    sx={{
+                                        width: 26,
+                                        height: 18,
+                                        borderRadius: 0.4,
+                                        ml: 0,
+                                        mr: ".5rem"
+                                    }}
+                                    alt="flag"
+                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                />}
                                 <Typography ml={1}>{country?.name}</Typography>
                             </Stack>)
                     }}
                 >
-                    {countries?.map((country) => (
+                    {countries?.filter(country => country.hasState).map((country) => (
                         <MenuItem
                             key={country.uuid}
                             value={country.uuid}>
-                            {country?.code && <Image
-                                alt={"flag"}
-                                width={20}
-                                height={14}
-                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>}
+                            {country?.code && <Avatar
+                                sx={{
+                                    width: 26,
+                                    height: 18,
+                                    borderRadius: 0.4
+                                }}
+                                alt={"flags"}
+                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                            />}
                             <Typography sx={{ ml: 1 }}>{country.name}</Typography>
                         </MenuItem>)
                     )}
