@@ -232,20 +232,6 @@ function FcmLayout({...props}) {
                 process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
             });
         }
-
-        const importData = localStorage.getItem("import-data");
-        if (importData) {
-            enqueueSnackbar("Importing data in progress", {
-                persist: true,
-                preventDuplicate: true,
-                anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'right'
-                },
-                content: (key, message) =>
-                    <CircularProgressbarCard id={key} message={message}/>,
-            });
-        }
     });
 
     return (
