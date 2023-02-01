@@ -14,7 +14,7 @@ import {
   Button,
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { CountryCodeSelect } from "@features/countryCodeSelect";
+import { CountrySelect } from "@features/countrySelect";
 import { Schedules } from "@features/schedules";
 import { useTranslation } from "next-i18next";
 import moment from "moment-timezone";
@@ -214,72 +214,71 @@ function Cabinet() {
               }}>
               {t("info.establishment")}
             </Typography>
-          </Grid>
-          <Grid item lg={9} md={9} sm={12} xs={12}>
-            <Grid container spacing={{ xs: 1, md: 2 }}>
-              <Grid item lg={3} md={3} sm={6} xs={4}>
-                <CountryCodeSelect selected={(v: string) => console.log(v)} />
+            <Card
+              sx={{
+                p: 2,
+                border: `1px solid ${(theme: Theme) =>
+                  theme.palette.grey["A300"]}`,
+                boxShadow: "none",
+              }}>
+              <Grid container alignItems="center" spacing={2}>
+                <Grid item lg={3} md={3} sm={12} xs={12}>
+                  {" "}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      textAlign: { md: "right", sm: "left" },
+                    }}>
+                    {t("info.establishment")}
+                  </Typography>
+                </Grid>
+                <Grid item lg={9} md={9} sm={12} xs={12}>
+                  <Grid container spacing={2}>
+                    <Grid item lg={3} md={3} sm={6} xs={12}>
+                      <CountrySelect selected={(v: string) => console.log(v)} />
+                    </Grid>
+                    <Grid item lg={6} md={6} sm={8} xs={12}>
+                      <TextField
+                        type="number"
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={8} xs={12}>
+                      <FormControl component="fieldset">
+                        <FormGroup aria-label="position" row>
+                          <FormControlLabel
+                            sx={{ ml: 0 }}
+                            control={<Switch />}
+                            label={t("info.hide")}
+                            labelPlacement="start"
+                          />
+                        </FormGroup>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </Grid>
               </Grid>
-              <Grid item lg={6} md={6} sm={8} xs={8}>
-                <TextField
-                  type="number"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                />
-              </Grid>
-              <Grid
-                item
-                lg={3}
-                md={3}
-                sm={8}
-                xs={12}
-                sx={{ textAlign: { xs: "right", md: "left" } }}>
-                <FormControl component="fieldset">
-                  <FormGroup aria-label="position" row>
-                    <FormControlLabel
-                      sx={{ ml: 0 }}
-                      control={<Switch />}
-                      label={t("info.hide")}
-                      labelPlacement="start"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          startIcon={<IconUrl path="ic-plus" />}
-          sx={{
-            ml: "21%",
-            mt: { xs: 0, md: 2 },
-            svg: {
-              width: 13,
-              path: { fill: (theme: Theme) => theme.palette.primary.main },
-            },
-          }}>
-          {t("info.add")}
-        </Button>
-      </Card>
-      <Typography
-        variant="body1"
-        color="text.primary"
-        sx={{ textTransform: "uppercase", mt: 2, mb: 1 }}>
-        {t("info-sup.title")}
-      </Typography>
-      <Card
-        sx={{
-          p: 2,
-          border: `1px solid ${(theme: Theme) => theme.palette.grey["A300"]}`,
-          boxShadow: "none",
-        }}>
-        <Grid container spacing={2}>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
-            {" "}
+              <Button
+                variant="text"
+                color="primary"
+                size="small"
+                startIcon={<IconUrl path="ic-plus" />}
+                sx={{
+                  ml: "21%",
+                  mt: 2,
+                  svg: {
+                    width: 13,
+                    path: {
+                      fill: (theme: Theme) => theme.palette.primary.main,
+                    },
+                  },
+                }}>
+                {t("info.add")}
+              </Button>
+            </Card>
             <Typography
               variant="body2"
               color="text.secondary"

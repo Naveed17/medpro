@@ -80,7 +80,7 @@ function CertifDialog({...props}) {
         if (isStarted) {
             setValue(oldNote+ ' '+transcript)
         }
-    }, [transcript, isStarted])
+    }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
         <Tooltip {...props} classes={{popper: className}}/>

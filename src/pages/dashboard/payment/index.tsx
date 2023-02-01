@@ -48,7 +48,6 @@ import {
   setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -456,7 +455,7 @@ function Payment() {
         console.log(r.data.data);
       });
     }
-  }, [day, selectedBox]);
+  }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     setDay(moment(currentDate.date).format("DD-MM-YYYY"));
     //console.log(currentDate)

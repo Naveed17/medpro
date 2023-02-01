@@ -65,11 +65,11 @@ function PatientDetail({...props}) {
         onAddAppointment,
         onConsultation = null,
         mutate: mutatePatientList,
+        mutateAgenda
     } = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const theme = useTheme();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
@@ -209,7 +209,8 @@ function PatientDetail({...props}) {
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
                 mutatePatientDetails,
-                mutatePatientList
+                mutatePatientList,
+                mutateAgenda
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -279,7 +280,7 @@ function PatientDetail({...props}) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient, onConsultation, patientPhoto, mutatePatientList}}
+                        {...{patient, onConsultation, patientPhoto, mutatePatientList, mutateAgenda}}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs
@@ -316,7 +317,7 @@ function PatientDetail({...props}) {
                             onClose={handleCloseFab}
                             onOpen={handleOpenFab}
                             open={openFabAdd}
-                            handleitemclick={handleActionFab}
+                            handleItemClick={handleActionFab}
                             actions={[
                                 {icon: <SpeedDialIcon/>, name: t("tabs.add-appo"), action: "add-appointment"},
                                 {icon: <CloudUploadIcon/>, name: t("tabs.import"), action: "import-document"},

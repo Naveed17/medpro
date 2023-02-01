@@ -87,7 +87,7 @@ function Data() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         },
-    }, SWRNoValidateConfig);
+    });
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
         currentPage: number, totalPages: number, list: ImportDataModel[]

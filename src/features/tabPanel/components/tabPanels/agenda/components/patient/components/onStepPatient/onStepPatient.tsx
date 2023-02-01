@@ -17,14 +17,13 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
-    Select,
     Stack,
     TextField,
     Typography,
     useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo, useEffect, useRef} from "react";
+import React, {memo, useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -38,8 +37,6 @@ import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -47,7 +44,6 @@ import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import _ from "lodash";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -276,6 +272,7 @@ function OnStepPatient({...props}) {
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
+    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
     const {data: httpContactResponse} = useRequest({
         method: "GET",
@@ -367,6 +364,9 @@ function OnStepPatient({...props}) {
         if (countries) {
             const defaultCountry = countries.find(country =>
                 country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
+            setCountriesData(countries.sort((country: CountryModel) =>
+                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+
             !(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
             !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
         }
@@ -635,53 +635,64 @@ function OnStepPatient({...props}) {
                                 {t("nationality")}
                             </Typography>
                             <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id={"nationality"}
-                                    size="small"
-                                    {...getFieldProps("nationality")}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}
-                                    renderValue={selected => {
-                                        if (selected?.length === 0) {
-                                            return <em>{t("nationality")}</em>;
-                                        }
 
-                                        const country = countries?.find(country => country.uuid === selected);
-                                        return (
-                                            <Stack direction={"row"} alignItems={"center"}>
-                                                {country?.code && <Avatar
-                                                    sx={{
-                                                        width: 26,
-                                                        height: 18,
-                                                        borderRadius: 0.4,
-                                                        ml: 0,
-                                                        mr: ".5rem"
-                                                    }}
-                                                    alt="flag"
-                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                />}
-                                                <Typography>{country?.nationality}</Typography>
-                                            </Stack>)
+                                <Autocomplete
+                                    id={"nationality"}
+                                    disabled={!countriesData}
+                                    autoHighlight
+                                    disableClearable
+                                    size="small"
+                                    value={countriesData.find(country => country.uuid === getFieldProps("nationality").value) ?
+                                        countriesData.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                    onChange={(e, v: any) => {
+                                        setFieldValue("nationality", v.uuid);
                                     }}
-                                >
-                                    {countries?.map((country) => (
+                                    sx={{color: "text.secondary"}}
+                                    options={countriesData}
+                                    loading={countriesData.length === 0}
+                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
+                                    renderOption={(props, option) => (
                                         <MenuItem
-                                            key={country.uuid}
-                                            value={country.uuid}>
-                                            {country?.code && <Avatar
+                                            {...props}
+                                            key={`nationality-${option.uuid}`}
+                                            value={option.uuid}>
+                                            {option?.code && <Avatar
                                                 sx={{
                                                     width: 26,
                                                     height: 18,
                                                     borderRadius: 0.4
                                                 }}
                                                 alt={"flags"}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
-                                        </MenuItem>)
+                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                        </MenuItem>
                                     )}
-                                </Select>
+                                    renderInput={params => {
+                                        const country = countries?.find(country => country.uuid === getFieldProps("nationality").value);
+                                        params.InputProps.startAdornment = country && (
+                                            <InputAdornment position="start">
+                                                {country?.code && <Avatar
+                                                    sx={{
+                                                        width: 24,
+                                                        height: 16,
+                                                        borderRadius: 0.4,
+                                                        ml: ".5rem",
+                                                        mr: -.8
+                                                    }}
+                                                    alt={country.name}
+                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                />}
+                                            </InputAdornment>
+                                        );
+
+                                        return <TextField color={"info"}
+                                                          {...params}
+                                                          sx={{paddingLeft: 0}}
+                                                          placeholder={t("nationality")}
+                                                          variant="outlined" fullWidth/>;
+                                    }}/>
                             </FormControl>
                         </Box>
                         <fieldset style={{marginBottom: 10}}>
@@ -709,53 +720,63 @@ function OnStepPatient({...props}) {
                                     {t("country")}
                                 </Typography>
                                 <FormControl fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
+                                    <Autocomplete
                                         id={"country"}
+                                        disabled={!countriesData}
+                                        autoHighlight
+                                        disableClearable
                                         size="small"
-                                        {...getFieldProps("country")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={selected => {
-                                            if (selected?.length === 0) {
-                                                return <em>{t("country-placeholder")}</em>;
-                                            }
-
-                                            const country = countries?.find(country => country.uuid === selected);
-                                            return (
-                                                <Stack direction={"row"} alignItems={"center"}>
-                                                    {country?.code && <Avatar
-                                                        sx={{
-                                                            width: 26,
-                                                            height: 18,
-                                                            borderRadius: 0.4,
-                                                            ml: 0,
-                                                            mr: ".5rem"
-                                                        }}
-                                                        alt="flag"
-                                                        src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                    />}
-                                                    <Typography>{country?.name}</Typography>
-                                                </Stack>)
+                                        value={countriesData.find(country => country.uuid === getFieldProps("country").value) ?
+                                            countriesData.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                        onChange={(e, v: any) => {
+                                            setFieldValue("country", v.uuid);
                                         }}
-                                    >
-                                        {countries?.filter(country => country.hasState).map((country) => (
+                                        sx={{color: "text.secondary"}}
+                                        options={countriesData.filter(country => country.hasState)}
+                                        loading={countriesData.length === 0}
+                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                        renderOption={(props, option) => (
                                             <MenuItem
-                                                key={country.uuid}
-                                                value={country.uuid}>
-                                                {country?.code && <Avatar
+                                                {...props}
+                                                key={`country-${option.uuid}`}
+                                                value={option.uuid}>
+                                                {option?.code && <Avatar
                                                     sx={{
                                                         width: 26,
                                                         height: 18,
                                                         borderRadius: 0.4
                                                     }}
                                                     alt={"flags"}
-                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                    src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                                 />}
-                                                <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                            </MenuItem>)
+                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                            </MenuItem>
                                         )}
-                                    </Select>
+                                        renderInput={params => {
+                                            const country = countries?.find(country => country.uuid === getFieldProps("country").value);
+                                            params.InputProps.startAdornment = country && (
+                                                <InputAdornment position="start">
+                                                    {country?.code && <Avatar
+                                                        sx={{
+                                                            width: 24,
+                                                            height: 16,
+                                                            borderRadius: 0.4,
+                                                            ml: ".5rem",
+                                                            mr: -.8
+                                                        }}
+                                                        alt={country.name}
+                                                        src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                    />}
+                                                </InputAdornment>
+                                            );
+
+                                            return <TextField color={"info"}
+                                                              {...params}
+                                                              sx={{paddingLeft: 0}}
+                                                              placeholder={t("country-placeholder")}
+                                                              variant="outlined" fullWidth/>;
+                                        }}/>
                                 </FormControl>
                             </Box>
                             <Box>
@@ -769,7 +790,37 @@ function OnStepPatient({...props}) {
                                             {t("region")}
                                         </Typography>
                                         <FormControl fullWidth>
-                                            <Select
+                                            <Autocomplete
+                                                id={"region"}
+                                                disabled={!states}
+                                                autoHighlight
+                                                disableClearable
+                                                size="small"
+                                                value={states?.find(country => country.uuid === getFieldProps("region").value) ?
+                                                    states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                onChange={(e, state: any) => {
+                                                    setFieldValue("region", state.uuid);
+                                                    setFieldValue("zip_code", state.zipCode);
+                                                }}
+                                                sx={{color: "text.secondary"}}
+                                                options={states ? states : []}
+                                                loading={states?.length === 0}
+                                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                renderOption={(props, option) => (
+                                                    <MenuItem
+                                                        {...props}
+                                                        key={option.uuid}
+                                                        value={option.uuid}>
+                                                        <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                    </MenuItem>
+                                                )}
+                                                renderInput={params => <TextField color={"info"}
+                                                                                  {...params}
+                                                                                  placeholder={t("region-placeholder")}
+                                                                                  sx={{paddingLeft: 0}}
+                                                                                  variant="outlined" fullWidth/>}/>
+                                            {/*<Select
                                                 labelId="demo-simple-select-label"
                                                 id={"region"}
                                                 disabled={!values.country}
@@ -799,7 +850,7 @@ function OnStepPatient({...props}) {
                                                         {state.name}
                                                     </MenuItem>)
                                                 )}
-                                            </Select>
+                                            </Select>*/}
                                         </FormControl>
                                     </Grid>
                                     <Grid item md={6} xs={12}>
@@ -917,27 +968,38 @@ function OnStepPatient({...props}) {
                                                         spacing={2}>
                                                         <Grid item xs={12} md={4}>
                                                             <FormControl fullWidth>
-                                                                <Select
+                                                                <Autocomplete
+                                                                    size={"small"}
+                                                                    value={insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) ?
+                                                                        insurances.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) : ""}
+                                                                    onChange={(event, insurance: any) => {
+                                                                        setFieldValue(`insurance[${index}].insurance_uuid`, insurance?.uuid);
+                                                                    }}
                                                                     id={"assurance"}
-                                                                    size="small"
-                                                                    {...getFieldProps(`insurance[${index}].insurance_uuid`)}
-                                                                    error={Boolean(touched.insurance &&
-                                                                        (touched.insurance as any)[index]?.insurance_uuid &&
-                                                                        errors.insurance && (errors.insurance as any)[index]?.insurance_uuid)}
-                                                                    displayEmpty
-                                                                    renderValue={(selected) => {
-                                                                        if (selected?.length === 0) {
-                                                                            return <em>{t("assurance-placeholder")}</em>;
-                                                                        }
-                                                                        const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                        return (
-                                                                            <Stack direction={"row"}
-                                                                                   sx={{
-                                                                                       "& .MuiBox-root": {
-                                                                                           margin: 0
-                                                                                       }
-                                                                                   }}
-                                                                                   alignItems={"center"}>
+                                                                    options={insurances ? insurances : []}
+                                                                    getOptionLabel={option => option?.name ? option.name : ""}
+                                                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                                    renderOption={(params, option) => (
+                                                                        <MenuItem
+                                                                            {...params}
+                                                                            key={option.uuid}
+                                                                            value={option.uuid}>
+                                                                            <Avatar
+                                                                                sx={{
+                                                                                    width: 20,
+                                                                                    height: 20,
+                                                                                    borderRadius: 0.4
+                                                                                }}
+                                                                                alt={"insurance"}
+                                                                                src={option.logoUrl}
+                                                                            />
+                                                                            <Typography
+                                                                                sx={{ml: 1}}>{option.name}</Typography>
+                                                                        </MenuItem>)}
+                                                                    renderInput={(params) => {
+                                                                        const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
+                                                                        params.InputProps.startAdornment = insurance && (
+                                                                            <InputAdornment position="start">
                                                                                 {insurance?.logoUrl &&
                                                                                     <Avatar
                                                                                         sx={{
@@ -948,28 +1010,17 @@ function OnStepPatient({...props}) {
                                                                                         alt="insurance"
                                                                                         src={insurance?.logoUrl}
                                                                                     />}
-                                                                                <Typography
-                                                                                    ml={1}>{insurance?.name}</Typography>
-                                                                            </Stack>)
-                                                                    }}>
-                                                                    {insurances?.map(insurance => (
-                                                                        <MenuItem
-                                                                            key={insurance.uuid}
-                                                                            value={insurance.uuid}>
-                                                                            <Avatar
-                                                                                sx={{
-                                                                                    width: 20,
-                                                                                    height: 20,
-                                                                                    borderRadius: 0.4
-                                                                                }}
-                                                                                alt={"insurance"}
-                                                                                src={insurance.logoUrl}
-                                                                            />
-                                                                            <Typography
-                                                                                sx={{ml: 1}}>{insurance.name}</Typography>
-                                                                        </MenuItem>)
-                                                                    )}
-                                                                </Select>
+                                                                            </InputAdornment>
+                                                                        );
+
+                                                                        return <TextField color={"info"}
+                                                                                          {...params}
+                                                                                          sx={{paddingLeft: 0}}
+                                                                                          placeholder={t("assurance-placeholder")}
+                                                                                          variant="outlined"
+                                                                                          fullWidth/>;
+                                                                    }}/>
+
                                                                 {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
                                                                     <FormHelperText error sx={{px: 2, mx: 0}}>
                                                                         {(errors.insurance as any)[index].insurance_uuid}

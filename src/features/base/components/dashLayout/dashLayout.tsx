@@ -13,8 +13,9 @@ import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
-import {NoDataCard} from "@features/card";
+import {CircularProgressbarCard, NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
+import {useSnackbar} from "notistack";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -41,7 +42,9 @@ function DashLayout({children}: LayoutProps) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {t, ready} = useTranslation('common');
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+
+    const {t} = useTranslation('common');
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
@@ -91,12 +94,30 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (calendarStatus) {
+            if (calendarStatus.import_data?.length === 0) {
+                localStorage.removeItem("import-data");
+                closeSnackbar();
+            } else {
+                enqueueSnackbar("Importing data in progress", {
+                    persist: true,
+                    preventDuplicate: true,
+                    anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'right'
+                    },
+                    content: (key, message) =>
+                        <CircularProgressbarCard id={key} message={message}/>,
+                });
+            }
+
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
+                import_data: calendarStatus.import_data,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
-            }))
+            }));
+
         }
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
