@@ -104,7 +104,7 @@ function ConsultationInProgress() {
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {patientId} = useAppSelector(tableActionSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
 
@@ -374,11 +374,11 @@ function ConsultationInProgress() {
     }, [selectedAct, appointement, consultationFees, free]);
 
     useEffect(() => {
-        if (patientId) {
+        if (tableState.patientId) {
             //setopen(true);
             setPatientDetailDrawer(true);
         }
-    }, [patientId]);
+    }, [tableState.patientId]);
 
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
@@ -1037,7 +1037,7 @@ function ConsultationInProgress() {
                         setPatientDetailDrawer(false);
                     }}
                     onAddAppointment={() => console.log("onAddAppointment")}
-                    patientId={patientId}
+                    patientId={tableState.patientId}
                 />
             </Drawer>
 
