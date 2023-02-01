@@ -90,10 +90,8 @@ function Agenda() {
                                     },
                                     textField: {
                                         labels: [
-                                            {label: "fiche_id", placeholder: "fiche"},
-                                            {label: "name", placeholder: "name"},
+                                            {label: "name", placeholder: "search"},
                                             {label: "birthdate", placeholder: "--/--/----"},
-                                            {label: "phone", placeholder: "phone"},
                                         ],
                                     },
                                 }} t={t}/>

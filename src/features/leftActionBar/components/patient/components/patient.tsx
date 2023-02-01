@@ -45,10 +45,8 @@ function Patient() {
                             },
                             textField: {
                                 labels: [
-                                    {label: "fiche_id", placeholder: "fiche"},
-                                    {label: "name", placeholder: "name"},
-                                    {label: "birthdate", placeholder: "--/--/----"},
-                                    {label: "phone", placeholder: "phone"},
+                                    {label: "name", placeholder: "search"},
+                                    {label: "birthdate", placeholder: "--/--/----"}
                                 ],
                             },
                         }}
