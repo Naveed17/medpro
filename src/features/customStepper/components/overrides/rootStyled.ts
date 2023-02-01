@@ -39,9 +39,8 @@ const RootStyled = styled("div")(({ theme }) => ({
     overflow: "auto",
   },
   "& div[role='tabpanel'] > div": {
-    padding: theme.spacing(0),
     "& .inner-section": {
-      height: "calc(100vh - 110px)",
+      height: "calc(100vh - 160px)",
       overflow: "auto",
       padding: theme.spacing(3),
       "& .inner-box": {
@@ -62,8 +61,15 @@ const RootStyled = styled("div")(({ theme }) => ({
       },
     },
     "& .action": {
-      padding: theme.spacing(0, 3),
-      marginTop: theme.spacing(1),
+      padding: theme.spacing(1, 3),
+      marginTop: theme.spacing(3),
+      position: "absolute",
+      width: "100%",
+      left: 0,
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: 0,
+      paddingTop: theme.spacing(3),
     },
   },
 }));

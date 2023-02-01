@@ -10,6 +10,8 @@
       "title": "Configurer mon profil",
       "sub-title": "Information personnelle",
       "info": "Vous êtes?",
+      "cancel":"Annuler",
+      "next":"Suivant",
       "genre": {
         "man": "Homme",
         "women": "Femme"

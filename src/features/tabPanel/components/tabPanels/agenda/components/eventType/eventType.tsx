@@ -101,7 +101,7 @@ function EventType({ ...props }) {
         color="warning"
       />
       <Box className="inner-section type-time-slot">
-        <Typography px={2} pt={2} variant="h6" color="text.primary">
+        <Typography px={2} variant="h6" color="text.primary">
           {t("stepper-0.title")}
         </Typography>
         <FormControlStyled
