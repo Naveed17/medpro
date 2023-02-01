@@ -112,10 +112,10 @@ function Payment() {
                                         control={
                                             <Checkbox
                                                 //checked={false}
-                                                 onChange={(ev)=>{
-                                                     console.log(ev);
-                                                 }
-                                                 }
+                                                onChange={(ev) => {
+                                                    console.log(ev);
+                                                }
+                                                }
                                             />
                                         }
                                     />
@@ -123,7 +123,7 @@ function Payment() {
                                         label={t('no')}
                                         control={
                                             <Checkbox
-                                               // checked={false}
+                                                // checked={false}
                                             />
                                         }
                                     />
@@ -150,7 +150,8 @@ function Payment() {
                                                 console.log(item.uuid);
                                             }}
                                         ></ItemCheckbox>))}
-                                    {paymentTypes.length === 0 && <Typography fontSize={12} textAlign={"center"} color={"gray"}>{t('nopaymentMeans')}</Typography>}
+                                    {paymentTypes.length === 0 && <Typography fontSize={12} textAlign={"center"}
+                                                                              color={"gray"}>{t('nopaymentMeans')}</Typography>}
                                 </Box>
                             ),
                         },
@@ -174,7 +175,8 @@ function Payment() {
                                                 console.log(item.uuid);
                                             }}
                                         ></ItemCheckbox>))}
-                                    {insurances.length === 0 && <Typography fontSize={12} textAlign={"center"} color={"gray"}>{t('noInsurance')}</Typography>}
+                                    {insurances.length === 0 && <Typography fontSize={12} textAlign={"center"}
+                                                                            color={"gray"}>{t('noInsurance')}</Typography>}
                                 </Box>
                             ),
                         },
@@ -202,9 +204,8 @@ function Payment() {
                                             },
                                             textField: {
                                                 labels: [
-                                                    {label: "name", placeholder: "name"},
-                                                    {label: "birthdate", placeholder: "--/--/----"},
-                                                    {label: "phone", placeholder: "phone"},
+                                                    {label: "name", placeholder: "search"},
+                                                    {label: "birthdate", placeholder: "--/--/----"}
                                                 ],
                                             },
                                         }} t={t}/>
