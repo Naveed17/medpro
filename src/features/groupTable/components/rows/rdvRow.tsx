@@ -51,7 +51,7 @@ function RDVRow({...props}) {
                             <Skeleton variant="text" sx={{maxWidth: 200}}/>
                         ) : (
                             <>
-                                {t("pending-appo")}{" "}
+                                {t("next-appo")}{" "}
                                 {patient.nextAppointments.length > 1 &&
                                     `(${patient.nextAppointments.length})`}
                             </>

@@ -69,7 +69,7 @@ const subMotifCard = [
 ];
 
 function HistoryPanel({...props}) {
-    const {previousAppointmentsData: previousAppointments, patient,mutate} = props;
+    const {previousAppointmentsData: previousAppointments, patient, mutate} = props;
 
     const {selectedApp} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
@@ -131,7 +131,7 @@ function HistoryPanel({...props}) {
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: card.patient,
-                description:card.description,
+                description: card.description,
                 days: card.days,
                 createdAt: card.createdAt,
                 name: 'certif',
@@ -162,7 +162,7 @@ function HistoryPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 createdAt: card.createdAt,
-                description:card.description,
+                description: card.description,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: mutate()
@@ -218,8 +218,9 @@ function HistoryPanel({...props}) {
                                                                                 <Stack direction={"row"}>
                                                                                     <Typography
                                                                                         className={"treamtementDetail"}>• {treatment.dosage}</Typography>
-                                                                                    <Typography className={"treamtementDetail"}
-                                                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                    <Typography
+                                                                                        className={"treamtementDetail"}
+                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
                                                                                 </Stack>
                                                                             </Box>
                                                                         )
@@ -242,26 +243,37 @@ function HistoryPanel({...props}) {
                                                                                     xs={12}
                                                                                     md={4}
                                                                                     key={`doc-item-${data.uuid}`}>
-                                                                                    <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
-                                                                                        {data.documentType !== 'photo' && <IconUrl height={25} width={25}
-                                                                                                                                   path={
-                                                                                                                                       data.documentType === "prescription" && "ic-traitement" ||
-                                                                                                                                       data.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                                                                       data.documentType == "analyse" && "ic-analyse" ||
-                                                                                                                                       data.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                                                                       data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                                                                       data.documentType === "audio" && "ic-son" ||
-                                                                                                                                       data.documentType === "Rapport" && "ic-text" ||
-                                                                                                                                       data.documentType === "medical-certificate" && "ic-text" ||
-                                                                                                                                       data.documentType === "video" && "ic-video-outline" ||
-                                                                                                                                       data.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                                                                   }/>}
-                                                                                        {data.documentType === 'photo' &&<Image width={25}
-                                                                                                                                height={25}
-                                                                                                                                src={data.uri}
-                                                                                                                                style={{borderRadius:5}}
-                                                                                                                                alt={'photo history'}/>}
-                                                                                        <Typography  variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}>
+                                                                                    <Stack direction={"row"}
+                                                                                           style={{background: "white"}}
+                                                                                           borderRadius={1} padding={1}
+                                                                                           spacing={1} onClick={() => {
+                                                                                        showDoc(data)
+                                                                                    }} alignItems="center">
+                                                                                        {data.documentType !== 'photo' &&
+                                                                                            <IconUrl height={25}
+                                                                                                     width={25}
+                                                                                                     path={
+                                                                                                         data.documentType === "prescription" && "ic-traitement" ||
+                                                                                                         data.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                                         data.documentType == "analyse" && "ic-analyse" ||
+                                                                                                         data.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                                         data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                                         data.documentType === "audio" && "ic-son" ||
+                                                                                                         data.documentType === "Rapport" && "ic-text" ||
+                                                                                                         data.documentType === "medical-certificate" && "ic-text" ||
+                                                                                                         data.documentType === "video" && "ic-video-outline" ||
+                                                                                                         data.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                                     }/>}
+                                                                                        {data.documentType === 'photo' &&
+                                                                                            <Image width={25}
+                                                                                                   height={25}
+                                                                                                   src={data.uri}
+                                                                                                   style={{borderRadius: 5}}
+                                                                                                   alt={'photo history'}/>}
+                                                                                        <Typography variant='subtitle2'
+                                                                                                    textAlign={"center"}
+                                                                                                    whiteSpace={"nowrap"}
+                                                                                                    fontSize={9}>
                                                                                             {t(data.title)}
                                                                                         </Typography>
                                                                                     </Stack>
@@ -363,7 +375,8 @@ function HistoryPanel({...props}) {
                                                                             </Grid>
                                                                         </Grid>
 
-                                                                        <Grid container spacing={2} pb={1} pt={1} style={{borderBottom:'1px dashed gray'}}>
+                                                                        <Grid container spacing={2} pb={1} pt={1}
+                                                                              style={{borderBottom: '1px dashed gray'}}>
                                                                             <Grid item xs={3}>
                                                                                 <Typography className={"feesContent"}
                                                                                 >{t('consultationIP.consultation')}</Typography>
@@ -374,12 +387,14 @@ function HistoryPanel({...props}) {
                                                                                 <Typography textAlign={"right"}
                                                                                             className={"feesContent"}>{app?.appointment.consultation_fees
                                                                                     ? app?.appointment.consultation_fees
-                                                                                    : "--"}  {devise}</Typography>
+                                                                                    : "--"} {devise}</Typography>
                                                                             </Grid>
                                                                         </Grid>
                                                                         {app?.appointment.acts.map(
                                                                             (act: any, idx: number) => (
-                                                                                <Grid container pb={1} pt={1} style={{borderBottom:'1px dashed gray'}} key={`fees-${idx}`}
+                                                                                <Grid container pb={1} pt={1}
+                                                                                      style={{borderBottom: '1px dashed gray'}}
+                                                                                      key={`fees-${idx}`}
                                                                                       spacing={2} alignItems="center">
                                                                                     <Grid item xs={3}>
                                                                                         <Typography
@@ -410,7 +425,8 @@ function HistoryPanel({...props}) {
                                                                             <Typography textAlign={"right"} mr={2}
                                                                                         fontWeight={"bold"}
                                                                                         fontSize={18}>
-                                                                                Total : {app.appointment.fees} {devise} |
+                                                                                Total
+                                                                                : {app.appointment.fees} {devise} |
                                                                             </Typography>
                                                                         </Stack>
                                                                     </BoxFees>

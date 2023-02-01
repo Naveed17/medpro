@@ -3,7 +3,7 @@ export * from "./backgroundCard";
 export * from "./rdvCard";
 export * from "./rdvMobileCard";
 export * from "./patientDetailsDocumentCard";
-export * from './PatientHistoryCard';
+export * from './patientHistoryCard';
 export * from './consultationDetailCard';
 export * from './cipMedicProCard';
 export * from './cipNextAppointCard';
