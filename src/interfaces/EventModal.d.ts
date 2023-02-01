@@ -16,6 +16,7 @@ interface EventModal {
     meeting: boolean;
     filtered: boolean;
     new: boolean;
+    isOnline: boolean;
     hasErrors: Array<string>;
     addRoom: boolean;
     patient: PatientModel;

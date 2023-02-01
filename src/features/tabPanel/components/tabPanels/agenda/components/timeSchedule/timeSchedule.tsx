@@ -25,7 +25,7 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
-import {IconButton, LinearProgress, Stack, TextField, useTheme} from "@mui/material";
+import {Autocomplete, IconButton, LinearProgress, Stack, TextField, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -118,12 +118,12 @@ function TimeSchedule({...props}) {
         });
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const onChangeReason = (event: SelectChangeEvent) => {
-        const AppointmentReason = event.target.value as string;
-        setReason(AppointmentReason);
-        dispatch(setAppointmentMotif(AppointmentReason));
+    const onChangeReason = (event: ConsultationReasonModel) => {
+        const reason = event;
+        const reasonUuid = event.uuid;
+        setReason(reasonUuid);
+        dispatch(setAppointmentMotif(reasonUuid));
 
-        const reason = reasons?.find(reason => event.target.value === reason.uuid);
         if (reason) {
             dispatch(setAppointmentDuration(reason.duration as any));
             setDuration(reason.duration as any);
@@ -280,7 +280,33 @@ function TimeSchedule({...props}) {
                             {t("stepper-1.reason-consultation")}
                         </Typography>
                         <FormControl fullWidth size="small">
-                            <Select
+                            <Autocomplete
+                                id={"select-reason"}
+                                disabled={!reasons}
+                                autoHighlight
+                                disableClearable
+                                size="small"
+                                value={reasons && reason.length > 0 ? reasons.find(motif => motif.uuid === reason) : ""}
+                                onChange={(e, reason: any) => onChangeReason(reason)}
+                                sx={{color: "text.secondary"}}
+                                options={reasons ? reasons : []}
+                                loading={reasons?.length === 0}
+                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                renderOption={(props, option) => (
+                                    <MenuItem
+                                        {...props}
+                                        value={option.uuid}
+                                        key={option.uuid}>
+                                        {option.name}
+                                    </MenuItem>
+                                )}
+                                renderInput={params => <TextField color={"info"}
+                                                                  {...params}
+                                                                  placeholder={t("stepper-1.reason-consultation-placeholder")}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  variant="outlined" fullWidth/>}/>
+                            {/* <Select
                                 labelId="select-reason"
                                 id="select-reason"
                                 value={reason}
@@ -305,7 +331,7 @@ function TimeSchedule({...props}) {
                                         {consultationReason.name}
                                     </MenuItem>
                                 ))}
-                            </Select>
+                            </Select>*/}
                         </FormControl>
                     </Grid>
                 </Grid>

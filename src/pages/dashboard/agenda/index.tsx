@@ -228,6 +228,7 @@ function Agenda() {
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
+                        isOnline: appointment.isOnline,
                         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                         motif: appointment.consultationReason,
                         instruction: appointment.instruction !== null ? appointment.instruction : "",

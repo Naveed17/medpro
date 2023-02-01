@@ -588,15 +588,18 @@ function AddPatientStep2({...props}) {
                                                 <Stack direction={"row"} alignItems={"center"}>
                                                     <Autocomplete
                                                         size={"small"}
-                                                        {...getFieldProps(`insurance[${index}].insurance_type`)}
-                                                        onChange={(event, insurance) => {
+                                                        value={getFieldProps(`insurance[${index}].insurance_type`) ?
+                                                            SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                        onChange={(event, insurance: any) => {
                                                             setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                             setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                         }}
                                                         id={"assure"}
                                                         options={SocialInsured}
-                                                        groupBy={(option) => option.grouped}
+                                                        groupBy={(option: any) => option.grouped}
                                                         sx={{minWidth: 500}}
+                                                        getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                        isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                         renderGroup={(params) => {
                                                             return (
                                                                 <li key={params.key}>
@@ -611,11 +614,7 @@ function AddPatientStep2({...props}) {
                                                         renderInput={(params) => {
                                                             const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                             return (<TextField {...params}
-                                                                               inputProps={{
-                                                                                   ...params.inputProps,
-                                                                                   value: insurance?.label
-                                                                               }}
-                                                                               placeholder={"Le malade"}/>)
+                                                                               placeholder={t("add-patient.patient-placeholder")}/>)
                                                         }}
                                                     />
                                                 </Stack>

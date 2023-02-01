@@ -10,6 +10,7 @@ interface AppointmentModel {
   status: number;
   duration: number;
   isVip: boolean;
+  isOnline: boolean;
   PatientHasAgendaAppointment: boolean | null;
   overlapEvent: boolean | null;
   new: boolean;

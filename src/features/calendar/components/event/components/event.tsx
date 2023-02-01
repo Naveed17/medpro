@@ -1,4 +1,4 @@
-import {Box, Chip, Popover, Typography} from "@mui/material";
+import {Avatar, Box, Chip, Popover, Typography} from "@mui/material";
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import {AppointmentPopoverCard} from "@features/card";
@@ -49,7 +49,8 @@ function Event({...props}) {
                     span: {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
-                        textOverflow: "ellipsis"
+                        textOverflow: "ellipsis",
+                        ...(appointment.isOnline && {width: "98%"})
                     }
                 }} color="primary" noWrap>
                     <span {...(appointment.overlapEvent && {style: {marginLeft: ".5rem"}})}>{event.event._def.title}</span>
@@ -63,6 +64,11 @@ function Event({...props}) {
                         </>
                     )}
                 </Typography>
+                {appointment.isOnline && <Avatar
+                    className={"online-appointment"}
+                    alt="Online appointment"
+                    src="/static/icons/Med-logo_.svg"
+                />}
             </EventStyled>
             <Popover
                 id="mouse-over-popover"
