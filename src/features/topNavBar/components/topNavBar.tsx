@@ -84,8 +84,8 @@ function TopNavBar({...props}) {
                 publicId: ongoing?.uuid as string,
                 extendedProps: {
                     patient: {
-                        lastName: ongoing?.patient.split(" ")[0],
-                        firstName: ongoing?.patient.split(" ")[1],
+                        lastName: ongoing?.patient.split(" ")[1],
+                        firstName: ongoing?.patient.split(" ")[0],
                     },
                 },
             };

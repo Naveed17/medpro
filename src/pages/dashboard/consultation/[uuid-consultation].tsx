@@ -661,6 +661,15 @@ function ConsultationInProgress() {
         }
     }
 
+    const handleTableActions = (action: string, event: any) => {
+        switch (action) {
+            case "onDetailPatient":
+                dispatch(onOpenPatientDrawer({patientId: event.extendedProps.patient.uuid}));
+                dispatch(openDrawer({type: "add", open: false}));
+                setPatientDetailDrawer(true);
+                break;
+        }
+    }
     const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -879,25 +888,6 @@ function ConsultationInProgress() {
                     </SubFooter>}
                 </Box>
 
-                <Drawer
-                    anchor={"right"}
-                    open={openAddDrawer}
-                    dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
-                    }}>
-                    <Box height={"100%"}>
-                        <CustomStepper
-                            {...{currentStepper, t}}
-                            OnTabsChange={handleStepperChange}
-                            OnSubmitStepper={submitStepper}
-                            stepperData={EventStepper}
-                            scroll
-                            minWidth={726}
-                        />
-                    </Box>
-                </Drawer>
-
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
@@ -938,8 +928,10 @@ function ConsultationInProgress() {
                     <Box height={"100%"}>
                         <CustomStepper
                             {...{currentStepper, t}}
+                            modal={"consultation"}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
+                            OnCustomAction={handleTableActions}
                             stepperData={EventStepper}
                             scroll
                             minWidth={726}
