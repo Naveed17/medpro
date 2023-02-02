@@ -216,6 +216,7 @@ function Instruction({...props}) {
                                         action: "onConsultationStart",
                                         variant: "contained",
                                         sx: {
+                                            display: modal && modal === "consultation" ? "none" : "inline-flex",
                                             "& svg": {
                                                 "& path": {fill: theme.palette.text.primary}
                                             },
@@ -274,7 +275,7 @@ function Instruction({...props}) {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                           {/* <Grid item md={6} sm={12} xs={12}>
+                            {/* <Grid item md={6} sm={12} xs={12}>
                                 <Typography variant="body1" color="text.primary" mb={1}>
                                     {t("stepper-3.sms-type")}
                                 </Typography>
