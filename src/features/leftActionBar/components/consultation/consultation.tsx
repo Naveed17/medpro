@@ -180,11 +180,16 @@ function Consultation() {
                                     {(number.code ? number.code + ' ' : '') + number.value}
                                 </Typography>}
 
-                                <Typography component="div"
-                                            sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 0.8}}}
-                                            variant="body2" color="text.secondary"><Icon path="ic-message-contour"/>
-                                    {email ? email : t('addMail')}
-                                </Typography>
+                                {email && <Typography component="div"
+                                                      sx={{
+                                                          display: 'flex',
+                                                          alignItems: 'center',
+                                                          '& .react-svg': {mr: 0.8}
+                                                      }}
+                                                      variant="body2" color="text.secondary"><Icon
+                                    path="ic-message-contour"/>
+                                    {email}
+                                </Typography>}
 
                             </Box>}
                     </Box>

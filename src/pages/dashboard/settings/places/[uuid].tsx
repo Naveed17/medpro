@@ -25,7 +25,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import {CountryCodeSelect} from "@features/countryCodeSelect";
+
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
@@ -46,7 +46,8 @@ import {agendaSelector} from "@features/calendar";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry, PhoneRegExp} from "@app/constants";
+import {isValidPhoneNumber} from "libphonenumber-js";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -121,7 +122,18 @@ function PlacesDetail() {
             .max(50, t("users.new.ntl"))
             .required(t("users.new.nameReq")),
         address: Yup.string().required(t("lieux.new.adreq")),
-        postalCode: Yup.string().required(t("lieux.new.codeReq")),
+        postalCode: Yup.string(),
+        phones: Yup.array().of(
+            Yup.object().shape({
+                code: Yup.string(),
+                phone: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
+                    })
+                    .matches(PhoneRegExp, t("telephone-error"))
+            })),
         town: Yup.string().required(t("lieux.new.townReq")),
         city: Yup.string().required(t("lieux.new.cityReq")),
     });
@@ -136,6 +148,7 @@ function PlacesDetail() {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
@@ -143,13 +156,7 @@ function PlacesDetail() {
     const [cords, setCords] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [alldays, setAllDays] = useState<boolean>(false);
-    const [contacts, setContacts] = useState<any[]>([
-        {
-            countryCode: "",
-            phone: "",
-            hidden: false,
-        },
-    ]);
+    const [contacts, setContacts] = useState<any[]>([doctor_country]);
     const [cities, setCities] = useState<LocationModel[]>([]);
 
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
@@ -176,11 +183,12 @@ function PlacesDetail() {
             postalCode: row ? row.address.postalCode : "",
             town: row ? row.address.state.uuid : "",
             city: "",
-            phone: contacts,
+            phones: contacts,
             information: "",
         },
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
+            setLoading(true);
             cleanData();
             let method: string;
             let url: string;
@@ -192,11 +200,11 @@ function PlacesDetail() {
                 is_public: boolean;
                 is_support: boolean;
             }[] = [];
-            values.phone.map((value) => {
+            values.phones.map((value) => {
                 if (value.phone)
                     phones.push({
                         value: value.phone,
-                        code: value.countryCode,
+                        code: value.code,
                         type: "phone",
                         contact_type: contactTypes.filter(type => type.name === 'Téléphone')[0].uuid,
                         is_public: !value.hidden,
@@ -373,20 +381,15 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            console.log(row)
             const cnts: any[] = row.contacts.length > 0 ? [] : [
-                {
-                    countryCode: "",
-                    phone: "",
-                    hidden: false,
-                },
+                DefaultCountry
             ];
-            console.log(row);
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
-                    countryCode: contact.code ? contact.code : "",
+                    code: contact.code,
                     phone: contact.value,
-                    hidden: !contact.isPublic,
+                    name: getCountryByCode(contact.code)?.name,
+                    hidden: !contact.isPublic
                 });
             });
             setContacts([...cnts]);
@@ -524,21 +527,21 @@ function PlacesDetail() {
 
     const handleAddPhone = () => {
         const phones = [
-            ...values.phone,
+            ...values.phones,
             {
-                countryCode: "",
+                code: doctor_country.phone,
                 phone: "",
-                hidden: false,
-            },
+                name: doctor_country.name,
+                hidden: false
+            }
         ];
-        setFieldValue("phone", phones);
+        setFieldValue("phones", phones);
     };
 
     const handleRemovePhone = (props: number) => {
-        console.log(values.phone.filter((item, index) => index !== props))
-        const phones = values.phone.filter((item, index) => index !== props);
-        setFieldValue("phone", phones);
-    };
+        const phones = values.phones.filter((item, index) => index !== props);
+        setFieldValue("phones", phones);
+    }
 
     return (
         <>
@@ -632,9 +635,6 @@ function PlacesDetail() {
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("lieux.new.postal")}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={3}>
@@ -762,7 +762,7 @@ function PlacesDetail() {
                                         container
                                         spacing={{lg: 2, xs: 1}}
                                         alignItems="center">
-                                        {values.phone.map((_, index) => (
+                                        {values.phones.map((_, index) => (
                                             <React.Fragment key={index}>
                                                 <Grid item xs={12} lg={2}>
                                                     <Typography
@@ -787,19 +787,26 @@ function PlacesDetail() {
                                                             className="form-control"
                                                             fullWidth
                                                             required
-                                                            {...getFieldProps(`phone[${index}].phone`)}
-                                                            value={values.phone[index]?.phone}
+                                                            {...getFieldProps(`phones[${index}].phone`)}
+                                                            value={values.phones[index] ? values.phones[index]?.phone : ""}
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
                                                                         <CountrySelect
-                                                                            initCountry={getFieldProps(`phone[${index}].countryCode`) ?
-                                                                                getCountryByCode(getFieldProps(`phone[${index}].countryCode`).value) : DefaultCountry}
+                                                                            initCountry={{
+                                                                                code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                            }}
                                                                             sx={{width: 200}}
                                                                             onSelect={(v: any) =>
                                                                                 setFieldValue(
-                                                                                    `phone[${index}].countryCode`,
-                                                                                    v?.phone
+                                                                                    `phones[${index}]`, {
+                                                                                        code: v.phone,
+                                                                                        hidden: values.phones[index].hidden,
+                                                                                        name: v.name,
+                                                                                        phone: values.phones[index].phone,
+                                                                                    }
                                                                                 )
                                                                             }
                                                                         />
@@ -821,10 +828,10 @@ function PlacesDetail() {
                                                     <FormControlLabel
                                                         control={
                                                             <Switch
-                                                                checked={values.phone[index]?.hidden}
+                                                                checked={values.phones[index]?.hidden}
                                                                 onChange={(e) =>
                                                                     setFieldValue(
-                                                                        `phone[${index}].hidden`,
+                                                                        `phones[${index}].hidden`,
                                                                         e.target.checked
                                                                     )
                                                                 }
@@ -1078,6 +1085,7 @@ function PlacesDetail() {
                                 {t("motif.dialog.cancel")}
                             </Button>
                             <LoadingButton
+                                disabled={Object.keys(errors).length > 0}
                                 loading={loading}
                                 type="submit"
                                 variant="contained"

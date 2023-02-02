@@ -1,4 +1,4 @@
-import {Typography} from "@mui/material";
+import {Typography, useMediaQuery} from "@mui/material";
 import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
@@ -15,12 +15,14 @@ import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
+import {Theme} from "@mui/material/styles";
 
 function MoveAppointmentDialog() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const router = useRouter();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {t} = useTranslation(['agenda', 'common']);
 
@@ -93,7 +95,7 @@ function MoveAppointmentDialog() {
             <Grid item md={6} xs={12}>
                 <Typography variant="body1"
                             className={"header-section"}
-                            ml={14}
+                            {...(!isMobile && {ml : 14})}
                             color="text.primary" my={2}>
                     {t(`dialogs.${action}-dialog.time-message`)}
                 </Typography>

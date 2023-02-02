@@ -13,7 +13,7 @@ import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 type CalendarPickerView = "day" | "month" | "year";
 
 function CalendarPickers({...props}) {
-    const {notes,disabled} = props;
+    const {notes, disabled} = props;
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
@@ -21,8 +21,10 @@ function CalendarPickers({...props}) {
 
     const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
 
-    const handleDateChange = (date: Date) => {
-        dispatch(setCurrentDate({date, fallback: true}));
+    const handleDateChange = (date: Date | null) => {
+        if (date) {
+            dispatch(setCurrentDate({date, fallback: true}));
+        }
     }
     const onYearChange = (year: any) => {
         setDefaultView("day");
@@ -66,6 +68,7 @@ function CalendarPickers({...props}) {
                         );
                     }}
                     disableOpenPicker
+                    minDate={moment("01-01-2018", "DD-MM-YYYY").toDate() as any}
                     toolbarTitle={""}
                     value={initData.date}
                     renderInput={(params) => <TextField {...params} />}

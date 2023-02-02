@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
@@ -10,9 +10,8 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {NoDataCard} from "@features/card";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import {importDataUpdate, onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -22,6 +21,7 @@ import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 import IconUrl from "@themes/urlIcon";
 import {resetDuplicated} from "@features/duplicateDetected";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 const PatientDetail = dynamic(() => import("@features/dialog/components/patientDetail/components/patientDetail"));
 const DuplicateDetected = dynamic(() => import("@features/duplicateDetected/components/duplicateDetected"));
@@ -41,7 +41,7 @@ const headImportDataCells = [
         label: "status",
         align: 'center',
         sortable: true,
-    },{
+    }, {
         id: 'source',
         numeric: false,
         disablePadding: true,
@@ -72,7 +72,7 @@ function Data() {
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
-    const {patientId} = useAppSelector(tableActionSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
@@ -87,7 +87,7 @@ function Data() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         },
-    });
+    }, SWRNoValidateConfig);
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
         currentPage: number, totalPages: number, list: ImportDataModel[]
@@ -98,7 +98,7 @@ function Data() {
     const [selectedRow, setSelectedRow] = useState<string | null>(null);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
-    const [errorsDuplication, setErrorsDuplication] = useState<Array<{
+    const [errorsDuplication] = useState<Array<{
         key: string;
         row: string;
         data: Array<PatientImportModel>;
@@ -131,11 +131,21 @@ function Data() {
             if ((value?.data as any).status === 'success') {
                 setDeleteDialog(false);
                 setSelectedRow(null);
+                mutateImportData();
                 enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
             }
             setLoading(false);
         })
     }
+
+    useEffect(() => {
+        if (importData) {
+            dispatch(importDataUpdate({
+                data: importData.list,
+                mutate: mutateImportData
+            }))
+        }
+    }, [dispatch, importData]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -236,7 +246,7 @@ function Data() {
                     }}
                 >
                     <PatientDetail
-                        {...{isAddAppointment: false, patientId}}
+                        {...{isAddAppointment: false, patientId: tableState.patientId}}
                         onCloseDialog={() => {
                             dispatch(onOpenPatientDrawer({patientId: ""}));
                             setPatientDetailDrawer(false);

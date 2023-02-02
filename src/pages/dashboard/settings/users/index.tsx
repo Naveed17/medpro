@@ -80,9 +80,7 @@ function Users() {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-
-    const {addUser} = useAppSelector(tableActionSelector);
-
+    
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 

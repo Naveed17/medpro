@@ -1,6 +1,5 @@
-import React, {Fragment, ReactElement, useState} from "react";
+import React, { useState} from "react";
 import RootStyled from "./overrides/rootStyled";
-
 // next-i18next
 import {useTranslation} from "next-i18next";
 
@@ -17,7 +16,6 @@ import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 // components
 import {
-    AppointmentFilter,
     PlaceFilter,
     PatientFilter,
     FilterRootStyled,
@@ -29,8 +27,6 @@ import {Accordion} from "@features/accordion/components";
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {ConditionalWrapper} from "@app/hooks";
-import Zoom from "react-medium-image-zoom";
 import IconUrl from "@themes/urlIcon";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -38,7 +34,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
-import rightActionData from "@features/leftActionBar/components/patient/components/data";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -92,26 +87,19 @@ const CardSection = ({...props}) => {
                                             </Tooltip>
                                     })}
                                 >
-                                    <ConditionalWrapper
-                                        condition={data.hasPhoto}
-                                        wrapper={(children: any) => <Zoom>{children}</Zoom>}
-                                    >
-                                        <Fragment>
-                                            <Avatar
-                                                {...(data.hasPhoto && {className: "zoom"})}
-                                                src={patientPhoto ? patientPhoto : (data?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                                sx={{
-                                                    "& .injected-svg": {
-                                                        margin: 0
-                                                    },
-                                                    width: 36,
-                                                    height: 36,
-                                                    borderRadius: 1
-                                                }}>
-                                                <IconUrl width={"36"} height={"36"} path="men-avatar"/>
-                                            </Avatar>
-                                        </Fragment>
-                                    </ConditionalWrapper>
+                                    <Avatar
+                                        {...(data.hasPhoto && {className: "zoom"})}
+                                        src={patientPhoto ? patientPhoto : (data?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                        sx={{
+                                            "& .injected-svg": {
+                                                margin: 0
+                                            },
+                                            width: 36,
+                                            height: 36,
+                                            borderRadius: 1
+                                        }}>
+                                        <IconUrl width={"36"} height={"36"} path="men-avatar"/>
+                                    </Avatar>
                                 </Badge>
                                 <Stack direction={"column"}>
                                     <Typography className="heading" variant="body1" component="div">
@@ -128,7 +116,8 @@ const CardSection = ({...props}) => {
                                 <Button size={"small"} onClick={(event) => event.stopPropagation()}
                                         variant="contained"
                                         startIcon={<PhoneRoundedIcon/>}>
-                                    <a className="phone-call" href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}>
+                                    <a className="phone-call"
+                                       href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}>
                                         <Typography variant={"body2"}>
                                             <span>{data?.contact[0]?.value}</span>
                                         </Typography>
@@ -201,7 +190,7 @@ function PatientMobileCard({...props}) {
     const {t, ready} = useTranslation("patient");
 
     const [open, setopen] = useState(false);
-    const [dataPatient, setDataPatient] =  useState([
+    const [dataPatient, setDataPatient] = useState([
         {
             heading: {
                 id: collapse[0].heading.title,
@@ -229,10 +218,8 @@ function PatientMobileCard({...props}) {
                             },
                             textField: {
                                 labels: [
-                                    {label: "fiche_id", placeholder: "fiche"},
-                                    {label: "name", placeholder: "name"},
-                                    {label: "birthdate", placeholder: "--/--/----"},
-                                    {label: "phone", placeholder: "phone"},
+                                    {label: "name", placeholder: "search"},
+                                    {label: "birthdate", placeholder: "--/--/----"}
                                 ],
                             },
                         }}

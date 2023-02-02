@@ -376,7 +376,7 @@ function Calendar({...props}) {
                                     setSlotInfo(info as DateClickTouchArg);
                                     setTimeout(() => {
                                         setSlotInfoPopover(true);
-                                    }, 100)
+                                    }, isMobile ? 100 : 0);
                                 }}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}

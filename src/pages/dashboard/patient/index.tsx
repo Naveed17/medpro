@@ -1,23 +1,18 @@
 // react
 import React, {ReactElement, useEffect, useState} from "react";
-
 // next
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-
 import {Session} from "next-auth";
-
 // material components
 import {Box, Button, Drawer, Typography, useTheme} from "@mui/material";
-
 // redux
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {configSelector, DashLayout} from "@features/base";
-
 // ________________________________
 import {PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
@@ -80,14 +75,6 @@ interface HeadCell {
 
 // table head data
 const headCells: readonly HeadCell[] = [
-    /*    {
-            id: "select-all",
-            numeric: false,
-            disablePadding: true,
-            label: "checkbox",
-            sortable: false,
-            align: "left",
-        },*/
     {
         id: "name",
         numeric: false,
@@ -112,14 +99,6 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-    /*{
-        id: "city",
-        numeric: false,
-        disablePadding: false,
-        label: "city",
-        sortable: true,
-        align: "left",
-    },*/
     {
         id: "nextAppointment",
         numeric: false,
@@ -156,19 +135,16 @@ function Patient() {
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {patientId} = useAppSelector(tableActionSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {
         date: moveDialogDate,
         time: moveDialogTime,
-        selected: moveDateChanged,
-        action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    const [appointmentDetailDrawer, setAppointmentDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
@@ -456,7 +432,7 @@ function Patient() {
                 }}
             >
                 <PatientDetail
-                    {...{isAddAppointment, patientId, mutate}}
+                    {...{isAddAppointment, patientId: tableState.patientId, mutate}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);

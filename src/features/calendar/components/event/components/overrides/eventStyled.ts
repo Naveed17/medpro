@@ -37,6 +37,13 @@ const EventStyled = styled(Box)(({theme}) => ({
             opacity: 1
         }
     },
+    "& .online-appointment": {
+        right: 5,
+        position: "absolute",
+        borderRadius: 2,
+        width: 14,
+        height: 14
+    }
 }))
 
 export default EventStyled;

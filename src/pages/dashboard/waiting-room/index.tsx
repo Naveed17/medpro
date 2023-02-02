@@ -119,7 +119,7 @@ function WaitingRoom() {
     const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {patientId} = useAppSelector(tableActionSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
@@ -446,7 +446,7 @@ function WaitingRoom() {
                 }}
             >
                 <PatientDetail
-                    {...{isAddAppointment, patientId}}
+                    {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);

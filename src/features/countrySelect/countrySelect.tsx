@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useState} from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -7,6 +7,10 @@ import {Avatar, MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
     const {onSelect, initCountry = "", small, ...rest} = props;
+
+    const [countriesData] = useState<any[]>(countries.sort(
+        country => initCountry.code?.toLowerCase() === country.code.toLowerCase() ? -1 : 1));
+
     const onSelectState = useCallback(
         (state: any) => {
             onSelect(state);
@@ -36,11 +40,11 @@ function CountrySelect({...props}) {
                 onSelectState(v);
             }}
             value={initCountry}
-            options={countries}
+            options={countriesData}
             autoHighlight
             disableClearable
             getOptionLabel={(option: any) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
+            isOptionEqualToValue={(option, value) => option.name === value?.name}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
                     {option?.code && <Avatar

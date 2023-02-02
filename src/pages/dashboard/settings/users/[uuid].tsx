@@ -33,10 +33,11 @@ import {LoadingScreen} from "@features/loadingScreen";
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {editUser: user} = useAppSelector(tableActionSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
     const {agendas} = useAppSelector(agendaSelector);
 
     const [agendaRoles, setAgendaRoles] = useState(agendas);
+    const [user] = useState(tableState.editUser);
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
