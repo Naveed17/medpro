@@ -192,6 +192,7 @@
     "missPatient": "le patient ne s'est pas présenté",
     "hors-opening-hours": "rendez-vous pris en dehors des heures d'ouverture",
     "patient-multi-event-day": "le patient a déjà un rendez-vous ce jour-là",
+    "online-appointment": "Rendez-vous depuis le site",
     "title": "Détail RDV",
     "save": "Enregistrer",
     "start": "Commencer la consultation",
