@@ -111,7 +111,19 @@ function AppointmentPopoverCard({...props}) {
                     <IconUrl path="ic-calendar"/> {moment(data?.time).format("DD-MM-YYYY")}
                 </Typography>
             </Stack>
-            <Stack pl={4} direction="row" justifyContent='space-between' alignItems='center'>
+            {data?.isOnline && <Stack pl={3.2} mb={.5} direction="row" alignItems='center'>
+                <Avatar
+                    sx={{
+                        ml: 1,
+                        width: 20,
+                        height: 20
+                    }}
+                    alt="Online appointment"
+                    src="/static/icons/Med-logo_.svg"
+                />
+                <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
+            </Stack>}
+            <Stack pl={4} direction="row" alignItems='center'>
                 <Label variant='filled'
                        sx={{
                            "& .MuiSvgIcon-root": {

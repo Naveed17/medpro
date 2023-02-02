@@ -1,4 +1,4 @@
-import {Box, List, ListItem, ListSubheader, Typography, useTheme} from "@mui/material";
+import {Avatar, Box, List, ListItem, ListSubheader, Stack, Typography, useTheme} from "@mui/material";
 import {AppointmentStatus} from "@features/calendar";
 import React from "react";
 import {useTranslation} from "next-i18next";
@@ -6,7 +6,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function AppointmentStatsPopover() {
     const theme = useTheme();
-    const {t, ready} = useTranslation('common', {keyPrefix: "popover-info"});
+    const {t, ready} = useTranslation('common');
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -24,7 +24,7 @@ function AppointmentStatsPopover() {
             }}
             subheader={
                 <ListSubheader component="div" id="nested-list-subheader">
-                    {t("title")}
+                    {t("popover-info.title")}
                 </ListSubheader>
             }>
             {Object.values(AppointmentStatus).map((info, index) => info.icon &&
@@ -55,7 +55,18 @@ function AppointmentStatsPopover() {
                             top: "1rem"
                         }
                     }}></Box>
-                <Typography>{t("picker-status-more")}</Typography>
+                <Typography>{t("popover-info.picker-status-more")}</Typography>
+            </ListItem>
+            <ListItem>
+                <Avatar
+                    sx={{
+                        width: 18,
+                        height: 18
+                    }}
+                    alt="Online appointment"
+                    src="/static/icons/Med-logo_.svg"
+                />
+                <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
             </ListItem>
         </List>
     )
