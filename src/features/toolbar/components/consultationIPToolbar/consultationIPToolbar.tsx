@@ -294,6 +294,7 @@ function ConsultationIPToolbar({...props}) {
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
+                        mutate: mutateDoc
                     });
                     setOpenDialog(true);
                     setactions(false);
@@ -724,7 +725,7 @@ function ConsultationIPToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t}}
+                    data={{state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}

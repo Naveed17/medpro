@@ -30,6 +30,7 @@ function MedicalImagingDialog({...props}) {
     const router = useRouter();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const handleChange = (ev: any, uuid: string) => {
         const fileUploaded = ev.target.files[0];
         const form = new FormData();
@@ -54,6 +55,7 @@ function MedicalImagingDialog({...props}) {
 
     };
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <BalanceSheetPendingStyled>
             <Typography gutterBottom>{t('medical_imagery_list')}</Typography>

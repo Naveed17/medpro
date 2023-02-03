@@ -54,6 +54,7 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
+
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -294,7 +295,7 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpHeaderData])
 
-    const dialogSave = () => {
+    const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
         trigger({
@@ -302,12 +303,12 @@ function DocumentDetailDialog({...props}) {
             url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
-            state.mutate();
+            state.mutate && state.mutate();
             setOpenRemove(false);
             setLoading(false);
             (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
             setLoadingRequest && setLoadingRequest(false);
-            setOpenDialog(false);
+            setOpenDialog && setOpenDialog(false);
         });
     }
 
@@ -475,7 +476,7 @@ function DocumentDetailDialog({...props}) {
                                           startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                                   <LoadingButton variant="contained"
                                                  sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                                 onClick={dialogSave}>{t('remove')}</LoadingButton>
+                                                 onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
                               </DialogActions>
                           }
             />
