@@ -228,7 +228,6 @@ const Content = ({...props}) => {
     if (!ready || status === "loading") return (
         <LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-
     return (
         <React.Fragment>
             {id === 1 || id === 3 ? (
