@@ -129,10 +129,10 @@ function PlacesDetail() {
                 phone: Yup.string()
                     .test({
                         name: 'is-phone',
-                        message: t("telephone-error"),
+                        message: t("lieux.new.telephone-error"),
                         test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
                     })
-                    .matches(PhoneRegExp, t("telephone-error"))
+                    .matches(PhoneRegExp, t("lieu.new.telephone-error"))
             })),
         town: Yup.string().required(t("lieux.new.townReq")),
         city: Yup.string().required(t("lieux.new.cityReq")),
@@ -782,11 +782,18 @@ function PlacesDetail() {
                                                         position="relative">
 
                                                         <TextField
+                                                            sx={{
+                                                                "& .MuiAutocomplete-popperDisablePortal": {
+                                                                    width: 200
+                                                                }
+                                                            }}
                                                             variant="outlined"
                                                             placeholder="00 000 000"
                                                             className="form-control"
                                                             fullWidth
                                                             required
+                                                            helperText={touched.phones && errors.phones && (errors.phones as any)[index]?.phone}
+                                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
                                                             {...getFieldProps(`phones[${index}].phone`)}
                                                             value={values.phones[index] ? values.phones[index]?.phone : ""}
                                                             InputProps={{
@@ -798,7 +805,7 @@ function PlacesDetail() {
                                                                                 name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
                                                                                 phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
                                                                             }}
-                                                                            sx={{width: 200}}
+                                                                            sx={{width: 140}}
                                                                             onSelect={(v: any) =>
                                                                                 setFieldValue(
                                                                                     `phones[${index}]`, {
@@ -810,6 +817,9 @@ function PlacesDetail() {
                                                                                 )
                                                                             }
                                                                         />
+                                                                        {values.phones[index] && <Typography
+                                                                            color={"info"}
+                                                                            variant={"body1"}>{values.phones[index].code}</Typography>}
                                                                     </InputAdornment>
                                                                 ),
                                                             }}

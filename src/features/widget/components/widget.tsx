@@ -54,7 +54,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         <>
             <Form
                 onChange={(ev: any) => {
-                    console.log("model", ev.data);
+                    // console.log("model", ev.data);
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
 
                     const item = changes.find((change: { name: string }) => change.name === "patientInfo")

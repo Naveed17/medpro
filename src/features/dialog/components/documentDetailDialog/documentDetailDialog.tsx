@@ -39,6 +39,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -124,7 +125,8 @@ function DocumentDetailDialog({...props}) {
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)},
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+        },
         {
             title: 'settings',
             icon: "ic-setting",
@@ -148,17 +150,23 @@ function DocumentDetailDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
     const {trigger} = useRequestMutation(null, "/documents");
 
-    const {data: httpHeaderData} = useRequest({
+    const {data: httpProfessionalsResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
+
+    const {data: httpHeaderData} = useRequest(medical_professional ? {
         method: "GET",
         url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null, SWRNoValidateConfig);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -389,7 +397,9 @@ function DocumentDetailDialog({...props}) {
                                     id={'note-input'}
                                     multiline
                                     rows={4}
-                                    onBlur={()=>{editDoc("description", note)}}
+                                    onBlur={() => {
+                                        editDoc("description", note)
+                                    }}
                                     onChange={(ev) => {
                                         setNote(ev.target.value)
                                         document.getElementById('note-input')?.focus()
@@ -459,8 +469,10 @@ function DocumentDetailDialog({...props}) {
                           t={t}
                           actionDialog={
                               <DialogActions>
-                                  <Button onClick={()=>{setOpenRemove(false);}}
-                                      startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                                  <Button onClick={() => {
+                                      setOpenRemove(false);
+                                  }}
+                                          startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                                   <LoadingButton variant="contained"
                                                  sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                                  onClick={dialogSave}>{t('remove')}</LoadingButton>
