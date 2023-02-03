@@ -141,6 +141,7 @@
     },
     "new": {
       "path": "Paramètres > Lieux de consultation > Ajouter",
+      "telephone-error": "Le numéro de téléphone est obligatoire",
       "name": "Nom du lieu",
       "adress": "Adresse",
       "postal": "Code postal",
