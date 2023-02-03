@@ -820,37 +820,6 @@ function OnStepPatient({...props}) {
                                                                                   placeholder={t("region-placeholder")}
                                                                                   sx={{paddingLeft: 0}}
                                                                                   variant="outlined" fullWidth/>}/>
-                                            {/*<Select
-                                                labelId="demo-simple-select-label"
-                                                id={"region"}
-                                                disabled={!values.country}
-                                                size="small"
-                                                {...getFieldProps("region")}
-                                                onChange={event => {
-                                                    const stateUuid = event.target.value;
-                                                    setFieldValue("region", stateUuid);
-                                                    const state = states?.find(state => state.uuid === stateUuid);
-                                                    state.zipCode && setFieldValue("zip_code", state.zipCode);
-                                                }}
-                                                displayEmpty={true}
-                                                sx={{color: "text.secondary"}}
-                                                renderValue={selected => {
-                                                    if (selected?.length === 0) {
-                                                        return <em>{t("region-placeholder")}</em>;
-                                                    }
-
-                                                    const state = states?.find(state => state.uuid === selected);
-                                                    return <Typography>{state?.name}</Typography>
-                                                }}
-                                            >
-                                                {states?.map((state) => (
-                                                    <MenuItem
-                                                        key={state.uuid}
-                                                        value={state.uuid}>
-                                                        {state.name}
-                                                    </MenuItem>)
-                                                )}
-                                            </Select>*/}
                                         </FormControl>
                                     </Grid>
                                     <Grid item md={6} xs={12}>
