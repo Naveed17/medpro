@@ -1,3 +1,10 @@
+## [4.8.2](https://github.com/SmartMedSA/med-pro/compare/v4.8.1...v4.8.2) (2023-02-04)
+
+
+### Bug Fixes
+
+* document prefix patient name ([c6cb70b](https://github.com/SmartMedSA/med-pro/commit/c6cb70bc7fa43b9b952e617ee1ba343173d676d7))
+
 ## [4.8.1](https://github.com/SmartMedSA/med-pro/compare/v4.8.0...v4.8.1) (2023-02-03)
 
 
