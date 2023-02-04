@@ -175,7 +175,7 @@ const Content = ({...props}) => {
                 uuid: card.uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${patient.firstName} ${patient.lastName}`,
+                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
                 days: card.days,
                 description: card.description,
                 createdAt: card.createdAt,
@@ -209,7 +209,7 @@ const Content = ({...props}) => {
                 uuidDoc: uuidDoc,
                 description: card.description,
                 createdAt: card.createdAt,
-                patient: patient.firstName + ' ' + patient.lastName,
+                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
                 mutate: mutatePatientDocuments
             })
             setOpenDialogDoc(true);
