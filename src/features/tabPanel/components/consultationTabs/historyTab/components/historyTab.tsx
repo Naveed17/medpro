@@ -153,7 +153,7 @@ function HistoryTab({...props}) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate,"DD-MM-YYYY").format('DD/MM/YYYY'),
-            patient: `${patient.firstName}   ${patient.lastName}`,
+            patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
 

@@ -619,7 +619,7 @@ function ConsultationInProgress() {
                 uuid: card.uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
+                patient: `${appointement.patient.gender === "F" ? "Mme ": "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -654,7 +654,7 @@ function ConsultationInProgress() {
                 description: card.description,
                 info: info,
                 uuidDoc: uuidDoc,
-                patient: patient.firstName + ' ' + patient.lastName,
+                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
                 mutate: mutateDoc
             })
             setOpenDialog(true);
@@ -861,7 +861,7 @@ function ConsultationInProgress() {
                                                 info: selectedAct,
                                                 createdAt: moment().format('DD/MM/YYYY'),
                                                 consultationFees: free ? 0 : consultationFees,
-                                                patient: patient.firstName + ' ' + patient.lastName
+                                                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`
                                             })
                                             setOpenDialog(true);
                                         }
