@@ -12,7 +12,7 @@ const CkEditor = ({...props}) => {
     return (
         <CKEditor
             onReady={(editor: { ui: { getEditableElement: () => { (): any; new(): any; parentElement: { (): any; new(): any; insertBefore: { (arg0: any, arg1: any): void; new(): any; }; }; }; view: { toolbar: { element: any; }; }; }; }) => {
-                editor.ui.getEditableElement().parentElement.insertBefore(
+                editor?.ui.getEditableElement().parentElement.insertBefore(
                     editor.ui.view.toolbar.element,
                     editor.ui.getEditableElement()
                 );

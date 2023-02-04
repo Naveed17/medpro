@@ -18,7 +18,7 @@ import {
     Stack,
     TextField,
     Typography, useMediaQuery
-} from '@mui/material'
+} from '@mui/material';
 import {Form, FormikProvider, useFormik} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
 import {useTranslation} from 'next-i18next'
@@ -70,10 +70,9 @@ function MedicalPrescriptionDialog({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
+
     const handleSaveDialog = () => {
-
         const form = new FormData();
-
         form.append('globalNote', "");
         form.append('name', model);
         form.append('drugs', JSON.stringify(drugs));
@@ -287,7 +286,6 @@ function MedicalPrescriptionDialog({...props}) {
             <Grid container spacing={5}>
                 <Grid item xs={12} md={7}>
                     <FormikProvider value={formik}>
-
                         <Stack
                             spacing={2}
                             component={Form}
