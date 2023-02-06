@@ -820,37 +820,6 @@ function OnStepPatient({...props}) {
                                                                                   placeholder={t("region-placeholder")}
                                                                                   sx={{paddingLeft: 0}}
                                                                                   variant="outlined" fullWidth/>}/>
-                                            {/*<Select
-                                                labelId="demo-simple-select-label"
-                                                id={"region"}
-                                                disabled={!values.country}
-                                                size="small"
-                                                {...getFieldProps("region")}
-                                                onChange={event => {
-                                                    const stateUuid = event.target.value;
-                                                    setFieldValue("region", stateUuid);
-                                                    const state = states?.find(state => state.uuid === stateUuid);
-                                                    state.zipCode && setFieldValue("zip_code", state.zipCode);
-                                                }}
-                                                displayEmpty={true}
-                                                sx={{color: "text.secondary"}}
-                                                renderValue={selected => {
-                                                    if (selected?.length === 0) {
-                                                        return <em>{t("region-placeholder")}</em>;
-                                                    }
-
-                                                    const state = states?.find(state => state.uuid === selected);
-                                                    return <Typography>{state?.name}</Typography>
-                                                }}
-                                            >
-                                                {states?.map((state) => (
-                                                    <MenuItem
-                                                        key={state.uuid}
-                                                        value={state.uuid}>
-                                                        {state.name}
-                                                    </MenuItem>)
-                                                )}
-                                            </Select>*/}
                                         </FormControl>
                                     </Grid>
                                     <Grid item md={6} xs={12}>
@@ -927,15 +896,18 @@ function OnStepPatient({...props}) {
                                                         <Stack direction={"row"} alignItems={"center"}>
                                                             <Autocomplete
                                                                 size={"small"}
-                                                                {...getFieldProps(`insurance[${index}].insurance_type`)}
-                                                                onChange={(event, insurance) => {
+                                                                value={getFieldProps(`insurance[${index}].insurance_type`) ?
+                                                                    SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                                onChange={(event, insurance: any) => {
                                                                     setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                                     setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                                 }}
                                                                 id={"assure"}
                                                                 options={SocialInsured}
-                                                                groupBy={(option) => option.grouped}
+                                                                groupBy={(option: any) => option.grouped}
                                                                 sx={{minWidth: 500}}
+                                                                getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                                isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                                 renderGroup={(params) => {
                                                                     return (
                                                                         <li key={params.key}>
@@ -950,10 +922,6 @@ function OnStepPatient({...props}) {
                                                                 renderInput={(params) => {
                                                                     const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                                     return (<TextField {...params}
-                                                                                       inputProps={{
-                                                                                           ...params.inputProps,
-                                                                                           value: insurance?.label
-                                                                                       }}
                                                                                        placeholder={t("patient-placeholder")}/>)
                                                                 }}
                                                             />
@@ -1041,7 +1009,6 @@ function OnStepPatient({...props}) {
                                                                     fullWidth
                                                                     {...getFieldProps(`insurance[${index}].insurance_number`)}
                                                                 />
-
                                                             </Stack>
                                                         </Grid>
                                                     </Grid>

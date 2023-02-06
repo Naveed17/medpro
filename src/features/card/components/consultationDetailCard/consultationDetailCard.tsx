@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
-import {ModelDot} from "@features/modelDot";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import { SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
@@ -17,10 +16,9 @@ import moment from "moment-timezone";
 import {pxToRem} from "@themes/formatFontSize";
 import RecondingBoxStyle from './overrides/recordingBoxStyle';
 
-
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
-    const {exam,listen} = useAppSelector(consultationSelector);
+    const {exam, listen} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
@@ -35,8 +33,10 @@ function CIPPatientHistoryCard({...props}) {
 
 
     const intervalref = useRef<number | null>(null);
+    const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             motif: exam.motif,
             notes: exam.notes,
@@ -56,7 +56,7 @@ function CIPPatientHistoryCard({...props}) {
 
     useEffect(() => {
         if (isStarted)
-            setFieldValue("notes", oldNote+ ' ' +transcript);
+            setFieldValue("notes", oldNote + ' ' + transcript);
     }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -86,7 +86,6 @@ function CIPPatientHistoryCard({...props}) {
         })
     }
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -116,48 +115,46 @@ function CIPPatientHistoryCard({...props}) {
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
                                 {t("reason_for_consultation")}
                             </Typography>
-                            <Select
-                                fullWidth
+                            <Autocomplete
                                 id={"motif"}
+                                disabled={!cReason}
+                                autoHighlight
+                                disableClearable
                                 size="small"
-                                value={values.motif}
-                                onChange={event => {
-                                    setFieldValue("motif", event.target.value);
+                                value={storageData && cReason.find(reason => reason.uuid === storageData.motif) ?
+                                    cReason.find(reason => reason.uuid === storageData.motif) : ""}
+                                onChange={(e, state: any) => {
+                                    setFieldValue("motif", state.uuid);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...values,
-                                        motif: event.target.value
+                                        ...storageData,
+                                        motif: state.uuid
                                     }));
                                 }}
-                                displayEmpty
-                                renderValue={selected => {
-                                    if (selected.length === 0) {
-                                        return <em>--</em>;
-                                    }
-
-                                    const creason = cReason?.find(cr => cr.uuid === selected);
-                                    return (
-                                        <Box sx={{display: "inline-flex"}}>
-                                            <Typography>{creason?.name}</Typography>
-                                        </Box>
-                                    )
-                                }}>
-                                {
-                                    cReason?.map(cr => (
-                                        <MenuItem key={'xyq' + cr.uuid} value={cr.uuid}>
-                                            <ModelDot color={cr.color} selected={false} size={21} sizedot={13}
-                                                      padding={3} marginRight={15}></ModelDot>
-                                            {cr.name}
-                                        </MenuItem>
-                                    ))
-                                }
-                            </Select>
+                                sx={{color: "text.secondary"}}
+                                options={cReason ? cReason : []}
+                                loading={cReason?.length === 0}
+                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                renderOption={(props, option) => (
+                                    <MenuItem
+                                        {...props}
+                                        key={'xyq' + option.uuid}
+                                        value={option.uuid}>
+                                        {option.name}
+                                    </MenuItem>
+                                )}
+                                renderInput={params => <TextField color={"info"}
+                                                                  {...params}
+                                                                  placeholder={"--"}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  variant="outlined" fullWidth/>}/>
                         </Box>
                         <Box>
                             {<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
                                 <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
                                     {t("notes")}
                                 </Typography>
-                                {(listen ==='' || listen === 'observation') && <>
+                                {(listen === '' || listen === 'observation') && <>
                                     {
                                         listening && isStarted ? <RecondingBoxStyle onClick={() => {
                                             if (intervalref.current) {
@@ -189,11 +186,11 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 multiline
                                 rows={10}
-                                value={values.notes}
+                                value={storageData ? storageData.notes : ""}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...values,
+                                        ...storageData,
                                         notes: event.target.value
                                     }));
                                 }}
@@ -208,13 +205,13 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 id={"diagnosis"}
                                 size="small"
-                                value={values.diagnosis}
+                                value={storageData ? storageData.diagnosis : ""}
                                 multiline={true}
                                 rows={10}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...values,
+                                        ...storageData,
                                         diagnosis: event.target.value
                                     }));
                                 }}

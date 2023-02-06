@@ -8,7 +8,6 @@ export type ActionBarState = {
         patient?: {
             gender?: string;
             birthdate?: string;
-            phone?: string;
             name?: string;
         }
     } | undefined;

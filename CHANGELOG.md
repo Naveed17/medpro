@@ -1,3 +1,43 @@
+## [4.8.2](https://github.com/SmartMedSA/med-pro/compare/v4.8.1...v4.8.2) (2023-02-04)
+
+
+### Bug Fixes
+
+* document prefix patient name ([c6cb70b](https://github.com/SmartMedSA/med-pro/commit/c6cb70bc7fa43b9b952e617ee1ba343173d676d7))
+
+## [4.8.1](https://github.com/SmartMedSA/med-pro/compare/v4.8.0...v4.8.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* consultation storage data ([55229a4](https://github.com/SmartMedSA/med-pro/commit/55229a4211a515672252b4d57b8dc63b6c480bf3))
+* doctor correspondent ([b2dc408](https://github.com/SmartMedSA/med-pro/commit/b2dc4085c51180a0fc578f41c3ce467380e28c8e))
+* document medical delete bug ([db88595](https://github.com/SmartMedSA/med-pro/commit/db885956f8bb9b03bfad3ae516cbcc49aae4d8b5))
+* document medical professional undefined ([cad64e7](https://github.com/SmartMedSA/med-pro/commit/cad64e7f1f59d8f791cf08f806be06b91c4618b4))
+* online appointment alert ([fc50d26](https://github.com/SmartMedSA/med-pro/commit/fc50d2667b205dcc8193ee919a1608e4a2e13abd))
+
+# [4.8.0](https://github.com/SmartMedSA/med-pro/compare/v4.7.2...v4.8.0) (2023-02-02)
+
+
+### Bug Fixes
+
+* country has state ([94f47af](https://github.com/SmartMedSA/med-pro/commit/94f47afe09cd0642788e148ad1b4a9c6af035017))
+* country/state/insurance sort and search ([ac83339](https://github.com/SmartMedSA/med-pro/commit/ac833395e875141964a6cfad26854bb3ffefd7c7))
+* places bugs ([7960409](https://github.com/SmartMedSA/med-pro/commit/79604090e10a6c07164e5f7a3ad2624dbe392f75))
+* update cip bug ([d671450](https://github.com/SmartMedSA/med-pro/commit/d671450139c4833a4ad3f42ff0c04db272a62018))
+* update filter bug ([48691bb](https://github.com/SmartMedSA/med-pro/commit/48691bb24402d4357d486c04618869dddc363bb0))
+* update filter search text ([1838913](https://github.com/SmartMedSA/med-pro/commit/1838913cc6210340ca8603488616f7a718f276fe))
+* update patient dialog and mutate agenda ([60525ec](https://github.com/SmartMedSA/med-pro/commit/60525ecca5afa57515733e0fe56dc6f461f9031a))
+* update patient dialog and mutate agenda ([4ab9b02](https://github.com/SmartMedSA/med-pro/commit/4ab9b02a30b5f2f1708e87ad860f7203f8d08480))
+* update pending appointment ([f5918c3](https://github.com/SmartMedSA/med-pro/commit/f5918c3e5a4d6cb4d462494b6456ded7f00ad928))
+* week picker mobile bugs ([604b3aa](https://github.com/SmartMedSA/med-pro/commit/604b3aa897dd406565ebc2af3c634ee6d5c8a8f4))
+
+
+### Features
+
+* one field search filter ([0e4a77c](https://github.com/SmartMedSA/med-pro/commit/0e4a77c2ef52df58ab9e1c89db0ff6fef4152054))
+* online appointment ([a1ce0da](https://github.com/SmartMedSA/med-pro/commit/a1ce0da3ff77f91b24a894c56644a09c98aa60c2))
+
 ## [4.7.2](https://github.com/SmartMedSA/med-pro/compare/v4.7.1...v4.7.2) (2023-01-27)
 
 

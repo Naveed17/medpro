@@ -143,7 +143,7 @@ function ConsultationInProgress() {
   const { direction } = useAppSelector(configSelector);
   const { exam } = useAppSelector(consultationSelector);
   const { config: agenda } = useAppSelector(agendaSelector);
-  const { patientId } = useAppSelector(tableActionSelector);
+  const { tableState } = useAppSelector(tableActionSelector);
   const [meeting, setMeeting] = useState<number>(15);
   const [checkedNext, setCheckedNext] = useState(false);
 
@@ -463,11 +463,11 @@ function ConsultationInProgress() {
   }, [selectedAct, appointement, consultationFees, free]);
 
   useEffect(() => {
-    if (patientId) {
+    if (tableState.patientId) {
       //setopen(true);
       setPatientDetailDrawer(true);
     }
-  }, [patientId]);
+  }, [tableState.patientId]);
 
   useEffect(() => {
     const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
@@ -730,7 +730,9 @@ function ConsultationInProgress() {
         uuid: card.uuid,
         content: card.certificate[0].content,
         doctor: card.name,
-        patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
+        patient: `${appointement.patient.gender === "F" ? "Mme " : "Mr "} ${
+          appointement.patient.firstName
+        } ${appointement.patient.lastName}`,
         days: card.days,
         description: card.description,
         title: card.title,
@@ -765,13 +767,26 @@ function ConsultationInProgress() {
         description: card.description,
         info: info,
         uuidDoc: uuidDoc,
-        patient: patient.firstName + " " + patient.lastName,
+        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+          patient.firstName
+        } ${patient.lastName}`,
         mutate: mutateDoc,
       });
       setOpenDialog(true);
     }
   };
 
+  const handleTableActions = (action: string, event: any) => {
+    switch (action) {
+      case "onDetailPatient":
+        dispatch(
+          onOpenPatientDrawer({ patientId: event.extendedProps.patient.uuid })
+        );
+        dispatch(openDrawer({ type: "add", open: false }));
+        setPatientDetailDrawer(true);
+        break;
+    }
+  };
   const { t, ready } = useTranslation("consultation");
 
   if (!ready)
@@ -990,7 +1005,9 @@ function ConsultationInProgress() {
                             info: selectedAct,
                             createdAt: moment().format("DD/MM/YYYY"),
                             consultationFees: free ? 0 : consultationFees,
-                            patient: patient.firstName + " " + patient.lastName,
+                            patient: `${
+                              patient.gender === "F" ? "Mme " : "Mr "
+                            } ${patient.firstName} ${patient.lastName}`,
                           });
                           setOpenDialog(true);
                         }}
@@ -1019,30 +1036,11 @@ function ConsultationInProgress() {
           )}
         </Box>
 
-        <Drawer
-          anchor={"right"}
-          open={openAddDrawer}
-          dir={direction}
-          onClose={() => {
-            dispatch(openDrawer({ type: "add", open: false }));
-          }}>
-          <Box height={"100%"}>
-            <CustomStepper
-              {...{ currentStepper, t }}
-              OnTabsChange={handleStepperChange}
-              OnSubmitStepper={submitStepper}
-              stepperData={EventStepper}
-              scroll
-              minWidth={726}
-            />
-          </Box>
-        </Drawer>
-
         <DrawerBottom
           handleClose={() => setFilterDrawer(false)}
           open={filterdrawer}
           title={null}>
-          <ConsultationFilter onClose={() => setFilterDrawer(false)} />
+          <ConsultationFilter />
         </DrawerBottom>
 
         <Stack
@@ -1078,8 +1076,10 @@ function ConsultationInProgress() {
           <Box height={"100%"}>
             <CustomStepper
               {...{ currentStepper, t }}
+              modal={"consultation"}
               OnTabsChange={handleStepperChange}
               OnSubmitStepper={submitStepper}
+              OnCustomAction={handleTableActions}
               stepperData={EventStepper}
               scroll
               minWidth={726}
@@ -1091,7 +1091,7 @@ function ConsultationInProgress() {
           handleClose={() => setFilterDrawer(false)}
           open={filterdrawer}
           title={null}>
-          <ConsultationFilter onClose={() => setFilterDrawer(false)} />
+          <ConsultationFilter />
         </DrawerBottom>
 
         <Dialog
@@ -1176,7 +1176,7 @@ function ConsultationInProgress() {
             setPatientDetailDrawer(false);
           }}
           onAddAppointment={() => console.log("onAddAppointment")}
-          patientId={patientId}
+          patientId={tableState.patientId}
         />
       </Drawer>
 

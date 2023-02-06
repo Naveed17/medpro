@@ -7,8 +7,9 @@ import {Avatar, MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
     const {onSelect, initCountry = "", small, ...rest} = props;
-    const [countriesData] = useState<any[]>(countries.sort(country =>
-        country.suggested ? (initCountry.code.toLowerCase() === country.code.toLowerCase() ? 1 : 0) : -1).reverse());
+
+    const [countriesData] = useState<any[]>(countries.sort(
+        country => initCountry.code?.toLowerCase() === country.code.toLowerCase() ? -1 : 1));
 
     const onSelectState = useCallback(
         (state: any) => {
@@ -43,7 +44,7 @@ function CountrySelect({...props}) {
             autoHighlight
             disableClearable
             getOptionLabel={(option: any) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
+            isOptionEqualToValue={(option, value) => option.name === value?.name}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
                     {option?.code && <Avatar

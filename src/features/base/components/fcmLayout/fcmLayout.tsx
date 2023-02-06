@@ -29,6 +29,7 @@ import {useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {CircularProgressbarCard, setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
+import {tableActionSelector} from "@features/table";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -45,6 +46,7 @@ function FcmLayout({...props}) {
 
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {importData} = useAppSelector(tableActionSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
@@ -96,6 +98,7 @@ function FcmLayout({...props}) {
                     if (data.body.hasOwnProperty('progress')) {
                         if (data.body.progress === -1 || data.body.progress === 100) {
                             localStorage.removeItem("import-data");
+                            importData.mutate && importData.mutate();
                             closeSnackbar();
                             enqueueSnackbar((data.body.progress === -1 ?
                                     translationCommon.import_data.failed : translationCommon.import_data.end),

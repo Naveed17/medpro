@@ -5,3 +5,4 @@ export const addBilling = createAction<any>("table/addBilling");
 export const addUser = createAction<any>("table/addUser");
 export const resetUser = createAction("table/resetUser");
 export const editUser = createAction<any>("table/editUser");
+export const importDataUpdate = createAction<any>("table/importDataUpdate");

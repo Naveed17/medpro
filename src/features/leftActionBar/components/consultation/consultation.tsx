@@ -44,9 +44,8 @@ import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRou
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 
-function Consultation({ ...props }) {
+function Consultation() {
   const { data: session } = useSession();
-  const { onClose } = props;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
@@ -234,18 +233,20 @@ function Consultation({ ...props }) {
                   </Typography>
                 )}
 
-                <Typography
-                  component="div"
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& .react-svg": { mr: 0.8 },
-                  }}
-                  variant="body2"
-                  color="text.secondary">
-                  <Icon path="ic-message-contour" />
-                  {email ? email : t("addMail")}
-                </Typography>
+                {email && (
+                  <Typography
+                    component="div"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      "& .react-svg": { mr: 0.8 },
+                    }}
+                    variant="body2"
+                    color="text.secondary">
+                    <Icon path="ic-message-contour" />
+                    {email}
+                  </Typography>
+                )}
               </Box>
             )}
           </Box>
@@ -433,7 +434,7 @@ function Consultation({ ...props }) {
               <ListItem sx={{ p: 0 }}>
                 <Collapse in={collapse === col.id} sx={{ width: 1 }}>
                   <Box px={1.5}>
-                    <Content id={col.id} patient={patient} onClose={onClose} />
+                    <Content id={col.id} patient={patient} />
                   </Box>
                 </Collapse>
               </ListItem>

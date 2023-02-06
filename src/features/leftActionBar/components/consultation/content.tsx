@@ -10,9 +10,6 @@ import {
   ListItemText,
   Stack,
   Typography,
-  useMediaQuery,
-  useTheme,
-  Theme,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -43,9 +40,7 @@ import { configSelector } from "@features/base";
 import Image from "next/image";
 
 const Content = ({ ...props }) => {
-  const { id, patient, onClose } = props;
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { id, patient } = props;
   const { t, ready } = useTranslation("consultation", { keyPrefix: "filter" });
   const dispatch = useAppDispatch();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -165,9 +160,6 @@ const Content = ({ ...props }) => {
       dispatch(resetAppointment());
       dispatch(setAppointmentPatient(patient));
       dispatch(openDrawer({ type: "add", open: true }));
-      if (isMobile) {
-        onClose();
-      }
       return;
     }
 
@@ -186,7 +178,9 @@ const Content = ({ ...props }) => {
         uuid: card.uuid,
         content: card.certificate[0].content,
         doctor: card.name,
-        patient: `${patient.firstName} ${patient.lastName}`,
+        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+          patient.firstName
+        } ${patient.lastName}`,
         days: card.days,
         description: card.description,
         createdAt: card.createdAt,
@@ -220,7 +214,9 @@ const Content = ({ ...props }) => {
         uuidDoc: uuidDoc,
         description: card.description,
         createdAt: card.createdAt,
-        patient: patient.firstName + " " + patient.lastName,
+        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+          patient.firstName
+        } ${patient.lastName}`,
         mutate: mutatePatientDocuments,
       });
       setOpenDialogDoc(true);

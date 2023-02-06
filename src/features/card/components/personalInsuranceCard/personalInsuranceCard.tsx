@@ -270,7 +270,9 @@ function PersonalInsuranceCard({...props}) {
         params.append('address', JSON.stringify({
             fr: values.address
         }));
-
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
         triggerPatientUpdate({
             method: "PUT",
             url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,

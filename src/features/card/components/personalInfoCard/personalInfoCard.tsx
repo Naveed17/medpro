@@ -393,7 +393,7 @@ function PersonalInfo({...props}) {
                                                     mask="__/__/____"
                                                     value={values.birthdate && moment(values.birthdate, "DD-MM-YYYY")}
                                                     onChange={date => {
-                                                        const dateInput = moment(date)
+                                                        const dateInput = moment(date);
                                                         if (dateInput.isValid()) {
                                                             setFieldValue("birthdate", dateInput.format("DD-MM-YYYY"))
                                                         }

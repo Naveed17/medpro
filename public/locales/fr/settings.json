@@ -141,6 +141,7 @@
     },
     "new": {
       "path": "Paramètres > Lieux de consultation > Ajouter",
+      "telephone-error": "Le numéro de téléphone est obligatoire",
       "name": "Nom du lieu",
       "adress": "Adresse",
       "postal": "Code postal",
@@ -442,6 +443,13 @@
         "description": "Vous perdrez définitivement l'historique des rendez-vous et les patients liés à cette importation.",
         "cancel": "Annuler",
         "confirm": "Réinitialiser"
+      },
+      "check-dialog": {
+        "title": "Importation de données",
+        "sub-title": "Voulez-vous vraiment importer les données une autre fois ?",
+        "description": "Attention !!!, vous dupliquez les données importées.",
+        "cancel": "Annuler",
+        "confirm": "Importer les données"
       }
     },
     "no-data": {

@@ -16,6 +16,7 @@ const WeekDayPickerStyled = styled(Box)(({theme}) => ({
         display: " grid",
         gridTemplateColumns: "auto auto auto auto auto auto auto",
         overflow: "hidden",
+        overflowX: "scroll",
         "& .day": {
             padding: theme.spacing(1.3, 0),
             cursor: "pointer",

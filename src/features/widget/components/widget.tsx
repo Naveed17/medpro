@@ -54,7 +54,7 @@ const WidgetForm: any = memo(({ src, ...props }: any) => {
     <>
       <Form
         onChange={(ev: any) => {
-          console.log("model", ev.data);
+          // console.log("model", ev.data);
           localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
 
           const item = changes.find(
@@ -66,7 +66,9 @@ const WidgetForm: any = memo(({ src, ...props }: any) => {
         }}
         // @ts-ignore
         submission={{
-          data: JSON.parse(localStorage.getItem("Modeldata" + appuuid)),
+          data: JSON.parse(
+            localStorage.getItem("Modeldata" + appuuid) as string
+          ),
         }}
         form={{
           display: "form",

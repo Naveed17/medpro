@@ -7,7 +7,7 @@ import {SubHeader} from "@features/subHeader";
 import {
     Alert,
     AlertTitle,
-    Box,
+    Box, Button,
     Card,
     CardContent,
     Grid,
@@ -16,7 +16,7 @@ import {
     MenuItem,
     Select,
     Stack,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -35,6 +35,9 @@ import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
+import {tableActionSelector} from "@features/table";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
 
 const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
@@ -64,14 +67,17 @@ function ImportData() {
     const router = useRouter();
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
+    const theme = useTheme();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {importData} = useAppSelector(tableActionSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
+    const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [uriFile, setUriFile] = useState<string>("");
     const [settingsTab, setSettingsTab] = useState({
@@ -111,7 +117,7 @@ function ImportData() {
             comment: ""
         },
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            handleImportData();
+            checkImportData();
         },
     });
 
@@ -148,6 +154,15 @@ function ImportData() {
         setFiles([...files, ...acceptedFiles]);
     }
 
+    const checkImportData = () => {
+        const importStatus = importData.data.find(data => data.method === values.source);
+        if (!importStatus) {
+            handleImportData();
+        } else {
+            setCancelDialog(true);
+        }
+    }
+
     const handleImportData = () => {
         setErrorsImport([]);
         setLoading(true);
@@ -175,8 +190,10 @@ function ImportData() {
                         <CircularProgressbarCard {...{t}} id={key} message={message}/>,
                 });
                 setLoading(false);
+                setCancelDialog(false);
                 localStorage.setItem("import-data", "true");
                 setFiles([]);
+                importData.mutate && importData.mutate();
                 router.push('/dashboard/settings/data');
             }
         }, reason => {
@@ -199,6 +216,8 @@ function ImportData() {
     } = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
+    console.log(importData);
 
     return (
         <>
@@ -225,7 +244,7 @@ function ImportData() {
                                     action={
                                         <LoadingButton
                                             {...{loading}}
-                                            onClick={() => handleImportData()}
+                                            onClick={() => checkImportData()}
                                             variant={"contained"} color="error" size="small">
                                             {t('load-file')}
                                         </LoadingButton>
@@ -343,7 +362,7 @@ function ImportData() {
                                                     files={files}
                                                     onDrop={handleOnDropFile}
                                                     accept={{
-                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls",".xlsm"]
+                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls", ".xlsm"]
                                                     }}
                                                     singleFile
                                                     maxFiles={1}/>}
@@ -379,6 +398,45 @@ function ImportData() {
                     </Form>
                 </FormikProvider>
             </Box>
+
+            <Dialog
+                color={theme.palette.warning.main}
+                contrastText={theme.palette.warning.contrastText}
+                dialogClose={() => setCancelDialog(false)}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.check-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.check-dialog.description`)}</Typography>
+                        </Box>)
+                }}
+                open={cancelDialog}
+                title={t(`dialogs.check-dialog.title`)}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setCancelDialog(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t(`dialogs.check-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"warning"}
+                            onClick={() => handleImportData()}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="ic-upload-3"></Icon>}
+                        >
+                            {t(`dialogs.check-dialog.confirm`)}
+                        </LoadingButton>
+                    </>
+                }
+            />
+
         </>
     );
 }
