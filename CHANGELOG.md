@@ -1,3 +1,21 @@
+## [4.8.2](https://github.com/SmartMedSA/med-pro/compare/v4.8.1...v4.8.2) (2023-02-04)
+
+
+### Bug Fixes
+
+* document prefix patient name ([c6cb70b](https://github.com/SmartMedSA/med-pro/commit/c6cb70bc7fa43b9b952e617ee1ba343173d676d7))
+
+## [4.8.1](https://github.com/SmartMedSA/med-pro/compare/v4.8.0...v4.8.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* consultation storage data ([55229a4](https://github.com/SmartMedSA/med-pro/commit/55229a4211a515672252b4d57b8dc63b6c480bf3))
+* doctor correspondent ([b2dc408](https://github.com/SmartMedSA/med-pro/commit/b2dc4085c51180a0fc578f41c3ce467380e28c8e))
+* document medical delete bug ([db88595](https://github.com/SmartMedSA/med-pro/commit/db885956f8bb9b03bfad3ae516cbcc49aae4d8b5))
+* document medical professional undefined ([cad64e7](https://github.com/SmartMedSA/med-pro/commit/cad64e7f1f59d8f791cf08f806be06b91c4618b4))
+* online appointment alert ([fc50d26](https://github.com/SmartMedSA/med-pro/commit/fc50d2667b205dcc8193ee919a1608e4a2e13abd))
+
 # [4.8.0](https://github.com/SmartMedSA/med-pro/compare/v4.7.2...v4.8.0) (2023-02-02)
 
 
