@@ -40,6 +40,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
+import RedoIcon from '@mui/icons-material/Redo';
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -281,6 +282,7 @@ function MedicalPrescriptionDialog({...props}) {
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <MedicalPrescriptionDialogStyled>
             <Grid container spacing={5}>
@@ -471,7 +473,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                           }}>
                                             {t('updateDrug')}
                                         </Button> :
-                                        <Button variant="contained" type={"submit"}>
+                                        <Button variant="contained" endIcon={<RedoIcon />} type={"submit"}>
                                             {t('add_a_drug')}
                                         </Button>
                                 }
