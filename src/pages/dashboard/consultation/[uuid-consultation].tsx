@@ -1,4 +1,4 @@
-import React, {memo, ReactElement, useEffect, useState} from "react";
+import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
@@ -41,9 +41,10 @@ import {appLockSelector} from "@features/appLock";
 import moment from "moment";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
+import dynamic from "next/dynamic";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
@@ -60,7 +61,16 @@ function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
     const {data: session} = useSession();
-
+    useLeavePageConfirm(() => {
+        if (!leaveDialog.current) {
+            /*if (!window.confirm(`message: ${uuind}`)) {
+                throw "Route Canceled";
+            } else {
+                // localStorage.removeItem(`consultation-data-${uuind}`);
+            }*/
+        }
+    });
+    const leaveDialog = useRef(false);
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
     const [acts, setActs] = useState<any>("");
@@ -81,7 +91,6 @@ function ConsultationInProgress() {
     const [selectedUuid, setSelectedUuid] = useState<string[]>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
-    const [sheet, setSheet] = useState<any>(null);
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [instruction, setInstruction] = useState("");
@@ -180,6 +189,7 @@ function ConsultationInProgress() {
             }
             : null
     );
+
     const {data: httpModelResponse} = useRequest(
         medical_entity
             ? {
@@ -220,18 +230,17 @@ function ConsultationInProgress() {
             }
             : null
     );
-    const {data: httpSheetResponse} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null
-    );
+
+    const {data: httpSheetResponse} = useRequest(mpUuid && agenda ?
+        {
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
+            headers: {
+                ContentType: "multipart/form-data",
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        } : null);
+
     const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(
         mpUuid && agenda
             ? {
@@ -281,32 +290,6 @@ function ConsultationInProgress() {
         setInfo(null);
         setOpenDialog(true)
     }, [selectedDialog, setInfo, setOpenDialog])
-
-    useEffect(() => {
-        if (httpSheetResponse) {
-            setSheet((httpSheetResponse as HttpResponse)?.data);
-        }
-    }, [httpSheetResponse]);
-
-    useEffect(() => {
-        if (sheet) {
-            setSelectedModel(sheet.modal);
-            if (!localStorage.getItem('Modeldata' + uuind)) {
-                localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
-            }
-            const app_data = sheet.exam.appointment_data;
-            // load observation data from local storage
-            const examData = localStorage.getItem(`consultation-data-${uuind}`);
-            dispatch(
-                SetExam({
-                    motif: examData && JSON.parse(examData).motif ? JSON.parse(examData).motif : (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
-                    notes: examData && JSON.parse(examData).notes ? JSON.parse(examData).notes : (app_data?.notes ? app_data.notes.value : ""),
-                    diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : (examData ? JSON.parse(examData).diagnosis : ""),
-                    treatment: app_data?.treatments ? app_data.treatments.value : (examData ? JSON.parse(examData).treatment : ""),
-                })
-            );
-        }
-    }, [dispatch, sheet, uuind]);
 
     useEffect(() => {
         if (appointement) {
@@ -383,7 +366,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
-            if (appointement?.status !== 5) {
+            if ([5, 4].includes(appointement?.status)) {
                 selectedAct.map(
                     (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
                         acts.push({
@@ -400,7 +383,7 @@ function ConsultationInProgress() {
                 form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
                 form.append("notes", exam.notes);
                 form.append("diagnostic", exam.diagnosis);
-                form.append("treatment", exam.treatment);
+                form.append("treatment", exam.treatment ? exam.treatment : "");
                 form.append("consultation_reason", exam.motif);
                 form.append("fees", total.toString());
                 form.append("consultation_fees", consultationFees.toString());
@@ -415,27 +398,42 @@ function ConsultationInProgress() {
                     },
                 }).then(() => {
                     console.log("end consultation");
-                    dispatch(setTimer({isActive: false}));
+                    appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
                     mutate().then(() => {
-                        localStorage.removeItem("Modeldata" + uuind);
-                        localStorage.removeItem(`consultation-data-${uuind}`);
-                        localStorage.removeItem(`consultation-fees`);
-                        localStorage.removeItem(`consultation-acts`);
+                        leaveDialog.current = true;
                         router.push("/dashboard/agenda").then(() => {
+                            localStorage.removeItem("Modeldata" + uuind);
+                            localStorage.removeItem(`consultation-data-${uuind}`);
+                            localStorage.removeItem(`consultation-fees`);
+                            localStorage.removeItem(`consultation-acts`);
                             setActions(false);
+                            setEnd(false);
+
                         })
-                        sendNotification()
+                        sendNotification();
                     })
                 });
             } else {
                 router.push("/dashboard/agenda").then(() => {
                     setActions(false);
+                    setEnd(false);
                 });
             }
         }
-        setEnd(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
+    const sheet = (httpSheetResponse as HttpResponse)?.data;
+    const sheetExam = sheet?.exam;
+
+    useEffect(() => {
+        if (sheet) {
+            setSelectedModel(sheet.modal);
+            if (!localStorage.getItem('Modeldata' + uuind)) {
+                localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
+            }
+        }
+    }, [dispatch, sheet, uuind]);
 
     const sendNotification = () => {
         if (secretary.length > 0) {
@@ -619,7 +617,7 @@ function ConsultationInProgress() {
                 uuid: card.uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${appointement.patient.gender === "F" ? "Mme ": "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`,
+                patient: `${appointement.patient.gender === "F" ? "Mme " : "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -654,7 +652,7 @@ function ConsultationInProgress() {
                 description: card.description,
                 info: info,
                 uuidDoc: uuidDoc,
-                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
+                patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${patient.firstName} ${patient.lastName}`,
                 mutate: mutateDoc
             })
             setOpenDialog(true);
@@ -766,19 +764,19 @@ function ConsultationInProgress() {
                             )}
                         </Grid>
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
-                            {sheet &&
-                                <ConsultationDetailCard
-                                    {...{
-                                        changes,
-                                        setChanges,
-                                        uuind,
-                                        agenda: agenda?.uuid,
-                                        mutateDoc,
-                                        medical_entity,
-                                        session,
-                                        router
-                                    }}
-                                    exam={sheet.exam}/>}
+                            <ConsultationDetailCard
+                                {...{
+                                    changes,
+                                    setChanges,
+                                    uuind,
+                                    agenda: agenda?.uuid,
+                                    exam: sheetExam,
+                                    mutateDoc,
+                                    medical_entity,
+                                    session,
+                                    router
+                                }}
+                            />
                         </Grid>
                     </Grid>
                 </TabPanel>
@@ -861,7 +859,7 @@ function ConsultationInProgress() {
                                                 info: selectedAct,
                                                 createdAt: moment().format('DD/MM/YYYY'),
                                                 consultationFees: free ? 0 : consultationFees,
-                                                patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`
+                                                patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${patient.firstName} ${patient.lastName}`
                                             })
                                             setOpenDialog(true);
                                         }
@@ -875,7 +873,7 @@ function ConsultationInProgress() {
                                 </Stack>
                             </Stack>}
                             <Button
-                                onClick={appointement?.status == 5 ? saveConsultation : endConsultation}
+                                onClick={saveConsultation}
                                 color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
