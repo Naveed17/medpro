@@ -544,7 +544,6 @@ function ConsultationIPToolbar({...props}) {
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
-
     if (!ready) return <>toolbar loading..</>;
 
     return (
@@ -746,7 +745,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
-                                    //disabled={state.length === 0}
+                                    disabled={info === "medical_prescription" && state.length === 0}
                                     startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>

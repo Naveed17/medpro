@@ -55,7 +55,7 @@ export const ConsultationReducer = createReducer(initialState, builder => {
             state.end = action.payload;
         })
         .addCase(SetExam, (state, action) => {
-            state.exam = action.payload;
+            state.exam = {...state.exam, ...action.payload};
         })
         .addCase(SetFiche, (state, action) => {
             state.fiche = action.payload;

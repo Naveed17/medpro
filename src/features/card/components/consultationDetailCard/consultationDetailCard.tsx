@@ -23,7 +23,6 @@ function CIPPatientHistoryCard({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
     let [oldNote, setOldNote] = useState('');
-
     const dispatch = useAppDispatch();
     const {
         transcript,
@@ -34,13 +33,17 @@ function CIPPatientHistoryCard({...props}) {
 
     const intervalref = useRef<number | null>(null);
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
+    const app_data = defaultExam?.appointment_data;
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            motif: exam.motif,
-            notes: exam.notes,
-            diagnosis: exam.diagnosis,
+            motif: storageData?.motif ? storageData.motif :
+                (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
+            notes: storageData?.notes ? storageData.notes :
+                (app_data?.notes ? app_data?.notes.value : ""),
+            diagnosis: storageData?.diagnosis ? storageData.diagnosis :
+                (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -51,21 +54,33 @@ function CIPPatientHistoryCard({...props}) {
     const {handleSubmit, values, setFieldValue} = formik;
 
     useEffect(() => {
-        setCReason(defaultExam?.consultation_reasons)
-    }, [defaultExam]);
-
-    useEffect(() => {
-        if (isStarted)
-            setFieldValue("notes", oldNote + ' ' + transcript);
-    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (exam) {
-            Object.entries(exam).map((value) => {
-                setFieldValue(value[0], value[1]);
-            });
+        if (defaultExam) {
+            setCReason(defaultExam?.consultation_reasons);
+            // set data data from local storage to redux
+            dispatch(
+                SetExam({
+                    ...values
+                })
+            );
         }
-    }, [exam, setFieldValue]);
+    }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (isStarted) {
+            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
+            setFieldValue("notes", notes);
+            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+                ...storageData,
+                notes
+            }));
+            // set data data from local storage to redux
+            dispatch(
+                SetExam({
+                    notes
+                })
+            );
+        }
+    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const item = changes.find((change: { name: string }) => change.name === "fiche")
@@ -85,6 +100,7 @@ function CIPPatientHistoryCard({...props}) {
             }, 1000);
         })
     }
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -100,9 +116,6 @@ function CIPPatientHistoryCard({...props}) {
                 </Typography>
             </Stack>
             <CardContent style={{padding: 20}}>
-                <button hidden={true} className={'sub-exam'} onClick={() => {
-                    dispatch(SetExam(values))
-                }}></button>
                 <FormikProvider value={formik}>
                     <Stack
                         spacing={2}
@@ -121,14 +134,20 @@ function CIPPatientHistoryCard({...props}) {
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={storageData && cReason.find(reason => reason.uuid === storageData.motif) ?
-                                    cReason.find(reason => reason.uuid === storageData.motif) : ""}
+                                value={cReason.find(reason => reason.uuid === values.motif) ?
+                                    cReason.find(reason => reason.uuid === values.motif) : ""}
                                 onChange={(e, state: any) => {
                                     setFieldValue("motif", state.uuid);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
                                         ...storageData,
                                         motif: state.uuid
                                     }));
+                                    // set data data from local storage to redux
+                                    dispatch(
+                                        SetExam({
+                                            motif: state.uuid
+                                        })
+                                    );
                                 }}
                                 sx={{color: "text.secondary"}}
                                 options={cReason ? cReason : []}
@@ -186,13 +205,19 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 multiline
                                 rows={10}
-                                value={storageData ? storageData.notes : ""}
+                                value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
                                         ...storageData,
                                         notes: event.target.value
                                     }));
+                                    // set data data from local storage to redux
+                                    dispatch(
+                                        SetExam({
+                                            notes: event.target.value
+                                        })
+                                    );
                                 }}
                                 placeholder={t("hint_text")}
                             />
@@ -205,7 +230,7 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 id={"diagnosis"}
                                 size="small"
-                                value={storageData ? storageData.diagnosis : ""}
+                                value={values.diagnosis}
                                 multiline={true}
                                 rows={10}
                                 onChange={event => {
@@ -214,6 +239,12 @@ function CIPPatientHistoryCard({...props}) {
                                         ...storageData,
                                         diagnosis: event.target.value
                                     }));
+                                    // set data data from local storage to redux
+                                    dispatch(
+                                        SetExam({
+                                            diagnosis: event.target.value
+                                        })
+                                    );
                                 }}
                                 sx={{color: "text.secondary"}}/>
                         </Box>
