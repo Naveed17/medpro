@@ -70,6 +70,7 @@ function DocumentDetailDialog({...props}) {
     const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
     const [menu, setMenu] = useState(true);
+    const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [error, setError] = useState(false);
@@ -92,7 +93,7 @@ function DocumentDetailDialog({...props}) {
     })
     const {direction} = useAppSelector(configSelector);
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
-    const multimedias = ['video', 'audio', 'photo']
+    const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
             title: 'document_type',
@@ -286,6 +287,7 @@ function DocumentDetailDialog({...props}) {
 
     useEffect(() => {
         setFile(state.uri)
+        setIsImg(['png','jpg','jpeg'].some(ex => ex === state.uri.split('.').pop().split(/\#|\?/)[0]))
     }, [state])
 
     useEffect(() => {
@@ -356,7 +358,7 @@ function DocumentDetailDialog({...props}) {
                                                 }
                                             }
                                         }}>
-                                            {!error && <Document ref={
+                                            {!isImg && !error && <Document ref={
                                                 componentRef} file={file}
                                                                  loading={t('wait')}
                                                                  onLoadSuccess={onDocumentLoadSuccess}
@@ -369,7 +371,7 @@ function DocumentDetailDialog({...props}) {
                                                 ))}
 
                                             </Document>}
-                                            {error && <Card style={{padding: 10}} onClick={downloadF}>
+                                            {!isImg && error && <Card style={{padding: 10}} onClick={downloadF}>
                                                 <Stack alignItems={"center"} spacing={1} justifyContent={"center"}>
                                                     <IconUrl width={100} height={100} path={"ic-download"}/>
                                                     <Typography>{t('ureadbleFile')}</Typography>
@@ -377,6 +379,9 @@ function DocumentDetailDialog({...props}) {
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
                                                 </Stack>
                                             </Card>}
+
+                                            {isImg && <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
+                                                  alt={"img"}/>}
                                         </Box>
                                     }
                                 </Box>
