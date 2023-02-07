@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useRef, useState } from "react";
+import React, {
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+  ChangeEvent,
+} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
   AppBar,
@@ -48,7 +54,59 @@ import { LoadingScreen } from "@features/loadingScreen";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import { countries as dialCountries } from "@features/countrySelect/countries";
 import { EventDef } from "@fullcalendar/react";
-
+import { Popover } from "@features/popover";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+const menuList = [
+  {
+    title: "waiting",
+    icon: <IconUrl path="ic-salle" />,
+    action: "onOpenPatientDrawer",
+  },
+  {
+    title: "event.start",
+    icon: <PlayCircleIcon />,
+    action: "onStart",
+  },
+  {
+    title: "see_patient_file",
+    icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18} />,
+    action: "onSeeFile",
+  },
+  {
+    title: "add_profile_photo",
+    icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18} />,
+    action: "onAddProfilePhoto",
+  },
+  {
+    title: "send_msg",
+    icon: (
+      <IconUrl path="ic-messanger-lite" color="white" width={18} height={18} />
+    ),
+    action: "onSendMsg",
+  },
+  {
+    title: "import_document",
+    icon: (
+      <IconUrl path="ic-dowlaodfile" color="white" width={18} height={18} />
+    ),
+    action: "onImportFile",
+  },
+  {
+    title: "appointment_history",
+    icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18} />,
+    action: "onAppointmentHistory",
+  },
+  {
+    title: "move_appointment",
+    icon: <IconUrl path="ic-refrech" color="white" width={18} height={18} />,
+    action: "onRefetch",
+  },
+  {
+    title: "delete_appointment",
+    icon: <IconUrl path="icdelete" color="white" width={18} height={18} />,
+    action: "onDelete",
+  },
+];
 function AppointmentDetail({ ...props }) {
   const {
     OnConsultation,
@@ -66,6 +124,7 @@ function AppointmentDetail({ ...props }) {
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
+  const [openTooltip, setOpenTooltip] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { data: session } = useSession();
@@ -101,6 +160,8 @@ function AppointmentDetail({ ...props }) {
     );
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [avatar, setAvatar] = useState("");
+
   const [instruction, setInstruction] = useState(
     appointment?.extendedProps?.instruction
       ? appointment?.extendedProps?.instruction
@@ -135,7 +196,12 @@ function AppointmentDetail({ ...props }) {
   const handleQr = () => {
     handleClickDialog();
   };
-
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+      setAvatar(URL.createObjectURL(file));
+    }
+  };
   const handleClickDialog = () => {
     setOpenDialog(true);
   };
@@ -176,9 +242,30 @@ function AppointmentDetail({ ...props }) {
             alignItems="center">
             <Typography variant="h6">{t("appointment_details")}</Typography>
             <Stack direction="row" spacing={1} alignItems="center">
-              <IconButton>
-                <MoreVertIcon />
-              </IconButton>
+              <Popover
+                open={openTooltip}
+                handleClose={() => setOpenTooltip(false)}
+                menuList={menuList}
+                className="agenda-rdv-details"
+                onClickItem={(itempopver: {
+                  title: string;
+                  icon: string;
+                  action: string;
+                }) => {
+                  setOpenTooltip(false);
+                  console.log(itempopver);
+                }}
+                button={
+                  <IconButton
+                    onClick={() => {
+                      setOpenTooltip(true);
+                    }}
+                    sx={{ display: "block", ml: "auto" }}
+                    size="small">
+                    <Icon path="more-vert" />
+                  </IconButton>
+                }
+              />
               <IconButton
                 size="small"
                 onClick={() =>
@@ -196,7 +283,7 @@ function AppointmentDetail({ ...props }) {
           height: "calc(100% - 64px)",
           overflowY: "scroll",
         }}>
-        <Box px={1} mt={1}>
+        <Box px={1} mt={1} mb={3}>
           {appointment?.extendedProps.hasErrors?.map(
             (error: string, index: number) => (
               <Stack
@@ -224,7 +311,9 @@ function AppointmentDetail({ ...props }) {
                   <Box position="relative">
                     <Avatar
                       src={
-                        patientPhoto
+                        avatar
+                          ? avatar
+                          : patientPhoto
                           ? patientPhoto
                           : appointment?.extendedProps?.patient?.gender === "M"
                           ? "/static/icons/men-avatar.svg"
@@ -242,7 +331,14 @@ function AppointmentDetail({ ...props }) {
                     <IconButton
                       color="primary"
                       size="small"
-                      className="add-photo">
+                      className="add-photo"
+                      component="label">
+                      <input
+                        hidden
+                        accept="image/*"
+                        type="file"
+                        onChange={handleFileUpload}
+                      />
                       <IconUrl path="ic-camera" />
                     </IconButton>
                   </Box>
@@ -375,7 +471,7 @@ function AppointmentDetail({ ...props }) {
             }}
           />
 
-          {process.env.NODE_ENV === "development" && (
+          {/* {process.env.NODE_ENV === "development" && (
             <Stack direction="row" spacing={2} alignItems="center" mt={2}>
               <Button onClick={handleQr} variant="contained" fullWidth>
                 Qr-Code
@@ -384,8 +480,8 @@ function AppointmentDetail({ ...props }) {
                 {t("send_link")}
               </Button>
             </Stack>
-          )}
-
+          )} */}
+          {/* 
           <Typography sx={{ mt: 2, mb: 1 }} variant="body1" fontWeight={600}>
             {t("insctruction")}
           </Typography>
@@ -446,7 +542,7 @@ function AppointmentDetail({ ...props }) {
                 }}
               />
             </CardContent>
-          </Card>
+          </Card> */}
         </Box>
         {router.pathname !== "/dashboard/patient" && (
           <CardActions sx={{ pb: 4 }}>

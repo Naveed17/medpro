@@ -26,7 +26,6 @@ const RootStyled = styled(Stack)(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     backgroundColor: theme.palette.background.paper,
-    marginTop: theme.spacing(8),
     flexDirection: "row",
     [theme.breakpoints.down("md")]: {
       marginBottom: theme.spacing(1),
