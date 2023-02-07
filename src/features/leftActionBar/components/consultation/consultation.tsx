@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
+    Badge,
     Box,
     Button,
     Collapse,
@@ -19,7 +20,6 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import Content from "./content";
-import {collapse as collapseData} from "./config";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector, SetListen} from "@features/toolbar";
@@ -61,6 +61,7 @@ function Consultation() {
     const [name, setName] = useState('');
     const [note, setNote] = useState('');
     const [isNote, setIsNote] = useState(false);
+    const [collapseData, setCollapseData] = useState<any[]>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
@@ -124,11 +125,64 @@ function Consultation() {
     useEffect(() => {
         if (patient && !lock) {
             dispatch(toggleSideBar(false));
+            console.log(patient);
             setNumber(patient.contact[0]);
             setEmail(patient.email);
             setNote(patient.note ? patient.note : "");
             setName(`${patient.firstName} ${patient.lastName}`);
             setLoading(false);
+            setCollapseData([
+                {
+                    id: 1,
+                    title: 'treatment_in_progress',
+                    icon: 'ic-medicament',
+                    badge: patient?.treatment?.length
+                },
+                {
+                    id: 6,
+                    title: 'riskFactory',
+                    icon: 'ic-recherche',
+                    badge: patient.antecedents.way_of_life.length
+                },
+                {
+                    id: 7,
+                    title: 'allergic',
+                    icon: 'allergies',
+                    badge: patient.antecedents.allergic.length
+                },
+                {
+                    id: 4,
+                    title: 'antecedent',
+                    icon: 'ic-doc',
+                    badge: patient.antecedents.family_antecedents.length +
+                        patient.antecedents.medical_antecedents.length +
+                        patient.antecedents.surgical_antecedents.length
+                },
+                {
+                    id: 2,
+                    title: 'balance_sheet_pending',
+                    icon: 'ic-analyse',
+                    badge: patient.requestedAnalyses.length
+                },
+                {
+                    id: 5,
+                    title: 'medical_imaging_pending',
+                    icon: 'ic-soura',
+                    badge: patient.requestedImaging.length
+                },
+                /*{
+                    id: 3,
+                    title: 'consultation',
+                    icon: 'ic-agenda',
+                    badge: 0
+                },*/
+                {
+                    id: 8,
+                    title: 'documents',
+                    icon: 'ic-download',
+                    badge: 0
+                }
+            ]);
         }
     }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -322,7 +376,6 @@ function Consultation() {
                     </Collapse>
                 </Box>
             </Box>
-
             <Stack ml={-1.25}>
                 <List dense>
                     {collapseData?.map((col, idx: number) => (
@@ -344,9 +397,13 @@ function Consultation() {
                                         ></Typography>
                                     )}
                                 </Typography>
-                                <IconButton size="small" sx={{ml: "auto"}}>
-                                    <Icon path="ic-expand-more"/>
-                                </IconButton>
+                                <Stack sx={{ml: "auto"}} spacing={2} direction={"row"}>
+                                    <Badge badgeContent={col.badge} sx={{marginTop:1.5}} color="warning"/>
+                                    <IconButton size="small">
+                                        <Icon path="ic-expand-more"/>
+                                    </IconButton>
+                                </Stack>
+
                             </ListItem>
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
