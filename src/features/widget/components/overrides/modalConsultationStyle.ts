@@ -1,6 +1,7 @@
-import { Card } from '@mui/material';
-import { styled } from '@mui/material/styles';
-const ConsultationModalStyled = styled(Card)(({ theme }) => ({
+import {Card} from '@mui/material';
+import {styled} from '@mui/material/styles';
+
+const ConsultationModalStyled = styled(Card)(({theme}) => ({
     '& .card-header': {
         '.icon-wrapper': {
             borderRadius: '50%',
@@ -24,10 +25,10 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
     '& .MuiCardContent-root': {
         position: 'relative',
         height: '100%',
-        padding:theme.spacing(0),
-        paddingTop:theme.spacing(1),
-        '.fieldset-body':{
-            margin:0,
+        padding: theme.spacing(0),
+        paddingTop: theme.spacing(1),
+        '.fieldset-body': {
+            margin: 0,
         },
         '.menu-list': {
             position: 'absolute',
@@ -63,6 +64,9 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
 
             }
         },
+    },
+    "& fieldset legend": {
+        display: "none"
     }
 }));
 export default ConsultationModalStyled;

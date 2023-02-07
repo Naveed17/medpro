@@ -6,7 +6,6 @@ import {configSelector, DashLayout} from "@features/base";
 import {
     ConsultationIPToolbar,
     consultationSelector,
-    SetExam,
     SetMutation,
     SetMutationDoc,
     SetAppointement,
@@ -42,15 +41,13 @@ import moment from "moment";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
-import dynamic from "next/dynamic";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models, appuuid, changes, setChanges} = props;
-        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes}
-                       setChanges={setChanges}></Widget>;
+        const {modal, data, setSM, models, appuuid, changes, setChanges} = props;
+        return <Widget {...{modal, data, models, appuuid, changes, setChanges}} setModal={setSM}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -62,6 +59,8 @@ function ConsultationInProgress() {
     const router = useRouter();
     const {data: session} = useSession();
     useLeavePageConfirm(() => {
+        setLoading(true);
+        mutateSheetData().then(() => setLoading(true));
         if (!leaveDialog.current) {
             /*if (!window.confirm(`message: ${uuind}`)) {
                 throw "Route Canceled";
@@ -70,6 +69,7 @@ function ConsultationInProgress() {
             }*/
         }
     });
+
     const leaveDialog = useRef(false);
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
@@ -231,7 +231,7 @@ function ConsultationInProgress() {
             : null
     );
 
-    const {data: httpSheetResponse} = useRequest(mpUuid && agenda ?
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(mpUuid && agenda ?
         {
             method: "GET",
             url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
@@ -276,7 +276,9 @@ function ConsultationInProgress() {
     }, [httpUsersResponse]);
 
     useEffect(() => {
-        if (httpModelResponse) setModels((httpModelResponse as HttpResponse).data);
+        if (httpModelResponse) {
+            setModels((httpModelResponse as HttpResponse).data);
+        }
     }, [httpModelResponse]);
 
     useEffect(() => {
@@ -402,7 +404,8 @@ function ConsultationInProgress() {
                     mutate().then(() => {
                         leaveDialog.current = true;
                         router.push("/dashboard/agenda").then(() => {
-                            localStorage.removeItem("Modeldata" + uuind);
+                            localStorage.removeItem(`Modeldata${uuind}`);
+                            localStorage.removeItem(`Model-${uuind}`);
                             localStorage.removeItem(`consultation-data-${uuind}`);
                             localStorage.removeItem(`consultation-fees`);
                             localStorage.removeItem(`consultation-acts`);
@@ -424,15 +427,16 @@ function ConsultationInProgress() {
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
+    const sheetModal = sheet?.modal;
 
     useEffect(() => {
         if (sheet) {
-            setSelectedModel(sheet.modal);
-            if (!localStorage.getItem('Modeldata' + uuind)) {
-                localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
-            }
+            const storageWidget = localStorage.getItem(`Modeldata${uuind}`);
+            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuind}`, JSON.stringify(sheetModal?.data));
+            const ModelWidget = localStorage.getItem(`Model-${uuind}`);
+            setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
         }
-    }, [dispatch, sheet, uuind]);
+    }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const sendNotification = () => {
         if (secretary.length > 0) {
@@ -548,10 +552,12 @@ function ConsultationInProgress() {
     };
 
     const leave = () => {
-        localStorage.removeItem("Modeldata" + uuind);
+        localStorage.removeItem(`Modeldata${uuind}`);
+        localStorage.removeItem(`Model-${uuind}`);
         localStorage.removeItem(`consultation-data-${uuind}`);
         localStorage.removeItem(`consultation-fees`);
         localStorage.removeItem(`consultation-acts`);
+
         updateAppointmentStatus(uuind as string, "11").then(() => {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
@@ -755,10 +761,10 @@ function ConsultationInProgress() {
                         <Grid item xs={12} sm={12} md={5}>
                             {!loading && models && selectedModel && (
                                 <WidgetForm
+                                    {...{models, changes, setChanges}}
                                     modal={selectedModel}
-                                    models={models}
+                                    data={sheetModal.data}
                                     appuuid={uuind}
-                                    changes={changes} setChanges={setChanges}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>
