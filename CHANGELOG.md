@@ -1,3 +1,18 @@
+## [4.9.1](https://github.com/SmartMedSA/med-pro/compare/v4.9.0...v4.9.1) (2023-02-07)
+
+
+### Bug Fixes
+
+* end consultation dialog ([043ace9](https://github.com/SmartMedSA/med-pro/commit/043ace92621779bae95884d909f89175f61037ea))
+* mutate config document ([40f8e20](https://github.com/SmartMedSA/med-pro/commit/40f8e2017d92d7ce95db72861325d728622276a5))
+
+# [4.9.0](https://github.com/SmartMedSA/med-pro/compare/v4.8.2...v4.9.0) (2023-02-07)
+
+
+### Features
+
+* consultation edit fiche ([2e7508c](https://github.com/SmartMedSA/med-pro/commit/2e7508cede136ac889d9722dd9171950c6266241))
+
 ## [4.8.2](https://github.com/SmartMedSA/med-pro/compare/v4.8.1...v4.8.2) (2023-02-04)
 
 
