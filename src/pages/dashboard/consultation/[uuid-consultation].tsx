@@ -408,7 +408,6 @@ function ConsultationInProgress() {
                             localStorage.removeItem(`consultation-acts`);
                             setActions(false);
                             setEnd(false);
-
                         })
                         sendNotification();
                     })
@@ -873,7 +872,7 @@ function ConsultationInProgress() {
                                 </Stack>
                             </Stack>}
                             <Button
-                                onClick={saveConsultation}
+                                onClick={appointement?.status === 5 ? saveConsultation : endConsultation}
                                 color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
