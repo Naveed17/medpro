@@ -1,3 +1,10 @@
+# [4.9.0](https://github.com/SmartMedSA/med-pro/compare/v4.8.2...v4.9.0) (2023-02-07)
+
+
+### Features
+
+* consultation edit fiche ([2e7508c](https://github.com/SmartMedSA/med-pro/commit/2e7508cede136ac889d9722dd9171950c6266241))
+
 ## [4.8.2](https://github.com/SmartMedSA/med-pro/compare/v4.8.1...v4.8.2) (2023-02-04)
 
 
