@@ -45,10 +45,12 @@ const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
 
 function DocsConfig() {
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
     const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
+    const componentRef = useRef<HTMLDivElement>(null);
+
     const [files, setFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({
@@ -69,11 +71,22 @@ function DocsConfig() {
         }
     })
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
-    const {enqueueSnackbar} = useSnackbar();
+    const {t, ready} = useTranslation(["settings", "common"], {
+        keyPrefix: "documents.config",
+    });
+
+    const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
-    const componentRef = useRef<HTMLDivElement>(null);
+    const {trigger} = useRequestMutation(null, "/MP/header");
+
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequest({
+        method: "GET",
+        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    }, SWRNoValidateConfig);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -128,13 +141,30 @@ function DocsConfig() {
 
     let {values, getFieldProps, setFieldValue} = formik;
 
-    const {data: httpData} = useRequest({
-        method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    }, SWRNoValidateConfig);
+
+    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+        data[from].x = location.x
+        data[from].y = location.y
+        setData({...data})
+    }
+
+    const save = () => {
+        const form = new FormData();
+        data.background.content = "";
+        form.append('document_header', JSON.stringify({header: values, data}));
+        trigger({
+            method: "PATCH",
+            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(()=>{
+            mutateDocumentHeader();
+        })
+        enqueueSnackbar(t("updated"), {variant: 'success'})
+
+    }
 
     useEffect(() => {
         if (httpData) {
@@ -167,32 +197,6 @@ function DocsConfig() {
 
         }
     }, [httpData, setFieldValue])
-
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "documents.config",
-    });
-
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
-        data[from].x = location.x
-        data[from].y = location.y
-        setData({...data})
-    }
-
-    const save = () => {
-        const form = new FormData();
-        data.background.content = "";
-        form.append('document_header', JSON.stringify({header: values, data}));
-        trigger({
-            method: "PATCH",
-            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation)
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-
-    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
