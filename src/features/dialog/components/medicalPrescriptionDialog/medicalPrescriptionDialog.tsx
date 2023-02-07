@@ -303,7 +303,7 @@ function MedicalPrescriptionDialog({...props}) {
                                     </Typography>}
 
 
-                                    {models.length > 0 && <Button
+                                    {(models.length > 0 || lastPrescriptions.length > 0) && <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
                                             <KeyboardArrowDownIcon/>

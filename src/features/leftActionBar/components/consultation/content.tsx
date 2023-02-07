@@ -236,6 +236,11 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
+
+                                    {patient?.treatment.filter((tr: any) => tr.isOtherProfessional).length > 0 &&
+                                        <Typography fontSize={11} fontWeight={"bold"}
+                                                    mt={1}>{t('tip')}</Typography>}
+
                                     {patient?.treatment.filter((tr: any) => tr.isOtherProfessional).map((list: any, index: number) => (
                                         <ListItem key={index}>
                                             <ListItemIcon>

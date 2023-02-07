@@ -185,7 +185,7 @@ function Payment() {
             payment_date: new Date(),
             expiry_date: new Date(),
         }],
-        selected: "cash"
+        selected: ""
     });
     const [collapse, setCollapse] = useState<boolean>(false);
     const {t} = useTranslation(["payment", "common"]);
@@ -465,6 +465,7 @@ function Payment() {
                             <Button
                                 variant="contained"
                                 color="error"
+                                disabled={deals.selected ===''}
                                 onClick={() => {
                                     openPop("btn_header_1")
                                 }}
@@ -477,6 +478,7 @@ function Payment() {
                             <Button
                                 variant="contained"
                                 color="success"
+                                disabled={deals.selected ===''}
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},

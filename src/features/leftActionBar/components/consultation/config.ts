@@ -40,6 +40,5 @@ export const collapse = [
         id: 8,
         title: 'documents',
         icon: 'ic-download',
-
     }
 ];

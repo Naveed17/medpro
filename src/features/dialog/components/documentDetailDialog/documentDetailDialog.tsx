@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    Card,
     DialogActions,
     DialogContent,
     DialogContentText,
@@ -68,8 +69,11 @@ function DocumentDetailDialog({...props}) {
     const [file, setFile] = useState<string>('');
     const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
+    const [menu, setMenu] = useState(true);
+    const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
+    const [error, setError] = useState(false);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
@@ -89,7 +93,7 @@ function DocumentDetailDialog({...props}) {
     })
     const {direction} = useAppSelector(configSelector);
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
-    const multimedias = ['video', 'audio', 'photo']
+    const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
             title: 'document_type',
@@ -192,6 +196,18 @@ function DocumentDetailDialog({...props}) {
         documentTitle: `${t(state.type)} ${state.patient}`
     })
 
+    const downloadF = () => {
+        fetch(file).then(response => {
+            response.blob().then(blob => {
+                const fileURL = window.URL.createObjectURL(blob);
+                let alink = document.createElement('a');
+                alink.href = fileURL;
+                alink.download = `${state.type} ${state.patient}`
+                alink.click();
+            })
+        })
+    }
+
     const handleActions = (action: string) => {
         switch (action) {
             case "print":
@@ -236,15 +252,7 @@ function DocumentDetailDialog({...props}) {
                 if (generatedDocs.some(doc => doc == state.type))
                     printNow();
                 else {
-                    fetch(file).then(response => {
-                        response.blob().then(blob => {
-                            const fileURL = window.URL.createObjectURL(blob);
-                            let alink = document.createElement('a');
-                            alink.href = fileURL;
-                            alink.download = `${state.type} ${state.patient}`
-                            alink.click();
-                        })
-                    })
+                    downloadF();
                 }
                 break;
             case "settings":
@@ -279,6 +287,7 @@ function DocumentDetailDialog({...props}) {
 
     useEffect(() => {
         setFile(state.uri)
+        setIsImg(['png','jpg','jpeg'].some(ex => ex === state.uri.split('.').pop().split(/\#|\?/)[0]))
     }, [state])
 
     useEffect(() => {
@@ -286,6 +295,7 @@ function DocumentDetailDialog({...props}) {
             const docInfo = (httpHeaderData as HttpResponse).data
             if (!docInfo.header) {
                 //handleClickOpen();
+                setLoading(false)
             } else {
                 setOpenAlert(false);
                 setData(docInfo.data)
@@ -317,7 +327,7 @@ function DocumentDetailDialog({...props}) {
     return (
         <DocumentDetailDialogStyled>
             <Grid container>
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} md={menu ? 8 : 12}>
                     <Stack spacing={2}>
                         {
                             !multimedias.some(multi => multi === state.type) &&
@@ -348,14 +358,30 @@ function DocumentDetailDialog({...props}) {
                                                 }
                                             }
                                         }}>
-                                            <Document ref={
-                                                componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
+                                            {!isImg && !error && <Document ref={
+                                                componentRef} file={file}
+                                                                 loading={t('wait')}
+                                                                 onLoadSuccess={onDocumentLoadSuccess}
+                                                                 onLoadError={() => {
+                                                                     setError(true)
+                                                                 }}
                                             >
                                                 {Array.from(new Array(numPages), (el, index) => (
                                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                                 ))}
 
-                                            </Document>
+                                            </Document>}
+                                            {!isImg && error && <Card style={{padding: 10}} onClick={downloadF}>
+                                                <Stack alignItems={"center"} spacing={1} justifyContent={"center"}>
+                                                    <IconUrl width={100} height={100} path={"ic-download"}/>
+                                                    <Typography>{t('ureadbleFile')}</Typography>
+                                                    <Typography fontSize={12}
+                                                                style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
+                                                </Stack>
+                                            </Card>}
+
+                                            {isImg && <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
+                                                  alt={"img"}/>}
                                         </Box>
                                     }
                                 </Box>
@@ -373,7 +399,7 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={4} className="sidebar" color={"white"} style={{background: "white"}}>
+                <Grid item xs={12} md={menu ? 4 : 0} className="sidebar" color={"white"} style={{background: "white"}}>
                     <List>
                         {
                             actionButtons.map((button, idx) =>

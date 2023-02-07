@@ -1,4 +1,5 @@
 interface PatientModel {
+    antecedents: any;
     fiche_id: string;
     uuid: string;
     firstName: string;
@@ -22,5 +23,6 @@ interface PatientModel {
     latestAppointments: [];
     previousAppointments: [];
     requestedAnalyses: [];
+    requestedImaging: [];
     treatment?: [];
 }
