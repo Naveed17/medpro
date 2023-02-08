@@ -35,6 +35,7 @@
     "@mui/material": "^5.10.7",
     "@mui/types": "^7.1.5",
     "@mui/utils": "^5.8.0",
+    "@mui/x-date-pickers": "^5.0.17",
     "@reduxjs/toolkit": "^1.8.1",
     "@sentry/nextjs": "^7.1.1",
     "@thaddeusjiang/react-sortable-list": "^0.0.3",
