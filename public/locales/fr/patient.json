@@ -86,6 +86,7 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "keyword":"Mot clé",
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",

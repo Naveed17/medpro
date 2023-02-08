@@ -49,7 +49,8 @@ function BasicPopover({ ...props }) {
                   (v: { title: string; icon: string; action: string }) => (
                     <Box
                       key={uniqueId()}
-                      onClick={() => {
+                      onClick={(e: any) => {
+                        e.stopPropagation();
                         onClickItem(v);
                         handleClose();
                       }}

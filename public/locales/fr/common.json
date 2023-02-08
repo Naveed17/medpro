@@ -35,6 +35,8 @@
   "add_profile_photo":"Ajouter photo profil",
   "send_msg":"Envoyer un msg",
   "appointment_history":"Historique des RDV",
+  "add_appointment":"Ajouter rdv",
+  "add_to_waiting_room":"Ajouter à la salle d'attente",
   "import_data": {
     "title": "Importation de données",
     "sub_title": "importer des données",
