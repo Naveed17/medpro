@@ -107,6 +107,12 @@ const FormStyled = styled(Form)(({theme}) => ({
         width: "100%",
         borderTop: "3px solid #f0fafe",
     },
+    "& .mui-time-picker .MuiButtonBase-root": {
+        padding: 5,
+        minHeight: "auto",
+        height: "auto",
+        minWidth: "auto"
+    }
 }));
 
 function PlacesDetail() {
@@ -187,7 +193,7 @@ function PlacesDetail() {
             information: "",
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             cleanData();
             let method: string;
@@ -1021,7 +1027,6 @@ function PlacesDetail() {
                                                                                     moment(start).format("HH:mm");
                                                                                 hour.end_time =
                                                                                     moment(end).format("HH:mm");
-                                                                                console.log('on changes', day);
                                                                                 setHoraires([...horaires]);
                                                                             }
                                                                         }}

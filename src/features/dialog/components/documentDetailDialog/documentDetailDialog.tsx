@@ -62,7 +62,7 @@ function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [name, setName] = useState(state.name);
-    const [note, setNote] = useState(state.description);
+    const [note, setNote] = useState(state.description ? state.description : "");
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
@@ -290,11 +290,9 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
-        console.log(typeof file)
-        if (typeof file !== 'object')
-            { // @ts-ignore
-                setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file.split('.').pop().split(/\#|\?/)[0]))
-            }
+        if (typeof file !== 'object') { // @ts-ignore
+            setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file?.split('.').pop().split(/\#|\?/)[0]))
+        }
     }, [file])
 
     useEffect(() => {
@@ -347,7 +345,17 @@ function DocumentDetailDialog({...props}) {
                                                 eventHandler,
                                                 data,
                                                 values: header,
-                                                state,
+                                                state: state.type === "fees" && state.info.length === 0 ? {
+                                                    ...state,
+                                                    info: [{
+                                                        fees: state.consultationFees,
+                                                        hiddenData: true,
+                                                        act: {
+                                                            name: "Consultation",
+                                                        },
+                                                        qte: 1
+                                                    }]
+                                                } : state,
                                                 date,
                                                 loading,
                                                 t

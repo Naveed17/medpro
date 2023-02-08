@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";

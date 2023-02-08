@@ -5,7 +5,7 @@ const BoxStyled = styled(Box)(({theme}) => ({
     [theme.breakpoints.up('sm')]: {
         marginLeft: "-20px",
         "& .MuiPickerStaticWrapper-root": {
-            marginLeft: "-.8rem",
+            marginLeft: "-1.2rem",
             '& > [class^=css-]': {
                 marginLeft: "-.6rem"
             },
@@ -18,6 +18,7 @@ const BoxStyled = styled(Box)(({theme}) => ({
         marginTop: "-.8rem",
     },
     '& .MuiCalendarPicker-root': {
+        width: 300,
         maxHeight: "-webkit-fill-available",
         padding: "5px 0",
         '& [role="presentation"]': {

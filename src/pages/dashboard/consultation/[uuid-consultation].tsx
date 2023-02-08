@@ -802,7 +802,7 @@ function ConsultationInProgress() {
                         t={t}></DocumentsTab>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"medical_procedures"}>
-                    <FeesTab
+                    {!loading && <FeesTab
                         {...{
                             acts,
                             selectedUuid,
@@ -813,7 +813,7 @@ function ConsultationInProgress() {
                             editAct,
                             setTotal,
                             t
-                        }}></FeesTab>
+                        }}></FeesTab>}
                 </TabPanel>
 
                 <Stack
@@ -855,7 +855,6 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
-                                        disabled={selectedAct.length === 0}
                                         onClick={() => {
                                             setInfo('document_detail')
                                             setState({
