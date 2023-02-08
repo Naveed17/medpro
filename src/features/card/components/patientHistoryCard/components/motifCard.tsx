@@ -14,7 +14,7 @@ function MotifCard({...props}) {
             return desc ? desc : "";
         } else {
             const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
-            return label ? label : "";
+            return label ? label : key;
 
         }
     }

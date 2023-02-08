@@ -289,21 +289,44 @@ function HistoryTab({...props}) {
                                                     <ListItemDetailsStyled sx={{p: 0}}>
                                                         {col.type === "treatment" && <>
                                                             {
-                                                                app.appointment.treatments.length > 0 ? app.appointment.treatments.map((treatment: any, idx: number) => (
-                                                                        <Box
-                                                                            key={`list-treatement-${idx}`}
-                                                                            className={'boxHisto'}>
-                                                                            <Typography
-                                                                                fontSize={12}>{treatment.name}</Typography>
-                                                                            <Stack direction={"row"}>
+                                                                app.appointment.treatments.length > 0 ? <>
+                                                                    {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                                            <Box
+                                                                                key={`list-treatement-${idx}`}
+                                                                                className={'boxHisto'}>
                                                                                 <Typography
-                                                                                    className={"treamtementDetail"}>• {treatment.dosage}</Typography>
-                                                                                <Typography className={"treamtementDetail"}
-                                                                                            ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
-                                                                            </Stack>
-                                                                        </Box>
-                                                                    )
-                                                                ) : <Box className={'boxHisto'}>
+                                                                                    fontSize={12}>{treatment.name}</Typography>
+                                                                                <Stack direction={"row"}>
+                                                                                    <Typography
+                                                                                        className={"treamtementDetail"}>• {treatment.dosage}</Typography>
+                                                                                    <Typography
+                                                                                        className={"treamtementDetail"}
+                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                </Stack>
+                                                                            </Box>
+                                                                        )
+                                                                    )}
+
+                                                                    {
+                                                                        app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).length > 0 && <Typography fontSize={12} fontWeight={"bold"}>{t('prescription')}</Typography>
+                                                                    }
+                                                                    {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                                            <Box
+                                                                                key={`list-treatement-${idx}`}
+                                                                                className={'boxHisto'}>
+                                                                                <Typography
+                                                                                    fontSize={12}>{treatment.name}</Typography>
+                                                                                <Stack direction={"row"}>
+                                                                                    <Typography
+                                                                                        className={"treamtementDetail"}>• {treatment.dosage}</Typography>
+                                                                                    <Typography
+                                                                                        className={"treamtementDetail"}
+                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                </Stack>
+                                                                            </Box>
+                                                                        )
+                                                                    )}
+                                                                </>  : <Box className={'boxHisto'}>
                                                                     <Typography
                                                                         className={"empty"}>{t('consultationIP.noTreatment')}</Typography>
                                                                 </Box>
