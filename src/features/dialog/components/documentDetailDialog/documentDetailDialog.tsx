@@ -290,10 +290,9 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
-        if (typeof file !== 'object')
-            { // @ts-ignore
-                setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file.split('.').pop().split(/\#|\?/)[0]))
-            }
+        if (typeof file !== 'object') { // @ts-ignore
+            setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file?.split('.').pop().split(/\#|\?/)[0]))
+        }
     }, [file])
 
     useEffect(() => {
@@ -346,7 +345,17 @@ function DocumentDetailDialog({...props}) {
                                                 eventHandler,
                                                 data,
                                                 values: header,
-                                                state,
+                                                state: state.type === "fees" && state.info.length === 0 ? {
+                                                    ...state,
+                                                    info: [{
+                                                        fees: state.consultationFees,
+                                                        hiddenData: true,
+                                                        act: {
+                                                            name: "Consultation",
+                                                        },
+                                                        qte: 1
+                                                    }]
+                                                } : state,
                                                 date,
                                                 loading,
                                                 t

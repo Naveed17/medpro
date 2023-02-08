@@ -170,7 +170,13 @@ function PreviewDialog({...props}) {
                             const FeesLine = document.createElement('table');
                             FeesLine.append(`${el.fees} • ${el.act.name}`)
                             rows.push({
-                                value: {qte: el.qte, name: el.act.name, fees: el.fees, total: el.qte * el.fees},
+                                value: {
+                                    qte: el.qte,
+                                    name: el.act.name,
+                                    fees: el.fees,
+                                    hiddenData: el.hiddenData,
+                                    total: el.qte * el.fees
+                                },
                                 name: "name",
                                 element: "table",
                                 style: {}
@@ -213,17 +219,19 @@ function PreviewDialog({...props}) {
                     total += Number(state.consultationFees);
                 }
                 for (let i = lastPos; i < rows.length; i++) {
-                    const line = document.createElement("tr");
-                    line.innerHTML = `<tr><td style="text-align: left !important;">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
-                    line.style.textAlign = "center"
-                    elx.appendChild(line)
+                    if (!rows[i].value.hiddenData) {
+                        const line = document.createElement("tr");
+                        line.innerHTML = `<tr><td style="text-align: left !important;">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
+                        line.style.textAlign = "center"
+                        elx.appendChild(line);
+                        total += rows[i].value.total;
+                    }
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
                     if (el.clientHeight >= data.content.maxHeight) {
                         lastPos = i + 1;
                         break;
                     }
-                    total += rows[i].value.total
                 }
 
                 const tt = document.createElement("tr");
