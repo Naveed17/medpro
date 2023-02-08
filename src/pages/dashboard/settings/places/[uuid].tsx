@@ -1003,7 +1003,6 @@ function PlacesDetail() {
                                                             {hour && (
                                                                 <Grid item lg={4} md={6} sm={12} xs={12}>
                                                                     <TimePicker
-                                                                        className={"mui-time-picker"}
                                                                         defaultValue={[
                                                                             hour.start_time
                                                                                 ? new Date(

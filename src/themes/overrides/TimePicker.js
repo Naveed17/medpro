@@ -8,7 +8,8 @@ import Box from "@mui/material/Box";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import moment from "moment-timezone";
 
-export default function TimePicker({onChange, defaultValue, className}) {
+export default function TimePicker({...props}) {
+    const {onChange, defaultValue} = props;
     const [initial, setInitial] = React.useState(defaultValue[0]);
     const [end, setEnd] = React.useState(defaultValue[1]);
 
@@ -27,7 +28,7 @@ export default function TimePicker({onChange, defaultValue, className}) {
             >
 
                 <MuiTimePicker
-                    className={className}
+                    className={"mui-time-picker"}
                     ampm={false}
                     openTo="hours"
                     views={["hours", "minutes"]}
@@ -41,7 +42,7 @@ export default function TimePicker({onChange, defaultValue, className}) {
                     <ArrowForwardIcon/>
                 </IconButton>
                 <MuiTimePicker
-                    className={className}
+                    className={"mui-time-picker"}
                     ampm={false}
                     openTo="hours"
                     views={["hours", "minutes"]}
