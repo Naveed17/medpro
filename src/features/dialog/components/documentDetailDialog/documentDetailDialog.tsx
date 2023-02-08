@@ -287,8 +287,14 @@ function DocumentDetailDialog({...props}) {
 
     useEffect(() => {
         setFile(state.uri)
-        setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === state.uri.split('.').pop().split(/\#|\?/)[0]))
     }, [state])
+
+    useEffect(() => {
+        if (typeof file !== 'object')
+            { // @ts-ignore
+                setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file.split('.').pop().split(/\#|\?/)[0]))
+            }
+    }, [file])
 
     useEffect(() => {
         if (httpHeaderData) {
