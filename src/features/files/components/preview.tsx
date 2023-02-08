@@ -174,7 +174,7 @@ function PreviewDialog({...props}) {
                                     qte: el.qte,
                                     name: el.act.name,
                                     fees: el.fees,
-                                    hiddenData: el.hiddenData,
+                                    hiddenData: el?.hiddenData,
                                     total: el.qte * el.fees
                                 },
                                 name: "name",
