@@ -287,8 +287,15 @@ function DocumentDetailDialog({...props}) {
 
     useEffect(() => {
         setFile(state.uri)
-        setIsImg(['png','jpg','jpeg'].some(ex => ex === state.uri.split('.').pop().split(/\#|\?/)[0]))
     }, [state])
+
+    useEffect(() => {
+        console.log(typeof file)
+        if (typeof file !== 'object')
+            { // @ts-ignore
+                setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file.split('.').pop().split(/\#|\?/)[0]))
+            }
+    }, [file])
 
     useEffect(() => {
         if (httpHeaderData) {
@@ -360,11 +367,11 @@ function DocumentDetailDialog({...props}) {
                                         }}>
                                             {!isImg && !error && <Document ref={
                                                 componentRef} file={file}
-                                                                 loading={t('wait')}
-                                                                 onLoadSuccess={onDocumentLoadSuccess}
-                                                                 onLoadError={() => {
-                                                                     setError(true)
-                                                                 }}
+                                                                           loading={t('wait')}
+                                                                           onLoadSuccess={onDocumentLoadSuccess}
+                                                                           onLoadError={() => {
+                                                                               setError(true)
+                                                                           }}
                                             >
                                                 {Array.from(new Array(numPages), (el, index) => (
                                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
@@ -380,8 +387,9 @@ function DocumentDetailDialog({...props}) {
                                                 </Stack>
                                             </Card>}
 
-                                            {isImg && <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
-                                                  alt={"img"}/>}
+                                            {isImg && <Box component={"img"} src={state.uri}
+                                                           sx={{marginLeft: 2, maxWidth: "100%"}}
+                                                           alt={"img"}/>}
                                         </Box>
                                     }
                                 </Box>
