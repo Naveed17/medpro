@@ -1,14 +1,13 @@
 import React, {useState} from "react";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {PickersDay, StaticDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 
 type CalendarPickerView = "day" | "month" | "year";
 

@@ -1,7 +1,7 @@
 {
   "pending": "Rdv en attente",
   "add": "Ajouter RDV",
-  "in-consultation-error": "vous avez déjà une consultation en cours",
+  "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
   "side-bar": {
     "all": "tous",
