@@ -93,7 +93,6 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [instruction, setInstruction] = useState("");
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState({
@@ -407,6 +406,7 @@ function ConsultationInProgress() {
                             localStorage.removeItem(`Modeldata${uuind}`);
                             localStorage.removeItem(`Model-${uuind}`);
                             localStorage.removeItem(`consultation-data-${uuind}`);
+                            localStorage.removeItem(`instruction-data-${uuind}`);
                             localStorage.removeItem(`consultation-fees`);
                             localStorage.removeItem(`consultation-acts`);
                             setActions(false);
@@ -440,12 +440,13 @@ function ConsultationInProgress() {
 
     const sendNotification = () => {
         if (secretary.length > 0) {
+            const localInstr = localStorage.getItem(`instruction-data-${uuind}`)
             const form = new FormData();
             form.append("action", "end_consultation");
             form.append("content", JSON.stringify(
                 {
                     fees: total,
-                    instruction: instruction,
+                    instruction: localInstr ? localInstr : "",
                     control: checkedNext,
                     nextApp: meeting ? meeting : "0",
                     patient: {
@@ -555,6 +556,7 @@ function ConsultationInProgress() {
         localStorage.removeItem(`Modeldata${uuind}`);
         localStorage.removeItem(`Model-${uuind}`);
         localStorage.removeItem(`consultation-data-${uuind}`);
+        localStorage.removeItem(`instruction-data-${uuind}`);
         localStorage.removeItem(`consultation-fees`);
         localStorage.removeItem(`consultation-acts`);
 
@@ -855,7 +857,8 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
-                                        onClick={() => {
+                                        onClick={event => {
+                                            event.stopPropagation();
                                             setInfo('document_detail')
                                             setState({
                                                 type: 'fees',
@@ -866,8 +869,7 @@ function ConsultationInProgress() {
                                                 patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${patient.firstName} ${patient.lastName}`
                                             })
                                             setOpenDialog(true);
-                                        }
-                                        }
+                                        }}
                                         startIcon={
                                             <IconUrl path='ic-imprime'/>
                                         }>
@@ -984,14 +986,13 @@ function ConsultationInProgress() {
                     open={openDialog}
                     data={{
                         state,
+                        uuind,
                         setState,
                         setDialog,
                         setOpenDialog,
                         t,
                         changes,
                         total,
-                        instruction,
-                        setInstruction,
                         meeting,
                         setMeeting,
                         checkedNext,
