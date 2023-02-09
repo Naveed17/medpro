@@ -51,11 +51,8 @@ import { Session } from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import { LoadingButton } from "@mui/lab";
 import { LoadingScreen } from "@features/loadingScreen";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
 import { countries as dialCountries } from "@features/countrySelect/countries";
-import { EventDef } from "@fullcalendar/react";
 import { Popover } from "@features/popover";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 const menuList = [
   {
     title: "waiting",

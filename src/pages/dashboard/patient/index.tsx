@@ -339,7 +339,7 @@ function Patient() {
       heading: {
         id: collapse[0].heading.title,
         icon: collapse[0].heading.icon,
-        title: t(collapse[0].heading.title.toLowerCase()),
+        title: collapse[0].heading.title.toLowerCase(),
       },
       expanded: true,
       children: (
@@ -380,7 +380,7 @@ function Patient() {
       heading: {
         id: collapse[1].heading.title,
         icon: collapse[1].heading.icon,
-        title: t(collapse[1].heading.title.toLowerCase()),
+        title: collapse[1].heading.title.toLowerCase(),
       },
       expanded: true,
       children: (
@@ -468,7 +468,6 @@ function Patient() {
           />
         </MobileContainer>
       </Box>
-
       <Dialog
         size={"sm"}
         sx={{
@@ -633,7 +632,6 @@ function Patient() {
           onAddAppointment={() => console.log("onAddAppointment")}
         />
       </Drawer>
-
       <Drawer
         anchor={"right"}
         open={patientDrawer}
@@ -672,7 +670,7 @@ function Patient() {
       <DrawerBottom
         handleClose={() => setopen(false)}
         open={open}
-        title={t("title")}>
+        title={t("filter.title")}>
         <Accordion
           translate={{ t, ready }}
           data={dataPatient}
