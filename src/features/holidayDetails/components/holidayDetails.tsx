@@ -14,9 +14,8 @@ import {
 import { styled } from "@mui/material/styles";
 import RadioTextImage from "@themes/overrides/RadioTextImage";
 import { Otable } from "@features/table";
-import { TimePicker as MuiTimePicker } from "@mui/lab";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider, TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
 import {LoadingScreen} from "@features/loadingScreen";
 
 const ContentStyled = styled(Stack)(({ theme }) => ({

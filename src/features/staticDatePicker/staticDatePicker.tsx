@@ -1,9 +1,7 @@
 // material
 import TextField from "@mui/material/TextField";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { StaticDatePicker as DatePicker } from "@mui/x-date-pickers/StaticDatePicker";
-
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider, StaticDatePicker as DatePicker} from '@mui/x-date-pickers';
 // styles
 import { RootStyled } from "./overrides";
 

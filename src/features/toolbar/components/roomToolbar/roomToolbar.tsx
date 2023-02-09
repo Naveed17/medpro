@@ -11,7 +11,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function RoomToolbar({...props}) {
     const {board, data, handleCollapse, openCalendar} = props;
-    const [open, setopen] = useState(false);
+    const [open, set0pen] = useState(false);
     const router = useRouter();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const {enqueueSnackbar} = useSnackbar();
@@ -20,7 +20,7 @@ function RoomToolbar({...props}) {
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
-        <Stack direction='row' justifyContent="space-between" width={1} alignItems="center">
+        <Stack direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
             <Typography>
                 {t('title')}
             </Typography>
@@ -46,10 +46,8 @@ function RoomToolbar({...props}) {
                             ))
                         }
                     </React.Fragment>
-                )
-
-                }
-                <Button
+                )}
+{/*                <Button
                     onClick={() => {
                         router.push('/dashboard/agenda').then(() => {
                             enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
@@ -59,13 +57,13 @@ function RoomToolbar({...props}) {
                     variant="contained"
                     color="primary">
                     {t("add")}
-                </Button>
+                </Button>*/}
 
             </Stack>
             <Button
                 startIcon={<Icon path="ic-filter"/>}
                 variant="filter"
-                onClick={() => setopen(!open)}
+                onClick={() => set0pen(!open)}
                 sx={{
                     position: 'fixed',
                     bottom: 50,
@@ -78,7 +76,7 @@ function RoomToolbar({...props}) {
                 Filtrer (0)
             </Button>
             <DrawerBottom
-                handleClose={() => setopen(false)}
+                handleClose={() => set0pen(false)}
                 open={open}
                 title="Filter"
             >

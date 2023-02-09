@@ -1,13 +1,24 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
-import {DetailsCard, NoDataCard, setTimer} from "@features/card";
+import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import Icon from "@themes/urlIcon";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Box, Button, DialogActions, Drawer, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    DialogActions,
+    Drawer,
+    LinearProgress,
+    Menu,
+    MenuItem,
+    Stack,
+    useTheme
+} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -32,6 +43,7 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {DefaultCountry} from "@app/constants";
+import {AnimatePresence, motion} from "framer-motion";
 
 export const headCells = [
     {
@@ -120,10 +132,12 @@ function WaitingRoom() {
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
+    const [error, setError] = useState<boolean>(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -247,20 +261,25 @@ function WaitingRoom() {
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
-                const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                    const event: any = {
-                        publicId: row?.uuid as string,
-                        extendedProps: {
-                            patient: row?.patient
-                        }
-                    };
-                    dispatch(setTimer({isActive: true, isPaused: false, event}));
-                    updateAppointmentStatus(row?.uuid as string, "4", {
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
+                if (!isActive) {
+
+                    const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                        const event: any = {
+                            publicId: row?.uuid as string,
+                            extendedProps: {
+                                patient: row?.patient
+                            }
+                        };
+                        dispatch(setTimer({isActive: true, isPaused: false, event}));
+                        updateAppointmentStatus(row?.uuid as string, "4", {
+                            start_date: moment().format("DD-MM-YYYY"),
+                            start_time: moment().format("HH:mm")
+                        });
                     });
-                });
+                } else {
+                    setError(true);
+                }
                 break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
@@ -287,6 +306,7 @@ function WaitingRoom() {
                 setOpenPaymentDialog(true);
                 break;
         }
+        handleClose();
     }
 
     const handleTableActions = (data: any) => {
@@ -339,8 +359,38 @@ function WaitingRoom() {
 
     return (
         <>
-            <SubHeader>
+            <SubHeader
+                sx={{
+                    "& .MuiToolbar-root": {
+                        display: "block"
+                    }
+                }}>
                 <RoomToolbar/>
+
+                {error &&
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: 1}}
+                        >
+                            <Alert variant="filled"
+                                   onClick={() => {
+                                       const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                                       if (router.asPath !== slugConsultation) {
+                                           router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+                                       }
+                                   }}
+                                   onClose={(event) => {
+                                       event.stopPropagation();
+                                       setError(false);
+                                   }}
+                                   sx={{marginBottom: 2, marginTop: 1, border: "none", cursor: "pointer"}}
+                                   severity="error">
+                                {t("in-consultation-error", {ns: "common"})}
+                            </Alert>
+                        </motion.div>
+                    </AnimatePresence>}
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
@@ -411,7 +461,6 @@ function WaitingRoom() {
                                                         className="popover-item"
                                                         onClick={() => {
                                                             OnMenuActions(v.action);
-                                                            handleClose();
                                                         }}
                                                     >
                                                         {v.icon}

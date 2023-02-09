@@ -1,7 +1,6 @@
 import {Box, Checkbox, Collapse, FormControlLabel, Stack, TextField} from "@mui/material";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import DatePicker from "@mui/lab/DatePicker";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 

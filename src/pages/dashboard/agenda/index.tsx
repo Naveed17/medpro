@@ -865,11 +865,9 @@ function Agenda() {
     return (
         <div>
             <SubHeader
-                {...{
-                    sx: {
-                        "& .MuiToolbar-root": {
-                            display: "block"
-                        }
+                sx={{
+                    "& .MuiToolbar-root": {
+                        display: "block"
                     }
                 }}>
                 <CalendarToolbar
@@ -884,7 +882,18 @@ function Agenda() {
                             animate={{opacity: 1}}
                             transition={{ease: "easeIn", duration: 1}}
                         >
-                            <Alert sx={{marginBottom: 2, p: "0 5px"}}
+                            <Alert variant="filled"
+                                   onClick={() => {
+                                       const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                                       if (router.asPath !== slugConsultation) {
+                                           router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+                                       }
+                                   }}
+                                   onClose={(event) => {
+                                       event.stopPropagation();
+                                       setError(false);
+                                   }}
+                                   sx={{marginBottom: 2, border: "none", cursor: "pointer"}}
                                    severity="error">{t("in-consultation-error")}</Alert>
                         </motion.div>
                     </AnimatePresence>}
