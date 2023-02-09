@@ -17,7 +17,7 @@ export default function BasicAlert({ children, ...props }) {
     return (
         <RootStyle onClick={onChange} styleprops={color} icon={<IconUrl path={icon} />} severity={color} sx={rest.sx}>
             {data}
-        </RootStyle >
+        </RootStyle>
 
     );
 }

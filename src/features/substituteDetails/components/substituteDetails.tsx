@@ -4,9 +4,8 @@ import { Typography, Stack, TextField, Grid, Button } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import React from "react";
 import { useTranslation } from "next-i18next";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import { TimePicker as MuiTimePicker } from "@mui/lab";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider,TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
 import {LoadingScreen} from "@features/loadingScreen";
 
 const PaperStyled = styled(Form)(({ theme }) => ({

@@ -13,8 +13,8 @@ import {DatePicker} from "@features/datepicker";
 import _ from "lodash";
 import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
 
 interface StateProps {
     name: string;
@@ -147,7 +147,6 @@ function PatientFilter({...props}) {
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
                                     {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DatePicker
                                         value={queryState.birthdate}
                                         inputFormat="dd/MM/yyyy"
@@ -172,7 +171,6 @@ function PatientFilter({...props}) {
                                             }
                                         }}
                                     />
-                                </LocalizationProvider>
                             </Box>
                         )}
                     </Fragment>

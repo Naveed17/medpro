@@ -13,8 +13,8 @@ import {
 import {DefaultCountry, SocialInsured} from "@app/constants";
 import Select from "@mui/material/Select";
 import Icon from "@themes/urlIcon";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
 import React, {memo} from "react";

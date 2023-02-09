@@ -19,10 +19,8 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
 import {LoadingScreen} from "@features/loadingScreen";
 function SortIcon({ ...props }) {
   return (

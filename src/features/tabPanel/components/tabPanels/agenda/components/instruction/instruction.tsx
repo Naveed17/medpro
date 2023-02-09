@@ -14,8 +14,8 @@ import {
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
