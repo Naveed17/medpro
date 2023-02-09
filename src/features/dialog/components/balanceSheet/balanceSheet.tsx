@@ -247,7 +247,7 @@ function BalanceSheetDialog({...props}) {
                                         const filtered = filter(options, params);
                                         const {inputValue} = params;
                                         // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue === option.name);
+                                        const isExisting = options.some((option) => inputValue === `${option.name} (${option.abbreviation ? option.abbreviation : ""})`);
                                         if (inputValue !== '' && !isExisting) {
                                             filtered.push({
                                                 inputValue,
@@ -272,9 +272,10 @@ function BalanceSheetDialog({...props}) {
                                             return option.inputValue;
                                         }
                                         // Regular option
-                                        return option.name;
+                                        return `${option.name} (${option.abbreviation ? option.abbreviation : ""})`;
                                     }}
-                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                    renderOption={(props, option) =>
+                                        <li {...props}>{option.name} {option.abbreviation ? `(${option.abbreviation})` : ""}</li>}
                                     freeSolo
                                     renderInput={(params) => (
                                         <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
