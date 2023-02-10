@@ -52,6 +52,8 @@ function BalanceSheetDialog({...props}) {
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
+    console.log(analysisList);
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
