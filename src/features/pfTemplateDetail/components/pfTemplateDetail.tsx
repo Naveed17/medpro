@@ -57,6 +57,9 @@ const PaperStyled = styled(Form)(({theme}) => ({
         width: '650px',
         bottom: 0,
         borderTop: `3px solid ${theme.palette.grey['A700']}`,
+    },
+    "& fieldset legend": {
+        display: "none"
     }
 }));
 
@@ -327,7 +330,7 @@ function PfTemplateDetail({...props}) {
                                             )) :
                                             sections.map((section: SpecialtyJsonWidgetModel, index: number) => (
                                                 <Box key={index}>
-                                                    <ListItem key={section.uuid} sx={{padding: 0}}>
+                                                    {/*<ListItem key={section.uuid} sx={{padding: 0}}>
                                                         <Checkbox
                                                             size="small"
                                                             id={section.uuid}
@@ -348,7 +351,7 @@ function PfTemplateDetail({...props}) {
                                                     </ListItem>
 
                                                     <Collapse
-                                                        in={open.find((i: string) => i == section.uuid) !== undefined}>
+                                                        in={open.find((i: string) => i == section.uuid) !== undefined}>*/}
                                                         <Card style={{width: '50%', margin: 5}}>
                                                             <CardContent>
                                                                 {
@@ -361,7 +364,7 @@ function PfTemplateDetail({...props}) {
                                                                 }
                                                             </CardContent>
                                                         </Card>
-                                                    </Collapse>
+                                                    {/*</Collapse>*/}
                                                 </Box>))
                                         }
 

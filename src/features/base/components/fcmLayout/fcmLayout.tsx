@@ -27,9 +27,11 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {CircularProgressbarCard, setTimer} from "@features/card";
+import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
+import smartlookClient from 'smartlook-client';
+import {EnvPattern} from "@app/constants";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -223,6 +225,15 @@ function FcmLayout({...props}) {
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
+            const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+            if(prodEnv) {
+                // identify smartlook user
+                smartlookClient.identify(general_information.uuid, {
+                    name: `${general_information.firstName} ${general_information.lastName}`,
+                    email: general_information.email,
+                    role: general_information.roles[0]
+                });
+            }
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 

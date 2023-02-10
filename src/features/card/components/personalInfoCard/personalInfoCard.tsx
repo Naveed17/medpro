@@ -84,7 +84,7 @@ function PersonalInfo({...props}) {
             .email('Invalid email format'),
         birthdate: Yup.string(),
         profession: Yup.string(),
-        cin: Yup.number(),
+        cin: Yup.string(),
         familyDoctor: Yup.string()
     });
 

@@ -25,8 +25,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
 import {Theme} from "@mui/material/styles";
 
-const filter = createFilterOptions<any>();
-
 export const BalanceSheetCardData = {
     mainIcon: "ic-analyse",
     title: "noRequest",
@@ -45,8 +43,8 @@ function BalanceSheetDialog({...props}) {
     const [model, setModel] = useState<string>('');
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
     const [balanceValue, setBalance] = useState<AnalysisModel | null>(null);
+    const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
@@ -89,23 +87,33 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpModelResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + '/requested-analysis-modal/' + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const analysisList = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
+    const {handleSubmit} = formik;
+
     const sortAnalysis = useCallback(() => {
         const recents = localStorage.getItem("balance-Sheet-recent") ?
             JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
         if (recents.length > 0 && analysisList) {
-            setAnalysisList([
-                ...recents,
-                ...analysisList.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+            setSearchAnalysis(analysisList.sort(x => recents.find((r: AnalysisModel) => r.uuid === x.uuid) ? 1 : -1));
         }
     }, [analysisList])
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
-        analysis.unshift(value)
-        setAnalysis([...analysis])
-        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...analysis]));
-        data.setState([...analysis])
+        analysis.unshift(value);
+        setAnalysis([...analysis]);
+        const recents = localStorage.getItem("balance-Sheet-recent") ?
+            JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...analysis.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
+        data.setState([...analysis]);
     }
 
     const saveModel = () => {
@@ -132,37 +140,25 @@ function BalanceSheetDialog({...props}) {
                 url: `/api/private/analysis/${router.locale}?name=${analysisName}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((r) => {
-                const res = (r?.data as HttpResponse).data
-                setAnalysisList(res.length > 0 ? res : (httpAnalysisResponse as HttpResponse)?.data);
-                sortAnalysis();
+                const res = (r?.data as HttpResponse).data;
+                setSearchAnalysis(res.length > 0 ? res : analysisList);
             });
         } else {
-            setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+            setSearchAnalysis(analysisList);
         }
     }
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpModelResponse} = useRequest({
-        method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + '/requested-analysis-modal/' + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
-    const {handleSubmit} = formik;
 
     useEffect(() => {
         if (httpModelResponse)
             setModels((httpModelResponse as HttpResponse).data);
-    }, [httpModelResponse])
+    }, [httpModelResponse]);
 
     useEffect(() => {
-        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
-        setTimeout(() => {
+        if (analysisList) {
+            setSearchAnalysis(analysisList);
             setLoading(false);
-            sortAnalysis();
-        }, 1000);
-    }, [httpAnalysisResponse]) // eslint-disable-line react-hooks/exhaustive-deps
+        }
+    }, [analysisList]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -241,27 +237,26 @@ function BalanceSheetDialog({...props}) {
                                                 addAnalysis(newValue as AnalysisModel);
                                             }
                                         }
-                                        sortAnalysis();
                                     }}
                                     filterOptions={(options, params) => {
-                                        const filtered = filter(options, params);
                                         const {inputValue} = params;
+                                        const filtered = options.filter(option =>
+                                            [option.name.toLowerCase(), option.abbreviation?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
                                         // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue === option.name);
+                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name);
                                         if (inputValue !== '' && !isExisting) {
                                             filtered.push({
                                                 inputValue,
                                                 name: `${t('add_balance_sheet')} "${inputValue}"`,
                                             });
                                         }
-
                                         return filtered;
                                     }}
                                     selectOnFocus
                                     clearOnEscape
                                     handleHomeEndKeys
                                     id="sheet-solo-balance"
-                                    options={analysisList ? analysisList : []}
+                                    options={searchAnalysis}
                                     getOptionLabel={(option) => {
                                         // Value selected with enter, right from the input
                                         if (typeof option === 'string') {
@@ -274,7 +269,9 @@ function BalanceSheetDialog({...props}) {
                                         // Regular option
                                         return option.name;
                                     }}
-                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                    renderOption={(props, option) =>
+                                        <li {...props}
+                                            key={option.uuid ? option.uuid : "-1"}>{option.name} {option.abbreviation ? `(${option.abbreviation})` : ""}</li>}
                                     freeSolo
                                     renderInput={(params) => (
                                         <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
@@ -286,7 +283,8 @@ function BalanceSheetDialog({...props}) {
                             </Typography>
                             {!loading ?
                                 <List className='items-list'>
-                                    {analysisList?.map((analysisItem, index) => (
+                                    {(localStorage.getItem("balance-Sheet-recent") ?
+                                        JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : analysisList)?.map((analysisItem: AnalysisModel, index: number) => (
                                             <ListItemButton
                                                 disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
                                                 key={index}

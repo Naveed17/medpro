@@ -71,7 +71,7 @@ jobs:
 
   CD:
     needs: [CI,envmap]
-    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@v1.1.0
+    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@temporary
     if: ${{ needs.envmap.outputs.enable_cd == 'true' }}
     strategy:
       matrix: ${{ fromJSON(needs.envmap.outputs.environments) }}

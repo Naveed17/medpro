@@ -1,4 +1,4 @@
-import React from "react";
+import React, {memo, useCallback, useRef, useState} from "react";
 import {
     Badge,
     Box,
@@ -28,19 +28,17 @@ const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {t, changes, total, instruction, setInstruction, meeting, setMeeting, checkedNext, setCheckedNext},
+        data: {uuind, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext},
     } = props;
 
     const {data: session} = useSession();
+    const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
+    const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const {data: user} = session as Session;
-
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInstruction(event.target.value.slice(0, limit));
-    };
     return (
         <RootStyled>
             <Grid container>
@@ -59,13 +57,16 @@ function SecretaryConsultationDialog({...props}) {
                             fullWidth
                             multiline
                             value={instruction}
-                            onChange={handleChange}
+                            onChange={event => {
+                                setInstruction(event.target.value.slice(0, limit));
+                                localStorage.setItem(`instruction-data-${uuind}`, event.target.value.slice(0, limit));
+                            }}
                             placeholder={t("type_instruction_for_the_secretary")}
                             rows={4}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment defaultValue={instruction} position="end">
-                                        {instruction.length} / {limit}
+                                        {instruction.length} / {255}
                                     </InputAdornment>
                                 ),
                             }}
@@ -104,11 +105,11 @@ function SecretaryConsultationDialog({...props}) {
                                         type={"number"}
                                         value={meeting}
                                         placeholder={'-'}
-                                        onClick={(e)=>{
+                                        onClick={(e) => {
                                             e.stopPropagation();
                                         }}
-                                        onChange={(e)=>{
-                                            if (e.target.value.length === 0 )
+                                        onChange={(e) => {
+                                            if (e.target.value.length === 0)
                                                 setMeeting(e.target.value)
                                             else setMeeting(Number(e.target.value))
                                         }}
@@ -150,7 +151,7 @@ function SecretaryConsultationDialog({...props}) {
                         maxWidth={{xs: "100%", md: "80%"}}
                         mx="auto"
                         width={1}>
-                        <Typography mt={{xs:3,md:0}} variant="subtitle1">
+                        <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
                             {t("recap")}
                         </Typography>
 
