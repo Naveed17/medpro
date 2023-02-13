@@ -16,6 +16,9 @@ function BasicDatePicker({...props}) {
         >
             <DatePicker
                 {...props}
+                onAccept={value1 => console.log((value1))}
+                inputFormat={"dd/MM/yyyy"}
+                mask="__/__/____"
                 value={value}
                 onChange={(newValue) => {
                     onChange(newValue);

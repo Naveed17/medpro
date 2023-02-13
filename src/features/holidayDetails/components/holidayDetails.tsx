@@ -232,7 +232,6 @@ function HolidayDetails({ ...props }) {
                 </Typography>
               </Grid>
               <Grid key={"time"} item xs={12} lg={5}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <MuiTimePicker
                       ampm={false}
@@ -246,7 +245,6 @@ function HolidayDetails({ ...props }) {
                       renderInput={(params) => <TextField {...params} />}
                       value={values.time_start}
                     />
-                  </LocalizationProvider>
                 </LocalizationProvider>
               </Grid>
             </Grid>

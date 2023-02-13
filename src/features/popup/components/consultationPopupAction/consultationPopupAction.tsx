@@ -61,7 +61,7 @@ function ConsultationPopupAction({...props}) {
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
                                     <Chip
                                         color="success"
-                                        label={`${data.fees} TND`}
+                                        label={`${data.fees} ${data.devise}`}
                                     />
                                 </Stack>
                             </Stack>
