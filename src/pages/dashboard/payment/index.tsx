@@ -42,12 +42,13 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import { Label } from "@features/label";
 import { cashBoxSelector } from "@features/leftActionBar/components/payment/selectors";
 import { DefaultCountry } from "@app/constants";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   setCashBox,
   setInsurances,
   setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -189,7 +190,7 @@ function Payment() {
         expiry_date: new Date(),
       },
     ],
-    selected: "cash",
+    selected: "",
   });
   const [collapse, setCollapse] = useState<boolean>(false);
   const { t } = useTranslation(["payment", "common"]);
@@ -316,7 +317,6 @@ function Payment() {
       popoverActions.findIndex((data) => data.action === "onPay"),
       1
     );
-<<<<<<< HEAD
     setPopoverActions(actions);
   };
   const openPop = (ev: string) => {
@@ -331,34 +331,6 @@ function Payment() {
       amount: 0,
       total: 0,
       payments: [],
-=======
-
-    const noCardData = {
-        mainIcon: "ic-payment",
-        title: "no-data.title",
-        description: "no-data.description"
-    };
-
-
-    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: ""
-        },
-        card: {
-            amount: ""
-        },
-        check: [{
-            amount: "",
-            carrier: "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }],
-        selected: ""
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
     });
     setOpenPaymentDialog(true);
   };
@@ -719,155 +691,8 @@ function Payment() {
                   width: "150px",
                   textAlign: "center",
                 },
-<<<<<<< HEAD
               }}
               placeholder={t("---")}
-=======
-            }).then((r: any) => {
-                console.log(r.data.data)
-            });
-        }
-    }, [day, selectedBox]) // eslint-disable-line react-hooks/exhaustive-deps
-    useEffect(() => {
-        setDay(moment(currentDate.date).format('DD-MM-YYYY'))
-        //console.log(currentDate)
-    }, [currentDate])
-    useEffect(() => {
-        if (agenda) {
-            const queryPath = `format=week&page=1&limit=50&start_date=${day}&end_date=${day}`
-            getAppointments(queryPath)
-        }
-    }, [getAppointments, agenda, day])
-
-    useEffect(()=>{
-        console.log(query)
-    },[query])
-
-    return (
-        <>
-            <SubHeader>
-                <Stack
-                    direction="row"
-                    width={1}
-                    justifyContent="space-between"
-                    alignItems="center">
-                    <Typography><b>Le {moment(day, 'DD-MM-YYYY').format('DD MMMM YYYY')}</b></Typography>
-                    <Stack direction="row" spacing={3} alignItems="center">
-
-                        {newVersion && <>
-                            <Typography variant="subtitle2">{t("receive")}</Typography>
-                            <Typography variant="h6">{toReceive} {devise}</Typography>
-                            <Typography variant="h6">I</Typography>
-                        </>
-                        }
-                        <Typography variant="subtitle2">{t("total")}</Typography>
-                        <Typography variant="h6">{total} {devise}</Typography>
-
-                        {newVersion && <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="h6">I</Typography>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                disabled={deals.selected ===''}
-                                onClick={() => {
-                                    openPop("btn_header_1")
-                                }}
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}>
-                                - {!isMobile && t("btn_header_1")}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                disabled={deals.selected ===''}
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                                onClick={() => {
-                                    openPop("btn_header_2");
-                                }}>
-                                + {!isMobile && t("btn_header_2")}
-                            </Button>
-                            <Typography variant="h6">I</Typography>
-                            <Button
-                                variant="contained"
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                                onClick={() => {
-                                    handleCollapse(null)
-                                }}>
-                                {!isMobile && t("Encaisser")}
-                            </Button>
-                        </Stack>}
-                    </Stack>
-                </Stack>
-            </SubHeader>
-
-            <Box className="container">
-                <DesktopContainer>
-                    {rows.length > 0 ? <Otable
-                        headers={headCells}
-                        rows={rows}
-                        from={"payment"}
-                        t={t}
-                        select={select}
-                    /> : <Box style={{height: '75vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <NoDataCard t={t} ns={"payment"} data={noCardData}/>
-                    </Box>}
-                </DesktopContainer>
-                <MobileContainer>
-                    <Stack spacing={2}>
-                        {rows.map((card, idx) => (
-                            <React.Fragment key={idx}>
-                                <PaymentMobileCard
-                                    data={card}
-                                    t={t}
-                                    getCollapseData={handleCollapse}
-                                />
-                            </React.Fragment>
-                        ))}
-                    </Stack>
-                    <Box pb={6}/>
-                </MobileContainer>
-            </Box>
-
-            <Dialog
-                action={"payment_dialog"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380
-                    }
-                }}
-                open={openPaymentDialog}
-                data={{
-                    selectedPayment, setSelectedPayment,
-                    deals, setDeals, paymentTypes,
-                    patient: null
-                }}
-                size={"md"}
-                title={t(action)}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("config.cancel", {ns: "common"})}
-                        </Button>
-                        <Button
-                            disabled={selectedPayment && selectedPayment.payments.length === 0}
-                            variant="contained"
-                            onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("config.save", {ns: "common"})}
-                        </Button>
-                    </DialogActions>
-                }
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
             />
             <Typography variant={"body1"} color={theme.palette.grey[700]}>
               {devise}
