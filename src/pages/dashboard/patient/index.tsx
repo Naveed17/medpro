@@ -17,6 +17,8 @@ import {
   Stack,
   TextField,
   useMediaQuery,
+  Zoom,
+  SpeedDial,
 } from "@mui/material";
 // redux
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
@@ -72,6 +74,7 @@ import {
   ActionBarState,
   setFilter,
 } from "@features/leftActionBar";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 const humanizeDuration = require("humanize-duration");
 
 const stepperData = [
@@ -156,7 +159,7 @@ const headCells: readonly HeadCell[] = [
 
 function Patient() {
   const dispatch = useAppDispatch();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -185,8 +188,12 @@ function Patient() {
   const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
   const [moveDialog, setMoveDialog] = useState<boolean>(false);
   const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
-
+  const transitionDuration = {
+    enter: theme.transitions.duration.enteringScreen,
+    exit: theme.transitions.duration.leavingScreen,
+  };
   const { data: user } = session as Session;
+  const [loading, setLoading] = useState<boolean>(status === "loading");
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
 
@@ -334,9 +341,7 @@ function Patient() {
   };
   const { collapse } = RightActionData.filter;
   const [open, setopen] = useState(false);
-  const [mobileFilter, setMobileFilter] = useState(
-    (httpPatientsResponse as HttpResponse)?.data?.list
-  );
+  const [mobileFilter, setMobileFilter] = useState([]);
   const [dataPatient, setDataPatient] = useState([
     {
       heading: {
@@ -421,7 +426,10 @@ function Patient() {
       setMobileFilter((httpPatientsResponse as HttpResponse)?.data?.list);
     }
   };
-  console.log(mobileFilter);
+  useEffect(() => {
+    setMobileFilter((httpPatientsResponse as HttpResponse)?.data?.list);
+  }, [httpPatientsResponse]);
+
   if (!ready)
     return (
       <LoadingScreen
@@ -482,7 +490,7 @@ function Patient() {
           <PatientMobileCard
             ready={ready}
             handleEvent={handleTableActions}
-            PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
+            PatientData={mobileFilter}
           />
         </MobileContainer>
       </Box>
@@ -621,7 +629,24 @@ function Patient() {
           </>
         }
       />
-
+      {isMobile && (
+        <Zoom
+          in={!loading}
+          timeout={transitionDuration}
+          style={{
+            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+          }}
+          unmountOnExit>
+          <SpeedDial
+            ariaLabel="SpeedDial tooltip Add"
+            sx={{
+              position: "fixed",
+              bottom: 16,
+              right: 16,
+            }}
+            icon={<SpeedDialIcon />}></SpeedDial>
+        </Zoom>
+      )}
       <Drawer
         anchor={"right"}
         open={openViewDrawer}
@@ -694,6 +719,11 @@ function Patient() {
           data={dataPatient}
           setData={setDataPatient}
         />
+        <MobileContainer>
+          <Stack alignItems="flex-end">
+            <Button>{t("filter.apply")}</Button>
+          </Stack>
+        </MobileContainer>
       </DrawerBottom>
     </>
   );
