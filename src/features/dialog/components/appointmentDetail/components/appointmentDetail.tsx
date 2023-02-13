@@ -134,6 +134,11 @@ function AppointmentDetail({...props}) {
         return dialCountries.find(country => country.phone === code)
     }
 
+    const getBirthdayFormat = (patient: PatientModel) => {
+        const birthday = moment().preciseDiff(moment(patient?.birthdate, "DD-MM-YYYY"), true);
+        return `${birthday.years ? `${birthday.years} ${t("times.years").toLowerCase()}, ` : ""} ${birthday.months ? `${birthday.months} ${t("times.months").toLowerCase()}, ` : ""} ${birthday.days ? `${birthday.days} ${t("times.days").toLowerCase()}` : ""}`;
+    }
+
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     useEffect(() => {
@@ -150,10 +155,12 @@ function AppointmentDetail({...props}) {
             <AppBar position="static" color='inherit'>
                 <Toolbar>
                     <IconButton
-                        size="small"
+                        disableRipple
+                        size="medium"
+                        edge="end"
                         onClick={() => dispatch(openDrawer({type: "view", open: false}))}
                     >
-                        <CloseIcon/>
+                        <Icon path="ic-x"/>
                     </IconButton>
                 </Toolbar>
             </AppBar>
@@ -229,7 +236,7 @@ function AppointmentDetail({...props}) {
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
                                         {appointment?.extendedProps.patient?.birthdate} {" "}
-                                        ({moment().diff(moment(appointment?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        ({" "}{getBirthdayFormat(appointment?.extendedProps.patient)}{" "})
                                     </Typography>
                                 </ListItem>}
                                 {appointment?.extendedProps.patient.email && <ListItem>
@@ -403,7 +410,7 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: moment().isBefore(appointment?.extendedProps.time) ? "none" : "flex"
+                                    display: appointment?.extendedProps.status.key !== "FINISHED" ? "none" : "flex"
                                 }}
                                 onClick={() => {
                                     dispatch(setMoveDateTime({
@@ -421,7 +428,8 @@ function AppointmentDetail({...props}) {
                             <LoadingButton
                                 {...{loading}}
                                 sx={{
-                                    display: moment().isAfter(appointment?.extendedProps.time) ? "none" : "flex"
+                                    display: moment().isAfter(appointment?.extendedProps.time) ||
+                                    appointment?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
                                 }}
                                 onClick={() => {
                                     dispatch(setMoveDateTime({
