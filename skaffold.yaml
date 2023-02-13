@@ -21,6 +21,7 @@ build:
       hooks:
         before:
           - command: [ "bash", "-c", "envsubst < .env.local.dist  > .env" ]
+          - command: [ "bash", "-c", "echo environment_url='https://${INGRESS_HOST}/' >> $GITHUB_OUTPUT" ]
 
 manifests:
   kustomize:
