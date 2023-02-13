@@ -4,22 +4,12 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { pdfjs } from "react-pdf";
 import { configSelector, DashLayout } from "@features/base";
 import {
-<<<<<<< HEAD
   ConsultationIPToolbar,
   consultationSelector,
-  SetExam,
   SetMutation,
   SetMutationDoc,
   SetAppointement,
   SetPatient,
-=======
-    ConsultationIPToolbar,
-    consultationSelector,
-    SetMutation,
-    SetMutationDoc,
-    SetAppointement,
-    SetPatient,
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 } from "@features/toolbar";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { onOpenPatientDrawer, tableActionSelector } from "@features/table";
@@ -77,71 +67,42 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import { LoadingScreen } from "@features/loadingScreen";
 import { appLockSelector } from "@features/appLock";
 import moment from "moment";
-<<<<<<< HEAD
 import { Session } from "next-auth";
 import { DefaultCountry } from "@app/constants";
 import { useLeavePageConfirm } from "@app/hooks/useLeavePageConfirm";
-import dynamic from "next/dynamic";
-=======
-import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
-import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(
-<<<<<<< HEAD
   ({ src, ...props }: any) => {
-    const { modal, setSM, models, appuuid, changes, setChanges } = props;
+    const { modal, data, setSM, models, appuuid, changes, setChanges } = props;
     return (
       <Widget
-        modal={modal}
-        setModal={setSM}
-        models={models}
-        appuuid={appuuid}
-        changes={changes}
-        setChanges={setChanges}></Widget>
+        {...{ modal, data, models, appuuid, changes, setChanges }}
+        setModal={setSM}></Widget>
     );
   },
   // NEVER UPDATE
   () => true
-=======
-    ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges} = props;
-        return <Widget {...{modal, data, models, appuuid, changes, setChanges}} setModal={setSM}></Widget>;
-    },
-    // NEVER UPDATE
-    () => true
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 );
 WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
-<<<<<<< HEAD
   const theme = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
   useLeavePageConfirm(() => {
+    setLoading(true);
+    mutateSheetData().then(() => setLoading(true));
     if (!leaveDialog.current) {
       /*if (!window.confirm(`message: ${uuind}`)) {
-=======
-    const theme = useTheme();
-    const router = useRouter();
-    const {data: session} = useSession();
-    useLeavePageConfirm(() => {
-        setLoading(true);
-        mutateSheetData().then(() => setLoading(true));
-        if (!leaveDialog.current) {
-            /*if (!window.confirm(`message: ${uuind}`)) {
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
                 throw "Route Canceled";
             } else {
                 // localStorage.removeItem(`consultation-data-${uuind}`);
             }*/
-<<<<<<< HEAD
     }
   });
+
   const leaveDialog = useRef(false);
   const [filterdrawer, setFilterDrawer] = useState(false);
   const [value, setValue] = useState<string>("consultation_form");
@@ -169,7 +130,6 @@ function ConsultationInProgress() {
   const [isViewerOpen, setIsViewerOpen] = useState<string>("");
   const [actions, setActions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [instruction, setInstruction] = useState("");
   const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
   const [secretary, setSecretary] = useState("");
   const [stateAct, setstateAct] = useState({
@@ -192,56 +152,6 @@ function ConsultationInProgress() {
   const { tableState } = useAppSelector(tableActionSelector);
   const [meeting, setMeeting] = useState<number>(15);
   const [checkedNext, setCheckedNext] = useState(false);
-=======
-        }
-    });
-
-    const leaveDialog = useRef(false);
-    const [filterdrawer, setFilterDrawer] = useState(false);
-    const [value, setValue] = useState<string>("consultation_form");
-    const [acts, setActs] = useState<any>("");
-    const [total, setTotal] = useState<number>(0);
-    const [documents, setDocuments] = useState([]);
-    const [models, setModels] = useState<ModalModel[]>([]);
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [openActDialog, setOpenActDialog] = useState<boolean>(false);
-    const [state, setState] = useState<any>();
-    const [info, setInfo] = useState<null | string>("");
-    const [appointement, setAppointement] = useState<any>();
-    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    const [patient, setPatient] = useState<any>();
-    const [mpUuid, setMpUuid] = useState("");
-    const [dialog, setDialog] = useState<string>("");
-    const [selectedAct, setSelectedAct] = useState<any[]>(localStorage.getItem('consultation-acts') ?
-        JSON.parse(localStorage.getItem('consultation-acts') as string) : []);
-    const [selectedUuid, setSelectedUuid] = useState<string[]>([]);
-    const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
-    const [isViewerOpen, setIsViewerOpen] = useState<string>("");
-    const [actions, setActions] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
-    const [secretary, setSecretary] = useState("");
-    const [stateAct, setstateAct] = useState({
-        uuid: "",
-        isTopAct: true,
-        fees: 0,
-        act: {
-            uuid: "",
-            name: "",
-            description: "",
-            weight: 0,
-        },
-    });
-    const [selectedModel, setSelectedModel] = useState<any>(null);
-    const [consultationFees, setConsultationFees] = useState(0);
-    const [free, setFree] = useState(false);
-    const {direction} = useAppSelector(configSelector);
-    const {exam} = useAppSelector(consultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const {tableState} = useAppSelector(tableActionSelector);
-    const [meeting, setMeeting] = useState<number>(15);
-    const [checkedNext, setCheckedNext] = useState(false);
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
   const { drawer } = useAppSelector(
     (state: { dialog: DialogProps }) => state.dialog
@@ -352,7 +262,6 @@ function ConsultationInProgress() {
     SWRNoValidateConfig
   );
 
-<<<<<<< HEAD
   const { data: httpUsersResponse } = useRequest(
     medical_entity
       ? {
@@ -366,17 +275,6 @@ function ConsultationInProgress() {
       : null,
     SWRNoValidateConfig
   );
-=======
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(mpUuid && agenda ?
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
-            headers: {
-                ContentType: "multipart/form-data",
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        } : null);
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
   const { data: httpAppResponse, mutate } = useRequest(
     mpUuid && agenda
@@ -391,7 +289,7 @@ function ConsultationInProgress() {
       : null
   );
 
-  const { data: httpSheetResponse } = useRequest(
+  const { data: httpSheetResponse, mutate: mutateSheetData } = useRequest(
     mpUuid && agenda
       ? {
           method: "GET",
@@ -418,7 +316,6 @@ function ConsultationInProgress() {
     SWRNoValidateConfig
   );
 
-<<<<<<< HEAD
   useEffect(() => {
     if (httpDocumentResponse) {
       const data = (httpDocumentResponse as HttpResponse).data;
@@ -433,13 +330,6 @@ function ConsultationInProgress() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [httpDocumentResponse]);
-=======
-    useEffect(() => {
-        if (httpModelResponse) {
-            setModels((httpModelResponse as HttpResponse).data);
-        }
-    }, [httpModelResponse]);
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
   useEffect(() => {
     if (httpUsersResponse) {
@@ -449,7 +339,9 @@ function ConsultationInProgress() {
   }, [httpUsersResponse]);
 
   useEffect(() => {
-    if (httpModelResponse) setModels((httpModelResponse as HttpResponse).data);
+    if (httpModelResponse) {
+      setModels((httpModelResponse as HttpResponse).data);
+    }
   }, [httpModelResponse]);
 
   useEffect(() => {
@@ -541,7 +433,6 @@ function ConsultationInProgress() {
     }
   }, [tableState.patientId]);
 
-<<<<<<< HEAD
   useEffect(() => {
     const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
     if (end) {
@@ -584,8 +475,10 @@ function ConsultationInProgress() {
           mutate().then(() => {
             leaveDialog.current = true;
             router.push("/dashboard/agenda").then(() => {
-              localStorage.removeItem("Modeldata" + uuind);
+              localStorage.removeItem(`Modeldata${uuind}`);
+              localStorage.removeItem(`Model-${uuind}`);
               localStorage.removeItem(`consultation-data-${uuind}`);
+              localStorage.removeItem(`instruction-data-${uuind}`);
               localStorage.removeItem(`consultation-fees`);
               localStorage.removeItem(`consultation-acts`);
               setActions(false);
@@ -606,112 +499,32 @@ function ConsultationInProgress() {
 
   const sheet = (httpSheetResponse as HttpResponse)?.data;
   const sheetExam = sheet?.exam;
+  const sheetModal = sheet?.modal;
 
   useEffect(() => {
     if (sheet) {
-      setSelectedModel(sheet.modal);
-      if (!localStorage.getItem("Modeldata" + uuind)) {
+      const storageWidget = localStorage.getItem(`Modeldata${uuind}`);
+      !storageWidget &&
+        sheetModal &&
         localStorage.setItem(
-          "Modeldata" + uuind,
-          JSON.stringify(sheet.modal.data)
+          `Modeldata${uuind}`,
+          JSON.stringify(sheetModal?.data)
         );
-      }
-=======
-                trigger({
-                    method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then(() => {
-                    console.log("end consultation");
-                    appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
-                    mutate().then(() => {
-                        leaveDialog.current = true;
-                        router.push("/dashboard/agenda").then(() => {
-                            localStorage.removeItem(`Modeldata${uuind}`);
-                            localStorage.removeItem(`Model-${uuind}`);
-                            localStorage.removeItem(`consultation-data-${uuind}`);
-                            localStorage.removeItem(`instruction-data-${uuind}`);
-                            localStorage.removeItem(`consultation-fees`);
-                            localStorage.removeItem(`consultation-acts`);
-                            setActions(false);
-                            setEnd(false);
-                        })
-                        sendNotification();
-                    })
-                });
-            } else {
-                router.push("/dashboard/agenda").then(() => {
-                    setActions(false);
-                    setEnd(false);
-                });
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [end]);
-
-    const sheet = (httpSheetResponse as HttpResponse)?.data;
-    const sheetExam = sheet?.exam;
-    const sheetModal = sheet?.modal;
-
-    useEffect(() => {
-        if (sheet) {
-            const storageWidget = localStorage.getItem(`Modeldata${uuind}`);
-            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuind}`, JSON.stringify(sheetModal?.data));
-            const ModelWidget = localStorage.getItem(`Model-${uuind}`);
-            setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
-        }
-    }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const sendNotification = () => {
-        if (secretary.length > 0) {
-            const localInstr = localStorage.getItem(`instruction-data-${uuind}`)
-            const form = new FormData();
-            form.append("action", "end_consultation");
-            form.append("content", JSON.stringify(
-                {
-                    fees: total,
-                    instruction: localInstr ? localInstr : "",
-                    control: checkedNext,
-                    nextApp: meeting ? meeting : "0",
-                    patient: {
-                        uuid: patient.uuid,
-                        email: patient.email,
-                        birthdate: patient.birthdate,
-                        firstName: patient.firstName,
-                        lastName: patient.lastName,
-                        gender: patient.gender,
-                        account: patient.account,
-                        address: patient.address,
-                        contact: patient.contact,
-                        hasAccount: patient.hasAccount,
-                        idCard: patient.idCard
-                    }
-                }))
-            trigger({
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            });
-        }
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
+      const ModelWidget = localStorage.getItem(`Model-${uuind}`);
+      setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
     }
-  }, [dispatch, sheet, uuind]);
+  }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sendNotification = () => {
     if (secretary.length > 0) {
+      const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
       const form = new FormData();
       form.append("action", "end_consultation");
       form.append(
         "content",
         JSON.stringify({
           fees: total,
-          instruction: instruction,
+          instruction: localInstr ? localInstr : "",
           control: checkedNext,
           nextApp: meeting ? meeting : "0",
           patient: {
@@ -829,12 +642,14 @@ function ConsultationInProgress() {
     setActions(false);
   };
 
-<<<<<<< HEAD
   const leave = () => {
-    localStorage.removeItem("Modeldata" + uuind);
+    localStorage.removeItem(`Modeldata${uuind}`);
+    localStorage.removeItem(`Model-${uuind}`);
     localStorage.removeItem(`consultation-data-${uuind}`);
+    localStorage.removeItem(`instruction-data-${uuind}`);
     localStorage.removeItem(`consultation-fees`);
     localStorage.removeItem(`consultation-acts`);
+
     updateAppointmentStatus(uuind as string, "11").then(() => {
       router.push("/dashboard/agenda").then(() => {
         dispatch(setTimer({ isActive: false }));
@@ -842,23 +657,6 @@ function ConsultationInProgress() {
       });
     });
   };
-=======
-    const leave = () => {
-        localStorage.removeItem(`Modeldata${uuind}`);
-        localStorage.removeItem(`Model-${uuind}`);
-        localStorage.removeItem(`consultation-data-${uuind}`);
-        localStorage.removeItem(`instruction-data-${uuind}`);
-        localStorage.removeItem(`consultation-fees`);
-        localStorage.removeItem(`consultation-acts`);
-
-        updateAppointmentStatus(uuind as string, "11").then(() => {
-            router.push("/dashboard/agenda").then(() => {
-                dispatch(setTimer({isActive: false}));
-                setActions(false);
-            })
-        });
-    }
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
   const closeImageViewer = () => {
     setIsViewerOpen("");
@@ -1074,17 +872,15 @@ function ConsultationInProgress() {
                     </Box>
                 </TabPanel>
 */}
-<<<<<<< HEAD
         <TabPanel padding={1} value={value} index={"consultation_form"}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={5}>
               {!loading && models && selectedModel && (
                 <WidgetForm
+                  {...{ models, changes, setChanges }}
                   modal={selectedModel}
-                  models={models}
+                  data={sheetModal.data}
                   appuuid={uuind}
-                  changes={changes}
-                  setChanges={setChanges}
                   setSM={setSelectedModel}></WidgetForm>
               )}
             </Grid>
@@ -1122,137 +918,22 @@ function ConsultationInProgress() {
             t={t}></DocumentsTab>
         </TabPanel>
         <TabPanel padding={1} value={value} index={"medical_procedures"}>
-          <FeesTab
-            {...{
-              acts,
-              selectedUuid,
-              selectedAct,
-              consultationFees,
-              setConsultationFees,
-              free,
-              setFree,
-              editAct,
-              setTotal,
-              t,
-            }}></FeesTab>
+          {!loading && (
+            <FeesTab
+              {...{
+                acts,
+                selectedUuid,
+                selectedAct,
+                consultationFees,
+                setConsultationFees,
+                free,
+                setFree,
+                editAct,
+                setTotal,
+                t,
+              }}></FeesTab>
+          )}
         </TabPanel>
-=======
-                <TabPanel padding={1} value={value} index={"consultation_form"}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={5}>
-                            {!loading && models && selectedModel && (
-                                <WidgetForm
-                                    {...{models, changes, setChanges}}
-                                    modal={selectedModel}
-                                    data={sheetModal.data}
-                                    appuuid={uuind}
-                                    setSM={setSelectedModel}></WidgetForm>
-                            )}
-                        </Grid>
-                        <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
-                            <ConsultationDetailCard
-                                {...{
-                                    changes,
-                                    setChanges,
-                                    uuind,
-                                    agenda: agenda?.uuid,
-                                    exam: sheetExam,
-                                    mutateDoc,
-                                    medical_entity,
-                                    session,
-                                    router
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        showDoc={showDoc}
-                        selectedDialog={selectedDialog}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        router={router}
-                        session={session}
-                        trigger={trigger}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"medical_procedures"}>
-                    {!loading && <FeesTab
-                        {...{
-                            acts,
-                            selectedUuid,
-                            selectedAct,
-                            consultationFees,
-                            setConsultationFees,
-                            free, setFree,
-                            editAct,
-                            setTotal,
-                            t
-                        }}></FeesTab>}
-                </TabPanel>
-
-                <Stack
-                    direction={{md: "row", xs: "column"}}
-                    position="fixed"
-                    sx={{right: 10, bottom: 10, zIndex: 999}}
-                    spacing={2}>
-                    {pendingDocuments?.map((item: any) => (
-                        <React.Fragment key={item.id}>
-                            <PendingDocumentCard
-                                data={item}
-                                t={t}
-                                onClick={() => {
-                                    openDialogue(item.id);
-                                }}
-                                closeDocument={(v: number) =>
-                                    setPendingDocuments(
-                                        pendingDocuments.filter((card: any) => card.id !== v)
-                                    )
-                                }
-                            />
-                        </React.Fragment>
-                    ))}
-                </Stack>
-                <Box pt={8}>
-                    {!lock && <SubFooter>
-                        <Stack width={1} spacing={{xs: 1, md: 0}} padding={{xs: 1, md: 0}}
-                               direction={{xs: 'column', md: 'row'}} alignItems="flex-end"
-                               justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
-                            {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
-                                <Typography variant="subtitle1">
-                                    <span>{t('total')} : </span>
-                                </Typography>
-                                <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {total} {devise}
-                                </Typography>
-                                <Stack direction='row' alignItems="center" display={{xs: 'none', md: "block"}}
-                                       spacing={2}>
-                                    <span>|</span>
-                                    <Button
-                                        variant='text-black'
-                                        onClick={event => {
-                                            event.stopPropagation();
-                                            setInfo('document_detail')
-                                            setState({
-                                                type: 'fees',
-                                                name: 'note_fees',
-                                                info: selectedAct,
-                                                createdAt: moment().format('DD/MM/YYYY'),
-                                                consultationFees: free ? 0 : consultationFees,
-                                                patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${patient.firstName} ${patient.lastName}`
-                                            })
-                                            setOpenDialog(true);
-                                        }}
-                                        startIcon={
-                                            <IconUrl path='ic-imprime'/>
-                                        }>
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
         <Stack
           direction={{ md: "row", xs: "column" }}
@@ -1304,8 +985,8 @@ function ConsultationInProgress() {
                       <span>|</span>
                       <Button
                         variant="text-black"
-                        disabled={selectedAct.length === 0}
-                        onClick={() => {
+                        onClick={(event) => {
+                          event.stopPropagation();
                           setInfo("document_detail");
                           setState({
                             type: "fees",
@@ -1426,7 +1107,6 @@ function ConsultationInProgress() {
         />
       </Box>
 
-<<<<<<< HEAD
       {info && (
         <Dialog
           {...{
@@ -1439,14 +1119,13 @@ function ConsultationInProgress() {
           open={openDialog}
           data={{
             state,
+            uuind,
             setState,
             setDialog,
             setOpenDialog,
             t,
             changes,
             total,
-            instruction,
-            setInstruction,
             meeting,
             setMeeting,
             checkedNext,
@@ -1469,49 +1148,6 @@ function ConsultationInProgress() {
           })}
         />
       )}
-=======
-            {info && (
-                <Dialog
-                    {...{
-                        direction,
-                        sx: {
-                            minHeight: 300
-                        }
-                    }}
-                    action={info}
-                    open={openDialog}
-                    data={{
-                        state,
-                        uuind,
-                        setState,
-                        setDialog,
-                        setOpenDialog,
-                        t,
-                        changes,
-                        total,
-                        meeting,
-                        setMeeting,
-                        checkedNext,
-                        setCheckedNext
-                    }}
-                    size={"lg"}
-                    color={
-                        info === "secretary_consultation_alert" && theme.palette.error.main
-                    }
-                    {...(info === "document_detail" && {
-                        sx: {p: 0},
-                    })}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {...((info === "document_detail" || info === "end_consultation") && {
-                        onClose: handleCloseDialog,
-                    })}
-                    dialogClose={handleCloseDialog}
-                    {...(actions && {
-                        actionDialog: <DialogAction/>,
-                    })}
-                />
-            )}
->>>>>>> 29b489d47a6be925bab6d85f2aabc38e7bc7b59e
 
       <Drawer
         anchor={"right"}
