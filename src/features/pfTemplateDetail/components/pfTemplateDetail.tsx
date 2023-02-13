@@ -44,9 +44,6 @@ const PaperStyled = styled(Form)(({ theme }) => ({
   border: "none",
   padding: theme.spacing(2),
   paddingBottom: theme.spacing(0),
-  [theme.breakpoints.down("md")]: {
-    minWidth: "auto",
-  },
   "& .container": {
     maxHeight: 680,
     overflowY: "auto",
@@ -67,9 +64,9 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     width: "650px",
     bottom: 0,
     borderTop: `3px solid ${theme.palette.grey["A700"]}`,
-    [theme.breakpoints.down("md")]: {
-      width: "100%",
-    },
+  },
+  "& fieldset legend": {
+    display: "none",
   },
 }));
 
@@ -439,69 +436,54 @@ function PfTemplateDetail({ ...props }) {
                             index: number
                           ) => (
                             <Box key={index}>
-                              <ListItem key={section.uuid} sx={{ padding: 0 }}>
-                                <Checkbox
-                                  size="small"
-                                  id={section.uuid}
-                                  name={section.name}
-                                  checked={
-                                    widget.find(
-                                      (i: { uuid: string }) =>
-                                        i.uuid == section.uuid
-                                    ) !== undefined
-                                  }
-                                  onChange={(v: any) =>
-                                    handleWidgetCheck(v, section, null)
-                                  }
-                                />
-                                <ListItemText
-                                  id="switch-list-label-bluetooth"
-                                  onClick={() => {
-                                    updateOpenedWidget(section.uuid, null);
-                                  }}
-                                  primary={section.name}
-                                />
-                                <IconButton
-                                  sx={{ width: "40px", height: "40px" }}
-                                  onClick={() => {
-                                    updateOpenedWidget(section.uuid, null);
-                                  }}>
-                                  <IconUrl path={"mdi_arrow_drop_down"} />
-                                </IconButton>
-                              </ListItem>
+                              {/*<ListItem key={section.uuid} sx={{padding: 0}}>
+                                                        <Checkbox
+                                                            size="small"
+                                                            id={section.uuid}
+                                                            name={section.name}
+                                                            checked={widget.find((i: { uuid: string; }) => i.uuid == section.uuid) !== undefined}
+                                                            onChange={(v: any) => handleWidgetCheck(v, section, null)}
+                                                        />
+                                                        <ListItemText id="switch-list-label-bluetooth"
+                                                                      onClick={() => {
+                                                                          updateOpenedWidget(section.uuid, null)
+                                                                      }}
+                                                                      primary={section.name}/>
+                                                        <IconButton sx={{width: '40px', height: '40px'}} onClick={() => {
+                                                            updateOpenedWidget(section.uuid, null)
+                                                        }}>
+                                                            <IconUrl path={'mdi_arrow_drop_down'}/>
+                                                        </IconButton>
+                                                    </ListItem>
 
-                              <Collapse
-                                in={
-                                  open.find(
-                                    (i: string) => i == section.uuid
-                                  ) !== undefined
-                                }>
-                                <Card style={{ width: "50%", margin: 5 }}>
-                                  <CardContent>
-                                    {section.jsonWidgets.map(
-                                      (jw: JsonWidgetModel) => (
-                                        <ItemCheckboxPF
-                                          key={jw.uuid}
-                                          checked={
-                                            widget
-                                              .find(
-                                                (i: { uuid: string }) =>
-                                                  i.uuid == section.uuid
-                                              )
-                                              ?.jsonWidgets.find(
-                                                (j: { uuid: string }) =>
-                                                  j.uuid == jw.uuid
-                                              ) !== undefined
-                                          }
-                                          onChange={(v: any) =>
-                                            handleWidgetCheck(v, section, jw)
-                                          }
-                                          data={jw}></ItemCheckboxPF>
-                                      )
-                                    )}
-                                  </CardContent>
-                                </Card>
-                              </Collapse>
+                                                    <Collapse
+                                                        in={open.find((i: string) => i == section.uuid) !== undefined}>*/}
+                              <Card style={{ width: "50%", margin: 5 }}>
+                                <CardContent>
+                                  {section.jsonWidgets.map(
+                                    (jw: JsonWidgetModel) => (
+                                      <ItemCheckboxPF
+                                        key={jw.uuid}
+                                        checked={
+                                          widget
+                                            .find(
+                                              (i: { uuid: string }) =>
+                                                i.uuid == section.uuid
+                                            )
+                                            ?.jsonWidgets.find(
+                                              (j: { uuid: string }) =>
+                                                j.uuid == jw.uuid
+                                            ) !== undefined
+                                        }
+                                        onChange={(v: any) =>
+                                          handleWidgetCheck(v, section, jw)
+                                        }
+                                        data={jw}></ItemCheckboxPF>
+                                    )
+                                  )}
+                                </CardContent>
+                              </Card>
+                              {/*</Collapse>*/}
                             </Box>
                           )
                         )}

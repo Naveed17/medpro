@@ -47,7 +47,7 @@ const RootStyled = styled(Stack)(({theme}) => ({
         minWidth: 0,
     },
     "input::-webkit-inner-spin-button": {
-        "-webkit-appearance": "none",
+       // "-webkit-appearance": "none",
         margin: 0
     }
 }));

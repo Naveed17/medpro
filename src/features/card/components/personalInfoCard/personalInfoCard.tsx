@@ -26,8 +26,8 @@ import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
@@ -84,7 +84,7 @@ function PersonalInfo({...props}) {
             .email('Invalid email format'),
         birthdate: Yup.string(),
         profession: Yup.string(),
-        cin: Yup.number(),
+        cin: Yup.string(),
         familyDoctor: Yup.string()
     });
 

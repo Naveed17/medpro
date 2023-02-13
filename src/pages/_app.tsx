@@ -24,6 +24,8 @@ import {FcmLayout} from "@features/base";
 import ErrorBoundary from "@features/errorBoundary";
 import {IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import smartlookClient from 'smartlook-client';
+import {EnvPattern} from "@app/constants";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -49,6 +51,11 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
     moment.locale('fr');
+    if (typeof window !== "undefined") {
+        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+        // init smartlook client
+        prodEnv && smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
+    }
 
     const getLayout = Component.getLayout ?? ((page) => page);
     return (

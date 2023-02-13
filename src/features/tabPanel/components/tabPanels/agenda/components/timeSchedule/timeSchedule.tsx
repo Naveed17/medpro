@@ -28,8 +28,8 @@ import {PatientCardMobile} from "@features/card";
 import {Autocomplete, IconButton, LinearProgress, Stack, TextField, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import {LocalizationProvider, StaticTimePicker} from "@mui/x-date-pickers";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from '@mui/icons-material/Done';
 

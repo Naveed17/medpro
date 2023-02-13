@@ -165,57 +165,8 @@ const Content = ({ ...props }) => {
 
     if (patient.antecedents[action]) setState(patient.antecedents[action]);
 
-    const showDoc = (card: any) => {
-      if (card.documentType === "medical-certificate") {
-        setOpenDialogDoc(true);
-        setDocument({
-          uuid: card.uuid,
-          content: card.certificate[0].content,
-          doctor: card.name,
-          patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
-            patient.firstName
-          } ${patient.lastName}`,
-          days: card.days,
-          description: card.description,
-          createdAt: card.createdAt,
-          name: "certif",
-          type: "write_certif",
-          mutate: mutatePatientDocuments(),
-        });
-        setOpenDialogDoc(true);
-      } else {
-        setOpenDialogDoc(true);
-        let info = card;
-        let uuidDoc = "";
-        switch (card.documentType) {
-          case "prescription":
-            info = card.prescription[0].prescription_has_drugs;
-            uuidDoc = card.prescription[0].uuid;
-            break;
-          case "requested-analysis":
-            info = card.requested_Analyses[0].analyses;
-            break;
-          case "requested-medical-imaging":
-            info = card.medical_imaging[0]["medical-imaging"];
-            break;
-        }
-        setDocument({
-          uuid: card.uuid,
-          uri: card.uri,
-          name: card.title,
-          type: card.documentType,
-          info: info,
-          uuidDoc: uuidDoc,
-          description: card.description,
-          createdAt: card.createdAt,
-          patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
-            patient.firstName
-          } ${patient.lastName}`,
-          mutate: mutatePatientDocuments,
-        });
-        setOpenDialogDoc(true);
-      }
-    };
+    setInfo(action);
+    bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
 
     handleClickDialog();
   };
@@ -302,6 +253,14 @@ const Content = ({ ...props }) => {
             {id === 1 && (
               <Stack spacing={1} alignItems="flex-start">
                 <List dense>
+                  {patient?.treatment.filter(
+                    (tr: any) => tr.isOtherProfessional
+                  ).length > 0 && (
+                    <Typography fontSize={11} fontWeight={"bold"} mt={1}>
+                      {t("tip")}
+                    </Typography>
+                  )}
+
                   {patient?.treatment
                     .filter((tr: any) => tr.isOtherProfessional)
                     .map((list: any, index: number) => (
