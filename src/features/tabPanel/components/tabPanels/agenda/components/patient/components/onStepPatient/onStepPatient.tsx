@@ -37,13 +37,14 @@ import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
-import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -612,17 +613,22 @@ function OnStepPatient({...props}) {
                                         }
                                     }}
                                     size="small" fullWidth>
-                                    <DatePicker
-                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
-                                        inputFormat="dd/MM/yyyy"
-                                        onChange={(date: Date) => {
-                                            setFieldValue("birthdate", {
-                                                day: moment(date).format("DD"),
-                                                month: moment(date).format("MM"),
-                                                year: moment(date).format("YYYY"),
-                                            })
-                                        }}
-                                    />
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <DatePicker
+                                            value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                            inputFormat="dd/MM/yyyy"
+                                            onChange={(date) => {
+                                                if (moment(date).isValid()) {
+                                                    setFieldValue("birthdate", {
+                                                        day: moment(date).format("DD"),
+                                                        month: moment(date).format("MM"),
+                                                        year: moment(date).format("YYYY"),
+                                                    });
+                                                }
+                                            }}
+                                            renderInput={(params) => <TextField {...params} fullWidth/>}
+                                        />
+                                    </LocalizationProvider>
                                 </FormControl>
                             </Stack>
                         </Box>
@@ -1070,13 +1076,20 @@ function OnStepPatient({...props}) {
                                                                         gutterBottom>
                                                                 {t("birthday")}
                                                             </Typography>
-                                                            <DatePicker
-                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
-                                                                onChange={(date: Date) => {
-                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                }}
-                                                                inputFormat="dd/MM/yyyy"
-                                                            />
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <DatePicker
+                                                                    value={values.insurance[index]?.insurance_social?.birthday ?
+                                                                        moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
+                                                                    onChange={(date) => {
+                                                                        if (moment(date).isValid()) {
+                                                                            setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                        }
+                                                                    }}
+                                                                    inputFormat="dd/MM/yyyy"
+                                                                    renderInput={(params) => <TextField {...params}
+                                                                                                        fullWidth/>}
+                                                                />
+                                                            </LocalizationProvider>
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"
