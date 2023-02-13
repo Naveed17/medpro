@@ -334,6 +334,9 @@ function Patient() {
   };
   const { collapse } = RightActionData.filter;
   const [open, setopen] = useState(false);
+  const [mobileFilter, setMobileFilter] = useState(
+    (httpPatientsResponse as HttpResponse)?.data?.list
+  );
   const [dataPatient, setDataPatient] = useState([
     {
       heading: {
@@ -408,6 +411,17 @@ function Patient() {
   const handleClickOpen = () => {
     setopen(true);
   };
+  const onFilterPatient = (value: string) => {
+    const filtered = mobileFilter.filter((item: any) =>
+      item.firstName.toLowerCase().includes(value)
+    );
+    if (value) {
+      setMobileFilter(filtered);
+    } else {
+      setMobileFilter((httpPatientsResponse as HttpResponse)?.data?.list);
+    }
+  };
+  console.log(mobileFilter);
   if (!ready)
     return (
       <LoadingScreen
@@ -435,7 +449,11 @@ function Patient() {
         />
         {isMobile && (
           <Stack direction="row" spacing={2} width={1} mt={2.5}>
-            <TextField fullWidth placeholder={t("keyword")} />
+            <TextField
+              onChange={(e) => onFilterPatient(e.target.value)}
+              fullWidth
+              placeholder={t("keyword")}
+            />
             <IconButton disableRipple onClick={handleClickOpen}>
               <IconUrl path="ic-setting-grey" />
             </IconButton>
