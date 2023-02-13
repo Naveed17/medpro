@@ -224,14 +224,14 @@ function AppointmentDetail({...props}) {
                                 </IconButton>
                             </Stack>
                             <List sx={{py: 0, pl: 2}}>
-                                <ListItem>
+                                {appointment?.extendedProps.patient?.birthdate && <ListItem>
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
                                         {appointment?.extendedProps.patient?.birthdate} {" "}
                                         ({moment().diff(moment(appointment?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
-                                </ListItem>
+                                </ListItem>}
                                 {appointment?.extendedProps.patient.email && <ListItem>
                                     <IconUrl path='ic-message-contour'/>
                                     <Link underline="none" href={`mailto:${appointment?.extendedProps.patient.email}`}
