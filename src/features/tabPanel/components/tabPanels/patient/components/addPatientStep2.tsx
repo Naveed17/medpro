@@ -759,7 +759,9 @@ function AddPatientStep2({...props}) {
                                                         <DatePicker
                                                             value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
                                                             onChange={(date: Date) => {
-                                                                setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                if (moment(date).isValid()) {
+                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                }
                                                             }}
                                                             inputFormat="dd/MM/yyyy"
                                                         />

@@ -6,7 +6,7 @@ const RootStyled = styled(Stack)(({theme}) => ({
     display: "flex",
     alignItems: "center",
     backgroundColor: theme.palette.background.paper,
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(6.5),
     flexDirection: "row",
     [theme.breakpoints.down("md")]: {
         flexDirection: "column",

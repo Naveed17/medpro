@@ -21,6 +21,8 @@ import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
+
+require('moment-precise-range-plugin');
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -34,9 +36,6 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
-import Image from "next/image";
-import {HtmlTooltip} from "@features/tooltip";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
@@ -83,6 +82,11 @@ function PatientDetailsCard({...props}) {
         setOpenUploadPicture(true);
     };
 
+    const getBirthdayFormat = (patient: PatientModel) => {
+        const birthday = moment().preciseDiff(moment(patient?.birthdate, "DD-MM-YYYY"), true);
+        return `${birthday.years ? `${birthday.years} ${t("years").toLowerCase()}, ` : ""} ${birthday.months ? `${birthday.months} ${t("months").toLowerCase()}, ` : ""} ${birthday.days ? `${birthday.days} ${t("days").toLowerCase()}` : ""}`;
+    }
+
     const uploadPatientDetail = () => {
         setRequestLoading(true);
         const params = new FormData();
@@ -124,7 +128,7 @@ function PatientDetailsCard({...props}) {
                         ...appointment,
                         extendedProps: {
                             ...appointment.extendedProps,
-                            photo:  values.picture.file
+                            photo: values.picture.file
                         }
                     } as any;
                     dispatch(setSelectedEvent(event));
@@ -188,10 +192,17 @@ function PatientDetailsCard({...props}) {
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <Stack direction={"row"}  alignItems={"center"} justifyContent={"flex-start"}>
-
+                                <Stack direction={"row"} alignItems={"center"} justifyContent={"flex-start"}>
                                     <InputBase
                                         readOnly
+                                        {...(patient?.nationality && {
+                                            startAdornment: <Tooltip title={patient.nationality.nationality}>
+                                                <Avatar
+                                                    sx={{width: 18, height: 18, mr: .5, ml: -.2, borderRadius: 4}}
+                                                    alt={"flag"}
+                                                    src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
+                                            </Tooltip>
+                                        })}
                                         inputProps={{
                                             style: {
                                                 background: "white",
@@ -201,15 +212,6 @@ function PatientDetailsCard({...props}) {
                                         }}
                                         {...getFieldProps("name")}
                                     />
-
-                                    {patient?.nationality &&
-                                        <Tooltip title={patient.nationality.nationality}>
-                                            <Avatar
-                                                sx={{width: 20, height: 20, borderRadius: 4}}
-                                                alt={"flag"}
-                                                src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
-                                        </Tooltip>
-                                    }
                                 </Stack>
                             )}
 
@@ -258,9 +260,7 @@ function PatientDetailsCard({...props}) {
                                                     color="text.secondary"
                                                     component="span">
                                                     -{" "}
-                                                    ({moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
-                                                    {" "}
-                                                    {t("years").toLowerCase()})
+                                                    ({" "}{getBirthdayFormat(patient)}{" "})
                                                 </Typography>}
                                         </Stack>
                                     }
