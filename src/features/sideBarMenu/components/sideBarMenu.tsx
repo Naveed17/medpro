@@ -192,7 +192,7 @@ function SideBarMenu({ children }: LayoutProps) {
           </Hidden>
         </ListItem>
         <Hidden smUp>
-          <ListItem onClick={() => handleLogout()} disableRipple>
+          <ListItem onClick={() => handleLogout()}>
             <ListItemIcon>
               <Icon path="ic-deconnexion-1x" />
             </ListItemIcon>
