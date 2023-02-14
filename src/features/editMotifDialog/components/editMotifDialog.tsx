@@ -22,7 +22,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { ModelDot } from "@features/modelDot";
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 const PaperStyled = styled(Form)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   borderRadius: 0,
@@ -31,6 +31,10 @@ const PaperStyled = styled(Form)(({ theme }) => ({
   boxShadow: theme.customShadows.motifDialog,
   padding: theme.spacing(2),
   paddingBottom: theme.spacing(0),
+  [theme.breakpoints.down("md")]: {
+    minWidth: "100%",
+    height: "100%",
+  },
   "& .container": {
     maxHeight: 680,
     overflowY: "auto",
@@ -50,6 +54,10 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     position: "sticky",
     bottom: 0,
     borderTop: `3px solid ${theme.palette.grey["A700"]}`,
+    [theme.breakpoints.down("md")]: {
+      position: "fixed",
+      width: "100%",
+    },
   },
 }));
 const colors = [
@@ -184,7 +192,14 @@ function EditMotifDialog({ ...props }) {
     },
   });
 
-  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+  if (!ready)
+    return (
+      <LoadingScreen
+        error
+        button={"loading-error-404-reset"}
+        text={"loading-error"}
+      />
+    );
 
   const {
     values,
@@ -284,7 +299,7 @@ function EditMotifDialog({ ...props }) {
                 </Select>
               </FormControl>
 
-{/*
+              {/*
               <Stack spacing={2} direction={{ xs: "column", lg: "row" }}>
                 <Box width={1}>
                   <FormControl size="small" fullWidth>

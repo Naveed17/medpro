@@ -353,3 +353,21 @@ fieldset {
 .time-picker-schedule {
   margin-right: -1rem
 }
+.agenda-rdv-details {
+  .popover-item {
+    border-radius: 10px;
+    transition: all .2s;
+    &:hover{
+      background-color:#FFD400 ;
+      .MuiTypography-root{
+        color:#00234B
+      };
+      svg{
+        path{
+          fill:#00234B
+        }
+      }
+
+    }
+  }
+}

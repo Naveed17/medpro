@@ -258,28 +258,31 @@ function WaitingRoom() {
         setPopoverActions(actions);
     };
 
+    const startConsultation = (row: any) => {
+        if (!isActive) {
+            const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
+            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                const event: any = {
+                    publicId: row?.uuid as string,
+                    extendedProps: {
+                        patient: row?.patient
+                    }
+                };
+                dispatch(setTimer({isActive: true, isPaused: false, event}));
+                updateAppointmentStatus(row?.uuid as string, "4", {
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                });
+            });
+        } else {
+            setError(true);
+        }
+    }
+
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
-                if (!isActive) {
-
-                    const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        const event: any = {
-                            publicId: row?.uuid as string,
-                            extendedProps: {
-                                patient: row?.patient
-                            }
-                        };
-                        dispatch(setTimer({isActive: true, isPaused: false, event}));
-                        updateAppointmentStatus(row?.uuid as string, "4", {
-                            start_date: moment().format("DD-MM-YYYY"),
-                            start_time: moment().format("HH:mm")
-                        });
-                    });
-                } else {
-                    setError(true);
-                }
+                startConsultation(row);
                 break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
@@ -314,6 +317,9 @@ function WaitingRoom() {
             case "PATIENT_DETAILS":
                 dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
                 setPatientDetailDrawer(true);
+                break;
+            case "START_CONSULTATION":
+                startConsultation(data.row);
                 break;
             default:
                 if (!data.row.fees &&
@@ -402,7 +408,7 @@ function WaitingRoom() {
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 && <Otable
-                                        {...{doctor_country}}
+                                        {...{doctor_country, roles}}
                                         headers={headCells}
                                         rows={waitingRooms}
                                         from={"waitingRoom"}

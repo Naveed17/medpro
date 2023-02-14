@@ -3,8 +3,10 @@ import {SWRConfig} from 'swr';
 export const SWRNoValidateConfig = {
     revalidateIfStale: false,
     revalidateOnFocus: false,
-    revalidateOnReconnect: false
+    revalidateOnReconnect: false,
+    shouldRetryOnError: false
 }
+
 export const TriggerWithoutValidation = {
     revalidate: false,
     populateCache: false
