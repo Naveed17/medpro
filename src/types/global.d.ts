@@ -35,8 +35,15 @@ declare module "@mui/material/Button" {
     interface ButtonPropsColorOverrides {
         text: true
     }
+
+
 }
 
+declare module "@mui/material/CircularProgress" {
+    interface CircularProgressPropsColorOverrides {
+        white: true
+    }
+}
 declare module "@mui/material/Chip" {
     interface ChipPropsVariantOverrides {
         contained: true;
