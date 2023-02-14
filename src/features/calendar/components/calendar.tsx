@@ -257,14 +257,14 @@ function Calendar({...props}) {
             action === "onDelete" &&
             (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED" || eventMenu?.extendedProps.status.key === "ON_GOING") ||
             action === "onMove" &&
-            moment().isAfter(eventMenu?.extendedProps.time) ||
+            (moment().isAfter(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onPatientNoShow" &&
             ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
                 eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onConfirmAppointment" &&
             eventMenu?.extendedProps.status.key !== "PENDING" ||
             action === "onReschedule" &&
-            moment().isBefore(eventMenu?.extendedProps.time)
+            (moment().isBefore(eventMenu?.extendedProps.time) && eventMenu?.extendedProps.status.key !== "FINISHED")
         )
     }
 

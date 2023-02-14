@@ -14,7 +14,7 @@ function PatientDetailsToolbar({...props}) {
                     <List sx={{display: "flex"}}>
                         <ListItem disablePadding>
                             <IconButton
-                                size={"large"}
+                                size={"medium"}
                                 onClick={() => onClose()}
                                 color="primary"
                                 edge="end"

@@ -9,12 +9,11 @@ import {
     TextField,
     InputLabel, IconButton,
 } from "@mui/material";
-import {DatePicker} from "@features/datepicker";
 import _ from "lodash";
 import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 
 interface StateProps {
     name: string;
@@ -31,6 +30,7 @@ function PatientFilter({...props}) {
     });
 
     return (
+
         <Box component="figure" sx={{m: 0}}>
             <Typography variant="body2" color="text.secondary">
                 {t(`${keyPrefix}${item.gender?.heading}`)}
@@ -87,39 +87,19 @@ function PatientFilter({...props}) {
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
                                     {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
-                                <TextField
-                                    onChange={(e) => {
-                                        setQueryState({...queryState, [lab.label]: e.target.value});
-                                        if (e.target.value.length >= 3) {
-                                            OnSearch({
-                                                query: {
-                                                    ...queryState,
-                                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                    [lab.label]: (e.target as HTMLInputElement).value
-                                                },
-                                            });
-                                        } else if (e.target.value.length === 0) {
-                                            const query = _.omit(queryState, [lab.label]);
-                                            OnSearch({
-                                                query: {
-                                                    ...query,
-                                                    ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
-                                                }
-                                            });
-                                        }
-                                    }}
-                                    value={queryState[lab.label]}
-                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-                                        if (e.key === "Enter") {
-                                            if ((e.target as HTMLInputElement).value) {
+                                <FormControl component="form" fullWidth>
+                                    <TextField
+                                        onChange={(e) => {
+                                            setQueryState({...queryState, [lab.label]: e.target.value});
+                                            if (e.target.value.length >= 3) {
                                                 OnSearch({
                                                     query: {
                                                         ...queryState,
                                                         ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                        [lab.label]: (e.target as HTMLInputElement).value,
+                                                        [lab.label]: (e.target as HTMLInputElement).value
                                                     },
                                                 });
-                                            } else {
+                                            } else if (e.target.value.length === 0) {
                                                 const query = _.omit(queryState, [lab.label]);
                                                 OnSearch({
                                                     query: {
@@ -128,12 +108,34 @@ function PatientFilter({...props}) {
                                                     }
                                                 });
                                             }
-                                        }
-                                    }}
-                                    type={"text"}
-                                    fullWidth
-                                    placeholder={t(`${keyPrefix}${lab.placeholder}`)}
-                                />
+                                        }}
+                                        value={queryState[lab.label]}
+                                        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                                            if (e.key === "Enter") {
+                                                if ((e.target as HTMLInputElement).value) {
+                                                    OnSearch({
+                                                        query: {
+                                                            ...queryState,
+                                                            ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                            [lab.label]: (e.target as HTMLInputElement).value,
+                                                        },
+                                                    });
+                                                } else {
+                                                    const query = _.omit(queryState, [lab.label]);
+                                                    OnSearch({
+                                                        query: {
+                                                            ...query,
+                                                            ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }}
+                                        type={"text"}
+                                        fullWidth
+                                        placeholder={t(`${keyPrefix}${lab.placeholder}`)}
+                                    />
+                                </FormControl>
                             </>
                         ) : (
                             <Box sx={{
@@ -147,10 +149,11 @@ function PatientFilter({...props}) {
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
                                     {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DatePicker
                                         value={queryState.birthdate}
                                         inputFormat="dd/MM/yyyy"
-                                        onChange={(date: Date) => {
+                                        onChange={(date) => {
                                             setQueryState({
                                                 ...queryState,
                                                 birthdate: date
@@ -170,7 +173,12 @@ function PatientFilter({...props}) {
                                                 });
                                             }
                                         }}
+                                        renderInput={(params) =>
+                                            <FormControl component="form" fullWidth>
+                                                <TextField {...params} fullWidth/>
+                                            </FormControl>}
                                     />
+                                </LocalizationProvider>
                             </Box>
                         )}
                     </Fragment>

@@ -31,7 +31,7 @@ import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import smartlookClient from 'smartlook-client';
-import {EnvPattern} from "@app/constants";
+import {DefaultCountry, EnvPattern} from "@app/constants";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -58,6 +58,9 @@ function FcmLayout({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const general_information = (user as UserDataResponse).general_information;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const {
         trigger: updateStatusTrigger
@@ -78,7 +81,6 @@ function FcmLayout({...props}) {
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-    const general_information = (session?.data as UserDataResponse).general_information;
 
     const handleClickOpen = () => {
         setOpenDialog(true);
@@ -285,6 +287,7 @@ function FcmLayout({...props}) {
                                     phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
                                     fees: notificationData?.fees,
                                     instruction: notificationData?.instruction,
+                                    devise,
                                     nextAppointment: notificationData?.nextApp,
                                     control: notificationData?.control
                                 }}

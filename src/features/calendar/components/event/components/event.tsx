@@ -41,7 +41,7 @@ function Event({...props}) {
                                 {className: "ic-waiting"})}
                             component={"span"}
                             color="text.primary">
-                    {!appointment.overlapEvent && appointment?.status.icon}
+                    {appointment?.status.icon}
                     {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                 </Typography>
 

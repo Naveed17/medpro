@@ -31,6 +31,7 @@ function Accordion({...props}) {
     return (
         data.map((item: any, index: number) => (
             <RootStyled
+                autoSave={"off"}
                 disableGutters
                 elevation={0}
                 square
