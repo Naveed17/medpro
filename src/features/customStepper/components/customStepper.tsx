@@ -51,9 +51,7 @@ function CustomStepper({ ...props }) {
       if (onBackButton) {
         onBackButton(currentIndex);
       }
-    },
-    [onBackButton]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [onBackButton]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tabChange = useCallback(
     (event: SyntheticEvent, currentIndex: number) => {

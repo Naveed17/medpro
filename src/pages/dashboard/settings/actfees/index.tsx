@@ -257,16 +257,7 @@ function ActFees() {
       ).then(() => {
         handleEdit(actFees, actFees.fees);
       });
-    },
-    [
-      medical_entity.uuid,
-      medical_professional.uuid,
-      mutate,
-      router.locale,
-      session?.accessToken,
-      triggerAddAct,
-    ]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [medical_entity.uuid, medical_professional.uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEdit = (v: any, fees: string) => {
     const form = new FormData();
