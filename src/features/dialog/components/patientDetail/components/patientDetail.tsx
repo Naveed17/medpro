@@ -100,7 +100,6 @@ function PatientDetail({...props}) {
         }
     ]);
 
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;

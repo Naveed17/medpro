@@ -20,9 +20,11 @@ import moment from "moment-timezone";
 import { IconsTypes } from "@features/calendar";
 import { ModelDot } from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+
 function WaitingRoomRow({ ...props }) {
   const { row, t, handleEvent, data } = props;
-  const { doctor_country } = data;
+  const { doctor_country , roles} = data;
+
   const theme = useTheme();
   const [info, setInfo] = useState<null | string>(null);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -253,12 +255,16 @@ function WaitingRoomRow({ ...props }) {
         </TableCell>
         <TableCell align="right">
           <Stack direction="row" alignItems="center" spacing={1} minWidth={250}>
-            <Button
-              size="small"
-              startIcon={<PlayCircleIcon />}
-              variant="text-black">
+            {!roles.includes("ROLE_SECRETARY") && <Button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleEvent({action: "START_CONSULTATION", row, event});
+                }}
+                size="small"
+                startIcon={<PlayCircleIcon/>}
+                variant="text-black">
               {t("start_the_consultation")}
-            </Button>
+            </Button>}
             <IconButton
               onClick={(event) => {
                 event.stopPropagation();

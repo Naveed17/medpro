@@ -2,6 +2,7 @@ import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
 
 const EventStyled = styled(Box)(({theme}) => ({
+    cursor: "pointer",
     svg: {
         width: 12,
         height: 12,

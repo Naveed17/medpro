@@ -1,7 +1,7 @@
-import { styled } from "@mui/material/styles";
-import { Paper } from "@mui/material";
+import {styled} from "@mui/material/styles";
+import {Paper} from "@mui/material";
 
-const RootStyled = styled(Paper)(({ theme }) => ({
+const RootStyled = styled(Paper)(({theme}) => ({
     minHeight: 120,
     borderRadius: "8px",
     overflow: "auto",
