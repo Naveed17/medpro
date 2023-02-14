@@ -77,9 +77,7 @@ function PersonalInfo({...props}) {
             .min(3, t("name-error"))
             .max(50, t("name-error"))
             .required(t("name-error")),
-        address: Yup.string()
-            .min(3, t("name-error"))
-            .max(50, t("name-error")),
+        address: Yup.string(),
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
