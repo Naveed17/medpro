@@ -33,6 +33,6 @@ manifests:
 
     after:
       - host:
-          command: [ "bash", "-c", "echo ::set-output name=host::'https://'${INGRESS_HOST}/" ]
+          command: [ "bash", "-c", "echo 'environment_url=https://${INGRESS_HOST}' >> $GITHUB_OUTPUT" ]
       - host:
           command: [ "bash" , "-c", "for FILE in ./kustomize/overlay/generic/*.yaml; do [[ -e $FILE ]] && rm $FILE ; done"]

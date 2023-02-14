@@ -10,6 +10,8 @@
       "title": "Set up my profile",
       "sub-title": "Personal information",
       "info": "Who are you?",
+      "cancel":"Cancel",
+      "next":"Next",
       "genre": {
         "man": "man",
         "women": "woman"
