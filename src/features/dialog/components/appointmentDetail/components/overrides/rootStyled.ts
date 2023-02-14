@@ -18,7 +18,7 @@ const RootStyled = styled(Paper)(({ theme }) => ({
     minHeight: "47px",
     "& .MuiToolbar-root": {
       minHeight: "47px",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
       "& .MuiIconButton-root": {
         "& .MuiSvgIcon-root": {
           color: theme.palette.text.primary,
