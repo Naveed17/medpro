@@ -108,8 +108,8 @@ function DocumentsPanel({...props}) {
                                sx: {
                                    gridGap: 16,
                                    gridTemplateColumns: {
-                                       xs: "repeat(2,minmax(0,1fr))",
-                                       md: "repeat(4,minmax(0,1fr))",
+                                       xs: "repeat(1,minmax(0,1fr))",
+                                       md: "repeat(1,minmax(0,1fr))",
                                        lg: "repeat(1,minmax(0,1fr))",
                                    },
                                }
@@ -289,16 +289,7 @@ function DocumentsPanel({...props}) {
                                 </Toolbar>
                             </AppBar>
 
-                            {isMobile ? (
-                                <PatientDetailsDocumentCard
-                                    data={typeofDocs.map((item) => ({
-                                        lable: item,
-                                    }))}
-                                    onSellected={(v: string) => {
-                                        setChecked(documents.filter((item: PatientDocuments) => item.documentType === v))
-                                    }}
-                                />
-                            ) : (
+
                                 <>
                                     <FormControlLabel
                                         key={uniqueId()}
@@ -325,7 +316,7 @@ function DocumentsPanel({...props}) {
                                         />
                                     ))}
                                 </>
-                            )}
+
                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                 <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
                                     {tabsContent.map((tabHeader, tabHeaderIndex) =>
