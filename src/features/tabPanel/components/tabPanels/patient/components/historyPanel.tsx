@@ -135,6 +135,7 @@ function HistoryPanel({...props}) {
                 days: card.days,
                 createdAt: card.createdAt,
                 name: 'certif',
+                detectedType:card.type,
                 type: 'write_certif',
                 mutate: mutate()
             })
@@ -164,6 +165,7 @@ function HistoryPanel({...props}) {
                 createdAt: card.createdAt,
                 description: card.description,
                 uuidDoc: uuidDoc,
+                detectedType:card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: mutate()
             })
