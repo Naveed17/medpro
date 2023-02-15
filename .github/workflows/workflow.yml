@@ -58,7 +58,7 @@ jobs:
               },
               "refs/tags/v[1-9].[0-9]+.[0-9]+": {
                 "enable_cd": "true",
-                "environments": "{\"envs\":[{\"name\": \"prod-ma\",\"ws\": \"prod-ma\"} , {\"name\": \"prod-dz\",\"ws\": \"prod-dz\"} , {\"name\": \"prod-ci\",\"ws\": \"prod-ci\"} , {\"name\": \"prod-tn\",\"ws\": \"prod-tn\"}]}"
+                "environments": "{\"envs\":[{\"name\": \"prod-ma\",\"ws\": \"prod-ma\"} , {\"name\": \"prod-dz\",\"ws\": \"prod-dz\"} , {\"name\": \"prod-ci\",\"ws\": \"prod-ci\"} , {\"name\": \"prod-tn\",\"ws\": \"prod-tn\"} , , {\"name\": \"prod-sn\",\"ws\": \"prod-sn\"}]}"
               },
                 "refs/pull/.*": {
                 "enable_cd": "${{ contains(github.event.pull_request.labels.*.name, 'preview') }}",
