@@ -51,7 +51,7 @@
     "keyword":"Mot clé",
     "patient":"Patient",
     "place":"Lieu",
-    
+
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
@@ -199,6 +199,7 @@
       "updated": "Patient modifié",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
       "add-new": "Ajouter un autre patient",
+      "close": "Fermer",
       "add-appo": "Ajouter RDV",
       "add": "Ajouter",
       "add-insurance": "Ajouter une assurance",

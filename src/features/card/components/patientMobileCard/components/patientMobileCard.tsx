@@ -159,7 +159,7 @@ const CardSection = ({ ...props }) => {
                   </Stack>
                 </Stack>
               </Stack>
-              <Popover
+             {/* <Popover
                 open={openTooltip}
                 handleClose={() => setOpenTooltip(false)}
                 menuList={menuList}
@@ -184,7 +184,7 @@ const CardSection = ({ ...props }) => {
                     <Icon path="more-vert" />
                   </IconButton>
                 }
-              />
+              />*/}
             </Stack>
           )}
 
