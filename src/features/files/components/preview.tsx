@@ -70,9 +70,9 @@ function PreviewDialog({...props}) {
                                     case "dosage":
                                         val = `${el.dosage}`
                                         if (el.duration)
-                                            val += `${el.duration} ${t(el.duration_type)}`
+                                            val += ` pendant ${el.duration} ${t(el.duration_type)}`
                                         if (el.note)
-                                            val += el.note;
+                                            val += ` (${el.note})`;
                                         break;
                                 }
                                 elx.append(val)
