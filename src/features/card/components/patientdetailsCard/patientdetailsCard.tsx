@@ -9,7 +9,7 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 // styled
@@ -46,6 +46,9 @@ function PatientDetailsCard({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
+
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -219,10 +222,10 @@ function PatientDetailsCard({...props}) {
                                 <Skeleton variant="text" width={150}/>
                             ) : (
                                 <>
-                                    {
-                                        patient?.birthdate && <Stack
-                                            className={"date-birth"}
-                                            direction={"row"} alignItems="center">
+                                    {patient?.birthdate && <Stack
+                                        className={"date-birth"}
+                                        direction={isMobile ? "column" : "row"} alignItems="center">
+                                        <Stack direction={"row"} alignItems="center">
                                             <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
                                             <Box
                                                 sx={{
@@ -254,15 +257,17 @@ function PatientDetailsCard({...props}) {
                                                     showMask
                                                 />
                                             </Box>
-                                            {patient?.birthdate &&
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    component="span">
-                                                    -{" "}
-                                                    ({" "}{getBirthdayFormat(patient)}{" "})
-                                                </Typography>}
                                         </Stack>
+
+                                        {patient?.birthdate &&
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                component="span">
+                                                -{" "}
+                                                ({" "}{getBirthdayFormat(patient)}{" "})
+                                            </Typography>}
+                                    </Stack>
                                     }
                                 </>
                             )}

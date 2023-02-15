@@ -51,7 +51,7 @@
     "keyword":"Mot clé",
     "patient":"Patient",
     "place":"Lieu",
-    
+
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
@@ -178,6 +178,7 @@
       "region": "Région",
       "region-placeholder": "Région",
       "region-placeholder-error": "Veuillez sélectionner la région",
+      "region-error": "La région du pays est obligatoire",
       "zip": "Code postal",
       "address": "Adresse",
       "address-placeholder": "Entrez l'adresse du patient",
@@ -199,6 +200,7 @@
       "updated": "Patient modifié",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
       "add-new": "Ajouter un autre patient",
+      "close": "Fermer",
       "add-appo": "Ajouter RDV",
       "add": "Ajouter",
       "add-insurance": "Ajouter une assurance",
