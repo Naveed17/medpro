@@ -41,6 +41,8 @@ import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -129,7 +131,7 @@ function DocumentDetailDialog({...props}) {
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
-            icon: "ic-menu2",
+            icon: "ft14-text",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
@@ -329,7 +331,7 @@ function DocumentDetailDialog({...props}) {
     return (
         <DocumentDetailDialogStyled>
             <Grid container>
-                <Grid item xs={12} md={menu ? 8 : 12}>
+                <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
                         {
                             !multimedias.some(multi => multi === state.type) &&
@@ -412,8 +414,18 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 0} className="sidebar" color={"white"} style={{background: "white"}}>
-                    <List>
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
+                    {menu ? <List>
+                        <ListItem className='secound-list'>
+                            <ListItemButton onClick={() => {
+                                setMenu(false)
+                            }}>
+                                <ListItemIcon>
+                                    <CloseFullscreenIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={t("close")}/>
+                            </ListItemButton>
+                        </ListItem>
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
@@ -422,7 +434,7 @@ function DocumentDetailDialog({...props}) {
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary={t(button.title)}/>
+                                        {menu && <ListItemText primary={t(button.title)}/>}
                                     </ListItemButton>}
                                 </ListItem>
                             )
@@ -496,7 +508,62 @@ function DocumentDetailDialog({...props}) {
                                 </ListItem>
                             )
                         }
-                    </List>
+                    </List> : <>
+
+
+                        <List>
+
+                            <ListItem onClick={() => {
+                                setMenu(true)
+                            }} disablePadding sx={{display: 'block'}}>
+                                <ListItemButton
+                                    sx={{
+                                        minHeight: 48,
+                                        justifyContent: 'center',
+                                        px: 2.5,
+                                    }}
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            margin: 'auto',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <OpenInFullIcon/>
+                                    </ListItemIcon>
+                                </ListItemButton>
+                            </ListItem>
+
+                            {
+                                actionButtons.map((button, idx) =>
+                                    !button.disabled &&
+                                    <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
+                                              disablePadding sx={{display: 'block'}}>
+                                        <ListItemButton
+                                            sx={{
+                                                minHeight: 48,
+                                                justifyContent: 'center',
+                                                px: 2.5,
+                                            }}
+                                        >
+                                            <ListItemIcon
+                                                sx={{
+                                                    minWidth: 0,
+                                                    margin: 'auto',
+                                                    justifyContent: 'center',
+                                                }}
+                                            >
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                        </ListItemButton>
+                                    </ListItem>
+                                )
+                            }
+
+
+                        </List>
+                    </>}
                 </Grid>
             </Grid>
 
