@@ -1,13 +1,14 @@
 import {Card, CardContent, Stack, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
-import React, {ReactElement, useState} from 'react'
+import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import moment from "moment/moment";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 function DocumentCard({...props}) {
-    const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick, mode, t} = props;
-    const onClickTooltipItem = (item: {
+    //const [openTooltip, setOpenTooltip] = useState<boolean>(false);
+    const {data, onClick, t} = props;
+    /*const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
         action: string;
@@ -17,11 +18,11 @@ function DocumentCard({...props}) {
                 console.log("actionDelete");
                 break;
         }
-    };
+    };*/
     return (
         <>
             {data.documentType !== "photo" && <DocumentCardStyled className={"document-card"}>
-                <CardContent onClick={onClick}>
+                <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
                     {/*  <Stack direction="row" alignItems="center" justifyContent="end">
 
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
@@ -69,10 +70,10 @@ function DocumentCard({...props}) {
                 </Stack>
                 */}
                     <Stack spacing={2}
-                           direction={mode ? "row" : "column"}
+                           direction={"row"}
                            className="document-detail"
                            alignItems="center">
-                        <IconUrl path={
+                        <IconUrl width={"20"} height={"20"} path={
                             data.documentType === "prescription" && "ic-traitement" ||
                             data.documentType == "requested-analysis" && "ic-analyse" ||
                             data.documentType == "analyse" && "ic-analyse" ||
@@ -87,19 +88,17 @@ function DocumentCard({...props}) {
                         }/>
                         <Stack direction={"column"}>
                             <Typography className={"sub-title"} variant='subtitle2'
-                                        textAlign={mode ? "left" : "center"}
                                         whiteSpace={"nowrap"}
-                                        fontSize={11}>
+                                        fontSize={13}>
                                 {t(data.title)}
                             </Typography>
-                            <Typography textAlign={mode ? "left" : "center"} whiteSpace={"nowrap"} fontSize={9}
-                                        style={{marginTop: 0, color: "grey"}}>
-                                {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                            </Typography>
-                            {mode && <Typography textAlign={mode ? "left" : "center"} whiteSpace={"nowrap"} fontSize={9}
-                                         style={{marginTop: 0, color: "grey"}}>
-                                {data.description && <Typography fontSize={13}>{t('note') + data.description}</Typography>}
-                            </Typography>}
+                            <Stack direction={"row"} spacing={1}>
+                                <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
+                                <Typography whiteSpace={"nowrap"} fontSize={12}
+                                            style={{marginTop: 0, color: "grey"}}>
+                                    {moment(data.createdAt, 'DD-MM-YYYY HH:mm').format('HH:mm')}
+                                </Typography>
+                            </Stack>
                         </Stack>
                     </Stack>
                 </CardContent>

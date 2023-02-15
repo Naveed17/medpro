@@ -2,12 +2,14 @@ import {Card} from '@mui/material';
 import {styled, alpha} from '@mui/material/styles'
 
 const DocumentCardStyled = styled(Card)(({theme}) => ({
-    boxShadow: theme.customShadows.documentCard,
+   // boxShadow: theme.customShadows.documentCard,
+    boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.2)",
+    padding: 0,
     border: 'none',
     "& .sub-title": {
         textOverflow: "ellipsis",
         overflow: "hidden",
-        width: " 6rem"
+        width: " 10rem"
     },
     ".MuiCardContent-root": {
         '.btn-more': {
@@ -23,8 +25,8 @@ const DocumentCardStyled = styled(Card)(({theme}) => ({
         ".document-detail": {
             marginTop: theme.spacing(1),
             svg: {
-                width: theme.spacing(10),
-                height: theme.spacing(10),
+                //width: theme.spacing(10),
+               // height: theme.spacing(10),
             }
         },
         '.MuiTooltip-tooltip': {

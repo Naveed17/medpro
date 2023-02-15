@@ -1,16 +1,14 @@
 import React, {useState} from "react";
 import {Box, IconButton, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
-import Image from "next/image";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import ReorderIcon from '@mui/icons-material/Reorder';
-import AppsIcon from '@mui/icons-material/Apps';
 import fileDownload from 'js-file-download';
 import axios from "axios";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
 function DocumentsTab({...props}) {
 
     const noCardData = {
@@ -50,20 +48,51 @@ function DocumentsTab({...props}) {
     }
     return (
         <>
-            <Stack direction={"row"} mb={2} spacing={1} justifyContent={"end"}>
-                <IconButton onClick={()=>{setMode(true)}}  style={{background:"white",borderRadius:10}}>
-                    <ReorderIcon color={mode ? "info":"primary"}/>
-                </IconButton>
-                <IconButton onClick={()=>{setMode(false)}}  style={{background:"white",borderRadius:10}}>
-                    <AppsIcon color={!mode ? "info":"primary"}/>
-                </IconButton>
-            </Stack>
+
+            {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
+                <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
+                    {t('gallery')}
+                </Typography>}
+
+            <Box style={{overflowX: "auto", marginBottom: 10}}>
+                <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                {
+                    documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                        <Box onClick={() => {
+                            showDoc(card)
+                        }} key={`doc-item-${idx}`} width={150} height={140} borderRadius={2}
+                             style={{background: "white"}}>
+                            <img src={card.uri}
+                                 style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
+                                 alt={card.title}/>
+
+                            <Typography whiteSpace={'nowrap'}
+                                        textOverflow={"ellipsis"}
+                                        overflow={"hidden"}
+                                        width={"120px"}
+                                        margin={"auto"}
+                                        textAlign={"center"}
+                                        fontSize={13}>
+                                {card.title}
+                            </Typography>
+                        </Box>
+                    )
+                }
+                </Stack>
+            </Box>
+
+            {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').length > 0 &&
+                <Typography variant='subtitle2' fontWeight={700} mb={3} fontSize={16}>
+                    {t('docs')}
+                </Typography>}
+
+
             <Box display='grid' sx={{
                 gridGap: 16,
                 gridTemplateColumns: {
-                    xs: `repeat(${mode ? 1:2},minmax(0,1fr))`,
-                    md: "repeat(4,minmax(0,1fr))",
-                    lg: `repeat(${mode ? 1:5},minmax(0,1fr))`,
+                    xs: `repeat(${mode ? 1 : 2},minmax(0,1fr))`,
+                    md: "repeat(3,minmax(0,1fr))",
+                    lg: `repeat(4,minmax(0,1fr))`,
                 }
             }}>
                 {
@@ -124,55 +153,6 @@ function DocumentsTab({...props}) {
                         onPlay={e => console.log("onPlay")}
                     />
                 </Box>}
-            </Box>
-
-            {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
-                <Typography variant='subtitle2' fontWeight={700} mt={3} mb={3} fontSize={16}>
-                    {t('gallery')}
-                </Typography>}
-
-            <Box display='grid' sx={{
-                gridGap: 16,
-                gridTemplateColumns: {
-                    xs: "repeat(2,minmax(0,1fr))",
-                    md: "repeat(4,minmax(0,1fr))",
-                    lg: "repeat(5,minmax(0,1fr))",
-                }
-            }}>
-                {
-                    documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                        <React.Fragment key={`doc-item-${idx}`}>
-                            <Stack onClick={() => {
-                                showDoc(card)
-                            }}
-                                   justifyContent={"center"}
-                                   alignItems="center"
-                                   className="document-detail">
-                                <Image src={card.uri}
-                                       width={250}
-                                       height={250}
-                                       style={{borderRadius: 10}}
-                                       alt={card.title}/>
-                                {/*<Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
-                                            fontSize={11}>
-                                    {t(card.title)}
-                                </Typography>*/}
-                            </Stack>
-                        </React.Fragment>
-                    )
-                }
-                {/*<React.Fragment>
-                    <Box width={190} height={190} sx={{background: '#c0c9ce45', borderRadius: 2}}>
-                        <Image src={"/static/img/add-image.png"}
-                               width={80}
-                               height={80}
-                               alt={'add album'}/>
-                        <Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
-                                    fontSize={11}>
-                            {'add album'}
-                        </Typography>
-                    </Box>
-                </React.Fragment>*/}
             </Box>
             {documents.length === 0 && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
