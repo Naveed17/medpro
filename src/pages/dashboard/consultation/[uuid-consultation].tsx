@@ -727,6 +727,7 @@ function ConsultationInProgress() {
         description: card.description,
         title: card.title,
         createdAt: card.createdAt,
+        detectedType:card.type,
         name: "certif",
         type: "write_certif",
         mutate: mutateDoc,
@@ -756,6 +757,7 @@ function ConsultationInProgress() {
         createdAt: card.createdAt,
         description: card.description,
         info: info,
+        detectedType:card.type,
         uuidDoc: uuidDoc,
         patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
           patient.firstName

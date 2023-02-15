@@ -165,6 +165,7 @@ function DocumentsPanel({...props}) {
                 description: card.description,
                 createdAt: card.createdAt,
                 name: 'certif',
+                detectedType:card.type,
                 type: 'write_certif',
                 mutate: mutatePatientDetails
             })
@@ -194,6 +195,7 @@ function DocumentsPanel({...props}) {
                 uuidDoc: uuidDoc,
                 description: card.description,
                 createdAt: card.createdAt,
+                detectedType:card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: mutatePatientDetails
             })
@@ -207,7 +209,7 @@ function DocumentsPanel({...props}) {
         <>
             {documents.length > 0 || patientDocuments?.length > 0 ? (
                 <>
-                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 && <PanelCardStyled
+                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 && !roles.includes("ROLE_SECRETARY") && <PanelCardStyled
                         sx={{
                             "& .MuiCardContent-root": {
                                 background: "white"
