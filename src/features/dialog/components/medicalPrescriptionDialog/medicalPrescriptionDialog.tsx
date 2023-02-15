@@ -63,9 +63,9 @@ function MedicalPrescriptionDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const validationSchema = Yup.object().shape({
-        dosage: Yup.string().required(),
+        /*dosage: Yup.string().required(),
         duration: Yup.string().required(),
-        durationType: Yup.string().required()
+        durationType: Yup.string().required()*/
     });
 
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -168,7 +168,7 @@ function MedicalPrescriptionDialog({...props}) {
             if (drug) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
-                drugs.unshift(values)
+                drugs.push(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
@@ -383,9 +383,9 @@ function MedicalPrescriptionDialog({...props}) {
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('dosage')}
-                                    <Typography component="span" color="error">
+                                    {/*<Typography component="span" color="error">
                                         *
-                                    </Typography>
+                                    </Typography>*/}
                                 </Typography>
                                 <TextField
                                     fullWidth
