@@ -35,8 +35,10 @@ function BasicList({...props}) {
                                     </span>
 
                                     {item.buttons.map((button: any, index: number) => (
-                                        <Button key={index} onClick={() => handleAction(button.action, item)}
+                                        <Button key={index}
+                                                onClick={() => handleAction(button.action, item)}
                                                 sx={{margin: 1}}
+                                                {...(button.href && {href: button.href})}
                                                 variant="contained" color={button.color}
                                                 size="small">{button.text}</Button>))
                                     }

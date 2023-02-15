@@ -153,6 +153,7 @@
         "cancel": "Annuler",
         "next": "Suivant",
         "region": "Région",
+        "region-error": "La région du pays est obligatoire",
         "country": "Pays",
         "country-placeholder": "pays",
         "region-placeholder": "région",

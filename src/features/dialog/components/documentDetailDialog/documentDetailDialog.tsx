@@ -275,6 +275,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
+            state.mutateDetails && state.mutateDetails()
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
@@ -286,14 +287,9 @@ function DocumentDetailDialog({...props}) {
     }
 
     useEffect(() => {
+        setIsImg(state.detectedType?.split('/')[0] === 'image')
         setFile(state.uri)
     }, [state])
-
-    useEffect(() => {
-        if (typeof file !== 'object') { // @ts-ignore
-            setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file?.split('.').pop().split(/\#|\?/)[0]))
-        }
-    }, [file])
 
     useEffect(() => {
         if (httpHeaderData) {
@@ -319,6 +315,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate && state.mutate();
+            state.mutateDetails && state.mutateDetails()
             setOpenRemove(false);
             setLoading(false);
             (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();

@@ -79,7 +79,7 @@ const RootStyled = styled(Paper)(({ theme }) => ({
     },
   },
   "& .MuiListItem-root": {
-    padding: theme.spacing(0.5),
+    padding: theme.spacing(0.3),
     ".ic-tell": {
       svg: {
         width: 20,
@@ -105,6 +105,9 @@ const RootStyled = styled(Paper)(({ theme }) => ({
     minHeight: "auto !important",
     backgroundColor: "transparent !important",
   },
+  "& .appointment-text .MuiTypography-root": {
+    fontWeight: "bold"
+  }
 }));
 
 export default RootStyled;

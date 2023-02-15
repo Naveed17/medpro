@@ -99,12 +99,12 @@ const settingsData = {
             href: "/dashboard/settings/data",
             disable: false
         },
-        {
+       /* {
             name: "app_lock",
             icon: "ic-cloc",
             href: "/dashboard/settings/app-lock",
             disable: false
-        },
+        },*/
 
     ],
 }

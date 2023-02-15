@@ -17,6 +17,7 @@ import {useTranslation} from "next-i18next";
 import React from "react";
 import {pxToRem} from "@themes/formatFontSize";
 import {LoadingScreen} from "@features/loadingScreen";
+import CallIcon from "@mui/icons-material/Call";
 
 function AgendaPopupAction({...props}) {
     const {data, OnEdit, OnConfirm} = props;
@@ -42,8 +43,8 @@ function AgendaPopupAction({...props}) {
                                             ? "/static/icons/men-avatar.svg"
                                             : "/static/icons/women-avatar.svg"
                                     }
-                                    width={pxToRem(26)}
-                                    height={pxToRem(26)}
+                                    width={pxToRem(42)}
+                                    height={pxToRem(42)}
                                     sx={{borderRadius: pxToRem(6), mb: pxToRem(10), mr: .5}}
                                 />
                                 <Box>
@@ -92,6 +93,13 @@ function AgendaPopupAction({...props}) {
                         fullWidth
                         variant="contained" startIcon={<CheckIcon/>}>
                         {t("dialogs.confirm-dialog.confirm")}
+                    </Button>
+                    <Button
+                        href={`tel:${data.phone.replaceAll(" ", "")}`}
+                        fullWidth
+                        variant="contained"
+                        startIcon={<CallIcon/>}>
+                        {t("dialogs.confirm-dialog.call")}
                     </Button>
                 </Stack>
             </CardContent>

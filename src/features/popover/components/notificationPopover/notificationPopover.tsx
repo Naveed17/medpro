@@ -122,6 +122,9 @@ function NotificationPopover({...props}) {
                                     "& .MuiSvgIcon-root": {
                                         width: 26,
                                         height: 26
+                                    },
+                                    "& .MuiButtonBase-root": {
+                                        margin: "8px 4px"
                                     }
                                 }}
                                 data={[
@@ -133,7 +136,15 @@ function NotificationPopover({...props}) {
                                         icon: <EventIcon/>,
                                         buttons: [
                                             {text: "Confirmer", color: "success", action: "onConfirm"},
-                                            {text: "Gérer", color: "white", action: "onEdit"}
+                                            {text: "Gérer", color: "white", action: "onEdit"},
+                                            {
+                                                ...(appointment.patient?.contact.length > 0 && {
+                                                    text: `Appeler ${appointment.patient?.contact[0].value}`,
+                                                    href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
+                                                    color: "primary",
+                                                    action: "onCall"
+                                                })
+                                            }
                                         ]
                                     }))
                                 ]}/>

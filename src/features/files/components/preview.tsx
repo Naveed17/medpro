@@ -20,8 +20,8 @@ function PreviewDialog({...props}) {
     const [pages, setPages] = useState<any[]>([]);
     const [title, setTitle] = useState("Titre");
     const prescriptionRows = [
-        {name: 'name', style: {'margin-bottom': 0, 'font-size': '14px'}},
-        {name: 'dosage', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
+        {name: 'name', style: {'margin-bottom': 0, 'font-size': '15px', 'font-weight': 'bold'}},
+        {name: 'dosage', style: {'font-size': '14px', 'margin-top': 0, 'margin-bottom': '1px','margin-left':'14px'}},
         {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
         {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
     ];
@@ -65,16 +65,14 @@ function PreviewDialog({...props}) {
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
-                                        val = el.standard_drug.commercial_name;
+                                        val = `• ${el.standard_drug.commercial_name}`;
                                         break;
                                     case "dosage":
-                                        val = `• ${el.dosage}`
-                                        break;
-                                    case "duration":
-                                        val = `• ${el.duration} ${t(el.duration_type)}`
-                                        break;
-                                    case "note":
-                                        val = el.note ? `• ${el.note}` : '';
+                                        val = `${el.dosage}`
+                                        if (el.duration)
+                                            val += `${el.duration} ${t(el.duration_type)}`
+                                        if (el.note)
+                                            val += el.note;
                                         break;
                                 }
                                 elx.append(val)
@@ -99,7 +97,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "gray"}
+                                style: {}
                             })
                             pageX.appendChild(elx)
                             setTitle("Bilan Biologique");
@@ -321,7 +319,10 @@ function PreviewDialog({...props}) {
             }
 
             const footer = document.getElementById('footer')
-            if (footer && data.footer) footer.innerHTML = data.footer.content;
+            if (footer && data.footer) {
+                footer.innerHTML = data.footer.content;
+                footer.className="footer-st"
+            }
 
         }
     }, [data])
