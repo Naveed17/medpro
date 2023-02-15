@@ -731,6 +731,8 @@ function ConsultationInProgress() {
         name: "certif",
         type: "write_certif",
         mutate: mutateDoc,
+        mutateDetails: mutate
+
       });
       setOpenDialog(true);
     } else {
@@ -763,6 +765,7 @@ function ConsultationInProgress() {
           patient.firstName
         } ${patient.lastName}`,
         mutate: mutateDoc,
+        mutateDetails: mutate
       });
       setOpenDialog(true);
     }

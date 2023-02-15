@@ -24,13 +24,12 @@ import {LoadingButton} from "@mui/lab";
 
 function WaitingRoomRow({...props}) {
     const {row, t, handleEvent, data} = props;
-    const {doctor_country, roles} = data;
+    const {doctor_country, roles, loading, setLoading} = data;
 
     const theme = useTheme();
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions, setActions] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(status === 'loading');
     const currency = doctor_country.currency?.name;
 
     const handleCloseDialog = () => {
@@ -256,7 +255,7 @@ function WaitingRoomRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell align="right">
-                    <Stack direction="row" alignItems="center" spacing={1} minWidth={250}>
+                    <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1} minWidth={250}>
                         {!roles.includes("ROLE_SECRETARY") && <LoadingButton
                             {...{loading}}
                             onClick={(event) => {
