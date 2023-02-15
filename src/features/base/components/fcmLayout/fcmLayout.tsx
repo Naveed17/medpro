@@ -228,7 +228,7 @@ function FcmLayout({...props}) {
         if (medical_professional) {
             subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
             const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-            if(prodEnv) {
+            if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
                     name: `${general_information.firstName} ${general_information.lastName}`,
@@ -263,7 +263,7 @@ function FcmLayout({...props}) {
                         position: "absolute",
                         right: 0,
                         bottom: 0,
-                        minWidth: dialogAction !== "confirm-dialog" ? "40vw" : "33vw",
+                        minWidth: "40vw",
                         "& .MuiPaper-root": {
                             borderRadius: 0,
                             border: 0

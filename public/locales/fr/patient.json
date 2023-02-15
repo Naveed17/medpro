@@ -178,6 +178,7 @@
       "region": "Région",
       "region-placeholder": "Région",
       "region-placeholder-error": "Veuillez sélectionner la région",
+      "region-error": "La région du pays est obligatoire",
       "zip": "Code postal",
       "address": "Adresse",
       "address-placeholder": "Entrez l'adresse du patient",

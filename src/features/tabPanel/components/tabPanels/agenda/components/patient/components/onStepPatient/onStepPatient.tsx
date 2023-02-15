@@ -141,6 +141,12 @@ function OnStepPatient({...props}) {
             month: Yup.string(),
             year: Yup.string()
         }),
+        region: Yup.string().when(['address'], {
+            is: (address: string) => address && address.length > 0,
+            then: Yup.string().required(t("region-error"))
+        }),
+        country: Yup.string(),
+        address: Yup.string(),
         insurance: Yup.array().of(
             Yup.object().shape({
                 insurance_number: Yup.string()
@@ -795,7 +801,7 @@ function OnStepPatient({...props}) {
                                         >
                                             {t("region")}
                                         </Typography>
-                                        <FormControl fullWidth>
+                                        <FormControl error={Boolean(touched.region && errors.region)} fullWidth>
                                             <Autocomplete
                                                 id={"region"}
                                                 disabled={!states}
@@ -826,6 +832,11 @@ function OnStepPatient({...props}) {
                                                                                   placeholder={t("region-placeholder")}
                                                                                   sx={{paddingLeft: 0}}
                                                                                   variant="outlined" fullWidth/>}/>
+                                            {errors.region && (
+                                                <FormHelperText error sx={{ mx: 0 }}>
+                                                    {errors.region as string}
+                                                </FormHelperText>
+                                            )}
                                         </FormControl>
                                     </Grid>
                                     <Grid item md={6} xs={12}>
