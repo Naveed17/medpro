@@ -275,6 +275,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
+            state.mutateDetails && state.mutateDetails()
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
@@ -314,6 +315,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate && state.mutate();
+            state.mutateDetails && state.mutateDetails()
             setOpenRemove(false);
             setLoading(false);
             (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();

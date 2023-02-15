@@ -233,7 +233,7 @@ function TopNavBar({...props}) {
                                 }}>
                                 {popovers[popoverAction]}
                             </Popover>
-                            <Badge
+                            {/*<Badge
                                 badgeContent={null}
                                 onClick={() => {
                                     if (localStorage.getItem("app_lock")) {
@@ -247,7 +247,7 @@ function TopNavBar({...props}) {
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-cloc"}/>
                                 </IconButton>
-                            </Badge>
+                            </Badge>*/}
                         </MenuList>
                         {/*<LangButton/>*/}
                         {!isMobile && <MenuList className="topbar-account">
