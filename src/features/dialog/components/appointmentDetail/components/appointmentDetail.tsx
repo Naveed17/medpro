@@ -325,34 +325,44 @@ function AppointmentDetail({...props}) {
                                         </Typography>
                                         <List sx={{py: 1, pt: 0}}>
                                             {appointment?.extendedProps.patient?.birthdate && (
-                                                <ListItem>
-                                                    <IconUrl width={"13"} height={"13"} path="ic-anniverssaire"/>
-                                                    <Typography
-                                                        sx={{ml: 1, fontSize: 12}}
-                                                        variant="caption"
-                                                        fontWeight={400}>
-                                                        {appointment?.extendedProps.patient?.birthdate}
-                                                        ({" "}{getBirthdayFormat(appointment?.extendedProps.patient)}{" "})
-                                                    </Typography>
+                                                <ListItem className={"appointment-text"}>
+                                                    <Stack direction={"row"} alignItems={"center"}
+                                                           justifyContent={"center"}>
+                                                        <IconUrl width={"13"} height={"13"} path="ic-anniverssaire"/>
+                                                        <Typography
+                                                            sx={{ml: 1, fontSize: 12}}
+                                                            variant="caption"
+                                                            fontWeight={400}>
+                                                            {appointment?.extendedProps.patient?.birthdate}
+                                                            ({" "}{getBirthdayFormat(appointment?.extendedProps.patient)}{" "})
+                                                        </Typography>
+                                                    </Stack>
                                                 </ListItem>
                                             )}
                                             {appointment?.extendedProps.patient.email && (
-                                                <ListItem sx={{padding: "0 0.2rem"}}>
-                                                    <IconUrl width={"16"} height={"16"} path="ic-message-contour"/>
-                                                    <Link
-                                                        underline="none"
-                                                        href={`mailto:${appointment?.extendedProps.patient.email}`}
-                                                        sx={{ml: 1, fontSize: 12}}
-                                                        variant="caption"
-                                                        color="primary"
-                                                        fontWeight={400}>
-                                                        {appointment?.extendedProps.patient.email}
-                                                    </Link>
+                                                <ListItem
+                                                    className={"appointment-text"}
+                                                    sx={{
+                                                        marginLeft: "-1.5px"
+                                                    }}>
+                                                    <Stack direction={"row"} alignItems={"center"}
+                                                           justifyContent={"center"}>
+                                                        <IconUrl width={"16"} height={"16"} path="ic-message-contour"/>
+                                                        <Link
+                                                            underline="none"
+                                                            href={`mailto:${appointment?.extendedProps.patient.email}`}
+                                                            sx={{ml: 1, fontSize: 12}}
+                                                            variant="caption"
+                                                            color="primary"
+                                                            fontWeight={400}>
+                                                            {appointment?.extendedProps.patient.email}
+                                                        </Link>
+                                                    </Stack>
                                                 </ListItem>
                                             )}
                                             {appointment?.extendedProps.patient.contact.length >
                                                 0 && (
-                                                    <ListItem>
+                                                    <ListItem className={"appointment-text"}>
                                                         <IconUrl
                                                             path="ic-tel-green-filled"
                                                             className="ic-tell"
