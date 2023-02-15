@@ -97,7 +97,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "gray"}
+                                style: {}
                             })
                             pageX.appendChild(elx)
                             setTitle("Bilan Biologique");
