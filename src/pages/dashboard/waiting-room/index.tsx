@@ -179,6 +179,7 @@ function WaitingRoom() {
             icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
             action: "onPatientDetail",
         }]);
+    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -276,6 +277,7 @@ function WaitingRoom() {
             });
         } else {
             setError(true);
+            setLoadingRequest(false);
         }
     }
 
@@ -408,7 +410,12 @@ function WaitingRoom() {
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 && <Otable
-                                        {...{doctor_country, roles}}
+                                        {...{
+                                            doctor_country,
+                                            roles,
+                                            loading: loadingRequest,
+                                            setLoading: setLoadingRequest
+                                        }}
                                         headers={headCells}
                                         rows={waitingRooms}
                                         from={"waitingRoom"}
