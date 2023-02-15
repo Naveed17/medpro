@@ -132,7 +132,9 @@ function DashLayout({children}: LayoutProps) {
 
     const justNumbers = (chars: string) => {
         const numsStr = chars.replace(/[^0-9]/g, '');
-        const charsStr = chars.replace(/[0-9]/, '');
+        let charsStr = chars.replace(/[0-9]/, '');
+        if (charsStr === "undefined" || charsStr === undefined)
+            charsStr = ""
         let nb = 1;
         if (numsStr.length > 0)
             nb = parseInt(numsStr) + 1;
