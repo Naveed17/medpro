@@ -475,12 +475,7 @@ function ConsultationInProgress() {
           mutate().then(() => {
             leaveDialog.current = true;
             router.push("/dashboard/agenda").then(() => {
-              localStorage.removeItem(`Modeldata${uuind}`);
-              localStorage.removeItem(`Model-${uuind}`);
-              localStorage.removeItem(`consultation-data-${uuind}`);
-              localStorage.removeItem(`instruction-data-${uuind}`);
-              localStorage.removeItem(`consultation-fees`);
-              localStorage.removeItem(`consultation-acts`);
+              clearData();
               setActions(false);
               setEnd(false);
             });
@@ -504,12 +499,7 @@ function ConsultationInProgress() {
   useEffect(() => {
     if (sheet) {
       const storageWidget = localStorage.getItem(`Modeldata${uuind}`);
-      !storageWidget &&
-        sheetModal &&
-        localStorage.setItem(
-          `Modeldata${uuind}`,
-          JSON.stringify(sheetModal?.data)
-        );
+      (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuind}`, JSON.stringify(sheetModal?.data));
       const ModelWidget = localStorage.getItem(`Model-${uuind}`);
       setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
     }
@@ -642,14 +632,17 @@ function ConsultationInProgress() {
     setActions(false);
   };
 
-  const leave = () => {
+  const clearData = () => {
     localStorage.removeItem(`Modeldata${uuind}`);
     localStorage.removeItem(`Model-${uuind}`);
     localStorage.removeItem(`consultation-data-${uuind}`);
     localStorage.removeItem(`instruction-data-${uuind}`);
     localStorage.removeItem(`consultation-fees`);
     localStorage.removeItem(`consultation-acts`);
+  }
 
+  const leave = () => {
+    clearData();
     updateAppointmentStatus(uuind as string, "11").then(() => {
       router.push("/dashboard/agenda").then(() => {
         dispatch(setTimer({ isActive: false }));
