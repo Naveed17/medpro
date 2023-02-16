@@ -5,6 +5,17 @@
 # Med Pro
 NextJS app. Frontend for SmartMedSA/med-pro
 
+```
+# Environment URLs
+
+| Country    |          URL                   |
+|----------- |--------------------------------|
+| Tunisia    | https://medpro.med.tn          |
+| Morocco    | https://medpro.med.ma          |
+|Ivory coast | https://ci.medlink.doctor      |
+| Senegal    | https://sn.medlink.doctor      |
+| Algeria    | https://dz.medlink.doctor      |
+```
 ### Development
 
 Before starting, create .env.local file from the dist and update it with values provided by the development team.
