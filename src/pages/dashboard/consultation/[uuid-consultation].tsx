@@ -696,6 +696,7 @@ function ConsultationInProgress() {
                     </Button>
                     <LoadingButton
                         loading={loadingReq}
+                        loadingPosition="start"
                         variant="contained"
                         color="error"
                         onClick={() => {
