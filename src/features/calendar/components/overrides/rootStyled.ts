@@ -12,6 +12,9 @@ const RootStyled = styled("div")(({theme}) => ({
         border: "1px solid #F8F8F8!important",
         boxShadow: "none",
     },
+    '& .fc .fc-timegrid-now-indicator-line': {
+        borderStyle: "dashed"
+    },
     "& .fc .fc-daygrid-day.fc-day-today": {
         background: "transparent",
     },
