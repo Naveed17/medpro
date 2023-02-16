@@ -1,3 +1,12 @@
+## [4.10.1](https://github.com/SmartMedSA/med-pro/compare/v4.10.0...v4.10.1) (2023-02-16)
+
+
+### Bug Fixes
+
+* refresh data history ([7610f3f](https://github.com/SmartMedSA/med-pro/commit/7610f3fd2ad7ac2302f77e82f3b9d111ebb465d2))
+* waiting room start consultation ([78c01de](https://github.com/SmartMedSA/med-pro/commit/78c01de85b0dd3cc357388d9ef717d89d5299ae6))
+* workflow envmap step json error ([464bab8](https://github.com/SmartMedSA/med-pro/commit/464bab80f748435c77fcd56b2004f6a686e62e1b))
+
 # [4.10.0](https://github.com/SmartMedSA/med-pro/compare/v4.9.1...v4.10.0) (2023-02-15)
 
 
