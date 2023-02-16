@@ -325,9 +325,6 @@ function FcmLayout({...props}) {
                                 }
                             } as any;
                             router.push("/dashboard/agenda").then(() => {
-/*                                dispatch(setSelectedEvent(event));
-                                dispatch(openDrawer({type: "view", open: true}));*/
-                                console.log(event);
                                 dispatch(setSelectedEvent(event));
                                 dispatch(setMoveDateTime({
                                     date: new Date(event?.extendedProps.time),
