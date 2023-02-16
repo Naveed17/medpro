@@ -7,9 +7,15 @@ import {Theme} from "@mui/material/styles";
 const Prescription = ({...props}) => {
     const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
     const content = useRef<HTMLDivElement>(null);
+    const footer = useRef<HTMLDivElement>(null);
     useEffect(()=>{
         content.current?.append(pages[id].content)
-    },[id, loading, pages])
+        const footer = document.getElementById('footer')
+        if (footer && data.footer) {
+            console.log(data.footer)
+            footer.innerHTML = data.footer.content;
+        }
+    },[data, id, loading, pages])
 
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
@@ -84,6 +90,16 @@ const Prescription = ({...props}) => {
                             {<div id={id} ref={content}></div>}
                         </div>
                     </Draggable>
+
+                    {data.footer && <Draggable defaultPosition={{x: data.footer.x, y: data.footer.y}}
+                                               onStop={(ev, data) => {
+                                                   eventHandler(ev, data, 'footer')
+                                               }}
+                                               bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
+                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
+                            {data.footer.show && <div id={"footer"} className={"footer-st"} ref={footer}></div>}
+                        </div>
+                    </Draggable>}
                 </div>}
             </Box>}
         </>

@@ -306,7 +306,6 @@ function DocumentDetailDialog({...props}) {
                 setData(docInfo.data)
                 setHeader(docInfo.header)
                 setLoading(false)
-                console.log("c bn")
             }
         }
     }, [httpHeaderData])

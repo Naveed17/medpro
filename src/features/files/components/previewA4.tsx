@@ -168,7 +168,6 @@ function PreviewDialog({...props}) {
                             })
 
                             pageX.appendChild(certifLine)
-                            console.log("pageX",pageX.clientHeight)
                             setTitle("CERTIFICAT MEDICAL");
                             break;
                         case "fees":
@@ -323,11 +322,12 @@ function PreviewDialog({...props}) {
                 content.style.height = data.content.maxHeight + 'px'
             }
 
-            const footer = document.getElementById('footer')
+            /*const footer = document.getElementById('footer')
             if (footer && data.footer) {
+                console.log(data.footer)
                 footer.innerHTML = data.footer.content;
                 footer.className="footer-st"
-            }
+            } */
 
         }
     }, [data])
