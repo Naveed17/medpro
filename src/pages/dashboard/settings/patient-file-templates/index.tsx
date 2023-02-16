@@ -155,7 +155,7 @@ function PatientFileTemplates() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', "patient", 'settings']))
     }
 })
 export default PatientFileTemplates

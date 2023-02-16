@@ -86,6 +86,7 @@ function TopNavBar({...props}) {
                     patient: {
                         lastName: ongoing?.patient.split(" ")[1],
                         firstName: ongoing?.patient.split(" ")[0],
+                        ...(ongoing?.patient_uuid && {uuid: ongoing?.patient_uuid})
                     },
                 },
             };

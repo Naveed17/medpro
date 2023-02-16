@@ -54,6 +54,16 @@ const PanelCardStyled = styled(Card)(({theme}) => ({
         "& .document-card:hover": {
             boxShadow: theme.customShadows.documentButton,
         }
+    },
+    "& .document-card-image":{
+        border: `1px solid ${theme.palette.grey['A300']}`,
+        cursor: "pointer"
+    },
+    "& .image-cover": {
+        borderRadius: "10px 10px 0 0",
+        width: 150,
+        height: 110,
+        objectFit: "cover"
     }
 }));
 

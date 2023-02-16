@@ -1,14 +1,14 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/toolbar";
-import { useTranslation } from "next-i18next";
-import { Box, Button, Drawer } from "@mui/material";
-import { configSelector, DashLayout } from "@features/base";
-import { Otable } from "@features/table";
-import { useAppSelector } from "@app/redux/hooks";
-import { HolidayDetails } from "@features/holidayDetails";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState} from "react";
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
+import {useTranslation} from "next-i18next";
+import {Box, Button, Drawer} from "@mui/material";
+import {configSelector, DashLayout} from "@features/base";
+import {Otable} from "@features/table";
+import {useAppSelector} from "@app/redux/hooks";
+import {HolidayDetails} from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
@@ -16,12 +16,12 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function Holidays() {
 
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const {data: user} = session as Session;
     console.log(user);
 
 
-    const { direction } = useAppSelector(configSelector);
+    const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
     const [rows, setRows] = useState([
         {
@@ -35,7 +35,7 @@ function Holidays() {
         },
     ]);
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays.config" });
+    const {t, ready} = useTranslation("settings", {keyPrefix: "holidays.config"});
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const headCells = [
         {
@@ -87,44 +87,44 @@ function Holidays() {
     return (<>
         <SubHeader>
             <RootStyled>
-                <p style={{ margin: 0 }}>{t('path')}</p>
+                <p style={{margin: 0}}>{t('path')}</p>
             </RootStyled>
 
             <Button type='submit'
-                variant="contained"
-                onClick={() => {
-                    setOpen(true);
-                }}
-                color="success">
+                    variant="contained"
+                    onClick={() => {
+                        setOpen(true);
+                    }}
+                    color="success">
                 {t('add')}
             </Button>
         </SubHeader>
 
         <Box className="container">
             <Otable headers={headCells}
-                rows={rows}
-                state={null}
-                from={'holidays'}
-                t={t}
-                edit={null}
-                handleConfig={null}
-                handleChange={null} />
+                    rows={rows}
+                    state={null}
+                    from={'holidays'}
+                    t={t}
+                    edit={null}
+                    handleConfig={null}
+                    handleChange={null}/>
 
             <Drawer
                 anchor={'right'}
                 open={open}
                 dir={direction}
                 onClose={closeDraw}>
-                <HolidayDetails closeDraw={closeDraw} />
+                <HolidayDetails closeDraw={closeDraw}/>
             </Drawer>
         </Box>
 
     </>)
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', "patient", 'settings']))
     }
 })
 
