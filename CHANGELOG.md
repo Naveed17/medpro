@@ -1,3 +1,10 @@
+## [4.10.2](https://github.com/SmartMedSA/med-pro/compare/v4.10.1...v4.10.2) (2023-02-16)
+
+
+### Bug Fixes
+
+* alert rooting to consultation bug ([fff3f58](https://github.com/SmartMedSA/med-pro/commit/fff3f5832a0c60101e0a728315f0f835ba3603bb))
+
 ## [4.10.1](https://github.com/SmartMedSA/med-pro/compare/v4.10.0...v4.10.1) (2023-02-16)
 
 
