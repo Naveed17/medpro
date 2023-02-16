@@ -12,6 +12,7 @@ export type dashLayoutState = {
         "uuid": "string";
         "start_time": "string";
         "patient": "string";
+        "patient_uuid": "string";
     } | null;
 };
 

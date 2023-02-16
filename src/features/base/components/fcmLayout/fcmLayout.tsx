@@ -32,6 +32,7 @@ import {dashLayoutSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import smartlookClient from 'smartlook-client';
 import {DefaultCountry, EnvPattern} from "@app/constants";
+import {setMoveDateTime} from "@features/dialog";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -317,6 +318,7 @@ function FcmLayout({...props}) {
                                 title: `${notificationData?.appointment.patient.firstName} ${notificationData?.appointment.patient.lastName}`,
                                 extendedProps: {
                                     patient: notificationData?.appointment.patient,
+                                    dur: notificationData?.appointment.duration,
                                     type: notificationData?.type,
                                     status: AppointmentStatus[notificationData?.appointment?.status],
                                     time: moment(`${notificationData?.appointment.dayDate} ${notificationData?.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
@@ -324,7 +326,13 @@ function FcmLayout({...props}) {
                             } as any;
                             router.push("/dashboard/agenda").then(() => {
                                 dispatch(setSelectedEvent(event));
-                                dispatch(openDrawer({type: "view", open: true}));
+                                dispatch(setMoveDateTime({
+                                    date: new Date(event?.extendedProps.time),
+                                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                                    action: "move",
+                                    selected: false
+                                }));
+                                dispatch(openDrawer({type: "move", open: true}));
                             });
                         }}
                         OnConfirm={() => {

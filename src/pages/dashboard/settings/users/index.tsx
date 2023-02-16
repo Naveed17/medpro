@@ -80,7 +80,7 @@ function Users() {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -150,6 +150,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
+            "patient",
             "settings",
         ])),
     },
