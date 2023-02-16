@@ -116,18 +116,14 @@ function DocumentsPanel({...props}) {
                         <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
                             {
                                 patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                    <Box sx={{border: `1px solid ${theme.palette.grey['A300']}`}}
+                                    <Box className={"document-card-image"}
                                          onClick={() => {
                                              showDoc(card)
                                          }} key={`doc-item-${idx}`} width={152} height={140}
                                          borderRadius={2}
                                          style={{background: "white"}}>
                                         <img src={card.uri}
-                                             style={{
-                                                 borderRadius: "10px 10px 0 0",
-                                                 width: 150,
-                                                 height: 110
-                                             }}
+                                             className={"image-cover"}
                                              alt={card.title}/>
 
                                         <Typography whiteSpace={'nowrap'}
@@ -291,11 +287,7 @@ function DocumentsPanel({...props}) {
                                                      borderRadius={2}
                                                      style={{background: "white"}}>
                                                     <img src={card.uri}
-                                                         style={{
-                                                             borderRadius: "10px 10px 0 0",
-                                                             width: 150,
-                                                             height: 110
-                                                         }}
+                                                         className={"image-cover"}
                                                          alt={card.title}/>
 
                                                     <Typography whiteSpace={'nowrap'}

@@ -175,8 +175,7 @@ function Patient() {
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
     // state hook for details drawer
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);

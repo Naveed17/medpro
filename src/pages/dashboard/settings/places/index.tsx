@@ -53,14 +53,14 @@ function Lieux() {
             align: "center",
             sortable: false,
         },
-       /* {
-            id: "default",
-            numeric: false,
-            disablePadding: true,
-            label: "default",
-            align: "center",
-            sortable: false,
-        },*/
+        /* {
+             id: "default",
+             numeric: false,
+             disablePadding: true,
+             label: "default",
+             align: "center",
+             sortable: false,
+         },*/
         /* {
            id: "agenda",
            numeric: false,
@@ -155,7 +155,7 @@ function Lieux() {
                 pathname: `/dashboard/settings/places/${props.uuid}`,
             }).then(() => {
             });
-        } else if(event === 'default'){
+        } else if (event === 'default') {
             props.isDefault = !props.isDefault;
             setRows([...rows]);
         }
@@ -199,7 +199,7 @@ function Lieux() {
                     <Typography color="text.primary">
                         {t("path")}
                     </Typography>
-                   {/* <Button
+                    {/* <Button
                         variant="contained"
                         color="success"
                         onClick={() => {
@@ -260,7 +260,7 @@ function Lieux() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', "patient", 'settings']))
     }
 })
 export default Lieux;
