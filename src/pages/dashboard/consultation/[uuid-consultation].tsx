@@ -70,6 +70,7 @@ import moment from "moment";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
+import {LoadingButton} from "@mui/lab";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -693,8 +694,9 @@ function ConsultationInProgress() {
                             {t("cancel")}
                         </Typography>
                     </Button>
-                    <Button
-                        disabled={loadingReq}
+                    <LoadingButton
+                        loading={loadingReq}
+                        loadingPosition="start"
                         variant="contained"
                         color="error"
                         onClick={() => {
@@ -704,7 +706,7 @@ function ConsultationInProgress() {
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("end_consultation")}
                         </Typography>
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </DialogActions>
         );
