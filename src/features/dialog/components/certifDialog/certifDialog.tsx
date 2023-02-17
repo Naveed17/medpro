@@ -173,7 +173,6 @@ function CertifDialog({...props}) {
 
     const addVal = (val: string) => {
         const doc = new DOMParser().parseFromString(value, 'text/html')
-        console.log(doc);
         const collection = doc.body.lastElementChild as HTMLElement
         if (collection)
             collection.innerText += ' ' + val;
