@@ -122,6 +122,7 @@ function DocumentsPanel({...props}) {
                                          }} key={`doc-item-${idx}`} width={152} height={140}
                                          borderRadius={2}
                                          style={{background: "white"}}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={card.uri}
                                              className={"image-cover"}
                                              alt={card.title}/>
@@ -286,6 +287,7 @@ function DocumentsPanel({...props}) {
                                                      }} key={`doc-item-${idx}`} width={152} height={140}
                                                      borderRadius={2}
                                                      style={{background: "white"}}>
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src={card.uri}
                                                          className={"image-cover"}
                                                          alt={card.title}/>

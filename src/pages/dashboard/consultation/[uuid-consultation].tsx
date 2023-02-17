@@ -716,7 +716,7 @@ function ConsultationInProgress() {
         if (card.documentType === "medical-certificate") {
             setInfo("document_detail");
             setState({
-                uuid: card.uuid,
+                uuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${appointement.patient.gender === "F" ? "Mme " : "Mr "} ${
