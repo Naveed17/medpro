@@ -1010,20 +1010,22 @@ function ConsultationInProgress() {
                                         </Stack>
                                     </Stack>
                                 )}
-                                <Button
+                                <LoadingButton
+                                    loading={loadingReq}
+                                    loadingPosition={"start"}
                                     onClick={
                                         appointement?.status === 5
                                             ? saveConsultation
                                             : endConsultation
                                     }
                                     color={"error"}
+                                    startIcon={<Icon path="ic-check"/>}
                                     variant="contained"
                                     sx={{".react-svg": {mr: 1}}}>
-                                    <Icon path="ic-check"/>
                                     {appointement?.status == 5
                                         ? t("edit_of_consultation")
                                         : t("end_of_consultation")}
-                                </Button>
+                                </LoadingButton>
                             </Stack>
                         </SubFooter>
                     )}
