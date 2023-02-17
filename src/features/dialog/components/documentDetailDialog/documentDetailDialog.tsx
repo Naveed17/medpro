@@ -31,7 +31,6 @@ import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
-import Preview from "@features/files/components/preview";
 import moment from "moment";
 import ReactPlayer from "react-player";
 import AudioPlayer from "react-h5-audio-player";
@@ -147,7 +146,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: state.type !== 'prescription' || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif') || !state.uuid
         },
         {
             title: 'delete',
@@ -237,6 +236,14 @@ function DocumentDetailDialog({...props}) {
                             action: 'medical_prescription',
                             state: prescriptions,
                             uuid: state.uuidDoc
+                        }))
+                        break;
+                    case "write_certif":
+                        console.log(state);
+                        dispatch(SetSelectedDialog({
+                            action: 'write_certif',
+                            state: state,
+                            uuid: state.uuid
                         }))
                         break;
                 }
@@ -342,7 +349,7 @@ function DocumentDetailDialog({...props}) {
                                     {
                                         generatedDocs.some(doc => doc === state.type) &&
                                         <div>
-                                            {! loading && <PreviewA4  {...{
+                                            {!loading && <PreviewA4  {...{
                                                 eventHandler,
                                                 data,
                                                 values: header,

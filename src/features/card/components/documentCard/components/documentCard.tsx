@@ -89,13 +89,14 @@ function DocumentCard({...props}) {
                         <Stack direction={"column"}>
                             <Typography className={"sub-title"} variant='subtitle2'
                                         whiteSpace={"nowrap"}
+                                        style={{cursor:"pointer"}}
                                         fontSize={13}>
                                 {t(data.title)}
                             </Typography>
                             <Stack direction={"row"} spacing={1}>
                                 <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
                                 <Typography whiteSpace={"nowrap"} fontSize={12}
-                                            style={{marginTop: 0, color: "grey"}}>
+                                            style={{marginTop: 0, color: "grey",cursor:"pointer"}}>
                                     {moment(data.createdAt, 'DD-MM-YYYY HH:mm').format('HH:mm')}
                                 </Typography>
                             </Stack>
