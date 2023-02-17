@@ -488,7 +488,7 @@ function ConsultationIPToolbar({...props}) {
                     break;
             }
         }
-    }, [selectedDialog])
+    }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         switch (dialog) {
