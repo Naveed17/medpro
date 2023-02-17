@@ -332,7 +332,7 @@ function ConsultationIPToolbar({...props}) {
                 url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "write_certif") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${selectedDialog.uuid}/${router.locale}`;
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${selectedDialog.state.uuid}/${router.locale}`;
                 }
 
                 trigger({
