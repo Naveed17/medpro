@@ -31,7 +31,6 @@ import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
-import Preview from "@features/files/components/preview";
 import moment from "moment";
 import ReactPlayer from "react-player";
 import AudioPlayer from "react-h5-audio-player";
@@ -43,6 +42,7 @@ import {configSelector} from "@features/base";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import PreviewA4 from "@features/files/components/previewA4";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -79,7 +79,7 @@ function DocumentDetailDialog({...props}) {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        size: 'portraitA5',
+        size: 'portraitA4',
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
         footer: {show: true, x: 0, y: 140, content: ''},
@@ -146,7 +146,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: state.type !== 'prescription' || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif') || !state.uuid
         },
         {
             title: 'delete',
@@ -238,6 +238,14 @@ function DocumentDetailDialog({...props}) {
                             uuid: state.uuidDoc
                         }))
                         break;
+                    case "write_certif":
+                        console.log(state);
+                        dispatch(SetSelectedDialog({
+                            action: 'write_certif',
+                            state: state,
+                            uuid: state.uuid
+                        }))
+                        break;
                 }
                 break;
             case "hide":
@@ -298,6 +306,7 @@ function DocumentDetailDialog({...props}) {
             const docInfo = (httpHeaderData as HttpResponse).data
             if (!docInfo.header) {
                 //handleClickOpen();
+                console.log("no header");
                 setLoading(false)
             } else {
                 setOpenAlert(false);
@@ -335,12 +344,12 @@ function DocumentDetailDialog({...props}) {
                     <Stack spacing={2}>
                         {
                             !multimedias.some(multi => multi === state.type) &&
-                            <Box style={{width: '148mm', margin: 'auto'}}>
+                            <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
                                     {
                                         generatedDocs.some(doc => doc === state.type) &&
                                         <div>
-                                            <Preview  {...{
+                                            {!loading && <PreviewA4  {...{
                                                 eventHandler,
                                                 data,
                                                 values: header,
@@ -358,7 +367,7 @@ function DocumentDetailDialog({...props}) {
                                                 date,
                                                 loading,
                                                 t
-                                            }} />
+                                            }} />}
                                             {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
                                         </div>
                                     }
