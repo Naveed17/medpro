@@ -78,7 +78,7 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (isStarted) {
-            setValue(oldNote+ ' '+transcript)
+            setValue(oldNote + ' ' + transcript)
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -173,7 +173,13 @@ function CertifDialog({...props}) {
 
     const addVal = (val: string) => {
         const doc = new DOMParser().parseFromString(value, 'text/html')
-        doc.body.innerText += ' ' + val;
+        console.log(doc);
+        const collection = doc.body.lastElementChild as HTMLElement
+        if (collection)
+            collection.innerText += ' ' + val;
+
+        doc.body.removeChild(doc.body.lastElementChild as HTMLElement)
+        doc.body.append(collection)
         setValue(doc.body.innerHTML.toString());
 
     }

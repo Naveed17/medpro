@@ -13,6 +13,7 @@ function PreviewDialog({...props}) {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const general_information = (user as UserDataResponse).general_information;
     const devise = doctor_country.currency?.name;
 
     const drugs = ['X'];
@@ -132,7 +133,7 @@ function PreviewDialog({...props}) {
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
-                            txt = txt.replaceAll('{doctor}', session?.user?.name)
+                            txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
