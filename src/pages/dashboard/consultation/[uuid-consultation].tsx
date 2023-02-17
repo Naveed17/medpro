@@ -732,43 +732,43 @@ function ConsultationInProgress() {
                 mutate: mutateDoc,
                 mutateDetails: mutate
 
-            });
-            setOpenDialog(true);
-        } else {
-            setInfo("document_detail");
-            let info = card;
-            let uuidDoc = "";
-            switch (card.documentType) {
-                case "prescription":
-                    info = card.prescription[0].prescription_has_drugs;
-                    uuidDoc = card.prescription[0].uuid;
-                    break;
-                case "requested-analysis":
-                    info = card.requested_Analyses[0].analyses;
-                    break;
-                case "requested-medical-imaging":
-                    info = card.medical_imaging[0]["medical-imaging"];
-                    break;
-            }
-            setState({
-                uuid: card.uuid,
-                uri: card.uri,
-                name: card.title,
-                type: card.documentType,
-                createdAt: card.createdAt,
-                description: card.description,
-                info: info,
-                detectedType: card.type,
-                uuidDoc: uuidDoc,
-                patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
-                    patient.firstName
-                } ${patient.lastName}`,
-                mutate: mutateDoc,
-                mutateDetails: mutate
-            });
-            setOpenDialog(true);
-        }
-    };
+      });
+      setOpenDialog(true);
+    } else {
+      setInfo("document_detail");
+      let info = card;
+      let uuidDoc = "";
+      switch (card.documentType) {
+        case "prescription":
+          info = card.prescription[0].prescription_has_drugs;
+          uuidDoc = card.prescription[0].uuid;
+          break;
+        case "requested-analysis":
+          info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses: [];
+          break;
+        case "requested-medical-imaging":
+          info = card.medical_imaging[0]["medical-imaging"];
+          break;
+      }
+      setState({
+        uuid: card.uuid,
+        uri: card.uri,
+        name: card.title,
+        type: card.documentType,
+        createdAt: card.createdAt,
+        description: card.description,
+        info: info,
+        detectedType:card.type,
+        uuidDoc: uuidDoc,
+        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+          patient.firstName
+        } ${patient.lastName}`,
+        mutate: mutateDoc,
+        mutateDetails: mutate
+      });
+      setOpenDialog(true);
+    }
+  };
 
     const handleTableActions = (action: string, event: any) => {
         switch (action) {
