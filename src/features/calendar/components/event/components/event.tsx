@@ -53,7 +53,7 @@ function Event({...props}) {
                         ...(appointment.isOnline && {width: "98%"})
                     }
                 }} color="primary" noWrap>
-                    <span {...(appointment.overlapEvent && {style: {marginLeft: ".5rem"}})}>{event.event._def.title}</span>
+                    <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
                             {appointment.patient?.contact.length > 0 && <>

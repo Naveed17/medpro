@@ -67,6 +67,7 @@ function TopNavBar({...props}) {
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
+    const [notifications, setNotifications] = useState(0);
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
@@ -102,8 +103,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        topBar[0].notifications = pendingAppointments.length;
-    }, [pendingAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
+        setNotifications(pendingAppointments.length);
+    }, [pendingAppointments]);
 
     const handleClick = (event: React.MouseEvent<any>, action: string) => {
         setAnchorEl(event.currentTarget);
@@ -197,7 +198,7 @@ function TopNavBar({...props}) {
                             {isActive && <CipCard/>}
                             {topBar.map((item, index) => (
                                 <Badge
-                                    badgeContent={item.notifications && item.notifications}
+                                    badgeContent={notifications}
                                     className="custom-badge"
                                     color="warning"
                                     {...(item.action && {

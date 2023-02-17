@@ -176,10 +176,7 @@ function Agenda() {
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
