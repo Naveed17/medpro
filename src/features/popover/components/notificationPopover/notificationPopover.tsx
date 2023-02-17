@@ -66,6 +66,7 @@ function NotificationPopover({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -125,6 +126,25 @@ function NotificationPopover({...props}) {
         });
     }
 
+    const onConfirmAppointment = (event: EventDef) => {
+        setLoading(true);
+        const appUuid = event?.publicId ? event?.publicId : (event as any)?.id;
+        const form = new FormData();
+        form.append('status', "1");
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${config?.uuid}/appointments/${appUuid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            enqueueSnackbar(t(`dialogs.alert.confirm-appointment`), {variant: "success"});
+            onClose();
+            // update pending notifications status
+            config?.mutate[1]();
+        });
+    }
+
     const getDuration = (date: string) => {
         const duration: any = moment.duration(moment.utc().diff(moment.utc(date, "DD-MM-YYYY HH:mm")));
         return humanizeDuration(duration, {largest: 2, round: true});
@@ -155,8 +175,7 @@ function NotificationPopover({...props}) {
                 setMoveDialogInfo(true);
                 break;
             case "onConfirm":
-                onClose();
-                dispatch(setAction({action: "onConfirm", event: eventUpdated}));
+                onConfirmAppointment(eventUpdated);
                 break;
         }
     }

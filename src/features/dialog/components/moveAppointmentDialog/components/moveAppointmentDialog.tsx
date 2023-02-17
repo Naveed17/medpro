@@ -86,7 +86,7 @@ function MoveAppointmentDialog() {
                             lineHeight: "24px"
                         }}
                         variant="subtitle1">
-                {t(`dialogs.${action}-dialog.week-day-slot`)}</Typography>
+                {t(`dialogs.${action}-dialog.week-day-slot`, {ns: 'common'})}</Typography>
             <WeekDayPicker
                 onChange={(v: any) => handleDateChange("date", v)}
                 action={action}
@@ -95,9 +95,9 @@ function MoveAppointmentDialog() {
             <Grid item md={6} xs={12}>
                 <Typography variant="body1"
                             className={"header-section"}
-                            {...(!isMobile && {ml : 14})}
+                            {...(!isMobile && {ml: 14})}
                             color="text.primary" my={2}>
-                    {t(`dialogs.${action}-dialog.time-message`)}
+                    {t(`dialogs.${action}-dialog.time-message`, {ns: 'common'})}
                 </Typography>
                 <TimeSlot
                     loading={loading}
@@ -108,7 +108,7 @@ function MoveAppointmentDialog() {
                     OnShowMore={() => dispatch(setLimit(initLimit * 2))}
                     value={moveDialogTime}
                     seeMore={initLimit < timeSlots.length}
-                    seeMoreText={t(`dialogs.${action}-dialog.see-more`)}
+                    seeMoreText={t(`dialogs.${action}-dialog.see-more`, {ns: 'common'})}
                 />
             </Grid>
         </BoxStyled>
