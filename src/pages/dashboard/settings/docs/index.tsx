@@ -38,6 +38,7 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
 import Preview from "@features/files/components/preview";
+import PreviewA4 from "@features/files/components/previewA4";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -184,6 +185,8 @@ function DocsConfig() {
                     setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
                 else
                     setData(docInfo.data)
+
+                console.log(docInfo.data);
             }
 
             setTimeout(() => {
@@ -537,7 +540,7 @@ function DocsConfig() {
                     {<Box padding={2}>
                         <Box style={{margin: 'auto', paddingTop: 20}}>
                             <Box ref={componentRef}>
-                                <Preview  {...{eventHandler, data, values, loading}} />
+                                <PreviewA4  {...{eventHandler, data, values, loading}} />
                                 {loading &&
                                     <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
                                         {Array.from(Array(30)).map((item, key) => (

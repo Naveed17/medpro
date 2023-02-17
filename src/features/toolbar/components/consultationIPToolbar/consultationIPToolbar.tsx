@@ -327,9 +327,17 @@ function ConsultationIPToolbar({...props}) {
             case "write_certif":
                 form.append("content", state.content);
                 form.append("title", state.title);
+
+                method = "POST"
+                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`;
+                if (selectedDialog && selectedDialog.action === "write_certif") {
+                    method = "PUT"
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${selectedDialog.state.uuid}/${router.locale}`;
+                }
+
                 trigger({
-                    method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
+                    method: method,
+                    url: url,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -368,12 +376,14 @@ function ConsultationIPToolbar({...props}) {
         switch (info) {
             case "medical_prescription":
                 if (state.length > 0) {
+                    setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
                         pdoc.push({
                             id: 2,
                             name: "Ordonnance médicale",
                             status: "in_progress",
                             icon: "ic-traitement",
+                            state
                         });
                 } else {
                     pdoc = pdoc.filter((obj) => obj.id !== 2);
@@ -388,6 +398,7 @@ function ConsultationIPToolbar({...props}) {
                             name: "Demande bilan",
                             status: "in_progress",
                             icon: "ic-analyse",
+                            state
                         });
                 } else {
                     pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -461,14 +472,29 @@ function ConsultationIPToolbar({...props}) {
                     setOpenDialog(true);
                     setactions(true);
                     break;
+                case "write_certif":
+                    setInfo("write_certif");
+                    setState({
+                        name: `${ginfo.firstName} ${ginfo.lastName}`,
+                        days: '',
+                        uuid:selectedDialog.state.uuid,
+                        content: selectedDialog.state.content,
+                        title: selectedDialog.state.title,
+                        patient: `${selectedDialog.state.patient}`
+                    });
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setactions(true);
+                    break;
             }
         }
-    }, [selectedDialog])
+    }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
                 setInfo("medical_prescription");
+                setState(prescription);
                 break;
             case "balance_sheet_request":
                 setInfo("balance_sheet_request");

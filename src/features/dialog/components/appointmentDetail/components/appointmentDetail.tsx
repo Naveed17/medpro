@@ -21,7 +21,6 @@ import {
     ListItem,
     useTheme,
 } from "@mui/material";
-import {Popover} from "@features/popover";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
@@ -551,7 +550,7 @@ function AppointmentDetail({...props}) {
                                         moment(appointment?.extendedProps.time).format(
                                             "DD-MM-YYYY"
                                         ) ||
-                                        ["PENDING", "WAITING_ROOM", "ON_GOING"].includes(
+                                        ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(
                                             appointment?.extendedProps.status.key
                                         )
                                             ? "none"

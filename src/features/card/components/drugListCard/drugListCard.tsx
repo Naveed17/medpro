@@ -1,6 +1,5 @@
 import React from "react";
-import {IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
-import CircleIcon from '@mui/icons-material/Circle';
+import {IconButton, Stack, Typography} from "@mui/material";
 import DrugListCardStyled from "./overrides/drugListCardStyle";
 import Icon from '@themes/urlIcon'
 
@@ -13,7 +12,8 @@ function DrugListCard({...props}) {
             }} direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
                 <Stack>
                     <Typography variant="body2" textTransform="uppercase" fontWeight={"bold"}>{data.name}</Typography>
-                    <Typography variant={"body2"} margin={0}>{data.dosage} {data.duration && `${t('duration')} ${data.duration} ${t(data.durationType)}`} {data.note && `(${data.note})`}</Typography>
+                    <Typography variant={"body2"}
+                                margin={0}>{data.dosage} {data.duration && data.duration > 0 && `${t('duration')} ${data.duration} ${t(data.durationType)}`} {data.note && `(${data.note})`}</Typography>
                 </Stack>
                 {!list &&
                     <Stack direction='row' spacing={1} alignItems="center" ml="auto">
