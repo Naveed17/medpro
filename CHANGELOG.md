@@ -1,3 +1,21 @@
+# [4.11.0](https://github.com/SmartMedSA/med-pro/compare/v4.10.2...v4.11.0) (2023-02-16)
+
+
+### Bug Fixes
+
+*  end consultation loading in action ([7afe313](https://github.com/SmartMedSA/med-pro/commit/7afe31314c0fb5c68389f649fc035df8f12fcfb8))
+* clean code ([34dbd01](https://github.com/SmartMedSA/med-pro/commit/34dbd01b46556bbf7b8c58a2dfc8a725de2cd191))
+* datepicker change ([9cb10e4](https://github.com/SmartMedSA/med-pro/commit/9cb10e46affbc1136178bf23a4999aead728b974))
+* disable end consultation in action ([a46cfdf](https://github.com/SmartMedSA/med-pro/commit/a46cfdfc0b948eaea93f01e22f5fc41e261412de))
+* disable end consultation in action ([59b21d0](https://github.com/SmartMedSA/med-pro/commit/59b21d09eaae2aa1e97b9b3be441b2ddf34cda4f))
+* empty medical imaging ([5dee745](https://github.com/SmartMedSA/med-pro/commit/5dee7451970a3c88efdb5a3d3f3b6f4e374bbdbd))
+* end consultation loading in action ([7e5f46f](https://github.com/SmartMedSA/med-pro/commit/7e5f46f1fb01fa64b3df52b784060ca2b15158b5))
+
+
+### Features
+
+* add calendar now indicator line ([05af202](https://github.com/SmartMedSA/med-pro/commit/05af2022fe7ec37ae520c47ac0774ec218d02b36))
+
 ## [4.10.2](https://github.com/SmartMedSA/med-pro/compare/v4.10.1...v4.10.2) (2023-02-16)
 
 
