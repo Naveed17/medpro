@@ -361,8 +361,9 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (appointement) {
             setPatient(appointement.patient);
-            setFree(appointement.type.code === 3);
-            if (appointement.type.code !== 3) setTotal(consultationFees);
+            const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees=== null);
+            setFree(checkFree);
+            if (!checkFree) setTotal(consultationFees);
             if (appointement.consultation_fees) {
                 setConsultationFees(Number(appointement.consultation_fees));
             }
@@ -462,7 +463,8 @@ function ConsultationInProgress() {
                 form.append("treatment", exam.treatment ? exam.treatment : "");
                 form.append("consultation_reason", exam.motif);
                 form.append("fees", total.toString());
-                form.append("consultation_fees", consultationFees.toString());
+                if (!free)
+                    form.append("consultation_fees", consultationFees.toString());
                 form.append("status", "5");
 
                 trigger({
