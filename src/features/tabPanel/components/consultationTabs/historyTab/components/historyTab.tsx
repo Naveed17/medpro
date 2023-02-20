@@ -152,8 +152,8 @@ function HistoryTab({...props}) {
             name: "note_fees",
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
-            createdAt: moment(app.appointment.dayDate,"DD-MM-YYYY").format('DD/MM/YYYY'),
-            patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
+            createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
+            patient: `${patient.gender === "F" ? "Mme " : patient.gender ==="U" ?"": "Mr "} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
 
@@ -297,36 +297,40 @@ function HistoryTab({...props}) {
                                                                                 <Typography
                                                                                     fontSize={12}>{treatment.name}</Typography>
                                                                                 <Stack direction={"row"}>
-                                                                                    <Typography
-                                                                                        className={"treamtementDetail"}>• {treatment.dosage}</Typography>
-                                                                                    <Typography
+                                                                                    {treatment.dosage && <Typography
+                                                                                        className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
+                                                                                    {treatment.duration > 0 && <Typography
                                                                                         className={"treamtementDetail"}
-                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>}
                                                                                 </Stack>
                                                                             </Box>
                                                                         )
                                                                     )}
 
                                                                     {
-                                                                        app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).length > 0 && <Typography fontSize={12} fontWeight={"bold"}>{t('prescription')}</Typography>
+                                                                        app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).length > 0 &&
+                                                                        <Typography fontSize={12}
+                                                                                    fontWeight={"bold"}>{t('prescription')}</Typography>
                                                                     }
                                                                     {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                                             <Box
                                                                                 key={`list-treatement-${idx}`}
                                                                                 className={'boxHisto'}>
-                                                                                <Typography
-                                                                                    fontSize={12}>{treatment.name}</Typography>
+                                                                                <Typography fontSize={12}>{treatment.name}</Typography>
                                                                                 <Stack direction={"row"}>
-                                                                                    <Typography
-                                                                                        className={"treamtementDetail"}>• {treatment.dosage}</Typography>
-                                                                                    <Typography
-                                                                                        className={"treamtementDetail"}
-                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                    {
+                                                                                        treatment.dosage && <Typography className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
+                                                                                    {
+                                                                                        treatment.duration > 0 &&
+                                                                                        <Typography
+                                                                                            className={"treamtementDetail"}
+                                                                                            ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                    }
                                                                                 </Stack>
                                                                             </Box>
                                                                         )
                                                                     )}
-                                                                </>  : <Box className={'boxHisto'}>
+                                                                </> : <Box className={'boxHisto'}>
                                                                     <Typography
                                                                         className={"empty"}>{t('consultationIP.noTreatment')}</Typography>
                                                                 </Box>

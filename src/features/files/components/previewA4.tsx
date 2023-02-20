@@ -106,9 +106,9 @@ function PreviewDialog({...props}) {
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
                             imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            imgLine.append(`• ${el['medical-imaging'].name}`)
+                            imgLine.append(`• ${el['medical-imaging']?.name}`)
                             rows.push({
-                                value: `• ${el['medical-imaging'].name}`,
+                                value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
                                 style: {color: "black"}

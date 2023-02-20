@@ -79,11 +79,11 @@ function DocumentDetailDialog({...props}) {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        size: 'portraitA4',
+        footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
-        footer: {show: true, x: 0, y: 140, content: ''},
-        patient: {show: true, prefix: '', content: 'MohamedALI', x: 120, y: 55},
+        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 155},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        size: 'portraitA5',
         content: {
             show: true,
             maxHeight: 400,

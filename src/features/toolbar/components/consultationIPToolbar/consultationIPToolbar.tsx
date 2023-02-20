@@ -210,7 +210,7 @@ function ConsultationIPToolbar({...props}) {
                         uuidDoc: res[0].uuid,
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : "Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
                     setactions(false);
@@ -252,7 +252,7 @@ function ConsultationIPToolbar({...props}) {
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         info: res[0].analyses,
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : "Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
                     setactions(false);
@@ -293,7 +293,7 @@ function ConsultationIPToolbar({...props}) {
                         info: res[0]["medical-imaging"],
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : "Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                         mutate: mutateDoc
                     });
                     setOpenDialog(true);
@@ -436,7 +436,7 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointement.patient.gender === "F" ? "Mme " : "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`
+                    patient: `${appointement.patient.gender === "F" ? "Mme " :appointement.patient.gender === "U" ?"": "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`
                 });
                 break;
             case "upload_document":
