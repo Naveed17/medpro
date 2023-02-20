@@ -557,41 +557,43 @@ function Payment() {
       </SubHeader>
 
       <Box className="container">
-        <DesktopContainer>
-          {rows.length > 0 ? (
-            <Otable
-              headers={headCells}
-              rows={rows}
-              from={"payment"}
-              t={t}
-              select={select}
-            />
-          ) : (
-            <Box
-              style={{
-                height: "75vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-              <NoDataCard t={t} ns={"payment"} data={noCardData} />
-            </Box>
-          )}
-        </DesktopContainer>
-        <MobileContainer>
-          <Stack spacing={2}>
-            {rows.map((card, idx) => (
-              <React.Fragment key={idx}>
-                <PaymentMobileCard
-                  data={card}
-                  t={t}
-                  getCollapseData={handleCollapse}
-                />
-              </React.Fragment>
-            ))}
-          </Stack>
-          <Box pb={6} />
-        </MobileContainer>
+        {rows.length > 0 ? (
+          <React.Fragment>
+            <DesktopContainer>
+              <Otable
+                headers={headCells}
+                rows={rows}
+                from={"payment"}
+                t={t}
+                select={select}
+              />
+            </DesktopContainer>
+            <MobileContainer>
+              <Stack spacing={2}>
+                {rows.map((card, idx) => (
+                  <React.Fragment key={idx}>
+                    <PaymentMobileCard
+                      data={card}
+                      t={t}
+                      getCollapseData={handleCollapse}
+                    />
+                  </React.Fragment>
+                ))}
+              </Stack>
+              <Box pb={6} />
+            </MobileContainer>
+          </React.Fragment>
+        ) : (
+          <Box
+            style={{
+              height: "75vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+            <NoDataCard t={t} ns={"payment"} data={noCardData} />
+          </Box>
+        )}
       </Box>
 
       <Dialog
