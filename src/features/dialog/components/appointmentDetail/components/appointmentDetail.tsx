@@ -41,6 +41,8 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {getBirthdayFormat} from "@app/hooks";
+
 
 const menuList = [
     {
@@ -177,6 +179,20 @@ function AppointmentDetail({...props}) {
         });
     };
 
+    const setAppointmentDate = (action: string) => {
+        dispatch(
+            setMoveDateTime({
+                date: new Date(appointment?.extendedProps.time),
+                time: moment(
+                    new Date(appointment?.extendedProps.time)
+                ).format("HH:mm"),
+                action,
+                selected: false
+            })
+        );
+        SetMoveDialog(true);
+    }
+
     const handleQr = () => {
         handleClickDialog();
     };
@@ -191,11 +207,6 @@ function AppointmentDetail({...props}) {
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find((country) => country.phone === code);
-    };
-
-    const getBirthdayFormat = (patient: PatientModel) => {
-        const birthday = moment().preciseDiff(moment(patient?.birthdate, "DD-MM-YYYY"), true);
-        return `${birthday.years ? `${birthday.years} ${t("times.years").toLowerCase()}, ` : ""} ${birthday.months ? `${birthday.months} ${t("times.months").toLowerCase()}, ` : ""} ${birthday.days ? `${birthday.days} ${t("times.days").toLowerCase()}` : ""}`;
     };
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
@@ -333,7 +344,7 @@ function AppointmentDetail({...props}) {
                                                             variant="caption"
                                                             fontWeight={400}>
                                                             {appointment?.extendedProps.patient?.birthdate}
-                                                            ({" "}{getBirthdayFormat(appointment?.extendedProps.patient)}{" "})
+                                                            ({" "}{getBirthdayFormat(appointment?.extendedProps.patient, t, "times")}{" "})
                                                         </Typography>
                                                     </Stack>
                                                 </ListItem>
@@ -427,6 +438,7 @@ function AppointmentDetail({...props}) {
                     <AppointmentCard
                         {...{t, roles}}
                         onDataUpdated={OnDataUpdated}
+                        onMoveAppointment={() => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")}
                         data={{
                             uuid: appointment?.publicId
                                 ? appointment?.publicId
@@ -605,19 +617,7 @@ function AppointmentDetail({...props}) {
                                             ? "none"
                                             : "flex",
                                 }}
-                                onClick={() => {
-                                    dispatch(
-                                        setMoveDateTime({
-                                            date: new Date(appointment?.extendedProps.time),
-                                            time: moment(
-                                                new Date(appointment?.extendedProps.time)
-                                            ).format("HH:mm"),
-                                            action: "reschedule",
-                                            selected: false,
-                                        })
-                                    );
-                                    SetMoveDialog(true);
-                                }}
+                                onClick={() => setAppointmentDate("reschedule")}
                                 fullWidth
                                 variant="contained"
                                 startIcon={
@@ -634,19 +634,7 @@ function AppointmentDetail({...props}) {
                                             ? "none"
                                             : "flex",
                                 }}
-                                onClick={() => {
-                                    dispatch(
-                                        setMoveDateTime({
-                                            date: new Date(appointment?.extendedProps.time),
-                                            time: moment(
-                                                new Date(appointment?.extendedProps.time)
-                                            ).format("HH:mm"),
-                                            action: "move",
-                                            selected: false,
-                                        })
-                                    );
-                                    SetMoveDialog(true);
-                                }}
+                                onClick={() => setAppointmentDate("move")}
                                 fullWidth
                                 variant="contained"
                                 startIcon={<IconUrl path="iconfinder"/>}>

@@ -43,6 +43,7 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
+import {getBirthdayFormat} from "@app/hooks";
 
 function Consultation() {
   const { data: session } = useSession();
@@ -261,14 +262,7 @@ function Consultation() {
                   {name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {patient?.birthdate} (
-                  {patient?.birthdate
-                    ? moment().diff(
-                        moment(patient?.birthdate, "DD-MM-YYYY"),
-                        "years"
-                      )
-                    : "--"}{" "}
-                  {t("year")})
+                  {patient?.birthdate} {patient && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
                 </Typography>
 
                 {number && (

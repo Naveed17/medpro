@@ -7,7 +7,7 @@ import {
     IconButton,
     List,
     ListItemIcon,
-    Stack, TextField,
+    Stack,
     Typography,
     useTheme
 } from '@mui/material'
@@ -25,48 +25,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry, SubMotifCard} from "@app/constants";
 import Image from "next/image";
-
-const subMotifCard = [
-    {
-        id: 1,
-        title: 'treatment_medication',
-        icon: 'ic-traitement',
-        type: 'treatment',
-        drugs: [
-            {
-                id: 1,
-                name: "Doliprane 1000",
-                dosage: "dosage_unit",
-                duration: 10,
-            },
-            {
-                id: 2,
-                name: "Doliprane 1000",
-                dosage: "dosage_unit",
-                duration: 10,
-            }
-        ]
-    },
-    {
-        id: 2,
-        title: 'documents',
-        icon: 'ic-document',
-        type: 'document',
-        documents: [
-            'document_1',
-            'document_2',
-        ]
-    },
-    {
-        id: 3,
-        title: 'bal_sheet_req',
-        icon: 'ic-document',
-        type: 'req-sheet',
-
-    }
-];
+import moment from "moment/moment";
 
 function HistoryPanel({...props}) {
     const {previousAppointmentsData: previousAppointments, patient, mutate} = props;
@@ -135,7 +96,7 @@ function HistoryPanel({...props}) {
                 days: card.days,
                 createdAt: card.createdAt,
                 name: 'certif',
-                detectedType:card.type,
+                detectedType: card.type,
                 type: 'write_certif',
                 mutate: mutate()
             })
@@ -165,7 +126,7 @@ function HistoryPanel({...props}) {
                 createdAt: card.createdAt,
                 description: card.description,
                 uuidDoc: uuidDoc,
-                detectedType:card.type,
+                detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: mutate()
             })
@@ -173,6 +134,32 @@ function HistoryPanel({...props}) {
         }
     }
 
+    const printFees = (app: any) => {
+        const selectedActs: {
+            uuid: string,
+            act: { name: string }
+            qte: string
+            fees: string;
+        }[] = [];
+        app?.appointment.acts.map((act: { act_uuid: any; name: any; price: any; qte: any; }) => {
+            selectedActs.push({
+                uuid: act.act_uuid,
+                act: {name: act.name},
+                fees: act.price,
+                qte: act.qte
+            })
+        });
+        setInfo("document_detail");
+        setState({
+            type: "fees",
+            name: "note_fees",
+            info: selectedActs,
+            consultationFees: app.appointment.consultation_fees,
+            createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
+            patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${patient.firstName} ${patient.lastName}`,
+        });
+        setOpenDialog(true);
+    }
     return (
         <PanelStyled>
             <Box className="files-panel">
@@ -191,7 +178,7 @@ function HistoryPanel({...props}) {
                                 <Stack spacing={2}>
                                     <MotifCard data={app} t={t}/>
                                     <List dense>
-                                        {subMotifCard.map((col: any, indx: number) => (
+                                        {SubMotifCard.map((col: any, indx: number) => (
                                             <React.Fragment key={`list-item-${indx}`}>
                                                 <>
                                                     <ListItemStyled
@@ -355,8 +342,7 @@ function HistoryPanel({...props}) {
                                                             </>}
 
                                                             {col.type === "act-fees" && <BoxFees>
-                                                                {
-                                                                    app?.appointment.acts.length > 0 &&
+                                                                {app?.appointment.acts.length > 0 ?
                                                                     <BoxFees>
                                                                         <Grid container spacing={2}>
                                                                             <Grid item xs={3}>
@@ -430,8 +416,22 @@ function HistoryPanel({...props}) {
                                                                                 Total
                                                                                 : {app.appointment.fees} {devise} |
                                                                             </Typography>
+                                                                            <Button
+                                                                                variant="contained"
+                                                                                color={"info"}
+                                                                                onClick={() => {
+                                                                                    printFees(app)
+                                                                                }}
+                                                                                startIcon={<IconUrl
+                                                                                    path="ic-imprime"/>}>
+                                                                                {t("consultationIP.print")}
+                                                                            </Button>
                                                                         </Stack>
-                                                                    </BoxFees>
+                                                                    </BoxFees> :
+                                                                    <Box className={'boxHisto'}>
+                                                                        <Typography
+                                                                            className={"empty"}>{t('consultationIP.noFees')}</Typography>
+                                                                    </Box>
                                                                 }
                                                             </BoxFees>}
                                                         </ListItemDetailsStyled>

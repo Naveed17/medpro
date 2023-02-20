@@ -20,9 +20,7 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
-import moment from "moment-timezone";
 
-require('moment-precise-range-plugin');
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -38,6 +36,7 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {getBirthdayFormat} from "@app/hooks";
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
@@ -46,9 +45,7 @@ function PatientDetailsCard({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
-
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -84,11 +81,6 @@ function PatientDetailsCard({...props}) {
         setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
     };
-
-    const getBirthdayFormat = (patient: PatientModel) => {
-        const birthday = moment().preciseDiff(moment(patient?.birthdate, "DD-MM-YYYY"), true);
-        return `${birthday.years ? `${birthday.years} ${t("years").toLowerCase()}, ` : ""} ${birthday.months ? `${birthday.months} ${t("months").toLowerCase()}, ` : ""} ${birthday.days ? `${birthday.days} ${t("days").toLowerCase()}` : ""}`;
-    }
 
     const uploadPatientDetail = () => {
         setRequestLoading(true);
@@ -265,7 +257,7 @@ function PatientDetailsCard({...props}) {
                                                 color="text.secondary"
                                                 component="span">
                                                 -{" "}
-                                                ({" "}{getBirthdayFormat(patient)}{" "})
+                                                ({" "}{getBirthdayFormat(patient, t)}{" "})
                                             </Typography>}
                                     </Stack>
                                     }

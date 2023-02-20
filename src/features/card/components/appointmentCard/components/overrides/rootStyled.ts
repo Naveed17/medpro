@@ -9,7 +9,7 @@ const RootStyled = styled(Card)(({ theme }) => {
       padding: theme.spacing(1),
       "& .MuiList-root": {
         "& .MuiListItem-root": {
-          padding: theme.spacing(1, 0.3),
+          padding: theme.spacing(.4, 0.3),
           flexDirection: "column",
           alignItems: "flex-start",
           "& .lable": {

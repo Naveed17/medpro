@@ -156,7 +156,6 @@ function HistoryTab({...props}) {
             patient: `${patient.gender === "F" ? "Mme ": "Mr "} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
-
     }
 
     const editReqSheet = (apps: { [x: string]: { appointment: { requestedAnalyses: { [x: string]: any; }; }; }; }, iid: number, idx: number) => {
