@@ -12,6 +12,7 @@ import {useSession} from "next-auth/react";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
 import {configSelector} from "@features/base";
+import PendingIcon from "@themes/overrides/icons/pendingIcon";
 
 function CipCard() {
     const {data: session} = useSession();
@@ -59,7 +60,7 @@ function CipCard() {
                 onClick={!roles.includes('ROLE_SECRETARY') ? handleConsultation : openPatientDetail}>
                 <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 1.7}}>
                     <IconButton size="small">
-                        <PlayCircleRoundedIcon/>
+                        <PendingIcon/>
                     </IconButton>
                     <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
                         {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}
