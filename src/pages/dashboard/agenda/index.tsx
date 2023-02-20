@@ -110,7 +110,7 @@ function Agenda() {
         selected: moveDateChanged,
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
-    const {isActive} = useAppSelector(timerSelector);
+    const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
 
     const [timeRange, setTimeRange] = useState({
@@ -176,10 +176,7 @@ function Agenda() {
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
@@ -884,7 +881,7 @@ function Agenda() {
                         >
                             <Alert variant="filled"
                                    onClick={() => {
-                                       const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                                       const slugConsultation = `/dashboard/consultation/${onGoingEvent?.publicId ? onGoingEvent?.publicId : (onGoingEvent as any)?.id}`;
                                        if (router.asPath !== slugConsultation) {
                                            router.replace(slugConsultation, slugConsultation, {locale: router.locale});
                                        }

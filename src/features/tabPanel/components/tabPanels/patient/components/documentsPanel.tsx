@@ -3,17 +3,23 @@ import {useTranslation} from "next-i18next";
 
 // material
 import {
-    AppBar, Box,
+    AppBar,
+    Box,
     CardContent,
     Checkbox,
-    FormControlLabel, Tabs, Tab,
+    FormControlLabel,
+    LinearProgress,
+    Stack,
+    Tab,
+    Tabs,
     Toolbar,
     Typography,
-    useMediaQuery, LinearProgress,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 
 //components
-import {DocumentCard, NoDataCard, PatientDetailsDocumentCard} from "@features/card";
+import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
@@ -26,7 +32,7 @@ import {TabPanel} from "@features/tabPanel";
 const typeofDocs = [
     "medical-imaging",
     "analyse", "requested-analysis",
-    "prescription", "photo", "rapport", "medical-certificate", "audio", "video"];
+    "prescription", "rapport", "medical-certificate", "audio", "video"];
 
 const AddAppointmentCardWithoutButtonsData = {
     mainIcon: "ic-doc",
@@ -56,6 +62,7 @@ function DocumentsPanel({...props}) {
     } = props;
     // query media for mobile
     const isMobile = useMediaQuery("(max-width:600px)");
+    const theme = useTheme();
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     // filter checked array
@@ -74,15 +81,15 @@ function DocumentsPanel({...props}) {
                                sx: {
                                    gridGap: 16,
                                    gridTemplateColumns: {
-                                       xs: "repeat(2,minmax(0,1fr))",
-                                       md: "repeat(4,minmax(0,1fr))",
-                                       lg: "repeat(5,minmax(0,1fr))",
+                                       xs: "repeat(1,minmax(0,1fr))",
+                                       md: "repeat(2,minmax(0,1fr))",
+                                       lg: "repeat(2,minmax(0,1fr))",
                                    },
                                }
                            })}>
                 {documents.length > 0 ?
                     documents.filter((doc: MedicalDocuments) =>
-                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
+                        doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
                         .map((card: any, idx: number) =>
                             <React.Fragment key={`doc-item-${idx}`}>
                                 <DocumentCard
@@ -102,34 +109,67 @@ function DocumentsPanel({...props}) {
         },
         {
             title: "Documents du patient",
-            children: <Box display='grid' className={'document-container'}
-                           {...(patientDocuments?.length > 0 && {
-                               sx: {
-                                   gridGap: 16,
-                                   gridTemplateColumns: {
-                                       xs: "repeat(2,minmax(0,1fr))",
-                                       md: "repeat(4,minmax(0,1fr))",
-                                       lg: "repeat(5,minmax(0,1fr))",
-                                   },
-                               }
-                           })}>
-                {patientDocuments?.length > 0 ?
-                    patientDocuments?.filter((doc: MedicalDocuments) =>
-                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                        <React.Fragment key={`doc-item-${idx}`}>
-                            <DocumentCard
-                                onClick={() => {
-                                    showDoc(card)
-                                }}
-                                {...{t}} data={card}/>
-                        </React.Fragment>
-                    )
-                    :
-                    <NoDataCard t={t} ns={"patient"}
-                                onHandleClick={() => setOpenUploadDialog(true)}
-                                data={AddAppointmentCardData}/>
-                }
-            </Box>,
+            children:
+                <>
+
+                    <Box style={{overflowX: "auto", marginBottom: 10}}>
+                        <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                            {
+                                patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                    <Box className={"document-card-image"}
+                                         onClick={() => {
+                                             showDoc(card)
+                                         }} key={`doc-item-${idx}`} width={152} height={140}
+                                         borderRadius={2}
+                                         style={{background: "white"}}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={card.uri}
+                                             className={"image-cover"}
+                                             alt={card.title}/>
+
+                                        <Typography whiteSpace={'nowrap'}
+                                                    textOverflow={"ellipsis"}
+                                                    overflow={"hidden"}
+                                                    width={"120px"}
+                                                    margin={"auto"}
+                                                    textAlign={"center"}
+                                                    fontSize={13}>
+                                            {card.title}
+                                        </Typography>
+                                    </Box>
+                                )
+                            }
+                        </Stack>
+                    </Box>
+
+                    <Box display='grid' className={'document-container'}
+                         {...(patientDocuments?.length > 0 && {
+                             sx: {
+                                 gridGap: 16,
+                                 gridTemplateColumns: {
+                                     xs: "repeat(1,minmax(0,1fr))",
+                                     md: "repeat(1,minmax(0,1fr))",
+                                     lg: "repeat(2,minmax(0,1fr))",
+                                 },
+                             }
+                         })}>
+                        {patientDocuments?.length > 0 ?
+                            patientDocuments?.filter((doc: MedicalDocuments) =>
+                                doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard
+                                        onClick={() => {
+                                            showDoc(card)
+                                        }}
+                                        {...{t}} data={card}/>
+                                </React.Fragment>
+                            )
+                            :
+                            <NoDataCard t={t} ns={"patient"}
+                                        onHandleClick={() => setOpenUploadDialog(true)}
+                                        data={AddAppointmentCardData}/>
+                        }
+                    </Box></>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
@@ -164,8 +204,10 @@ function DocumentsPanel({...props}) {
                 description: card.description,
                 createdAt: card.createdAt,
                 name: 'certif',
+                detectedType: card.type,
                 type: 'write_certif',
-                mutate: mutatePatientDetails
+                mutate: mutatePatientDocuments,
+                mutateDetails: mutatePatientDetails
             })
             setOpenDialog(true);
         } else {
@@ -193,8 +235,10 @@ function DocumentsPanel({...props}) {
                 uuidDoc: uuidDoc,
                 description: card.description,
                 createdAt: card.createdAt,
+                detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
-                mutate: mutatePatientDetails
+                mutate: mutatePatientDocuments,
+                mutateDetails: mutatePatientDetails
             })
             setOpenDialog(true);
         }
@@ -205,42 +249,93 @@ function DocumentsPanel({...props}) {
     return (
         <>
             {documents.length > 0 || patientDocuments?.length > 0 ? (
-                <PanelCardStyled
-                    className={"container"}
-                    sx={{
-                        "& .MuiCardContent-root": {
-                            background: "white"
-                        },
-                        "& .injected-svg": {
-                            maxWidth: 30,
-                            maxHeight: 30
-                        }
-                    }}
-                >
-                    <CardContent>
-                        <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
-                            <Toolbar variant="dense">
-                                <Box sx={{flexGrow: 1}}>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{fontWeight: "bold"}}
-                                        gutterBottom>
-                                        {t("config.table.title", {ns: 'patient'})}
-                                    </Typography>
-                                </Box>
-                            </Toolbar>
-                        </AppBar>
+                <>
+                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 && !roles.includes("ROLE_SECRETARY") &&
+                        <PanelCardStyled
+                            sx={{
+                                "& .MuiCardContent-root": {
+                                    background: "white"
+                                },
+                                "& .injected-svg": {
+                                    maxWidth: 30,
+                                    maxHeight: 30
+                                },
+                                marginBottom: "1rem"
+                            }}
+                        >
+                            <CardContent>
+                                <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                                    <Toolbar variant="dense">
+                                        <Box sx={{flexGrow: 1}}>
+                                            <Typography
+                                                variant="body1"
+                                                sx={{fontWeight: "bold"}}
+                                                gutterBottom>
+                                                {t("config.table.photo", {ns: 'patient'})}
+                                            </Typography>
+                                        </Box>
+                                    </Toolbar>
+                                </AppBar>
 
-                        {isMobile ? (
-                            <PatientDetailsDocumentCard
-                                data={typeofDocs.map((item) => ({
-                                    lable: item,
-                                }))}
-                                onSellected={(v: string) => {
-                                    setChecked(documents.filter((item: PatientDocuments) => item.documentType === v))
-                                }}
-                            />
-                        ) : (
+                                <Box style={{overflowX: "auto", marginBottom: 10}}>
+                                    <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                                        {
+                                            documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                                <Box sx={{border: `1px solid ${theme.palette.grey['A300']}`}}
+                                                     onClick={() => {
+                                                         showDoc(card)
+                                                     }} key={`doc-item-${idx}`} width={152} height={140}
+                                                     borderRadius={2}
+                                                     style={{background: "white"}}>
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={card.uri}
+                                                         className={"image-cover"}
+                                                         alt={card.title}/>
+
+                                                    <Typography whiteSpace={'nowrap'}
+                                                                textOverflow={"ellipsis"}
+                                                                overflow={"hidden"}
+                                                                width={"120px"}
+                                                                margin={"auto"}
+                                                                textAlign={"center"}
+                                                                fontSize={13}>
+                                                        {card.title}
+                                                    </Typography>
+                                                </Box>
+                                            )
+                                        }
+                                    </Stack>
+                                </Box>
+                            </CardContent>
+                        </PanelCardStyled>
+                    }
+                    <PanelCardStyled
+                        className={"container"}
+                        sx={{
+                            "& .MuiCardContent-root": {
+                                background: "white"
+                            },
+                            "& .injected-svg": {
+                                maxWidth: 30,
+                                maxHeight: 30
+                            }
+                        }}
+                    >
+                        <CardContent>
+                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                                <Toolbar variant="dense">
+                                    <Box sx={{flexGrow: 1}}>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{fontWeight: "bold"}}
+                                            gutterBottom>
+                                            {t("config.table.title", {ns: 'patient'})}
+                                        </Typography>
+                                    </Box>
+                                </Toolbar>
+                            </AppBar>
+
+
                             <>
                                 <FormControlLabel
                                     key={uniqueId()}
@@ -267,25 +362,26 @@ function DocumentsPanel({...props}) {
                                     />
                                 ))}
                             </>
-                        )}
-                        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                            <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
-                                {tabsContent.map((tabHeader, tabHeaderIndex) =>
-                                    <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
-                                         label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
-                            </Tabs>
-                            <LinearProgress sx={{
-                                mt: .2,
-                                display: loadingRequest ? "block" : "none"
-                            }} color="warning"/>
-                        </Box>
-                        {tabsContent.map((tabContent, tabContentIndex) =>
-                            <TabPanel key={`tabContentIndex-${tabContentIndex}`} value={currentTab}
-                                      index={tabContentIndex}>
-                                {tabContent.children}
-                            </TabPanel>)}
-                    </CardContent>
-                </PanelCardStyled>
+
+                            <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                                <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
+                                    {tabsContent.map((tabHeader, tabHeaderIndex) =>
+                                        <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
+                                             label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
+                                </Tabs>
+                                <LinearProgress sx={{
+                                    mt: .2,
+                                    display: loadingRequest ? "block" : "none"
+                                }} color="warning"/>
+                            </Box>
+                            {tabsContent.map((tabContent, tabContentIndex) =>
+                                <TabPanel key={`tabContentIndex-${tabContentIndex}`} value={currentTab}
+                                          index={tabContentIndex}>
+                                    {tabContent.children}
+                                </TabPanel>)}
+                        </CardContent>
+                    </PanelCardStyled>
+                </>
             ) : (
                 <NoDataCard t={t} ns={"patient"}
                             onHandleClick={() => setOpenUploadDialog(true)}

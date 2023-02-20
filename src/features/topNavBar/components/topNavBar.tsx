@@ -67,6 +67,7 @@ function TopNavBar({...props}) {
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
+    const [notifications, setNotifications] = useState(0);
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
@@ -86,6 +87,7 @@ function TopNavBar({...props}) {
                     patient: {
                         lastName: ongoing?.patient.split(" ")[1],
                         firstName: ongoing?.patient.split(" ")[0],
+                        ...(ongoing?.patient_uuid && {uuid: ongoing?.patient_uuid})
                     },
                 },
             };
@@ -101,8 +103,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        topBar[0].notifications = pendingAppointments.length;
-    }, [pendingAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
+        setNotifications(pendingAppointments.length);
+    }, [pendingAppointments]);
 
     const handleClick = (event: React.MouseEvent<any>, action: string) => {
         setAnchorEl(event.currentTarget);
@@ -196,7 +198,7 @@ function TopNavBar({...props}) {
                             {isActive && <CipCard/>}
                             {topBar.map((item, index) => (
                                 <Badge
-                                    badgeContent={item.notifications && item.notifications}
+                                    badgeContent={notifications}
                                     className="custom-badge"
                                     color="warning"
                                     {...(item.action && {
@@ -233,7 +235,7 @@ function TopNavBar({...props}) {
                                 }}>
                                 {popovers[popoverAction]}
                             </Popover>
-                            <Badge
+                            {/*<Badge
                                 badgeContent={null}
                                 onClick={() => {
                                     if (localStorage.getItem("app_lock")) {
@@ -247,7 +249,7 @@ function TopNavBar({...props}) {
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-cloc"}/>
                                 </IconButton>
-                            </Badge>
+                            </Badge>*/}
                         </MenuList>
                         {/*<LangButton/>*/}
                         {!isMobile && <MenuList className="topbar-account">

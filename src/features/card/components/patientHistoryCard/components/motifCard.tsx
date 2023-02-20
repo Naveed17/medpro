@@ -68,7 +68,7 @@ function MotifCard({...props}) {
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
-                                            {data.value}
+                                            {data.value ? data.value : '-'}
                                         </ListItem>
                                     </List>
                                 </Box>

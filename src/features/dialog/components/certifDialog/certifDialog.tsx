@@ -52,7 +52,7 @@ function CertifDialog({...props}) {
 
     const colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
     const {data} = props
-    const [value, setValue] = useState<string>('');
+    const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
     const [models, setModels] = useState<DocTemplateModel[]>([]);
@@ -78,7 +78,7 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (isStarted) {
-            setValue(oldNote+ ' '+transcript)
+            setValue(oldNote + ' ' + transcript)
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -172,10 +172,13 @@ function CertifDialog({...props}) {
     }
 
     const addVal = (val: string) => {
-        console.log(value);
         const doc = new DOMParser().parseFromString(value, 'text/html')
-        console.log(doc)
-        doc.body.innerText += ' ' + val;
+        const collection = doc.body.lastElementChild as HTMLElement
+        if (collection)
+            collection.innerText += ' ' + val;
+
+        doc.body.removeChild(doc.body.lastElementChild as HTMLElement)
+        doc.body.append(collection)
         setValue(doc.body.innerHTML.toString());
 
     }

@@ -31,7 +31,6 @@ import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
-import Preview from "@features/files/components/preview";
 import moment from "moment";
 import ReactPlayer from "react-player";
 import AudioPlayer from "react-h5-audio-player";
@@ -41,6 +40,9 @@ import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import PreviewA4 from "@features/files/components/previewA4";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -77,7 +79,7 @@ function DocumentDetailDialog({...props}) {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        size: 'portraitA5',
+        size: 'portraitA4',
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
         footer: {show: true, x: 0, y: 140, content: ''},
@@ -129,7 +131,7 @@ function DocumentDetailDialog({...props}) {
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
-            icon: "ic-menu2",
+            icon: "ft14-text",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
@@ -144,7 +146,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: state.type !== 'prescription' || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif') || !state.uuid
         },
         {
             title: 'delete',
@@ -236,6 +238,14 @@ function DocumentDetailDialog({...props}) {
                             uuid: state.uuidDoc
                         }))
                         break;
+                    case "write_certif":
+                        console.log(state);
+                        dispatch(SetSelectedDialog({
+                            action: 'write_certif',
+                            state: state,
+                            uuid: state.uuid
+                        }))
+                        break;
                 }
                 break;
             case "hide":
@@ -275,6 +285,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
+            state.mutateDetails && state.mutateDetails()
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
@@ -286,20 +297,16 @@ function DocumentDetailDialog({...props}) {
     }
 
     useEffect(() => {
+        setIsImg(state.detectedType?.split('/')[0] === 'image')
         setFile(state.uri)
     }, [state])
-
-    useEffect(() => {
-        if (typeof file !== 'object') { // @ts-ignore
-            setIsImg(['png', 'jpg', 'jpeg'].some(ex => ex === file?.split('.').pop().split(/\#|\?/)[0]))
-        }
-    }, [file])
 
     useEffect(() => {
         if (httpHeaderData) {
             const docInfo = (httpHeaderData as HttpResponse).data
             if (!docInfo.header) {
                 //handleClickOpen();
+                console.log("no header");
                 setLoading(false)
             } else {
                 setOpenAlert(false);
@@ -319,6 +326,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate && state.mutate();
+            state.mutateDetails && state.mutateDetails()
             setOpenRemove(false);
             setLoading(false);
             (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
@@ -332,16 +340,16 @@ function DocumentDetailDialog({...props}) {
     return (
         <DocumentDetailDialogStyled>
             <Grid container>
-                <Grid item xs={12} md={menu ? 8 : 12}>
+                <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
                         {
                             !multimedias.some(multi => multi === state.type) &&
-                            <Box style={{width: '148mm', margin: 'auto'}}>
+                            <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
                                     {
                                         generatedDocs.some(doc => doc === state.type) &&
                                         <div>
-                                            <Preview  {...{
+                                            {!loading && <PreviewA4  {...{
                                                 eventHandler,
                                                 data,
                                                 values: header,
@@ -359,7 +367,7 @@ function DocumentDetailDialog({...props}) {
                                                 date,
                                                 loading,
                                                 t
-                                            }} />
+                                            }} />}
                                             {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
                                         </div>
                                     }
@@ -415,8 +423,18 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 0} className="sidebar" color={"white"} style={{background: "white"}}>
-                    <List>
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
+                    {menu ? <List>
+                        <ListItem className='secound-list'>
+                            <ListItemButton onClick={() => {
+                                setMenu(false)
+                            }}>
+                                <ListItemIcon>
+                                    <CloseFullscreenIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={t("close")}/>
+                            </ListItemButton>
+                        </ListItem>
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
@@ -425,7 +443,7 @@ function DocumentDetailDialog({...props}) {
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary={t(button.title)}/>
+                                        {menu && <ListItemText primary={t(button.title)}/>}
                                     </ListItemButton>}
                                 </ListItem>
                             )
@@ -499,7 +517,62 @@ function DocumentDetailDialog({...props}) {
                                 </ListItem>
                             )
                         }
-                    </List>
+                    </List> : <>
+
+
+                        <List>
+
+                            <ListItem onClick={() => {
+                                setMenu(true)
+                            }} disablePadding sx={{display: 'block'}}>
+                                <ListItemButton
+                                    sx={{
+                                        minHeight: 48,
+                                        justifyContent: 'center',
+                                        px: 2.5,
+                                    }}
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            margin: 'auto',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <OpenInFullIcon/>
+                                    </ListItemIcon>
+                                </ListItemButton>
+                            </ListItem>
+
+                            {
+                                actionButtons.map((button, idx) =>
+                                    !button.disabled &&
+                                    <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
+                                              disablePadding sx={{display: 'block'}}>
+                                        <ListItemButton
+                                            sx={{
+                                                minHeight: 48,
+                                                justifyContent: 'center',
+                                                px: 2.5,
+                                            }}
+                                        >
+                                            <ListItemIcon
+                                                sx={{
+                                                    minWidth: 0,
+                                                    margin: 'auto',
+                                                    justifyContent: 'center',
+                                                }}
+                                            >
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                        </ListItemButton>
+                                    </ListItem>
+                                )
+                            }
+
+
+                        </List>
+                    </>}
                 </Grid>
             </Grid>
 

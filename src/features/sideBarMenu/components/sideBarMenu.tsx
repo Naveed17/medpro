@@ -165,9 +165,10 @@ function SideBarMenu({ children }: LayoutProps) {
                 </Badge>
                 <ListItemTextStyled primary={t("main-menu." + item.name)} />
                 {isMobile && item.badge !== undefined && item.badge > 0 && (
-                  <Typography className={"mobile-badge"}>
-                    {item.badge}
-                  </Typography>
+                    <Badge
+                        badgeContent={item.badge}
+                        color="warning"
+                    />
                 )}
               </ListItem>
             </a>

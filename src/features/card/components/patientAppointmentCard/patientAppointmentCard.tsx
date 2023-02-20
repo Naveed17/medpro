@@ -1,16 +1,17 @@
 import RootStyled from './overrides/rootStyled';
-import {Avatar, Box, IconButton, ListItemIcon, ListItemText, Stack, Typography} from "@mui/material";
+import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
-import React from "react";
+import React, {useState} from "react";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
+import CircularProgress from '@mui/material/CircularProgress';
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
@@ -30,6 +31,7 @@ function PatientAppointmentCard({...props}) {
     } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+    const [loading, setLoading] = useState(false);
 
     return (
         <RootStyled
@@ -78,10 +80,16 @@ function PatientAppointmentCard({...props}) {
                                 sx={{mr: 1}}
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    setLoading(true);
                                     onEdit(patient);
                                 }}
                             >
-                                <Icon color={"white"} path="setting/edit"/>
+                                {!loading ?
+                                    <Icon color={"white"} path="setting/edit"/> :
+                                    <Box sx={{display: 'flex'}}>
+                                        <CircularProgress size={"20px"} color={"white"}/>
+                                    </Box>
+                                }
                             </IconButton>
                             <IconButton
                                 size="small"

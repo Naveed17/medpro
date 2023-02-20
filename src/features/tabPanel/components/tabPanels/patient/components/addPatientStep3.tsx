@@ -24,7 +24,8 @@ function AddPatientStep3({...props}) {
                         variant: "text-primary",
                         action: "onAddPatient",
                         title: t("add-new")
-                    }, {
+                    },
+                    {
                         icon: "ic-agenda-+",
                         action: "onAddAppointment",
                         variant: "contained",
@@ -35,7 +36,12 @@ function AddPatientStep3({...props}) {
                         },
                         title: t("add-appo"),
                         color: "warning"
-                    }
+                    },
+                    {
+                        variant: "text-primary",
+                        action: "onClose",
+                        title: t("close")
+                    },
                 ]
             }}
             onClickTextButton={(action: string) => {
@@ -46,6 +52,11 @@ function AddPatientStep3({...props}) {
                     case "onAddAppointment":
                         if (OnCustomAction) {
                             OnCustomAction("ADD_APPOINTMENT", stepsData.submit);
+                        }
+                        break;
+                    case "onClose":
+                        if (OnCustomAction) {
+                            OnCustomAction("CLOSE");
                         }
                         break;
                 }

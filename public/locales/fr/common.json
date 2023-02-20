@@ -266,12 +266,21 @@
       "sub-title": "Date du rendez-vous",
       "cancel": "Annuler",
       "edit": "Gérer",
+      "call": "Appeler",
       "confirm": "Confirmer RDV"
     },
     "finish-dialog": {
       "title": "Consultation terminée avec",
       "sub-title": "Prix de la consultation",
-      "reschedule": "Replanifier un Conrole"
+      "reschedule": "Replanifier un contrôle"
+    },
+    "alert": {
+      "cancel-appointment": "le rendez-vous a été annulé avec succès",
+      "delete-appointment": "le rendez-vous a été supprimé avec succès",
+      "leave-waiting-room": "le patient a quitté la salle d'attente",
+      "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
+      "patient-no-show": "le rendez-vous a été modifié avec succès",
+      "confirm-appointment": "le rendez-vous a été confirmé avec succès"
     }
   },
   "filter": {

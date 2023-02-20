@@ -186,6 +186,7 @@ const Content = ({ ...props }) => {
         createdAt: card.createdAt,
         name: "certif",
         type: "write_certif",
+        detectedType:card.type,
         mutate: mutatePatientDocuments(),
       });
       setOpenDialogDoc(true);
@@ -210,6 +211,7 @@ const Content = ({ ...props }) => {
         uri: card.uri,
         name: card.title,
         type: card.documentType,
+        detectedType:card.type,
         info: info,
         uuidDoc: uuidDoc,
         description: card.description,
@@ -592,7 +594,7 @@ const Content = ({ ...props }) => {
                           <CircleIcon />
                         </ListItemIcon>
                         <Typography variant="body2" color="text.secondary">
-                          {list["medical-imaging"].name}
+                          {list["medical-imaging"]?.name}
                         </Typography>
                       </ListItem>
                     ))}

@@ -17,7 +17,7 @@ const RootStyled = styled(MenuItem)(({theme, styleprops}: any) => {
         },
         '& .MuiButtonBase-root': {
             backgroundColor: theme.palette.grey["A60"],
-            opacity: 0.25,
+            opacity: 0.5,
             color: theme.palette.common.white,
             width: 30,
             height: 30,

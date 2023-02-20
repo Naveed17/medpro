@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {alpha, Card} from "@mui/material";
 
-const AgendaPopupActionStyled = styled(Card)(({ theme }) => ({
+const AgendaPopupActionStyled = styled(Card)(({theme}) => ({
     border: 'none',
     borderRadius: theme.spacing(2),
     backgroundColor: alpha(theme.palette.warning.main, 0.2),
@@ -37,7 +37,7 @@ const AgendaPopupActionStyled = styled(Card)(({ theme }) => ({
             [theme.breakpoints.down('sm')]: {
                 fontSize: 14,
             }
-        }
-    }
+        },
+    },
 }))
 export default AgendaPopupActionStyled;

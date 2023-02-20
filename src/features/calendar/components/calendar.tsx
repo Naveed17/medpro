@@ -391,6 +391,7 @@ function Calendar({...props}) {
                                 eventMaxStack={1}
                                 eventDisplay="block"
                                 headerToolbar={false}
+                                nowIndicator={true}
                                 eventResizableFromStart
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"

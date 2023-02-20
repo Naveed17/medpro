@@ -1,3 +1,80 @@
+# [4.11.0](https://github.com/SmartMedSA/med-pro/compare/v4.10.2...v4.11.0) (2023-02-16)
+
+
+### Bug Fixes
+
+*  end consultation loading in action ([7afe313](https://github.com/SmartMedSA/med-pro/commit/7afe31314c0fb5c68389f649fc035df8f12fcfb8))
+* clean code ([34dbd01](https://github.com/SmartMedSA/med-pro/commit/34dbd01b46556bbf7b8c58a2dfc8a725de2cd191))
+* datepicker change ([9cb10e4](https://github.com/SmartMedSA/med-pro/commit/9cb10e46affbc1136178bf23a4999aead728b974))
+* disable end consultation in action ([a46cfdf](https://github.com/SmartMedSA/med-pro/commit/a46cfdfc0b948eaea93f01e22f5fc41e261412de))
+* disable end consultation in action ([59b21d0](https://github.com/SmartMedSA/med-pro/commit/59b21d09eaae2aa1e97b9b3be441b2ddf34cda4f))
+* empty medical imaging ([5dee745](https://github.com/SmartMedSA/med-pro/commit/5dee7451970a3c88efdb5a3d3f3b6f4e374bbdbd))
+* end consultation loading in action ([7e5f46f](https://github.com/SmartMedSA/med-pro/commit/7e5f46f1fb01fa64b3df52b784060ca2b15158b5))
+
+
+### Features
+
+* add calendar now indicator line ([05af202](https://github.com/SmartMedSA/med-pro/commit/05af2022fe7ec37ae520c47ac0774ec218d02b36))
+
+## [4.10.2](https://github.com/SmartMedSA/med-pro/compare/v4.10.1...v4.10.2) (2023-02-16)
+
+
+### Bug Fixes
+
+* alert rooting to consultation bug ([fff3f58](https://github.com/SmartMedSA/med-pro/commit/fff3f5832a0c60101e0a728315f0f835ba3603bb))
+
+## [4.10.1](https://github.com/SmartMedSA/med-pro/compare/v4.10.0...v4.10.1) (2023-02-16)
+
+
+### Bug Fixes
+
+* refresh data history ([7610f3f](https://github.com/SmartMedSA/med-pro/commit/7610f3fd2ad7ac2302f77e82f3b9d111ebb465d2))
+* waiting room start consultation ([78c01de](https://github.com/SmartMedSA/med-pro/commit/78c01de85b0dd3cc357388d9ef717d89d5299ae6))
+* workflow envmap step json error ([464bab8](https://github.com/SmartMedSA/med-pro/commit/464bab80f748435c77fcd56b2004f6a686e62e1b))
+
+# [4.10.0](https://github.com/SmartMedSA/med-pro/compare/v4.9.1...v4.10.0) (2023-02-15)
+
+
+### Bug Fixes
+
+* add logic to responsive issues ([15b9895](https://github.com/SmartMedSA/med-pro/commit/15b9895acb909f0bc1fa0a757ed3af53909c6a07))
+* appointment address edit ([3966051](https://github.com/SmartMedSA/med-pro/commit/396605190a46597868a0843f3abfe65431e14779))
+* badge patient file ([146620e](https://github.com/SmartMedSA/med-pro/commit/146620e363cab5d6ec7f6a8493d22115cc14269f))
+* cin type ([063d07d](https://github.com/SmartMedSA/med-pro/commit/063d07d484a622203141e2e4f2e60cf90b890663))
+* consultation widget edit ([7da5f40](https://github.com/SmartMedSA/med-pro/commit/7da5f40435d937fa8416b8e4d3a7099b32c8e1a9))
+* datepicker update dependency ([33c9df3](https://github.com/SmartMedSA/med-pro/commit/33c9df3ea1b63594522b98875d77b61c89d362b6))
+* datepicker update dependency ([8b02b5f](https://github.com/SmartMedSA/med-pro/commit/8b02b5ff8699c24ecf582cf5e4d26bd694cdfadc))
+* datepicker update dependency bugs ([fce4cba](https://github.com/SmartMedSA/med-pro/commit/fce4cba515295559f6fee25495a9bf961f5e396b))
+* default config docs ([1c5a2a8](https://github.com/SmartMedSA/med-pro/commit/1c5a2a822cd69208de2f42817b8729dc6cbb4f16))
+* doc duplication ([b47cf45](https://github.com/SmartMedSA/med-pro/commit/b47cf4587f9cc8b112cd72cdaac519577968571a))
+* document dialog uncontrolled input ([51ef887](https://github.com/SmartMedSA/med-pro/commit/51ef88746e5368bdd0ef7382caab164692ddb8d0))
+* edit consultation honoraries ([35e613a](https://github.com/SmartMedSA/med-pro/commit/35e613a99d1264fc41c48f8d503f30f487f21af2))
+* edit consultation honoraries ([b2026ff](https://github.com/SmartMedSA/med-pro/commit/b2026fff4feb05caa86fb2a13afbd04a0e5653c4))
+* feedback07/02 ([27018c5](https://github.com/SmartMedSA/med-pro/commit/27018c5ce18d9beb32d7b118355247acb818d611))
+* fiche id undefined ([3998663](https://github.com/SmartMedSA/med-pro/commit/3998663bf6d2653db434c367916b01986114a646))
+* finish appointment move action ([21bf4b8](https://github.com/SmartMedSA/med-pro/commit/21bf4b83ab52256aad8157faa9a7898acd5e3b88))
+* imgs in rapports, analyses, medical imaging ([5ea6674](https://github.com/SmartMedSA/med-pro/commit/5ea6674369d17fec7ff59d2f8561236704463e3e))
+* land doc ([c1182f3](https://github.com/SmartMedSA/med-pro/commit/c1182f3cdb865811359d76526846c62ce7e2203d))
+* output issue ([75cb83d](https://github.com/SmartMedSA/med-pro/commit/75cb83d540a146d827a581780d62859516af7b76))
+* responsive issue ([ef075bc](https://github.com/SmartMedSA/med-pro/commit/ef075bcbd2f5f8fd7f425f08e027c1fe0a18e7aa))
+* secretary popup currency ([3f548d0](https://github.com/SmartMedSA/med-pro/commit/3f548d0cde2b066cd1af589552813e086f7c9eab))
+* secretary popup currency ([e293975](https://github.com/SmartMedSA/med-pro/commit/e293975255963a5558f0b727762501dac4f50338))
+* secretary popup currency ([9f5367a](https://github.com/SmartMedSA/med-pro/commit/9f5367a283b487d7946c8d352444b1d1e16bc036))
+* start consultation loading ([69fb0d5](https://github.com/SmartMedSA/med-pro/commit/69fb0d5618548459ac91572925a74af7a20f2e10))
+* style appointment card ([b1b18a6](https://github.com/SmartMedSA/med-pro/commit/b1b18a676e1207f3fdc50dbc3991d33ed7797c54))
+* temporary changed version of deployer workflow until next fix ([4546de5](https://github.com/SmartMedSA/med-pro/commit/4546de59bbd06f25c525750a16688e9b2149c16e))
+* typescript errors ([f871014](https://github.com/SmartMedSA/med-pro/commit/f871014beaa26758bef0d1df235674fd6ecd5e6a))
+* view history ([3efeff2](https://github.com/SmartMedSA/med-pro/commit/3efeff2d74f61c9cc3dcbc574da2c6faf24e8b98))
+
+
+### Features
+
+* doc config ([7b50357](https://github.com/SmartMedSA/med-pro/commit/7b50357f484cecf7065c01f1e8f78bd0735e3423))
+* fix responsive filter ([d3e07fc](https://github.com/SmartMedSA/med-pro/commit/d3e07fcd6cf0d5678c36aa862d080becb01a86f4))
+* patient file images ([8ab54cd](https://github.com/SmartMedSA/med-pro/commit/8ab54cd1d33dce509807d68ec4dd6d4223930604))
+* pending appointment call button ([7ac5744](https://github.com/SmartMedSA/med-pro/commit/7ac5744de2ab6623ba2fa1e2572834e19d0a0e1b))
+* smart look integration ([8da0795](https://github.com/SmartMedSA/med-pro/commit/8da0795947d7f0fe6644fa1f8927c408eed8268c))
+
 ## [4.9.1](https://github.com/SmartMedSA/med-pro/compare/v4.9.0...v4.9.1) (2023-02-07)
 
 

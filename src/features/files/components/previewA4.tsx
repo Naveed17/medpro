@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import Prescription from "./prescription";
 import moment from "moment";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
@@ -13,6 +13,7 @@ function PreviewDialog({...props}) {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const general_information = (user as UserDataResponse).general_information;
     const devise = doctor_country.currency?.name;
 
     const drugs = ['X'];
@@ -61,7 +62,7 @@ function PreviewDialog({...props}) {
                         case "prescription":
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
-                                elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                                elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
@@ -91,7 +92,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-analysis":
                             const elx = document.createElement('p');
-                            elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                            elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                             elx.append(`• ${el.name}`)
                             rows.push({
                                 value: `• ${el.name}`,
@@ -104,7 +105,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
-                            imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                            imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                             imgLine.append(`• ${el['medical-imaging'].name}`)
                             rows.push({
                                 value: `• ${el['medical-imaging'].name}`,
@@ -128,11 +129,11 @@ function PreviewDialog({...props}) {
                             break;
                         case "write_certif":
                             const certifLine = document.createElement('div');
-                            certifLine.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                            certifLine.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
-                            txt = txt.replaceAll('{doctor}', session?.user?.name)
+                            txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
@@ -149,7 +150,6 @@ function PreviewDialog({...props}) {
                                         style: {}
                                     })
                                 })*/
-
                                 rows.push({
                                     value: item,
                                     name: "name",
@@ -208,7 +208,7 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                elx.style.width =  '190mm'
 
                 const header = document.createElement("tr");
                 header.innerHTML = `<td style="text-align: left !important;">ACTE</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
@@ -249,7 +249,8 @@ function PreviewDialog({...props}) {
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
-                    elx.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                    elx.style.width =  '190mm'
+                    elx.style.fontSize = "20px"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
@@ -262,7 +263,6 @@ function PreviewDialog({...props}) {
 
             pages.push({page: i, content: el})
         }
-
         setPages(pages)
     }
 
@@ -293,7 +293,6 @@ function PreviewDialog({...props}) {
             const clone = element.cloneNode(true);
             document.body.appendChild(clone);
             clone.style.height = "auto";
-            clone.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm`:'130mm';
             clone.style.lineHeight = '21px';
             const divHeight = clone.offsetHeight
             const lineHeight = parseInt(clone.style.lineHeight);
@@ -307,7 +306,6 @@ function PreviewDialog({...props}) {
         pageX.style.position = "absolute"
         pageX.style.top = "0"
         document.body.append(pageX)
-
         if (state) {
             if (state.info)
                 createPageContent(pageX, state.info)
@@ -325,11 +323,12 @@ function PreviewDialog({...props}) {
                 content.style.height = data.content.maxHeight + 'px'
             }
 
-            const footer = document.getElementById('footer')
+            /*const footer = document.getElementById('footer')
             if (footer && data.footer) {
+                console.log(data.footer)
                 footer.innerHTML = data.footer.content;
                 footer.className="footer-st"
-            }
+            } */
 
         }
     }, [data])
@@ -338,7 +337,7 @@ function PreviewDialog({...props}) {
         <>
             {pages.map((el, idx) => (
                 <div key={idx}>
-                    <Prescription {...{
+                    <PrescriptionA4 {...{
                         data,
                         id: idx,
                         eventHandler,
@@ -349,7 +348,7 @@ function PreviewDialog({...props}) {
                         date,
                         loading,
                         pages
-                    }}></Prescription>
+                    }}></PrescriptionA4>
                 </div>
             ))}
         </>
