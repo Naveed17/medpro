@@ -28,7 +28,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";

@@ -56,7 +56,7 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";

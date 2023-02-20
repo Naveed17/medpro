@@ -10,7 +10,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";

@@ -10,7 +10,7 @@ import {
     setStepperIndex,
     setView
 } from './actions';
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 
 export type CalendarProps = {
     view: string | undefined;

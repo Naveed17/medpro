@@ -1,4 +1,4 @@
-import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
+import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 
 import {
     Backdrop,
@@ -19,7 +19,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, {DateClickArg, DateClickTouchArg} from "@fullcalendar/interaction";
+import interactionPlugin, { DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
@@ -40,12 +40,13 @@ const Otable = dynamic(() => import('@features/table/components/table'));
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
-import {BusinessHoursInput} from "@fullcalendar/common";
+import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
+import {EventDef} from "@fullcalendar/core/internal";
 
 function Calendar({...props}) {
     const {
@@ -197,7 +198,7 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date, jsEvent: VUIEvent) => {
+    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();

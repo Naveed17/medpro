@@ -30,7 +30,7 @@ import moment from "moment-timezone";
 import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
-import smartlookClient from 'smartlook-client';
+import insp from 'inspectlet-es';
 import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
 
@@ -231,11 +231,13 @@ function FcmLayout({...props}) {
             const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
             if (prodEnv) {
                 // identify smartlook user
-                smartlookClient.identify(general_information.uuid, {
+               /* smartlookClient.identify(general_information.uuid, {
                     name: `${general_information.firstName} ${general_information.lastName}`,
                     email: general_information.email,
                     role: general_information.roles[0]
-                });
+                });*/
+                // identify inspect-let
+                insp(['identify', general_information.email]);
             }
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps

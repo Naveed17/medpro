@@ -27,7 +27,9 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
-import FullCalendar, {DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
+import FullCalendar from "@fullcalendar/react";
+import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
+import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
@@ -67,6 +69,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
+
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
