@@ -44,6 +44,9 @@ const PaperStyled = styled(Form)(({ theme }) => ({
   border: "none",
   padding: theme.spacing(2),
   paddingBottom: theme.spacing(0),
+  [theme.breakpoints.down("md")]: {
+    minWidth: 0,
+  },
   "& .container": {
     maxHeight: 680,
     overflowY: "auto",
