@@ -2,7 +2,7 @@ import {createReducer} from '@reduxjs/toolkit';
 import {
     setTimer
 } from './actions';
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 
 export type TimerProps = {
     startTime: string | null;

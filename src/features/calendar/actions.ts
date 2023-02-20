@@ -1,5 +1,5 @@
 import {createAction} from "@reduxjs/toolkit";
-import {EventDef} from "@fullcalendar/react";
+import {EventDef} from "@fullcalendar/core/internal";
 
 export const setView = createAction<string | undefined>('agenda/setView');
 export const openDrawer = createAction<{ type: string, open: boolean }>('agenda/openDrawer');
