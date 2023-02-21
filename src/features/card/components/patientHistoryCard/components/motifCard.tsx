@@ -58,7 +58,7 @@ function MotifCard({...props}) {
                     <Card className="motif-card">
                         <CardContent>
                             {data.appointment.appointmentData.map((data: { name: string, value: string }, idx: number) => (
-                                data.name !== 'models' && <Box key={'data-appointement' + idx}>
+                                data.name !== 'treatments' && data.name !== 'models' && <Box key={'data-appointement' + idx}>
                                     <Typography variant="body2" fontWeight={700}
                                                 textTransform={"capitalize"}>
                                         {t(data.name)}

@@ -224,7 +224,7 @@ function HistoryTab({...props}) {
 
             {
                 photos.length > 0 &&
-                <>
+                <Box>
                     <Label variant="filled" color="warning">
                         {t("consultationIP.suivi_image")}
                     </Label>
@@ -253,8 +253,7 @@ function HistoryTab({...props}) {
                             ))}
                         </Stack>
                     </Box>
-                </>
-
+                </Box>
             }
             <Stack spacing={2}>
                 {apps.map((app: any, appID: number) => (
