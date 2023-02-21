@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
-
 // utils
 import Icon from "@themes/icon";
 import Link from "@themes/Link";
-
 // material-ui
 import {
     Hidden,
@@ -15,10 +13,8 @@ import {
     Box,
     Popover, useMediaQuery
 } from "@mui/material";
-
 // config
 import {siteHeader} from "@features/sideBarMenu";
-
 // components
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
@@ -26,8 +22,7 @@ import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {
     NavbarStepperStyled,
-    NavbarStyled,
-    LangButton,
+    NavbarStyled
 } from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -39,10 +34,7 @@ import {
 } from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector, setLock} from "@features/appLock";
-import {useSnackbar} from "notistack";
-import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
-import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 
 const ProfilMenuIcon = dynamic(
@@ -53,17 +45,14 @@ function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const router = useRouter();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {pendingAppointments} = useAppSelector(agendaSelector);
-    const {isActive, isPaused} = useAppSelector(timerSelector);
+    const {isActive} = useAppSelector(timerSelector);
     const {ongoing} = useAppSelector(dashLayoutSelector);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const {t, ready} = useTranslation("common");
-
-    const router = useRouter();
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
@@ -78,6 +67,21 @@ function TopNavBar({...props}) {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
     };
+
+    const handleClick = (event: React.MouseEvent<any>, action: string) => {
+        setAnchorEl(event.currentTarget);
+        setPopoverAction(action);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const openAppLock = () => {
+        localStorage.setItem('lock-on', "true");
+        dispatch(setLock(true));
+        dispatch(toggleSideBar(true));
+    }
 
     useEffect(() => {
         if (ongoing) {
@@ -105,23 +109,6 @@ function TopNavBar({...props}) {
     useEffect(() => {
         setNotifications(pendingAppointments.length);
     }, [pendingAppointments]);
-
-    const handleClick = (event: React.MouseEvent<any>, action: string) => {
-        setAnchorEl(event.currentTarget);
-        setPopoverAction(action);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const openAppLock = () => {
-        localStorage.setItem('lock-on', "true");
-        dispatch(setLock(true));
-        dispatch(toggleSideBar(true));
-    }
-
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
