@@ -132,7 +132,7 @@ function CalendarRow({...props}) {
                         <Box sx={{display: "flex"}}>
 
                             <Box sx={{display: "flex", mt: .3}}>
-                                {data.hasErrors.length > 0 && <DangerIcon className="error"/>}
+                                {data.hasErrors?.length > 0 && <DangerIcon className="error"/>}
                                 <TimeIcon/>
                                 <Typography variant="body2" color="text.secondary">
                                     {new Date(data.time).toLocaleTimeString([], {
@@ -276,6 +276,15 @@ function CalendarRow({...props}) {
                                     </LoadingButton>}
                             </>
                         }
+
+                        <Button sx={{mr: 1}} onClick={() => handleEventClick("confirmEvent", data)}
+                                {...(sideBarOpened && {sx: {minWidth: 40}})}
+                                variant="contained"
+                                color="success"
+                                size="small">
+                            <Icon path="ic-check"/> {!sideBarOpened &&
+                            <span style={{marginLeft: "5px"}}>Confirmer RDV</span>}
+                        </Button>
 
                         <Button onClick={() => handleEventClick("showEvent", data)}
                                 {...(sideBarOpened && {sx: {minWidth: 40}})}

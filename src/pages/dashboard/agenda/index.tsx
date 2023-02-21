@@ -62,7 +62,7 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
-import {prepareSearchKeys} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -218,30 +218,7 @@ function Agenda() {
                     const hasErrors = [
                         ...(horsWork ? ["event.hors-opening-hours"] : []),
                         ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
-                    eventsUpdated.push({
-                        start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-                        time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-                        end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
-                        title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
-                        allDay: horsWork,
-                        editable: !["FINISHED", "ON_GOING"].includes(AppointmentStatus[appointment.status].key),
-                        borderColor: appointment.type?.color,
-                        patient: appointment.patient,
-                        fees: appointment.fees,
-                        isOnline: appointment.isOnline,
-                        overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
-                        motif: appointment.consultationReason,
-                        instruction: appointment.instruction !== null ? appointment.instruction : "",
-                        id: appointment.uuid,
-                        filtered: false,
-                        hasErrors,
-                        dur: appointment.duration,
-                        type: appointment.type,
-                        meeting: false,
-                        new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
-                        addRoom: true,
-                        status: AppointmentStatus[appointment.status]
-                    });
+                    eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
                 });
             } else {
                 events.current.map(event => {
@@ -257,25 +234,8 @@ function Agenda() {
                 events.current = [...eventsUpdated, ...events.current];
             }
 
-            // this gives an object with dates as keys
-            const groups: any = events.current.reduce(
-                (groups: any, data: any) => {
-                    const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
-                        .format('DD-MM-YYYY');
-                    if (!groups[date]) {
-                        groups[date] = [];
-                    }
-                    groups[date].push(data);
-                    return groups;
-                }, {});
-
             // Edit: to add it in the array format instead
-            const groupArrays = Object.keys(groups).map((date) => {
-                return {
-                    date,
-                    events: groups[date]
-                };
-            });
+            const groupArrays = appointmentGroupByDate(events.current);
 
             dispatch(setGroupedByDayAppointments(groupArrays));
 
