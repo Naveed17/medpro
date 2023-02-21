@@ -153,7 +153,7 @@ function HistoryTab({...props}) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
-            patient: `${patient.gender === "F" ? "Mme " : patient.gender ==="U" ?"": "Mr "} ${patient.firstName} ${patient.lastName}`,
+            patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
     }
@@ -315,10 +315,12 @@ function HistoryTab({...props}) {
                                                                             <Box
                                                                                 key={`list-treatement-${idx}`}
                                                                                 className={'boxHisto'}>
-                                                                                <Typography fontSize={12}>{treatment.name}</Typography>
+                                                                                <Typography
+                                                                                    fontSize={12}>{treatment.name}</Typography>
                                                                                 <Stack direction={"row"}>
                                                                                     {
-                                                                                        treatment.dosage && <Typography className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
+                                                                                        treatment.dosage && <Typography
+                                                                                            className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
                                                                                     {
                                                                                         treatment.duration > 0 &&
                                                                                         <Typography
