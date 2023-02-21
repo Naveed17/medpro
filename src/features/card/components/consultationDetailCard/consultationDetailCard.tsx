@@ -77,7 +77,6 @@ function CIPPatientHistoryCard({...props}) {
                 ...storageData,
                 notes
             }));
-            console.log("edit local")
             // set data data from local storage to redux
             dispatch(
                 SetExam({
