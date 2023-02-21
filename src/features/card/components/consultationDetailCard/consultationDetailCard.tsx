@@ -57,11 +57,14 @@ function CIPPatientHistoryCard({...props}) {
         if (defaultExam) {
             setCReason(defaultExam?.consultation_reasons);
             // set data data from local storage to redux
-            dispatch(
-                SetExam({
-                    ...values
-                })
-            );
+            setTimeout(()=>{
+                dispatch(
+                    SetExam({
+                        ...values
+                    })
+                );
+            },1000)
+
         }
     }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
 

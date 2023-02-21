@@ -4,6 +4,7 @@ const CIPPatientHistoryCardStyled = styled(Card)(({ theme }) => ({
     borderRadius:3,
     '& .card-header': {
         backgroundColor: theme.palette.text.secondary,
+        padding: "0 15px",
         '.MuiTypography-root': {
             color: theme.palette.common.white,
             svg: {
