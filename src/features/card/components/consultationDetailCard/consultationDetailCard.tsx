@@ -57,14 +57,15 @@ function CIPPatientHistoryCard({...props}) {
         if (defaultExam) {
             setCReason(defaultExam?.consultation_reasons);
             // set data data from local storage to redux
-            setTimeout(()=>{
-                dispatch(
-                    SetExam({
-                        ...values
-                    })
-                );
-            },1000)
-
+            dispatch(
+                SetExam({
+                    ...values
+                })
+            );
+            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+                ...values
+            }));
+            console.log(values)
         }
     }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -76,6 +77,7 @@ function CIPPatientHistoryCard({...props}) {
                 ...storageData,
                 notes
             }));
+            console.log("edit local")
             // set data data from local storage to redux
             dispatch(
                 SetExam({
