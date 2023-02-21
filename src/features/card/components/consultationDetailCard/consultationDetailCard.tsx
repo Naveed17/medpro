@@ -57,17 +57,23 @@ function CIPPatientHistoryCard({...props}) {
         if (defaultExam) {
             setCReason(defaultExam?.consultation_reasons);
             // set data data from local storage to redux
-            setTimeout(()=>{
-                dispatch(
-                    SetExam({
-                        ...values
-                    })
-                );
-            },1000)
 
         }
     }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        dispatch(
+            SetExam({
+                motif: storageData?.motif ? storageData.motif :
+                    (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
+                notes: storageData?.notes ? storageData.notes :
+                    (app_data?.notes ? app_data?.notes.value : ""),
+                diagnosis: storageData?.diagnosis ? storageData.diagnosis :
+                    (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                treatment: exam.treatment,
+            })
+        );
+    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (isStarted) {
             const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
