@@ -8,7 +8,7 @@ import {
     Typography,
     FormControl,
     IconButton,
-    Link,
+    Link, Button,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
@@ -28,7 +28,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
 function AppointmentCard({...props}) {
-    const {data, onDataUpdated = null, t, roles} = props;
+    const {data, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -139,22 +139,26 @@ function AppointmentCard({...props}) {
                     <Box sx={{width: "100%"}}>
                         <List>
                             <ListItem sx={{ml: .8}}>
-                                <Stack direction="row" spacing={2} alignItems="center">
+                                <Stack {...(onMoveAppointment && {onClick: onMoveAppointment})}
+                                       sx={{cursor: "pointer"}}
+                                       direction="row" spacing={2} alignItems="center">
                                     <Typography fontWeight={400}>
                                         {t("appintment_date")} :
                                     </Typography>
-                                    <Stack spacing={2} direction="row" alignItems="center">
-                                        <Stack spacing={0.5} direction="row" alignItems="center">
-                                            <IconUrl className="callander" path="ic-agenda-jour"/>
-                                            <Typography className="time-slot">
-                                                {data?.date}
-                                            </Typography>
+                                    <Button sx={{p: .5}}>
+                                        <Stack spacing={2} direction="row" alignItems="center">
+                                            <Stack spacing={0.5} direction="row" alignItems="center">
+                                                <IconUrl className="callander" path="ic-agenda-jour"/>
+                                                <Typography className="time-slot">
+                                                    {data?.date}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack spacing={0.5} direction="row" alignItems="center">
+                                                <IconUrl className="time" path="setting/ic-time"/>
+                                                <Typography className="date">{data?.time}</Typography>
+                                            </Stack>
                                         </Stack>
-                                        <Stack spacing={0.5} direction="row" alignItems="center">
-                                            <IconUrl className="time" path="setting/ic-time"/>
-                                            <Typography className="date">{data?.time}</Typography>
-                                        </Stack>
-                                    </Stack>
+                                    </Button>
                                 </Stack>
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
@@ -260,57 +264,53 @@ function AppointmentCard({...props}) {
                                     )}
                                 </ListItem>
                             )}
-                            {reasons && (
+                            {reasons && editConsultation && (
                                 <ListItem>
-                                    {editConsultation && (
-                                        <>
-                                            <Typography fontWeight={400}>
-                                                {t("consultation_reson")}
-                                            </Typography>
-                                            <FormControl fullWidth size="small">
-                                                <Select
-                                                    labelId="select-reason"
-                                                    id="select-reason"
-                                                    value={reason !== undefined ? reason : ""}
-                                                    displayEmpty
-                                                    onChange={(event) => {
-                                                        updateDetails({
-                                                            reason: event.target.value as string,
-                                                        });
-                                                        setReason(event.target.value as string);
-                                                        const motif = reasons?.find(
-                                                            (reason) =>
-                                                                reason.uuid === (event.target.value as string)
-                                                        );
-                                                        setSelectedReason(motif?.name);
-                                                    }}
-                                                    renderValue={(selected) => {
-                                                        if (selected.length === 0) {
-                                                            return (
-                                                                <em>{t("reason-consultation-placeholder")}</em>
-                                                            );
-                                                        }
-                                                        const motif = reasons?.find(
-                                                            (reason) => reason.uuid === selected
-                                                        );
+                                    <Typography fontWeight={400}>
+                                        {t("consultation_reson")}
+                                    </Typography>
+                                    <FormControl fullWidth size="small">
+                                        <Select
+                                            labelId="select-reason"
+                                            id="select-reason"
+                                            value={reason !== undefined ? reason : ""}
+                                            displayEmpty
+                                            onChange={(event) => {
+                                                updateDetails({
+                                                    reason: event.target.value as string,
+                                                });
+                                                setReason(event.target.value as string);
+                                                const motif = reasons?.find(
+                                                    (reason) =>
+                                                        reason.uuid === (event.target.value as string)
+                                                );
+                                                setSelectedReason(motif?.name);
+                                            }}
+                                            renderValue={(selected) => {
+                                                if (selected.length === 0) {
+                                                    return (
+                                                        <em>{t("reason-consultation-placeholder")}</em>
+                                                    );
+                                                }
+                                                const motif = reasons?.find(
+                                                    (reason) => reason.uuid === selected
+                                                );
 
-                                                        return (
-                                                            <Box sx={{display: "inline-flex"}}>
-                                                                <Typography>{motif?.name}</Typography>
-                                                            </Box>
-                                                        );
-                                                    }}>
-                                                    {reasons?.map((consultationReason) => (
-                                                        <MenuItem
-                                                            value={consultationReason.uuid}
-                                                            key={consultationReason.uuid}>
-                                                            {consultationReason.name}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </>
-                                    )}
+                                                return (
+                                                    <Box sx={{display: "inline-flex"}}>
+                                                        <Typography>{motif?.name}</Typography>
+                                                    </Box>
+                                                );
+                                            }}>
+                                            {reasons?.map((consultationReason) => (
+                                                <MenuItem
+                                                    value={consultationReason.uuid}
+                                                    key={consultationReason.uuid}>
+                                                    {consultationReason.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
                                 </ListItem>
                             )}
                         </List>

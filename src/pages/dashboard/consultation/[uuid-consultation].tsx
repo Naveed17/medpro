@@ -485,7 +485,7 @@ function ConsultationInProgress() {
                             setEnd(false);
                             setLoadingReq(false);
                         });
-                        sendNotification();
+                        appointement?.status !== 5 && sendNotification();
                     });
                 });
             } else {

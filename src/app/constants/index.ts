@@ -16,4 +16,52 @@ export const PhoneRegExp =
 
 export const DefaultCountry = countries.find(country => country.code === process.env.NEXT_PUBLIC_COUNTRY) as CountryModel;
 
-export const EnvPattern = ["localhost", "master"];
+export const EnvPattern = ["localhost", "develop", "master"];
+
+export const SubMotifCard = [
+    {
+        id: 1,
+        title: "treatment_medication",
+        icon: "ic-traitement",
+        type: "treatment",
+        drugs: [
+            {
+                id: 1,
+                name: "Doliprane 1000",
+                dosage: "dosage_unit",
+                duration: 10,
+            },
+            {
+                id: 2,
+                name: "Doliprane 1000",
+                dosage: "dosage_unit",
+                duration: 10,
+            },
+        ],
+    },
+    {
+        id: 2,
+        title: "documents",
+        icon: "ic-document",
+        type: "document",
+        documents: ["document_1", "document_2"],
+    },
+    {
+        id: 3,
+        title: "bal_sheet_req",
+        icon: "ic-document",
+        type: "req-sheet",
+    },
+    {
+        id: 4,
+        title: "medical_sheet_req",
+        icon: "ic-soura",
+        type: "req-medical-imaging",
+    },
+    {
+        id: 5,
+        title: "actfees",
+        icon: "ic-text",
+        type: "act-fees",
+    },
+];

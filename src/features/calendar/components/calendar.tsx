@@ -19,7 +19,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, { DateClickTouchArg} from "@fullcalendar/interaction";
+import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
@@ -46,7 +46,6 @@ import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
-import {EventDef} from "@fullcalendar/core/internal";
 
 function Calendar({...props}) {
     const {
@@ -78,9 +77,9 @@ function Calendar({...props}) {
 
     const prevView = useRef(view);
 
-    const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
+    const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
-    const [eventMenu, setEventMenu] = useState<EventDef>();
+    const [eventMenu, setEventMenu] = useState<string>();
     const [slotMinTime, setSlotMinTime] = useState(8);
     const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [date, setDate] = useState(currentDate.date);
@@ -242,30 +241,30 @@ function Calendar({...props}) {
         setContextMenu(null);
     };
 
-    const MenuContextlog = (action: string, eventMenu: EventDef) => {
-        return (
+    const MenuContextlog = (action: string, eventMenu: EventModal) => {
+        return eventMenu && (
             action === "onWaitingRoom" &&
-            (moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
-                (eventMenu?.extendedProps.status.key === "WAITING_ROOM" || eventMenu?.extendedProps.status.key === "ON_GOING" || eventMenu?.extendedProps.status.key === "FINISHED")) ||
+            (moment().format("DD-MM-YYYY") !== moment(eventMenu.time).format("DD-MM-YYYY") ||
+                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu.status.key)) ||
             action === "onConsultationView" &&
-            (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onLeaveWaitingRoom" &&
-            eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
+            eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED" || eventMenu?.extendedProps.status.key === "ON_GOING") ||
+            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onDelete" &&
-            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED" || eventMenu?.extendedProps.status.key === "ON_GOING") ||
+            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onMove" &&
-            (moment().isAfter(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            (moment().isAfter(eventMenu.time) || eventMenu.status.key === "FINISHED") ||
             action === "onPatientNoShow" &&
-            ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
-                eventMenu?.extendedProps.status.key === "FINISHED") ||
+            ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") ||
+                eventMenu.status.key === "FINISHED") ||
             action === "onConfirmAppointment" &&
-            eventMenu?.extendedProps.status.key !== "PENDING" ||
+            eventMenu.status.key !== "PENDING" ||
             action === "onReschedule" &&
-            (moment().isBefore(eventMenu?.extendedProps.time) && eventMenu?.extendedProps.status.key !== "FINISHED")
+            (moment().isBefore(eventMenu.time) && eventMenu.status.key !== "FINISHED")
         )
     }
 
@@ -346,8 +345,7 @@ function Calendar({...props}) {
                                 }}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
-                                        ev.preventDefault();
-                                        setEventMenu(mountArg.event._def);
+                                        setEventMenu(mountArg.event._def.publicId);
                                         handleContextMenu(ev);
                                     })
                                 }}
@@ -496,7 +494,7 @@ function Calendar({...props}) {
                                     horizontal: 'left',
                                 }}
                             >
-                                {CalendarContextMenu.filter(data => !MenuContextlog(data.action, eventMenu as EventDef)).map((v: any) => (
+                                {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
                                             onClick={() => {
