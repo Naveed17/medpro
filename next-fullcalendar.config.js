@@ -1,5 +1,5 @@
 exports.withTM = require("next-transpile-modules")([
-  "@fullcalendar/common",
+  "@fullcalendar/core",
   "@babel/preset-react",
   "@fullcalendar/daygrid",
   "@fullcalendar/interaction",

@@ -30,7 +30,7 @@ import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
 
 const typeofDocs = [
-    "medical-imaging",
+    "requested-medical-imaging","medical-imaging",
     "analyse", "requested-analysis",
     "prescription", "rapport", "medical-certificate", "audio", "video"];
 

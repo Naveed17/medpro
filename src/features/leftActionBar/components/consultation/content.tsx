@@ -178,7 +178,7 @@ const Content = ({ ...props }) => {
         uuid: card.uuid,
         content: card.certificate[0].content,
         doctor: card.name,
-        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+        patient: `${patient.gender === "F" ? "Mme " : patient.gender ==="U" ?"": "Mr "} ${
           patient.firstName
         } ${patient.lastName}`,
         days: card.days,
@@ -216,7 +216,7 @@ const Content = ({ ...props }) => {
         uuidDoc: uuidDoc,
         description: card.description,
         createdAt: card.createdAt,
-        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+        patient: `${patient.gender === "F" ? "Mme " : patient.gender ==="U" ?"": "Mr "} ${
           patient.firstName
         } ${patient.lastName}`,
         mutate: mutatePatientDocuments,

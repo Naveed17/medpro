@@ -97,7 +97,7 @@ function DocumentCard({...props}) {
                                 <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
                                 <Typography whiteSpace={"nowrap"} fontSize={12}
                                             style={{marginTop: 0, color: "grey",cursor:"pointer"}}>
-                                    {moment(data.createdAt, 'DD-MM-YYYY HH:mm').format('HH:mm')}
+                                    {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1,"hour").format('HH:mm')}
                                 </Typography>
                             </Stack>
                         </Stack>

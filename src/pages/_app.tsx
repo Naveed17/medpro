@@ -24,8 +24,8 @@ import {FcmLayout} from "@features/base";
 import ErrorBoundary from "@features/errorBoundary";
 import {IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import smartlookClient from 'smartlook-client';
 import {EnvPattern} from "@app/constants";
+import smartlookClient from "smartlook-client";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;

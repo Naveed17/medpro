@@ -49,7 +49,7 @@ function Settings() {
                                 }
                                 key={v.name}
                                 {...((roles?.includes('ROLE_SECRETARY') &&
-                                    ['profile', 'acts', 'actfees'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
+                                    ['profile', 'acts', 'actfees', 'import-data'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
                                 className={router.pathname === v.href ? 'active' : ''}
                                 disablePadding>
                                 <ListItemButton

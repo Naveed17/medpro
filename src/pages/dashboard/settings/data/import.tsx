@@ -41,53 +41,68 @@ import CloseIcon from "@mui/icons-material/Close";
 
 const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
-const TabData = [
-    {
-        key: "med-pro",
-        icon: "Med-logo_",
-        label: "tabs.med",
-        content: "tabs.content-1",
-    },
-    /*    {
-            key: "med-win",
-            icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
-            label: "tabs.medWin",
-            content: "tabs.content-2",
-        },*/
-    /*{
-        key: "med-link",
-        icon: "ic-upload",
-        variant: "default",
-        label: "tabs.file",
-        content: "tabs.content-3",
-    },*/
-];
-
 function ImportData() {
     const router = useRouter();
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            type: "",
+            file: "",
+            source: "med-pro",
+            comment: ""
+        },
+        onSubmit: async () => {
+            checkImportData();
+        },
+    });
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
+    const [TabData] = useState([
+        {
+            key: "med-pro",
+            icon: "Med-logo_",
+            label: "tabs.med",
+            content: "tabs.content-1",
+        },
+        /*    {
+                key: "med-win",
+                icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
+                label: "tabs.medWin",
+                content: "tabs.content-2",
+            },*/
+        /*{
+            key: "med-link",
+            icon: "ic-upload",
+            variant: "default",
+            label: "tabs.file",
+            content: "tabs.content-3",
+        },*/
+    ]);
     const [loading, setLoading] = useState<boolean>(false);
     const [uriFile, setUriFile] = useState<string>("");
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
         loading: false
     });
-    const [typeImport, setTypeImport] = useState([
+    const [typeImport] = useState([
         {label: "Patients", key: "1"},
         {label: "Toutes les données", key: "2"},
     ]);
+    const [files, setFiles] = useState<any[]>([]);
+    const [errorsImport, setErrorsImport] = useState<any[]>([]);
+    const [fileLength, setFileLength] = useState(0);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
     const {data: httpFileResponse} = useRequest({
         method: "GET",
@@ -99,27 +114,6 @@ function ImportData() {
         if (httpFileResponse)
             setUriFile((httpFileResponse as HttpResponse).data.file)
     }, [httpFileResponse])
-
-
-    const [files, setFiles] = useState<any[]>([]);
-    const [errorsImport, setErrorsImport] = useState<any[]>([]);
-    const [fileLength, setFileLength] = useState(0);
-
-
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
-
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: {
-            type: "",
-            file: "",
-            source: "med-pro",
-            comment: ""
-        },
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
-            checkImportData();
-        },
-    });
 
     const handleRemove = (file: any) => {
         setFiles(files.filter((_file: any) => _file !== file));
@@ -208,16 +202,9 @@ function ImportData() {
         });
     }
 
-    const {
-        values,
-        handleSubmit,
-        getFieldProps,
-        setFieldValue
-    } = formik;
+    const {values, handleSubmit, getFieldProps, setFieldValue} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-
-    console.log(importData);
 
     return (
         <>

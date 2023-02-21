@@ -30,9 +30,9 @@ import moment from "moment-timezone";
 import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
-import smartlookClient from 'smartlook-client';
 import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
+import smartlookClient from "smartlook-client";
 
 function PaperComponent(props: PaperProps) {
     return (

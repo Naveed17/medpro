@@ -69,11 +69,11 @@ function PatientHistoryCard({...props}) {
                             />{" "}
                             {data?.appointment.startTime}
                         </Typography>
-                        {appuuid !== keyID && <IconButton onClick={(e) => {
+                        <IconButton onClick={(e) => {
                             handleConsultation(e);
                         }}>
                             <OpenInNewIcon style={{color: "white", fontSize: 20}}/>
-                        </IconButton>}
+                        </IconButton>
                     </Stack>
                 </Stack>
                 <CardContent

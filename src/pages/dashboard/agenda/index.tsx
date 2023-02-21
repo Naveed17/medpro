@@ -27,7 +27,9 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
-import FullCalendar, {DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
+import FullCalendar from "@fullcalendar/react";
+import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
+import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
@@ -67,6 +69,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
+
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
@@ -221,7 +224,7 @@ function Agenda() {
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: horsWork,
-                        editable: AppointmentStatus[appointment.status].key !== "FINISHED",
+                        editable: !["FINISHED", "ON_GOING"].includes(AppointmentStatus[appointment.status].key),
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
@@ -1268,7 +1271,9 @@ function Agenda() {
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
-                            <Button
+                            <LoadingButton
+                                {...{loading}}
+                                loadingPosition={"start"}
                                 variant="contained"
                                 disabled={!moveDateChanged}
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
@@ -1276,7 +1281,7 @@ function Agenda() {
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
-                            </Button>
+                            </LoadingButton>
                         </>
                     }
                 />

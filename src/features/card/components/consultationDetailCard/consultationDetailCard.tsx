@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {Autocomplete, Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -17,7 +17,7 @@ import {pxToRem} from "@themes/formatFontSize";
 import RecondingBoxStyle from './overrides/recordingBoxStyle';
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
+    const {exam: defaultExam, changes, setChanges, uuind, appointement} = props
     const {exam, listen} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
@@ -57,14 +57,23 @@ function CIPPatientHistoryCard({...props}) {
         if (defaultExam) {
             setCReason(defaultExam?.consultation_reasons);
             // set data data from local storage to redux
-            dispatch(
-                SetExam({
-                    ...values
-                })
-            );
+
         }
     }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        dispatch(
+            SetExam({
+                motif: storageData?.motif ? storageData.motif :
+                    (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
+                notes: storageData?.notes ? storageData.notes :
+                    (app_data?.notes ? app_data?.notes.value : ""),
+                diagnosis: storageData?.diagnosis ? storageData.diagnosis :
+                    (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                treatment: exam.treatment,
+            })
+        );
+    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (isStarted) {
             const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
@@ -174,6 +183,13 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("notes")}
                                 </Typography>
                                 {(listen === '' || listen === 'observation') && <>
+                                    {/*<Typography onClick={() => {
+                                        appointement.latestAppointments.map((app: any) => {
+                                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                                            if (note && note.value !== '')
+                                                console.log(app.appointment.dayDate,note.value);
+                                        })
+                                    }}>Voir historique</Typography>*/}
                                     {
                                         listening && isStarted ? <RecondingBoxStyle onClick={() => {
                                             if (intervalref.current) {
