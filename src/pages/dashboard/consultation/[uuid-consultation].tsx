@@ -361,8 +361,9 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (appointement) {
             setPatient(appointement.patient);
-            setFree(appointement.type.code === 3);
-            if (appointement.type.code !== 3) setTotal(consultationFees);
+            const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees=== null);
+            setFree(checkFree);
+            if (!checkFree) setTotal(consultationFees);
             if (appointement.consultation_fees) {
                 setConsultationFees(Number(appointement.consultation_fees));
             }
@@ -462,7 +463,8 @@ function ConsultationInProgress() {
                 form.append("treatment", exam.treatment ? exam.treatment : "");
                 form.append("consultation_reason", exam.motif);
                 form.append("fees", total.toString());
-                form.append("consultation_fees", consultationFees.toString());
+                if (!free)
+                    form.append("consultation_fees", consultationFees.toString());
                 form.append("status", "5");
 
                 trigger({
@@ -719,7 +721,7 @@ function ConsultationInProgress() {
                 uuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${appointement.patient.gender === "F" ? "Mme " : "Mr "} ${
+                patient: `${appointement.patient.gender === "F" ? "Mme " : appointement.patient.gender ==="U"? "":"Mr "} ${
                     appointement.patient.firstName
                 } ${appointement.patient.lastName}`,
                 days: card.days,
@@ -760,7 +762,7 @@ function ConsultationInProgress() {
         info: info,
         detectedType:card.type,
         uuidDoc: uuidDoc,
-        patient: `${patient.gender === "F" ? "Mme " : "Mr "} ${
+        patient: `${patient.gender === "F" ? "Mme " :patient.gender === "U" ?"": "Mr "} ${
           patient.firstName
         } ${patient.lastName}`,
         mutate: mutateDoc,
@@ -896,6 +898,7 @@ function ConsultationInProgress() {
                                     uuind,
                                     agenda: agenda?.uuid,
                                     exam: sheetExam,
+                                    appointement,
                                     mutateDoc,
                                     medical_entity,
                                     session,
@@ -999,7 +1002,7 @@ function ConsultationInProgress() {
                             createdAt: moment().format("DD/MM/YYYY"),
                             consultationFees: free ? 0 : consultationFees,
                             patient: `${
-                              patient.gender === "F" ? "Mme " : "Mr "
+                              patient.gender === "F" ? "Mme " : patient.gender ==="U" ?"": "Mr "
                             } ${patient.firstName} ${patient.lastName}`,
                           });
                           setOpenDialog(true);

@@ -7,11 +7,11 @@ function DocHeader({...props}) {
         <>
             {data && <div style={{display: "grid", gridTemplateColumns: 'repeat(2, 1fr)'}}>
                 <div style={{gridColumn: 1 / 2}}>
-                    <p style={{margin: 0, fontWeight: "bold", color: "#0696D6"}}>{data.left1}</p>
-                    <p style={{margin: 0, fontSize: 12, fontWeight: "bold"}}>{data.left2}</p>
+                    <p style={{margin: 0, fontWeight: "bold",fontSize:26, color: "#0696D6",marginBottom: 5}}>{data.left1}</p>
+                    <p style={{margin: 0, fontSize: 18, fontWeight: "bold"}}>{data.left2}</p>
                     <p style={{
                         margin: 0,
-                        fontSize: 9,
+                        fontSize: 16,
                         fontWeight: "bold",
                         color: "grey",
                         whiteSpace: 'pre-line'
@@ -19,11 +19,11 @@ function DocHeader({...props}) {
                 </div>
                 {/*<div style={{gridColumn: 1/3}}></div>*/}
                 <div style={{textAlign: "right", gridColumn: 1 / 2}}>
-                    <p style={{margin: 0, fontWeight: "bold", color: "#0696D6"}}>{data.right1}</p>
-                    <p style={{margin: 0, fontSize: 12, fontWeight: "bold"}}>{data.right2}</p>
+                    <p style={{margin: 0, fontWeight: "bold", color: "#0696D6",fontSize:26}}>{data.right1}</p>
+                    <p style={{margin: 0, fontSize: 18, fontWeight: "bold"}}>{data.right2}</p>
                     <p style={{
                         margin: 0,
-                        fontSize: 9,
+                        fontSize: 16,
                         fontWeight: "bold",
                         color: "grey",
                         whiteSpace: 'pre-line'

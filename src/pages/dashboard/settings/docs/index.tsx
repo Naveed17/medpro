@@ -37,7 +37,6 @@ import FileuploadProgress from "../../../../features/fileUploadProgress/componen
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
-import Preview from "@features/files/components/preview";
 import PreviewA4 from "@features/files/components/previewA4";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
@@ -57,9 +56,9 @@ function DocsConfig() {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 140, content: ''},
+        footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 35},
+        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 155},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA5',
         content: {
@@ -160,7 +159,7 @@ function DocsConfig() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, TriggerWithoutValidation).then(()=>{
+        }, TriggerWithoutValidation).then(() => {
             mutateDocumentHeader();
         })
         enqueueSnackbar(t("updated"), {variant: 'success'})
