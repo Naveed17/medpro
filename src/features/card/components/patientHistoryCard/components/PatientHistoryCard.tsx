@@ -8,6 +8,8 @@ import moment from "moment/moment";
 import {SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import {Browser} from "leaflet";
+import pointer = Browser.pointer;
 function PatientHistoryCard({...props}) {
     const {keyID, data, appuuid, selectedApp, dispatch, t, children} = props;
     const theme: Theme = useTheme();
@@ -47,6 +49,7 @@ function PatientHistoryCard({...props}) {
                         display="flex"
                         alignItems="center"
                         component="div"
+                        sx={{cursor:"pointer"}}
                         fontWeight={600}>
                         <Icon path={"ic-doc"}/>
                         {!isMobile && capitalize(t("reason_for_consultation"))}{" "}
@@ -60,6 +63,7 @@ function PatientHistoryCard({...props}) {
                         <Typography
                             variant="body2"
                             color="text.secondary"
+                            sx={{cursor:"pointer"}}
                             textTransform={"capitalize"}>
                             {moment(data?.appointment.dayDate, "DD-MM-YYYY").format(
                                 "ddd DD-MM-YYYY"
