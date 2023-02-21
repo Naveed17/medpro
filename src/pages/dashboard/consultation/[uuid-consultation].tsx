@@ -439,7 +439,6 @@ function ConsultationInProgress() {
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
-            const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
             setLoadingReq(true);
             if ([5, 4].includes(appointement?.status)) {
                 selectedAct.map(
@@ -459,10 +458,10 @@ function ConsultationInProgress() {
                     "modal_data",
                     localStorage.getItem("Modeldata" + uuind) as string
                 );
-                form.append("notes", storageData.notes);
-                form.append("diagnostic", storageData.diagnosis);
-                form.append("treatment", storageData.treatment ? storageData.treatment : "");
-                form.append("consultation_reason", storageData.motif);
+                form.append("notes", exam.notes);
+                form.append("diagnostic", exam.diagnosis);
+                form.append("treatment", exam.treatment ? exam.treatment : "");
+                form.append("consultation_reason", exam.motif);
                 form.append("fees", total.toString());
                 if (!free)
                     form.append("consultation_fees", consultationFees.toString());
