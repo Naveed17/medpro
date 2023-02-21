@@ -133,6 +133,10 @@ function DocumentDetailDialog({...props}) {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ft14-text",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+        }, {
+            title: data.patient.show ? 'hidepatient' : 'showpatient',
+            icon: "text-strikethrough",
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
             title: 'settings',
@@ -256,6 +260,11 @@ function DocumentDetailDialog({...props}) {
             case "hidetitle":
             case "showtitle":
                 data.title.show = !data.title.show
+                setData({...data})
+                break;
+            case "hidepatient":
+            case "showpatient":
+                data.patient.show = !data.patient.show
                 setData({...data})
                 break;
             case "download":
