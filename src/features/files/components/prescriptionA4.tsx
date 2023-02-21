@@ -47,7 +47,7 @@ const Prescription = ({...props}) => {
                         }}
                                    defaultPosition={{x: data.title.x, y: data.title.y}}
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "100%", border: '0 solid red', textAlign: "center", height: '6mm'}}>
+                            <div style={{width: "100%", fontWeight:"bold", textAlign: "center", height: '6mm'}}>
                                 {data.title.show && <div
                                     className="handle">{state && state.title ? state.title : title}</div>}
                             </div>
