@@ -132,7 +132,7 @@ function FeesTab({...props}) {
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(ev) => {
                                                 setConsultationFees(Number(ev.target.value))
-                                                localStorage.setItem("consultation-fees", ev.target.value);
+                                                localStorage.setItem("consultation-fees", Number(ev.target.value).toString());
                                             }}
                                         />
                                         <Typography color={"gray"} fontSize={12}>{devise}</Typography>

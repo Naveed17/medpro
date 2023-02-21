@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {Autocomplete, Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -17,7 +17,7 @@ import {pxToRem} from "@themes/formatFontSize";
 import RecondingBoxStyle from './overrides/recordingBoxStyle';
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
+    const {exam: defaultExam, changes, setChanges, uuind, appointement} = props
     const {exam, listen} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
@@ -174,6 +174,13 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("notes")}
                                 </Typography>
                                 {(listen === '' || listen === 'observation') && <>
+                                    {/*<Typography onClick={() => {
+                                        appointement.latestAppointments.map((app: any) => {
+                                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                                            if (note && note.value !== '')
+                                                console.log(app.appointment.dayDate,note.value);
+                                        })
+                                    }}>Voir historique</Typography>*/}
                                     {
                                         listening && isStarted ? <RecondingBoxStyle onClick={() => {
                                             if (intervalref.current) {
