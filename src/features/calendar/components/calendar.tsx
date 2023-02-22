@@ -26,7 +26,7 @@ import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     AddAppointmentCardData,
-    agendaSelector, AppointmentStatus,
+    agendaSelector,
     CalendarContextMenu, DayOfWeek,
     Event,
     Header, setCurrentDate, setView, SlotFormat,
