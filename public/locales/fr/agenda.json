@@ -1,6 +1,11 @@
 {
   "pending": "Rdv en attente",
+  "enter-waiting-room": "Ajouter à la salle d’attente",
+  "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
+  "view": "Voir détails",
+  "manage": "Gérer",
+  "confirm": "Confirmer RDV",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
   "side-bar": {

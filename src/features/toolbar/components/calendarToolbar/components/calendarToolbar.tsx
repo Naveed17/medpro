@@ -34,7 +34,16 @@ import {Otable} from "@features/table";
 import {appointmentGroupByDate, appointmentPrepareEvent} from "@app/hooks";
 
 function CalendarToolbar({...props}) {
-    const {OnToday, OnAddAppointment, OnClickDatePrev, OnClickDateNext} = props;
+    const {
+        OnToday,
+        OnAddAppointment,
+        OnClickDatePrev,
+        OnClickDateNext,
+        OnSelectEvent,
+        OnMoveEvent,
+        OnWaitingRoom,
+        OnConfirmEvent
+    } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
     let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
@@ -52,10 +61,28 @@ function CalendarToolbar({...props}) {
     ];
 
     const [pendingDialog, setPendingDialog] = useState(false);
+
     const handleViewChange = (view: string) => {
         dispatch(setView(view));
     }
 
+    const handleTableEvent = (action: string, eventData: EventModal) => {
+        setPendingDialog(false);
+        switch (action) {
+            case "showEvent":
+                OnSelectEvent(eventData);
+                break;
+            case "waitingRoom":
+                OnWaitingRoom(eventData);
+                break;
+            case "confirmEvent":
+                OnConfirmEvent(eventData);
+                break;
+            case "moveEvent":
+                OnMoveEvent(eventData);
+                break;
+        }
+    };
     useEffect(() => {
         pendingEvents.current = [];
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
@@ -238,9 +265,7 @@ function CalendarToolbar({...props}) {
                     {...{t}}
                     maxHeight={`calc(100vh - 180px)`}
                     headers={TableHead}
-                    handleEvent={(action: string, eventData: EventModal) =>
-                        console.log(action, eventData)
-                    }
+                    handleEvent={handleTableEvent}
                     rows={appointmentGroupByDate(pendingEvents.current)}
                     from={"calendar"}
                 />}

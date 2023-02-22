@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Button, useTheme, Stack} from "@mui/material";
+import {Typography, Box, useTheme, Stack, Tooltip} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
@@ -20,7 +20,7 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 
 function CalendarRow({...props}) {
-    const {row, handleEvent, data, refHeader} = props;
+    const {row, handleEvent, data, refHeader, t} = props;
     const {spinner} = data;
 
     const dispatch = useAppDispatch();
@@ -237,63 +237,86 @@ function CalendarRow({...props}) {
                         </Box> : "--"}
                     </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
-                        {moment(data?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
-                            <>
-                                {data?.status.key !== "WAITING_ROOM" ?
+                        <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>
+                            {data?.status?.key === "PENDING" &&
+                                <>
                                     <LoadingButton
-                                        variant="text"
-                                        color="primary"
-                                        {...{loading}}
-                                        size="small"
+                                        loading={spinner}
                                         sx={{mr: 1}}
-                                        {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                        onClick={() => {
-                                            setLoading(true);
-                                            handleEventClick("waitingRoom", data)
-                                        }}
-                                    >
-                                        <Icon color={spinner ? "white" : theme.palette.primary.main}
-                                              path="ic-salle"/> {!sideBarOpened && <span
-                                        style={{marginLeft: "5px"}}>Ajouter à la salle d’attente</span>}
+                                        onClick={() => handleEventClick("confirmEvent", data)}
+                                        {...(sideBarOpened && {sx: {minWidth: 120}})}
+                                        variant="contained"
+                                        color="success"
+                                        size="small">
+                                        <span style={{marginLeft: "5px"}}>{t("confirm")}</span>
                                     </LoadingButton>
-                                    :
                                     <LoadingButton
-                                        {...{loading}}
-                                        variant="text"
-                                        color="primary"
-                                        size="small"
+                                        loading={spinner}
                                         sx={{mr: 1}}
-                                        {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                        onClick={() => {
-                                            setLoading(true);
-                                            handleEventClick("leaveWaitingRoom", data)
-                                        }}
-                                    >
-                                        <Icon color={theme.palette.primary.main}
-                                              path="ic-salle-leave"/> {!sideBarOpened &&
-                                        <span
-                                            style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
-                                    </LoadingButton>}
-                            </>
-                        }
+                                        onClick={() => handleEventClick("moveEvent", data)}
+                                        {...(sideBarOpened && {sx: {minWidth: 120}})}
+                                        variant="contained"
+                                        color="white"
+                                        size="small">
+                                        <span style={{marginLeft: "5px"}}>{t("manage")}</span>
+                                    </LoadingButton>
+                                </>}
 
-                        <Button sx={{mr: 1}} onClick={() => handleEventClick("confirmEvent", data)}
-                                {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                variant="contained"
-                                color="success"
-                                size="small">
-                            <Icon path="ic-check"/> {!sideBarOpened &&
-                            <span style={{marginLeft: "5px"}}>Confirmer RDV</span>}
-                        </Button>
-
-                        <Button onClick={() => handleEventClick("showEvent", data)}
-                                {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                variant="text"
-                                color="primary"
-                                size="small">
-                            <Icon path="setting/edit"/> {!sideBarOpened &&
-                            <span style={{marginLeft: "5px"}}>Voir détails</span>}
-                        </Button>
+                            {moment(data?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
+                                <>
+                                    {data?.status.key !== "WAITING_ROOM" ?
+                                        <Tooltip title={t("enter-waiting-room")}>
+                                            <LoadingButton
+                                                variant="text"
+                                                color="primary"
+                                                {...{loading}}
+                                                size="small"
+                                                sx={{mr: 1}}
+                                                {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                                onClick={() => {
+                                                    setLoading(true);
+                                                    handleEventClick("waitingRoom", data)
+                                                }}
+                                            >
+                                                <Icon color={spinner ? "white" : theme.palette.primary.main}
+                                                      path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
+                                                <span
+                                                    style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
+                                            </LoadingButton>
+                                        </Tooltip>
+                                        :
+                                        <LoadingButton
+                                            {...{loading}}
+                                            variant="text"
+                                            color="primary"
+                                            size="small"
+                                            sx={{mr: 1}}
+                                            {...(sideBarOpened && {sx: {minWidth: 40}})}
+                                            onClick={() => {
+                                                setLoading(true);
+                                                handleEventClick("leaveWaitingRoom", data)
+                                            }}
+                                        >
+                                            <Icon color={theme.palette.primary.main}
+                                                  path="ic-salle-leave"/> {!sideBarOpened &&
+                                            <span
+                                                style={{marginLeft: "5px"}}>{t("leave-waiting-room")}</span>}
+                                        </LoadingButton>}
+                                </>
+                            }
+                            <Tooltip title={t("view")}>
+                                <LoadingButton
+                                    loading={spinner}
+                                    onClick={() => handleEventClick("showEvent", data)}
+                                    {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                    variant="text"
+                                    color="primary"
+                                    size="small">
+                                    <Icon path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
+                                    <span style={{marginLeft: "5px"}}>{t("view")}</span>}
+                                </LoadingButton>
+                            </Tooltip>
+                        </Stack>
                     </TableCell>
                 </TableRowStyled>
 
