@@ -1014,6 +1014,7 @@ function ConsultationInProgress() {
                   </Stack>
                 )}
                   <LoadingButton
+                      disabled={loading}
                       loading={loadingReq}
                       loadingPosition={"start"}
                       onClick={
