@@ -1,3 +1,11 @@
+## [4.12.1](https://github.com/SmartMedSA/med-pro/compare/v4.12.0...v4.12.1) (2023-02-22)
+
+
+### Bug Fixes
+
+* clean code ([57afb0c](https://github.com/SmartMedSA/med-pro/commit/57afb0ca8440238ee66ee8c38aad0a10d16bb729))
+* context menu data ([b22ad75](https://github.com/SmartMedSA/med-pro/commit/b22ad75b3042a891c7dadf587afd78fcef67ccce))
+
 # [4.12.0](https://github.com/SmartMedSA/med-pro/compare/v4.11.0...v4.12.0) (2023-02-22)
 
 
