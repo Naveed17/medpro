@@ -33,10 +33,9 @@ declare module "@mui/material/Button" {
     }
 
     interface ButtonPropsColorOverrides {
-        text: true
+        text: true,
+        white: true;
     }
-
-
 }
 
 declare module "@mui/material/CircularProgress" {

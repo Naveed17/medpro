@@ -33,7 +33,6 @@ import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
-    AppointmentStatus,
     DayOfWeek,
     openDrawer, setCurrentDate, setGroupedByDayAppointments,
     setSelectedEvent,
@@ -493,6 +492,8 @@ function Agenda() {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 dispatch(setOngoing({waiting_room: waiting_room + 1}));
+                // update pending notifications status
+                config?.mutate[1]();
             });
     }
 
@@ -831,8 +832,14 @@ function Agenda() {
                     }
                 }}>
                 <CalendarToolbar
+                    {...{t}}
                     OnToday={handleOnToday}
+                    OnSelectEvent={onSelectEvent}
+                    OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
+                    OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
+                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
                     OnClickDateNext={handleClickDateNext}
+                    OnTableEvent={handleClickDateNext}
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
@@ -884,9 +891,11 @@ function Agenda() {
                                     }}
                                     OnInit={onLoadCalendar}
                                     OnAddAppointment={handleAddAppointment}
+                                    OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
                                     OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
                                     OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
                                     OnSelectEvent={onSelectEvent}
+                                    OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                                     OnEventChange={onEventChange}
                                     OnMenuActions={onMenuActions}
                                     OnSelectDate={onSelectDate}

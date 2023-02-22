@@ -58,6 +58,8 @@ function Calendar({...props}) {
         sortedData,
         OnInit,
         OnLeaveWaitingRoom,
+        OnConfirmEvent,
+        OnMoveEvent,
         OnWaitingRoom,
         OnViewChange = null,
         OnAddAppointment,
@@ -217,6 +219,12 @@ function Calendar({...props}) {
                 break;
             case "leaveWaitingRoom":
                 OnLeaveWaitingRoom(eventData);
+                break;
+            case "confirmEvent":
+                OnConfirmEvent(eventData);
+                break;
+            case "moveEvent":
+                OnMoveEvent(eventData);
                 break;
         }
     };
