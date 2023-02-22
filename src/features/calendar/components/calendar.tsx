@@ -506,7 +506,14 @@ function Calendar({...props}) {
                                         <IconButton
                                             key={uniqueId()}
                                             onClick={() => {
-                                                OnMenuActions(v.action, eventMenu);
+                                                const appointment = events.find(event => event.id === eventMenu) as EventModal;
+                                                const event = {
+                                                    publicId: appointment.id,
+                                                    extendedProps: {
+                                                        ...appointment
+                                                    }
+                                                }
+                                                OnMenuActions(v.action, event);
                                                 handleClose();
                                             }}
                                             className="popover-item"
