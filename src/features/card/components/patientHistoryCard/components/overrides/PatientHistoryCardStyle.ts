@@ -1,10 +1,10 @@
 import { styled } from '@mui/material/styles';
 import { Card } from '@mui/material';
 const CIPPatientHistoryCardStyled = styled(Card)(({ theme }) => ({
-    borderRadius:3,
+    borderRadius:10,
     '& .card-header': {
         backgroundColor: theme.palette.text.secondary,
-        padding: "0 15px",
+        padding: "5px 15px",
         '.MuiTypography-root': {
             color: theme.palette.common.white,
             svg: {

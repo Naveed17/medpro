@@ -1,5 +1,6 @@
 import {RootStyled} from "@features/toolbar";
 import {
+    Badge,
     Box,
     Button,
     Hidden,
@@ -10,7 +11,7 @@ import {
     useTheme
 } from "@mui/material";
 
-import React from "react";
+import React, {MutableRefObject, useEffect, useRef, useState} from "react";
 import {useTranslation} from "next-i18next";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
@@ -19,21 +20,38 @@ import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, setView} from "@features/calendar";
+import {agendaSelector, setView, TableHead} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {LoadingScreen} from "@features/loadingScreen";
+import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
+import {Dialog} from "@features/dialog";
+import {configSelector} from "@features/base";
+import {Otable} from "@features/table";
+import {appointmentGroupByDate, appointmentPrepareEvent} from "@app/hooks";
 
 function CalendarToolbar({...props}) {
-    const {OnToday, OnAddAppointment, OnClickDatePrev, OnClickDateNext} = props;
+    const {
+        OnToday,
+        OnAddAppointment,
+        OnClickDatePrev,
+        OnClickDateNext,
+        OnSelectEvent,
+        OnMoveEvent,
+        OnWaitingRoom,
+        OnConfirmEvent
+    } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
     const isRTL = theme.direction === "rtl";
 
-    const {view, currentDate} = useAppSelector(agendaSelector);
+    const {t, ready} = useTranslation('agenda');
+    const {direction} = useAppSelector(configSelector);
+    const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
 
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
@@ -42,11 +60,34 @@ function CalendarToolbar({...props}) {
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
+    const [pendingDialog, setPendingDialog] = useState(false);
+
     const handleViewChange = (view: string) => {
         dispatch(setView(view));
     }
 
-    const {t, ready} = useTranslation('agenda');
+    const handleTableEvent = (action: string, eventData: EventModal) => {
+        setPendingDialog(false);
+        switch (action) {
+            case "showEvent":
+                OnSelectEvent(eventData);
+                break;
+            case "waitingRoom":
+                OnWaitingRoom(eventData);
+                break;
+            case "confirmEvent":
+                OnConfirmEvent(eventData);
+                break;
+            case "moveEvent":
+                OnMoveEvent(eventData);
+                break;
+        }
+    };
+    useEffect(() => {
+        pendingEvents.current = [];
+        pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
+    }, [pendingAppointments]);
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -97,6 +138,19 @@ function CalendarToolbar({...props}) {
                                 {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
+
+                        {pendingAppointments.length > 0 &&
+                            <Button sx={{ml: 2, p: "6px 12px"}}
+                                    onClick={() => setPendingDialog(true)}
+                                    startIcon={<PendingTimerIcon/>}
+                                    endIcon={<Badge
+                                        sx={{m: 1}}
+                                        badgeContent={pendingAppointments.length}
+                                        color="warning"
+                                    />}
+                                    variant={"contained"}>
+                                {t("pending")}
+                            </Button>}
                     </Box>
                 </Hidden>
 
@@ -192,6 +246,34 @@ function CalendarToolbar({...props}) {
                     />
                 </Stack>
             </Hidden>
+
+            <Dialog
+                size={"lg"}
+                sx={{
+                    [theme.breakpoints.down('sm')]: {
+                        "& .MuiDialogContent-root": {
+                            padding: 1
+                        }
+                    }
+                }}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    setPendingDialog(false);
+                }}
+                action={() => <Otable
+                    {...{t}}
+                    maxHeight={`calc(100vh - 180px)`}
+                    headers={TableHead}
+                    handleEvent={handleTableEvent}
+                    rows={appointmentGroupByDate(pendingEvents.current)}
+                    from={"calendar"}
+                />}
+                dir={direction}
+                open={pendingDialog}
+                title={t(`dialogs.pending-dialog.title`)}
+            />
+
         </RootStyled>
     );
 }

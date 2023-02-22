@@ -260,7 +260,7 @@ function Consultation() {
                   {name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {patient?.birthdate} {patient && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
+                  {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
                 </Typography>
 
                                 {number && (

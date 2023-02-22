@@ -210,12 +210,14 @@ function PreviewDialog({...props}) {
                 const elx = document.createElement("table");
                 elx.style.width =  '190mm'
 
-                const header = document.createElement("tr");
-                header.innerHTML = `<td style="text-align: left !important;">ACTE</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
-                header.style.fontSize = "12px"
-                header.style.fontWeight = "bold"
-                header.style.textAlign = "center"
-                elx.appendChild(header)
+                if (rows.length > 0) {
+                    const header = document.createElement("tr");
+                    header.innerHTML = `<td style="text-align: left !important;">Titre</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
+                    header.style.fontSize = "12px"
+                    header.style.fontWeight = "bold"
+                    header.style.textAlign = "center"
+                    elx.appendChild(header)
+                }
 
                 if (state.consultationFees > 0) {
                     const line = document.createElement("tr");

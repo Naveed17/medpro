@@ -247,6 +247,8 @@
     "hide": "Masquer en-tête",
     "showtitle": "Afficher le titre",
     "hidetitle": "Masquer le titre",
+    "showpatient": "Afficher nom patient",
+    "hidepatient": "Masquer patient",
     "share": "Partager",
     "download": "Télécharger",
     "delete": "Supprimer",
