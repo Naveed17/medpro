@@ -1,3 +1,34 @@
+# [4.12.0](https://github.com/SmartMedSA/med-pro/compare/v4.11.0...v4.12.0) (2023-02-22)
+
+
+### Bug Fixes
+
+* agenda context menu ([bf0b854](https://github.com/SmartMedSA/med-pro/commit/bf0b854423db61fbfa536e9b6f4ab70c0684ebe9))
+* dialog pending appointment translation ([01cef1e](https://github.com/SmartMedSA/med-pro/commit/01cef1e36934d64570f632906979984417453f74))
+* docs filters ([7465a40](https://github.com/SmartMedSA/med-pro/commit/7465a4032933e6b2c1a148ec2e37f1d3db110baf))
+* edit note ([31143e0](https://github.com/SmartMedSA/med-pro/commit/31143e0817f29e9835ccf1bd412d5346334d248f))
+* edit note ([d8d7ce2](https://github.com/SmartMedSA/med-pro/commit/d8d7ce2168775b62e5abd9022e9fdb428e04f16c))
+* edit patient ([f43958f](https://github.com/SmartMedSA/med-pro/commit/f43958fd0cd753cd2615574f2d91df14e3283ffc))
+* fix conflicts ([b02397f](https://github.com/SmartMedSA/med-pro/commit/b02397f918fbeaab59e48fa888833608bdfc8087))
+* footer document ([8789d23](https://github.com/SmartMedSA/med-pro/commit/8789d23b7c2be6b31d0f52b791facd009c4e9809))
+* free consultation changes ([29a115e](https://github.com/SmartMedSA/med-pro/commit/29a115e959c6587b04ff86262e65578b8253de3d))
+* Handle age calculation under 2 years ([2f134a3](https://github.com/SmartMedSA/med-pro/commit/2f134a3fad474769b2a9ab5635b624671cf2ac2c))
+* Handle age calculation under 2 years ([b76d195](https://github.com/SmartMedSA/med-pro/commit/b76d195ad3d57551a3df85349b169f1870ea310c))
+* inspect-let turn on develop ([15c6ddd](https://github.com/SmartMedSA/med-pro/commit/15c6ddd3d023bc089aaaab8e837ecd352b2030a4))
+* patient prefix ([19ec92a](https://github.com/SmartMedSA/med-pro/commit/19ec92a2c94c2802057eb91cca0a3899cc94e9e9))
+* send notification only on en consultation ([495a983](https://github.com/SmartMedSA/med-pro/commit/495a983ed9a9c7c1178b10ae0d6eeea8d96aba7f))
+* undefined gender ([8e576ac](https://github.com/SmartMedSA/med-pro/commit/8e576acafed4c0d23291967581f522b2c4a1a102))
+
+
+### Features
+
+* confirm pending appointment ([fbc24e2](https://github.com/SmartMedSA/med-pro/commit/fbc24e24200d1d4e56611d1d64d216103a7bc5b4))
+* hide patient name config doc ([1f48774](https://github.com/SmartMedSA/med-pro/commit/1f48774058f4545500fbf2867dedc099f91ff710))
+* integrate inspect-let ([dccca6d](https://github.com/SmartMedSA/med-pro/commit/dccca6d103f81995cc8865f59f6bf49d86602ada))
+* pending appointment dialog ([da3846c](https://github.com/SmartMedSA/med-pro/commit/da3846c118bca092f18bfb28ff6e91a264c54eab))
+* pending appointment dialog actions ([5cb7969](https://github.com/SmartMedSA/med-pro/commit/5cb79690756537298d24ca073432b8f226a687d6))
+* update fullcalendar dependency ([669d716](https://github.com/SmartMedSA/med-pro/commit/669d716cbfb04e505f105eb6058d5f55c2d3d161))
+
 # [4.11.0](https://github.com/SmartMedSA/med-pro/compare/v4.10.2...v4.11.0) (2023-02-16)
 
 
