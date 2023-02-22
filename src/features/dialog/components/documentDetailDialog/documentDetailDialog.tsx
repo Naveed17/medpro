@@ -247,7 +247,7 @@ function DocumentDetailDialog({...props}) {
                         dispatch(SetSelectedDialog({
                             action: 'write_certif',
                             state: state,
-                            uuid: state.uuid
+                            uuid: state.certifUuid
                         }))
                         break;
                 }
