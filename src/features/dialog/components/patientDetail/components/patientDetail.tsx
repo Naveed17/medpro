@@ -34,6 +34,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
+import {openDrawer} from "@features/calendar";
 
 function a11yProps(index: number) {
     return {
@@ -156,6 +157,7 @@ function PatientDetail({...props}) {
     }
 
     const closePatientDialog = () => {
+        dispatch(openDrawer({type: "patient", open: false}));
         dispatch(onOpenPatientDrawer({patientId: ""}));
         onCloseDialog(false);
     }
