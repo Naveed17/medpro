@@ -90,6 +90,7 @@ function HistoryPanel({...props}) {
             setState({
                 uuid: card.uuid,
                 content: card.certificate[0].content,
+                certifUuid : card.certificate[0].uuid,
                 doctor: card.name,
                 patient: card.patient,
                 description: card.description,
