@@ -8,16 +8,16 @@ import moment from "moment/moment";
 import {SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {Browser} from "leaflet";
-import pointer = Browser.pointer;
+
 function PatientHistoryCard({...props}) {
-    const {keyID, data, appuuid, selectedApp, dispatch, t, children} = props;
+    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null} = props;
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const router = useRouter();
 
     const handleConsultation = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
+        closePatientDialog && closePatientDialog();
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale});
     }
@@ -49,7 +49,7 @@ function PatientHistoryCard({...props}) {
                         display="flex"
                         alignItems="center"
                         component="div"
-                        sx={{cursor:"pointer"}}
+                        sx={{cursor: "pointer"}}
                         fontWeight={600}>
                         <Icon path={"ic-doc"}/>
                         {!isMobile && capitalize(t("reason_for_consultation"))}{" "}
@@ -63,7 +63,7 @@ function PatientHistoryCard({...props}) {
                         <Typography
                             variant="body2"
                             color="text.secondary"
-                            sx={{cursor:"pointer"}}
+                            sx={{cursor: "pointer"}}
                             textTransform={"capitalize"}>
                             {moment(data?.appointment.dayDate, "DD-MM-YYYY").format(
                                 "ddd DD-MM-YYYY"
