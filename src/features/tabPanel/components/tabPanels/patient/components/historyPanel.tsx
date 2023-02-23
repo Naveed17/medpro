@@ -30,7 +30,7 @@ import Image from "next/image";
 import moment from "moment/moment";
 
 function HistoryPanel({...props}) {
-    const {previousAppointmentsData: previousAppointments, patient, mutate} = props;
+    const {previousAppointmentsData: previousAppointments, patient, mutate, closePatientDialog} = props;
 
     const {selectedApp} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
@@ -170,7 +170,7 @@ function HistoryPanel({...props}) {
                 <Stack spacing={2}>
                     {previousAppointments && previousAppointments.map((app: any) => (
                         <PatientHistoryCard
-                            {...{selectedApp, t, dispatch}}
+                            {...{selectedApp, t, dispatch, closePatientDialog}}
                             key={app.appointment.uuid}
                             keyID={app.appointment.uuid}
                             data={app}>

@@ -38,7 +38,7 @@
     "@mui/utils": "^5.8.0",
     "@mui/x-date-pickers": "^5.0.17",
     "@reduxjs/toolkit": "^1.8.1",
-    "@sentry/nextjs": "^7.1.1",
+    "@sentry/nextjs": "^7.38.0",
     "@thaddeusjiang/react-sortable-list": "^0.0.3",
     "@types/ckeditor__ckeditor5-export-pdf": "^31.0.0",
     "@types/inspectlet-es": "^1.0.0",

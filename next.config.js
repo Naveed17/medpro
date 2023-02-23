@@ -21,6 +21,9 @@ const nextConfig = withTM({
     images: {
         domains: ["flagcdn.com", process.env.S3_URL || '']
     },
+    sentry: {
+        hideSourceMaps: process.env.NODE_ENV !== 'development'
+    },
     webpack: (config, {nextRuntime}) => {
         config.module.rules.push({
             test: /\.svg$/,

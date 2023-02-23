@@ -48,5 +48,5 @@ yarn-error.log*
 .sentryclirc
 
 # pwa
-/public/sw.js
+/public/sw.*
 /public/workbox-*
