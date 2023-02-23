@@ -43,3 +43,10 @@ yarn-error.log*
 
 # Waypoint
 .wpoutputs/
+
+# Sentry
+.sentryclirc
+
+# pwa
+/public/sw.js
+/public/workbox-*
