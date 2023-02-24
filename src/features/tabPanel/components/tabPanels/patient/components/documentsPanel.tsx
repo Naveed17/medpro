@@ -98,8 +98,7 @@ function DocumentsPanel({...props}) {
                                     onClick={() => {
                                         showDoc(card)
                                     }}
-                                    date={true}
-                                    {...{t}} data={card}/>
+                                    {...{t,data:card,date:true,time:true,title:true}}/>
                             </React.Fragment>
                         )
                     :
@@ -165,8 +164,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
-                                        date={true}
-                                        {...{t}} data={card}/>
+                                        {...{t,data:card,date:true,time:true,title:true}}/>
                                 </React.Fragment>
                             )
                             :

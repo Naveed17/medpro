@@ -22,6 +22,7 @@
     "listen": "Ecoutez",
     "writenote": "Écrivez vos notes ici...",
     "allergic": "Allergies",
+    "emptydoc": "Cliquez sur \"+\" pour ajouter un nouveau document",
     "family_antecedents": "Antécédents familiaux",
     "medical_antecedents": "Antécédents médicaux",
     "surgical_antecedents": "Antécédents chirurgicaux",

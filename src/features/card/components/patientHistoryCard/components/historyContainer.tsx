@@ -133,7 +133,7 @@ function HistoryContainer({...props}) {
         trigger(
             {
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
+                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     ContentType: "application/x-www-form-urlencoded",

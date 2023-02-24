@@ -1,13 +1,15 @@
 import {createReducer} from "@reduxjs/toolkit";
-import {onAddPatient, onResetPatient, onSubmitPatient} from "./actions";
+import {onAddPatient, onResetPatient, onSubmitPatient, setOpenUploadDialog} from "./actions";
 import AddPatient from "@interfaces/AddPatient";
 import {DefaultCountry} from "@app/constants";
 
 export type MenuState = {
+    openUploadDialog:boolean;
     stepsData: AddPatient;
 };
 
 export const initialPatientState: MenuState = {
+    openUploadDialog: false,
     stepsData: {
         step1: {
             picture: {url: "", file: ""},
@@ -46,7 +48,10 @@ export const addPatientReducer = createReducer(initialPatientState, (builder) =>
         state.stepsData = action.payload;
     }).addCase(onSubmitPatient, (state, action) => {
         state.stepsData.submit = action.payload;
-    }).addCase(onResetPatient, (state, action) => {
-        return {...state, ...initialPatientState}
-    });
+    }).addCase(setOpenUploadDialog, (state, action) => {
+        state.openUploadDialog = action.payload;
+    })
+        .addCase(onResetPatient, (state, action) => {
+            return {...state, ...initialPatientState}
+        });
 });
