@@ -2,7 +2,7 @@
   <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med.tn">
 </p>
 
-# Med Pro
+# Med Link
 NextJS app. Frontend for SmartMedSA/med-pro
 
 ### Environment URLs
