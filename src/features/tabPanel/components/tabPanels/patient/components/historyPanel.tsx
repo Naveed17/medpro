@@ -126,6 +126,7 @@ function HistoryPanel({...props}) {
                         <React.Fragment key={`app-el-${appID}`}>
                             <HistoryContainer {...{
                                 app,
+                                closePatientDialog,
                                 apps,
                                 setApps,
                                 appID,
