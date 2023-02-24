@@ -28,12 +28,12 @@ const PaperStyled = styled(Form)(({ theme }) => ({
   borderRadius: 0,
   border: "none",
   minWidth: "650px",
+  height: "100%",
   boxShadow: theme.customShadows.motifDialog,
   padding: theme.spacing(2),
   paddingBottom: theme.spacing(0),
   [theme.breakpoints.down("md")]: {
     minWidth: "100%",
-    height: "100%",
   },
   "& .container": {
     maxHeight: 680,
@@ -51,12 +51,12 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     marginTop: theme.spacing(2),
     marginLeft: theme.spacing(-2),
     marginRight: theme.spacing(-2),
-    position: "sticky",
+    position: "absolute",
     bottom: 0,
+    width: "100%",
     borderTop: `3px solid ${theme.palette.grey["A700"]}`,
     [theme.breakpoints.down("md")]: {
-      position: "fixed",
-      width: "100%",
+      position: "fixed"
     },
   },
 }));
@@ -119,7 +119,7 @@ function EditMotifDialog({ ...props }) {
     initialValues: {
       name: props.data ? (props.data.name as string) : "",
       color: props.data ? (props.data.color as string) : "#0696D6",
-      duration: props.data ? props.data.duration : "",
+      duration: props.data ? props.data.duration : "15",
       minimumDelay: props.data ? props.data.minimumDelay : "",
       maximumDelay: props.data ? props.data.maximumDelay : "",
       //typeOfMotif: typesUiids,
@@ -390,7 +390,7 @@ function EditMotifDialog({ ...props }) {
                         </CardContent>
                     </Card>
                 </Box>*/}
-        <Box mt={2}>
+{/*        <Box mt={2}>
           <Typography
             variant="body1"
             fontWeight={400}
@@ -427,33 +427,10 @@ function EditMotifDialog({ ...props }) {
               ))}
             </CardContent>
           </Card>
-          {/*<Card>
-                        <CardContent>
-                            <Typography gutterBottom margin={'16px 0'}>{t('motif.dialog.selectCalander')}</Typography>
-                            <Grid container spacing={2}>
-                                {values.doctor.map((doctor, index) => (
-                                    <Grid key={index} item xs={12} lg={6}>
-                                        <RadioTextImage
-                                            doctor={doctor}
-                                            onChange={(v: any) => {
-                                                const newArr = values.doctor.map(obj => {
-                                                    if (obj.id === v.id) {
-                                                        return {...obj, selected: !v.selected};
-                                                    }
-                                                    return obj;
-                                                });
-                                                setFieldValue('doctor', newArr)
-                                            }}
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </CardContent>
-                    </Card>*/}
+
         </Box>
 
-        <div style={{ height: 70 }}></div>
+        <div style={{ height: 70 }}></div>*/}
 
         <Stack
           className="bottom-section"
