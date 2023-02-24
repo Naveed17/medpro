@@ -53,6 +53,13 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         overflow: "hidden",
         whiteSpace: "nowrap",
         textOverflow: "ellipsis"
+    },
+    "& .MuiOutlinedInput-root button": {
+        padding: "5px",
+        minHeight: "auto",
+        height: "auto",
+        minWidth: "auto",
+        right: "-0.5rem"
     }
 }));
 

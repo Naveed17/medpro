@@ -1,23 +1,26 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Tab, Tabs} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard} from "@features/card";
+import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
 import {
+    addPatientSelector,
     DocumentsPanel,
-    NotesPanel,
     EventType,
+    HistoryPanel,
     Instruction,
+    NotesPanel,
     PersonalInfoPanel,
+    resetAppointment,
     setAppointmentPatient,
+    setOpenUploadDialog,
     TabPanel,
-    TimeSchedule,
-    resetAppointment, HistoryPanel
+    TimeSchedule
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -81,7 +84,9 @@ function PatientDetail({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
+
+    //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
@@ -151,7 +156,7 @@ function PatientDetail({...props}) {
                 setIsAdd(!isAdd)
                 break;
             case "import-document":
-                setOpenUploadDialog(true);
+                dispatch(setOpenUploadDialog(true));
                 break;
         }
     }
@@ -222,7 +227,13 @@ function PatientDetail({...props}) {
         {
             title: "tabs.history",
             children: <>
-                {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
+                {!previousAppointmentsData ? <Stack spacing={2} padding={2}>
+                    {Array.from({length: 3}).map((_, idx) => (
+                        <React.Fragment key={`${idx}-empty-history`}>
+                            <PatientHistoryNoDataCard/>
+                        </React.Fragment>
+                    ))}
+                </Stack> : previousAppointmentsData && previousAppointmentsData.length > 0 ? (
                     <HistoryPanel {...{
                         t,
                         previousAppointmentsData,
@@ -261,7 +272,10 @@ function PatientDetail({...props}) {
                 documents,
                 roles,
                 documentViewIndex,
-                patient, patientId, setOpenUploadDialog,
+                patient, patientId,
+                setOpenUploadDialog: (ev: boolean) => {
+                    dispatch(setOpenUploadDialog(ev))
+                },
                 mutatePatientDetails,
                 mutatePatientDocuments,
                 patientDocuments, loadingRequest, setLoadingRequest
@@ -348,7 +362,7 @@ function PatientDetail({...props}) {
                         <LoadingButton
                             loading={loadingRequest}
                             loadingPosition="start"
-                            onClick={() => setOpenUploadDialog(true)}
+                            onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
                             style={{color: "black"}}
                             startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</LoadingButton>
@@ -392,16 +406,16 @@ function PatientDetail({...props}) {
                         sx={{minHeight: 400}}
                         title={t("doc_detail_title")}
                         dialogClose={() => {
-                            setOpenUploadDialog(false);
+                            dispatch(setOpenUploadDialog(false));
                         }}
                         onClose={() => {
-                            setOpenUploadDialog(false);
+                            dispatch(setOpenUploadDialog(false));
                         }}
                         actionDialog={
                             <DialogActions>
                                 <Button
                                     onClick={() => {
-                                        setOpenUploadDialog(false);
+                                        dispatch(setOpenUploadDialog(false));
                                     }}
                                     startIcon={<CloseIcon/>}>
                                     {t("add-patient.cancel")}
@@ -410,7 +424,7 @@ function PatientDetail({...props}) {
                                     disabled={loadingFiles}
                                     variant="contained"
                                     onClick={() => {
-                                        setOpenUploadDialog(false);
+                                        dispatch(setOpenUploadDialog(false));
                                         handleUploadDocuments();
                                     }}
                                     startIcon={<SaveRoundedIcon/>}>

@@ -373,10 +373,16 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                     <Grid
                                         className={`datepicker-grid-border ${!editable ? "datepicker-style" : ""}`}
-                                        {...(editable && {
+                                        {...(editable ? {
                                             sx: {
                                                 border: `1px solid ${theme.palette.grey['A100']}`,
-                                                borderRadius: 1
+                                                borderRadius: 1,
+                                            }
+                                        } : {
+                                            sx: {
+                                                "& .MuiOutlinedInput-root button": {
+                                                    display: "none"
+                                                }
                                             }
                                         })}
                                         item md={8} sm={6} xs={6}>
@@ -386,7 +392,6 @@ function PersonalInfo({...props}) {
                                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                 <DatePicker
                                                     readOnly={!editable}
-                                                    disableOpenPicker
                                                     inputFormat={"dd/MM/yyyy"}
                                                     mask="__/__/____"
                                                     value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}

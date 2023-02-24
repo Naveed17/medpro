@@ -32,6 +32,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from '@mui/icons-material/Done';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -60,6 +61,7 @@ function TimeSchedule({...props}) {
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingReq, setLoadingReq] = useState(false);
     const [moreDate, setMoreDate] = useState(moreDateRef.current);
     const [changeTime, setChangeTime] = useState(changeDateRef.current);
     const [time, setTime] = useState("");
@@ -79,15 +81,17 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
+    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
     const {data: httpSlotsResponse, trigger} = useRequestMutation(null, "/calendar/slots");
+
+    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
 
     const onTimeAvailable = useCallback((slots: TimeSlotModel[], time: string) => {
         return slots.find((item: TimeSlotModel) => item.start === time);
@@ -203,6 +207,30 @@ function TimeSchedule({...props}) {
         }
     }
 
+    const addNewReason = (name: string) => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("color", "#0696D6");
+        params.append("duration", "15");
+        params.append("translations", JSON.stringify({
+            fr: name
+        }));
+
+        triggerAddReason({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => mutateReasonsData().then((result: any) => {
+            const {status} = result?.data;
+            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+            if (status === "success") {
+                onChangeReason(reasonsUpdated[0]);
+            }
+            setLoadingReq(false);
+        }));
+    }
+
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const slots = (httpSlotsResponse as HttpResponse)?.data as TimeSlotModel[];
     const locations = agendaConfig?.locations;
@@ -284,54 +312,72 @@ function TimeSchedule({...props}) {
                                 id={"select-reason"}
                                 disabled={!reasons}
                                 autoHighlight
+                                freeSolo
                                 disableClearable
                                 size="small"
                                 value={reasons && reason.length > 0 ? reasons.find(motif => motif.uuid === reason) : ""}
-                                onChange={(e, reason: any) => onChangeReason(reason)}
+                                onChange={(e, newValue: any) => {
+                                    e.stopPropagation();
+                                    if (newValue && newValue.inputValue) {
+                                        // Create a new value from the user input
+                                        addNewReason(newValue.inputValue);
+                                    } else {
+                                        onChangeReason(newValue);
+                                    }
+                                }}
+                                filterOptions={(options, params) => {
+                                    const {inputValue} = params;
+                                    const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                    // Suggest the creation of a new value
+                                    const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
+                                    if (inputValue !== '' && !isExisting) {
+                                        filtered.push({
+                                            inputValue,
+                                            name: `${t('stepper-1.add_reason')} "${inputValue}"`,
+                                        });
+                                    }
+                                    return filtered;
+                                }}
                                 sx={{color: "text.secondary"}}
                                 options={reasons ? reasons : []}
                                 loading={reasons?.length === 0}
-                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                getOptionLabel={(option) => {
+                                    // Value selected with enter, right from the input
+                                    if (typeof option === 'string') {
+                                        return option;
+                                    }
+                                    // Add "xxx" option created dynamically
+                                    if (option.inputValue) {
+                                        return option.inputValue;
+                                    }
+                                    // Regular option
+                                    return option.name;
+                                }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
                                     <MenuItem
                                         {...props}
                                         value={option.uuid}
-                                        key={option.uuid}>
+                                        key={option.uuid ? option.uuid : "-1"}>
                                         {option.name}
                                     </MenuItem>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
+                                                                  InputProps={{
+                                                                      ...params.InputProps,
+                                                                      endAdornment: (
+                                                                          <React.Fragment>
+                                                                              {loadingReq ?
+                                                                                  <CircularProgress color="inherit"
+                                                                                                    size={20}/> : null}
+                                                                              {params.InputProps.endAdornment}
+                                                                          </React.Fragment>
+                                                                      ),
+                                                                  }}
                                                                   placeholder={t("stepper-1.reason-consultation-placeholder")}
                                                                   sx={{paddingLeft: 0}}
                                                                   variant="outlined" fullWidth/>}/>
-                            {/* <Select
-                                labelId="select-reason"
-                                id="select-reason"
-                                value={reason}
-                                displayEmpty
-                                onChange={onChangeReason}
-                                renderValue={selected => {
-                                    if (selected.length === 0) {
-                                        return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
-                                    }
-
-                                    const motif = reasons?.find(reason => reason.uuid === selected);
-                                    return (
-                                        <Box sx={{display: "inline-flex"}}>
-                                            <Typography>{motif?.name}</Typography>
-                                        </Box>
-
-                                    )
-                                }}
-                            >
-                                {reasons?.map((consultationReason) => (
-                                    <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
-                                        {consultationReason.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>*/}
                         </FormControl>
                     </Grid>
                 </Grid>

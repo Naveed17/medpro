@@ -111,7 +111,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "black"}
+                                style: {color: "black",marginBottom:0}
                             })
 
                             if (el.note) {
@@ -120,7 +120,7 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "gray", fontSize: "10px"}
+                                    style: {color: "gray", fontSize: "18px",marginTop:0}
                                 })
                             }
 
