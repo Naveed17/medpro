@@ -1,13 +1,14 @@
-import {Card, CardContent, Stack, Typography} from '@mui/material'
+import {CardContent, Stack, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import moment from "moment/moment";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventRoundedIcon from '@mui/icons-material/EventRounded';
+
 function DocumentCard({...props}) {
     //const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick, t,date} = props;
+    const {data, onClick, t, date, title, time} = props;
     /*const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -21,9 +22,10 @@ function DocumentCard({...props}) {
     };*/
     return (
         <>
-            {data.documentType !== "photo" && <DocumentCardStyled className={"document-card"}>
-                <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
-                    {/*  <Stack direction="row" alignItems="center" justifyContent="end">
+            {data.documentType !== "photo" &&
+                <DocumentCardStyled className={"document-card"}>
+                    <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
+                        {/*  <Stack direction="row" alignItems="center" justifyContent="end">
 
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
 
@@ -69,57 +71,95 @@ function DocumentCard({...props}) {
 
                 </Stack>
                 */}
-                    <Stack spacing={2}
-                           direction={"row"}
-                           className="document-detail"
-                           alignItems="center">
-                        <IconUrl width={"20"} height={"20"} path={
-                            data.documentType === "prescription" && "ic-traitement" ||
-                            data.documentType == "requested-analysis" && "ic-analyse" ||
-                            data.documentType == "analyse" && "ic-analyse" ||
-                            data.documentType == "medical-imaging" && "ic-soura" ||
-                            data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                            data.documentType === "photo" && "ic-img" ||
-                            data.documentType === "audio" && "ic-son" ||
-                            data.documentType === "Rapport" && "ic-text" ||
-                            data.documentType === "medical-certificate" && "ic-text" ||
-                            data.documentType === "video" && "ic-video-outline" ||
-                            data.documentType !== "prescription" && "ic-pdf" || ""
-                        }/>
-                        <Stack direction={"column"}>
-                            <Typography className={"sub-title"} variant='subtitle2'
-                                        whiteSpace={"nowrap"}
-                                        style={{cursor:"pointer"}}
-                                        fontSize={13}>
-                                {t(data.title)}
-                            </Typography>
-                            <Stack direction={"row"} spacing={1}>
+                        <Stack spacing={2}
+                               direction={"row"}
+                               className="document-detail"
+                               alignItems="center">
+                            <IconUrl width={title ? "20" : "50"} height={title ? "20" : "50"} path={
+                                data.documentType === "prescription" && "ic-traitement" ||
+                                data.documentType == "requested-analysis" && "ic-analyse" ||
+                                data.documentType == "analyse" && "ic-analyse" ||
+                                data.documentType == "medical-imaging" && "ic-soura" ||
+                                data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                data.documentType === "photo" && "ic-img" ||
+                                data.documentType === "audio" && "ic-son" ||
+                                data.documentType === "Rapport" && "ic-text" ||
+                                data.documentType === "medical-certificate" && "ic-text" ||
+                                data.documentType === "video" && "ic-video-outline" ||
+                                data.documentType !== "prescription" && "ic-pdf" || ""
+                            }/>
+                            {title && <Stack direction={"column"}>
+                                <Typography className={"sub-title"} variant='subtitle2'
+                                            whiteSpace={"nowrap"}
+                                            style={{cursor: "pointer"}}
+                                            fontSize={13}>
+                                    {t(data.title)}
+                                </Typography>
+                                <Stack direction={"row"} spacing={1}>
 
-                                {date && <>
-                                    <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                    {date && <>
+                                        <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                        <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                    style={{marginTop: 0, color: "grey", cursor: "pointer"}}>
+                                            {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
+                                        </Typography>
+                                    </>}
+
+                                    <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
                                     <Typography whiteSpace={"nowrap"} fontSize={12}
                                                 style={{marginTop: 0, color: "grey", cursor: "pointer"}}>
-                                        {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
+                                        {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
                                     </Typography>
-                                </>}
-
-                                <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
-                                <Typography whiteSpace={"nowrap"} fontSize={12}
-                                            style={{marginTop: 0, color: "grey",cursor:"pointer"}}>
-                                    {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1,"hour").format('HH:mm')}
-                                </Typography>
-                            </Stack>
+                                </Stack>
+                            </Stack>}
                         </Stack>
-                    </Stack>
-                </CardContent>
-            </DocumentCardStyled>}
+                    </CardContent>
+                </DocumentCardStyled>
+            }
             {data.documentType === "photo" &&
-                <Card onClick={onClick} style={{border: 0, boxShadow: "none"}}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                /*<Card onClick={onClick} style={{border: 0, boxShadow: "none"}}>
+                    {/!* eslint-disable-next-line @next/next/no-img-element *!/}
                     <img src={data.uri}
                          style={{borderRadius: 5, width: '100%', height: '100%'}}
                          alt={'photo history'}/>
-                </Card>
+                </Card>*/
+                <DocumentCardStyled className={"document-card"}>
+                    <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
+                        <Stack spacing={2}
+                               direction={"row"}
+                               className="document-detail"
+                               alignItems="center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={data.uri}
+                                 style={{borderRadius: 5, width: title ? 20 : 50, height: title ? 20 : 50}}
+                                 alt={'photo history'}/>
+                            {title && <Stack direction={"column"}>
+                                <Typography className={"sub-title"} variant='subtitle2'
+                                            whiteSpace={"nowrap"}
+                                            style={{cursor: "pointer"}}
+                                            fontSize={13}>
+                                    {t(data.title)}
+                                </Typography>
+                                <Stack direction={"row"} spacing={1}>
+
+                                    {date && <>
+                                        <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                        <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                    style={{marginTop: 0, color: "grey", cursor: "pointer"}}>
+                                            {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
+                                        </Typography>
+                                    </>}
+
+                                    <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
+                                    <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                style={{marginTop: 0, color: "grey", cursor: "pointer"}}>
+                                        {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
+                                    </Typography>
+                                </Stack>
+                            </Stack>}
+                        </Stack>
+                    </CardContent>
+                </DocumentCardStyled>
             }
         </>
     )
