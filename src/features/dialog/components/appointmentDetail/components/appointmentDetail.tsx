@@ -393,7 +393,7 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                <IconButton size="small" onClick={OnEditDetail}>
+                                <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
                                     <IconUrl path="ic-duotone"/>
                                 </IconButton>
                             </Stack>

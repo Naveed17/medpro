@@ -2,11 +2,10 @@
   <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med.tn">
 </p>
 
-# Med Pro
+# Med Link
 NextJS app. Frontend for SmartMedSA/med-pro
 
-```
-# Environment URLs
+### Environment URLs
 
 | Country    |          URL                   |
 |----------- |--------------------------------|
@@ -15,7 +14,7 @@ NextJS app. Frontend for SmartMedSA/med-pro
 |Ivory coast | https://ci.medlink.doctor      |
 | Senegal    | https://sn.medlink.doctor      |
 | Algeria    | https://dz.medlink.doctor      |
-```
+
 ### Development
 
 Before starting, create .env.local file from the dist and update it with values provided by the development team.
@@ -77,7 +76,9 @@ Open `http://localhost:3000` with your browser to see the result.
 | S3_URL        |               |
 | NEXT_PUBLIC_DEVISE        |               |
 | NEXT_PUBLIC_COUNTRY        |               |
-
+| SENTRY_DSN        |               |
+| NEXT_PUBLIC_SENTRY_DSN        |               |
+| SENTRY_IGNORE_API_RESOLUTION_ERROR        |               |
 ## API
 - [useRequest](#userequestrequest-config)
 - [useRequestMutation](#userequestmutationrequest-config)

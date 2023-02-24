@@ -25,4 +25,9 @@ export default withAuth(
     }
 )
 
-export const config = {matcher: ["/dashboard/:path*", "/edit-profile"]}
+export const config = {
+    api: {
+        externalResolver: true
+    },
+    matcher: ["/dashboard/:path*", "/edit-profile"]
+}

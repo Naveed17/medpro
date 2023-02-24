@@ -17,9 +17,10 @@ function PatientHistoryCard({...props}) {
 
     const handleConsultation = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
-        closePatientDialog && closePatientDialog();
         const slugConsultation = `/dashboard/consultation/${keyID}`;
-        router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+        router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+            closePatientDialog && closePatientDialog();
+        });
     }
 
     return (
