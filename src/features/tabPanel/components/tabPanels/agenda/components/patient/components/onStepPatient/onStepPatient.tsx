@@ -588,7 +588,7 @@ function OnStepPatient({...props}) {
                             aria-label="show more"
                         >
                             <ExpandMoreIcon/>
-                            <Typography>{t("more-detail")}</Typography>
+                            <Typography>{expanded ?t("less-detail"):t("more-detail")}</Typography>
                         </ExpandMore>
                     </Box>
 

@@ -4,10 +4,10 @@ import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import moment from "moment/moment";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-
+import EventRoundedIcon from '@mui/icons-material/EventRounded';
 function DocumentCard({...props}) {
     //const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick, t} = props;
+    const {data, onClick, t,date} = props;
     /*const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -94,6 +94,15 @@ function DocumentCard({...props}) {
                                 {t(data.title)}
                             </Typography>
                             <Stack direction={"row"} spacing={1}>
+
+                                {date && <>
+                                    <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                    <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                style={{marginTop: 0, color: "grey", cursor: "pointer"}}>
+                                        {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
+                                    </Typography>
+                                </>}
+
                                 <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
                                 <Typography whiteSpace={"nowrap"} fontSize={12}
                                             style={{marginTop: 0, color: "grey",cursor:"pointer"}}>

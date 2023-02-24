@@ -28,6 +28,8 @@ import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
+import moment from "moment/moment";
+import EventRoundedIcon from "@mui/icons-material/EventRounded";
 
 const typeofDocs = [
     "requested-medical-imaging","medical-imaging",
@@ -96,6 +98,7 @@ function DocumentsPanel({...props}) {
                                     onClick={() => {
                                         showDoc(card)
                                     }}
+                                    date={true}
                                     {...{t}} data={card}/>
                             </React.Fragment>
                         )
@@ -126,16 +129,17 @@ function DocumentsPanel({...props}) {
                                         <img src={card.uri}
                                              className={"image-cover"}
                                              alt={card.title}/>
-
-                                        <Typography whiteSpace={'nowrap'}
-                                                    textOverflow={"ellipsis"}
-                                                    overflow={"hidden"}
-                                                    width={"120px"}
-                                                    margin={"auto"}
-                                                    textAlign={"center"}
-                                                    fontSize={13}>
-                                            {card.title}
-                                        </Typography>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
+                                            <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                            <Typography whiteSpace={'nowrap'}
+                                                        textOverflow={"ellipsis"}
+                                                        overflow={"hidden"}
+                                                        maxWidth={"120px"}
+                                                        color={"gray"}
+                                                        fontSize={12}>
+                                                {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
+                                            </Typography>
+                                        </Stack>
                                     </Box>
                                 )
                             }
@@ -161,6 +165,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
+                                        date={true}
                                         {...{t}} data={card}/>
                                 </React.Fragment>
                             )
@@ -293,15 +298,17 @@ function DocumentsPanel({...props}) {
                                                          className={"image-cover"}
                                                          alt={card.title}/>
 
-                                                    <Typography whiteSpace={'nowrap'}
-                                                                textOverflow={"ellipsis"}
-                                                                overflow={"hidden"}
-                                                                width={"120px"}
-                                                                margin={"auto"}
-                                                                textAlign={"center"}
-                                                                fontSize={13}>
-                                                        {card.title}
-                                                    </Typography>
+                                                    <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
+                                                        <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
+                                                        <Typography whiteSpace={'nowrap'}
+                                                                    textOverflow={"ellipsis"}
+                                                                    overflow={"hidden"}
+                                                                    maxWidth={"120px"}
+                                                                    color={"gray"}
+                                                                    fontSize={12}>
+                                                            {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
+                                                        </Typography>
+                                                    </Stack>
                                                 </Box>
                                             )
                                         }
