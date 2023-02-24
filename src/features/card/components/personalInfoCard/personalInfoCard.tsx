@@ -129,7 +129,7 @@ function PersonalInfo({...props}) {
         params.append('id_card', values.cin);
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
-        values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
+        values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
         }));
@@ -389,12 +389,10 @@ function PersonalInfo({...props}) {
                                                     disableOpenPicker
                                                     inputFormat={"dd/MM/yyyy"}
                                                     mask="__/__/____"
-                                                    value={values.birthdate && moment(values.birthdate, "DD-MM-YYYY")}
+                                                    value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
                                                     onChange={date => {
                                                         const dateInput = moment(date);
-                                                        if (dateInput.isValid()) {
-                                                            setFieldValue("birthdate", dateInput.format("DD-MM-YYYY"))
-                                                        }
+                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
                                                     }}
                                                     renderInput={(params) => <TextField size={"small"} {...params} />}
                                                 />

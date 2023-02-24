@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Tab, Tabs, useTheme} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Paper, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
@@ -34,6 +34,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
+import {openDrawer} from "@features/calendar";
 
 function a11yProps(index: number) {
     return {
@@ -155,6 +156,11 @@ function PatientDetail({...props}) {
         }
     }
 
+    const closePatientDialog = () => {
+        dispatch(openDrawer({type: "patient", open: false}));
+        dispatch(onOpenPatientDrawer({patientId: ""}));
+        onCloseDialog(false);
+    }
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -217,7 +223,13 @@ function PatientDetail({...props}) {
             title: "tabs.history",
             children: <>
                 {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                    <HistoryPanel {...{t, previousAppointmentsData, patient, mutate: mutatePatientDocuments}} />
+                    <HistoryPanel {...{
+                        t,
+                        previousAppointmentsData,
+                        patient,
+                        mutate: mutatePatientDocuments,
+                        closePatientDialog
+                    }} />
                 ) : (
                     <NoDataCard
                         t={t}
@@ -271,12 +283,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar
-                        onClose={() => {
-                            dispatch(onOpenPatientDrawer({patientId: ""}));
-                            onCloseDialog(false);
-                        }}
-                    />
+                    <PatientDetailsToolbar onClose={closePatientDialog}/>
                     <PatientDetailsCard
                         loading={!patient}
                         {...{patient, onConsultation, patientPhoto, mutatePatientList, mutateAgenda}}
@@ -424,8 +431,7 @@ function PatientDetail({...props}) {
                                     if (patientId) {
                                         setIsAdd(false);
                                     } else {
-                                        dispatch(onOpenPatientDrawer({patientId: ""}));
-                                        onCloseDialog(false);
+                                        closePatientDialog();
                                     }
                                     mutatePatientList && mutatePatientList();
                                     break;

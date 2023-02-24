@@ -999,7 +999,10 @@ function Agenda() {
                                 onMenuActions('onLeaveWaitingRoom', event);
                                 dispatch(openDrawer({type: "view", open: false}));
                             }}
-                            OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
+                            OnEditDetail={(event: EventDef) => {
+                                setEvent(event);
+                                dispatch(openDrawer({type: "patient", open: true}));
+                            }}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
                             SetCancelDialog={() => {
                                 setActionDialog('cancel');

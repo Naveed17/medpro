@@ -34,10 +34,8 @@ import {Session} from "next-auth";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 
-type ChipColors = OverridableStringUnion<
-'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
-ChipPropsColorOverrides
->;
+type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
+    ChipPropsColorOverrides>;
 
 function ImportDataRow({...props}) {
     const {
@@ -55,12 +53,12 @@ function ImportDataRow({...props}) {
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
-/*    const [infoDuplication, setInfoDuplication] = useState<Array<{
-        key: string;
-        row: string;
-        data: PatientModel | null;
-        fixed: boolean;
-    }>>([]);*/
+    /*    const [infoDuplication, setInfoDuplication] = useState<Array<{
+            key: string;
+            row: string;
+            data: PatientModel | null;
+            fixed: boolean;
+        }>>([]);*/
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [expanded, setExpanded] = useState(false);
@@ -82,6 +80,7 @@ function ImportDataRow({...props}) {
         });
     }
 
+    console.log(row);
     return (
         <>
             <TableRowStyled
@@ -156,7 +155,7 @@ function ImportDataRow({...props}) {
                     {row ? (
                         <Chip
                             color={colors[row.status]}
-                            label={`${t('tabs.'+status[row.status])}`}/>
+                            label={`${t('tabs.' + status[row.status])}`}/>
                     ) : (
                         <Stack>
                             <Skeleton variant="text" width={100}/>
@@ -189,9 +188,9 @@ function ImportDataRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell align="right">
-                    {row ? (
+                    {process.env.NODE_ENV === 'development' && (row ? (
                         <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            {(row.status == 1 || row.status ==3) && <LoadingButton
+                            {(row.status == 1 || row.status == 3) && <LoadingButton
                                 {...{loading}}
                                 onClick={() => {
                                     setLoadingAction(true);
@@ -214,7 +213,7 @@ function ImportDataRow({...props}) {
                             <Skeleton variant="text" width={50}/>
                             <Skeleton variant="text" width={50}/>
                         </Stack>
-                    )}
+                    ))}
                 </TableCell>
             </TableRowStyled>
             {expandType.length > 0 &&
