@@ -7,12 +7,10 @@ import {
     List,
     ListItem,
     ListItemIcon,
-    ListItemText,
     Stack,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -28,7 +26,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
+import {resetAppointment, setAppointmentPatient, setOpenUploadDialog} from "@features/tabPanel";
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
@@ -37,7 +35,8 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {configSelector} from "@features/base";
-import Image from "next/image";
+import {DocumentCard} from "@features/card";
+import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -176,7 +175,7 @@ const Content = ({...props}) => {
             setOpenDialogDoc(true);
             setDocument({
                 uuid: card.uuid,
-                certifUuid : card.certificate[0].uuid,
+                certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
@@ -272,7 +271,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color={"text.secondary"}>
-                                                    {list.name}  {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
+                                                    {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
                                                 </Typography>
                                                 <IconButton
                                                     size="small"
@@ -316,7 +315,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2">
-                                                    {list.name}  {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
+                                                    {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
                                                 </Typography>
                                                 <IconButton
                                                     size="small"
@@ -647,61 +646,43 @@ const Content = ({...props}) => {
                     ))}
                 </>
             ) : id === 8 ? (
-                <>
-                    {patientDocuments &&
-                        patientDocuments.map((pdoc: any, idx: number) => (
-                            <Stack
-                                spacing={2}
-                                direction={"row"}
-                                alignItems={"center"}
-                                key={`doc-patient-${idx}`}
-                                pl={2}
-                                onClick={() => {
-                                    showDoc(pdoc);
+                <ContentStyled>
+                    <CardContent style={{paddingBottom: 5}}>
+                        {patientDocuments && patientDocuments.length > 0 && <Stack
+                            spacing={2}
+                            style={{overflowX: "auto", padding: 10, marginBottom: 5}}
+                            direction={"row"}>
+                            {patientDocuments.map((pdoc: any, idx: number) => (
+                                <Stack key={`${idx}-item-doc-patient`} onClick={() => {
+                                    showDoc(pdoc)
                                 }}>
-                                {pdoc.documentType !== "photo" && (
-                                    <IconUrl
-                                        width={25}
-                                        height={25}
-                                        path={
-                                            (pdoc.documentType === "prescription" &&
-                                                "ic-traitement") ||
-                                            (pdoc.documentType == "requested-analysis" &&
-                                                "ic-analyse") ||
-                                            (pdoc.documentType == "analyse" && "ic-analyse") ||
-                                            (pdoc.documentType == "medical-imaging" && "ic-soura") ||
-                                            (pdoc.documentType == "requested-medical-imaging" &&
-                                                "ic-soura") ||
-                                            (pdoc.documentType === "photo" && "ic-img") ||
-                                            (pdoc.documentType === "audio" && "ic-son") ||
-                                            (pdoc.documentType === "Rapport" && "ic-text") ||
-                                            (pdoc.documentType === "medical-certificate" &&
-                                                "ic-text") ||
-                                            (pdoc.documentType === "video" && "ic-video-outline") ||
-                                            (pdoc.documentType !== "prescription" && "ic-pdf") ||
-                                            ""
-                                        }
-                                    />
-                                )}
-
-                                {pdoc.documentType === "photo" && (
-                                    <Image
-                                        width={30}
-                                        height={30}
-                                        src={pdoc.uri}
-                                        style={{borderRadius: 5}}
-                                        alt={"photo history"}
-                                    />
-                                )}
-
-                                <ListItemText
-                                    primary={pdoc.title}
-                                    sx={{cursor: "pointer"}}
-                                    secondary={t(pdoc.documentType)}
-                                />
-                            </Stack>
-                        ))}
-                </>
+                                    <DocumentCard {...{t, data: pdoc, date: false, time: false, title: false}}/>
+                                    <Typography whiteSpace={"nowrap"} fontSize={9} textAlign={"center"}
+                                                style={{marginTop: 5, color: "grey", cursor: "pointer"}}>
+                                        {moment(pdoc.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
+                                    </Typography>
+                                </Stack>
+                            ))}
+                        </Stack>}
+                        {patientDocuments && patientDocuments.length === 0 && <Typography style={{
+                            paddingBottom: "15px",
+                            fontSize: "0.6rem",
+                            color: "#7C878E",
+                            textAlign: "center",
+                            paddingTop: "15px",
+                        }}>{t('emptydoc')}</Typography>}
+                        <Button
+                            onClick={() => {
+                                dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                                dispatch(setOpenUploadDialog(true))
+                            }}
+                            size="small"
+                            style={{paddingBottom: pxToRem(0)}}
+                            startIcon={<Add/>}>
+                            {t("add")}
+                        </Button>
+                    </CardContent>
+                </ContentStyled>
             ) : (
                 patient &&
                 Object.keys(patient.antecedents).map(

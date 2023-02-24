@@ -100,9 +100,9 @@ function DocumentsTab({...props}) {
                     selectedAudio === null &&
                     documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
-                            <DocumentCard data={card} mode={mode} onClick={() => {
+                            <DocumentCard onClick={() => {
                                 card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
-                            }} t={t}/>
+                            }} {...{t,data:card,date:false,time:true,title:true}}/>
                         </React.Fragment>
                     )
                 }
@@ -126,7 +126,7 @@ function DocumentsTab({...props}) {
                             lg: "repeat(5,minmax(0,1fr))",
                         }
                     }}>
-                        <DocumentCard data={selectedAudio} t={t}/>
+                        <DocumentCard {...{t,data:selectedAudio,date:false,time:true,title:true}}/>
                     </Box>
                     <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
                         <IconButton onClick={() => {
