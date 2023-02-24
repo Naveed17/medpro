@@ -114,6 +114,7 @@
       "time-message": "Veuillez choisir l’heure du RDV",
       "see-more": "Voir plus d’horaires",
       "add-more-date": "Ajouter un autre RDV",
+      "add_reason": "Ajouter un nouveau motif",
       "change-time": "Modifier l'heure",
       "duration": {
         "title": "Durée de consultation",
