@@ -197,6 +197,7 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
             setDocument({
                 uuid: card.uuid,
+                certifUuid : card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,

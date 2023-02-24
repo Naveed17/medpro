@@ -1,3 +1,10 @@
+## [4.12.2](https://github.com/SmartMedSA/med-pro/compare/v4.12.1...v4.12.2) (2023-02-22)
+
+
+### Bug Fixes
+
+* disable action when data is loading ([df5c79c](https://github.com/SmartMedSA/med-pro/commit/df5c79c2015148aeae4a989a2095f2c9d341c6e1))
+
 ## [4.12.1](https://github.com/SmartMedSA/med-pro/compare/v4.12.0...v4.12.1) (2023-02-22)
 
 

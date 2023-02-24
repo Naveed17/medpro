@@ -176,6 +176,7 @@ const Content = ({...props}) => {
             setOpenDialogDoc(true);
             setDocument({
                 uuid: card.uuid,
+                certifUuid : card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
