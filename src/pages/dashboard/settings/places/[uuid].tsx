@@ -46,8 +46,7 @@ import {agendaSelector} from "@features/calendar";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, PhoneRegExp} from "@app/constants";
-import {isValidPhoneNumber} from "libphonenumber-js";
+import {DefaultCountry} from "@app/constants";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -132,13 +131,15 @@ function PlacesDetail() {
         phones: Yup.array().of(
             Yup.object().shape({
                 code: Yup.string(),
-                phone: Yup.string()
-                    .test({
-                        name: 'is-phone',
-                        message: t("lieux.new.telephone-error"),
-                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
-                    })
-                    .matches(PhoneRegExp, t("lieu.new.telephone-error"))
+                /*
+                                phone: Yup.string()
+                                    .test({
+                                        name: 'is-phone',
+                                        message: t("lieux.new.telephone-error"),
+                                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
+                                    })
+                                    .matches(PhoneRegExp, t("lieu.new.telephone-error"))
+                */
             })),
         town: Yup.string().required(t("lieux.new.townReq")),
         city: Yup.string().required(t("lieux.new.cityReq")),
@@ -273,6 +274,10 @@ function PlacesDetail() {
         getFieldProps,
         setFieldValue,
     } = formik;
+
+    useEffect(() => {
+        console.log(Object.keys(errors));
+    }, [errors])
 
     const {data, mutate} = useRequest(
         uuind !== "new"
