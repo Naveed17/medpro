@@ -30,6 +30,7 @@ function HistoryContainer({...props}) {
         appID,
         appuuid,
         dispatch,
+        closePatientDialog = null,
         t,
         setInfo,
         setState,
@@ -165,7 +166,7 @@ function HistoryContainer({...props}) {
 
     return (
         <PatientHistoryCard
-            {...{selectedApp, t, appuuid, dispatch}}
+            {...{selectedApp, t, appuuid, dispatch, closePatientDialog}}
             key={app.appointment.uuid}
             keyID={app.appointment.uuid}
             data={app}>

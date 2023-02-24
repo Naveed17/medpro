@@ -32,6 +32,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from '@mui/icons-material/Done';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -60,6 +61,7 @@ function TimeSchedule({...props}) {
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingReq, setLoadingReq] = useState(false);
     const [moreDate, setMoreDate] = useState(moreDateRef.current);
     const [changeTime, setChangeTime] = useState(changeDateRef.current);
     const [time, setTime] = useState("");
@@ -81,7 +83,7 @@ function TimeSchedule({...props}) {
 
     const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -206,18 +208,27 @@ function TimeSchedule({...props}) {
     }
 
     const addNewReason = (name: string) => {
+        setLoadingReq(true);
         const params = new FormData();
         params.append("color", "#0696D6");
         params.append("duration", "15");
         params.append("translations", JSON.stringify({
             fr: name
         }));
+
         triggerAddReason({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateReasonsData());
+        }).then(() => mutateReasonsData().then((result: any) => {
+            const {status} = result?.data;
+            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+            if (status === "success") {
+                onChangeReason(reasonsUpdated[0]);
+            }
+            setLoadingReq(false);
+        }));
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
@@ -306,6 +317,7 @@ function TimeSchedule({...props}) {
                                 size="small"
                                 value={reasons && reason.length > 0 ? reasons.find(motif => motif.uuid === reason) : ""}
                                 onChange={(e, newValue: any) => {
+                                    e.stopPropagation();
                                     if (newValue && newValue.inputValue) {
                                         // Create a new value from the user input
                                         addNewReason(newValue.inputValue);
@@ -352,6 +364,17 @@ function TimeSchedule({...props}) {
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
+                                                                  InputProps={{
+                                                                      ...params.InputProps,
+                                                                      endAdornment: (
+                                                                          <React.Fragment>
+                                                                              {loadingReq ?
+                                                                                  <CircularProgress color="inherit"
+                                                                                                    size={20}/> : null}
+                                                                              {params.InputProps.endAdornment}
+                                                                          </React.Fragment>
+                                                                      ),
+                                                                  }}
                                                                   placeholder={t("stepper-1.reason-consultation-placeholder")}
                                                                   sx={{paddingLeft: 0}}
                                                                   variant="outlined" fullWidth/>}/>

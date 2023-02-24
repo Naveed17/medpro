@@ -15,23 +15,34 @@ import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledR
 import moment from "moment-timezone";
 import {pxToRem} from "@themes/formatFontSize";
 import RecondingBoxStyle from './overrides/recordingBoxStyle';
+import CircularProgress from "@mui/material/CircularProgress";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, appointement} = props
+    const {exam: defaultExam, changes, setChanges, uuind, appointement} = props;
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
+    const {transcript, resetTranscript, listening} = useSpeechRecognition();
+    const intervalref = useRef<number | null>(null);
+
     const {exam, listen} = useAppSelector(consultationSelector);
+
+    const [loadingReq, setLoadingReq] = useState(false);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
     let [oldNote, setOldNote] = useState('');
-    const dispatch = useAppDispatch();
-    const {
-        transcript,
-        resetTranscript,
-        listening,
-    } = useSpeechRecognition();
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const intervalref = useRef<number | null>(null);
+    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
+    const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
+
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
 
@@ -74,6 +85,7 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         if (isStarted) {
             const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
@@ -110,6 +122,49 @@ function CIPPatientHistoryCard({...props}) {
         })
     }
 
+    const handleReasonChange = (reason: ConsultationReasonModel) => {
+        setFieldValue("motif", reason.uuid);
+        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+            ...storageData,
+            motif: reason.uuid
+        }));
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                motif: reason.uuid
+            })
+        );
+    }
+
+    const addNewReason = (name: string) => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("color", "#0696D6");
+        params.append("duration", "15");
+        params.append("translations", JSON.stringify({
+            fr: name
+        }));
+
+        triggerAddReason({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => triggerGetReasons({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((result: any) => {
+            const {status} = result?.data;
+            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+            if (status === "success") {
+                setCReason(reasonsUpdated);
+                handleReasonChange(reasonsUpdated[0]);
+            }
+            setLoadingReq(false);
+        }));
+    }
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -140,39 +195,71 @@ function CIPPatientHistoryCard({...props}) {
                             <Autocomplete
                                 id={"motif"}
                                 disabled={!cReason}
+                                freeSolo
                                 autoHighlight
                                 disableClearable
                                 size="small"
                                 value={cReason.find(reason => reason.uuid === values.motif) ?
                                     cReason.find(reason => reason.uuid === values.motif) : ""}
-                                onChange={(e, state: any) => {
-                                    setFieldValue("motif", state.uuid);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...storageData,
-                                        motif: state.uuid
-                                    }));
-                                    // set data data from local storage to redux
-                                    dispatch(
-                                        SetExam({
-                                            motif: state.uuid
-                                        })
-                                    );
+                                onChange={(e, newValue: any) => {
+                                    e.stopPropagation();
+                                    if (newValue && newValue.inputValue) {
+                                        // Create a new value from the user input
+                                        addNewReason(newValue.inputValue);
+                                    } else {
+                                        handleReasonChange(newValue);
+                                    }
+                                }}
+                                filterOptions={(options, params) => {
+                                    const {inputValue} = params;
+                                    const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                    // Suggest the creation of a new value
+                                    const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
+                                    if (inputValue !== '' && !isExisting) {
+                                        filtered.push({
+                                            inputValue,
+                                            name: `${t('add_reason')} "${inputValue}"`,
+                                        });
+                                    }
+                                    return filtered;
                                 }}
                                 sx={{color: "text.secondary"}}
                                 options={cReason ? cReason : []}
                                 loading={cReason?.length === 0}
-                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                getOptionLabel={(option) => {
+                                    // Value selected with enter, right from the input
+                                    if (typeof option === 'string') {
+                                        return option;
+                                    }
+                                    // Add "xxx" option created dynamically
+                                    if (option.inputValue) {
+                                        return option.inputValue;
+                                    }
+                                    // Regular option
+                                    return option.name;
+                                }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
                                     <MenuItem
                                         {...props}
-                                        key={'xyq' + option.uuid}
+                                        key={option.uuid ? option.uuid : "-1"}
                                         value={option.uuid}>
                                         {option.name}
                                     </MenuItem>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
+                                                                  InputProps={{
+                                                                      ...params.InputProps,
+                                                                      endAdornment: (
+                                                                          <React.Fragment>
+                                                                              {loadingReq ?
+                                                                                  <CircularProgress color="inherit"
+                                                                                                    size={20}/> : null}
+                                                                              {params.InputProps.endAdornment}
+                                                                          </React.Fragment>
+                                                                      ),
+                                                                  }}
                                                                   placeholder={"--"}
                                                                   sx={{paddingLeft: 0}}
                                                                   variant="outlined" fullWidth/>}/>
