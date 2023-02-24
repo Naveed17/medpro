@@ -53,6 +53,7 @@ function HistoryTab({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
+
     const subMotifCard = [
         {
             id: 1,
@@ -465,20 +466,52 @@ function HistoryTab({...props}) {
                                                                                 <Typography
                                                                                     fontSize={12}>{rs["medical-imaging"].name}</Typography>
                                                                                 {rs.uri &&
-                                                                                    <Grid container mb={1} mt={0.1}
-                                                                                          spacing={2}>
+                                                                                    <Grid container mb={0.1} mt={0}
+                                                                                          spacing={1}>
                                                                                         {
                                                                                             app.documents.filter((doc: { uri: any; }) => rs.uri.includes(doc.uri)).map((card: any) => (
                                                                                                 <Grid item xs={3}
                                                                                                       key={`doc-item-${card.uuid}`}>
-                                                                                                    <DocumentCard
-                                                                                                        data={card}
-                                                                                                        style={{width: 30}}
-                                                                                                        onClick={() => {
-                                                                                                            showDoc(card)
-                                                                                                        }} t={t}/>
+                                                                                                    <Stack direction={"row"}
+                                                                                                           style={{background: "white"}}
+                                                                                                           borderRadius={1} padding={1}
+                                                                                                           spacing={1} onClick={() => {
+                                                                                                        showDoc(card)
+                                                                                                    }} alignItems="center">
+                                                                                                        {card.documentType !== 'photo' &&
+                                                                                                            <IconUrl height={25} width={25}
+                                                                                                                     path={
+                                                                                                                         card.documentType === "prescription" && "ic-traitement" ||
+                                                                                                                         card.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                                                         card.documentType == "analyse" && "ic-analyse" ||
+                                                                                                                         card.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                                                         card.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                                                         card.documentType === "audio" && "ic-son" ||
+                                                                                                                         card.documentType === "Rapport" && "ic-text" ||
+                                                                                                                         card.documentType === "medical-certificate" && "ic-text" ||
+                                                                                                                         card.documentType === "video" && "ic-video-outline" ||
+                                                                                                                         card.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                                                     }/>}
+                                                                                                        {card.documentType === 'photo' &&
+                                                                                                            <Image width={25}
+                                                                                                                   height={25}
+                                                                                                                   src={card.uri}
+                                                                                                                   style={{borderRadius: 5}}
+                                                                                                                   alt={'photo history'}/>}
+                                                                                                        <Typography variant='subtitle2'
+                                                                                                                    textAlign={"center"}
+                                                                                                                    whiteSpace={"nowrap"}
+                                                                                                                    display={"block"}
+                                                                                                                    maxWidth={"60%"}
+                                                                                                                    overflow={"hidden !important"}
+                                                                                                                    textOverflow={'ellipsis'}
+                                                                                                                    fontSize={9}>
+                                                                                                            {t(card.title)}
+                                                                                                        </Typography>
+                                                                                                    </Stack>
                                                                                                 </Grid>
-                                                                                            ))}
+                                                                                            ))
+                                                                                        }
                                                                                     </Grid>}
                                                                             </Box>))
                                                                     }
