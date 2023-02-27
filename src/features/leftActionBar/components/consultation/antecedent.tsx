@@ -5,22 +5,21 @@ import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
 import React from "react";
-import moment from "moment";
 
 function Antecedent({...props}) {
 
-    const {antecedent,
+    const {
+        antecedent,
         t,
         patient,
-        trigger,
         medical_entity,
-        mutate,
         setSelected,
         session,
         handleOpen,
         setOpenRemove,
         index,
-        router} = props
+        router
+    } = props
 
     return (
         <ContentStyled
@@ -28,7 +27,8 @@ function Antecedent({...props}) {
             style={{paddingBottom: pxToRem(15)}}>
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
-                {antecedent !=="way_of_life" && antecedent !== "allergic" && <Typography fontWeight={600}>{t(antecedent)}</Typography>}
+                {antecedent !== "way_of_life" && antecedent !== "allergic" &&
+                    <Typography fontWeight={600}>{t(antecedent)}</Typography>}
                 <List dense>
                     {patient.antecedents[antecedent].map(
                         (
@@ -49,6 +49,7 @@ function Antecedent({...props}) {
                                     {item.name}{" "}
                                     {item.startDate ? " / " + item.startDate : ""}{" "}
                                     {item.endDate ? " - " + item.endDate : ""}
+                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
                                     {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : '(' + item.response[0].value + ')' : ''}
                                 </Typography>
                                 <IconButton
@@ -62,7 +63,7 @@ function Antecedent({...props}) {
                                             name2: "",
                                             request: {
                                                 method: "DELETE",
-                                                url:`/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
+                                                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
                                                 headers: {
                                                     ContentType: "multipart/form-data",
                                                     Authorization: `Bearer ${session?.accessToken}`,
@@ -91,4 +92,5 @@ function Antecedent({...props}) {
     )
 
 }
+
 export default Antecedent;
