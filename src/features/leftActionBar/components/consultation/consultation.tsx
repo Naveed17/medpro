@@ -101,8 +101,7 @@ function Consultation() {
             params.append("note", note);
             patient.fiche_id && params.append("fiche_id", patient.fiche_id);
             patient.email && params.append("email", patient.email);
-            patient.familyDoctor &&
-            params.append("family_doctor", patient.familyDoctor);
+            patient.familyDoctor && params.append("family_doctor", patient.familyDoctor);
             patient.profession && params.append("profession", patient.profession);
             patient.birthdate && params.append("birthdate", patient.birthdate);
             params.append("first_name", patient.firstName);

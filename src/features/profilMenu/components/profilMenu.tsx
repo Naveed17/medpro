@@ -115,7 +115,7 @@ function ProfilMenu() {
                 <Box
                     className="profile-img"
                     component="img"
-                    alt="The house from the offer."
+                    alt="Connected user"
                     src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
                     width={26}
                     height={26}

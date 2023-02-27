@@ -8,9 +8,9 @@ const RootStyled = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   marginTop: theme.spacing(6.5),
   flexDirection: "row",
-  [theme.breakpoints.down("md")]: {
+/*  [theme.breakpoints.down("md")]: {
     flexDirection: "column",
-  },
+  },*/
   borderBottom: `1px solid ${theme.palette.divider}`,
   "& .BaseBadge-badge": {
     bottom: 5,
@@ -27,10 +27,7 @@ const RootStyled = styled(Stack)(({ theme }) => ({
     alignItems: "center",
     backgroundColor: theme.palette.background.paper,
     marginTop: theme.spacing(.2),
-    flexDirection: "row",
-    [theme.breakpoints.down("md")]: {
-      marginBottom: theme.spacing(1),
-    },
+    flexDirection: "row"
   },
   "& .alert": {
     fontSize: "12px",

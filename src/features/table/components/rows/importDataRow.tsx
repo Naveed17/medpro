@@ -80,7 +80,6 @@ function ImportDataRow({...props}) {
         });
     }
 
-    console.log(row);
     return (
         <>
             <TableRowStyled

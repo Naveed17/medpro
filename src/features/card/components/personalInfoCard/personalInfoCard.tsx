@@ -15,7 +15,7 @@ import {
     Stack,
     TextField,
     Toolbar,
-    Typography, useTheme
+    Typography, useMediaQuery, useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequestMutation} from "@app/axios";
@@ -36,6 +36,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {Theme} from "@mui/material/styles";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -55,6 +56,7 @@ function PersonalInfo({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -203,56 +205,55 @@ function PersonalInfo({...props}) {
                                         )}
                                     </Typography>
                                 </Box>
-                                <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                                    {editable ?
-                                        <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                            <Button onClick={() => setEditable(false)}
-                                                    color={"error"}
-                                                    className='btn-cancel'
-                                                    sx={{margin: 'auto'}}
-                                                    size='small'
-                                                    startIcon={<CloseIcon/>}>
-                                                {t('cancel')}
-                                            </Button>
-                                            <LoadingButton
-                                                onClick={() => handleUpdatePatient()}
-                                                disabled={Object.keys(errors).length > 0}
-                                                loading={loadingRequest}
-                                                className='btn-add'
+                                {editable ?
+                                    <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                        <Button onClick={() => setEditable(false)}
+                                                color={"error"}
+                                                className='btn-cancel'
                                                 sx={{margin: 'auto'}}
                                                 size='small'
-                                                startIcon={<SaveAsIcon/>}>
-                                                {t('register')}
-                                            </LoadingButton>
-                                        </Stack>
-                                        :
-                                        <Button
-                                            disabled={disableActions}
-                                            onClick={() => {
-                                                setCurrentSection("PersonalInfo");
-                                                setEditable(true);
-                                            }}
-                                            startIcon={<IconUrl
-                                                {...(disableActions && {color: "white"})}
-                                                path={"setting/edit"}/>}
-                                            color="primary" size="small">
-                                            {t("edit")}
+                                                startIcon={<CloseIcon/>}>
+                                            {t('cancel')}
                                         </Button>
-                                    }
-                                </Box>
+                                        <LoadingButton
+                                            onClick={() => handleUpdatePatient()}
+                                            disabled={Object.keys(errors).length > 0}
+                                            loading={loadingRequest}
+                                            className='btn-add'
+                                            sx={{margin: 'auto'}}
+                                            size='small'
+                                            startIcon={<SaveAsIcon/>}>
+                                            {t('register')}
+                                        </LoadingButton>
+                                    </Stack>
+                                    :
+                                    <Button
+                                        disabled={disableActions}
+                                        onClick={() => {
+                                            setCurrentSection("PersonalInfo");
+                                            setEditable(true);
+                                        }}
+                                        startIcon={<IconUrl
+                                            {...(disableActions && {color: "white"})}
+                                            path={"setting/edit"}/>}
+                                        color="primary" size="small">
+                                        {t("edit")}
+                                    </Button>
+                                }
                             </Toolbar>
                         </AppBar>
+
                         <Grid container spacing={1}
                               sx={{
                                   marginTop: "0.4rem"
                               }}>
-                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={6}>
+                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={12}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
                                     justifyItems={"center"}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("gender")}
                                         </Typography>
@@ -275,7 +276,7 @@ function PersonalInfo({...props}) {
                                                     }
                                                 }
                                             })}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -299,7 +300,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -309,14 +310,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("first-name")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -330,7 +331,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -340,14 +341,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("last-name")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -361,12 +362,12 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("birthdate")}
                                         </Typography>
@@ -385,7 +386,7 @@ function PersonalInfo({...props}) {
                                                 }
                                             }
                                         })}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -406,7 +407,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -416,14 +417,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("email")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -437,7 +438,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -447,14 +448,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("cin")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -468,7 +469,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -478,14 +479,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("profession")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -500,8 +501,7 @@ function PersonalInfo({...props}) {
                                 </Stack>
 
                             </Grid>
-
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={12}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -511,14 +511,14 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={3} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={3}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("family_doctor")}
                                         </Typography>
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -536,7 +536,6 @@ function PersonalInfo({...props}) {
                         </Grid>
                     </Paper>
                 </PersonalInfoStyled>
-
             </Form>
         </FormikProvider>
     );

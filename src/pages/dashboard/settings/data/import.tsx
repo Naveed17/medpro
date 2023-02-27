@@ -71,12 +71,12 @@ function ImportData() {
             label: "tabs.med",
             content: "tabs.content-1",
         },
-        /*    {
-                key: "med-win",
-                icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
-                label: "tabs.medWin",
-                content: "tabs.content-2",
-            },*/
+        {
+            key: "med-win",
+            icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
+            label: "tabs.medWin",
+            content: "tabs.content-2",
+        },
         /*{
             key: "med-link",
             icon: "ic-upload",

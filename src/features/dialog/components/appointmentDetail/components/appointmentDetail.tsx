@@ -19,7 +19,7 @@ import {
     Link,
     List,
     ListItem,
-    useTheme,
+    useTheme, Alert,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -271,15 +271,12 @@ function AppointmentDetail({...props}) {
                         (error: string, index: number) => (
                             <Stack
                                 key={`error${index}`}
-                                sx={{mt: 2}}
                                 spacing={2}
+                                sx={{mb: 1}}
                                 direction="row"
                                 justifyContent="space-between"
                                 alignItems="center">
-                                <Typography variant="body2" component="span" className="alert">
-                                    <Icon path="danger"/>
-                                    <span>{t(error)}</span>
-                                </Typography>
+                                <Alert variant="filled" severity="warning">{t(error)}</Alert>
                             </Stack>
                         )
                     )}

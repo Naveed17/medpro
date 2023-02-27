@@ -78,38 +78,36 @@ function NotesPanel({...props}) {
                                     )}
                                 </Typography>
                             </Box>
-                            <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                                {editable ?
-                                    <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                        <Button onClick={() => setEditable(false)}
-                                                color={"error"}
-                                                className='btn-cancel'
-                                                sx={{margin: 'auto'}}
-                                                size='small'
-                                                startIcon={<CloseIcon/>}>
-                                            {t('add-patient.cancel')}
-                                        </Button>
-                                        <LoadingButton
-                                            loading={requestLoading}
-                                            onClick={() => {
-                                                setEditable(false);
-                                                uploadPatientNotes();
-                                            }}
-                                            className='btn-add'
+                            {editable ?
+                                <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                    <Button onClick={() => setEditable(false)}
+                                            color={"error"}
+                                            className='btn-cancel'
                                             sx={{margin: 'auto'}}
                                             size='small'
-                                            startIcon={<SaveAsIcon/>}>
-                                            {t('add-patient.register')}
-                                        </LoadingButton>
-                                    </Stack>
-                                    :
-                                    <Button onClick={() => setEditable(true)}
-                                            startIcon={<IconUrl path={"setting/edit"}/>}
-                                            color="primary" size="small">
-                                        {t("add-patient.edit")}
+                                            startIcon={<CloseIcon/>}>
+                                        {t('add-patient.cancel')}
                                     </Button>
-                                }
-                            </Box>
+                                    <LoadingButton
+                                        loading={requestLoading}
+                                        onClick={() => {
+                                            setEditable(false);
+                                            uploadPatientNotes();
+                                        }}
+                                        className='btn-add'
+                                        sx={{margin: 'auto'}}
+                                        size='small'
+                                        startIcon={<SaveAsIcon/>}>
+                                        {t('add-patient.register')}
+                                    </LoadingButton>
+                                </Stack>
+                                :
+                                <Button onClick={() => setEditable(true)}
+                                        startIcon={<IconUrl path={"setting/edit"}/>}
+                                        color="primary" size="small">
+                                    {t("add-patient.edit")}
+                                </Button>
+                            }
                         </Toolbar>
                     </AppBar>
                     <Grid container spacing={1.2}>
