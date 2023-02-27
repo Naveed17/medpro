@@ -6,7 +6,7 @@ import {motion} from "framer-motion";
 import {Fab} from "@mui/material";
 
 function RecButton({...props}) {
-    const {onClick,} = props;
+    const {onClick} = props;
     const [expand, setExpand] = useState(false);
     return (
         <Fab

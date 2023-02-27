@@ -1,5 +1,5 @@
 // components
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
@@ -14,7 +14,6 @@ import {
     ListItemIcon,
     Skeleton,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -23,8 +22,7 @@ import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector, SetListen} from "@features/toolbar";
-import moment from "moment-timezone";
+import {consultationSelector} from "@features/toolbar";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
@@ -35,15 +33,10 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
-import SpeechRecognition, {useSpeechRecognition,} from "react-speech-recognition";
-import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
-import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
+import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import {getBirthdayFormat} from "@app/hooks";
 import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
-import {RecButton} from "@features/buttons";
 import {ExpandAbleCard} from "@features/card";
 
 function Consultation() {
@@ -413,7 +406,8 @@ function Consultation() {
                                         listening,
                                         dispatch,
                                         setOldNote,
-                                        isStarted}} />
+                                        isStarted
+                                    }} />
                                 </Stack>
                             )}
                         </Box>

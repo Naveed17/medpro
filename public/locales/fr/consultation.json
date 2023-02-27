@@ -114,6 +114,8 @@
     "contenu": "Contenu",
     "audio": "Audio",
     "listen": "Ecoutez",
+    "seeHistory": "Voir historique",
+    "patient_observation_history": "Historique",
     "suivi_image": "Suivi en images",
     "name": "Nom",
     "stop": "Terminer",
