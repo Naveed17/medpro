@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
-
 // utils
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -25,7 +24,7 @@ import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {CropImage} from "@features/cropImage";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
@@ -34,9 +33,11 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {getBirthdayFormat} from "@app/hooks";
+import UrlIcon from "@themes/urlIcon";
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
@@ -45,6 +46,7 @@ function PatientDetailsCard({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const ref = useRef(null);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const formik = useFormik({
         enableReinitialize: true,
@@ -80,7 +82,7 @@ function PatientDetailsCard({...props}) {
         setFieldValue("picture.url", URL.createObjectURL(file));
         setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
-    };
+    }
 
     const uploadPatientDetail = () => {
         setRequestLoading(true);
@@ -183,6 +185,7 @@ function PatientDetailsCard({...props}) {
                                 </label>
                             )}
                         </Badge>
+
                         <Box mx={1}>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
@@ -210,83 +213,113 @@ function PatientDetailsCard({...props}) {
                                 </Stack>
                             )}
 
-                            {loading ? (
+                            <Stack direction={isMobile ? "column" : "row"}>
+                                {loading ? (
+                                    <Skeleton variant="text" width={150}/>
+                                ) : (
+                                    <>
+                                        {patient?.birthdate && <Stack
+                                            className={"date-birth"}
+                                            direction={isMobile ? "column" : "row"} alignItems="center">
+                                            <Stack direction={"row"} alignItems="center">
+                                                <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
+                                                <Box
+                                                    sx={{
+                                                        input: {
+                                                            color: theme.palette.text.secondary,
+                                                        },
+                                                    }}>
+                                                    <MaskedInput
+                                                        readOnly
+                                                        style={{
+                                                            border: "none",
+                                                            outline: "none",
+                                                            width: 75,
+                                                        }}
+                                                        mask={[
+                                                            /\d/,
+                                                            /\d/,
+                                                            "-",
+                                                            /\d/,
+                                                            /\d/,
+                                                            "-",
+                                                            /\d/,
+                                                            /\d/,
+                                                            /\d/,
+                                                            /\d/,
+                                                        ]}
+                                                        placeholderChar={"\u2000"}
+                                                        {...getFieldProps("birthdate")}
+                                                        showMask
+                                                    />
+                                                </Box>
+                                            </Stack>
+
+                                            {patient?.birthdate &&
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    component="span">
+                                                    -{" "}
+                                                    ({" "}{getBirthdayFormat(patient, t)}{" "})
+                                                </Typography>}
+                                        </Stack>
+                                        }
+                                    </>
+                                )}
+
+                                {((patient?.email || patient?.email && patient?.birthdate) && !isMobile) &&
+                                    <Typography color={"gray"} variant={"body2"} ml={1} mt={.3}> / </Typography>}
+
+                                {loading ?
+                                    <Skeleton {...(!isMobile && {sx: {ml: 1}})} variant="text" width={150}/>
+                                    :
+                                    <Stack direction={"row"} alignItems="center">
+                                        <Typography
+                                            variant="body2"
+                                            component="span"
+                                            color={"gray"}
+                                            className="email-link">
+                                            {loading ? (
+                                                <Skeleton variant="text" width={100}/>
+                                            ) : patient?.email && (
+                                                <>
+                                                    <Icon path="ic-message-contour"/>
+                                                    <Typography {...(!patient?.email && {color: "primary"})}
+                                                                variant={"body2"}>{patient?.email}</Typography>
+                                                </>
+                                            )}
+                                        </Typography>
+                                    </Stack>}
+                            </Stack>
+
+                            {(patient?.familyDoctor && !isMobile) && (loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <>
-                                    {patient?.birthdate && <Stack
-                                        className={"date-birth"}
-                                        direction={isMobile ? "column" : "row"} alignItems="center">
-                                        <Stack direction={"row"} alignItems="center">
-                                            <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
-                                            <Box
-                                                sx={{
-                                                    input: {
-                                                        color: theme.palette.text.secondary,
-                                                    },
-                                                }}>
-                                                <MaskedInput
-                                                    readOnly
-                                                    style={{
-                                                        border: "none",
-                                                        outline: "none",
-                                                        width: 75,
-                                                    }}
-                                                    mask={[
-                                                        /\d/,
-                                                        /\d/,
-                                                        "-",
-                                                        /\d/,
-                                                        /\d/,
-                                                        "-",
-                                                        /\d/,
-                                                        /\d/,
-                                                        /\d/,
-                                                        /\d/,
-                                                    ]}
-                                                    placeholderChar={"\u2000"}
-                                                    {...getFieldProps("birthdate")}
-                                                    showMask
-                                                />
-                                            </Box>
-                                        </Stack>
+                                patient?.familyDoctor &&
+                                <Tooltip title={t("family_doctor")}>
+                                    <InputBase
+                                        readOnly
+                                        startAdornment={
+                                            <Stack direction={"row"}>
+                                                <UrlIcon width={16} height={16} color={"gray"} path="ic-docotor"/>
+                                                <Typography sx={{width: 150, color: "gray"}}
+                                                            variant={"body2"}>{t("family_doctor")}{":"}</Typography>
+                                            </Stack>}
+                                        inputProps={{
+                                            style: {
+                                                color: "gray",
+                                                fontSize: pxToRem(12)
+                                            },
+                                        }}
+                                        value={patient.familyDoctor}/>
+                                </Tooltip>
+                            ))}
 
-                                        {patient?.birthdate &&
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                component="span">
-                                                -{" "}
-                                                ({" "}{getBirthdayFormat(patient, t)}{" "})
-                                            </Typography>}
-                                    </Stack>
-                                    }
-                                </>
-                            )}
                             {loading ?
                                 <Skeleton variant="text" width={150}/>
                                 :
-                                <Stack direction={"row"} alignItems="center">
-                                    <Typography
-                                        variant="body2"
-                                        component="span"
-                                        color={"gray"}
-                                        className="email-link">
-                                        {loading ? (
-                                            <Skeleton variant="text" width={100}/>
-                                        ) : patient?.email && (
-                                            <>
-                                                <Icon path="ic-message-contour"/>
-                                                <Typography {...(!patient?.email && {color: "primary"})}
-                                                            variant={"body2"}>{patient?.email}</Typography>
-                                            </>
-                                        )}
-                                    </Typography>
-                                </Stack>}
-                            {loading ?
-                                <Skeleton variant="text" width={150}/>
-                                :
-                                <Stack direction={"row"} alignItems="center">
+                                <Stack ml={"-1px"} direction={"row"} alignItems="center">
                                     <Typography
                                         variant="body2"
                                         component="span"
@@ -294,53 +327,70 @@ function PatientDetailsCard({...props}) {
                                         {loading ? (
                                             <Skeleton variant="text" width={100}/>
                                         ) : (
-                                            <Stack direction={"row"} alignItems={"center"}>
-                                                <Icon width={"14"} height={"14"} path="ic-doc"/>
+                                            <Stack alignItems={"center"}>
                                                 <InputBase
+                                                    {...{ref}}
                                                     className={"input-base-custom"}
+                                                    startAdornment={
+                                                        <Stack mr={.5} direction={"row"} alignItems={"center"}
+                                                               justifyContent={"center"}>
+                                                            <FolderRoundedIcon
+                                                                sx={{color: "gray", width: 16, height: 16, mr: 1}}/>
+                                                            <Typography variant={"body2"} sx={{width: 50}}>Fiche
+                                                                N°</Typography>
+                                                        </Stack>}
                                                     readOnly={!editable}
+                                                    endAdornment={
+                                                        <Stack direction={"row"} spacing={1.2}>
+                                                            {editable ?
+                                                                <>
+                                                                    <LoadingButton
+                                                                        loading={requestLoading}
+                                                                        onClick={() => {
+                                                                            setEditable(false);
+                                                                            uploadPatientDetail();
+                                                                        }}
+                                                                        className='btn-add'
+                                                                        sx={{margin: 'auto'}}
+                                                                        size='small'
+                                                                        startIcon={<SaveAsIcon/>}>
+                                                                        {t('register')}
+                                                                    </LoadingButton>
+                                                                    <Button
+                                                                        size='small'
+                                                                        color={"error"}
+                                                                        onClick={() => setEditable(false)}
+                                                                        startIcon={<CloseIcon/>}
+                                                                    >
+                                                                        {t(`cancel`)}
+                                                                    </Button>
+                                                                </>
+                                                                :
+                                                                <Button size="small"
+                                                                        color={"primary"}
+                                                                        onClick={() => setEditable(true)}
+                                                                        startIcon={<IconUrl
+                                                                            color={theme.palette.primary.main}
+                                                                            path='ic-duotone'/>}
+                                                                        sx={{
+                                                                            "& .react-svg": {
+                                                                                margin: 0,
+                                                                            }
+                                                                        }}>
+                                                                    {t('edit')}
+                                                                </Button>}
+                                                        </Stack>}
                                                     inputProps={{
                                                         style: {
+                                                            textOverflow: "ellipsis",
+                                                            color: "gray",
                                                             fontSize: pxToRem(12),
-                                                            width: values.fiche_id.length > 0 ? "fit-content" : "240px"
+                                                            width: values.fiche_id.length > 0 ? `80px` : "40px"
                                                         },
                                                     }}
-                                                    placeholder={t("fiche_placeholder")}
+                                                    placeholder={"-"}
                                                     {...getFieldProps("fiche_id")}/>
-                                                {editable ?
-                                                    <>
-                                                        <LoadingButton
-                                                            loading={requestLoading}
-                                                            onClick={() => {
-                                                                setEditable(false);
-                                                                uploadPatientDetail();
-                                                            }}
-                                                            className='btn-add'
-                                                            sx={{margin: 'auto'}}
-                                                            size='small'
-                                                            startIcon={<SaveAsIcon/>}>
-                                                            {t('register')}
-                                                        </LoadingButton>
-                                                        <Button
-                                                            size='small'
-                                                            color={"error"}
-                                                            onClick={() => setEditable(false)}
-                                                            startIcon={<CloseIcon/>}
-                                                        >
-                                                            {t(`cancel`)}
-                                                        </Button>
-                                                    </>
-                                                    :
-                                                    <IconButton size="small"
-                                                                onClick={() => setEditable(true)}
-                                                                sx={{
-                                                                    padding: "4px",
-                                                                    "& .react-svg": {
-                                                                        margin: 0,
-                                                                    }
-                                                                }}>
-                                                        <IconUrl path='ic-duotone'/>
-                                                    </IconButton>}
+
                                             </Stack>
                                         )}
                                     </Typography>

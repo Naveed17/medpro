@@ -325,20 +325,18 @@ function PersonalInsuranceCard({...props}) {
                                         )}
                                     </Typography>
                                 </Box>
-                                <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                                    <LoadingButton
-                                        disabled={editable}
-                                        loading={loadingRequest}
-                                        className='btn-add'
-                                        onClick={() => {
-                                            handleAddInsurance();
-                                            setInsuranceDialog(true);
-                                        }}
-                                        startIcon={<AddIcon/>}
-                                        size="small">
-                                        {t("add")}
-                                    </LoadingButton>
-                                </Box>
+                                <LoadingButton
+                                    disabled={editable}
+                                    loading={loadingRequest}
+                                    className='btn-add'
+                                    onClick={() => {
+                                        handleAddInsurance();
+                                        setInsuranceDialog(true);
+                                    }}
+                                    startIcon={<AddIcon/>}
+                                    size="small">
+                                    {t("add")}
+                                </LoadingButton>
                             </Toolbar>
                         </AppBar>
                         {patient?.insurances.map((insurance: any, index: number) => (

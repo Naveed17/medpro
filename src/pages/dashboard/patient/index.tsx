@@ -39,8 +39,8 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {
     AddPatientStep1,
     AddPatientStep2,
-    AddPatientStep3,
-    onResetPatient,
+    AddPatientStep3, appointmentSelector,
+    onResetPatient, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -172,6 +172,7 @@ function Patient() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
     // state hook for details drawer
@@ -385,6 +386,9 @@ function Patient() {
                 setPatientDrawer(true);
                 break;
             case "ADD_APPOINTMENT":
+                if (submitted) {
+                    dispatch(resetSubmitAppointment());
+                }
                 if (patientDrawer) {
                     dispatch(onResetPatient());
                     setPatientDrawer(false);
@@ -645,17 +649,24 @@ function Patient() {
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
+                    if (submitted) {
+                        dispatch(resetSubmitAppointment());
+                    }
                 }}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId, mutate}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
+                        if (submitted) {
+                            dispatch(resetSubmitAppointment());
+                        }
                     }}
                     onConsultation={onConsultationView}
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
+
             <Drawer
                 anchor={"right"}
                 open={patientDrawer}
