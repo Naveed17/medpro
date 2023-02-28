@@ -339,11 +339,12 @@ function ConsultationInProgress() {
                     appointement.acts.map(
                         (act: { act_uuid: string; price: any; qte: any }) => {
                             sAct.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
-                            const actDetect = acts.find(
-                                (a: { uuid: string }) => a.uuid === act.act_uuid
-                            ) as any;
-                            if (!actDetect) {
+                            const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                            console.log(actDetect)
+                            if (actDetect === -1) {
                                 acts.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
+                            } else{
+                                acts[actDetect].fees = act.price;
                             }
                         }
                     );
