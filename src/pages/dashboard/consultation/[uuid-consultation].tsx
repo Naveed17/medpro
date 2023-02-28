@@ -333,22 +333,24 @@ function ConsultationInProgress() {
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
 
-            if (appointement.acts) {
-                let sAct: any[] = [];
-                appointement.acts.map(
-                    (act: { act_uuid: string; price: any; qte: any }) => {
-                        sAct.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
-                        const actDetect = acts.find(
-                            (a: { uuid: string }) => a.uuid === act.act_uuid
-                        ) as any;
-                        if (!actDetect) {
-                            acts.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
+            setTimeout(()=>{
+                if (appointement.acts) {
+                    let sAct: any[] = [];
+                    appointement.acts.map(
+                        (act: { act_uuid: string; price: any; qte: any }) => {
+                            sAct.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
+                            const actDetect = acts.find(
+                                (a: { uuid: string }) => a.uuid === act.act_uuid
+                            ) as any;
+                            if (!actDetect) {
+                                acts.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
+                            }
                         }
-                    }
-                );
-                setSelectedAct(sAct);
-                setActs([...acts]);
-            }
+                    );
+                    setSelectedAct(sAct);
+                    setActs([...acts]);
+                }
+            },500);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, dispatch, mutate]);
@@ -931,7 +933,7 @@ function ConsultationInProgress() {
                                             <span>{t("total")} : </span>
                                         </Typography>
                                         <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                            {total} {devise}
+                                            {isNaN(total) ? "-":total} {devise}
                                         </Typography>
                                         <Stack
                                             direction="row"

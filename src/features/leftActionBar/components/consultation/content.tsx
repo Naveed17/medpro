@@ -3,11 +3,11 @@ import {
     Button,
     CardContent,
     DialogActions,
-    IconButton,
+    IconButton, InputAdornment,
     List,
     ListItem,
     ListItemIcon,
-    Stack,
+    Stack, TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -37,7 +37,7 @@ import {LoadingButton} from "@mui/lab";
 import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
-
+import SearchIcon from '@mui/icons-material/Search';
 const Content = ({...props}) => {
     const {id, patient} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
@@ -54,6 +54,7 @@ const Content = ({...props}) => {
     const {trigger} = useRequestMutation(null, "/antecedent");
     const router = useRouter();
     const [selected, setSelected] = useState<any>();
+    const [treatementFilter, setTreatementFilter] = useState("");
     const [openRemove, setOpenRemove] = useState(false);
     const {data: session, status} = useSession();
     const {direction} = useAppSelector(configSelector);
@@ -254,9 +255,22 @@ const Content = ({...props}) => {
                     <CardContent style={{paddingBottom: pxToRem(15)}}>
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
+                                {patient?.treatment.length > 0 && <TextField
+                                    placeholder={"Exemple: chimio ..."}
+                                    value={treatementFilter}
+                                    onChange={(ev) => {
+                                        setTreatementFilter(ev.target.value);
+                                    }}
+                                    sx={{width: '100%'}}
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">
+                                            <SearchIcon/>
+                                        </InputAdornment>,
+                                    }}
+                                />}
                                 <List dense>
                                     {patient?.treatment.filter(
-                                        (tr: any) => tr.isOtherProfessional
+                                        (tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
                                     ).length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("tip")}
@@ -264,7 +278,7 @@ const Content = ({...props}) => {
                                     )}
 
                                     {patient?.treatment
-                                        .filter((tr: any) => tr.isOtherProfessional)
+                                        .filter((tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
@@ -301,14 +315,14 @@ const Content = ({...props}) => {
                                         ))}
 
                                     {patient?.treatment.filter(
-                                        (tr: any) => !tr.isOtherProfessional
+                                        (tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
                                     ).length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("prescription")}
                                         </Typography>
                                     )}
                                     {patient?.treatment
-                                        .filter((tr: any) => !tr.isOtherProfessional)
+                                        .filter((tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
