@@ -33,7 +33,7 @@ const ConsultationStyled = styled(Box)(({ theme }) => ({
         }
     },
     ".more-details-btn": {
-        '-webkit-text-fill-color': theme.palette.primary.main,
+        WebkitTextFillColor: theme.palette.primary.main,
         fontSize: 12
     }
 }));

@@ -337,18 +337,17 @@ function ConsultationInProgress() {
                 let sAct: any[] = [];
                 appointement.acts.map(
                     (act: { act_uuid: string; price: any; qte: any }) => {
+                        sAct.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
                         const actDetect = acts.find(
                             (a: { uuid: string }) => a.uuid === act.act_uuid
                         ) as any;
-
-                        if (actDetect) {
-                            actDetect.fees = act.price;
-                            actDetect.qte = act.qte;
-                            sAct.push(actDetect);
+                        if (!actDetect) {
+                            acts.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
                         }
                     }
                 );
                 setSelectedAct(sAct);
+                setActs([...acts]);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
