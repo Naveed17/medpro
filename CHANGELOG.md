@@ -1,3 +1,32 @@
+# [4.13.0](https://github.com/SmartMedSA/med-pro/compare/v4.12.2...v4.13.0) (2023-02-28)
+
+
+### Bug Fixes
+
+* close dialog when consultation opened from fiche consultation ([739bc02](https://github.com/SmartMedSA/med-pro/commit/739bc0237a3cd5a1c460591c2170b61f037d2d4e))
+* date picker handler invalid date ([1c57779](https://github.com/SmartMedSA/med-pro/commit/1c57779ecf676665c928191efa7ebc4ec4e21234))
+* delete import data button in Prod ([f0d9141](https://github.com/SmartMedSA/med-pro/commit/f0d9141df86bc383626b2c9c55aef1182ae6fb4d))
+* disable sentry in dev env ([9692af7](https://github.com/SmartMedSA/med-pro/commit/9692af7e78934a26c168d4b18ed36473a8fb3696))
+* disable sentry in vercel ([31ef008](https://github.com/SmartMedSA/med-pro/commit/31ef008950e8adef7a638b50454ddf66f7b3c861))
+* documents dates ([37cc28c](https://github.com/SmartMedSA/med-pro/commit/37cc28c5825b3de38d125c1cde08698820c2fd9b))
+* edit places config blockage ([3b6616e](https://github.com/SmartMedSA/med-pro/commit/3b6616ea5b9347b5be9125b745b4b62c3fc72b85))
+* global history ([e149df7](https://github.com/SmartMedSA/med-pro/commit/e149df74cdd4c34204ef3a8ed0cca917cfa3e84f))
+* medical imaging result in history ([fcf09fb](https://github.com/SmartMedSA/med-pro/commit/fcf09fb1202824d9e8f59602dbcc357abfb66510))
+* note medical imaging request size ([ba2f32e](https://github.com/SmartMedSA/med-pro/commit/ba2f32ed70ef68a52aa5ae39937f5d1695949a1f))
+* remove certif doc ([731f9b3](https://github.com/SmartMedSA/med-pro/commit/731f9b3047b430254711a8ade1c48b75e94e5584))
+* sentry set SENTRY_IGNORE_API_RESOLUTION_ERROR ([26f1d7c](https://github.com/SmartMedSA/med-pro/commit/26f1d7c7f3b1e8da341e3ccee7561ec6800580aa))
+* show more / less details ([6c2f4f8](https://github.com/SmartMedSA/med-pro/commit/6c2f4f867e823d91e11ba3cd6cd5c5587aff00f8))
+* update patient fiche ([44645d0](https://github.com/SmartMedSA/med-pro/commit/44645d0873c6dbf0638168a34c3f3a2574ae5921))
+* update readme ([78608b6](https://github.com/SmartMedSA/med-pro/commit/78608b67217288712606c4ce9dc70e50a82a4900))
+* update readme ([f89856c](https://github.com/SmartMedSA/med-pro/commit/f89856c51dc7cbb90b85e57145ccacc52af04e57))
+* update sentry dependency ([ba005ec](https://github.com/SmartMedSA/med-pro/commit/ba005ec08c1898d565453e2794407c6f3df62e13))
+
+
+### Features
+
+* add auto complete reason ([5cd8b9a](https://github.com/SmartMedSA/med-pro/commit/5cd8b9ae34e4836f896f1406748030d91ac4ceca))
+* open document from consultation ([d5df863](https://github.com/SmartMedSA/med-pro/commit/d5df863bcf9781e59eb645dbbf790f246c213a41))
+
 ## [4.12.2](https://github.com/SmartMedSA/med-pro/compare/v4.12.1...v4.12.2) (2023-02-22)
 
 
