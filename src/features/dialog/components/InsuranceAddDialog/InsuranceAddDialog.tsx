@@ -284,7 +284,7 @@ function InsuranceAddDialog({...props}) {
                                                     {t("birthdate")}
                                                 </Typography>
                                                 <CustomDatePicker
-                                                    value={values.insurances[index].insurance_social.birthday ?
+                                                    value={values.insurances[index].insurance_social?.birthday ?
                                                         moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
                                                     onChange={(date: Date) => {
                                                         const dateInput = moment(date);
