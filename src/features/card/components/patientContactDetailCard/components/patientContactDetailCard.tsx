@@ -7,7 +7,7 @@ import {
     Grid,
     Stack,
     Box,
-    InputBase, AppBar, Toolbar, Button, IconButton, MenuItem, Select, useTheme, Avatar,
+    InputBase, AppBar, Toolbar, Button, IconButton, MenuItem, Select, useTheme, Avatar, useMediaQuery,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
@@ -45,6 +45,7 @@ function PatientContactDetailCard({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {
@@ -54,7 +55,6 @@ function PatientContactDetailCard({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
@@ -226,52 +226,51 @@ function PatientContactDetailCard({...props}) {
                                             )}
                                         </Typography>
                                     </Box>
-                                    <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                                        {editable ?
-                                            <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                                <Button onClick={() => setEditable(false)}
-                                                        color={"error"}
-                                                        className='btn-cancel'
-                                                        sx={{margin: 'auto'}}
-                                                        size='small'
-                                                        startIcon={<CloseIcon/>}>
-                                                    {t('cancel')}
-                                                </Button>
-                                                <LoadingButton
-                                                    onClick={() => handleUpdatePatient()}
-                                                    loading={loadingRequest}
-                                                    disabled={Object.keys(errors).length > 0}
-                                                    className='btn-add'
+                                    {editable ?
+                                        <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                            <Button onClick={() => setEditable(false)}
+                                                    color={"error"}
+                                                    className='btn-cancel'
                                                     sx={{margin: 'auto'}}
                                                     size='small'
-                                                    startIcon={<SaveAsIcon/>}>
-                                                    {t('register')}
-                                                </LoadingButton>
-                                            </Stack>
-                                            :
-                                            <Button
-                                                disabled={disableActions}
-                                                onClick={() => {
-                                                    setCurrentSection("PatientContactDetailCard");
-                                                    setEditable(true)
-                                                }}
-                                                startIcon={<IconUrl
-                                                    {...(disableActions && {color: "white"})}
-                                                    path={"setting/edit"}/>}
-                                                color="primary" size="small">
-                                                {t("edit")}
+                                                    startIcon={<CloseIcon/>}>
+                                                {t('cancel')}
                                             </Button>
-                                        }
-                                    </Box>
+                                            <LoadingButton
+                                                onClick={() => handleUpdatePatient()}
+                                                loading={loadingRequest}
+                                                disabled={Object.keys(errors).length > 0}
+                                                className='btn-add'
+                                                sx={{margin: 'auto'}}
+                                                size='small'
+                                                startIcon={<SaveAsIcon/>}>
+                                                {t('register')}
+                                            </LoadingButton>
+                                        </Stack>
+                                        :
+                                        <Button
+                                            disabled={disableActions}
+                                            onClick={() => {
+                                                setCurrentSection("PatientContactDetailCard");
+                                                setEditable(true)
+                                            }}
+                                            startIcon={<IconUrl
+                                                {...(disableActions && {color: "white"})}
+                                                path={"setting/edit"}/>}
+                                            color="primary" size="small">
+                                            {t("edit")}
+                                        </Button>
+                                    }
                                 </Toolbar>
                             </AppBar>
+
                             <Grid container spacing={1.2}>
                                 {values.phones.map((phone: any, index: number) => (
-                                        <Grid key={`${index}`} item md={6} sm={6} xs={6}
+                                        <Grid key={`${index}`} item md={6} sm={6} xs={12}
                                               className={"phone-handler"}>
                                             <Stack direction="row"
                                                    alignItems="center">
-                                                <Grid item md={10} sm={12} xs={12} sx={{
+                                                <Grid item md={10} sm={10} xs={10} sx={{
                                                     "& .Input-select": {
                                                         marginLeft: "-0.8rem"
                                                     }
@@ -285,7 +284,7 @@ function PatientContactDetailCard({...props}) {
                                                             sx={{height: 30}}
                                                             alignItems="center">
                                                             <Typography
-                                                                mr={2.5}
+                                                                mr={isMobile ? 0 : 2.5}
                                                                 className="label"
                                                                 variant="body2"
                                                                 color="text.secondary">
@@ -332,7 +331,7 @@ function PatientContactDetailCard({...props}) {
                                                         </Stack>
                                                     )}
                                                 </Grid>
-                                                <Grid item md={1} sm={6} xs={6}>
+                                                <Grid item md={1} sm={1} xs={2}>
                                                     <Stack direction="row"
                                                            ml={1}
                                                            alignItems="center">
@@ -374,12 +373,12 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     )
                                 )}
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={12}>
                                     <Stack direction="row"
                                            sx={{height: 28, width: "103%"}}
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={2.8} sm={6} xs={6}>
+                                        <Grid item md={2.8} sm={6} xs={3}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -407,7 +406,7 @@ function PatientContactDetailCard({...props}) {
                                                     height: "100%"
                                                 }
                                             }}
-                                            item md={8.5} sm={6} xs={6}>
+                                            item md={8.5} sm={6} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -471,11 +470,11 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={12}>
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={3} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={3}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -500,7 +499,7 @@ function PatientContactDetailCard({...props}) {
                                                     pl: 1.6
                                                 }
                                             }}
-                                            item md={8} sm={6} xs={6}>
+                                            item md={8} sm={6} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -544,7 +543,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={12}>
                                     <Stack direction="row"
                                            sx={{
                                                "& .MuiInputBase-root": {
@@ -553,7 +552,7 @@ function PatientContactDetailCard({...props}) {
                                            }}
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={3} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={3}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -564,7 +563,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                         <Grid
                                             {...(editable && {className: "grid-border"})}
-                                            item md={9.4} sm={6} xs={6}>
+                                            item md={9.4} sm={6} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -584,7 +583,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}
+                                <Grid item md={6} sm={6} xs={12}
                                       sx={{
                                           "& .MuiInputBase-readOnly": {
                                               ml: "0.3rem"
@@ -593,7 +592,7 @@ function PatientContactDetailCard({...props}) {
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={3} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={3}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -603,7 +602,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                         <Grid
                                             {...(editable && {className: "grid-border"})}
-                                            item md={8} sm={6} xs={6}>
+                                            item md={8} sm={6} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -624,11 +623,11 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={12}>
                                     <Stack direction="row" spacing={1}
                                            sx={{height: 28, width: "103%"}}
                                            alignItems="center">
-                                        <Grid item md={2.8} sm={6} xs={6}>
+                                        <Grid item md={2.8} sm={6} xs={3}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -654,7 +653,7 @@ function PatientContactDetailCard({...props}) {
                                                     pl: 1.6
                                                 })
                                             }}
-                                            item md={8.5} sm={6} xs={6}>
+                                            item md={8.5} sm={6} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (

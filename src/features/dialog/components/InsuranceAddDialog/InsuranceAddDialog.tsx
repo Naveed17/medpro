@@ -268,21 +268,30 @@ function InsuranceAddDialog({...props}) {
                                                     </Stack>
                                                 </Grid>
                                             </Grid>
-                                            <Stack direction={"row"} alignItems={"center"} mb={1}>
-                                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                    <Typography variant="body2"
-                                                                color="text.secondary"
-                                                                gutterBottom>
-                                                        {t("birthdate")}
-                                                    </Typography>
-                                                    <CustomDatePicker
-                                                        value={moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                        onChange={(date: Date) => {
-                                                            setFieldValue(`insurances[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                        }}
-                                                        inputFormat="dd/MM/yyyy"
-                                                    />
-                                                </LocalizationProvider>
+                                            <Stack
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root button": {
+                                                        padding: "5px",
+                                                        minHeight: "auto",
+                                                        height: "auto",
+                                                        minWidth: "auto"
+                                                    }
+                                                }}
+                                                direction={"row"} alignItems={"center"} mb={1}>
+                                                <Typography variant="body2"
+                                                            color="text.secondary"
+                                                            gutterBottom>
+                                                    {t("birthdate")}
+                                                </Typography>
+                                                <CustomDatePicker
+                                                    value={values.insurances[index].insurance_social.birthday ?
+                                                        moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
+                                                    onChange={(date: Date) => {
+                                                        const dateInput = moment(date);
+                                                        setFieldValue(`insurances[${index}].insurance_social.birthday`, dateInput.isValid() ? dateInput.format('DD-MM-YYYY') : "");
+                                                    }}
+                                                    inputFormat="dd/MM/yyyy"
+                                                />
                                             </Stack>
                                             <Stack direction={"row"} alignItems={"center"}>
                                                 <Typography variant="body2" color="text.secondary"

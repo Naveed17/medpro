@@ -5,6 +5,7 @@
   },
   "patient-details": {
     "duplicate": "Détection des doublons",
+    "family_doctor": "Médecin correspondant",
     "add-email": "Ajouter l'adresse mail",
     "fiche_placeholder": "Numéro de la fiche médicale du patient",
     "start-consultation": "Commencer la consultation",
