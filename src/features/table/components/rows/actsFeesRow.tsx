@@ -1,18 +1,22 @@
 import TableCell from "@mui/material/TableCell";
 import {Box, IconButton, InputAdornment, Skeleton, Stack, TextField, Typography} from "@mui/material";
 import {TableRowStyled} from "@features/table";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import IconUrl from "@themes/urlIcon";
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 
 function ActFeesRow({...props}) {
-    const {row, editMotif,data} = props;
-    const [act] = useState("");
+    const {row, editMotif, data, t} = props;
     const [fees, setFees] = useState("");
+    const [name, setName] = useState("");
     const [edit, setEdit] = useState('');
+
+    useEffect(() => {
+        setFees(row?.fees)
+        setName(row?.act?.name)
+    }, [row])
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -24,35 +28,51 @@ function ActFeesRow({...props}) {
     return (
         <TableRowStyled>
             <TableCell>
-                {row?.act?.name}
+                {
+                    edit === row?.uuid && !row?.act.isVerified ? <TextField
+                        placeholder={'--'}
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            row.act.name = e.target.value;
+                        }}/> : row?.act?.name
+                }
+
             </TableCell>
             <TableCell align={"center"}>
                 {edit === row?.uuid ? <TextField
                     placeholder={'--'}
-                    type="number"
-                    value={fees ? fees : row?.fees || ''}
+                    value={fees}
                     onChange={(e) => {
-                        setFees(e.target.value);
+                        if (!isNaN(Number(e.target.value))) {
+                            setFees(e.target.value);
+                            row.fees = Number(e.target.value);
+                        }
                     }}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">{devise}</InputAdornment>,
                         style: {width: 150, backgroundColor: "white"},
                         inputProps: {min: 0}
                     }}
-                /> : <Typography fontSize={14} letterSpacing={1}>{row?.fees} <span style={{fontSize:9}}>{devise}</span></Typography>}
+                /> : <Typography fontSize={14} letterSpacing={1}>{row?.fees} <span style={{fontSize: 9}}>{devise}</span></Typography>}
             </TableCell>
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        {edit === row.uuid ? <IconButton size="small" disabled={fees.length === 0} sx={{mr: {md: 1}}} onClick={() => {
-                            editMotif(row,fees);
-                            setTimeout(()=>{
-                                setEdit('')
-                            },1000)
+                        {edit === row.uuid ?
+                            <IconButton size="small"
+                                        disabled={fees?.length === 0}
+                                        color={"primary"}
+                                        sx={{mr: {md: 1}}} onClick={() => {
+                                editMotif(row, fees, name);
+                                setTimeout(() => {
+                                    setEdit('')
+                                }, 1000)
                             }}>
-                                <SaveRoundedIcon color={"primary"}/>
+                                <IconUrl path="setting/edit"/>
+                                <Typography fontSize={11} ml={1}>{t('save')}</Typography>
                             </IconButton> :
-                            <IconButton size="small" sx={{mr: {md: 1}}}   onClick={() => {
+                            <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
                                 console.log("click")
                                 setEdit(row.uuid)
                             }}>
