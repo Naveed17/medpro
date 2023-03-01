@@ -64,11 +64,11 @@ function CipCard() {
                     <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
                         {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}
                     </Typography>
-                    {process.env.NODE_ENV === 'development' && <Box className={'timer-card'}>
+                    <Box className={'timer-card'}>
                         <Typography color="common.white" variant='caption'>
                             {moment().utc().hour(0).minute(0).second(moment().utc().diff(moment.utc(initTimer, "HH:mm"), "seconds") as unknown as number).format('HH : mm : ss')}
                         </Typography>
-                    </Box>}
+                    </Box>
                     <Label color='warning' variant='filled' className='label'>
                         En consultation
                     </Label>
