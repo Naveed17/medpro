@@ -43,7 +43,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {getBirthdayFormat} from "@app/hooks";
 
-
 const menuList = [
     {
         title: "waiting",
@@ -128,21 +127,19 @@ function AppointmentDetail({...props}) {
 
     const {trigger: updateInstructionTrigger} = useRequestMutation(null, "/agenda/update/instruction");
 
-    const {data: httpPatientPhotoResponse, mutate: mutatePatientPhoto} =
-        useRequest(
-            appointment?.extendedProps?.patient?.hasPhoto
-                ? {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity?.uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }
-                : null,
-            SWRNoValidateConfig
-        );
+    const {
+        data: httpPatientPhotoResponse,
+        mutate: mutatePatientPhoto
+    } = useRequest(appointment?.extendedProps?.patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [canManageActions] = useState<boolean>(!["/dashboard/patient", "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [avatar, setAvatar] = useState("");
     const [instruction, setInstruction] = useState(
         appointment?.extendedProps?.instruction
@@ -390,37 +387,37 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
-                                    <IconUrl path="ic-duotone"/>
-                                </IconButton>
+                                {canManageActions &&
+                                    <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
+                                        <IconUrl path="ic-duotone"/>
+                                    </IconButton>}
                             </Stack>
 
-                            {!roles.includes("ROLE_SECRETARY") &&
-                                router.pathname !== "/dashboard/patient" && (
-                                    <LoadingButton
-                                        {...{loading}}
-                                        loadingPosition="start"
-                                        variant="contained"
-                                        color="warning"
-                                        fullWidth
-                                        startIcon={<PlayCircleIcon/>}
-                                        onClick={() => {
-                                            setLoading(true);
-                                            ["FINISHED", "ON_GOING"].includes(
-                                                appointment?.extendedProps.status.key
-                                            )
-                                                ? OnConsultationView(appointment)
-                                                : OnConsultation(appointment);
-                                        }}>
-                                        {t(
-                                            ["FINISHED", "ON_GOING"].includes(
-                                                appointment?.extendedProps.status.key
-                                            )
-                                                ? "view_the_consultation"
-                                                : "event.start"
-                                        )}
-                                    </LoadingButton>
-                                )}
+                            {(!roles.includes("ROLE_SECRETARY") && canManageActions) && (
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    variant="contained"
+                                    color="warning"
+                                    fullWidth
+                                    startIcon={<PlayCircleIcon/>}
+                                    onClick={() => {
+                                        setLoading(true);
+                                        ["FINISHED", "ON_GOING"].includes(
+                                            appointment?.extendedProps.status.key
+                                        )
+                                            ? OnConsultationView(appointment)
+                                            : OnConsultation(appointment);
+                                    }}>
+                                    {t(
+                                        ["FINISHED", "ON_GOING"].includes(
+                                            appointment?.extendedProps.status.key
+                                        )
+                                            ? "view_the_consultation"
+                                            : "event.start"
+                                    )}
+                                </LoadingButton>
+                            )}
                         </CardContent>
                     </Card>
                     <Typography
@@ -435,7 +432,9 @@ function AppointmentDetail({...props}) {
                     <AppointmentCard
                         {...{t, roles}}
                         onDataUpdated={OnDataUpdated}
-                        onMoveAppointment={() => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")}
+                        {...(canManageActions && {
+                            onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
+                        })}
                         data={{
                             uuid: appointment?.publicId
                                 ? appointment?.publicId
@@ -523,7 +522,7 @@ function AppointmentDetail({...props}) {
             </CardContent>
           </Card> */}
                 </Box>
-                {router.pathname !== "/dashboard/patient" && (
+                {canManageActions && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
                             {appointment?.extendedProps.patient.contact.length > 0 && <LoadingButton
