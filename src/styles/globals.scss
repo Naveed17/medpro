@@ -318,6 +318,15 @@ fieldset {
   -webkit-box-orient: vertical;
 }
 
+.resumenote {
+  overflow: hidden;
+  text-overflow: 'ellipsis';
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
 .zoom, .zoom-list {
   margin: 0 auto;
 }
@@ -381,6 +390,17 @@ fieldset {
   p {
     margin: 0;
   }
+}
+
+.note-container{
+  background: linear-gradient(181.14deg, #1B2746 41.55%, rgba(27, 39, 70, 0) 65.16%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
 }
 
 .MuiAutocomplete-paper {

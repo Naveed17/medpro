@@ -40,3 +40,4 @@ export * from "./settingAgendaMobileCard";
 export * from "./circularProgressbarCard";
 export * from "./personalInsuranceCard";
 export * from "./importDataMobileCard";
+export * from "./expendableCard"
