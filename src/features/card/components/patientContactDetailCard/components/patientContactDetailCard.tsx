@@ -13,12 +13,11 @@ import {
     Button,
     IconButton,
     MenuItem,
-    Select,
     useTheme,
     Avatar,
     useMediaQuery,
     InputAdornment,
-    TextField, Autocomplete,
+    TextField, Autocomplete, Divider,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
@@ -276,6 +275,16 @@ function PatientContactDetailCard({...props}) {
                             </AppBar>
 
                             <Grid container spacing={1.2}>
+                                <Divider textAlign="left" sx={{width: "100%"}}>
+                                    <Typography
+                                        mt={-1}
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary">
+                                        {t("address-group")}
+                                    </Typography>
+                                </Divider>
+
                                 <Grid item md={12} sm={12} xs={12}
                                       sx={{
                                           "& .MuiInputBase-readOnly": {
@@ -634,7 +643,15 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-
+                                {values.phones.length > 0 && <Divider textAlign="left" sx={{width: "100%"}}>
+                                    <Typography
+                                        mt={2}
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary">
+                                        {t("telephone")}
+                                    </Typography>
+                                </Divider>}
                                 {values.phones.map((phone: any, index: number) => (
                                         <Grid key={`${index}`} item md={12} sm={12} xs={12}>
                                             <Stack direction="row" alignItems="center">
