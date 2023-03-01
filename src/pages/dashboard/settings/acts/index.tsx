@@ -113,7 +113,7 @@ function Acts() {
 
     useEffect(() => {
         const selectedActs = [...mainActs, ...secondaryActs];
-        setSuggestion(acts.filter((nb) => {
+        setSuggestion(acts?.filter((nb) => {
             return !selectedActs.some((item) => item.uuid === nb.uuid);
         }));
     }, [acts, mainActs, secondaryActs]);
@@ -230,7 +230,7 @@ function Acts() {
 
                     <MultiSelect
                         id="main"
-                        data={acts.filter((a) => !secondaryActs.some((m) => a.uuid === m.uuid))}
+                        data={acts?.filter((a) => !secondaryActs.some((m) => a.uuid === m.uuid))}
                         onDrop={onDrop}
                         all={[...mainActs, ...secondaryActs]}
                         onDragOver={allowDrop}
@@ -291,7 +291,7 @@ function Acts() {
 
                     <MultiSelect
                         id="second"
-                        data={acts.filter((a) => !mainActs.some((m) => a.uuid === m.uuid))}
+                        data={acts?.filter((a) => !mainActs.some((m) => a.uuid === m.uuid))}
                         all={[...mainActs, ...secondaryActs]}
                         onDrop={onDrop}
                         onDragOver={allowDrop}

@@ -180,7 +180,7 @@ function FeesTab({...props}) {
                 <Box sx={{marginTop: '-7px'}}>
                     <Otable
                         headers={[]}
-                        rows={acts.filter((act: any) =>{return act.act.name.toLowerCase().includes(search.toLowerCase())})}
+                        rows={acts?.filter((act: any) =>{return act.act.name.toLowerCase().includes(search.toLowerCase())})}
                         select={selectedUuid}
                         from={"CIP-medical-procedures"}
                         t={t}
