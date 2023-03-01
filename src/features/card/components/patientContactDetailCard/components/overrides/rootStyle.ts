@@ -23,7 +23,7 @@ const RootStyled = styled(Card)(({theme}) => ({
     },
     "& .MuiAppBar-root": {
         border: "none",
-        borderBottom: "1px solid #E0E0E0",
+        //borderBottom: "1px solid #E0E0E0",
         height: 46,
         marginBottom: 12,
         "&.MuiTypography-root": {
