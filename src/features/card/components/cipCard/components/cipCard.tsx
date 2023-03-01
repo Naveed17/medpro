@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
-import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 import {Label} from '@features/label';
 import {IconButton, Stack, Typography, Box, Drawer} from '@mui/material';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -25,7 +24,7 @@ function CipCard() {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
 
-    const [time, setTime] = useState<number>(moment().diff(moment(initTimer, "HH:mm"), "seconds"));
+    const [time, setTime] = useState<number>(moment().utc().diff(moment.utc(`${initTimer}:00`, "HH:mm:ss"), "seconds"));
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
 
     useEffect(() => {
@@ -67,7 +66,7 @@ function CipCard() {
                     </Typography>
                     {process.env.NODE_ENV === 'development' && <Box className={'timer-card'}>
                         <Typography color="common.white" variant='caption'>
-                            {moment().hour(0).minute(0).second(moment().diff(moment(initTimer, "HH:mm"), "seconds") as unknown as number).format('HH : mm : ss')}
+                            {moment().utc().hour(0).minute(0).second(moment().utc().diff(moment.utc(initTimer, "HH:mm"), "seconds") as unknown as number).format('HH : mm : ss')}
                         </Typography>
                     </Box>}
                     <Label color='warning' variant='filled' className='label'>

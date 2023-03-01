@@ -1,6 +1,5 @@
 import {
     Autocomplete, Avatar,
-    Box,
     CardContent, Collapse, Divider, FormHelperText,
     Grid,
     IconButton, InputAdornment,
@@ -11,10 +10,7 @@ import {
     Typography
 } from "@mui/material";
 import {DefaultCountry, SocialInsured} from "@app/constants";
-import Select from "@mui/material/Select";
 import Icon from "@themes/urlIcon";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
 import React, {memo} from "react";
@@ -49,7 +45,7 @@ function InsuranceAddDialog({...props}) {
     const {data} = props;
     const {
         insurances, values, formik, loading,
-        getFieldProps, setFieldValue, touched, errors, t
+        getFieldProps, setFieldValue, touched, errors, t, patient
     } = data;
 
     const {data: session} = useSession();
@@ -95,8 +91,14 @@ function InsuranceAddDialog({...props}) {
                                                 disableClearable
                                                 {...getFieldProps(`insurances[${index}].insurance_type`)}
                                                 onChange={(event, insurance: any) => {
-                                                    setFieldValue(`insurances[${index}].insurance_type`, insurance?.value)
-                                                    setFieldValue(`insurances[${index}].expand`, insurance?.key !== "socialInsured")
+                                                    setFieldValue(`insurances[${index}].insurance_type`, insurance?.value);
+                                                    const expended = insurance?.key !== "socialInsured";
+                                                    setFieldValue(`insurances[${index}].expand`, expended);
+                                                    if (expended) {
+                                                        setFieldValue(`insurances[${index}].insurance_social.phone.code`, doctor_country?.phone);
+                                                        setFieldValue(`insurances[${index}].insurance_social.phone.contact_type`, patient.contact[0].uuid);
+                                                        setFieldValue(`insurances[${index}].insurance_social.phone.type`, "phone");
+                                                    }
                                                 }}
                                                 id={"assure"}
                                                 options={SocialInsured}
@@ -127,30 +129,38 @@ function InsuranceAddDialog({...props}) {
                                     </Grid>
                                     <Grid item xs={6} md={2.5}>
                                         <Stack direction="column" spacing={1.5}>
-                                            <Select
-                                                id={"assurance"}
-                                                size="small"
-                                                sx={{
-                                                    "& .MuiTypography-root": {
-                                                        whiteSpace: "nowrap",
-                                                        overflow: "hidden",
-                                                        textOverflow: "ellipsis"
-                                                    }
+                                            <Autocomplete
+                                                size={"small"}
+                                                value={insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) ?
+                                                    insurances.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) : ""}
+                                                onChange={(event, insurance: any) => {
+                                                    setFieldValue(`insurances[${index}].insurance_uuid`, insurance?.uuid);
                                                 }}
-                                                fullWidth
-                                                placeholder={t("assurance-placeholder")}
-                                                {...getFieldProps(`insurances[${index}].insurance_uuid`)}
-                                                error={Boolean(touched.insurances &&
-                                                    (touched.insurances as any)[index]?.insurance_uuid &&
-                                                    errors.insurances && (errors.insurances as any)[index]?.insurance_uuid)}
-                                                displayEmpty
-                                                renderValue={(selected: any) => {
-                                                    if (selected?.length === 0) {
-                                                        return <em>{t("assurance-placeholder")}</em>;
-                                                    }
-                                                    const insurance = insurances?.find((insurance: InsuranceModel) => insurance.uuid === selected);
-                                                    return (
-                                                        <Stack direction={"row"}>
+                                                id={"assurance"}
+                                                options={insurances ? insurances : []}
+                                                getOptionLabel={option => option?.name ? option.name : ""}
+                                                isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                renderOption={(params, option) => (
+                                                    <MenuItem
+                                                        {...params}
+                                                        key={option.uuid}
+                                                        value={option.uuid}>
+                                                        <Avatar
+                                                            sx={{
+                                                                width: 20,
+                                                                height: 20,
+                                                                borderRadius: 0.4
+                                                            }}
+                                                            alt={"insurance"}
+                                                            src={option.logoUrl}
+                                                        />
+                                                        <Typography
+                                                            sx={{ml: 1}}>{option.name}</Typography>
+                                                    </MenuItem>)}
+                                                renderInput={(params) => {
+                                                    const insurance = insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value);
+                                                    params.InputProps.startAdornment = insurance && (
+                                                        <InputAdornment position="start">
                                                             {insurance?.logoUrl &&
                                                                 <Avatar
                                                                     sx={{
@@ -161,29 +171,16 @@ function InsuranceAddDialog({...props}) {
                                                                     alt="insurance"
                                                                     src={insurance?.logoUrl}
                                                                 />}
-                                                            <Typography
-                                                                ml={1}>{insurance?.name}</Typography>
-                                                        </Stack>)
-                                                }}
-                                            >
-                                                {insurances?.map((insurance: InsuranceModel) => (
-                                                    <MenuItem
-                                                        key={insurance.uuid}
-                                                        value={insurance.uuid}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 20,
-                                                                height: 20,
-                                                                borderRadius: 0.4
-                                                            }}
-                                                            alt={"insurance"}
-                                                            src={insurance.logoUrl}
-                                                        />
-                                                        <Typography
-                                                            sx={{ml: 1}}>{insurance.name}</Typography>
-                                                    </MenuItem>)
-                                                )}
-                                            </Select>
+                                                        </InputAdornment>
+                                                    );
+
+                                                    return <TextField color={"info"}
+                                                                      {...params}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      placeholder={t("assurance-placeholder")}
+                                                                      variant="outlined"
+                                                                      fullWidth/>;
+                                                }}/>
                                             {touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_uuid && (
                                                 <FormHelperText error sx={{px: 2, mx: 0}}>
                                                     {(errors.insurances as any)[index].insurance_uuid}
@@ -201,6 +198,8 @@ function InsuranceAddDialog({...props}) {
                                             helperText={touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_number}
                                             size="small"
                                             fullWidth
+                                            value={getFieldProps(`insurances[${index}].insurance_number`) ?
+                                                getFieldProps(`insurances[${index}].insurance_number`).value : ""}
                                             {...getFieldProps(`insurances[${index}].insurance_number`)}
                                         />
                                     </Grid>
