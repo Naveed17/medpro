@@ -259,14 +259,14 @@ function ActFees() {
             });
         }, [medical_entity.uuid, medical_professional.uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleEdit = (v: any, fees: string) => {
+    const handleEdit = (v: any, fees: string,name?:string) => {
         const form = new FormData();
-        form.append("attribute", "price");
-        form.append("value", fees);
+        form.append("price", fees);
+        name && form.append("name", name);
 
         trigger(
             {
-                method: "PATCH",
+                method: "PUT",
                 url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
                 data: form,
                 headers: {

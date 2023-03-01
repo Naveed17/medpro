@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
@@ -8,33 +8,27 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
-import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
-import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
-import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
-import moment from "moment-timezone";
 import {pxToRem} from "@themes/formatFontSize";
-import RecondingBoxStyle from './overrides/recordingBoxStyle';
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {RecButton} from "@features/buttons";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, appointement} = props;
+    const {exam: defaultExam, changes, setChanges, uuind, seeHistory} = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
-    const intervalref = useRef<number | null>(null);
 
     const {exam, listen} = useAppSelector(consultationSelector);
 
     const [loadingReq, setLoadingReq] = useState(false);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
-    let [time, setTime] = useState('00:00');
     let [oldNote, setOldNote] = useState('');
 
     const {data: user} = session as Session;
@@ -109,16 +103,24 @@ function CIPPatientHistoryCard({...props}) {
         setChanges([...changes])
     }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
+    const startStopRec = () => {
+        if (listening && isStarted) {
+            SpeechRecognition.stopListening();
+            resetTranscript();
+            setIsStarted(false)
+            dispatch(SetListen(''));
+
+        } else {
+            startListening();
+        }
+
+    }
     const startListening = () => {
+        resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
             setIsStarted(true);
             dispatch(SetListen('observation'));
             setOldNote(values.notes);
-            if (intervalref.current !== null) return;
-            intervalref.current = window.setInterval(() => {
-                time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                setTime(time);
-            }, 1000);
         })
     }
 
@@ -189,7 +191,7 @@ function CIPPatientHistoryCard({...props}) {
                         onSubmit={handleSubmit}>
 
                         <Box width={1}>
-                            <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
+                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                 {t("reason_for_consultation")}
                             </Typography>
                             <Autocomplete
@@ -266,43 +268,19 @@ function CIPPatientHistoryCard({...props}) {
                         </Box>
                         <Box>
                             {<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
-                                <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
+                                <Typography variant="body2" fontWeight={500}>
                                     {t("notes")}
                                 </Typography>
-                                {(listen === '' || listen === 'observation') && <>
-                                    {/*<Typography onClick={() => {
-                                        appointement.latestAppointments.map((app: any) => {
-                                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-                                            if (note && note.value !== '')
-                                                console.log(app.appointment.dayDate,note.value);
-                                        })
-                                    }}>Voir historique</Typography>*/}
-                                    {
-                                        listening && isStarted ? <RecondingBoxStyle onClick={() => {
-                                            if (intervalref.current) {
-                                                window.clearInterval(intervalref.current);
-                                                intervalref.current = null;
-                                            }
-                                            SpeechRecognition.stopListening();
-                                            resetTranscript();
-                                            setTime('00:00');
-                                            setIsStarted(false)
-                                            dispatch(SetListen(''));
-                                        }}>
-                                            <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                            <div className={"recording-text"}>{time}</div>
-                                            <div className="recording-circle"></div>
-
-                                        </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
-                                            resetTranscript();
-                                            startListening()
-                                        }}>
-                                            <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
-                                            <div className="recording-text">{t('listen')}</div>
-                                            <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                        </RecondingBoxStyle>
-                                    }
-                                </>}
+                                <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                                    {(listen === '' || listen === 'observation') && <>
+                                        <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                            seeHistory()
+                                        }}>{t('seeHistory')}</Typography>
+                                    </>}
+                                    <RecButton style={{width: 30, height: 30}} onClick={() => {
+                                        startStopRec();
+                                    }}/>
+                                </Stack>
                             </Stack>}
                             <TextField
                                 fullWidth
@@ -326,7 +304,7 @@ function CIPPatientHistoryCard({...props}) {
                             />
                         </Box>
                         <Box width={1}>
-                            <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
+                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                 {t("diagnosis")}
                             </Typography>
                             <TextField
@@ -348,8 +326,7 @@ function CIPPatientHistoryCard({...props}) {
                                             diagnosis: event.target.value
                                         })
                                     );
-                                }}
-                                sx={{color: "text.secondary"}}/>
+                                }}/>
                         </Box>
                         {/*<Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>

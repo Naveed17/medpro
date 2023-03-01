@@ -1,11 +1,11 @@
 import {DialogData} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import {DialogActions, DialogContent, DialogContentText, IconButton,} from "@mui/material";
+import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
-import {useState} from "react";
-
+import React, {useState} from "react";
+import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 function Dialogs({...props}) {
     const {
         action,
@@ -18,6 +18,7 @@ function Dialogs({...props}) {
         title,
         actionDialog,
         onClose,
+        icon,
         size = "md",
         sx,
         ...rest
@@ -26,7 +27,7 @@ function Dialogs({...props}) {
     const [fullWidth, setFullWidth] = useState(true);
     const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
-    
+
     return (
         <>
             <Dialog
@@ -46,9 +47,11 @@ function Dialogs({...props}) {
                         color: `${contrastText} !important` as any,
                         position: "relative",
                     }}
-                    id="scroll-dialog-title"
-                >
-                    {title}
+                    id="scroll-dialog-title">
+                    <Stack direction={"row"}>
+                        {icon && <HourglassEmptyRoundedIcon/>}
+                        {title}
+                    </Stack>
                     {onClose ? (
                         <IconButton
                             aria-label="close"

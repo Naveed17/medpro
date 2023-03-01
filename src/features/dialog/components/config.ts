@@ -251,6 +251,14 @@ const dialogData = [
             )
         ),
     },
+    {
+        action: "patient_observation_history",
+        component: dynamic((): any =>
+            import("@features/dialog/components/ObservationHistoryDialog/ObservationHistoryDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
 
 ];
 
