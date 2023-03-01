@@ -8,6 +8,8 @@ const RootStyled = styled(Card)(({theme}) => ({
     },
     "& .MuiInputBase-root": {
         background: "no-repeat!important",
+        height: 38,
+        pt: 2,
         "&:hover": {
             backgroundColor: "none"
         },
@@ -43,9 +45,10 @@ const RootStyled = styled(Card)(({theme}) => ({
         marginBottom: 14
     },
     "& .grid-border": {
+        width: "100%",
         border: `1px solid ${theme.palette.grey['A100']}`,
         borderRadius: 4,
-        height: 31,
+        height: 38,
         "& .MuiInputBase-root": {
             paddingLeft: 12
         }

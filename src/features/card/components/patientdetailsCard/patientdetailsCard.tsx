@@ -302,7 +302,7 @@ function PatientDetailsCard({...props}) {
                                         readOnly
                                         startAdornment={
                                             <Stack direction={"row"}>
-                                                <UrlIcon width={16} height={16} color={"gray"} path="ic-docotor"/>
+                                                <UrlIcon width={15} height={15} color={"gray"} path="ic-docotor"/>
                                                 <Typography sx={{width: 150, color: "gray"}}
                                                             variant={"body2"}>{t("family_doctor")}{":"}</Typography>
                                             </Stack>}
@@ -343,42 +343,70 @@ function PatientDetailsCard({...props}) {
                                                     endAdornment={
                                                         <Stack direction={"row"} spacing={1.2}>
                                                             {editable ?
-                                                                <>
-                                                                    <LoadingButton
-                                                                        loading={requestLoading}
-                                                                        onClick={() => {
-                                                                            setEditable(false);
-                                                                            uploadPatientDetail();
-                                                                        }}
-                                                                        className='btn-add'
-                                                                        sx={{margin: 'auto'}}
-                                                                        size='small'
-                                                                        startIcon={<SaveAsIcon/>}>
-                                                                        {t('register')}
-                                                                    </LoadingButton>
-                                                                    <Button
-                                                                        size='small'
-                                                                        color={"error"}
-                                                                        onClick={() => setEditable(false)}
-                                                                        startIcon={<CloseIcon/>}
-                                                                    >
-                                                                        {t(`cancel`)}
-                                                                    </Button>
-                                                                </>
+                                                                (isMobile ?
+                                                                    <>
+                                                                        <IconButton
+                                                                            onClick={() => {
+                                                                                setEditable(false);
+                                                                                uploadPatientDetail();
+                                                                            }}
+                                                                            size='small'>
+                                                                            <SaveAsIcon fontSize={"small"}
+                                                                                        color={"primary"}/>
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            sx={{p: 0}}
+                                                                            size='small'
+                                                                            color={"error"}
+                                                                            onClick={() => setEditable(false)}
+                                                                        >
+                                                                            <CloseIcon fontSize={"small"}/>
+                                                                        </IconButton>
+                                                                    </>
+                                                                    :
+                                                                    <>
+                                                                        <LoadingButton
+                                                                            loading={requestLoading}
+                                                                            onClick={() => {
+                                                                                setEditable(false);
+                                                                                uploadPatientDetail();
+                                                                            }}
+                                                                            className='btn-add'
+                                                                            sx={{margin: 'auto'}}
+                                                                            size='small'
+                                                                            startIcon={<SaveAsIcon/>}>
+                                                                            {t('register')}
+                                                                        </LoadingButton>
+                                                                        <Button
+                                                                            size='small'
+                                                                            color={"error"}
+                                                                            onClick={() => setEditable(false)}
+                                                                            startIcon={<CloseIcon/>}
+                                                                        >
+                                                                            {t(`cancel`)}
+                                                                        </Button>
+                                                                    </>)
                                                                 :
-                                                                <Button size="small"
-                                                                        color={"primary"}
-                                                                        onClick={() => setEditable(true)}
-                                                                        startIcon={<IconUrl
-                                                                            color={theme.palette.primary.main}
-                                                                            path='ic-duotone'/>}
-                                                                        sx={{
-                                                                            "& .react-svg": {
-                                                                                margin: 0,
+                                                                (isMobile ?
+                                                                    <IconButton onClick={() => setEditable(true)}>
+                                                                        <IconUrl color={theme.palette.primary.main}
+                                                                                 path='ic-duotone'/>
+                                                                    </IconButton>
+                                                                    :
+                                                                    <Button size="small"
+                                                                            color={"primary"}
+                                                                            onClick={() => setEditable(true)}
+                                                                            startIcon={<IconUrl
+                                                                                color={theme.palette.primary.main}
+                                                                                path='ic-duotone'/>
                                                                             }
-                                                                        }}>
-                                                                    {t('edit')}
-                                                                </Button>}
+                                                                            sx={{
+                                                                                "& .react-svg": {
+                                                                                    margin: 0,
+                                                                                }
+                                                                            }}>
+                                                                        {t('edit')}
+                                                                    </Button>)}
                                                         </Stack>}
                                                     inputProps={{
                                                         style: {

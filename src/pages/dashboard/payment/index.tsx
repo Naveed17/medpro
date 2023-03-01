@@ -468,10 +468,6 @@ function Payment() {
     }
   }, [getAppointments, agenda, day]);
 
-  useEffect(() => {
-    console.log(query);
-  }, [query]);
-
   return (
     <>
       <SubHeader>

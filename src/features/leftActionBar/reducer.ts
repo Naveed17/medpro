@@ -5,6 +5,7 @@ export type ActionBarState = {
     query: {
         type?: string;
         status?: string;
+        isOnline?: string;
         patient?: {
             gender?: string;
             birthdate?: string;
