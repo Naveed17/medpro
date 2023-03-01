@@ -22,6 +22,5 @@ export const prepareSearchKeys = (filter: ActionBarState | undefined) => {
             }
         });
     }
-    console.log(query);
     return query;
 }
