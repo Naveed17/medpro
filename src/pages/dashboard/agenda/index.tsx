@@ -279,7 +279,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status|| filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :

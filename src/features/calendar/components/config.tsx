@@ -18,6 +18,7 @@ import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
 import NoShowCircleIcon from "@themes/overrides/icons/noShowCircleIcon";
 import WaitingCircleIcon from "@themes/overrides/icons/waitingCircleIcon";
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import {Avatar} from "@mui/material";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -95,6 +96,20 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         color: "#7C878E",
         classColor: "back",
         icon: <NoShowCircleIcon/>,
+    },
+    11: {
+        key: "ONLINE",
+        value: "Rendez-vous depuis le site",
+        color: "#7C878E",
+        classColor: "back",
+        icon: <Avatar
+            sx={{
+                width: 18,
+                height: 18
+            }}
+            alt="Online appointment"
+            src="/static/icons/Med-logo_.svg"
+        />,
     },
 };
 
