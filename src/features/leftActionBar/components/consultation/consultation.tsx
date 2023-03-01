@@ -1,11 +1,12 @@
 // components
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
     Badge,
     Box,
     Button,
+    CardContent,
     Collapse,
     IconButton,
     List,
@@ -13,7 +14,6 @@ import {
     ListItemIcon,
     Skeleton,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -22,8 +22,7 @@ import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector, SetListen} from "@features/toolbar";
-import moment from "moment-timezone";
+import {consultationSelector} from "@features/toolbar";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
@@ -34,13 +33,11 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
-import SpeechRecognition, {useSpeechRecognition,} from "react-speech-recognition";
-import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
-import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
+import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import {getBirthdayFormat} from "@app/hooks";
+import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
+import {ExpandAbleCard} from "@features/card";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -57,15 +54,15 @@ function Consultation() {
     const [name, setName] = useState("");
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
+    const [moreNote, setMoreNote] = useState(false);
+    const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
-    let [time, setTime] = useState("00:00");
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
 
-    const intervalref = useRef<number | null>(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)
@@ -81,6 +78,17 @@ function Consultation() {
         null,
         "/patient/update"
     );
+
+    useEffect(() => {
+        const noteContainer = document.getElementById("note-card-content");
+        if (noteContainer) {
+            if (noteContainer.clientHeight >= 153)
+                setIsLong(true);
+            else {
+                setIsLong(false);
+            }
+        }
+    }, [note])
 
     const {data: httpPatientPhotoResponse} = useRequest(
         patient?.hasPhoto
@@ -242,25 +250,25 @@ function Consultation() {
                         </Zoom>
                     </label>
 
-          <Box>
-            {loading ? (
-              <>
-                <Skeleton width={130} variant="text" />
-                <Skeleton variant="text" />
-                <Skeleton variant="text" />
-                <Skeleton variant="text" />
-              </>
-            ) : (
-              <Box style={{ cursor: "pointer" }}>
-                <Typography
-                  variant="body1"
-                  color="primary.main"
-                  sx={{ fontFamily: "Poppins" }}>
-                  {name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
-                </Typography>
+                    <Box>
+                        {loading ? (
+                            <>
+                                <Skeleton width={130} variant="text"/>
+                                <Skeleton variant="text"/>
+                                <Skeleton variant="text"/>
+                                <Skeleton variant="text"/>
+                            </>
+                        ) : (
+                            <Box style={{cursor: "pointer"}}>
+                                <Typography
+                                    variant="body1"
+                                    color="primary.main"
+                                    sx={{fontFamily: "Poppins"}}>
+                                    {name}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
+                                </Typography>
 
                                 {number && (
                                     <Typography
@@ -328,10 +336,11 @@ function Consultation() {
                         </Button>
                     </Stack>
                 )}
-                <Box className="contact" ml={1}>
+                <Box className="contact">
                     <ListItem
                         className="list-parent"
-                        style={{padding: "13px 15px 3px 0"}}
+
+                        style={{padding: "13px 15px 3px 0", marginLeft: 8}}
                         onClick={() => {
                             setIsNote(!isNote);
                         }}>
@@ -345,104 +354,62 @@ function Consultation() {
                     </ListItem>
 
                     {!isNote && note && (
-                        <Stack
-                            direction={"row"}
-                            spacing={1}
-                            justifyContent={"space-between"}
-                            mr={2}>
-                            <Typography
-                                fontStyle={"italic"}
-                                whiteSpace={"pre-line"}
-                                onClick={() => {
-                                    setIsNote(true);
-                                }}
-                                variant="body2"
-                                color="text.secondary"
-                                mt={1}>
-                                {note}
-                            </Typography>
+                        <Box style={{padding: 10, paddingBottom: 0}}>
+                            <ContentStyled>
+                                <CardContent id={"note-card-content"}
+                                             className={!moreNote && isLong ? "note-container" : ""}
+                                             onClick={() => {
+                                                 setIsNote(!isNote)
+                                             }} style={{paddingBottom: 5}}>
+                                    <Typography
+                                        fontStyle={"italic"}
+                                        whiteSpace={"pre-line"}
+                                        onClick={() => {
+                                            setIsNote(true);
+                                        }}
+                                        variant="body2"
+                                        color="text.secondary"
+                                        overflow={"hidden"}
+                                        textOverflow={"ellipsis"}
+                                        display={"-webkit-box"}
+                                        className={!moreNote && isLong ? "resumenote" : ""}>
+                                        {note}
+                                    </Typography>
+                                    {!moreNote && isLong && <Button
+                                        onClick={(ev) => {
+                                            ev.stopPropagation();
+                                            setMoreNote(true)
+                                        }}
+                                        size="small">
+                                        <Typography className={"more-details-btn"}>{t("showNote")}</Typography>
+                                    </Button>}
 
-                            <IconButton
-                                size={"small"}
-                                onClick={() => {
-                                    setIsNote(!isNote);
-                                }}>
-                                <Icon path={"ic-duotone"}/>
-                            </IconButton>
-                        </Stack>
+                                </CardContent>
+
+                            </ContentStyled>
+
+                        </Box>
                     )}
 
                     <Collapse in={isNote}>
-                        <Box mr={2}>
+                        <Box mr={2} ml={1}>
                             {(listen === "" || listen === "note") && (
                                 <Stack alignItems={"end"} mt={1}>
-                                    {listening && isStarted ? (
-                                        <RecondingBoxStyle
-                                            onClick={() => {
-                                                if (intervalref.current) {
-                                                    window.clearInterval(intervalref.current);
-                                                    intervalref.current = null;
-                                                }
-                                                SpeechRecognition.stopListening();
-                                                resetTranscript();
-                                                setIsStarted(false);
-                                                dispatch(SetListen(""));
-                                                setTime("00:00");
-                                            }}>
-                                            <PauseCircleFilledRoundedIcon
-                                                style={{fontSize: 14, color: "white"}}
-                                            />
-                                            <div className={"recording-text"}>{time}</div>
-                                            <div className="recording-circle"></div>
-                                        </RecondingBoxStyle>
-                                    ) : (
-                                        <RecondingBoxStyle
-                                            onClick={() => {
-                                                resetTranscript();
-                                                setIsStarted(true);
-                                                dispatch(SetListen("note"));
-                                                setOldNote(note);
-                                                SpeechRecognition.startListening({
-                                                    continuous: true,
-                                                    language: "fr-FR",
-                                                }).then(() => {
-                                                });
-                                                if (intervalref.current !== null) return;
-                                                intervalref.current = window.setInterval(() => {
-                                                    time = moment(time, "mm:ss")
-                                                        .add(1, "second")
-                                                        .format("mm:ss");
-                                                    setTime(time);
-                                                }, 1000);
-                                            }}>
-                                            <PlayCircleFilledRoundedIcon
-                                                style={{fontSize: 16, color: "white"}}
-                                            />
-                                            <div className="recording-text">{t("listen")}</div>
-                                            <MicRoundedIcon
-                                                style={{fontSize: 14, color: "white"}}
-                                            />
-                                        </RecondingBoxStyle>
-                                    )}
+                                    <ExpandAbleCard {...{
+                                        note,
+                                        setNote,
+                                        setIsNote,
+                                        editPatientInfo,
+                                        t,
+                                        resetTranscript,
+                                        setIsStarted,
+                                        listening,
+                                        dispatch,
+                                        setOldNote,
+                                        isStarted
+                                    }} />
                                 </Stack>
                             )}
-
-                            <TextField
-                                inputProps={{style: {fontSize: 12, padding: 0}}}
-                                placeholder={t("writenote")}
-                                fullWidth
-                                multiline
-                                onBlur={() => {
-                                    setIsNote(false);
-                                    editPatientInfo();
-                                }
-                                }
-                                style={{marginTop: 5}}
-                                value={note}
-                                onChange={(val) => {
-                                    setNote(val.target.value);
-                                }}
-                                rows={3}/>
                         </Box>
                     </Collapse>
                 </Box>

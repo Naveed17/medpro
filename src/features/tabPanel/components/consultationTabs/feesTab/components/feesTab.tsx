@@ -1,10 +1,21 @@
-import React, {useEffect} from "react";
-import {Box, Checkbox, Stack, Table, TableBody, TableCell, TableContainer, Typography} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {
+    Box,
+    Checkbox,
+    InputAdornment,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer, TextField,
+    Typography
+} from "@mui/material";
 import {Otable, TableRowStyled} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
+import SearchIcon from "@mui/icons-material/Search";
 
 function FeesTab({...props}) {
 
@@ -14,6 +25,8 @@ function FeesTab({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const [search, setSearch] = useState<string>("");
+    const [selected, setSelected] = useState(false);
 
     interface HeadCell {
         disablePadding: boolean;
@@ -90,6 +103,21 @@ function FeesTab({...props}) {
     return (
         <>
             <Box>
+                <Stack alignItems={"flex-end"} mb={2}>
+                    <TextField
+                        placeholder={"Exemple: Suivi ..."}
+                        value={search}
+                        onChange={(ev) => {
+                            setSearch(ev.target.value);
+                        }}
+                        sx={{width: '15rem'}}
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end">
+                                <SearchIcon/>
+                            </InputAdornment>,
+                        }}
+                    />
+                </Stack>
                 <Otable
                     headers={headCells}
                     rows={[]}
@@ -126,9 +154,15 @@ function FeesTab({...props}) {
                                         <InputBaseStyled
                                             size="small"
                                             value={consultationFees}
+                                            type={"number"}
                                             placeholder={'--'}
-                                            autoFocus={true}
-
+                                            onFocus={() => {
+                                                setSelected(true);
+                                            }}
+                                            onBlur={() => {
+                                                setSelected(false);
+                                            }}
+                                            autoFocus={selected}
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(ev) => {
                                                 setConsultationFees(Number(ev.target.value))
@@ -146,7 +180,7 @@ function FeesTab({...props}) {
                 <Box sx={{marginTop: '-7px'}}>
                     <Otable
                         headers={[]}
-                        rows={acts}
+                        rows={acts?.filter((act: any) =>{return act.act.name.toLowerCase().includes(search.toLowerCase())})}
                         select={selectedUuid}
                         from={"CIP-medical-procedures"}
                         t={t}

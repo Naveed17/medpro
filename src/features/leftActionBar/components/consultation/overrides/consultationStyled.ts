@@ -31,6 +31,10 @@ const ConsultationStyled = styled(Box)(({ theme }) => ({
                 height: 14,
             }
         }
+    },
+    ".more-details-btn": {
+        WebkitTextFillColor: theme.palette.primary.main,
+        fontSize: 12
     }
 }));
 

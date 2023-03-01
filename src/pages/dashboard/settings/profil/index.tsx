@@ -563,7 +563,7 @@ function Profil() {
                                                         {<Skeleton width={50} variant="text"/>}
                                                     </Button>
                                                 ))
-                                            ) : acts.filter(
+                                            ) : acts?.filter(
                                                 (act: MedicalProfessionalActModel) => act.isTopAct
                                             ).length > 0 ? (
                                                 acts
@@ -598,7 +598,7 @@ function Profil() {
                                     </IconButton>
                                 </Stack>
                             </ListItem>
-                            {acts.filter((a) => !a.isTopAct).length > 0 && (
+                            {acts?.filter((a) => !a.isTopAct).length > 0 && (
                                 <ListItem>
                                     <Stack
                                         spacing={4}

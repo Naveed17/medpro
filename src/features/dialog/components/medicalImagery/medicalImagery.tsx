@@ -1,24 +1,23 @@
 import {
-    Grid,
-    Stack,
-    Typography,
+    Autocomplete,
+    Box,
     Button,
     Card,
+    createFilterOptions,
+    DialogActions,
+    Grid,
     IconButton,
-    TextField,
+    List,
     ListItemButton,
     ListItemText,
-    List,
     Skeleton,
-    Box,
-    DialogActions,
-    Autocomplete,
-    createFilterOptions
+    Stack,
+    TextField,
+    Typography
 } from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from '../balanceSheet/overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
-import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {useCallback, useEffect, useState} from 'react';
 import {useRouter} from "next/router";
@@ -80,7 +79,7 @@ function MedicalImageryDialog({...props}) {
     const addImage = (value: MIModel) => {
         setName('')
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
-        mi.unshift(value)
+        mi.unshift({...value, note: ""})
         setMi([...mi])
         localStorage.setItem("medical-imagery-recent", JSON.stringify([...mi]));
         data.setState([...mi])
@@ -285,7 +284,8 @@ function MedicalImageryDialog({...props}) {
                                             value={item.note}
                                             onChange={event => {
                                                 //console.log(event)
-                                                item.note = event.target.value;
+                                                mi[index].note = event.target.value;
+                                                setMi([...mi])
                                             }}
                                         />
                                     </Box>

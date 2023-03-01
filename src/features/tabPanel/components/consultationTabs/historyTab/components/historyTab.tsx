@@ -50,7 +50,7 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         if (httpPatientDocumentsResponse) {
-            setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents
+            setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents.reverse()
                 .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
         }
     }, [httpPatientDocumentsResponse]);

@@ -129,7 +129,7 @@ function Widget({ ...props }) {
 
   return (
     <>
-      <ConsultationModalStyled sx={{ height: { xs: "30vh", md: "43.7rem" } }}>
+      <ConsultationModalStyled sx={{ height: { xs: "30vh", md: "44.4rem" } }}>
         <Stack
           spacing={1}
           p={2}
