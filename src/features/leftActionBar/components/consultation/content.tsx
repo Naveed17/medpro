@@ -117,6 +117,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutate();
+                setState([]);
             });
         } else if (info === "balance_sheet_pending") {
             form.append("analysesResult", JSON.stringify((state as any).hasAnalysis));
