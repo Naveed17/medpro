@@ -149,7 +149,7 @@ function PersonalInsuranceCard({...props}) {
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
-                    ? patient.address[0].city?.name + ", " + patient.address[0].street
+                    ? patient.address[0].street
                     : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",

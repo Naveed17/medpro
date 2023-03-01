@@ -32,27 +32,29 @@ function MedicalImagingDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleChange = (ev: any, uuid: string) => {
-        const fileUploaded = ev.target.files[0];
-        const form = new FormData();
-        form.append("files", fileUploaded, fileUploaded.name);
-        trigger(
-            {
-                method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {revalidate: true, populateCache: true}
-        ).then((r: any) => {
-            let selectedFile = files.findIndex(f => f.uuid === uuid)
-            files[selectedFile].nb += 1
-            setFiles([...files])
-            setLoading('')
-        });
+        const filesUploaded = ev.target.files;
 
+        Object.keys(filesUploaded).map(fu => {
+            const form = new FormData();
+            form.append("files", filesUploaded[fu], filesUploaded[fu].name);
+            trigger(
+                {
+                    method: "PUT",
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
+                    data: form,
+                    headers: {
+                        ContentType: "application/x-www-form-urlencoded",
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                },
+                {revalidate: true, populateCache: true}
+            ).then(() => {
+                let selectedFile = files.findIndex(f => f.uuid === uuid)
+                files[selectedFile].nb += 1
+                setFiles([...files])
+                setLoading('')
+            });
+        })
     };
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -78,6 +80,7 @@ function MedicalImagingDialog({...props}) {
                                     <input
                                         type="file"
                                         id={item.uuid + 'file'}
+                                        multiple={true}
                                         accept="image/png, image/jpeg,image/jpg, .pdf"
                                         onChange={(ev) => {
                                             setLoading(item.uuid)

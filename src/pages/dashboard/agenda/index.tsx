@@ -279,7 +279,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status|| filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -416,7 +416,7 @@ function Agenda() {
                             isActive: true,
                             isPaused: false,
                             event,
-                            startTime: moment().format("HH:mm")
+                            startTime: moment().utc().format("HH:mm")
                         }));
                         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
                             start_date: moment().format("DD-MM-YYYY"),
@@ -535,7 +535,12 @@ function Agenda() {
                     start_time: moment().format("HH:mm")
                 }).then(() => {
                     dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
+                    dispatch(setTimer({
+                        isActive: true,
+                        isPaused: false,
+                        event,
+                        startTime: moment().utc().format("HH:mm")}
+                    ));
                     mutateOnGoing && mutateOnGoing();
                 });
             })

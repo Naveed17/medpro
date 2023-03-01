@@ -7,7 +7,17 @@ import {
     Grid,
     Stack,
     Box,
-    InputBase, AppBar, Toolbar, Button, IconButton, MenuItem, Select, useTheme, Avatar, useMediaQuery,
+    InputBase,
+    AppBar,
+    Toolbar,
+    Button,
+    IconButton,
+    MenuItem,
+    useTheme,
+    Avatar,
+    useMediaQuery,
+    InputAdornment,
+    TextField, Autocomplete, Divider,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
@@ -265,12 +275,387 @@ function PatientContactDetailCard({...props}) {
                             </AppBar>
 
                             <Grid container spacing={1.2}>
+                                <Divider textAlign="left" sx={{width: "100%"}}>
+                                    <Typography
+                                        mt={-1}
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary">
+                                        {t("address-group")}
+                                    </Typography>
+                                </Divider>
+
+                                <Grid item md={12} sm={12} xs={12}
+                                      sx={{
+                                          "& .MuiInputBase-readOnly": {
+                                              ml: "0.3rem"
+                                          }
+                                      }}>
+                                    <Stack direction="row"
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={1.46} sm={3} xs={3}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary">
+                                                {t("address")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid
+                                            {...(editable && {className: "grid-border"})}
+                                            item md={10.54} sm={9} xs={9}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+                                                <InputBase
+                                                    readOnly={!editable}
+                                                    sx={{width: "100%"}}
+                                                    placeholder={t("address-placeholder")}
+                                                    inputProps={{
+                                                        rows: 6,
+                                                        style: {
+                                                            background: "white",
+                                                            fontSize: 14
+                                                        },
+                                                    }}
+                                                    {...getFieldProps("address")}
+                                                />
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={12}>
+                                    <Stack direction="row"
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={3} sm={6} xs={3}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary">
+                                                {t("country")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid
+                                            sx={{
+                                                ...(editable ? {
+                                                    "& .MuiSelect-select": {
+                                                        pl: 1.6
+                                                    }
+                                                } : {
+                                                    "& .MuiSelect-select": {
+                                                        pl: 0
+                                                    },
+                                                    "& .MuiAutocomplete-endAdornment": {
+                                                        display: "none"
+                                                    }
+                                                }),
+                                                "& .MuiInputBase-root": {
+                                                    paddingLeft: 0,
+                                                    width: "100%",
+                                                    height: "100%"
+                                                }
+                                            }}
+                                            item md={9} sm={6} xs={9}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+                                                <Autocomplete
+                                                    id={"country"}
+                                                    disabled={!countries_api}
+                                                    autoHighlight
+                                                    disableClearable
+                                                    size="small"
+                                                    value={countries_api?.find(country => country.uuid === getFieldProps("country").value) ?
+                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                                    onChange={(e, v: any) => {
+                                                        setFieldValue("country", v.uuid);
+                                                    }}
+                                                    {...(editable && {
+                                                        sx: {
+                                                            color: "text.secondary",
+                                                            borderRadius: .6,
+                                                            border: `1px solid ${theme.palette.grey['A100']}`
+                                                        }
+                                                    })}
+                                                    options={countries_api ? countries_api?.filter(country => country.hasState) : []}
+                                                    loading={!countries_api}
+                                                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    renderOption={(props, option) => (
+                                                        <MenuItem
+                                                            {...props}
+                                                            key={`country-${option.uuid}`}
+                                                            value={option.uuid}>
+                                                            {option?.code && <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                            />}
+                                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                        </MenuItem>
+                                                    )}
+                                                    renderInput={params => {
+                                                        const country = countries_api?.find(country => country.uuid === getFieldProps("country").value);
+                                                        params.InputProps.startAdornment = country && (
+                                                            <InputAdornment position="start">
+                                                                {country?.code && <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: ".5rem",
+                                                                        mr: -.8
+                                                                    }}
+                                                                    alt={country.name}
+                                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                                />}
+                                                            </InputAdornment>
+                                                        );
+
+                                                        return <TextField color={"info"}
+                                                                          {...params}
+                                                                          sx={{paddingLeft: 0}}
+                                                                          placeholder={t("country-placeholder")}
+                                                                          variant="outlined" fullWidth/>;
+                                                    }}/>
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={12}>
+                                    <Stack direction="row"
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={3} sm={6} xs={3}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                width="50%">
+                                                {t("region")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid
+                                            sx={{
+                                                ...(editable ? {
+                                                    border: `1px solid ${theme.palette.grey['A100']}`,
+                                                    borderRadius: .6,
+                                                } : {
+                                                    "& .MuiAutocomplete-endAdornment": {
+                                                        display: "none"
+                                                    }
+                                                }),
+                                                "& .MuiInputBase-root": {
+                                                    paddingLeft: 0,
+                                                    width: "100%",
+                                                    height: "100%"
+                                                },
+                                                "& .MuiSelect-select": {
+                                                    pl: 1.6
+                                                }
+                                            }}
+                                            item md={9} sm={6} xs={9}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+
+                                                <Autocomplete
+                                                    id={"region"}
+                                                    disabled={!states}
+                                                    autoHighlight
+                                                    disableClearable
+                                                    size="small"
+                                                    value={states?.find(country => country.uuid === getFieldProps("region").value) ?
+                                                        states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                    onChange={(e, state: any) => {
+                                                        setFieldValue("region", state.uuid);
+                                                        setFieldValue("zip_code", state.zipCode);
+                                                    }}
+                                                    sx={{color: "text.secondary"}}
+                                                    options={states ? states : []}
+                                                    loading={!states}
+                                                    getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    renderOption={(props, option) => (
+                                                        <MenuItem
+                                                            {...props}
+                                                            key={option.uuid}
+                                                            value={option.uuid}>
+                                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                        </MenuItem>
+                                                    )}
+                                                    renderInput={params => <TextField color={"info"}
+                                                                                      {...params}
+                                                                                      placeholder={t("region-placeholder")}
+                                                                                      sx={{paddingLeft: 0}}
+                                                                                      variant="outlined"
+                                                                                      fullWidth/>}/>
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={12}>
+                                    <Stack direction="row"
+                                           sx={{
+                                               "& .MuiInputBase-readOnly": {
+                                                   ml: "0.3rem"
+                                               },
+                                               "& .MuiInputBase-root": {
+                                                   width: "100%"
+                                               }
+                                           }}
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={3} sm={6} xs={3}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                width="50%">
+                                                {t("zip_code")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid
+                                            {...(editable && {className: "grid-border"})}
+                                            item md={9} sm={6} xs={9}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+                                                <InputBase
+                                                    readOnly={!editable}
+                                                    sx={{width: "50%"}}
+                                                    placeholder={t("zip_code-placeholder")}
+                                                    inputProps={{
+                                                        style: {
+                                                            background: "white",
+                                                            fontSize: 14,
+                                                        },
+                                                    }}
+                                                    {...getFieldProps("zip_code")}
+                                                />
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={12}>
+                                    <Stack direction="row" spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={3} sm={6} xs={3}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                width="50%">
+                                                {t("nationality")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid
+                                            sx={{
+                                                ...(!editable && {
+                                                    "& .MuiAutocomplete-endAdornment": {
+                                                        display: "none"
+                                                    }
+                                                }),
+                                                "& .MuiInputBase-root": {
+                                                    paddingLeft: 0,
+                                                    width: "100%",
+                                                    height: "100%"
+                                                },
+                                                "& .MuiSelect-select": {
+                                                    pl: 0
+                                                }
+                                            }}
+                                            item md={9} sm={6} xs={9}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+                                                <Autocomplete
+                                                    id={"nationality"}
+                                                    disabled={!countries_api}
+                                                    autoHighlight
+                                                    disableClearable
+                                                    size="small"
+                                                    value={countries_api?.find(country => country.uuid === getFieldProps("nationality").value) ?
+                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                                    onChange={(e, v: any) => {
+                                                        setFieldValue("nationality", v.uuid);
+                                                    }}
+                                                    {...(editable && {
+                                                        sx: {
+                                                            color: "text.secondary",
+                                                            borderRadius: .6,
+                                                            border: `1px solid ${theme.palette.grey['A100']}`
+                                                        }
+                                                    })}
+                                                    options={countries_api ? countries_api : []}
+                                                    loading={!countries_api}
+                                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                                    isOptionEqualToValue={(option: any, value) => option?.nationality === value?.nationality}
+                                                    renderOption={(props, option) => (
+                                                        <MenuItem
+                                                            {...props}
+                                                            key={`nationality-${option.uuid}`}
+                                                            value={option.uuid}>
+                                                            {option?.code && <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                            />}
+                                                            <Typography
+                                                                sx={{ml: 1}}>{option.nationality}</Typography>
+                                                        </MenuItem>
+                                                    )}
+                                                    renderInput={params => {
+                                                        const country = countries_api?.find(country => country.uuid === getFieldProps("nationality").value);
+                                                        params.InputProps.startAdornment = country && (
+                                                            <InputAdornment position="start">
+                                                                {country?.code && <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: ".5rem",
+                                                                        mr: -.8
+                                                                    }}
+                                                                    alt={country.name}
+                                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                                />}
+                                                            </InputAdornment>
+                                                        );
+
+                                                        return <TextField color={"info"}
+                                                                          {...params}
+                                                                          sx={{paddingLeft: 0}}
+                                                                          placeholder={t("nationality")}
+                                                                          variant="outlined" fullWidth/>;
+                                                    }}/>
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                {values.phones.length > 0 && <Divider textAlign="left" sx={{width: "100%"}}>
+                                    <Typography
+                                        mt={2}
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary">
+                                        {t("telephone")}
+                                    </Typography>
+                                </Divider>}
                                 {values.phones.map((phone: any, index: number) => (
-                                        <Grid key={`${index}`} item md={6} sm={6} xs={12}
-                                              className={"phone-handler"}>
-                                            <Stack direction="row"
-                                                   alignItems="center">
-                                                <Grid item md={10} sm={10} xs={10} sx={{
+                                        <Grid key={`${index}`} item md={12} sm={12} xs={12}>
+                                            <Stack direction="row" alignItems="center">
+                                                <Grid item md={11} sm={11} xs={11} sx={{
                                                     "& .Input-select": {
                                                         marginLeft: "-0.8rem"
                                                     }
@@ -278,60 +663,70 @@ function PatientContactDetailCard({...props}) {
                                                     {loading ? (
                                                         <Skeleton variant="text"/>
                                                     ) : (
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={1}
-                                                            sx={{height: 30}}
-                                                            alignItems="center">
+                                                        <Stack direction={"row"} alignItems={"center"}
+                                                               alignContent={"center"} spacing={.8}>
                                                             <Typography
-                                                                mr={isMobile ? 0 : 2.5}
+                                                                mr={isMobile ? 1.6 : 2.4}
                                                                 className="label"
                                                                 variant="body2"
                                                                 color="text.secondary">
                                                                 {`${t("phone")}  ${values.phones.length > 1 ? ("N° " + (index + 1)) : ""}`}
                                                             </Typography>
-                                                            <Stack
-                                                                pl={1.5}
-                                                                {...(editable && {className: "grid-border"})}
-                                                                direction={"row"} alignItems={"center"}>
-                                                                <CountrySelect
-                                                                    sx={{
-                                                                        "& .MuiInputAdornment-root": {
-                                                                            width: 20
-                                                                        },
-                                                                        "& .MuiAvatar-root": {
-                                                                            ml: 0
-                                                                        },
-                                                                        ...(!editable && {
-                                                                            "& .MuiAutocomplete-endAdornment": {
-                                                                                display: "none"
-                                                                            }
-                                                                        })
-                                                                    }}
-                                                                    disablePortal
-                                                                    small
-                                                                    readOnly={!editable}
-                                                                    initCountry={{
-                                                                        code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
-                                                                        name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
-                                                                        phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
-                                                                    }}
-                                                                    onSelect={(state: any) => {
-                                                                        setFieldValue(`phones[${index}].code`, state.phone);
-                                                                    }}/>
-                                                                <InputBase
-                                                                    fullWidth
-                                                                    className={"Input-select"}
-                                                                    placeholder={t("telephone")}
-                                                                    error={Boolean(touched.phones && errors.phones)}
-                                                                    readOnly={!editable}
-                                                                    {...getFieldProps(`phones[${index}].value`)}
-                                                                />
+                                                            <Stack direction={"row"} alignItems={"flex-start"} spacing={1.2}
+                                                                   sx={{width: "100%"}}
+                                                                   {...(editable && {
+                                                                       sx: {
+                                                                           border: `1px solid ${theme.palette.grey['A100']}`,
+                                                                           borderRadius: .4,
+                                                                           height: 38,
+                                                                           width: "100%"
+                                                                       }
+                                                                   })}>
+                                                                <Grid item md={3.5} sm={5} xs={5}>
+                                                                    <CountrySelect
+                                                                        sx={{
+                                                                            ...(isMobile && {
+                                                                                "& .MuiInputAdornment-root": {
+                                                                                    width: 20
+                                                                                }
+                                                                            }),
+                                                                            ...(!editable && {
+                                                                                "& .MuiAutocomplete-endAdornment": {
+                                                                                    display: "none"
+                                                                                }
+                                                                            })
+                                                                        }}
+                                                                        readOnly={!editable}
+                                                                        {...(isMobile && {small: true})}
+                                                                        initCountry={{
+                                                                            code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                            name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                            phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                        }}
+                                                                        onSelect={(state: any) => {
+                                                                            setFieldValue(`phones[${index}].code`, state.phone);
+                                                                        }}/>
+                                                                </Grid>
+                                                                <Grid item md={8.5} sm={7} xs={7}>
+                                                                    <InputBase
+                                                                        {...(!isMobile && {
+                                                                            startAdornment: <Typography mr={1}>
+                                                                                {getCountryByCode(values.phones[index].code)?.phone}
+                                                                            </Typography>
+                                                                        })}
+                                                                        fullWidth
+                                                                        className={"Input-select"}
+                                                                        placeholder={t("telephone")}
+                                                                        error={Boolean(touched.phones && errors.phones)}
+                                                                        readOnly={!editable}
+                                                                        {...getFieldProps(`phones[${index}].value`)}
+                                                                    />
+                                                                </Grid>
                                                             </Stack>
                                                         </Stack>
                                                     )}
                                                 </Grid>
-                                                <Grid item md={1} sm={1} xs={2}>
+                                                <Grid item md={1} sm={1} xs={1}>
                                                     <Stack direction="row"
                                                            ml={1}
                                                            alignItems="center">
@@ -373,349 +768,6 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     )
                                 )}
-                                <Grid item md={6} sm={6} xs={12}>
-                                    <Stack direction="row"
-                                           sx={{height: 28, width: "103%"}}
-                                           spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={2.8} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary">
-                                                {t("country")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            sx={{
-                                                ...(editable ? {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: .6,
-                                                    height: 31,
-                                                    "& .MuiSelect-select": {
-                                                        pl: 1.6
-                                                    }
-                                                } : {
-                                                    "& .MuiSelect-select": {
-                                                        pl: 0
-                                                    }
-                                                }),
-                                                "& .MuiInputBase-root": {
-                                                    paddingLeft: 0,
-                                                    width: "100%",
-                                                    height: "100%"
-                                                }
-                                            }}
-                                            item md={8.5} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    readOnly={!editable}
-                                                    id={"country"}
-                                                    disabled={!countries_api}
-                                                    size="small"
-                                                    {...getFieldProps("country")}
-                                                    displayEmpty
-                                                    sx={{
-                                                        pl: 0,
-                                                        ml: 0,
-                                                        "& .MuiSvgIcon-root": {
-                                                            display: !editable ? "none" : "inline-block"
-                                                        },
-                                                        color: "text.secondary"
-                                                    }}
-                                                    renderValue={selected => {
-                                                        if (selected?.length === 0) {
-                                                            return <em>{t("country-placeholder-error")}</em>;
-                                                        }
-
-                                                        const country = countries_api?.find(country => country.uuid === selected);
-                                                        return (
-                                                            <Stack direction={"row"} alignItems={"center"}>
-                                                                {country?.code && <Avatar
-                                                                    sx={{
-                                                                        width: 24,
-                                                                        height: 16,
-                                                                        borderRadius: 0.4,
-                                                                        ml: 0,
-                                                                        mr: ".5rem"
-                                                                    }}
-                                                                    alt="flag"
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                                />}
-                                                                <Typography ml={1}>{country?.name}</Typography>
-                                                            </Stack>)
-                                                    }}
-                                                >
-                                                    {countries_api?.filter(country => country.hasState).map((country) => (
-                                                        <MenuItem
-                                                            key={country.uuid}
-                                                            value={country.uuid}>
-                                                            {country?.code && <Avatar
-                                                                sx={{
-                                                                    width: 26,
-                                                                    height: 18,
-                                                                    borderRadius: 0.4
-                                                                }}
-                                                                alt={"flags"}
-                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                                            />}
-                                                            <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                                        </MenuItem>)
-                                                    )}
-                                                </Select>
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={6} sm={6} xs={12}>
-                                    <Stack direction="row"
-                                           spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={3} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
-                                                {t("region")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            sx={{
-                                                ...(editable && {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: .6,
-                                                    height: 31,
-                                                }),
-                                                "& .MuiInputBase-root": {
-                                                    paddingLeft: 0,
-                                                    width: "100%",
-                                                    height: "100%"
-                                                },
-                                                "& .MuiSelect-select": {
-                                                    pl: 1.6
-                                                }
-                                            }}
-                                            item md={8} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <Select
-                                                    labelId="region-select-label"
-                                                    id={"region"}
-                                                    disabled={!values.country && !states}
-                                                    size="small"
-                                                    {...getFieldProps("region")}
-                                                    onChange={event => {
-                                                        const stateUuid = event.target.value;
-                                                        setFieldValue("region", stateUuid);
-                                                        const state = states?.find(state => state.uuid === stateUuid);
-                                                        state.zipCode && setFieldValue("zip_code", state.zipCode);
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{
-                                                        pl: 0,
-                                                        "& .MuiSvgIcon-root": {
-                                                            display: !editable ? "none" : "inline-block"
-                                                        },
-                                                        color: "text.secondary"
-                                                    }}
-                                                    renderValue={selected => {
-                                                        if (selected?.length === 0) {
-                                                            return <em>{t("region-placeholder-error")}</em>;
-                                                        }
-                                                        const state = states?.find(state => state.uuid === selected);
-                                                        return <Typography>{state?.name}</Typography>
-                                                    }}
-                                                >
-                                                    {states?.map((state) => (
-                                                        <MenuItem
-                                                            key={state.uuid}
-                                                            value={state.uuid}>
-                                                            {state.name}
-                                                        </MenuItem>)
-                                                    )}
-                                                </Select>
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={6} sm={6} xs={12}>
-                                    <Stack direction="row"
-                                           sx={{
-                                               "& .MuiInputBase-root": {
-                                                   width: "100%"
-                                               }
-                                           }}
-                                           spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={3} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
-                                                {t("zip_code")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            {...(editable && {className: "grid-border"})}
-                                            item md={9.4} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <InputBase
-                                                    readOnly={!editable}
-                                                    sx={{width: "50%"}}
-                                                    placeholder={t("zip_code-placeholder")}
-                                                    inputProps={{
-                                                        style: {
-                                                            background: "white",
-                                                            fontSize: 14,
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("zip_code")}
-                                                />
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={6} sm={6} xs={12}
-                                      sx={{
-                                          "& .MuiInputBase-readOnly": {
-                                              ml: "0.3rem"
-                                          }
-                                      }}>
-                                    <Stack direction="row"
-                                           spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={3} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary">
-                                                {t("address")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            {...(editable && {className: "grid-border"})}
-                                            item md={8} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <InputBase
-                                                    readOnly={!editable}
-                                                    sx={{width: "100%"}}
-                                                    placeholder={t("address-placeholder")}
-                                                    inputProps={{
-                                                        rows: 6,
-                                                        style: {
-                                                            background: "white",
-                                                            fontSize: 14
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("address")}
-                                                />
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={6} sm={6} xs={12}>
-                                    <Stack direction="row" spacing={1}
-                                           sx={{height: 28, width: "103%"}}
-                                           alignItems="center">
-                                        <Grid item md={2.8} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
-                                                {t("nationality")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            sx={{
-                                                "& .MuiInputBase-root": {
-                                                    paddingLeft: 0,
-                                                    width: "100%",
-                                                    height: "100%"
-                                                },
-                                                "& .MuiSelect-select": {
-                                                    pl: 0
-                                                },
-                                                ...(editable && {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: .6,
-                                                    height: 31,
-                                                    pl: 1.6
-                                                })
-                                            }}
-                                            item md={8.5} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <Select
-                                                    labelId="nationality-select-label"
-                                                    readOnly={!editable}
-                                                    id={"nationality"}
-                                                    disabled={!countries_api}
-                                                    size="small"
-                                                    {...getFieldProps("nationality")}
-                                                    displayEmpty
-                                                    sx={{
-                                                        pl: 0,
-                                                        ml: 0,
-                                                        "& .MuiSvgIcon-root": {
-                                                            display: !editable ? "none" : "inline-block"
-                                                        },
-                                                        color: "text.secondary"
-                                                    }}
-                                                    renderValue={selected => {
-                                                        if (selected?.length === 0) {
-                                                            return <em>{t("nationality-placeholder")}</em>;
-                                                        }
-
-                                                        const country = countries_api?.find(country => country.uuid === selected);
-                                                        return (
-                                                            <Stack direction={"row"} alignItems={"center"}>
-                                                                {country?.code && <Avatar
-                                                                    sx={{
-                                                                        width: 24,
-                                                                        height: 16,
-                                                                        borderRadius: 0.4,
-                                                                        ml: 0,
-                                                                        mr: ".5rem"
-                                                                    }}
-                                                                    alt="flag"
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                                />}
-                                                                <Typography ml={1}>{country?.nationality}</Typography>
-                                                            </Stack>)
-                                                    }}>
-                                                    {countries_api?.map((country) => (
-                                                        <MenuItem
-                                                            key={country.uuid}
-                                                            value={country.uuid}>
-                                                            {country?.code && <Avatar
-                                                                sx={{
-                                                                    width: 26,
-                                                                    height: 18,
-                                                                    borderRadius: 0.4
-                                                                }}
-                                                                alt={"flags"}
-                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                                            />}
-                                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
-                                                        </MenuItem>)
-                                                    )}
-                                                </Select>
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
                             </Grid>
                         </Grid>
                     </CardContent>

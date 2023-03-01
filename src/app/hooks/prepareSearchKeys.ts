@@ -17,6 +17,9 @@ export const prepareSearchKeys = (filter: ActionBarState | undefined) => {
             if (param[0] === "status" && param[1]) {
                 query += `&${param[0]}=${param[1]}`;
             }
+            if (param[0] === "isOnline" && param[1]) {
+                query += `&${param[0]}=${param[1]}`;
+            }
         });
     }
     return query;

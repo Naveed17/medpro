@@ -175,6 +175,7 @@
       "date-error": "Ce champ est obligatoire",
       "phone": "Téléphone",
       "telephone": "Numéro de téléphone",
+      "address-group": "Adresse du patient",
       "telephone-error": "Le numéro de téléphone est obligatoire",
       "cancel": "Annuler",
       "next": "Suivant",

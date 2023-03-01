@@ -318,6 +318,15 @@ fieldset {
   -webkit-box-orient: vertical;
 }
 
+.resumenote {
+  overflow: hidden;
+  text-overflow: 'ellipsis';
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
 .zoom, .zoom-list {
   margin: 0 auto;
 }
@@ -353,26 +362,47 @@ fieldset {
 .time-picker-schedule {
   margin-right: -1rem
 }
+
 .agenda-rdv-details {
   .popover-item {
     border-radius: 10px;
     transition: all .2s;
-    &:hover{
-      background-color:#FFD400 ;
-      .MuiTypography-root{
-        color:#00234B
-      };
-      svg{
-        path{
-          fill:#00234B
+
+    &:hover {
+      background-color: #FFD400;
+
+      .MuiTypography-root {
+        color: #00234B
+      }
+    ;
+
+      svg {
+        path {
+          fill: #00234B
         }
       }
 
     }
   }
 }
-.footer-st{
-  p{
+
+.footer-st {
+  p {
     margin: 0;
   }
+}
+
+.note-container{
+  background: linear-gradient(181.14deg, #1B2746 41.55%, rgba(27, 39, 70, 0) 84.16%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.MuiAutocomplete-paper {
+  min-width: 200px
 }
