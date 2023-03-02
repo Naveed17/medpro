@@ -259,6 +259,7 @@ function WaitingRoomRow({...props}) {
                         {!roles.includes("ROLE_SECRETARY") && <LoadingButton
                             {...{loading}}
                             onClick={(event) => {
+                                event.stopPropagation();
                                 setLoading(true);
                                 handleEvent({action: "START_CONSULTATION", row, event});
                             }}
