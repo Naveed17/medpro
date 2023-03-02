@@ -45,7 +45,7 @@
     "to": "à",
     "day": "Jour",
     "added": "RDV ajouté",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
+    "description": ""
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
@@ -202,7 +202,7 @@
       "from-placeholder": "Saisir la date de naissance du patient",
       "added": "Patient ajouté",
       "updated": "Patient modifié",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
+      "description": "",
       "add-new": "Ajouter un autre patient",
       "close": "Fermer",
       "add-appo": "Ajouter RDV",

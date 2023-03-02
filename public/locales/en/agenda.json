@@ -47,7 +47,7 @@
     "no-data": {
       "event": {
         "title": "Add your first appointment",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "description": "",
         "button-text": "Add an appointment"
       }
     }

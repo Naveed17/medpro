@@ -23,8 +23,8 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {LoadingButton} from "@mui/lab";
 
 function WaitingRoomRow({...props}) {
-    const {row, t, handleEvent, data} = props;
-    const {doctor_country, roles, loading, setLoading} = data;
+    const {row, t, handleEvent, data, loading} = props;
+    const {doctor_country, roles, setLoading} = data;
 
     const theme = useTheme();
     const [info, setInfo] = useState<null | string>(null);
@@ -265,10 +265,12 @@ function WaitingRoomRow({...props}) {
                             }}
                             size="small"
                             startIcon={<PlayCircleIcon/>}
+                            loadingPosition={"start"}
                             variant="text-black">
                             {t("start_the_consultation")}
                         </LoadingButton>}
                         <IconButton
+                            disabled={loading}
                             onClick={(event) => {
                                 event.stopPropagation();
                                 handleEvent({action: "OPEN-POPOVER", row, event});
