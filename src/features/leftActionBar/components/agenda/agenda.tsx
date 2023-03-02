@@ -246,7 +246,7 @@ function Agenda() {
         );
 
     return (
-        <BoxStyled className="agenda-filter">
+        <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
                 {...{notes}}

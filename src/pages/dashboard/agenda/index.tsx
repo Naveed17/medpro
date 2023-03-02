@@ -113,7 +113,7 @@ function Agenda() {
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
-    const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
+    const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -279,7 +279,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status|| filter?.isOnline) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -445,7 +445,8 @@ function Agenda() {
                     (event as any)?.id, "6").then(() => {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
-                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
                 });
                 break;
             case "onPatientNoShow":
@@ -486,8 +487,11 @@ function Agenda() {
     }
 
     const onOpenWaitingRoom = (event: EventDef) => {
-        updateAppointmentStatus(
-            event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
+        const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
+        const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
+            (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
+            "3", {is_first_appointment: filteredEvents}).then(
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
@@ -536,10 +540,11 @@ function Agenda() {
                 }).then(() => {
                     dispatch(openDrawer({type: "view", open: false}));
                     dispatch(setTimer({
-                        isActive: true,
-                        isPaused: false,
-                        event,
-                        startTime: moment().utc().format("HH:mm")}
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm")
+                        }
                     ));
                     mutateOnGoing && mutateOnGoing();
                 });

@@ -4,6 +4,7 @@ interface AppointmentModel {
   dayDate: string;
   startTime: string;
   createdAt: string;
+  updatedAt: string;
   instruction: string;
   fees: string;
   endTime: string;
