@@ -25,14 +25,14 @@ function getComparator(order: any, orderBy: any) {
 
 function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
     const stabilizedThis = array?.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
+    stabilizedThis?.sort((a, b) => {
         const order = comparator(a[0], b[0]);
         if (order !== 0) {
             return order;
         }
         return a[1] - b[1];
     });
-    return stabilizedThis.map((el) => el[0]);
+    return stabilizedThis?.map((el) => el[0]);
 }
 
 function Otable({...props}) {
@@ -150,10 +150,7 @@ function Otable({...props}) {
                     />
 
                     <TableBody>
-                        {(loading
-                                ? Array.from(new Array(10))
-                                : stableSort(rows, getComparator(order, orderBy))
-                        ).map((row, index) => {
+                        {stableSort(rows, getComparator(order, orderBy))?.map((row, index) => {
                             const isItemSelected = isSelected(row?.uuid as string);
                             const labelId = `enhanced-table-checkbox-${index}`;
                             return (

@@ -128,7 +128,7 @@ function WaitingRoom() {
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -273,6 +273,9 @@ function WaitingRoom() {
                 updateAppointmentStatus(row?.uuid as string, "4", {
                     start_date: moment().format("DD-MM-YYYY"),
                     start_time: moment().format("HH:mm")
+                }).then(() => {
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
                 });
             });
         } else {
@@ -288,7 +291,8 @@ function WaitingRoom() {
                 break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
-                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
                     mutateWaitingRoom();
                 });
                 break;
@@ -409,21 +413,21 @@ function WaitingRoom() {
                         <Box display={{xs: "none", md: "block"}} mt={1}>
                             {waitingRooms &&
                                 <>
-                                    {waitingRooms.length > 0 && <Otable
-                                        {...{
-                                            doctor_country,
-                                            roles,
-                                            loading: loadingRequest,
-                                            setLoading: setLoadingRequest
-                                        }}
-                                        headers={headCells}
-                                        rows={waitingRooms}
-                                        from={"waitingRoom"}
-                                        t={t}
-                                        pagination
-                                        handleEvent={handleTableActions}
-                                    />}
-                                    {waitingRooms.length === 0 && (
+                                    {waitingRooms.length > 0 ? <Otable
+                                            {...{
+                                                doctor_country,
+                                                roles,
+                                                loading: loadingRequest,
+                                                setLoading: setLoadingRequest
+                                            }}
+                                            headers={headCells}
+                                            rows={waitingRooms}
+                                            from={"waitingRoom"}
+                                            t={t}
+                                            pagination
+                                            handleEvent={handleTableActions}
+                                        />
+                                        :
                                         <NoDataCard
                                             t={t}
                                             onHandleClick={() => {
@@ -433,7 +437,7 @@ function WaitingRoom() {
                                             }}
                                             ns={"waitingRoom"}
                                             data={AddWaitingRoomCardData}/>
-                                    )}
+                                    }
 
                                     <Menu
                                         open={contextMenu !== null}

@@ -71,6 +71,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         motif: appointment.consultationReason,
         instruction: appointment.instruction !== null ? appointment.instruction : "",
         id: appointment.uuid,
+        updatedAt: moment(appointment.updatedAt, "DD-MM-YYYY HH:mm"),
         filtered: false,
         hasErrors,
         dur: appointment.duration,

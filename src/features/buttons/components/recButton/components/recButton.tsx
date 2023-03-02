@@ -10,10 +10,13 @@ function RecButton({...props}) {
     const [expand, setExpand] = useState(false);
     return (
         <Fab
+            size={"small"}
             component={motion.div}
             sx={{
-                height: "auto",
-                width: "auto",
+                "& .MuiFab-root": {
+                    width: 30,
+                    height: 30
+                },
                 boxShadow: "none",
                 p: 1,
                 svg: {

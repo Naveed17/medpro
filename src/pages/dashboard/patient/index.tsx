@@ -27,9 +27,9 @@ import {
     Otable,
     tableActionSelector,
 } from "@features/table";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 // ________________________________
-import {PatientMobileCard} from "@features/card";
+import {PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
@@ -175,6 +175,7 @@ function Patient() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
@@ -269,6 +270,8 @@ function Patient() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+
     const {data: httpPatientsResponse, mutate} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
@@ -353,6 +356,43 @@ function Patient() {
             event?.publicId ? event?.publicId : (event as any)?.id
         }`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
+    };
+
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const onConsultationStart = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                start_date: moment().format("DD-MM-YYYY"),
+                start_time: moment().format("HH:mm")
+            }).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setTimer({
+                        isActive: true,
+                        isPaused: false,
+                        event,
+                        startTime: moment().utc().format("HH:mm")
+                    }
+                ));
+                mutateOnGoing && mutateOnGoing();
+            });
+        })
     };
 
     const onUpdateMoveAppointmentData = () => {
@@ -663,6 +703,7 @@ function Patient() {
                         }
                     }}
                     onConsultation={onConsultationView}
+                    onConsultationStart={onConsultationStart}
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>

@@ -14,7 +14,7 @@ import {DefaultCountry} from "@app/constants";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
-    const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
+    const {row, isItemSelected, handleClick, handleEvent, t, labelId, loading, editMotif, handleChange} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -128,9 +128,13 @@ function PaymentRow({...props}) {
 
                     ) : (
                         row.name ?
-                            <Link underline="none">{row.name}</Link>
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row, event});
+                                }} underline="none">{row.name}</Link>
                             : <Link underline="none">+</Link>
-
                     )}
                 </TableCell>
                 <TableCell align={"center"}>

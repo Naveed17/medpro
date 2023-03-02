@@ -62,7 +62,7 @@ function Payment() {
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
 
     return (
-        <BoxStyled>
+        <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
                 {...{notes, disabled: !filterDate || byPeriod}}

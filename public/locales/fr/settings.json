@@ -181,7 +181,7 @@
       "cancel": "Annuler",
       "no-data": {
         "title": "ajouter votre premier Agenda",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "description": "",
         "button-text": "Ajouter un Agenda"
       },
       "table": {

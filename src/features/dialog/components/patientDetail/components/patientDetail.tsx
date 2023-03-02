@@ -68,6 +68,7 @@ function PatientDetail({...props}) {
         onChangeStepper,
         onAddAppointment,
         onConsultation = null,
+        onConsultationStart = null,
         mutate: mutatePatientList,
         mutateAgenda
     } = props;
@@ -300,7 +301,14 @@ function PatientDetail({...props}) {
                     <PatientDetailsToolbar onClose={closePatientDialog}/>
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient, onConsultation, patientPhoto, mutatePatientList, mutateAgenda}}
+                        {...{
+                            patient,
+                            onConsultation,
+                            onConsultationStart,
+                            patientPhoto,
+                            mutatePatientList,
+                            mutateAgenda
+                        }}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs
@@ -450,7 +458,7 @@ function PatientDetail({...props}) {
                                     mutatePatientList && mutatePatientList();
                                     break;
                                 case "onConsultationStart":
-                                    onConsultation && onConsultation(event);
+                                    onConsultation && onConsultationStart(event);
                                     break;
                             }
                         }}
