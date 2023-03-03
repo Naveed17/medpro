@@ -97,7 +97,7 @@ function Motif() {
             align: 'left',
             sortable: false
         },*/
-        {
+        /*{
             id: 'agenda',
             numeric: true,
             disablePadding: false,
@@ -112,7 +112,7 @@ function Motif() {
             label: 'type',
             align: 'center',
             sortable: true
-        },
+        },*/
         {
             id: 'isEnabled',
             numeric: false,
