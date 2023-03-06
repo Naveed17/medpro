@@ -108,6 +108,8 @@
     "reason_for_consultation": "Motif de consultation",
     "patient_history": "Fiche d'historique",
     "title": "Titre",
+    "back": "Retour à la consultation d'aujourd'hui",
+    "updateHistory": "Vous modifiez la consultation du ",
     "add_reason": "Ajouter un nouveau motif",
     "close": "Réduire menu",
     "ureadbleFile": "Fichier fourni n'est pas compatible avec MedLINK",
@@ -380,7 +382,7 @@
   "end_of_consultation_with": "Fin de consultation avec",
   "price_of_the_consultation": "Prix de la consultation",
   "end_of_consultation": "Fin de la consultation",
-  "edit_of_consultation": "Quitter la consultation",
+  "edit_of_consultation": "Enregistrer modifications",
   "plan_a_meeting": "Planifier un contrôle",
   "day": "Jour",
   "steppers": {

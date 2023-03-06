@@ -142,7 +142,7 @@ function Widget({ ...props }) {
       <>
         <ConsultationModalStyled
             sx={{
-              height: { xs: "30vh", md: "43.7rem" },
+              height: { xs: "30vh", md: "44.5rem" },
               position: "relative",
               width: closePanel ? 50 : "auto",
             }}>
@@ -157,7 +157,7 @@ function Widget({ ...props }) {
                 position: closePanel ? "absolute" : "static",
                 transform: closePanel ? "rotate(90deg)" : "rotate(0)",
                 transformOrigin: "left",
-                width: closePanel ? "43.7rem" : "auto",
+                width: closePanel ? "44.5rem" : "auto",
                 left: 23,
                 top: -26,
               }}
