@@ -109,7 +109,7 @@ function MotifRow({...props}) {
                     </FormControl>
                     : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}
             </TableCell>*/}
-            <TableCell align="center">
+            {/*<TableCell align="center">
                 {row ?
                     <Lable
                         variant="filled"
@@ -132,14 +132,13 @@ function MotifRow({...props}) {
                         {row.types.length}
                     </Lable>
                     : <Skeleton width={40} height={40} sx={{m: 'auto'}}/>}
-            </TableCell>
+            </TableCell>*/}
             <TableCell align="center">
                 {row ?
 
                     <Switch name='active' onChange={(e) => handleChange(row, 'active', '')} checked={row.isEnabled}/>
                     : <Skeleton width={50} height={40} sx={{m: 'auto'}}/>}
             </TableCell>
-
             <TableCell align="center">
                 {row ?
                     <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => editMotif(row)}>

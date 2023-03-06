@@ -46,11 +46,12 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges} = props;
+        const {modal, data, setSM, models, appuuid, changes, setChanges,handleClosePanel} = props;
         return (
             <Widget
                 {...{modal, data, models, appuuid, changes, setChanges}}
-                setModal={setSM}></Widget>
+                setModal={setSM}
+                handleClosePanel={handleClosePanel}></Widget>
         );
     },
     // NEVER UPDATE
@@ -86,8 +87,8 @@ function ConsultationInProgress() {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [appointement, setAppointement] = useState<any>();
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [isClose, setIsClose] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -830,17 +831,20 @@ function ConsultationInProgress() {
 */}
                 <TabPanel padding={1} value={value} index={"consultation_form"}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={5}>
+                        <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                             {!loading && models && selectedModel && (
                                 <WidgetForm
                                     {...{models, changes, setChanges}}
                                     modal={selectedModel}
                                     data={sheetModal.data}
                                     appuuid={uuind}
-                                    setSM={setSelectedModel}></WidgetForm>
+                                    setSM={setSelectedModel}
+                                    handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                             )}
                         </Grid>
-                        <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
+                        <Grid item xs={12}
+                              md={isClose ? 11 : 7}
+                              style={{ paddingLeft: isClose ? 0 : 10 }}>
                             <ConsultationDetailCard
                                 {...{
                                     changes,

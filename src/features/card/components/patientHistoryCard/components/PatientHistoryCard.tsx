@@ -46,20 +46,20 @@ function PatientHistoryCard({...props}) {
                     }}
                     borderBottom={1}
                     borderColor="divider">
-                    <Typography
+                    {!isMobile && <Typography
                         display="flex"
                         alignItems="center"
                         component="div"
                         sx={{cursor: "pointer"}}
                         fontWeight={600}>
                         <Icon path={"ic-doc"}/>
-                        {!isMobile && capitalize(t("reason_for_consultation"))}{" "}
+                        {capitalize(t("reason_for_consultation"))}{" "}
                         {data?.appointment.consultationReason ? (
                             <>: {data?.appointment.consultationReason.name}</>
                         ) : (
                             <>: --</>
                         )}
-                    </Typography>
+                    </Typography>}
                     <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
                         <Typography
                             variant="body2"
