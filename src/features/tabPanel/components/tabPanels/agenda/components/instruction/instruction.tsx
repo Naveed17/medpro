@@ -31,7 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
-import {SuccessCard} from "@features/card";
+import {SuccessCard, timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function Instruction({...props}) {
@@ -51,6 +51,7 @@ function Instruction({...props}) {
         recurringDates
     } = useAppSelector(appointmentSelector);
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
+    const {isActive} = useAppSelector(timerSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
@@ -211,7 +212,7 @@ function Instruction({...props}) {
                                         color: "warning",
                                         disabled: !isTodayAppointment()
                                     },
-                                    ...(!roles.includes('ROLE_SECRETARY') ? [{
+                                    ...(!roles.includes('ROLE_SECRETARY') && !isActive ? [{
                                         icon: "play",
                                         action: "onConsultationStart",
                                         variant: "contained",

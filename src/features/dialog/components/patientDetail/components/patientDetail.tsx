@@ -237,9 +237,11 @@ function PatientDetail({...props}) {
             "3", {is_first_appointment: filteredEvents}).then(
             () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: waiting_room + 1}));
+                // mutate ongoing api
+                mutateOnGoing && mutateOnGoing();
                 // update pending notifications status
                 agenda?.mutate[1]();
+                closePatientDialog();
             });
     }
 
@@ -483,6 +485,7 @@ function PatientDetail({...props}) {
                         modal={"patient"}
                         OnSubmitStepper={submitStepper}
                         OnAction={(action: string, event: EventDef) => {
+                            console.log(action);
                             switch (action) {
                                 case "close":
                                     if (patientId) {
@@ -493,7 +496,10 @@ function PatientDetail({...props}) {
                                     mutatePatientList && mutatePatientList();
                                     break;
                                 case "onConsultationStart":
-                                    onConsultation && onConsultationStart(event);
+                                    onConsultationStart && onConsultationStart(event);
+                                    break;
+                                case "onConsultation":
+                                    onConsultation && onConsultation(event);
                                     break;
                                 case "onWaitingRoom":
                                     onOpenWaitingRoom(event);
