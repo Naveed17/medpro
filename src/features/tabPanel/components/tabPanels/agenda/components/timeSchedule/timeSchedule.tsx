@@ -212,6 +212,7 @@ function TimeSchedule({...props}) {
         const params = new FormData();
         params.append("color", "#0696D6");
         params.append("duration", "15");
+        params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
             fr: name
         }));
@@ -339,7 +340,7 @@ function TimeSchedule({...props}) {
                                     return filtered;
                                 }}
                                 sx={{color: "text.secondary"}}
-                                options={reasons ? reasons : []}
+                                options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                 loading={reasons?.length === 0}
                                 getOptionLabel={(option) => {
                                     // Value selected with enter, right from the input
