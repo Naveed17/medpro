@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import {DashLayout} from "@features/base";
 import {Box, Button, Container, Drawer, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -18,18 +18,17 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {MotifListMobile} from '@features/card'
 import {LoadingScreen} from "@features/loadingScreen";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function Motif() {
-
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     const router = useRouter();
+    const durations = useDateConverture(15, 240);
+    const delay = useDateConverture(1440, 21600);
 
-    const {trigger} = useRequestMutation(null, "/settings/motifs");
+    const {direction} = useAppSelector(configSelector);
+    const {t, ready} = useTranslation(['settings', 'common'], {keyPrefix: "motif.config",});
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [edit, setEdit] = useState(false);
     const [state, setState] = useState({
         duration: true,
@@ -38,29 +37,22 @@ function Motif() {
         isEnabled: true
     });
     const [selected, setSelected] = useState();
-    const {direction} = useAppSelector(configSelector);
-    const durations = useDateConverture(15, 240)
-    const delay = useDateConverture(1440, 21600)
 
-    const {data, error, mutate} = useRequest({
+    const {trigger} = useRequestMutation(null, "/settings/motifs");
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
-    useEffect(() => {
-        if (data !== undefined) {
-            setRows((data as any).data);
-        }
-    }, [data])
+    }, SWRNoValidateConfig);
 
     const closeDraw = () => {
         setEdit(false);
     }
 
-    const {t, ready} = useTranslation(['settings', 'common'], {
-        keyPrefix: "motif.config",
-    });
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -167,18 +159,12 @@ function Motif() {
                 ContentType: 'application/x-www-form-urlencoded',
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
-
-        setRows([...rows]);
+        }).then(() => mutateConsultReason());
     }
 
     const handleConfig = (props: any, event: string) => {
         // @ts-ignore
         state[event] = !state[event];
-        if (event === 'isEnabled') {
-            rows.map(row => row.isEnabled = state.isEnabled);
-            setRows([...rows]);
-        }
         setState({...state});
     }
 
@@ -213,23 +199,25 @@ function Motif() {
             <DesktopContainer>
                 <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                     <Otable headers={headCells}
-                            rows={rows}
-                            state={state}
-                            from={'motif'}
-                            pagination={true}
-                            t={t}
+                            {...{
+                                rows: reasons,
+                                state,
+                                durations,
+                                delay,
+                                t,
+                                handleConfig,
+                                handleChange
+                            }}
                             edit={editMotif}
-                            durations={durations}
-                            delay={delay}
-                            handleConfig={handleConfig}
-                            handleChange={handleChange}/>
+                            from={'motif'}
+                            pagination={true}/>
                 </Box>
             </DesktopContainer>
             <MobileContainer>
                 <Container>
                     <Box pt={3.7}>
                         {
-                            rows.map((row, idx) =>
+                            reasons?.map((row, idx) =>
                                 <React.Fragment key={idx}>
                                     <MotifListMobile t={t} data={row} durations={durations}
                                                      delay={delay}/>
@@ -248,7 +236,7 @@ function Motif() {
                 <EditMotifDialog data={selected}
                                  durations={durations}
                                  delay={delay}
-                                 mutateEvent={mutate}
+                                 mutateEvent={mutateConsultReason}
                                  closeDraw={closeDraw}/>
             </Drawer>
         </>
