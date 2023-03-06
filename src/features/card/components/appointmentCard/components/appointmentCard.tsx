@@ -48,11 +48,7 @@ function AppointmentCard({...props}) {
     const {data: httpAppointmentTypesResponse} = useRequest(
         {
             method: "GET",
-            url:
-                "/api/medical-entity/" +
-                medical_entity.uuid +
-                "/appointments/types/" +
-                router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         },
         SWRNoValidateConfig
@@ -93,6 +89,7 @@ function AppointmentCard({...props}) {
         const params = new FormData();
         params.append("color", "#0696D6");
         params.append("duration", "15");
+        params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
             fr: name
         }));
@@ -319,7 +316,7 @@ function AppointmentCard({...props}) {
                                                 return filtered;
                                             }}
                                             sx={{color: "text.secondary"}}
-                                            options={reasons ? reasons : []}
+                                            options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                             loading={reasons?.length === 0}
                                             getOptionLabel={(option) => {
                                                 // Value selected with enter, right from the input

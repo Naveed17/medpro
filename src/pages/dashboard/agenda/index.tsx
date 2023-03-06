@@ -24,7 +24,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
-import moment from "moment-timezone";
+import moment, {Moment} from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
@@ -342,6 +342,16 @@ function Agenda() {
         dispatch(openDrawer({type: "view", open: true}));
     }
 
+    const handleDragEvent = (DateTime: Moment, action: string) => {
+        dispatch(setMoveDateTime({
+            date: DateTime.toDate(),
+            time: DateTime.format("HH:mm"),
+            action: action,
+            selected: false
+        }));
+        setMoveDialog(true);
+    }
+
     const onEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
         const endDate = info.oldEvent._def.allDay ?
@@ -350,6 +360,7 @@ function Agenda() {
         const oldStartDate = moment(info.oldEvent._instance?.range.start);
         const oldEndDate = moment(info.oldEvent._instance?.range.end);
         const oldDuration = info.oldEvent._def.allDay ? info.oldEvent._def.extendedProps.dur : oldEndDate.diff(oldStartDate, "minutes");
+        const onDurationChanged = oldDuration !== duration;
         const defEvent = {
             ...info.event._def,
             extendedProps: {
@@ -358,12 +369,20 @@ function Agenda() {
                 allDay: info.oldEvent._def.allDay,
                 duration,
                 oldDuration,
-                onDurationChanged: oldDuration !== duration,
+                onDurationChanged,
                 revert: info.revert
             }
         };
         setEvent(defEvent);
-        setMoveDialog(true);
+        if (info.oldEvent._def.extendedProps.status.key === "FINISHED") {
+            if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc()) || onDurationChanged) {
+                info.revert();
+            } else {
+                handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
+            }
+        } else {
+            handleDragEvent(moment(new Date(event?.extendedProps.time)), "move");
+        }
     }
 
     const scrollToView = (ref: HTMLElement, nextIndex: number) => {
@@ -621,7 +640,7 @@ function Agenda() {
         setLoading(true);
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.clone().format("DD-MM-YYYY"));
-        form.append('start_time', event.extendedProps.newDate.clone().format("HH:mm"));
+        form.append('start_time', event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
@@ -636,6 +655,7 @@ function Agenda() {
             }
             refreshData();
             setMoveDialogInfo(false);
+            setMoveDialog(false);
         });
     }
 
@@ -1121,8 +1141,8 @@ function Agenda() {
                 </Drawer>
 
                 <Dialog
-                    color={theme.palette.warning.main}
-                    contrastText={theme.palette.warning.contrastText}
+                    color={moveDialogAction === "move" ? theme.palette.warning.main : theme.palette.primary.main}
+                    contrastText={moveDialogAction === "move" ? theme.palette.warning.contrastText : theme.palette.primary.contrastText}
                     dialogClose={() => {
                         event?.extendedProps.revert && event?.extendedProps.revert();
                         setMoveDialog(false);
@@ -1132,7 +1152,7 @@ function Agenda() {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
+                                            variant="subtitle1">{t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
                                     {!event?.extendedProps.onDurationChanged ? <>
@@ -1146,11 +1166,11 @@ function Agenda() {
 
                                 </Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                                            margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
                             </Box>)
                     }}
                     open={moveDialog}
-                    title={t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
+                    title={t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
                             <Button
@@ -1161,17 +1181,18 @@ function Agenda() {
                                 }}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.move-dialog.garde-date")}
+                                {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
                                 {...{loading}}
                                 loadingPosition="start"
                                 variant="contained"
-                                color={"warning"}
-                                onClick={() => handleMoveAppointment(event as EventDef)}
+                                color={moveDialogAction === "move" ? "warning" : "primary"}
+                                onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
+                                    handleRescheduleAppointment(event as EventDef)}
                                 startIcon={<Icon path="iconfinder"></Icon>}
                             >
-                                {t("dialogs.move-dialog.confirm")}
+                                {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
                     }

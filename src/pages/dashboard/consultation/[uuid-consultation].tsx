@@ -123,7 +123,7 @@ function ConsultationInProgress() {
     const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const {event} = useAppSelector(timerSelector);
+    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
 
 
     const {drawer} = useAppSelector(
@@ -483,8 +483,9 @@ function ConsultationInProgress() {
     }, [end]);
 
     useEffect(() => {
-        if (event && event.publicId !== uuind)
+        if (event && event.publicId !== uuind && isActive) {
             setIsHistory(true)
+        }
         else setIsHistory(false)
     }, [event, uuind])
 
@@ -767,9 +768,11 @@ function ConsultationInProgress() {
         e.stopPropagation();
         saveConsultation();
         if (event) {
+            console.log()
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
+
     }
     const {t, ready} = useTranslation("consultation");
 
