@@ -230,11 +230,17 @@ function CalendarRow({...props}) {
                                    }}
                                    alignItems="center">
                                 <PointOfSaleIcon color="success"/>
-                                <Typography ml={1} variant="body2">
-                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${devise}`}
-                                </Typography>
-                            </Stack>
-                        </Box> : "--"}
+
+                                <Stack direction={"row"}>
+                                    {data?.fees === "0" ? "Gratuite" :
+                                        <>
+                                            <Typography variant="body2">{data?.fees}</Typography>
+                                            <Typography ml={.5} variant="body2">{devise}</Typography>
+                                        </>
+                                    }
+                                </Stack>
+                        </Stack>
+                            </Box> : "--"}
                     </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>

@@ -37,7 +37,10 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
-import {openDrawer} from "@features/calendar";
+import {agendaSelector, openDrawer} from "@features/calendar";
+import moment from "moment-timezone";
+import {dashLayoutSelector, setOngoing} from "@features/base";
+import {useSnackbar} from "notistack";
 
 function a11yProps(index: number) {
     return {
@@ -74,10 +77,11 @@ function PatientDetail({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
+    const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-
+    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -86,7 +90,7 @@ function PatientDetail({...props}) {
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
-
+    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
@@ -111,6 +115,7 @@ function PatientDetail({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
 
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
     const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
@@ -206,6 +211,36 @@ function PatientDetail({...props}) {
             mutatePatientDocuments();
             setLoadingRequest(false);
         });
+    }
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const onOpenWaitingRoom = (event: EventDef) => {
+        const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
+        const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
+            (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
+            "3", {is_first_appointment: filteredEvents}).then(
+            () => {
+                enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
+                dispatch(setOngoing({waiting_room: waiting_room + 1}));
+                // update pending notifications status
+                agenda?.mutate[1]();
+            });
     }
 
     const nextAppointments = patient ? patient.nextAppointments : [];
@@ -459,6 +494,9 @@ function PatientDetail({...props}) {
                                     break;
                                 case "onConsultationStart":
                                     onConsultation && onConsultationStart(event);
+                                    break;
+                                case "onWaitingRoom":
+                                    onOpenWaitingRoom(event);
                                     break;
                             }
                         }}
