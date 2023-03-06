@@ -770,7 +770,6 @@ function ConsultationInProgress() {
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
-
     }
     const {t, ready} = useTranslation("consultation");
 
