@@ -85,8 +85,7 @@ function PersonalInsuranceCard({...props}) {
                 insurance_key: Yup.string(),
                 insurance_number: Yup.string()
                     .min(3, t("assurance-num-error"))
-                    .max(50, t("assurance-num-error"))
-                    .required(t("assurance-num-error")),
+                    .max(50, t("assurance-num-error")),
                 insurance_uuid: Yup.string()
                     .min(3, t("assurance-type-error"))
                     .max(50, t("assurance-type-error"))
@@ -264,8 +263,7 @@ function PersonalInsuranceCard({...props}) {
                 delete insurance['insurance_social'];
             }
         });
-        params.append('insurance', JSON.stringify((insurances ? insurances : values.insurances).filter(
-            (insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
+        params.append('insurance', JSON.stringify((insurances ? insurances : values.insurances)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address

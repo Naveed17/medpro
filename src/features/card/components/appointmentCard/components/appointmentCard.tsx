@@ -138,12 +138,13 @@ function AppointmentCard({...props}) {
                             {data?.status?.value}
                         </Typography>
                     </Label>
-                    <IconButton
+                    {!roles.includes("ROLE_SECRETARY") && <IconButton
+
                         size="small"
                         onClick={onEditConsultation}
                         className="btn-toggle">
                         <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
-                    </IconButton>
+                    </IconButton>}
                 </Stack>
                 <Stack
                     spacing={2}
