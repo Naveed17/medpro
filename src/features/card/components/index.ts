@@ -42,3 +42,4 @@ export * from "./personalInsuranceCard";
 export * from "./importDataMobileCard";
 export * from "./expendableCard"
 export * from "./patientHistoryStaticCard"
+export * from "./historyAppointementContainer"

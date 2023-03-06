@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {
     Box,
+    Button,
     Checkbox,
     InputAdornment,
     Stack,
     Table,
     TableBody,
     TableCell,
-    TableContainer, TextField,
+    TableContainer,
+    TextField,
     Typography
 } from "@mui/material";
 import {Otable, TableRowStyled} from "@features/table";
@@ -16,6 +18,9 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
 import SearchIcon from "@mui/icons-material/Search";
+import moment from "moment/moment";
+import IconUrl from "@themes/urlIcon";
+import {SubFooter} from "@features/subFooter";
 
 function FeesTab({...props}) {
 
@@ -90,6 +95,8 @@ function FeesTab({...props}) {
         setConsultationFees,
         consultationFees,
         free, setFree,
+        patient, isHistory,
+        total,setInfo,setState,setOpenDialog,
         t
     } = props;
 
@@ -124,7 +131,7 @@ function FeesTab({...props}) {
                     from={"CIP-medical-procedures"}
                     t={t}/>
 
-                <TableContainer sx={{mt:-2}}>
+                <TableContainer sx={{mt: -2}}>
                     <Table
                         stickyHeader
                         aria-labelledby="tableTitle"
@@ -150,27 +157,29 @@ function FeesTab({...props}) {
 
                                 </TableCell>
                                 <TableCell align={"right"}>
-                                    {free ? <Typography pr={3} color={"gray"} fontSize={12}>{consultationFees} {devise}</Typography>:<Stack pr={3} direction={"row"} alignItems={"center"} justifyContent={"end"}>
-                                        <InputBaseStyled
-                                            size="small"
-                                            value={consultationFees}
-                                            type={"number"}
-                                            placeholder={'--'}
-                                            onFocus={() => {
-                                                setSelected(true);
-                                            }}
-                                            onBlur={() => {
-                                                setSelected(false);
-                                            }}
-                                            autoFocus={selected}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={(ev) => {
-                                                setConsultationFees(Number(ev.target.value))
-                                                localStorage.setItem("consultation-fees", Number(ev.target.value).toString());
-                                            }}
-                                        />
-                                        <Typography color={"gray"} fontSize={12}>{devise}</Typography>
-                                    </Stack>}
+                                    {free ? <Typography pr={3} color={"gray"}
+                                                        fontSize={12}>{consultationFees} {devise}</Typography> :
+                                        <Stack pr={3} direction={"row"} alignItems={"center"} justifyContent={"end"}>
+                                            <InputBaseStyled
+                                                size="small"
+                                                value={consultationFees}
+                                                type={"number"}
+                                                placeholder={'--'}
+                                                onFocus={() => {
+                                                    setSelected(true);
+                                                }}
+                                                onBlur={() => {
+                                                    setSelected(false);
+                                                }}
+                                                autoFocus={selected}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(ev) => {
+                                                    setConsultationFees(Number(ev.target.value))
+                                                    localStorage.setItem("consultation-fees", Number(ev.target.value).toString());
+                                                }}
+                                            />
+                                            <Typography color={"gray"} fontSize={12}>{devise}</Typography>
+                                        </Stack>}
                                 </TableCell>
                             </TableRowStyled>
                         </TableBody>
@@ -180,7 +189,9 @@ function FeesTab({...props}) {
                 <Box sx={{marginTop: '-7px'}}>
                     <Otable
                         headers={[]}
-                        rows={acts?.filter((act: any) =>{return act.act.name.toLowerCase().includes(search.toLowerCase())})}
+                        rows={acts?.filter((act: any) => {
+                            return act.act.name.toLowerCase().includes(search.toLowerCase())
+                        })}
                         select={selectedUuid}
                         from={"CIP-medical-procedures"}
                         t={t}
@@ -207,7 +218,48 @@ function FeesTab({...props}) {
                     path: {fill: theme => theme.palette.primary.main}
                 }
             }} startIcon={<IconUrl path="ic-plus"/>}>{t("consultationIP.add_a_new_act")}</Button>*/}
+
+
             <Box pt={8}/>
+
+            <SubFooter>
+                <Stack direction="row" alignItems={"center"}>
+                    <Typography variant="subtitle1">
+                        <span>{t("total")} : </span>
+                    </Typography>
+                    <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
+                        {isNaN(total) ? "-" : total} {devise}
+                    </Typography>
+                    {isHistory && <Stack
+                        direction="row"
+                        alignItems="center"
+                        display={{xs: "none", md: "block"}}
+                        spacing={2}>
+                        <span>|</span>
+                        <Button
+                            variant="text-black"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setInfo("document_detail");
+                                setState({
+                                    type: "fees",
+                                    name: "note_fees",
+                                    info: selectedAct,
+                                    createdAt: moment().format("DD/MM/YYYY"),
+                                    consultationFees: free ? 0 : consultationFees,
+                                    patient: `${
+                                        patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+                                    } ${patient.firstName} ${patient.lastName}`,
+                                });
+                                setOpenDialog(true);
+                            }}
+                            startIcon={<IconUrl path="ic-imprime"/>}>
+                            {t("consultationIP.print")}
+                        </Button>
+                    </Stack>}
+                </Stack>
+            </SubFooter>
+
         </>
     );
 }
