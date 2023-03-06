@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {HistoryCard, HistoryContainer,} from "@features/card";
+import {HistoryCard, HistoryContainer, PatientHistoryStaticCard,} from "@features/card";
 import {Label} from "@features/label";
 import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@app/redux/hooks";
@@ -57,6 +57,7 @@ function HistoryTab({...props}) {
 
     return (
         <>
+
             {patient?.nextAppointments.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
                     <Label variant="filled" color="warning">
@@ -114,7 +115,7 @@ function HistoryTab({...props}) {
                     </Box>
                 </Box>
             }
-            <Stack spacing={2}>
+            <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
                         <HistoryContainer {...{
