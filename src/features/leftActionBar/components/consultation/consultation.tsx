@@ -115,7 +115,7 @@ function Consultation() {
             params.append("first_name", patient.firstName);
             params.append("last_name", patient.lastName);
             params.append("phone", JSON.stringify(patient.contact));
-            params.append("gender", patient.gender);
+            params.append("gender", patient.gender === 'M' ? '1' : '2');
             patient?.address &&
             patient?.address.length > 0 &&
             patient?.address[0].city &&
