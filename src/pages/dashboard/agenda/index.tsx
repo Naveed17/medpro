@@ -1090,7 +1090,8 @@ function Agenda() {
                                 onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
-                                onConsultation={() => onMenuActions('onConsultationDetail', event)}
+                                onConsultation={() => onMenuActions('onConsultationView', event)}
+                                onConsultationStart={() => onMenuActions('onConsultationDetail', event)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
