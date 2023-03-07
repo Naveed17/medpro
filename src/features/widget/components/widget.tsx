@@ -89,13 +89,14 @@ function Widget({ ...props }) {
     appuuid,
     changes,
     setChanges,
+      isClose,
     handleClosePanel,
   } = props;
   const [open, setOpen] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [change, setChange] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [closePanel, setClosePanel] = useState<boolean>(false);
+  const [closePanel, setClosePanel] = useState<boolean>(isClose);
   const [defaultModal, setDefaultModal] = useState<ModalModel>({
     color: "#FEBD15",
     hasData: false,

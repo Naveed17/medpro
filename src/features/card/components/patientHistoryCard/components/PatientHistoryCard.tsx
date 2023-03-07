@@ -10,7 +10,7 @@ import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 function PatientHistoryCard({...props}) {
-    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null} = props;
+    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null,setSelectedTab} = props;
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const router = useRouter();
@@ -20,6 +20,7 @@ function PatientHistoryCard({...props}) {
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             closePatientDialog && closePatientDialog();
+            setSelectedTab("consultation_form");
         });
     }
 

@@ -3,9 +3,10 @@ import AppointHistoryContainerStyled
 import {Button, Stack, Toolbar, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import React from "react";
+import {LoadingButton} from "@mui/lab";
 
 export default function HistoryAppointementContainer({...props}) {
-    const {children,isHistory, closeHistory,appointement,t} = props;
+    const {children,isHistory, closeHistory,appointement,loadingReq,t} = props;
     return (
         <>
             {isHistory ?
@@ -17,14 +18,17 @@ export default function HistoryAppointementContainer({...props}) {
                                 <IconUrl path={'ic-speaker'}/>
                                 <Typography>{t('consultationIP.updateHistory')} {appointement?.day_date}.</Typography>
                             </Stack>
-                            <Button
+                            <LoadingButton
+                                disabled={loadingReq}
+                                loading={loadingReq}
+                                loadingPosition="start"
                                 onClick={closeHistory}
                                 className="btn-action"
                                 color="warning"
                                 size="small"
                                 startIcon={<IconUrl path="ic-retour"/>}>
                                 {t('consultationIP.back')}
-                            </Button>
+                            </LoadingButton>
                         </Stack>
                     </Toolbar>
                     {children}
