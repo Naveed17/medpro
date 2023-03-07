@@ -667,7 +667,7 @@ const Content = ({...props}) => {
                             spacing={2}
                             style={{overflowX: "auto", padding: 10, marginBottom: 5}}
                             direction={"row"}>
-                            {patientDocuments.map((pdoc: any, idx: number) => (
+                            {patientDocuments.reverse().map((pdoc: any, idx: number) => (
                                 <Stack key={`${idx}-item-doc-patient`} onClick={() => {
                                     showDoc(pdoc)
                                 }}>

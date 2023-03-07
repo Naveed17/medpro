@@ -38,6 +38,7 @@ function HistoryContainer({...props}) {
         showDoc,
         mutate,
         patient,
+        setSelectedTab,
         session,
         medical_entity,
     } = props;
@@ -174,7 +175,7 @@ function HistoryContainer({...props}) {
             open={app.appointment.uuid === selectedApp}
             key={`${app.appointment.uuid}timeline`}>
             <PatientHistoryCard
-                {...{selectedApp, t, appuuid, dispatch, closePatientDialog}}
+                {...{selectedApp, t, appuuid, dispatch, closePatientDialog,setSelectedTab}}
                 key={app.appointment.uuid}
                 keyID={app.appointment.uuid}
                 data={app}>
