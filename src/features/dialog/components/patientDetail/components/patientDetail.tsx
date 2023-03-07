@@ -249,7 +249,7 @@ function PatientDetail({...props}) {
     const previousAppointments = patient ? patient.previousAppointments : [];
     const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const documents = patient ? patient.documents : [];
+    const documents = patient ? patient.documents.reverse() : [];
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
     const tabsContent = [
         {

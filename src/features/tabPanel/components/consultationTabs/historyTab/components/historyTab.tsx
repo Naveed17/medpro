@@ -24,6 +24,7 @@ function HistoryTab({...props}) {
         setOpenDialog,
         medical_entity,
         showDoc,
+        setSelectedTab,
         session,
         mutate,
         router
@@ -132,6 +133,7 @@ function HistoryTab({...props}) {
                             showDoc,
                             mutate,
                             patient,
+                            setSelectedTab,
                             session,
                             medical_entity,
                         }}/>

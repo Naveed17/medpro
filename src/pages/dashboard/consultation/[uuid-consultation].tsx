@@ -53,10 +53,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel} = props;
+        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel,isClose} = props;
         return (
             <Widget
-                {...{modal, data, models, appuuid, changes, setChanges}}
+                {...{modal, data, models, appuuid, changes, setChanges,isClose}}
                 setModal={setSM}
                 handleClosePanel={handleClosePanel}></Widget>
         );
@@ -456,7 +456,7 @@ function ConsultationInProgress() {
                     appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
                     mutate().then(() => {
                         leaveDialog.current = true;
-                        if (appointement?.status !== 5)
+                        if (!isHistory)
                             router.push("/dashboard/agenda").then(() => {
                                 clearData();
                                 setActions(false);
@@ -815,7 +815,7 @@ function ConsultationInProgress() {
                     />
                 )}
             </SubHeader>
-            {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t}}>
+            {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t,loadingReq}}>
                 <Box className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
@@ -847,6 +847,7 @@ function ConsultationInProgress() {
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}
+                            setSelectedTab={setValue}
                             locale={router.locale}
                         />
                     </TabPanel>
@@ -874,7 +875,7 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges}}
+                                        {...{models, changes, setChanges,isClose}}
                                         modal={selectedModel}
                                         data={sheetModal.data}
                                         appuuid={uuind}

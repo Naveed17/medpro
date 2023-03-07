@@ -43,7 +43,7 @@ function ExpandableCard({...props}) {
         <RootStyled component={motion.div} layout>
             <CardContent>
                 <InputBase
-                    multiline={note.length > 10}
+                    multiline={true}
                     autoFocus
                     placeholder={t("writenote")}
                     onChange={(val) => {

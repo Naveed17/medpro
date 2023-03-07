@@ -66,7 +66,7 @@ const headCells: readonly HeadCell[] = [
         numeric: true,
         disablePadding: false,
         label: "actions",
-        sortable: true,
+        sortable: false,
         align: "right",
     },
 ];
@@ -255,7 +255,7 @@ function ActFees() {
                 },
                 TriggerWithoutValidation
             ).then(() => {
-                handleEdit(actFees, actFees.fees);
+                handleEdit(actFees, actFees.fees,(actFees.act as ActModel).name);
             });
         }, [medical_entity.uuid, medical_professional.uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -498,6 +498,7 @@ function ActFees() {
                                 disabled={newFees.act === null || newFees.fees.length === 0}
                                 variant="contained"
                                 onClick={() => {
+
                                     if (typeof newFees.act === "string") {
                                         saveFees();
                                     } else {
