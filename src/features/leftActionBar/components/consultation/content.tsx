@@ -189,7 +189,7 @@ const Content = ({...props}) => {
                 name: "certif",
                 type: "write_certif",
                 detectedType: card.type,
-                mutate: mutatePatientDocuments(),
+                mutate: mutatePatientDocuments,
             });
             setOpenDialogDoc(true);
         } else {
