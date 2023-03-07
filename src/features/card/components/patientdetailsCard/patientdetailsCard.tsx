@@ -91,7 +91,7 @@ function PatientDetailsCard({...props}) {
             params.append('first_name', patient.firstName);
             params.append('last_name', patient.lastName);
             params.append('phone', JSON.stringify(patient.contact));
-            params.append('gender', patient.gender);
+            params.append('gender', patient.gender === 'M' ? '1' : '2');
             values.picture.url.length > 0 && params.append('photo', values.picture.file);
             values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
             patient.email && params.append('email', patient.email);

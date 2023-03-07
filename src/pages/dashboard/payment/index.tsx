@@ -164,10 +164,7 @@ function Payment() {
     const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);

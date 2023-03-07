@@ -10,7 +10,7 @@ import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 function PatientHistoryCard({...props}) {
-    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null} = props;
+    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null,setSelectedTab} = props;
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const router = useRouter();
@@ -20,6 +20,7 @@ function PatientHistoryCard({...props}) {
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             closePatientDialog && closePatientDialog();
+            setSelectedTab("consultation_form");
         });
     }
 
@@ -46,20 +47,20 @@ function PatientHistoryCard({...props}) {
                     }}
                     borderBottom={1}
                     borderColor="divider">
-                    <Typography
+                    {!isMobile && <Typography
                         display="flex"
                         alignItems="center"
                         component="div"
                         sx={{cursor: "pointer"}}
                         fontWeight={600}>
                         <Icon path={"ic-doc"}/>
-                        {!isMobile && capitalize(t("reason_for_consultation"))}{" "}
+                        {capitalize(t("reason_for_consultation"))}{" "}
                         {data?.appointment.consultationReason ? (
                             <>: {data?.appointment.consultationReason.name}</>
                         ) : (
                             <>: --</>
                         )}
-                    </Typography>
+                    </Typography>}
                     <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
                         <Typography
                             variant="body2"

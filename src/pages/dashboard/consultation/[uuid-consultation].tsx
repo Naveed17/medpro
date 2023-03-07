@@ -20,7 +20,13 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {SWRNoValidateConfig, TriggerWithoutValidation,} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
-import {ConsultationDetailCard, PatientHistoryNoDataCard, PendingDocumentCard, setTimer,} from "@features/card";
+import {
+    ConsultationDetailCard,
+    PatientHistoryNoDataCard,
+    PendingDocumentCard,
+    setTimer,
+    timerSelector,
+} from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
@@ -41,16 +47,18 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
+import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges} = props;
+        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel,isClose} = props;
         return (
             <Widget
-                {...{modal, data, models, appuuid, changes, setChanges}}
-                setModal={setSM}></Widget>
+                {...{modal, data, models, appuuid, changes, setChanges,isClose}}
+                setModal={setSM}
+                handleClosePanel={handleClosePanel}></Widget>
         );
     },
     // NEVER UPDATE
@@ -86,8 +94,8 @@ function ConsultationInProgress() {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [appointement, setAppointement] = useState<any>();
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [isClose, setIsClose] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -108,12 +116,15 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
+    const [isHistory, setIsHistory] = useState(false);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
+    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+
 
     const {drawer} = useAppSelector(
         (state: { dialog: DialogProps }) => state.dialog
@@ -333,16 +344,21 @@ function ConsultationInProgress() {
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
 
-            setTimeout(()=>{
+            setTimeout(() => {
                 if (appointement.acts) {
                     let sAct: any[] = [];
                     appointement.acts.map(
                         (act: { act_uuid: string; price: any; qte: any }) => {
-                            sAct.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
+                            sAct.push({...act, fees: act.price, uuid: act.act_uuid, act: {name: (act as any).name}});
                             const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
                             if (actDetect === -1) {
-                                acts.push({...act,fees:act.price,uuid:act.act_uuid,act:{name:(act as any).name}});
-                            } else{
+                                acts.push({
+                                    ...act,
+                                    fees: act.price,
+                                    uuid: act.act_uuid,
+                                    act: {name: (act as any).name}
+                                });
+                            } else {
                                 acts[actDetect].fees = act.price;
                             }
                         }
@@ -350,7 +366,7 @@ function ConsultationInProgress() {
                     setSelectedAct(sAct);
                     setActs([...acts]);
                 }
-            },500);
+            }, 500);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, dispatch, mutate]);
@@ -440,12 +456,19 @@ function ConsultationInProgress() {
                     appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
                     mutate().then(() => {
                         leaveDialog.current = true;
-                        router.push("/dashboard/agenda").then(() => {
+                        if (!isHistory)
+                            router.push("/dashboard/agenda").then(() => {
+                                clearData();
+                                setActions(false);
+                                setEnd(false);
+                                setLoadingReq(false);
+                            });
+                        else{
                             clearData();
                             setActions(false);
                             setEnd(false);
                             setLoadingReq(false);
-                        });
+                        }
                         appointement?.status !== 5 && sendNotification();
                     });
                 });
@@ -458,6 +481,13 @@ function ConsultationInProgress() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
+    useEffect(() => {
+        if (event && event.publicId !== uuind && isActive) {
+            setIsHistory(true)
+        }
+        else setIsHistory(false)
+    }, [event, uuind])
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -733,6 +763,17 @@ function ConsultationInProgress() {
                 break;
         }
     };
+
+    const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+        saveConsultation();
+        if (event) {
+            console.log()
+            const slugConsultation = `/dashboard/consultation/${event.publicId}`;
+            router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+        }
+
+    }
     const {t, ready} = useTranslation("consultation");
 
     if (!ready)
@@ -774,42 +815,43 @@ function ConsultationInProgress() {
                     />
                 )}
             </SubHeader>
-
-            <Box className="container container-scroll">
-                {loading && (
-                    <Stack spacing={2} padding={2}>
-                        {Array.from({length: 3}).map((_, idx) => (
-                            <React.Fragment key={idx}>
-                                <PatientHistoryNoDataCard/>
-                            </React.Fragment>
-                        ))}
-                    </Stack>
-                )}
-                <TabPanel padding={1} value={value} index={"patient_history"}>
-                    <HistoryTab
-                        {...{
-                            patient,
-                            dispatch,
-                            appointement,
-                            t,
-                            session,
-                            acts,
-                            direction,
-                            mutateDoc,
-                            mutate,
-                            medical_entity,
-                            setOpenDialog,
-                            showDoc,
-                            setState,
-                            setInfo,
-                            router,
-                            setIsViewerOpen,
-                        }}
-                        appuuid={uuind}
-                        locale={router.locale}
-                    />
-                </TabPanel>
-                {/*
+            {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t,loadingReq}}>
+                <Box className="container container-scroll">
+                    {loading && (
+                        <Stack spacing={2} padding={2}>
+                            {Array.from({length: 3}).map((_, idx) => (
+                                <React.Fragment key={idx}>
+                                    <PatientHistoryNoDataCard/>
+                                </React.Fragment>
+                            ))}
+                        </Stack>
+                    )}
+                    <TabPanel padding={1} value={value} index={"patient_history"}>
+                        <HistoryTab
+                            {...{
+                                patient,
+                                dispatch,
+                                appointement,
+                                t,
+                                session,
+                                acts,
+                                direction,
+                                mutateDoc,
+                                mutate,
+                                medical_entity,
+                                setOpenDialog,
+                                showDoc,
+                                setState,
+                                setInfo,
+                                router,
+                                setIsViewerOpen,
+                            }}
+                            appuuid={uuind}
+                            setSelectedTab={setValue}
+                            locale={router.locale}
+                        />
+                    </TabPanel>
+                    {/*
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
                     <Box
                         sx={{
@@ -828,247 +870,258 @@ function ConsultationInProgress() {
                     </Box>
                 </TabPanel>
 */}
-                <TabPanel padding={1} value={value} index={"consultation_form"}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={5}>
-                            {!loading && models && selectedModel && (
-                                <WidgetForm
-                                    {...{models, changes, setChanges}}
-                                    modal={selectedModel}
-                                    data={sheetModal.data}
-                                    appuuid={uuind}
-                                    setSM={setSelectedModel}></WidgetForm>
-                            )}
-                        </Grid>
-                        <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
-                            <ConsultationDetailCard
-                                {...{
-                                    changes,
-                                    setChanges,
-                                    uuind,
-                                    agenda: agenda?.uuid,
-                                    exam: sheetExam,
-                                    appointement,
-                                    mutateDoc,
-                                    medical_entity,
-                                    session,
-                                    seeHistory,
-                                    router,
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        showDoc={showDoc}
-                        selectedDialog={selectedDialog}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        router={router}
-                        session={session}
-                        trigger={trigger}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"medical_procedures"}>
-                    {!loading && (
-                        <FeesTab
-                            {...{
-                                acts,
-                                selectedUuid,
-                                selectedAct,
-                                consultationFees,
-                                setConsultationFees,
-                                free,
-                                setFree,
-                                editAct,
-                                setTotal,
-                                t,
-                            }}></FeesTab>
-                    )}
-                </TabPanel>
-
-                <Stack
-                    direction={{md: "row", xs: "column"}}
-                    position="fixed"
-                    sx={{right: 10, bottom: 10, zIndex: 999}}
-                    spacing={2}>
-                    {pendingDocuments?.map((item: any) => (
-                        <React.Fragment key={item.id}>
-                            <PendingDocumentCard
-                                data={item}
-                                t={t}
-                                onClick={() => {
-                                    openDialogue(item);
-                                }}
-                                closeDocument={(v: number) =>
-                                    setPendingDocuments(
-                                        pendingDocuments.filter((card: any) => card.id !== v)
-                                    )
-                                }
-                            />
-                        </React.Fragment>
-                    ))}
-                </Stack>
-                <Box pt={8}>
-                    {!lock && (
-                        <SubFooter>
-                            <Stack
-                                width={1}
-                                spacing={{xs: 1, md: 0}}
-                                padding={{xs: 1, md: 0}}
-                                direction={{xs: "column", md: "row"}}
-                                alignItems="flex-end"
-                                justifyContent={
-                                    value === "medical_procedures" ? "space-between" : "flex-end"
-                                }>
-                                {value === "medical_procedures" && (
-                                    <Stack direction="row" alignItems={"center"}>
-                                        <Typography variant="subtitle1">
-                                            <span>{t("total")} : </span>
-                                        </Typography>
-                                        <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                            {isNaN(total) ? "-":total} {devise}
-                                        </Typography>
-                                        <Stack
-                                            direction="row"
-                                            alignItems="center"
-                                            display={{xs: "none", md: "block"}}
-                                            spacing={2}>
-                                            <span>|</span>
-                                            <Button
-                                                variant="text-black"
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setInfo("document_detail");
-                                                    setState({
-                                                        type: "fees",
-                                                        name: "note_fees",
-                                                        info: selectedAct,
-                                                        createdAt: moment().format("DD/MM/YYYY"),
-                                                        consultationFees: free ? 0 : consultationFees,
-                                                        patient: `${
-                                                            patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-                                                        } ${patient.firstName} ${patient.lastName}`,
-                                                    });
-                                                    setOpenDialog(true);
-                                                }}
-                                                startIcon={<IconUrl path="ic-imprime"/>}>
-                                                {t("consultationIP.print")}
-                                            </Button>
-                                        </Stack>
-                                    </Stack>
+                    <TabPanel padding={1} value={value} index={"consultation_form"}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                                {!loading && models && selectedModel && (
+                                    <WidgetForm
+                                        {...{models, changes, setChanges,isClose}}
+                                        modal={selectedModel}
+                                        data={sheetModal.data}
+                                        appuuid={uuind}
+                                        setSM={setSelectedModel}
+                                        handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
-                                <LoadingButton
-                                    disabled={loading}
-                                    loading={loadingReq}
-                                    loadingPosition={"start"}
-                                    onClick={
-                                        appointement?.status === 5
-                                            ? saveConsultation
-                                            : endConsultation
+                            </Grid>
+                            <Grid item xs={12}
+                                  md={isClose ? 11 : 7}
+                                  style={{paddingLeft: isClose ? 0 : 10}}>
+                                <ConsultationDetailCard
+                                    {...{
+                                        changes,
+                                        setChanges,
+                                        uuind,
+                                        agenda: agenda?.uuid,
+                                        exam: sheetExam,
+                                        appointement,
+                                        mutateDoc,
+                                        medical_entity,
+                                        session,
+                                        seeHistory,
+                                        router,
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
+                    </TabPanel>
+                    <TabPanel padding={1} value={value} index={"documents"}>
+                        <DocumentsTab
+                            documents={documents}
+                            setIsViewerOpen={setIsViewerOpen}
+                            setInfo={setInfo}
+                            setState={setState}
+                            showDoc={showDoc}
+                            selectedDialog={selectedDialog}
+                            patient={patient}
+                            mutateDoc={mutateDoc}
+                            router={router}
+                            session={session}
+                            trigger={trigger}
+                            setOpenDialog={setOpenDialog}
+                            t={t}></DocumentsTab>
+                    </TabPanel>
+                    <TabPanel padding={1} value={value} index={"medical_procedures"}>
+                        {!loading && (
+                            <FeesTab
+                                {...{
+                                    acts,
+                                    selectedUuid,
+                                    selectedAct,
+                                    consultationFees,
+                                    setConsultationFees,
+                                    free,
+                                    setFree,
+                                    isHistory,
+                                    total,
+                                    setInfo,
+                                    setState,
+                                    setOpenDialog,
+                                    patient,
+                                    editAct,
+                                    setTotal,
+                                    t,
+                                }}></FeesTab>
+                        )}
+                    </TabPanel>
+
+                    <Stack
+                        direction={{md: "row", xs: "column"}}
+                        position="fixed"
+                        sx={{right: 10, bottom: 10, zIndex: 999}}
+                        spacing={2}>
+                        {pendingDocuments?.map((item: any) => (
+                            <React.Fragment key={item.id}>
+                                <PendingDocumentCard
+                                    data={item}
+                                    t={t}
+                                    onClick={() => {
+                                        openDialogue(item);
+                                    }}
+                                    closeDocument={(v: number) =>
+                                        setPendingDocuments(
+                                            pendingDocuments.filter((card: any) => card.id !== v)
+                                        )
                                     }
-                                    color={"error"}
-                                    startIcon={<Icon path="ic-check"/>}
-                                    variant="contained"
-                                    sx={{".react-svg": {mr: 1}}}>
-                                    {appointement?.status == 5
-                                        ? t("edit_of_consultation")
-                                        : t("end_of_consultation")}
-                                </LoadingButton>
-                            </Stack>
-                        </SubFooter>
-                    )}
-                </Box>
-
-                <DrawerBottom
-                    handleClose={() => setFilterDrawer(false)}
-                    open={filterdrawer}
-                    title={null}>
-                    <ConsultationFilter/>
-                </DrawerBottom>
-
-                <Stack
-                    direction={{md: "row", xs: "column"}}
-                    position="fixed"
-                    sx={{right: 10, bottom: 70, zIndex: 999}}
-                    spacing={2}>
-                    {pendingDocuments?.map((item: any) => (
-                        <React.Fragment key={item.id}>
-                            <PendingDocumentCard
-                                data={item}
-                                t={t}
-                                onClick={() => {
-                                    openDialogue(item);
-                                }}
-                                closeDocument={(v: number) =>
-                                    setPendingDocuments(
-                                        pendingDocuments.filter((card: any) => card.id !== v)
-                                    )
-                                }
-                            />
-                        </React.Fragment>
-                    ))}
-                </Stack>
-
-                <Drawer
-                    anchor={"right"}
-                    open={openAddDrawer}
-                    dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
-                    }}>
-                    <Box height={"100%"}>
-                        <CustomStepper
-                            {...{currentStepper, t}}
-                            modal={"consultation"}
-                            OnTabsChange={handleStepperChange}
-                            OnSubmitStepper={submitStepper}
-                            OnCustomAction={handleTableActions}
-                            stepperData={EventStepper}
-                            scroll
-                            minWidth={726}/>
+                                />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
+                    <Box pt={8}>
+                        {!lock && !isHistory && (
+                            <SubFooter>
+                                <Stack
+                                    width={1}
+                                    spacing={{xs: 1, md: 0}}
+                                    padding={{xs: 1, md: 0}}
+                                    direction={{xs: "column", md: "row"}}
+                                    alignItems="flex-end"
+                                    justifyContent={
+                                        value === "medical_procedures" ? "space-between" : "flex-end"
+                                    }>
+                                    {value === "medical_procedures" && (
+                                        <Stack direction="row" alignItems={"center"}>
+                                            <Typography variant="subtitle1">
+                                                <span>{t("total")} : </span>
+                                            </Typography>
+                                            <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
+                                                {isNaN(total) ? "-" : total} {devise}
+                                            </Typography>
+                                            <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                display={{xs: "none", md: "block"}}
+                                                spacing={2}>
+                                                <span>|</span>
+                                                <Button
+                                                    variant="text-black"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setInfo("document_detail");
+                                                        setState({
+                                                            type: "fees",
+                                                            name: "note_fees",
+                                                            info: selectedAct,
+                                                            createdAt: moment().format("DD/MM/YYYY"),
+                                                            consultationFees: free ? 0 : consultationFees,
+                                                            patient: `${
+                                                                patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+                                                            } ${patient.firstName} ${patient.lastName}`,
+                                                        });
+                                                        setOpenDialog(true);
+                                                    }}
+                                                    startIcon={<IconUrl path="ic-imprime"/>}>
+                                                    {t("consultationIP.print")}
+                                                </Button>
+                                            </Stack>
+                                        </Stack>
+                                    )}
+                                    <LoadingButton
+                                        disabled={loading}
+                                        loading={loadingReq}
+                                        loadingPosition={"start"}
+                                        onClick={
+                                            appointement?.status === 5
+                                                ? saveConsultation
+                                                : endConsultation
+                                        }
+                                        color={appointement?.status === 5 ? "warning" : "error"}
+                                        className="btn-action"
+                                        startIcon={appointement?.status === 5 ? <Icon path="ic-edit"/> :
+                                            <Icon path="ic-check"/>}
+                                        variant="contained"
+                                        sx={{".react-svg": {mr: 1}}}>
+                                        {appointement?.status == 5
+                                            ? t("edit_of_consultation")
+                                            : t("end_of_consultation")}
+                                    </LoadingButton>
+                                </Stack>
+                            </SubFooter>
+                        )}
                     </Box>
-                </Drawer>
 
-                <DrawerBottom
-                    handleClose={() => setFilterDrawer(false)}
-                    open={filterdrawer}
-                    title={null}>
-                    <ConsultationFilter/>
-                </DrawerBottom>
+                    <DrawerBottom
+                        handleClose={() => setFilterDrawer(false)}
+                        open={filterdrawer}
+                        title={null}>
+                        <ConsultationFilter/>
+                    </DrawerBottom>
 
-                <Dialog
-                    action={"patient_observation_history"}
-                    open={openActDialog}
-                    data={{stateAct, setstateAct, setDialog, t}}
-                    size={"sm"}
-                    direction={"ltr"}
-                    title={t("consultationIP.patient_observation_history")}
-                    dialogClose={handleCloseDialogAct}
-                    onClose={handleCloseDialogAct}
-                    icon={true}
-                    /*actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialogAct} startIcon={<CloseIcon/>}>
-                                {t("cancel")}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                onClick={handleSaveDialog}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                                {t("save")}
-                            </Button>
-                        </DialogActions>
-                    }*/
-                />
-            </Box>
+                    <Stack
+                        direction={{md: "row", xs: "column"}}
+                        position="fixed"
+                        sx={{right: 10, bottom: 70, zIndex: 999}}
+                        spacing={2}>
+                        {pendingDocuments?.map((item: any) => (
+                            <React.Fragment key={item.id}>
+                                <PendingDocumentCard
+                                    data={item}
+                                    t={t}
+                                    onClick={() => {
+                                        openDialogue(item);
+                                    }}
+                                    closeDocument={(v: number) =>
+                                        setPendingDocuments(
+                                            pendingDocuments.filter((card: any) => card.id !== v)
+                                        )
+                                    }
+                                />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
 
+                    <Drawer
+                        anchor={"right"}
+                        open={openAddDrawer}
+                        dir={direction}
+                        onClose={() => {
+                            dispatch(openDrawer({type: "add", open: false}));
+                        }}>
+                        <Box height={"100%"}>
+                            <CustomStepper
+                                {...{currentStepper, t}}
+                                modal={"consultation"}
+                                OnTabsChange={handleStepperChange}
+                                OnSubmitStepper={submitStepper}
+                                OnCustomAction={handleTableActions}
+                                stepperData={EventStepper}
+                                scroll
+                                minWidth={726}/>
+                        </Box>
+                    </Drawer>
+
+                    <DrawerBottom
+                        handleClose={() => setFilterDrawer(false)}
+                        open={filterdrawer}
+                        title={null}>
+                        <ConsultationFilter/>
+                    </DrawerBottom>
+
+                    <Dialog
+                        action={"patient_observation_history"}
+                        open={openActDialog}
+                        data={{stateAct, setstateAct, setDialog, t}}
+                        size={"sm"}
+                        direction={"ltr"}
+                        title={t("consultationIP.patient_observation_history")}
+                        dialogClose={handleCloseDialogAct}
+                        onClose={handleCloseDialogAct}
+                        icon={true}
+                        /*actionDialog={
+                            <DialogActions>
+                                <Button onClick={handleCloseDialogAct} startIcon={<CloseIcon/>}>
+                                    {t("cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSaveDialog}
+                                    startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                    {t("save")}
+                                </Button>
+                            </DialogActions>
+                        }*/
+                    />
+                </Box>
+            </HistoryAppointementContainer>}
             {info && (
                 <Dialog
                     {...{

@@ -135,6 +135,7 @@ function PersonalInfo({...props}) {
         params.append('address', JSON.stringify({
             fr: values.address
         }));
+        patient.note && params.append('note', patient.note);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);

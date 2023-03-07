@@ -143,6 +143,7 @@ function CIPPatientHistoryCard({...props}) {
         const params = new FormData();
         params.append("color", "#0696D6");
         params.append("duration", "15");
+        params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
             fr: name
         }));
@@ -226,7 +227,7 @@ function CIPPatientHistoryCard({...props}) {
                                     return filtered;
                                 }}
                                 sx={{color: "text.secondary"}}
-                                options={cReason ? cReason : []}
+                                options={cReason ? cReason.filter(item => item.isEnabled) : []}
                                 loading={cReason?.length === 0}
                                 getOptionLabel={(option) => {
                                     // Value selected with enter, right from the input
