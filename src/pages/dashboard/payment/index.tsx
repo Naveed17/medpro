@@ -17,7 +17,7 @@ import {
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {Dialog, PatientDetail} from "@features/dialog";
@@ -25,11 +25,11 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {NoDataCard, PaymentMobileCard} from "@features/card";
+import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
-import {agendaSelector, setCurrentDate} from "@features/calendar";
+import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -48,6 +48,7 @@ import {
     setInsurances,
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
+import {EventDef} from "@fullcalendar/core/internal";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -170,6 +171,8 @@ function Payment() {
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {selectedBox, query, paymentTypes} = useAppSelector(cashBoxSelector);
@@ -246,10 +249,9 @@ function Payment() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger} = useRequestMutation(null, "/payment/cashbox", {
-        revalidate: true,
-        populateCache: false,
-    });
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+
+    const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
     const {data: httpMedicalProfessionalResponse} = useRequest({
         method: "GET",
@@ -345,6 +347,42 @@ function Payment() {
                 setPatientDetailDrawer(true);
                 break;
         }
+    }
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const onConsultationStart = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                start_date: moment().format("DD-MM-YYYY"),
+                start_time: moment().format("HH:mm")
+            }).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setTimer({
+                        isActive: true,
+                        isPaused: false,
+                        event,
+                        startTime: moment().utc().format("HH:mm")
+                    }
+                ));
+                mutateOnGoing && mutateOnGoing();
+            });
+        })
     }
 
     const getAppointments = useCallback((query: string) => {
@@ -618,6 +656,7 @@ function Payment() {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
+                    onConsultationStart={onConsultationStart}
                     onAddAppointment={() => console.log("onAddAppointment")}/>
             </Drawer>
 

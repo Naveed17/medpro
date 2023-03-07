@@ -75,7 +75,7 @@ function HistoryPanel({...props}) {
                 name: 'certif',
                 detectedType: card.type,
                 type: 'write_certif',
-                mutate: mutate()
+                mutate
             })
             setOpenDialog(true);
         } else {
@@ -105,7 +105,7 @@ function HistoryPanel({...props}) {
                 uuidDoc: uuidDoc,
                 detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
-                mutate: mutate()
+                mutate
             })
             setOpenDialog(true);
         }
