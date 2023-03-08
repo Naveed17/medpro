@@ -150,11 +150,12 @@ function FcmLayout({...props}) {
                         } as any;
                         // start consultation timer
                         dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment(data.body.appointment.dayDate, "DD-MM-YYYY").format("HH:mm")
-                        }));
+                                isActive: true,
+                                isPaused: false,
+                                event,
+                                startTime: moment().utc().format("HH:mm")
+                            }
+                        ));
                         break;
                 }
             }
