@@ -53,10 +53,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel,isClose} = props;
+        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel, isClose} = props;
         return (
             <Widget
-                {...{modal, data, models, appuuid, changes, setChanges,isClose}}
+                {...{modal, data, models, appuuid, changes, setChanges, isClose}}
                 setModal={setSM}
                 handleClosePanel={handleClosePanel}></Widget>
         );
@@ -99,11 +99,7 @@ function ConsultationInProgress() {
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
-    const [selectedAct, setSelectedAct] = useState<any[]>(
-        localStorage.getItem("consultation-acts")
-            ? JSON.parse(localStorage.getItem("consultation-acts") as string)
-            : []
-    );
+    const [selectedAct, setSelectedAct] = useState<any[]>([]);
     const [selectedUuid, setSelectedUuid] = useState<string[]>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
@@ -123,7 +119,7 @@ function ConsultationInProgress() {
     const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
 
 
     const {drawer} = useAppSelector(
@@ -330,68 +326,74 @@ function ConsultationInProgress() {
     }, [selectedDialog, setInfo, setOpenDialog]);
 
     useEffect(() => {
-        if (appointement) {
-            setPatient(appointement.patient);
-            const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
-            setFree(checkFree);
-            if (!checkFree) setTotal(consultationFees);
-            if (appointement.consultation_fees) {
-                setConsultationFees(Number(appointement.consultation_fees));
+        if (httpMPResponse) {
+
+            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+            setConsultationFees(Number(mpRes.consultation_fees));
+            setMpUuid(mpRes.medical_professional.uuid);
+            const acts = [...mpRes.acts];
+            const selectedLocal = localStorage.getItem(`consultation-acts-${uuind}`)
+                ? JSON.parse(localStorage.getItem(`consultation-acts-${uuind}`) as string)
+                : [];
+            if (selectedLocal) {
+                setSelectedAct([...selectedLocal]);
             }
 
-            dispatch(SetPatient(appointement.patient));
-            dispatch(SetAppointement(appointement));
-            dispatch(SetMutation(mutate));
-            dispatch(SetMutationDoc(mutateDoc));
+            selectedLocal.map((act: any) => {
+                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.uuid) as any;
+                if (actDetect === -1) {
+                    acts.push(act);
+                }
+            });
+            setActs([...acts]);
 
-            setTimeout(() => {
-                if (appointement.acts) {
-                    let sAct: any[] = [];
-                    appointement.acts.map(
-                        (act: { act_uuid: string; price: any; qte: any }) => {
-                            sAct.push({...act, fees: act.price, uuid: act.act_uuid, act: {name: (act as any).name}});
-                            const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
-                            if (actDetect === -1) {
-                                acts.push({
+            if (appointement) {
+                setPatient(appointement.patient);
+                const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+                setFree(checkFree);
+                if (!checkFree) setTotal(consultationFees);
+                if (appointement.consultation_fees) {
+                    setConsultationFees(Number(appointement.consultation_fees));
+                }
+                dispatch(SetPatient(appointement.patient));
+                dispatch(SetAppointement(appointement));
+                dispatch(SetMutation(mutate));
+                dispatch(SetMutationDoc(mutateDoc));
+
+                setTimeout(() => {
+                    if (appointement.acts) {
+                        let sAct: any[] = [];
+                        appointement.acts.map(
+                            (act: { act_uuid: string; price: any; qte: any }) => {
+                                sAct.push({
                                     ...act,
                                     fees: act.price,
                                     uuid: act.act_uuid,
                                     act: {name: (act as any).name}
                                 });
-                            } else {
-                                acts[actDetect].fees = act.price;
+                                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                                if (actDetect === -1) {
+                                    acts.push({
+                                        ...act,
+                                        fees: act.price,
+                                        uuid: act.act_uuid,
+                                        act: {name: (act as any).name}
+                                    });
+                                } else {
+                                    acts[actDetect].fees = act.price;
+                                }
                             }
-                        }
-                    );
-                    setSelectedAct(sAct);
-                    setActs([...acts]);
-                }
-            }, 500);
+                        );
+                        setSelectedAct(sAct);
+                        setActs([...acts]);
+                    }
+                }, 500);
+            }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointement, dispatch, mutate]);
+    }, [appointement, httpMPResponse, dispatch, mutate, uuind, consultationFees, mutateDoc]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
-            setMpUuid(mpRes.medical_professional.uuid);
-            const acts = [...mpRes.acts];
-            const localActes = localStorage.getItem("consultation-acts")
-                ? JSON.parse(localStorage.getItem("consultation-acts") as string)
-                : [];
-            if (localActes) {
-                setSelectedAct([...localActes]);
-            }
-            const updatedActs = acts.map((act) => {
-                const localAct = localActes.find(
-                    (selAct: any) => selAct.uuid === act.uuid
-                );
-                return localAct ? localAct : act;
-            });
-            setActs(updatedActs);
-        }
-    }, [httpMPResponse]);
+    }, [httpMPResponse, selectedAct, uuind]);
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -463,7 +465,8 @@ function ConsultationInProgress() {
                                 setEnd(false);
                                 setLoadingReq(false);
                             });
-                        else{
+                        else {
+
                             clearData();
                             setActions(false);
                             setEnd(false);
@@ -485,9 +488,8 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (event && event.publicId !== uuind && isActive) {
             setIsHistory(true)
-        }
-        else setIsHistory(false)
-    }, [event, uuind])
+        } else setIsHistory(false)
+    }, [event, isActive, uuind])
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -546,7 +548,7 @@ function ConsultationInProgress() {
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
-                "consultation-acts",
+                `consultation-acts-${uuind}`,
                 JSON.stringify([...selectedAct])
             );
         } else if (from === "changeQte") {
@@ -554,7 +556,7 @@ function ConsultationInProgress() {
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
-                "consultation-acts",
+                `consultation-acts-${uuind}`,
                 JSON.stringify([...selectedAct])
             );
         } else if (from === "checked") {
@@ -566,7 +568,7 @@ function ConsultationInProgress() {
                     ...selectedAct.slice(index + 1, selectedAct.length),
                 ]);
                 localStorage.setItem(
-                    "consultation-acts",
+                    `consultation-acts-${uuind}`,
                     JSON.stringify([
                         ...selectedAct.slice(0, index),
                         ...selectedAct.slice(index + 1, selectedAct.length),
@@ -576,7 +578,7 @@ function ConsultationInProgress() {
                 row.qte = 1;
                 setSelectedAct([...selectedAct, row]);
                 localStorage.setItem(
-                    "consultation-acts",
+                    `consultation-acts-${uuind}`,
                     JSON.stringify([...selectedAct, row])
                 );
             }
@@ -630,7 +632,7 @@ function ConsultationInProgress() {
         localStorage.removeItem(`consultation-data-${uuind}`);
         localStorage.removeItem(`instruction-data-${uuind}`);
         localStorage.removeItem(`consultation-fees`);
-        localStorage.removeItem(`consultation-acts`);
+        localStorage.removeItem(`consultation-acts-${uuind}`);
     }
     const leave = () => {
         clearData();
@@ -647,7 +649,6 @@ function ConsultationInProgress() {
     const saveConsultation = () => {
         const btn = document.getElementsByClassName("sub-btn")[1];
         const examBtn = document.getElementsByClassName("sub-exam")[0];
-
         (btn as HTMLElement)?.click();
         (examBtn as HTMLElement)?.click();
         setEnd(true);
@@ -768,7 +769,6 @@ function ConsultationInProgress() {
         e.stopPropagation();
         saveConsultation();
         if (event) {
-            console.log()
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
@@ -815,7 +815,7 @@ function ConsultationInProgress() {
                     />
                 )}
             </SubHeader>
-            {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t,loadingReq}}>
+            {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
                 <Box className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
@@ -875,9 +875,9 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges,isClose}}
+                                        {...{models, changes, setChanges, isClose}}
                                         modal={selectedModel}
-                                        data={sheetModal.data}
+                                        data={sheetModal?.data}
                                         appuuid={uuind}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
@@ -999,7 +999,7 @@ function ConsultationInProgress() {
                                                         setInfo("document_detail");
                                                         setState({
                                                             type: "fees",
-                                                            name: "note_fees",
+                                                            name: "Honoraire",
                                                             info: selectedAct,
                                                             createdAt: moment().format("DD/MM/YYYY"),
                                                             consultationFees: free ? 0 : consultationFees,

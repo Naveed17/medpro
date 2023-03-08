@@ -390,6 +390,7 @@ function Patient() {
                         startTime: moment().utc().format("HH:mm")
                     }
                 ));
+                // refresh on going api
                 mutateOnGoing && mutateOnGoing();
             });
         })
