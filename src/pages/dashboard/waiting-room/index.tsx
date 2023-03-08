@@ -44,6 +44,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {DefaultCountry} from "@app/constants";
 import {AnimatePresence, motion} from "framer-motion";
+import {EventDef} from "@fullcalendar/core/internal";
 
 export const headCells = [
     {
@@ -194,14 +195,7 @@ function WaitingRoom() {
         }
     }, SWRNoValidateConfig);
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data
-        .find((item: AgendaConfigurationModel) =>
-            item.isDefault) as AgendaConfigurationModel;
-
-    const {
-        data: httpWaitingRoomsResponse,
-        mutate: mutateWaitingRoom
-    } = useRequest({
+    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
         headers: {
@@ -209,8 +203,9 @@ function WaitingRoom() {
         }
     });
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+
+    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
     const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
         const form = new FormData();
@@ -261,19 +256,26 @@ function WaitingRoom() {
 
     const startConsultation = (row: any) => {
         if (!isActive) {
-            const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
+            const event: any = {
+                publicId: (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string,
+                extendedProps: {
+                    ...(row?.extendedProps && {...row?.extendedProps}),
+                    ...(row?.patient && {patient: row?.patient})
+                }
+            };
+            const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                const event: any = {
-                    publicId: row?.uuid as string,
-                    extendedProps: {
-                        patient: row?.patient
-                    }
-                };
-                dispatch(setTimer({isActive: true, isPaused: false, event}));
-                updateAppointmentStatus(row?.uuid as string, "4", {
+                updateAppointmentStatus(event.publicId as string, "4", {
                     start_date: moment().format("DD-MM-YYYY"),
                     start_time: moment().format("HH:mm")
                 }).then(() => {
+                    dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm")
+                        }
+                    ));
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
                 });
@@ -517,6 +519,7 @@ function WaitingRoom() {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
+                    onConsultationStart={(event: EventDef) => startConsultation(event)}
                     onAddAppointment={() => console.log("onAddAppointment")}/>
             </Drawer>
 
