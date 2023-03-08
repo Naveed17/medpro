@@ -3,7 +3,7 @@
 </p>
 
 # Med Link
-NextJS app. Frontend for SmartMedSA/med-pro
+NextJS app for SmartMedSA/med-pro
 
 ### Environment URLs
 
