@@ -8,9 +8,9 @@ function PatientHistoryCard({...props}) {
     const {open, handleOpen, children} = props;
 
     return (
-        <PatientHistoryCardStyled onClick={handleOpen} direction="row">
+        <PatientHistoryCardStyled direction="row">
             <Box className="time-line">
-                <IconButton className="expand-btn">
+                <IconButton className="expand-btn" onClick={handleOpen} >
                     {open ? <RemoveIcon color="primary"/> : <AddIcon color="primary"/>}
                 </IconButton>
             </Box>

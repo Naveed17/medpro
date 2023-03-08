@@ -81,6 +81,7 @@
     "subtitleRemoveImg": "Imagerie sera définitivement supprimée",
     "remove": "Supprimer",
     "removedoc": "Êtes-vous sûr ?",
+    "note_fees": "Note honoraire",
     "askRemove": "Vous voulez supprimer",
     "doc_detail_title": "Document"
   },
@@ -307,6 +308,7 @@
     "lot_number": "Numero du lot",
     "date_of_injection": "Date de l'injection",
     "removedoc": "Supprimer un document",
+    "note_fees": "Note honoraire",
     "askRemovedoc": "Vous voulez supprimer ce document ?",
     "subtitleRemovedoc": "ce document sera définitivement supprimé",
     "remove": "Supprimer",
@@ -372,6 +374,7 @@
   "photo": "Photo",
   "video": "video",
   "audio": "Audio",
+  "note_fees": "Note honoraire",
   "finish_the_consutation": "Êtes-vous sûr de vouloir terminer la consutation ?",
   "recap": "Récapitulatif de la consultation",
   "type_the_instruction_for_the_secretary": "Tapez l’instruction pour la secretaire",
