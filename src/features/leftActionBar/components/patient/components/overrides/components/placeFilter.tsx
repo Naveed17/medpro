@@ -51,6 +51,20 @@ function PlaceFilter({...props}) {
     const handleChangeCity = (country: CountryModel) => {
         setstate({country: country ? country.uuid : "", states: []});
         setOpend('');
+        if (!country) {
+            const query = _.omit(queryState, "country");
+            OnSearch({
+                query
+            });
+        } else {
+            const query = _.omit(queryState, "states");
+            OnSearch({
+                query: {
+                    ...query,
+                    country: country.uuid
+                }
+            });
+        }
     }
 
     const handleStateChange = (statesInput: StateModel[]) => {
@@ -60,12 +74,16 @@ function PlaceFilter({...props}) {
         if (value.length === 0) {
             const query = _.omit(queryState, "states");
             OnSearch({
-                query
+                query: {
+                    ...query,
+                    country: state.country
+                }
             });
         } else {
+            const query = _.omit(queryState, "country");
             OnSearch({
                 query: {
-                    ...queryState,
+                    ...query,
                     states: value.join(",")
                 }
             });
