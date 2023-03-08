@@ -20,7 +20,7 @@ import {
     ListItemText,
     Skeleton,
     Stack,
-    TextField,
+    TextField, ToggleButton, ToggleButtonGroup,
     Tooltip,
     Typography,
     useTheme
@@ -38,6 +38,10 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
 import PreviewA4 from "@features/files/components/previewA4";
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -58,9 +62,9 @@ function DocsConfig() {
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 155},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155,textAlign:"center"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
-        size: 'portraitA5',
+        size: 'portraitA4',
         content: {
             show: true,
             maxHeight: 400,
@@ -91,6 +95,15 @@ function DocsConfig() {
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     })
+
+    const handleAlignment = (
+        event: React.MouseEvent<HTMLElement>,
+        newAlignment: string | null,
+    ) => {
+        data.date.textAlign = newAlignment;
+        setData({...data});
+    };
+
 
     const printNow = () => {
         handlePrint()
@@ -473,6 +486,7 @@ function DocsConfig() {
 */}
 
                             {/*Date*/}
+
                             <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                 <Checkbox
                                     checked={data.date.show}
@@ -486,6 +500,28 @@ function DocsConfig() {
                             <Collapse in={data.date.show} timeout="auto" unmountOnExit>
                                 <fieldset>
                                     <legend>{t('configDate')}</legend>
+
+                                    <Stack padding={1}>
+                                        <ToggleButtonGroup
+                                            value={data.date.textAlign}
+                                            exclusive
+                                            onChange={handleAlignment}
+                                            aria-label="text alignment">
+                                            <ToggleButton value="left" aria-label="left aligned">
+                                                <FormatAlignLeftIcon />
+                                            </ToggleButton>
+                                            <ToggleButton value="center" aria-label="centered">
+                                                <FormatAlignCenterIcon />
+                                            </ToggleButton>
+                                            <ToggleButton value="right" aria-label="right aligned">
+                                                <FormatAlignRightIcon />
+                                            </ToggleButton>
+                                            <ToggleButton value="justify" aria-label="justified" disabled>
+                                                <FormatAlignJustifyIcon />
+                                            </ToggleButton>
+                                        </ToggleButtonGroup>
+                                    </Stack>
+
                                     <Typography fontSize={12} color={'#999'} mb={1}>{t('prefix')}</Typography>
                                     <TextField
                                         variant="outlined"
