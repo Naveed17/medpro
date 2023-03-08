@@ -58,7 +58,7 @@ const Prescription = ({...props}) => {
                         }}
                                    defaultPosition={{x: data.date.x, y: data.date.y}}
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "fit-content",border: '0px solid red',margin:"auto"}}>
+                            <div style={{width: "100%",border: '0px solid red',margin:"auto" ,textAlign:data.date.textAlign? data.date.textAlign:"",padding:10}}>
                                 {data.date.show && <div
                                     className="handle" style={{whiteSpace: 'break-spaces'}}>{data.date.prefix} {state ? date : data.date.content} </div>}
                             </div>

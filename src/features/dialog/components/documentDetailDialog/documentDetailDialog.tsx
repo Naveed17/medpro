@@ -81,7 +81,7 @@ function DocumentDetailDialog({...props}) {
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 155},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155,textAlign:"center"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA5',
         content: {
