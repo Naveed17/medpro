@@ -68,6 +68,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
+import {DefaultCountry} from "@app/constants";
 
 
 const actions = [
@@ -163,6 +164,7 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -182,7 +184,7 @@ function Agenda() {
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
-            DayOfWeek(openingHours[0], 0) === moment(date).isoWeekday());
+            DayOfWeek(openingHours[0], doctor_country?.code === "dz" ? 0 : 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
             let hasError: boolean[] = [];
             hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
@@ -917,6 +919,7 @@ function Agenda() {
                                 <Calendar
                                     {...{
                                         events: events.current,
+                                        doctor_country,
                                         agenda,
                                         roles,
                                         refs,
