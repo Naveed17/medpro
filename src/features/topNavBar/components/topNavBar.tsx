@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery
+    Popover, useMediaQuery, Button
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -36,10 +36,14 @@ import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector, setLock} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
+import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
+import IconUrl from "@themes/urlIcon";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
 );
+
+let deferredPrompt: any;
 
 function TopNavBar({...props}) {
     const {dashboard} = props;
@@ -57,6 +61,7 @@ function TopNavBar({...props}) {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
     const [notifications, setNotifications] = useState(0);
+    const [installable, setInstallable] = useState(false);
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
@@ -82,6 +87,21 @@ function TopNavBar({...props}) {
         dispatch(setLock(true));
         dispatch(toggleSideBar(true));
     }
+
+    const handleInstallClick = (e: any) => {
+        // Hide the app provided install promotion
+        setInstallable(false);
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult: any) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+        });
+    };
 
     useEffect(() => {
         if (ongoing) {
@@ -109,6 +129,22 @@ function TopNavBar({...props}) {
     useEffect(() => {
         setNotifications(pendingAppointments.length);
     }, [pendingAppointments]);
+
+    useEffect(() => {
+        window.addEventListener("beforeinstallprompt", (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            setInstallable(true);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            // Log install to analytics
+            console.log('INSTALL: Success');
+        });
+    }, []);
 
     return (
         <>
@@ -183,6 +219,14 @@ function TopNavBar({...props}) {
 
                         <MenuList className="topbar-nav">
                             {isActive && <CipCard/>}
+                            {installable &&
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
+                                    {"Installer l'app"}
+                                </Button>
+                            }
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notifications}
