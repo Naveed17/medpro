@@ -201,7 +201,7 @@
     "reschedule": "Replanifier",
     "missPatient": "le patient ne s'est pas présenté",
     "hors-opening-hours": "rendez-vous pris en dehors des heures d'ouverture",
-    "patient-multi-event-day": "le patient a déjà un rendez-vous ce jour-là",
+    "patient-multi-event-day": "Le patient a déjà un rendez vous aujourd’hui",
     "online-appointment": "Rendez-vous depuis le site",
     "title": "Détail RDV",
     "save": "Enregistrer",
