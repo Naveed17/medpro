@@ -31,7 +31,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -124,7 +124,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "insurance",
         sortable: true,
-        align: "center",
+        align: "left",
     },
     {
         id: "type",
@@ -253,11 +253,18 @@ function Payment() {
 
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/insurances/${router.locale}`,
+    }, SWRNoValidateConfig);
+
     const {data: httpMedicalProfessionalResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
+
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const handleCollapse = (props: any) => {
         //setCollapseData(props);
@@ -607,7 +614,7 @@ function Payment() {
                     <React.Fragment>
                         <DesktopContainer>
                             <Otable
-                                {...{rows, select, t}}
+                                {...{rows, select, t, insurances}}
                                 headers={headCells}
                                 from={"payment"}
                                 handleEvent={handleTableActions}

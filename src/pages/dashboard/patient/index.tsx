@@ -287,8 +287,7 @@ function Patient() {
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
 
-    const insurances = (httpInsuranceResponse as HttpResponse)
-        ?.data as InsuranceModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     useEffect(() => {
         if (filter?.type || filter?.patient) {
