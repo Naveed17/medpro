@@ -87,9 +87,9 @@ function InsuranceAddDialog({...props}) {
                                                alignItems={"center"}>
                                             <Autocomplete
                                                 size={"small"}
-                                                disablePortal
                                                 disableClearable
-                                                {...getFieldProps(`insurances[${index}].insurance_type`)}
+                                                value={getFieldProps(`insurances[${index}].insurance_type`) ?
+                                                    getFieldProps(`insurances[${index}].insurance_type`).value : ""}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_type`, insurance?.value);
                                                     const expended = insurance?.key !== "socialInsured";
@@ -198,9 +198,9 @@ function InsuranceAddDialog({...props}) {
                                             helperText={touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_number}
                                             size="small"
                                             fullWidth
+                                            {...getFieldProps(`insurances[${index}].insurance_number`)}
                                             value={getFieldProps(`insurances[${index}].insurance_number`) ?
                                                 getFieldProps(`insurances[${index}].insurance_number`).value : ""}
-                                            {...getFieldProps(`insurances[${index}].insurance_number`)}
                                         />
                                     </Grid>
                                     <Grid item xs={6} md={1}>
@@ -243,6 +243,8 @@ function InsuranceAddDialog({...props}) {
                                                             size="small"
                                                             fullWidth
                                                             {...getFieldProps(`insurances[${index}].insurance_social.firstName`)}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.firstName`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.firstName`).value : ""}
                                                         />
                                                     </Stack>
                                                 </Grid>
@@ -263,6 +265,8 @@ function InsuranceAddDialog({...props}) {
                                                             size="small"
                                                             fullWidth
                                                             {...getFieldProps(`insurances[${index}].insurance_social.lastName`)}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.lastName`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.lastName`).value : ""}
                                                         />
                                                     </Stack>
                                                 </Grid>
@@ -309,6 +313,8 @@ function InsuranceAddDialog({...props}) {
                                                     <Grid item md={6} lg={8} xs={12}>
                                                         <TextField
                                                             {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.phone.value`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.phone.value`).value : ""}
                                                             error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.phone?.value)}
                                                             helperText={
                                                                 Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.phone)
