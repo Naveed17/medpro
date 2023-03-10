@@ -114,6 +114,7 @@ function DashLayout({children}: LayoutProps) {
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
                 import_data: calendarStatus.import_data,
+                next: calendarStatus.next ? calendarStatus.next : null,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
             }));

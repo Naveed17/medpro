@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button
+    Popover, useMediaQuery, Button, Drawer
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -27,7 +27,7 @@ import {
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, setTimer, timerSelector} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {
     AppointmentStatsPopover,
     NotificationPopover,
@@ -36,8 +36,15 @@ import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector, setLock} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
-import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import IconUrl from "@themes/urlIcon";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import {onOpenPatientDrawer} from "@features/table";
+import {PatientDetail} from "@features/dialog";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useSWRConfig} from "swr";
+import {LoadingButton} from "@mui/lab";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -48,20 +55,33 @@ let deferredPrompt: any;
 function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
+
+    const {mutate} = useSWRConfig();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {pendingAppointments} = useAppSelector(agendaSelector);
+    const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing} = useAppSelector(dashLayoutSelector);
+    const {ongoing, next, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+
+    const [patientId, setPatientId] = useState("");
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
     const [notifications, setNotifications] = useState(0);
     const [installable, setInstallable] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
@@ -101,7 +121,26 @@ function TopNavBar({...props}) {
                 console.log('User dismissed the install prompt');
             }
         });
-    };
+    }
+
+    const resetNextConsultation = (uuid: string) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('attribute', 'is_next');
+        form.append('value', 'false');
+        updateTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            // refresh on going api
+            mutateOnGoing && mutateOnGoing();
+            // refresh waiting room api
+            mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
+                .then(() => setLoading(false));
+        });
+    }
 
     useEffect(() => {
         if (ongoing) {
@@ -218,7 +257,42 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {isActive && <CipCard/>}
+                            {next &&
+                                <LoadingButton
+                                    {...{loading}}
+                                    disableRipple
+                                    color={"black"}
+                                    onClick={() => {
+                                        setPatientId(next.patient_uuid);
+                                        setPatientDetailDrawer(true);
+                                    }}
+                                    sx={{
+                                        mr: 2,
+                                        p: "6px 12px",
+                                        backgroundColor: (theme) => theme.palette.info.lighter,
+                                        '&:hover': {
+                                            backgroundColor: (theme) => theme.palette.info.lighter,
+                                        }
+                                    }}
+                                    loadingPosition={"start"}
+                                    startIcon={<IconUrl width={20} height={20} path={"ic-next-patient"}/>}
+                                    variant={"contained"}>
+                                    {next.patient}
+                                    <CloseRoundedIcon
+                                        sx={{ml: 1}}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            resetNextConsultation(next.uuid);
+                                        }}/>
+                                </LoadingButton>
+                            }
+                            {isActive &&
+                                <CipCard
+                                    openPatientDialog={(uuid: string) => {
+                                        setPatientId(uuid);
+                                        setPatientDetailDrawer(true);
+                                    }}/>
+                            }
                             {installable &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
@@ -289,6 +363,24 @@ function TopNavBar({...props}) {
                             </MenuItem>
                         </MenuList>}
                     </Toolbar>
+                    <Drawer
+                        anchor={"right"}
+                        open={patientDetailDrawer}
+                        dir={direction}
+                        onClose={() => {
+                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            setPatientDetailDrawer(false);
+                        }}>
+                        <PatientDetail
+                            {...{patientId}}
+                            onCloseDialog={() => {
+                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                setPatientDetailDrawer(false);
+                            }}
+                            onConsultation={(event: string) => console.log(event)}
+                            onAddAppointment={() => console.log("onAddAppointment")}
+                        />
+                    </Drawer>
                 </NavbarStyled>
             ) : (
                 <NavbarStepperStyled dir={dir} position="fixed" color="inherit">

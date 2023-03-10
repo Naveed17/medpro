@@ -14,6 +14,12 @@ export type dashLayoutState = {
         "patient": "string";
         "patient_uuid": "string";
     } | null;
+    next?: {
+        "uuid": "string";
+        "start_time": "string";
+        "patient": "string";
+        "patient_uuid": "string";
+    } | null;
 };
 
 const initialState: dashLayoutState = {
@@ -21,7 +27,8 @@ const initialState: dashLayoutState = {
     import_data: [],
     last_fiche_id: "0",
     mutate: null,
-    ongoing: null
+    ongoing: null,
+    next: null
 };
 
 export const DashLayoutReducer = createReducer(initialState, builder => {
