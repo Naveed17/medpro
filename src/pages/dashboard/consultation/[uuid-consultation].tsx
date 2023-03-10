@@ -397,13 +397,13 @@ function ConsultationInProgress() {
     }, [httpMPResponse]);
 
     useEffect(() => {
-        console.log("loading",loading);
         if (appointement && appointement.consultation_fees && loading) {
             const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
             setFree(checkFree);
             if (!checkFree) setTotal(consultationFees);
             setConsultationFees(Number(appointement.consultation_fees));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
 
     useEffect(() => {
