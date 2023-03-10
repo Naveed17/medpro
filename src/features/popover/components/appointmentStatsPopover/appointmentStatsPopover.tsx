@@ -57,17 +57,6 @@ function AppointmentStatsPopover() {
                     }}></Box>
                 <Typography>{t("popover-info.picker-status-more")}</Typography>
             </ListItem>
-            <ListItem>
-                <Avatar
-                    sx={{
-                        width: 18,
-                        height: 18
-                    }}
-                    alt="Online appointment"
-                    src="/static/icons/Med-logo_.svg"
-                />
-                <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
-            </ListItem>
         </List>
     )
 }

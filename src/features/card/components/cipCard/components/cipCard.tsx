@@ -1,31 +1,26 @@
 import React, {useEffect, useState} from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
 import {Label} from '@features/label';
-import {IconButton, Stack, Typography, Box, Drawer} from '@mui/material';
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {IconButton, Stack, Typography, Box} from '@mui/material';
+import {useAppSelector} from "@app/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {onOpenPatientDrawer} from "@features/table";
-import {PatientDetail} from "@features/dialog";
-import {configSelector} from "@features/base";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 
-function CipCard() {
+function CipCard({...props}) {
+    const {openPatientDialog} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const dispatch = useAppDispatch();
 
     const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
-    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-    const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
 
     useEffect(() => {
         let interval: any = null;
@@ -50,7 +45,7 @@ function CipCard() {
     }
 
     const openPatientDetail = () => {
-        event?.extendedProps.patient?.uuid && setPatientDetailDrawer(true);
+        event?.extendedProps.patient?.uuid && openPatientDialog(event?.extendedProps.patient?.uuid);
     }
 
     return (
@@ -74,24 +69,6 @@ function CipCard() {
                     </Label>
                 </Stack>
             </CipCardStyled>
-            <Drawer
-                anchor={"right"}
-                open={patientDetailDrawer}
-                dir={direction}
-                onClose={() => {
-                    dispatch(onOpenPatientDrawer({patientId: ""}));
-                    setPatientDetailDrawer(false);
-                }}>
-                <PatientDetail
-                    {...{patientId: event?.extendedProps.patient?.uuid}}
-                    onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
-                        setPatientDetailDrawer(false);
-                    }}
-                    onConsultation={(event: string) => console.log(event)}
-                    onAddAppointment={() => console.log("onAddAppointment")}
-                />
-            </Drawer>
         </>
     )
 }
