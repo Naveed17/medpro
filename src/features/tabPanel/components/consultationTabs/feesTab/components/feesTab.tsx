@@ -99,13 +99,13 @@ function FeesTab({...props}) {
         total,setInfo,setState,setOpenDialog,
         t
     } = props;
-
+/*
     useEffect(() => {
         const localConsultationFees = localStorage.getItem("consultation-fees");
         if (localConsultationFees) {
             setConsultationFees(localConsultationFees);
         }
-    })
+    })*/
 
     return (
         <>
