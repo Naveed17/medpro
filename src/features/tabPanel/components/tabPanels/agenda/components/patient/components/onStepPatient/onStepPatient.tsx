@@ -13,7 +13,7 @@ import {
     Grid,
     IconButton,
     IconButtonProps,
-    InputAdornment,
+    InputAdornment, InputBase,
     MenuItem,
     Radio,
     RadioGroup,
@@ -25,7 +25,7 @@ import {
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@app/redux/hooks";
-import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
+import {addPatientSelector, appointmentSelector, CustomInput} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
@@ -39,12 +39,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import Input from 'react-phone-number-input/input';
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -70,6 +71,7 @@ export const MyTextInput: any = memo(({...props}) => {
     );
 })
 MyTextInput.displayName = "TextField";
+
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
     const {expand, ...other} = props;
@@ -101,6 +103,7 @@ function OnStepPatient({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const topRef = useRef(null);
+    const phoneInputRef = useRef(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -130,9 +133,10 @@ function OnStepPatient({...props}) {
                     .test({
                         name: 'is-phone',
                         message: t("telephone-error"),
-                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : false
+                        }
                     })
-                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error")),
@@ -185,12 +189,14 @@ function OnStepPatient({...props}) {
                         }),
                     phone: Yup.object().shape({
                         code: Yup.string(),
-                        value: Yup.string().test({
-                            name: 'phone-value-test',
-                            message: t("telephone-error"),
-                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
-                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
-                        }),
+                        value: Yup.string()
+                            .test({
+                                name: 'phone-value-test',
+                                message: t("telephone-error"),
+                                test: (value, ctx: any) => {
+                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhoneNumber(value as string))
+                                }
+                            }),
                         type: Yup.string(),
                         contact_type: Yup.string(),
                         is_public: Yup.boolean(),
@@ -280,6 +286,7 @@ function OnStepPatient({...props}) {
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
+    const [value, setValue] = useState("");
 
     const {data: httpContactResponse} = useRequest({
         method: "GET",
@@ -381,6 +388,7 @@ function OnStepPatient({...props}) {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
+    console.log(value, errors);
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -517,10 +525,26 @@ function OnStepPatient({...props}) {
                                     <Grid item md={6} lg={4} xs={12}>
                                         <CountrySelect
                                             initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                            onSelect={(state: any) => setFieldValue(`phones[${index}].dial`, state)}/>
+                                            onSelect={(state: any) => {
+                                                setFieldValue(`phones[${index}].phone`, "");
+                                                setFieldValue(`phones[${index}].dial`, state)
+                                            }}/>
                                     </Grid>
                                     <Grid item md={4} lg={7} xs={12}>
-                                        <TextField
+                                        <Input
+                                            ref={phoneInputRef}
+                                            international
+                                            smartCaret
+                                            fullWidth
+                                            withCountryCallingCode
+                                            useNationalFormatForDefaultCountryValue
+                                            {...getFieldProps(`phones[${index}].phone`)}
+                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                            country={(getFieldProps(`phones[${index}].dial`) ?
+                                                getFieldProps(`phones[${index}].dial`)?.value.code : doctor_country.code).toUpperCase() as any}
+                                            inputComponent={CustomInput as any}
+                                        />
+                                        {/*<TextField
                                             variant="outlined"
                                             size="small"
                                             {...getFieldProps(`phones[${index}].phone`)}
@@ -533,7 +557,7 @@ function OnStepPatient({...props}) {
                                                     </InputAdornment>
                                                 ),
                                             }}
-                                        />
+                                        />*/}
                                     </Grid>
                                     <Grid item md={2} lg={1} xs={12}>
                                         {index === 0 ? <IconButton
@@ -588,7 +612,7 @@ function OnStepPatient({...props}) {
                             aria-label="show more"
                         >
                             <ExpandMoreIcon/>
-                            <Typography>{expanded ?t("less-detail"):t("more-detail")}</Typography>
+                            <Typography>{expanded ? t("less-detail") : t("more-detail")}</Typography>
                         </ExpandMore>
                     </Box>
 
@@ -833,7 +857,7 @@ function OnStepPatient({...props}) {
                                                                                   sx={{paddingLeft: 0}}
                                                                                   variant="outlined" fullWidth/>}/>
                                             {errors.region && (
-                                                <FormHelperText error sx={{ mx: 0 }}>
+                                                <FormHelperText error sx={{mx: 0}}>
                                                     {errors.region as string}
                                                 </FormHelperText>
                                             )}
