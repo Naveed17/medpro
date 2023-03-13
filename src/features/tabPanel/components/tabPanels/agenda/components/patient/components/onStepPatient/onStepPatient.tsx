@@ -388,7 +388,6 @@ function OnStepPatient({...props}) {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    console.log(value, errors);
     return (
         <FormikProvider value={formik}>
             <Stack
