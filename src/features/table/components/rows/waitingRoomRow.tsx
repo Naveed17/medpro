@@ -254,7 +254,7 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <>
-                            {row.fees ? (
+                            {row.fees && (
                                 <Stack
                                     direction="row"
                                     alignItems="center"
@@ -265,8 +265,6 @@ function WaitingRoomRow({...props}) {
                                         {row.fees} {currency}
                                     </Typography>
                                 </Stack>
-                            ) : (
-                                "--"
                             )}
                         </>
                     ) : (
@@ -275,40 +273,40 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell align="right">
                     <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1} minWidth={250}>
-                        {!roles.includes("ROLE_SECRETARY") &&
-                            <Stack direction={"row"} spacing={1}>
-                                <LoadingButton
-                                    {...{loading}}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setLoading(true);
-                                        handleEvent({action: "START_CONSULTATION", row, event});
-                                    }}
-                                    loadingPosition={"start"}
-                                    color={"black"}
-                                    startIcon={<PlayCircleIcon/>}
-                                    size="small"
-                                    variant="text">
-                                    {t("start")}
-                                </LoadingButton>
-                                <LoadingButton
-                                    {...{loading}}
-                                    disabled={next && !row.is_next}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setLoading(true);
-                                        handleEvent({action: "NEXT_CONSULTATION", row, event});
-                                    }}
-                                    color={"primary"}
-                                    loadingPosition={row.is_next ? "end" : "start"}
-                                    {...(!row.is_next && {startIcon: <ArrowForwardRoundedIcon/>})}
-                                    {...(row.is_next && {endIcon: <CloseRoundedIcon/>})}
-                                    variant={row.is_next ? "contained" : "text"}
-                                    size="small">
-                                    {t(row.is_next ? "is_next" : "next")}
-                                </LoadingButton>
-                            </Stack>
-                        }
+
+                        <Stack direction={"row"} spacing={1}>
+                            {!roles.includes("ROLE_SECRETARY") && <LoadingButton
+                                {...{loading}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setLoading(true);
+                                    handleEvent({action: "START_CONSULTATION", row, event});
+                                }}
+                                loadingPosition={"start"}
+                                color={"black"}
+                                startIcon={<PlayCircleIcon/>}
+                                size="small"
+                                variant="text">
+                                {t("start")}
+                            </LoadingButton>}
+                            <LoadingButton
+                                {...{loading}}
+                                disabled={next && !row.is_next}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setLoading(true);
+                                    handleEvent({action: "NEXT_CONSULTATION", row, event});
+                                }}
+                                color={"primary"}
+                                loadingPosition={row.is_next ? "end" : "start"}
+                                {...(!row.is_next && {startIcon: <ArrowForwardRoundedIcon/>})}
+                                {...(row.is_next && {endIcon: <CloseRoundedIcon/>})}
+                                variant={row.is_next ? "contained" : "text"}
+                                size="small">
+                                {t(row.is_next ? "is_next" : "next")}
+                            </LoadingButton>
+                        </Stack>
+
                         <IconButton
                             disabled={loading}
                             onClick={(event) => {

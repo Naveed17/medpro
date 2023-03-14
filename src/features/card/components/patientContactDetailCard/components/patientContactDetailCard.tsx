@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import RootStyled from "./overrides/rootStyle";
 import {
     Typography,
@@ -20,7 +20,7 @@ import {
     TextField, Autocomplete, Divider,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useFormik, Form, FormikProvider} from "formik";
+import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -41,6 +41,8 @@ import Icon from "@themes/urlIcon";
 import {DefaultCountry, PhoneRegExp} from "@app/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {CustomInput} from "@features/tabPanel";
+import PhoneInput from "react-phone-number-input/input";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -53,6 +55,7 @@ function PatientContactDetailCard({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
+    const phoneInputRef = useRef(null);
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -83,9 +86,10 @@ function PatientContactDetailCard({...props}) {
                     .test({
                         name: 'is-phone',
                         message: t("telephone-error"),
-                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : false
+                        }
                     })
-                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
     });
@@ -103,7 +107,7 @@ function PatientContactDetailCard({...props}) {
                 !loading && patient.contact.length > 0
                     ? patient.contact.map((contact: any) => ({
                         code: contact.code,
-                        value: contact.value
+                        value: `${contact.code}${contact.value}`
                     }))
                     : [{
                         code: doctor_country?.phone,
@@ -158,7 +162,7 @@ function PatientContactDetailCard({...props}) {
         params.append('nationality', values.nationality);
         params.append('phone', JSON.stringify(values.phones.map((phone: any) => ({
             code: phone.code,
-            value: phone.value,
+            value: phone.value.replace(phone.code, ""),
             type: "phone",
             "contact_type": patient.contact[0].uuid,
             "is_public": false,
@@ -652,122 +656,132 @@ function PatientContactDetailCard({...props}) {
                                         {t("telephone")}
                                     </Typography>
                                 </Divider>}
-                                {values.phones.map((phone: any, index: number) => (
-                                        <Grid key={`${index}`} item md={12} sm={12} xs={12}>
-                                            <Stack direction="row" alignItems="center">
-                                                <Grid item md={11} sm={11} xs={11} sx={{
-                                                    "& .Input-select": {
-                                                        marginLeft: "-0.8rem"
-                                                    }
-                                                }}>
-                                                    {loading ? (
-                                                        <Skeleton variant="text"/>
-                                                    ) : (
-                                                        <Stack direction={"row"} alignItems={"center"}
-                                                               alignContent={"center"} spacing={.8}>
-                                                            <Typography
-                                                                mr={isMobile ? 1.6 : 2.4}
-                                                                className="label"
-                                                                variant="body2"
-                                                                color="text.secondary">
-                                                                {`${t("phone")}  ${values.phones.length > 1 ? ("N° " + (index + 1)) : ""}`}
-                                                            </Typography>
-                                                            <Stack direction={"row"} alignItems={"flex-start"} spacing={1.2}
-                                                                   sx={{width: "100%"}}
-                                                                   {...(editable && {
-                                                                       sx: {
-                                                                           border: `1px solid ${theme.palette.grey['A100']}`,
-                                                                           borderRadius: .4,
-                                                                           height: 38,
-                                                                           width: "100%"
-                                                                       }
-                                                                   })}>
-                                                                <Grid item md={3.5} sm={5} xs={5}>
-                                                                    <CountrySelect
-                                                                        sx={{
-                                                                            ...(isMobile && {
-                                                                                "& .MuiInputAdornment-root": {
-                                                                                    width: 20
-                                                                                }
-                                                                            }),
-                                                                            ...(!editable && {
-                                                                                "& .MuiAutocomplete-endAdornment": {
-                                                                                    display: "none"
-                                                                                }
-                                                                            })
-                                                                        }}
-                                                                        readOnly={!editable}
-                                                                        {...(isMobile && {small: true})}
-                                                                        initCountry={{
-                                                                            code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
-                                                                            name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
-                                                                            phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
-                                                                        }}
-                                                                        onSelect={(state: any) => {
-                                                                            setFieldValue(`phones[${index}].code`, state.phone);
-                                                                        }}/>
-                                                                </Grid>
-                                                                <Grid item md={8.5} sm={7} xs={7}>
-                                                                    <InputBase
-                                                                        {...(!isMobile && {
-                                                                            startAdornment: <Typography mr={1}>
-                                                                                {getCountryByCode(values.phones[index].code)?.phone}
-                                                                            </Typography>
-                                                                        })}
-                                                                        fullWidth
-                                                                        className={"Input-select"}
-                                                                        placeholder={t("telephone")}
-                                                                        error={Boolean(touched.phones && errors.phones)}
-                                                                        readOnly={!editable}
-                                                                        {...getFieldProps(`phones[${index}].value`)}
-                                                                    />
-                                                                </Grid>
+                                <FieldArray
+                                    name={"phones"}
+                                    render={() => (values.phones.map((phone: any, index: number) => (
+                                            <Grid key={index} item md={12} sm={12} xs={12}>
+                                                <Stack direction="row" alignItems="self-start">
+                                                    <Grid item md={11} sm={11} xs={11} sx={{
+                                                        ...(editable && {mb: "2rem"}),
+                                                        "& .Input-select": {
+                                                            marginLeft: "-0.8rem"
+                                                        }
+                                                    }}>
+                                                        {loading ? (
+                                                            <Skeleton variant="text"/>
+                                                        ) : (
+                                                            <Stack direction={"row"} alignItems={"center"}
+                                                                   alignContent={"center"} spacing={.8}>
+                                                                <Typography
+                                                                    mr={isMobile ? 1.6 : 2.4}
+                                                                    className="label"
+                                                                    variant="body2"
+                                                                    color="text.secondary">
+                                                                    {`${t("phone")}  ${values.phones.length > 1 ? ("N° " + (index + 1)) : ""}`}
+                                                                </Typography>
+                                                                <Stack direction={"row"} alignItems={"flex-start"}
+                                                                       spacing={1.2}
+                                                                       sx={{width: "100%"}}
+                                                                       {...(editable && {
+                                                                           sx: {
+                                                                               border: `1px solid ${theme.palette.grey['A100']}`,
+                                                                               borderRadius: .4,
+                                                                               height: 38,
+                                                                               width: "100%"
+                                                                           }
+                                                                       })}>
+                                                                    <Grid item md={3.5} sm={5} xs={5}>
+                                                                        <CountrySelect
+                                                                            sx={{
+                                                                                ...(isMobile && {
+                                                                                    "& .MuiInputAdornment-root": {
+                                                                                        width: 20
+                                                                                    }
+                                                                                }),
+                                                                                ...(!editable && {
+                                                                                    "& .MuiAutocomplete-endAdornment": {
+                                                                                        display: "none"
+                                                                                    }
+                                                                                })
+                                                                            }}
+                                                                            readOnly={!editable}
+                                                                            {...(isMobile && {small: true})}
+                                                                            initCountry={{
+                                                                                code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                            }}
+                                                                            onSelect={(state: any) => {
+                                                                                setFieldValue(`phones[${index}].value`, "");
+                                                                                setFieldValue(`phones[${index}].code`, state.phone);
+                                                                            }}/>
+                                                                    </Grid>
+                                                                    <Grid item md={8.5} sm={7} xs={7}>
+                                                                        {phone?.code && <PhoneInput
+                                                                            ref={phoneInputRef}
+                                                                            international
+                                                                            disabled={!editable}
+                                                                            fullWidth
+                                                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
+                                                                            withCountryCallingCode
+                                                                            {...((editable && getFieldProps(`phones[${index}].value`)) &&
+                                                                                {
+                                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                                        getFieldProps(`phones[${index}].value`).value : ""}`
+                                                                                })}
+                                                                            country={getCountryByCode(phone.code)?.code as any}
+                                                                            value={phone?.value ? phone.value : ""}
+                                                                            onChange={value => setFieldValue(`phones[${index}].value`, value)}
+                                                                            inputComponent={CustomInput as any}
+                                                                        />}
+                                                                    </Grid>
+                                                                </Stack>
                                                             </Stack>
-                                                        </Stack>
-                                                    )}
-                                                </Grid>
-                                                <Grid item md={1} sm={1} xs={1}>
-                                                    <Stack direction="row"
-                                                           ml={1}
-                                                           alignItems="center">
-                                                        {(editable && index === 0) ? <>
-                                                            <IconButton
-                                                                onClick={handleAddPhone}
-                                                                className="success-light"
+                                                        )}
+                                                    </Grid>
+                                                    <Grid item md={1} sm={1} xs={1}>
+                                                        <Stack direction="row"
+                                                               mt={.8}
+                                                               ml={1}
+                                                               alignItems="center">
+                                                            {(editable && index === 0) ? <>
+                                                                <IconButton
+                                                                    onClick={handleAddPhone}
+                                                                    className="success-light"
+                                                                    sx={{
+                                                                        mr: 1.5,
+                                                                        p: "3px 5px",
+                                                                        "& svg": {
+                                                                            width: 14,
+                                                                            height: 14
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <Icon path="ic-plus"/>
+                                                                </IconButton>
+                                                            </> : (editable && <IconButton
+                                                                onClick={() => handleRemovePhone(index)}
+                                                                className="error-light"
                                                                 sx={{
                                                                     mr: 1.5,
                                                                     p: "3px 5px",
                                                                     "& svg": {
                                                                         width: 14,
-                                                                        height: 14
+                                                                        height: 14,
+                                                                        "& path": {
+                                                                            fill: (theme) => theme.palette.text.primary,
+                                                                        },
                                                                     },
                                                                 }}
                                                             >
-                                                                <Icon path="ic-plus"/>
-                                                            </IconButton>
-                                                        </> : (editable && <IconButton
-                                                            onClick={() => handleRemovePhone(index)}
-                                                            className="error-light"
-                                                            sx={{
-                                                                mr: 1.5,
-                                                                p: "3px 5px",
-                                                                "& svg": {
-                                                                    width: 14,
-                                                                    height: 14,
-                                                                    "& path": {
-                                                                        fill: (theme) => theme.palette.text.primary,
-                                                                    },
-                                                                },
-                                                            }}
-                                                        >
-                                                            <Icon path="ic-moin"/>
-                                                        </IconButton>)}
-                                                    </Stack>
-                                                </Grid>
-                                            </Stack>
-                                        </Grid>
-                                    )
-                                )}
+                                                                <Icon path="ic-moin"/>
+                                                            </IconButton>)}
+                                                        </Stack>
+                                                    </Grid>
+                                                </Stack>
+                                            </Grid>
+                                        )
+                                    ))}/>
                             </Grid>
                         </Grid>
                     </CardContent>
