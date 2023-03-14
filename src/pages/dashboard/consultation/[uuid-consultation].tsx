@@ -329,7 +329,6 @@ function ConsultationInProgress() {
         if (httpMPResponse) {
 
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
             setMpUuid(mpRes.medical_professional.uuid);
             const acts = [...mpRes.acts];
             const selectedLocal = localStorage.getItem(`consultation-acts-${uuind}`)
@@ -349,11 +348,9 @@ function ConsultationInProgress() {
 
             if (appointement) {
                 setPatient(appointement.patient);
-                const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
-                setFree(checkFree);
-                if (!checkFree) setTotal(consultationFees);
+
                 if (appointement.consultation_fees) {
-                    setConsultationFees(Number(appointement.consultation_fees));
+                    //setConsultationFees(Number(appointement.consultation_fees));
                 }
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
@@ -393,7 +390,21 @@ function ConsultationInProgress() {
     }, [appointement, httpMPResponse, dispatch, mutate, uuind, consultationFees, mutateDoc]);
 
     useEffect(() => {
-    }, [httpMPResponse, selectedAct, uuind]);
+        if (httpMPResponse) {
+            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+            setConsultationFees(Number(mpRes.consultation_fees));
+        }
+    }, [httpMPResponse]);
+
+    useEffect(() => {
+        if (appointement && appointement.consultation_fees && loading) {
+            const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+            setFree(checkFree);
+            if (!checkFree) setTotal(consultationFees);
+            setConsultationFees(Number(appointement.consultation_fees));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointement]);
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);

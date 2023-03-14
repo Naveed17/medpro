@@ -1,3 +1,50 @@
+# [4.14.0](https://github.com/SmartMedSA/med-pro/compare/v4.13.0...v4.14.0) (2023-03-13)
+
+
+### Bug Fixes
+
+* act fees remove ([6968f84](https://github.com/SmartMedSA/med-pro/commit/6968f841ca8e8fbb1c843796ba352142bcc77376))
+* add reason in appointment drawer ([3ac55b5](https://github.com/SmartMedSA/med-pro/commit/3ac55b53e710e16eb1f74120cbce8bccbfa8e21b))
+* add start consultation from payment page ([e6ae092](https://github.com/SmartMedSA/med-pro/commit/e6ae092949064a1d148452671af69d0c05508dac))
+* add timer to prod version ([afb1e58](https://github.com/SmartMedSA/med-pro/commit/afb1e5895d610a4f2f00e50fcd7e68cbde71cd83))
+* clean code ([6b1d005](https://github.com/SmartMedSA/med-pro/commit/6b1d005bf85600a6dcdf00d60efef030ef6582fd))
+* control edit ([4badce2](https://github.com/SmartMedSA/med-pro/commit/4badce2d737047c84774a03b57d42196dc73a8cd))
+* country filter patient ([ba2af1b](https://github.com/SmartMedSA/med-pro/commit/ba2af1ba317887bd09e16968ac91dc3309887da9))
+* date text align ([7f6e150](https://github.com/SmartMedSA/med-pro/commit/7f6e15015ae11e482347fa40b3c2160e95491c61))
+* drawer appointment actions ([900eafc](https://github.com/SmartMedSA/med-pro/commit/900eafcf61068d4ac92ef205a089825de9719452))
+* drawer appointment actions ([35be310](https://github.com/SmartMedSA/med-pro/commit/35be310049ca6e7a907cfde36666d56a2c308cd6))
+* fees ([a3e1a67](https://github.com/SmartMedSA/med-pro/commit/a3e1a679538e01a1cd2cbcdc5264c809dc52b22d))
+* filter acts/treatement ([210d184](https://github.com/SmartMedSA/med-pro/commit/210d184e2d07c75d1c90bca4a5f03403ce875b08))
+* fix data mutate ([3e2f45e](https://github.com/SmartMedSA/med-pro/commit/3e2f45e6126c9a057e58011aa9d7f552b27fc953))
+* history UI ([3321f8b](https://github.com/SmartMedSA/med-pro/commit/3321f8bbb73ce5ef6bcc7169952b259a25d8aa0a))
+* manage appointment action in consultation ([6231297](https://github.com/SmartMedSA/med-pro/commit/623129784561bce619cdb58ba14c3dc57679e106))
+* medical imaging note duplication ([3af2f4f](https://github.com/SmartMedSA/med-pro/commit/3af2f4f02ebeed8646767d22d545a0a069cf6f08))
+* no response antecidents ([e6f25e8](https://github.com/SmartMedSA/med-pro/commit/e6f25e82d66e0ee9cdba32218a3c44aa8551860e))
+* note multiline ([6d52a28](https://github.com/SmartMedSA/med-pro/commit/6d52a28f7e7b07109754d04d6bbcbf0c9682cef8))
+* note updated gender ([ae7d17b](https://github.com/SmartMedSA/med-pro/commit/ae7d17bdc6bf18393e46e2059b548c801a9e0f83))
+* note updated gender ([cf8aa42](https://github.com/SmartMedSA/med-pro/commit/cf8aa420e6d0699f14d33ce5d42cbaaed405fbac))
+* ongoing timer start ([7ea897d](https://github.com/SmartMedSA/med-pro/commit/7ea897df1364cfbcc8b4b06d0f837837135ede08))
+* patient start consultation from drawer ([da9f514](https://github.com/SmartMedSA/med-pro/commit/da9f514b0e0cf96e6f178c7508689d70c385566c))
+* prevent event click ([87d38c7](https://github.com/SmartMedSA/med-pro/commit/87d38c7cbaf8afa27c7922e9031235b8015987f3))
+* qte already changed ([72baaa8](https://github.com/SmartMedSA/med-pro/commit/72baaa8c98ef5fa02cf463736609ea9ee96e88b7))
+* removed act fees ([cd90318](https://github.com/SmartMedSA/med-pro/commit/cd903187a4352967e88828fb4519dd3b010c9bd8))
+* resolve ([e77a71b](https://github.com/SmartMedSA/med-pro/commit/e77a71bde6b588f4568f2c788e8b0dd034fc77d5))
+* reverse documents if exist ([8df556d](https://github.com/SmartMedSA/med-pro/commit/8df556d862f2c1c92161d645b88f8bf3eb627ecf))
+* timer start time ([5abba1a](https://github.com/SmartMedSA/med-pro/commit/5abba1a157abf55208ff953a33f47c1081e51635))
+* treatement duplication ([c4bf2dc](https://github.com/SmartMedSA/med-pro/commit/c4bf2dc9faaf5aba9a0ac30d818c16b47a59a3d6))
+* update sentry config ([71f04fb](https://github.com/SmartMedSA/med-pro/commit/71f04fb457697dd6bf2c38ed19280a8df622fe54))
+
+
+### Features
+
+* add is online filter ([fe56d91](https://github.com/SmartMedSA/med-pro/commit/fe56d916efa64bd96f47d33df4d9fe3056c300d6))
+* edit act fees name ([1e77712](https://github.com/SmartMedSA/med-pro/commit/1e777124bb7e5d4b29fbf87308f6bd58a8171771))
+* history appointement timeline ([2f1d7ab](https://github.com/SmartMedSA/med-pro/commit/2f1d7ab8414d3167043a1f81ce4d993a3b556e68))
+* observation history ([996e0b4](https://github.com/SmartMedSA/med-pro/commit/996e0b4649bcb6b8240ff1f4bba3605c26fd55c4))
+* reduce widget ([6062b65](https://github.com/SmartMedSA/med-pro/commit/6062b652442120a6b72212da59a396cf8e5c5536))
+* reschedule finished appointment ([d7b4a66](https://github.com/SmartMedSA/med-pro/commit/d7b4a6611e7ec451f70d23bb0c4dcd5b76d94fcd))
+* update appointement history UI ([210e09a](https://github.com/SmartMedSA/med-pro/commit/210e09aca527492fd3f0f1ccb3e885f512f99ceb))
+
 # [4.13.0](https://github.com/SmartMedSA/med-pro/compare/v4.12.2...v4.13.0) (2023-02-28)
 
 

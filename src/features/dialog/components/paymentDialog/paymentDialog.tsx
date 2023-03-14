@@ -246,7 +246,7 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {paymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
+                    {paymentTypes && paymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
                         <FormControlLabel
                             className={method.slug === deals.selected ? "selected" : ''}
                             onClick={() => {
