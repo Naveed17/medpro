@@ -539,7 +539,7 @@ function OnStepPatient({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`) ?
+                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
                                             country={phoneObject.dial?.code.toUpperCase() as any}
@@ -1138,26 +1138,25 @@ function OnStepPatient({...props}) {
                                                                         }}/>
                                                                 </Grid>
                                                                 <Grid item md={6} lg={8} xs={12}>
-                                                                    {getFieldProps(`insurance[${index}].insurance_social.phone.code`) &&
-                                                                        <PhoneInput
-                                                                            ref={phoneInputRef}
-                                                                            international
-                                                                            fullWidth
-                                                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
-                                                                            withCountryCallingCode
-                                                                            {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
-                                                                                {
-                                                                                    helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
-                                                                                        getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
-                                                                                })}
-                                                                            country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
-                                                                                getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
-                                                                                doctor_country.code) as any}
-                                                                            value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
-                                                                                getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
-                                                                            onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
-                                                                            inputComponent={CustomInput as any}
-                                                                        />}
+                                                                    <PhoneInput
+                                                                        ref={phoneInputRef}
+                                                                        international
+                                                                        fullWidth
+                                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
+                                                                        withCountryCallingCode
+                                                                        {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
+                                                                            {
+                                                                                helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                                    getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                            })}
+                                                                        country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                            getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
+                                                                            doctor_country.code) as any}
+                                                                        value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                            getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
+                                                                        onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
+                                                                        inputComponent={CustomInput as any}
+                                                                    />
                                                                 </Grid>
                                                             </Grid>
                                                         </Box>

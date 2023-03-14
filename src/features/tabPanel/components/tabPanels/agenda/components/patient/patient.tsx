@@ -95,12 +95,33 @@ function Patient({...props}) {
         form.append('address', JSON.stringify({
             fr: patient.address
         }));
+        const insurances: any[] = [];
         patient.insurance.map((insurance: InsurancesModel) => {
+            let phone = null;
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];
             }
+
+            if (insurance.insurance_social) {
+                const localPhone = insurance.insurance_social.phone;
+                phone = localPhone.value.replace(localPhone.code, "");
+            }
+
+            insurances.push({
+                ...insurance,
+                ...(phone && {
+                    insurance_social: {
+                        ...insurance.insurance_social,
+                        phone: {
+                            ...insurance.insurance_social?.phone,
+                            contact_type: patient.contact.uuid,
+                            value: phone as string
+                        }
+                    }
+                })
+            })
         });
-        form.append('insurance', JSON.stringify(patient.insurance));
+        form.append('insurance', JSON.stringify(insurances));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);
         form.append('region', patient.region);
