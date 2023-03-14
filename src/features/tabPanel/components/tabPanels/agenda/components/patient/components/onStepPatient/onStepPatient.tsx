@@ -535,7 +535,6 @@ function OnStepPatient({...props}) {
                                             ref={phoneInputRef}
                                             international
                                             fullWidth
-                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
