@@ -16,6 +16,7 @@ import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {formatPhoneNumber} from "react-phone-number-input";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -80,7 +81,7 @@ function Patient({...props}) {
         form.append('last_name', patient.lastName);
         form.append('phone', JSON.stringify(patient.phones.map((phoneData: any) => ({
             code: phoneData.dial.phone,
-            value: phoneData.phone,
+            value: phoneData.phone.replace(phoneData.dial.phone, ""),
             type: "phone",
             contact_type: patient.contact.uuid,
             is_public: false,

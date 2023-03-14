@@ -13,7 +13,7 @@ import {
     Grid,
     IconButton,
     IconButtonProps,
-    InputAdornment, InputBase,
+    InputAdornment,
     MenuItem,
     Radio,
     RadioGroup,
@@ -45,7 +45,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
-import Input from 'react-phone-number-input/input';
+import PhoneInput from 'react-phone-number-input/input';
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -194,7 +194,8 @@ function OnStepPatient({...props}) {
                                 name: 'phone-value-test',
                                 message: t("telephone-error"),
                                 test: (value, ctx: any) => {
-                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhoneNumber(value as string))
+                                    const isValidPhone = value ? isValidPhoneNumber(value) : false;
+                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhone)
                                 }
                             }),
                         type: Yup.string(),
@@ -230,7 +231,7 @@ function OnStepPatient({...props}) {
             phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
                 selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
-                    phone: contact.value,
+                    phone: `${contact.code}${contact.value}`,
                     dial: dialCountries.find(dial => dial.phone === contact.code)
                 })) : [{
                     phone: "",
@@ -257,7 +258,7 @@ function OnStepPatient({...props}) {
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
                         code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson ? insurance.insuredPerson.contact.value : "",
+                        value: insurance.insuredPerson ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: contacts && contacts[0].uuid,
                         is_public: false,
@@ -530,33 +531,23 @@ function OnStepPatient({...props}) {
                                             }}/>
                                     </Grid>
                                     <Grid item md={4} lg={7} xs={12}>
-                                        <Input
+                                        {phoneObject && <PhoneInput
                                             ref={phoneInputRef}
                                             international
-                                            smartCaret
                                             fullWidth
+                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
                                             withCountryCallingCode
-                                            useNationalFormatForDefaultCountryValue
-                                            {...getFieldProps(`phones[${index}].phone`)}
+                                            {...(getFieldProps(`phones[${index}].phone`) &&
+                                                {
+                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`) ?
+                                                        getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                })}
+                                            country={phoneObject.dial?.code.toUpperCase() as any}
+                                            value={getFieldProps(`phones[${index}].phone`) ?
+                                                getFieldProps(`phones[${index}].phone`).value : ""}
                                             onChange={value => setFieldValue(`phones[${index}].phone`, value)}
-                                            country={(getFieldProps(`phones[${index}].dial`) ?
-                                                getFieldProps(`phones[${index}].dial`)?.value.code : doctor_country.code).toUpperCase() as any}
                                             inputComponent={CustomInput as any}
-                                        />
-                                        {/*<TextField
-                                            variant="outlined"
-                                            size="small"
-                                            {...getFieldProps(`phones[${index}].phone`)}
-                                            error={Boolean(touched.phones && touched.phones[index] && errors.phones && errors.phones[index])}
-                                            fullWidth
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        {getFieldProps(`phones[${index}].dial`)?.value.phone}
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />*/}
+                                        />}
                                     </Grid>
                                     <Grid item md={2} lg={1} xs={12}>
                                         {index === 0 ? <IconButton
@@ -670,7 +661,6 @@ function OnStepPatient({...props}) {
                                 {t("nationality")}
                             </Typography>
                             <FormControl fullWidth>
-
                                 <Autocomplete
                                     id={"nationality"}
                                     disabled={!countriesData}
@@ -744,6 +734,7 @@ function OnStepPatient({...props}) {
                                     size="small"
                                     fullWidth
                                     {...getFieldProps("address")}
+                                    value={getFieldProps("address") ? getFieldProps("address").value : ""}
                                 />
                             </Box>
                             <Box>
@@ -876,6 +867,7 @@ function OnStepPatient({...props}) {
                                             size="small"
                                             fullWidth
                                             {...getFieldProps("zip_code")}
+                                            value={getFieldProps("zip_code") ? getFieldProps("zip_code").value : ""}
                                         />
                                     </Grid>
                                 </Grid>
@@ -1048,6 +1040,7 @@ function OnStepPatient({...props}) {
                                                                     size="small"
                                                                     fullWidth
                                                                     {...getFieldProps(`insurance[${index}].insurance_number`)}
+                                                                    value={getFieldProps(`insurance[${index}].insurance_number`) ? getFieldProps(`insurance[${index}].insurance_number`).value : ""}
                                                                 />
                                                             </Stack>
                                                         </Grid>
@@ -1074,6 +1067,8 @@ function OnStepPatient({...props}) {
                                                                 size="small"
                                                                 fullWidth
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
+                                                                value={getFieldProps(`insurance[${index}].insurance_social.firstName`) ? getFieldProps(`insurance[${index}].insurance_social.firstName`).value : ""}
+
                                                             />
                                                         </Box>
                                                         <Box mb={1}>
@@ -1093,6 +1088,8 @@ function OnStepPatient({...props}) {
                                                                 size="small"
                                                                 fullWidth
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
+                                                                value={getFieldProps(`insurance[${index}].insurance_social.lastName`) ? getFieldProps(`insurance[${index}].insurance_social.lastName`).value : ""}
+
                                                             />
                                                         </Box>
                                                         <Box
@@ -1141,25 +1138,26 @@ function OnStepPatient({...props}) {
                                                                         }}/>
                                                                 </Grid>
                                                                 <Grid item md={6} lg={8} xs={12}>
-                                                                    <TextField
-                                                                        variant="outlined"
-                                                                        {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
-                                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.phone?.value)}
-                                                                        helperText={
-                                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.phone)
-                                                                                ? String((errors.insurance as any)[index].insurance_social.phone.value)
-                                                                                : undefined
-                                                                        }
-                                                                        size="small"
-                                                                        fullWidth
-                                                                        InputProps={{
-                                                                            startAdornment: (
-                                                                                <InputAdornment position="start">
-                                                                                    {getFieldProps(`insurance[${index}].insurance_social.phone.code`)?.value}
-                                                                                </InputAdornment>
-                                                                            ),
-                                                                        }}
-                                                                    />
+                                                                    {getFieldProps(`insurance[${index}].insurance_social.phone.code`) &&
+                                                                        <PhoneInput
+                                                                            ref={phoneInputRef}
+                                                                            international
+                                                                            fullWidth
+                                                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
+                                                                            withCountryCallingCode
+                                                                            {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
+                                                                                {
+                                                                                    helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                                        getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                                })}
+                                                                            country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                                getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
+                                                                                doctor_country.code) as any}
+                                                                            value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                                getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
+                                                                            onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
+                                                                            inputComponent={CustomInput as any}
+                                                                        />}
                                                                 </Grid>
                                                             </Grid>
                                                         </Box>
@@ -1181,6 +1179,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("email")}
+                                value={getFieldProps("email") ? getFieldProps("email").value : ""}
                                 error={Boolean(touched.email && errors.email)}
                                 helperText={
                                     Boolean(touched.email && errors.email)
@@ -1199,6 +1198,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("cin")}
+                                value={getFieldProps("cin") ? getFieldProps("cin").value : ""}
                             />
                         </Box>
                         <Box>
@@ -1211,6 +1211,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("profession")}
+                                value={getFieldProps("profession") ? getFieldProps("profession").value : ""}
                             />
                         </Box>
                         <Box>
@@ -1224,6 +1225,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("family_doctor")}
+                                value={getFieldProps("family_doctor") ? getFieldProps("family_doctor").value : ""}
                             />
                         </Box>
                     </Collapse>
