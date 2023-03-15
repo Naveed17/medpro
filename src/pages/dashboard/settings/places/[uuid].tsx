@@ -175,13 +175,15 @@ function PlacesDetail() {
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
 
+    const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
+
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
     const [cords, setCords] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [alldays, setAllDays] = useState<boolean>(false);
-    const [contacts, setContacts] = useState<any[]>([doctor_country]);
+    const [contacts, setContacts] = useState<any[]>([]);
     const [cities, setCities] = useState<LocationModel[]>([]);
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
         {
@@ -357,8 +359,10 @@ function PlacesDetail() {
             {
                 code: doctor_country.phone,
                 value: "",
-                name: doctor_country.name,
-                is_public: false
+                type: "phone",
+                contact_type: contactTypes && contactTypes[0].uuid,
+                is_public: false,
+                is_support: false
             }
         ];
         setFieldValue("phones", phones);
@@ -369,7 +373,6 @@ function PlacesDetail() {
         setFieldValue("phones", phones);
     }
 
-    const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
 
     useEffect(() => {
         if (data !== undefined) {
@@ -426,14 +429,11 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = row.contacts.length > 0 ? [] : [
-                DefaultCountry
-            ];
+            const cnts: any[] = row.contacts.length > 0 ? [] : [];
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
                     code: contact.code,
                     value: contact.value,
-                    name: getCountryByCode(contact.code)?.name,
                     contact_type: contact.contactType,
                     is_support: contact.isSupport,
                     is_public: contact.isPublic
@@ -470,82 +470,6 @@ function PlacesDetail() {
         }
     }, [check, initialCites, row]);
 
-    // useEffect(() => {
-    //     if (row !== undefined && check) {
-    //         /*row.openingHours.map((ohours: any, index: number) => {
-    //             horaires[index].isMain = ohours.isMain;
-    //             horaires[index].isVisible = ohours.isVisible;
-    //             Object.keys(horaires[index].openingHours).map(day => {
-    //                 horaires[index].openingHours[day] = ohours.openingHours[day]
-    //             });
-    //         });
-    //         setHoraires([...horaires]);*/
-    //         setHoraires(row.openingHours)
-    //         setOuterBounds([row.address.location.point]);
-    //         setCords([{name: "name", points: row.address.location.point}]);
-    //         //initialCites();
-    //         setCheck(false);
-    //         row.contacts.map((contact: ContactModel) => {
-    //             contacts.push({
-    //                 countryCode: '',
-    //                 phone: contact.value,
-    //                 hidden: !contact.isPublic
-    //             });
-    //         });
-    //         setContacts([...contacts])
-    //
-    //     }
-    // }, [check, contacts, row])
-
-    /*    const [rows, setRows] = useState([
-              {
-                  id: 1,
-                  name: 'Salma Bousaiid',
-                  type: 'Sécrétaire',
-                  access: 3
-              },
-              {
-                  id: 2,
-                  name: 'Rym Jablaoui',
-                  type: 'Sécrétaire',
-                  access: 1
-              }
-          ]);*/
-
-    /*
-          // access array not exit in backend
-          const headCells = [
-              {
-                  id: 'name',
-                  numeric: false,
-                  disablePadding: true,
-                  label: t('lieux.new.user'),
-                  align: 'left',
-                  sortable: true,
-              },
-              {
-                  id: 'access',
-                  numeric: false,
-                  disablePadding: true,
-                  label: t('lieux.new.userPermission'),
-                  align: 'left',
-                  sortable: false,
-              }
-          ];
-
-          const editPlaces = (props: any) => {
-              console.log('edit', props);
-          }
-          const handleConfig = (props: any, event: string) => {
-              console.log('handleConfig', event);
-          }
-
-          const handleChange = (props: any, event: any) => {
-              props.access = event.target.value
-              rows.filter(row => row.id === props.id)[0].access = event.target.value
-              setRows([...rows])
-          }
-      */
     return (
         <>
             <SubHeader>
@@ -829,7 +753,7 @@ function PlacesDetail() {
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
                                                             error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
-                                                            {...(data && {country: getCountryByCode(phone.code)?.code as any})}
+                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any})}
                                                             value={data && values.phones[index] ? values.phones[index]?.value : ""}
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}
                                                             inputComponent={CustomInput as any}
