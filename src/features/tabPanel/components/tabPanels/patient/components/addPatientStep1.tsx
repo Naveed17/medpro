@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, useState} from "react";
+import React, {ChangeEvent, memo, useRef, useState} from "react";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
 import {
@@ -10,7 +10,6 @@ import {
     Radio,
     TextField,
     Grid,
-    InputAdornment,
     Button,
     Stack,
     FormHelperText,
@@ -18,7 +17,7 @@ import {
     Avatar,
 } from "@mui/material";
 import {
-    addPatientSelector,
+    addPatientSelector, CustomInput,
     InputStyled,
     onAddPatient,
 } from "@features/tabPanel";
@@ -38,6 +37,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import PhoneInput from "react-phone-number-input/input";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -57,18 +57,14 @@ function AddPatientStep1({...props}) {
 
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const phoneInputRef = useRef(null);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
     const {stepsData} = useAppSelector(addPatientSelector);
-    const {t, ready} = useTranslation(translationKey, {
-        keyPrefix: translationPrefix,
-    });
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
@@ -93,10 +89,10 @@ function AddPatientStep1({...props}) {
                     .test({
                         name: "is-phone",
                         message: t("telephone-error"),
-                        test: (value, ctx: any) =>
-                            isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : false
+                        }
                     })
-                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error")),
             })
         ),
@@ -125,14 +121,10 @@ function AddPatientStep1({...props}) {
                 month: selectedPatient.birthdate.split("-")[1] as string,
                 year: selectedPatient.birthdate.split("-")[2] as string,
             },
-            phones: selectedPatient?.contact?.find(
-                (contact: ContactModel) => contact.type === "phone"
-            )
-                ? [
+            phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
+                [
                     {
-                        phone: selectedPatient?.contact?.find(
-                            (contact: ContactModel) => contact.type === "phone"
-                        ).value,
+                        phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
                         dial: doctor_country,
                     },
                 ]
@@ -437,34 +429,30 @@ function AddPatientStep1({...props}) {
                                     <Grid item xs={6} md={4}>
                                         <PhoneCountry
                                             initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                            onSelect={(state: any) =>
-                                                setFieldValue(`phones[${index}].dial`, state)
-                                            }
+                                            onSelect={(state: any) => {
+                                                setFieldValue(`phones[${index}].phone`, "");
+                                                setFieldValue(`phones[${index}].dial`, state);
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item xs={6} md={7}>
-                                        <TextField
-                                            variant="outlined"
-                                            size="small"
-                                            {...getFieldProps(`phones[${index}].phone`)}
-                                            error={Boolean(
-                                                touched.phones &&
-                                                touched.phones[index] &&
-                                                errors.phones &&
-                                                errors.phones[index]
-                                            )}
+                                        {phoneObject && <PhoneInput
+                                            ref={phoneInputRef}
+                                            international
                                             fullWidth
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        {
-                                                            getFieldProps(`phones[${index}].dial`)?.value
-                                                                .phone
-                                                        }
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
+                                            withCountryCallingCode
+                                            {...(getFieldProps(`phones[${index}].phone`) &&
+                                                {
+                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                        getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                })}
+                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
+                                            country={phoneObject.dial?.code.toUpperCase() as any}
+                                            value={getFieldProps(`phones[${index}].phone`) ?
+                                                getFieldProps(`phones[${index}].phone`).value : ""}
+                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                            inputComponent={CustomInput as any}
+                                        />}
                                     </Grid>
                                     <Grid item xs={12} md={1}>
                                         {index === 0 ? (

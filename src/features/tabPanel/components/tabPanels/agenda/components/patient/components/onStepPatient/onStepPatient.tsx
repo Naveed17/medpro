@@ -155,8 +155,7 @@ function OnStepPatient({...props}) {
             Yup.object().shape({
                 insurance_number: Yup.string()
                     .min(3, t("assurance-num-error"))
-                    .max(50, t("assurance-num-error"))
-                    .required(t("assurance-num-error")),
+                    .max(50, t("assurance-num-error")),
                 insurance_uuid: Yup.string()
                     .min(3, t("assurance-type-error"))
                     .max(50, t("assurance-type-error"))
@@ -541,6 +540,7 @@ function OnStepPatient({...props}) {
                                                     helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
+                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
                                             country={phoneObject.dial?.code.toUpperCase() as any}
                                             value={getFieldProps(`phones[${index}].phone`) ?
                                                 getFieldProps(`phones[${index}].phone`).value : ""}
@@ -1133,6 +1133,7 @@ function OnStepPatient({...props}) {
                                                                             getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
                                                                             doctor_country}
                                                                         onSelect={(state: any) => {
+                                                                            setFieldValue(`insurance[${index}].insurance_social.phone.value`, "")
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                         }}/>
                                                                 </Grid>
@@ -1239,6 +1240,7 @@ function OnStepPatient({...props}) {
                         }
                     })}
                     spacing={3}
+                    pt={1}
                     direction="row"
                     justifyContent="flex-end"
                     className="action"
