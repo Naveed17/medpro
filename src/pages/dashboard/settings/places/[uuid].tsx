@@ -758,14 +758,12 @@ function PlacesDetail() {
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}
                                                             inputComponent={CustomInput as any}
                                                         />
-                                                        {index !== 0 && (
-                                                            <IconButton
-                                                                onClick={() => handleRemovePhone(index)}
-                                                                sx={{position: "absolute", right: -40, top: 6}}
-                                                                size="small">
-                                                                <IconUrl path="setting/icdelete"/>
-                                                            </IconButton>
-                                                        )}
+                                                        <IconButton
+                                                            onClick={() => handleRemovePhone(index)}
+                                                            sx={{position: "absolute", right: -40, top: 6}}
+                                                            size="small">
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={12} lg={4} sx={{ml: "auto"}}>
