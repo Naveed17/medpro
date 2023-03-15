@@ -121,7 +121,7 @@ function PersonalInfo({...props}) {
         params.append('phone', JSON.stringify(
             patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
                 code: phone.code,
-                value: phone.value,
+                value: phone.value.replace(phone.code, ""),
                 type: "phone",
                 "contact_type": patient.contact[0].uuid,
                 "is_public": false,

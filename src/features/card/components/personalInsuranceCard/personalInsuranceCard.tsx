@@ -121,8 +121,10 @@ function PersonalInsuranceCard({...props}) {
                         value: Yup.string().test({
                             name: 'phone-value-test',
                             message: t("telephone-error"),
-                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
-                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
+                            test: (value, ctx: any) => {
+                                const isValidPhone = value ? isValidPhoneNumber(value) : false;
+                                return ctx.from[2].value.insurance_type === "0" || isValidPhone;
+                            }
                         }),
                         type: Yup.string(),
                         contact_type: Yup.string(),
@@ -162,7 +164,7 @@ function PersonalInsuranceCard({...props}) {
                     birthday: insurance.insuredPerson.birthday,
                     phone: {
                         code: insurance.insuredPerson.contact.code,
-                        value: insurance.insuredPerson.contact.value,
+                        value: `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}`,
                         type: "phone",
                         contact_type: patient.contact[0].uuid,
                         is_public: false,
@@ -246,7 +248,7 @@ function PersonalInsuranceCard({...props}) {
         params.append('phone', JSON.stringify(
             patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
                 code: phone.code,
-                value: phone.value,
+                value: phone.value.replace(phone.code, ""),
                 type: "phone",
                 "contact_type": patient.contact[0].uuid,
                 "is_public": false,
@@ -258,12 +260,33 @@ function PersonalInsuranceCard({...props}) {
         patient.profession && params.append('profession', patient.profession);
         patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
+        const updatedInsurances: any[] = [];
         (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
+            let phone = null;
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];
             }
+
+            if (insurance.insurance_social) {
+                const localPhone = insurance.insurance_social.phone;
+                phone = localPhone.value.replace(localPhone.code, "");
+            }
+
+            updatedInsurances.push({
+                ...insurance,
+                ...(phone && {
+                    insurance_social: {
+                        ...insurance.insurance_social,
+                        phone: {
+                            ...insurance.insurance_social?.phone,
+                            contact_type: patient.contact[0].uuid,
+                            value: phone as string
+                        }
+                    }
+                })
+            })
         });
-        params.append('insurance', JSON.stringify((insurances ? insurances : values.insurances)));
+        params.append('insurance', JSON.stringify(updatedInsurances));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
