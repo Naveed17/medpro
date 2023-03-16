@@ -186,11 +186,12 @@ function Agenda() {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
             DayOfWeek(openingHours[0], doctor_country?.code === "dz" ? 0 : 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
+            const interval = calendarIntervalSlot();
             let hasError: boolean[] = [];
             hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
                     hasError.push(!moment(date).isBetween(
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMinTime.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMaxTime}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMinSlot.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMaxSlot}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
                 }
             );
             return hasError.every(error => error);
@@ -250,6 +251,28 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const calendarIntervalSlot = () => {
+        let localMinSlot = 8; //8h
+        let localMaxSlot = 20; //20h
+        Object.entries(openingHours).map((openingHours: any) => {
+            openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                const min = moment.duration(openingHour?.start_time).asHours();
+                const max = moment.duration(openingHour?.end_time).asHours();
+                if (min < localMinSlot) {
+                    localMinSlot = min;
+                }
+                if (max > localMaxSlot) {
+                    localMaxSlot = max;
+                }
+            })
+        })
+
+        return {
+            localMinSlot,
+            localMaxSlot
+        }
+    }
+
     useEffect(() => {
         if (lastUpdateNotification) {
             refreshData();
@@ -296,18 +319,9 @@ function Agenda() {
 
     useEffect(() => {
         if (openingHours) {
-            Object.entries(openingHours).map((openingHours: any) => {
-                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
-                    const min = moment.duration(openingHour?.start_time).asHours();
-                    const max = moment.duration(openingHour?.end_time).asHours();
-                    if (min < slotMinTime) {
-                        setSlotMinTime(min);
-                    }
-                    if (max > slotMaxTime) {
-                        setSlotMaxTime(max);
-                    }
-                })
-            });
+            const interval = calendarIntervalSlot();
+            setSlotMinTime(interval.localMinSlot);
+            setSlotMaxTime(interval.localMaxSlot);
         }
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
