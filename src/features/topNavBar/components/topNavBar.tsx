@@ -46,7 +46,6 @@ import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
-import {TriggerAppointmentStatus} from "@app/hooks/rest";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
