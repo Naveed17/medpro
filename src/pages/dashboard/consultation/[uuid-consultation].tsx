@@ -2,7 +2,7 @@ import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     ConsultationIPToolbar,
     consultationSelector,
@@ -120,8 +120,7 @@ function ConsultationInProgress() {
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
     const {isActive, event} = useAppSelector(timerSelector);
-
-
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {drawer} = useAppSelector(
         (state: { dialog: DialogProps }) => state.dialog
     );
@@ -651,6 +650,8 @@ function ConsultationInProgress() {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
                 setActions(false);
+                // refresh on going api
+                mutateOnGoing && mutateOnGoing();
             });
         });
     };

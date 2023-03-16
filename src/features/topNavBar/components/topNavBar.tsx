@@ -45,6 +45,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
+import moment from "moment-timezone";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -71,8 +72,10 @@ function TopNavBar({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -140,6 +143,54 @@ function TopNavBar({...props}) {
             mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
                 .then(() => setLoading(false));
         });
+    }
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const handleStartConsultation = (nextPatient: any) => {
+        const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
+        const event: any = {
+            publicId: nextPatient.uuid,
+            extendedProps: {
+                patient: {
+                    uuid: nextPatient?.patient_uuid,
+                    firstName: nextPatient?.patient.split(" ")[0],
+                    lastName: nextPatient?.patient.split(" ")[1]
+                }
+            }
+        };
+        if (router.asPath !== slugConsultation) {
+            router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                updateAppointmentStatus(nextPatient.uuid, "4", {
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                }).then(() => {
+                    dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm")
+                        }
+                    ));
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                });
+            });
+        }
     }
 
     useEffect(() => {
@@ -263,8 +314,12 @@ function TopNavBar({...props}) {
                                     disableRipple
                                     color={"black"}
                                     onClick={() => {
-                                        setPatientId(next.patient_uuid);
-                                        setPatientDetailDrawer(true);
+                                        if (isActive || roles.includes('ROLE_SECRETARY')) {
+                                            setPatientId(next.patient_uuid);
+                                            setPatientDetailDrawer(true);
+                                        } else {
+                                            handleStartConsultation(next);
+                                        }
                                     }}
                                     sx={{
                                         mr: 2,

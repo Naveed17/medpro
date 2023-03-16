@@ -147,7 +147,6 @@ function WaitingRoom() {
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
-    const {mutates} = useAppSelector(navBarSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
@@ -202,7 +201,6 @@ function WaitingRoom() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const {data: httpAgendasResponse} = useRequest({

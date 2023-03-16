@@ -60,8 +60,7 @@ function SideBarMenu({children}: LayoutProps) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const roles = (user as UserDataResponse)?.general_information
-        .roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
