@@ -75,16 +75,6 @@ function MedicalImageryDialog({...props}) {
 
     }
 
-/*    const sortMedicalImagery = useCallback(() => {
-        const recent = localStorage.getItem("medical-imagery-recent") ?
-            JSON.parse(localStorage.getItem("medical-imagery-recent") as string) : [] as AnalysisModel[];
-        if (recent.length > 0 && miList) {
-            setMiList([
-                ...recent,
-                ...miList.filter(x => !recent.find((r: AnalysisModel) => r.uuid === x.uuid))]);
-        }
-    }, [miList])*/
-
     const searchInMedicalImagery = (medicalImagery: string) => {
         setName(medicalImagery);
         if (medicalImagery.length >= 2) {
@@ -95,7 +85,6 @@ function MedicalImageryDialog({...props}) {
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data;
                 setMiList(res)
-                //sortMedicalImagery();
             })
         } else {
             const recent = localStorage.getItem("medical-imagery-recent") ? JSON.parse(localStorage.getItem("medical-imagery-recent") as string) : [] as AnalysisModel[];
@@ -278,7 +267,6 @@ function MedicalImageryDialog({...props}) {
                                             rows={5}
                                             value={item.note}
                                             onChange={event => {
-                                                //console.log(event)
                                                 mi[index].note = event.target.value;
                                                 setMi([...mi])
                                             }}
