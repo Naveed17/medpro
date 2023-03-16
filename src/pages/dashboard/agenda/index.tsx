@@ -149,10 +149,7 @@ function Agenda() {
             disabled: true
         }
     ]);
-
     const [event, setEvent] = useState<EventDef | null>();
-    const [slotMinTime, setSlotMinTime] = useState(8);
-    const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
@@ -316,14 +313,6 @@ function Agenda() {
             getAppointments(queryPath, view);
         }
     }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (openingHours) {
-            const interval = calendarIntervalSlot();
-            setSlotMinTime(interval.localMinSlot);
-            setSlotMaxTime(interval.localMaxSlot);
-        }
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         dispatch(resetFilterPatient());
