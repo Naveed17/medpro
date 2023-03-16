@@ -3,11 +3,11 @@ import {
     Button,
     CardContent,
     DialogActions,
-    IconButton, InputAdornment,
+    IconButton,
     List,
     ListItem,
     ListItemIcon,
-    Stack, TextField,
+    Stack,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -37,7 +37,7 @@ import {LoadingButton} from "@mui/lab";
 import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
-import SearchIcon from '@mui/icons-material/Search';
+
 const Content = ({...props}) => {
     const {id, patient} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
@@ -256,7 +256,7 @@ const Content = ({...props}) => {
                     <CardContent style={{paddingBottom: pxToRem(15)}}>
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
-                                {patient?.treatment.length > 0 && <TextField
+                                {/*{patient?.treatment.length > 0 && <TextField
                                     placeholder={"Exemple: chimio ..."}
                                     value={treatementFilter}
                                     onChange={(ev) => {
@@ -268,7 +268,7 @@ const Content = ({...props}) => {
                                             <SearchIcon/>
                                         </InputAdornment>,
                                     }}
-                                />}
+                                />}*/}
                                 <List dense>
                                     {patient?.treatment.filter(
                                         (tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())

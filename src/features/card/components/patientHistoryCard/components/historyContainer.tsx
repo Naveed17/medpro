@@ -447,7 +447,7 @@ function HistoryContainer({...props}) {
 
                                                 {col.type === "act-fees" && <BoxFees>
                                                     {
-                                                        app?.appointment.acts.length > 0 &&
+
                                                         <BoxFees>
                                                             <Grid container spacing={2}>
                                                                 <Grid item xs={3}>
