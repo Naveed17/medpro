@@ -54,6 +54,7 @@
     "gender": "Genre",
     "male": "Homme",
     "noInsurance": "Aucune assurance",
+    "assurance-placeholder": "Sélectionner une assurance",
     "nopaymentMeans": "Aucun moyen de paiement",
     "female": "Femme",
     "name": "Recherche",

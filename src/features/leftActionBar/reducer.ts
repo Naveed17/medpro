@@ -1,5 +1,5 @@
 import {createReducer} from "@reduxjs/toolkit";
-import {setFilter, resetFilterPatient} from "./actions";
+import {setFilter, resetFilterPatient, resetFilterPayment} from "./actions";
 
 export type ActionBarState = {
     query: {
@@ -10,6 +10,9 @@ export type ActionBarState = {
             gender?: string;
             birthdate?: string;
             name?: string;
+        },
+        payment?: {
+            insurance?: string[]
         }
     } | undefined;
 };
@@ -25,5 +28,7 @@ export const leftActionBarReducer = createReducer(initialState, (builder) => {
         })
         .addCase(resetFilterPatient, (state, action) => {
             return {...state, query: {...state.query, patient: undefined}}
+        }).addCase(resetFilterPayment, (state, action) => {
+            return {...state, query: {...state.query, payment: undefined}}
         });
 });
