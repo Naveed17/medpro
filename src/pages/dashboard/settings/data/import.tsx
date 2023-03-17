@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -26,7 +26,6 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import {read, utils} from "xlsx";
-import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
 import {useAppSelector} from "@app/redux/hooks";
 import dynamic from "next/dynamic";
@@ -39,7 +38,7 @@ import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 
-const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
+const FileUploadProgress = dynamic(() => import("@features/progressUI/components/fileUploadProgress/components/fileUploadProgress"));
 
 function ImportData() {
     const router = useRouter();
@@ -61,6 +60,7 @@ function ImportData() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
@@ -173,16 +173,8 @@ function ImportData() {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             if (value?.data.status === 'success') {
-                enqueueSnackbar("Importing data in progress", {
-                    persist: true,
-                    preventDuplicate: true,
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                    },
-                    content: (key, message) =>
-                        <CircularProgressbarCard {...{t}} id={key} message={message}/>,
-                });
+                // refresh on going api
+                mutateOnGoing && mutateOnGoing();
                 setLoading(false);
                 setCancelDialog(false);
                 localStorage.setItem("import-data", "true");

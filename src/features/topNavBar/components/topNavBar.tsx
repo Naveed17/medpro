@@ -46,6 +46,7 @@ import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
+import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -67,8 +68,9 @@ function TopNavBar({...props}) {
     const {lock} = useAppSelector(appLockSelector);
     const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing, next, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {ongoing, next, import_data, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
+    const {progress} = useAppSelector(progressUISelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -304,7 +306,10 @@ function TopNavBar({...props}) {
                                 className="btn">
                                 <Icon path="ic-scan"/>
                             </IconButton>
-                            {/*<TextFieldSearch color="primary" className="topbar-search"/>*/}
+                            {(import_data && import_data.length > 0) &&
+                                <Box sx={{width: '16%'}}>
+                                    <LinearProgressWithLabel value={progress}/>
+                                </Box>}
                         </Hidden>
 
                         <MenuList className="topbar-nav">
