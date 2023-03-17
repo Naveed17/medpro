@@ -97,9 +97,11 @@ function DashLayout({children}: LayoutProps) {
         if (calendarStatus) {
             if (calendarStatus.import_data?.length === 0) {
                 localStorage.removeItem("import-data");
+                localStorage.removeItem("import-data-progress");
                 closeSnackbar();
             } else {
-                dispatch(setProgress(10));
+                const progress = localStorage.getItem("import-data-progress")
+                dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
             dispatch(setOngoing({
