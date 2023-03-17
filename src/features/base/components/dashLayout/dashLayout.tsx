@@ -13,9 +13,10 @@ import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
-import {CircularProgressbarCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
+import {setProgress} from "@features/progressUI";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -96,18 +97,11 @@ function DashLayout({children}: LayoutProps) {
         if (calendarStatus) {
             if (calendarStatus.import_data?.length === 0) {
                 localStorage.removeItem("import-data");
+                localStorage.removeItem("import-data-progress");
                 closeSnackbar();
             } else {
-                enqueueSnackbar("Importing data in progress", {
-                    persist: true,
-                    preventDuplicate: true,
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                    },
-                    content: (key, message) =>
-                        <CircularProgressbarCard id={key} message={message}/>,
-                });
+                const progress = localStorage.getItem("import-data-progress")
+                dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
             dispatch(setOngoing({
