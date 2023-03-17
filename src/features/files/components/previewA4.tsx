@@ -100,7 +100,6 @@ function PreviewDialog({...props}) {
                                 element: "p",
                                 style: {}
                             })
-                            console.log(el.note);
                             if (el.note) {
                                 elx.append(`• ${el.note}`)
                                 rows.push({
