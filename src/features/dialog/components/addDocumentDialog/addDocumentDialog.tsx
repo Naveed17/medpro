@@ -69,7 +69,6 @@ function AddDocumentDialog({...props}) {
                     50,
                     0,
                     (uri) => {
-                        console.log(uri)
                         file = uri;
                     },
                     "file")
