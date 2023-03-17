@@ -16,6 +16,7 @@ import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
 import {CashboxReducer} from "@features/leftActionBar/components/payment/reducer";
 import {navBarReducer} from "@features/topNavBar/reducer";
+import {ProgressUIReducer} from "@features/progressUI/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -40,7 +41,8 @@ export const store = configureStore({
         appLock: AppLockReducer,
         patientDetail: dialogPatientDetailReducer,
         duplicate: DuplicatedReducer,
-        navBar: navBarReducer
+        navBar: navBarReducer,
+        progressUI: ProgressUIReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
