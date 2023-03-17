@@ -100,6 +100,16 @@ function PreviewDialog({...props}) {
                                 element: "p",
                                 style: {}
                             })
+                            console.log(el.note);
+                            if (el.note) {
+                                elx.append(`• ${el.note}`)
+                                rows.push({
+                                    value: `${el.note}`,
+                                    name: "note",
+                                    element: "p",
+                                    style: {color: "gray", fontSize: "18px",marginTop:0}
+                                })
+                            }
                             pageX.appendChild(elx)
                             setTitle("Bilan Biologique");
                             break;

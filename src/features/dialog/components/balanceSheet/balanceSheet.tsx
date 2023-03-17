@@ -108,7 +108,7 @@ function BalanceSheetDialog({...props}) {
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        analysis.unshift(value);
+        analysis.unshift({...value, note: ""});
         setAnalysis([...analysis]);
         const recents = localStorage.getItem("balance-Sheet-recent") ?
             JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
@@ -337,6 +337,27 @@ function BalanceSheetDialog({...props}) {
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
+                                    <Box padding={1} pt={0}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder={t("note")}
+                                            multiline={true}
+                                            style={{backgroundColor:"white",borderRadius:5}}
+                                            inputProps={
+                                                {
+                                                    style: {
+                                                        padding: 3
+                                                    },
+                                                }
+                                            }
+                                            rows={5}
+                                            value={item.note}
+                                            onChange={event => {
+                                                analysis[index].note = event.target.value;
+                                                setAnalysis([...analysis])
+                                            }}
+                                        />
+                                    </Box>
                                 </Card>
                             ))
                             : <Card className='loading-card'>

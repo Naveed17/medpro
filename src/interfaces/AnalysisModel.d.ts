@@ -3,4 +3,5 @@ interface AnalysisModel {
     inputValue?: string,
     name: string,
     abbreviation?: string
+    note?: string
 }
