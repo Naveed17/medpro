@@ -431,7 +431,6 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        console.log("appointement", appointement);
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
             setLoadingReq(true);
