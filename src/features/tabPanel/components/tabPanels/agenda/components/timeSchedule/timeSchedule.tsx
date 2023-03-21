@@ -52,7 +52,7 @@ function TimeSchedule({...props}) {
         duration: initDuration, recurringDates: initRecurringDates
     } = useAppSelector(appointmentSelector);
 
-    const [reason, setReason] = useState(motif);
+    const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
     const [durations, setDurations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
@@ -122,20 +122,19 @@ function TimeSchedule({...props}) {
         });
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const onChangeReason = (event: ConsultationReasonModel) => {
-        const reason = event;
-        const reasonUuid = event.uuid;
-        setReason(reasonUuid);
-        dispatch(setAppointmentMotif(reasonUuid));
+    const onChangeReason = (reasons: ConsultationReasonModel[]) => {
+        const reasonsUuid = reasons.map(reason => reason.uuid);
+        setSelectedReasons(reasonsUuid);
+        dispatch(setAppointmentMotif(reasonsUuid));
 
-        if (reason) {
-            dispatch(setAppointmentDuration(reason.duration as any));
-            setDuration(reason.duration as any);
+        if (reasons.length > 0) {
+            dispatch(setAppointmentDuration(reasons[0].duration as any));
+            setDuration(reasons[0].duration as any);
         }
 
-        if (date && medical_professional?.uuid) {
+        if (date && medical_professional?.uuid && reasons.length > 0) {
             setTime(moment(date).format('HH:mm'));
-            getSlots(date, reason?.duration as any, moment(date).format('HH:mm'));
+            getSlots(date, reasons[0]?.duration as any, moment(date).format('HH:mm'));
         }
     };
 
@@ -226,7 +225,7 @@ function TimeSchedule({...props}) {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
-                onChangeReason(reasonsUpdated[0]);
+                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
             }
             setLoadingReq(false);
         }));
@@ -312,16 +311,17 @@ function TimeSchedule({...props}) {
                             <Autocomplete
                                 id={"select-reason"}
                                 disabled={!reasons}
+                                multiple
                                 autoHighlight
                                 freeSolo
                                 disableClearable
                                 size="small"
-                                value={reasons && reason.length > 0 ? reasons.find(motif => motif.uuid === reason) : ""}
+                                value={reasons && selectedReasons.length > 0 ? reasons.filter(motif => selectedReasons.includes(motif.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    if (newValue && newValue.inputValue) {
+                                    if (newValue.length > 0 && newValue[0].inputValue) {
                                         // Create a new value from the user input
-                                        addNewReason(newValue.inputValue);
+                                        addNewReason(newValue[0].inputValue);
                                     } else {
                                         onChangeReason(newValue);
                                     }
@@ -391,7 +391,7 @@ function TimeSchedule({...props}) {
                         <Select
                             labelId="select-location"
                             id="select-location"
-                            disabled={reason === ''}
+                            disabled={selectedReasons.length === 0}
                             value={location}
                             onChange={onChangeLocation}
                             sx={{

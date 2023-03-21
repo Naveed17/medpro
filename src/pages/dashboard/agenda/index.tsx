@@ -825,7 +825,7 @@ function Agenda() {
             "start_date": recurringDate.date,
             "start_time": recurringDate.time
         }))));
-        motif && params.append('consultation_reason_uuid', motif);
+        motif && params.append('consultation_reason_uuid', JSON.stringify(motif));
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
         params.append('patient_uuid', patient?.uuid as string);
         params.append('type', type);
