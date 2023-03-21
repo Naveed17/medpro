@@ -402,7 +402,7 @@ function ConsultationInProgress() {
             setFree(checkFree);
             if (!checkFree) setTotal(consultationFees);
             setConsultationFees(Number(appointement.consultation_fees));
-        }
+        } else if (appointement && !appointement.consultation_fees) setFree(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
 
