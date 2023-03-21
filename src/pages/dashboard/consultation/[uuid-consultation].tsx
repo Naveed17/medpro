@@ -105,7 +105,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [loadingReq, setLoadingReq] = useState<boolean>(true);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
@@ -316,6 +316,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpAppResponse) {
             setAppointement((httpAppResponse as HttpResponse)?.data);
+            setLoadingReq(false);
             setLoading(false);
         }
     }, [httpAppResponse]);
@@ -397,14 +398,17 @@ function ConsultationInProgress() {
     }, [httpMPResponse]);
 
     useEffect(() => {
-        if (appointement && appointement.consultation_fees && loading) {
-            const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
-            setFree(checkFree);
-            if (!checkFree) setTotal(consultationFees);
-            setConsultationFees(Number(appointement.consultation_fees));
-        } else if (appointement && !appointement.consultation_fees) setFree(true);
+        setTimeout(() => {
+            if (appointement) {
+                const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+                setFree(checkFree);
+                if (!checkFree) setTotal(consultationFees);
+                if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+            }
+        }, 2000)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
+
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -427,70 +431,64 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
+        console.log("appointement", appointement);
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
             setLoadingReq(true);
-            if ([5, 4].includes(appointement?.status)) {
-                selectedAct.map(
-                    (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
-                        acts.push({
-                            act_uuid: act.uuid,
-                            name: act.act.name,
-                            qte: act.qte,
-                            price: act.fees,
-                        });
-                    }
-                );
-                const form = new FormData();
-                form.append("acts", JSON.stringify(acts));
-                form.append("modal_uuid", selectedModel.default_modal.uuid);
-                form.append(
-                    "modal_data",
-                    localStorage.getItem("Modeldata" + uuind) as string
-                );
-                form.append("notes", exam.notes);
-                form.append("diagnostic", exam.diagnosis);
-                form.append("treatment", exam.treatment ? exam.treatment : "");
-                form.append("consultation_reason", exam.motif);
-                form.append("fees", total.toString());
-                if (!free)
-                    form.append("consultation_fees", consultationFees.toString());
-                form.append("status", "5");
+            selectedAct.map(
+                (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
+                    acts.push({
+                        act_uuid: act.uuid,
+                        name: act.act.name,
+                        qte: act.qte,
+                        price: act.fees,
+                    });
+                }
+            );
+            const form = new FormData();
+            form.append("acts", JSON.stringify(acts));
+            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append(
+                "modal_data",
+                localStorage.getItem("Modeldata" + uuind) as string
+            );
+            form.append("notes", exam.notes);
+            form.append("diagnostic", exam.diagnosis);
+            form.append("treatment", exam.treatment ? exam.treatment : "");
+            form.append("consultation_reason", exam.motif);
+            form.append("fees", total.toString());
+            if (!free)
+                form.append("consultation_fees", consultationFees.toString());
+            form.append("status", "5");
 
-                trigger({
-                    method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then(() => {
-                    console.log("end consultation");
-                    appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
-                    mutate().then(() => {
-                        leaveDialog.current = true;
-                        if (!isHistory)
-                            router.push("/dashboard/agenda").then(() => {
-                                clearData();
-                                setActions(false);
-                                setEnd(false);
-                                setLoadingReq(false);
-                            });
-                        else {
+            trigger({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(() => {
+                console.log("end consultation");
+                appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
+                mutate().then(() => {
+                    leaveDialog.current = true;
+                    if (!isHistory)
+                        router.push("/dashboard/agenda").then(() => {
                             clearData();
                             setActions(false);
                             setEnd(false);
                             setLoadingReq(false);
-                        }
-                        appointement?.status !== 5 && sendNotification();
-                    });
+                        });
+                    else {
+                        clearData();
+                        setActions(false);
+                        setEnd(false);
+                        setLoadingReq(false);
+                    }
+                    appointement?.status !== 5 && sendNotification();
                 });
-            } else {
-                router.push("/dashboard/agenda").then(() => {
-                    setActions(false);
-                    setEnd(false);
-                });
-            }
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
