@@ -314,10 +314,10 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
 
     useEffect(() => {
-        setAppointement((httpAppResponse as HttpResponse)?.data);
-        setTimeout(() => {
+        if (httpAppResponse) {
+            setAppointement((httpAppResponse as HttpResponse)?.data);
             setLoading(false);
-        }, 3000);
+        }
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -402,7 +402,7 @@ function ConsultationInProgress() {
             setFree(checkFree);
             if (!checkFree) setTotal(consultationFees);
             setConsultationFees(Number(appointement.consultation_fees));
-        }
+        } else if (appointement && !appointement.consultation_fees) setFree(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
 
@@ -477,7 +477,6 @@ function ConsultationInProgress() {
                                 setLoadingReq(false);
                             });
                         else {
-
                             clearData();
                             setActions(false);
                             setEnd(false);
