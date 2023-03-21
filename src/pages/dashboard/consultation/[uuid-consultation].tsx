@@ -314,10 +314,10 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
 
     useEffect(() => {
-        setAppointement((httpAppResponse as HttpResponse)?.data);
-        setTimeout(() => {
+        if (httpAppResponse) {
+            setAppointement((httpAppResponse as HttpResponse)?.data);
             setLoading(false);
-        }, 3000);
+        }
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -429,6 +429,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
+            console.log(appointement);
             setLoadingReq(true);
             if ([5, 4].includes(appointement?.status)) {
                 selectedAct.map(
@@ -477,7 +478,6 @@ function ConsultationInProgress() {
                                 setLoadingReq(false);
                             });
                         else {
-
                             clearData();
                             setActions(false);
                             setEnd(false);
