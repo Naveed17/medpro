@@ -429,7 +429,6 @@ function ConsultationInProgress() {
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
-            console.log(appointement);
             setLoadingReq(true);
             if ([5, 4].includes(appointement?.status)) {
                 selectedAct.map(
