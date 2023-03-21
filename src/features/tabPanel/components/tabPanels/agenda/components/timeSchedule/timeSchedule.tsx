@@ -319,9 +319,10 @@ function TimeSchedule({...props}) {
                                 value={reasons && selectedReasons.length > 0 ? reasons.filter(motif => selectedReasons.includes(motif.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    if (newValue.length > 0 && newValue[0].inputValue) {
+                                    const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                    if (addReason) {
                                         // Create a new value from the user input
-                                        addNewReason(newValue[0].inputValue);
+                                        addNewReason(addReason.inputValue);
                                     } else {
                                         onChangeReason(newValue);
                                     }
