@@ -1,3 +1,14 @@
+## [4.14.1](https://github.com/SmartMedSA/med-pro/compare/v4.14.0...v4.14.1) (2023-03-21)
+
+
+### Bug Fixes
+
+* consultation end ([43896bc](https://github.com/SmartMedSA/med-pro/commit/43896bc96a77e9c979f96f6a0f25dd0bda5d319f))
+* delete end consultation check status ([7046fb7](https://github.com/SmartMedSA/med-pro/commit/7046fb75227f6b867a47bbdb1dbe82b336367e21))
+* set control free pay ([2395c0f](https://github.com/SmartMedSA/med-pro/commit/2395c0f83345d556cf9cbf9dd9ac6988ce64e791))
+* set control free pay ([18fe542](https://github.com/SmartMedSA/med-pro/commit/18fe542de1d572b75808ff777c189bae0521424b))
+* set control free pay ([2995b4f](https://github.com/SmartMedSA/med-pro/commit/2995b4f02352fa7352c48edbd380ab69c11d0547))
+
 # [4.14.0](https://github.com/SmartMedSA/med-pro/compare/v4.13.0...v4.14.0) (2023-03-13)
 
 
