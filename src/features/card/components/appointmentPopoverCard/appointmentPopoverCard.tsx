@@ -193,9 +193,9 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
             </Stack>
 
-            {data.motif && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
+            {data.motif.length > 0 && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
                 <Typography sx={{fontSize: 12}} color={"back"}>
-                    {" Motif: "}{data.motif?.name}</Typography>
+                    {" Motif: "}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
             </Stack>}
 
         </RootStyled>

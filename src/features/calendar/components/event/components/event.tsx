@@ -60,7 +60,7 @@ function Event({...props}) {
                                 <Icon path="ic-phone"/>
                                 {appointment.patient?.contact[0]?.code} {appointment.patient?.contact[0].value}
                             </>}
-                            {appointment.motif && <>{" Motif: "}{appointment.motif?.name}</>}
+                            {appointment.motif.length > 0 && <>{" Motif: "}{appointment.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>}
                         </>
                     )}
                 </Typography>

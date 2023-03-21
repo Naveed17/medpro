@@ -55,13 +55,14 @@ function RdvCard({...props}) {
                             {loading ? <Skeleton variant="text" width={100}/> :
                                 (<> {t("reason")} : {inner.consultationReason.name}</>)}
                         </Typography>}
-                        <Stack direction='row' alignItems="center">
+                        {inner?.type && <Stack direction='row' alignItems="center">
                             <ModelDot
+                                icon={IconsTypes[inner?.type.icon]}
                                 color={inner?.type?.color}
                                 selected={false} size={20} sizedot={12}
                                 padding={3} marginRight={5}/>
                             <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
-                        </Stack>
+                        </Stack>}
                     </Stack>
                 </Box>
             </TableCell>
@@ -89,7 +90,6 @@ function RdvCard({...props}) {
                         </Stack>
                     </Stack>
                 )}
-
             </TableCell>
 
             <TableCell align="right" sx={{p: "0px 12px!important"}}>

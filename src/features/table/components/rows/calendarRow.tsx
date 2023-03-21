@@ -172,7 +172,7 @@ function CalendarRow({...props}) {
 
                         <Typography variant="body2" color="primary.main">
                             {" "}
-                            {data.motif?.name}
+                            {data.motif?.map(reason => reason.name).join(", ")}
                         </Typography>
                     </TableCell>
                     <TableCell
@@ -239,8 +239,8 @@ function CalendarRow({...props}) {
                                         </>
                                     }
                                 </Stack>
-                        </Stack>
-                            </Box> : "--"}
+                            </Stack>
+                        </Box> : "--"}
                     </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>

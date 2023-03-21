@@ -71,7 +71,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         fees: appointment.fees,
         isOnline: appointment.isOnline,
         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
-        motif: appointment.consultationReason,
+        motif: appointment.consultationReasons,
         instruction: appointment.instruction !== null ? appointment.instruction : "",
         id: appointment.uuid,
         updatedAt: moment(appointment.updatedAt, "DD-MM-YYYY HH:mm"),

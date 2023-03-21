@@ -56,15 +56,15 @@ function AppointmentCard({...props}) {
     const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
-    const [reason, setReason] = useState(data.motif?.uuid);
-    const [selectedReason, setSelectedReason] = useState(data?.motif?.name ?? null);
+    const [reason, setReason] = useState(data.motif);
+    const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
-    const updateDetails = (input: { reason?: string; type?: string }) => {
+    const updateDetails = (input: { reason?: string[]; type?: string }) => {
         const form = new FormData();
         form.append("attribute", input.reason ? "consultation_reason" : "type");
         form.append("value", (input.reason ? input.reason : input.type) as string);
@@ -78,10 +78,10 @@ function AppointmentCard({...props}) {
         });
     };
 
-    const handleReasonChange = (reason: ConsultationReasonModel) => {
-        updateDetails({reason: reason.uuid});
-        setReason(reason.uuid);
-        setSelectedReason(reason?.name);
+    const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
+        updateDetails({reason: reasons.map(reason => reason.uuid)});
+        setReason(reasons);
+        setSelectedReason(reasons);
     }
 
     const addNewReason = (name: string) => {
@@ -103,7 +103,7 @@ function AppointmentCard({...props}) {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
-                handleReasonChange(reasonsUpdated[0]);
+                handleReasonChange([...reason, reasonsUpdated[0]]);
             }
             setLoadingRequest(false);
         }));
@@ -266,7 +266,7 @@ function AppointmentCard({...props}) {
                                                 <Typography>{data?.type?.name}</Typography>
                                             </Box>
                                             {selectedReason ? (
-                                                <Typography>{selectedReason}</Typography>
+                                                <Typography>{selectedReason.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                                             ) : (
                                                 <Link
                                                     onClick={() => setConsultation(true)}
@@ -288,19 +288,20 @@ function AppointmentCard({...props}) {
                                         <Autocomplete
                                             id={"motif"}
                                             disabled={!reasons}
+                                            multiple
                                             freeSolo
                                             autoHighlight
                                             disableClearable
                                             size="small"
-                                            value={reasons.find(reasonItem => reasonItem.uuid === reason) ?
-                                                reasons.find(reasonItem => reasonItem.uuid === reason) : ""}
+                                            value={reason ? reason : []}
                                             onChange={(e, newValue: any) => {
                                                 e.stopPropagation();
-                                                if (newValue && newValue.inputValue) {
+                                                const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                                if (addReason) {
                                                     // Create a new value from the user input
-                                                    addNewReason(newValue.inputValue);
+                                                    addNewReason(addReason.inputValue);
                                                 } else {
-                                                    handleReasonChange(newValue as ConsultationReasonModel);
+                                                    handleReasonChange(newValue);
                                                 }
                                             }}
                                             filterOptions={(options, params) => {
