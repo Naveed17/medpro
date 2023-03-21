@@ -400,7 +400,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         setTimeout(() => {
             if (appointement) {
-                const checkFree = (appointement.status === 4 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+                const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
                 setFree(checkFree);
                 if (!checkFree) setTotal(consultationFees);
                 if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
