@@ -44,11 +44,10 @@ function CIPPatientHistoryCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             motif: storageData?.motif ? storageData.motif :
-                (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
-            notes: storageData?.notes ? storageData.notes :
-                (app_data?.notes ? app_data?.notes.value : ""),
-            diagnosis: storageData?.diagnosis ? storageData.diagnosis :
-                (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                (app_data?.consultation_reason ?
+                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
+            notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
+            diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -70,12 +69,11 @@ function CIPPatientHistoryCard({...props}) {
         dispatch(
             SetExam({
                 motif: storageData?.motif ? storageData.motif :
-                    (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
-                notes: storageData?.notes ? storageData.notes :
-                    (app_data?.notes ? app_data?.notes.value : ""),
-                diagnosis: storageData?.diagnosis ? storageData.diagnosis :
-                    (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-                treatment: exam.treatment,
+                    (app_data?.consultation_reason ?
+                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
+                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
+                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                treatment: exam.treatment
             })
         );
     }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
@@ -124,16 +122,16 @@ function CIPPatientHistoryCard({...props}) {
         })
     }
 
-    const handleReasonChange = (reason: ConsultationReasonModel) => {
-        setFieldValue("motif", reason.uuid);
+    const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
+        setFieldValue("motif", reasons.map(reason => reason.uuid));
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
             ...storageData,
-            motif: reason.uuid
+            motif: reasons.map(reason => reason.uuid)
         }));
         // set data data from local storage to redux
         dispatch(
             SetExam({
-                motif: reason.uuid
+                motif: reasons.map(reason => reason.uuid)
             })
         );
     }
@@ -162,7 +160,7 @@ function CIPPatientHistoryCard({...props}) {
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
                 setCReason(reasonsUpdated);
-                handleReasonChange(reasonsUpdated[0]);
+                handleReasonChange([...cReason.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
             }
             setLoadingReq(false);
         }));
@@ -199,16 +197,17 @@ function CIPPatientHistoryCard({...props}) {
                                 id={"motif"}
                                 disabled={!cReason}
                                 freeSolo
+                                multiple
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={cReason.find(reason => reason.uuid === values.motif) ?
-                                    cReason.find(reason => reason.uuid === values.motif) : ""}
+                                value={values.motif ? cReason.filter(reason => values.motif.includes(reason.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    if (newValue && newValue.inputValue) {
+                                    const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                    if (addReason) {
                                         // Create a new value from the user input
-                                        addNewReason(newValue.inputValue);
+                                        addNewReason(addReason.inputValue);
                                     } else {
                                         handleReasonChange(newValue);
                                     }

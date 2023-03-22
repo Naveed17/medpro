@@ -164,7 +164,7 @@ function Consultation() {
                     icon: "ic-medicament",
                     badge: patient?.treatment?.length,
                 },
-                {
+                /*{
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
@@ -184,7 +184,7 @@ function Consultation() {
                         patient.antecedents.family_antecedents.length +
                         patient.antecedents.medical_antecedents.length +
                         patient.antecedents.surgical_antecedents.length,
-                },
+                },*/
                 {
                     id: 2,
                     title: "balance_sheet_pending",

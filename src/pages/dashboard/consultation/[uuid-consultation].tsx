@@ -105,7 +105,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [loadingReq, setLoadingReq] = useState<boolean>(true);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
@@ -315,7 +315,6 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpAppResponse) {
             setAppointement((httpAppResponse as HttpResponse)?.data);
-            setLoadingReq(false);
             setLoading(false);
         }
     }, [httpAppResponse]);
@@ -453,7 +452,7 @@ function ConsultationInProgress() {
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
             form.append("treatment", exam.treatment ? exam.treatment : "");
-            form.append("consultation_reason", exam.motif);
+            form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
             if (!free)
                 form.append("consultation_fees", consultationFees.toString());
@@ -687,7 +686,7 @@ function ConsultationInProgress() {
                         </Typography>
                     </Button>
                     <LoadingButton
-                        loading={loadingReq}
+                        loading={loadingReq || loading}
                         loadingPosition="start"
                         variant="contained"
                         color="error"
@@ -1025,7 +1024,7 @@ function ConsultationInProgress() {
                                     )}
                                     <LoadingButton
                                         disabled={loading}
-                                        loading={loadingReq}
+                                        loading={loadingReq || loading}
                                         loadingPosition={"start"}
                                         onClick={
                                             appointement?.status === 5

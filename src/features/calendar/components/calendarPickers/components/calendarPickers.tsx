@@ -46,12 +46,12 @@ function CalendarPickers({...props}) {
                                 sx: {
                                     "&:after": {
                                         background: !(DayComponentProps.today || DayComponentProps.selected) &&
-                                            `linear-gradient(to right, 
-                                            ${note.events.length > 1 ? theme.palette.secondary.lighter : theme.palette.common.white} 25%, 
-                                            ${note.events.length > 3 ? theme.palette.secondary.light : theme.palette.common.white} 25%, 
-                                            ${note.events.length > 3 ? theme.palette.secondary.light : theme.palette.common.white} 50%, 
-                                            ${note.events.length > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 50%, 
-                                            ${note.events.length > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 75%, 
+                                            `linear-gradient(to right,
+                                            ${note.events.length > 1 ? theme.palette.secondary.lighter : theme.palette.common.white} 25%,
+                                            ${note.events.length > 3 ? theme.palette.secondary.light : theme.palette.common.white} 25%,
+                                            ${note.events.length > 3 ? theme.palette.secondary.light : theme.palette.common.white} 50%,
+                                            ${note.events.length > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 50%,
+                                            ${note.events.length > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 75%,
                                             ${note.events.length > 10 ? theme.palette.secondary.darker : theme.palette.common.white} 75%)`,
                                         position: "absolute",
                                         content: '""',

@@ -98,7 +98,7 @@ function BackgroundCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        setState(patient.antecedents[action]);
+        //setState(patient.antecedents[action]);
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
@@ -134,7 +134,7 @@ function BackgroundCard({...props}) {
                     t("title")
                 )}
             </Typography>
-            <Grid container spacing={2}>
+           {/* <Grid container spacing={2}>
                 {Object.keys(loading ? emptyObject : patient.antecedents).map(
                     (antecedent, idx: number) => (
                         <Grid key={Math.random()} item md={6} sm={12} xs={12}>
@@ -145,7 +145,7 @@ function BackgroundCard({...props}) {
                                     className="item"
                                     component="span"
                                 >
-                                    {/* <Icon path={antecedent.icon} /> */}
+                                     <Icon path={antecedent.icon} />
                                     {loading ? (
                                         <Skeleton
                                             variant="text"
@@ -188,7 +188,7 @@ function BackgroundCard({...props}) {
                         </Grid>
                     )
                 )}
-            </Grid>
+            </Grid>*/}
             {info && (
                 <Dialog
                     {...{
