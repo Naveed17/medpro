@@ -358,46 +358,6 @@ function AppointmentCard({...props}) {
                                                                               placeholder={t("reason-consultation-placeholder")}
                                                                               sx={{paddingLeft: 0}}
                                                                               variant="outlined" fullWidth/>}/>
-                                        {/*<Select
-                                            labelId="select-reason"
-                                            id="select-reason"
-                                            value={reason !== undefined ? reason : ""}
-                                            displayEmpty
-                                            onChange={(event) => {
-                                                updateDetails({
-                                                    reason: event.target.value as string,
-                                                });
-                                                setReason(event.target.value as string);
-                                                const motif = reasons?.find(
-                                                    (reason) =>
-                                                        reason.uuid === (event.target.value as string)
-                                                );
-                                                setSelectedReason(motif?.name);
-                                            }}
-                                            renderValue={(selected) => {
-                                                if (selected.length === 0) {
-                                                    return (
-                                                        <em>{t("reason-consultation-placeholder")}</em>
-                                                    );
-                                                }
-                                                const motif = reasons?.find(
-                                                    (reason) => reason.uuid === selected
-                                                );
-
-                                                return (
-                                                    <Box sx={{display: "inline-flex"}}>
-                                                        <Typography>{motif?.name}</Typography>
-                                                    </Box>
-                                                );
-                                            }}>
-                                            {reasons?.map((consultationReason) => (
-                                                <MenuItem
-                                                    value={consultationReason.uuid}
-                                                    key={consultationReason.uuid}>
-                                                    {consultationReason.name}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>*/}
                                     </FormControl>
                                 </ListItem>
                             )}
