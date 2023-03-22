@@ -39,16 +39,15 @@ function CIPPatientHistoryCard({...props}) {
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
-    console.log(app_data);
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             motif: storageData?.motif ? storageData.motif :
-                (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : []),
-            notes: storageData?.notes ? storageData.notes :
-                (app_data?.notes ? app_data?.notes.value : ""),
-            diagnosis: storageData?.diagnosis ? storageData.diagnosis :
-                (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                (app_data?.consultation_reason ?
+                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
+            notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
+            diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -70,12 +69,11 @@ function CIPPatientHistoryCard({...props}) {
         dispatch(
             SetExam({
                 motif: storageData?.motif ? storageData.motif :
-                    (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : []),
-                notes: storageData?.notes ? storageData.notes :
-                    (app_data?.notes ? app_data?.notes.value : ""),
-                diagnosis: storageData?.diagnosis ? storageData.diagnosis :
-                    (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-                treatment: exam.treatment,
+                    (app_data?.consultation_reason ?
+                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
+                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
+                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                treatment: exam.treatment
             })
         );
     }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
