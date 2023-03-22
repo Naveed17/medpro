@@ -290,6 +290,7 @@ function AppointmentCard({...props}) {
                                             disabled={!reasons}
                                             multiple
                                             freeSolo
+                                            fullWidth
                                             autoHighlight
                                             disableClearable
                                             size="small"

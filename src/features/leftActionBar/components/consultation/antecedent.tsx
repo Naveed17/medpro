@@ -29,7 +29,7 @@ function Antecedent({...props}) {
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
                     <Typography fontWeight={600}>{t(antecedent)}</Typography>}
-                <List dense>
+                {/*<List dense>
                     {patient.antecedents[antecedent].map(
                         (
                             item: {
@@ -78,7 +78,7 @@ function Antecedent({...props}) {
                             </ListItem>
                         )
                     )}
-                </List>
+                </List>*/}
                 <Stack mt={2} alignItems="flex-start">
                     <Button
                         onClick={() => handleOpen(antecedent)}

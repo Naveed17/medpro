@@ -164,7 +164,7 @@ const Content = ({...props}) => {
             return;
         }
 
-        if (patient.antecedents[action]) setState(patient.antecedents[action]);
+        //if (patient.antecedents[action]) setState(patient.antecedents[action]);
 
         setInfo(action);
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
@@ -700,7 +700,8 @@ const Content = ({...props}) => {
                 </ContentStyled>
             ) : (
                 patient &&
-                Object.keys(patient.antecedents).map(
+                    <></>
+               /* Object.keys(patient.antecedents).map(
                     (antecedent, index) =>
                         antecedent !== "way_of_life" &&
                         antecedent !== "allergic" && (
@@ -719,7 +720,7 @@ const Content = ({...props}) => {
                                 router={router}
                                 medical_entity={medical_entity}></Antecedent>
                         )
-                )
+                )*/
             )}
 
             <Dialog
