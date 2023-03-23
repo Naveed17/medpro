@@ -22,6 +22,7 @@ import {
     cashBoxSelector,
     setCashBox
 } from "@features/leftActionBar";
+import DateRangeFilter from "@features/leftActionBar/components/payment/components/dateRangeFilter";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -39,21 +40,38 @@ function Payment() {
     const [byPeriod, setByPeriod] = useState(false);
     const [cashboxes, setCashboxes] = useState<CashBox[]>([]);
     const [filterData, setFilterData] = useState<any[]>();
-    const [accordionData, setAccordionData] = useState<any[]>([{
-        heading: {
-            id: "insurance",
-            icon: "ic-assurance",
-            title: "insurance",
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: true,
+            children: (
+                <InsuranceFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        dispatch(setFilter({payment: data.query}));
+                    }}/>
+            ),
         },
-        expanded: true,
-        children: (
-            <InsuranceFilter
-                {...{t}}
-                OnSearch={(data: { query: ActionBarState }) => {
-                    dispatch(setFilter({payment: data.query}));
-                }}/>
-        ),
-    }]);
+        {
+            heading: {
+                id: "date-range",
+                icon: "ic-agenda-jour",
+                title: "date-range",
+            },
+            expanded: true,
+            children: (
+                <DateRangeFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        dispatch(setFilter({payment: data.query}));
+                    }}/>
+            ),
+        }
+    ]);
 
     const locations = agendaConfig?.locations;
     const hours = locations && locations[0].openingHours[0].openingHours;

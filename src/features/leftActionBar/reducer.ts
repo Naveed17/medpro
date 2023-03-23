@@ -12,7 +12,8 @@ export type ActionBarState = {
             name?: string;
         },
         payment?: {
-            insurance?: string[]
+            insurance?: string[],
+            dates?: any
         }
     } | undefined;
 };
