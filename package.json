@@ -87,6 +87,7 @@
     "react-dropzone": "^14.2.1",
     "react-easy-crop": "^4.4.0",
     "react-h5-audio-player": "^3.8.6",
+    "react-image-file-resizer": "^0.4.8",
     "react-leaflet": "^4.0.0",
     "react-medium-image-zoom": "^5.1.2",
     "react-moment": "^1.1.2",

@@ -9,6 +9,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
+import Resizer from "react-image-file-resizer";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
@@ -60,6 +61,18 @@ function AddDocumentDialog({...props}) {
                     setProgress(Math.round((e.loaded / e.total) * 100));
                 }
             };
+            if (file.type.includes('image')){
+                Resizer.imageFileResizer(file,
+                    500,
+                    500,
+                    file.type.split('/')[1],
+                    50,
+                    0,
+                    (uri) => {
+                        file = uri;
+                    },
+                    "file")
+            }
             reader.onloadend = () => {
                 docs.push({type: type, file, progress: 100})
             };
