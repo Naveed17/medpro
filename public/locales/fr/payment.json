@@ -74,6 +74,7 @@
     "filterByDate": "Filtrer par dates",
     "filterByPeriod": "Filtrer par périodes",
     "date": "Date",
+    "date-range": "Périodes",
     "startDate": "Date début",
     "endDate": "Date fin"
   }

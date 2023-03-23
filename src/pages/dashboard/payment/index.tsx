@@ -6,7 +6,7 @@ import {
     Button,
     DialogActions,
     DialogContent,
-    DialogTitle, Drawer,
+    DialogTitle, Drawer, LinearProgress,
     List,
     ListItem,
     Stack,
@@ -208,6 +208,7 @@ function Payment() {
         selected: "",
     });
     const [collapse, setCollapse] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [collapseDate, setCollapseData] = useState<any>(null);
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [rows, setRows] = useState<any[]>([]);
@@ -396,6 +397,7 @@ function Payment() {
     }
 
     const getAppointments = useCallback((query: string, filterQuery: any) => {
+            setLoading(true);
             if (query.includes("format=list")) {
                 dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             }
@@ -465,6 +467,7 @@ function Payment() {
                     :
                     [...r]);
                 setTotal(amout);
+                setLoading(false);
             });
         },
         [agenda, medical_entity.uuid, router, session, trigger, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
@@ -530,7 +533,9 @@ function Payment() {
 
     useEffect(() => {
         if (agenda) {
-            const queryPath = `format=week&page=1&limit=50&start_date=${day}&end_date=${day}`;
+            const startDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].startDate).format('DD-MM-YYYY') : day;
+            const endDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].endDate).format('DD-MM-YYYY') : day;
+            const queryPath = `format=week&page=1&limit=50&start_date=${startDate}&end_date=${endDate}`;
             getAppointments(queryPath, filterData);
         }
     }, [getAppointments, agenda, day, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -619,7 +624,10 @@ function Payment() {
                 </Stack>
             </SubHeader>
 
+            <LinearProgress sx={{visibility: loading ? "visible" : "hidden"}} color="warning"/>
+
             <Box className="container">
+
                 {filtredRows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
