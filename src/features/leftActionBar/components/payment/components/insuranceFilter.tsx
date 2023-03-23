@@ -2,10 +2,14 @@ import React, {useEffect, useState} from "react";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
-import {Autocomplete, Avatar, Box, FormControl, MenuItem, TextField, Typography} from "@mui/material";
+import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+
 import _ from "lodash";
 import {useAppSelector} from "@app/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+
 
 function InsuranceFilter({...props}) {
     const {t, OnSearch} = props;
@@ -24,6 +28,8 @@ function InsuranceFilter({...props}) {
     const [queryState, setQueryState] = useState<any>({
         insurance: []
     });
+
+    const selectedAll = queryState.insurance.length === insurancesData?.length;
 
     const handleInsuranceChange = (insurances: any[]) => {
         setQueryState({
@@ -57,42 +63,54 @@ function InsuranceFilter({...props}) {
 
     return (
         <Box>
-            <Autocomplete
-                size={"small"}
-                id={"assurance"}
-                multiple
-                autoHighlight
-                filterSelectedOptions
-                value={queryState.insurance ? queryState.insurance : []}
-                onChange={(event, value) => handleInsuranceChange(value)}
-                options={insurancesData ? insurancesData : []}
-                getOptionLabel={option => option?.name ? option.name : ""}
-                isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                renderOption={(params, option) => (
-                    <MenuItem
-                        {...params}>
-                        <Avatar
-                            sx={{
-                                width: 20,
-                                height: 20,
-                                borderRadius: 0.4
-                            }}
-                            alt={"insurance"}
-                            src={option.logoUrl}
-                        />
-                        <Typography
-                            sx={{ml: 1}}>{option.name}</Typography>
-                    </MenuItem>)}
-                renderInput={(params) => (
-                    <FormControl component="form" fullWidth>
-                        <TextField color={"info"}
-                                   {...params}
-                                   sx={{paddingLeft: 0}}
-                                   placeholder={t("assurance-placeholder")}
-                                   variant="outlined"
-                        />
-                    </FormControl>)}
-            />
+            <MuiAutocompleteSelectAll.Provider
+                value={{
+                    onSelectAll: (selectedAll) => void setQueryState({insurance: selectedAll ? [] : insurancesData}),
+                    selectedAll,
+                    indeterminate: !!queryState.insurance.length && !selectedAll,
+                }}
+            >
+                <Autocomplete
+                    size={"small"}
+                    id={"assurance"}
+                    multiple
+                    autoHighlight
+                    filterSelectedOptions
+                    limitTags={3}
+                    noOptionsText={"Aucune assurance"}
+                    ListboxComponent={MuiAutocompleteSelectAll.ListBox}
+                    value={queryState.insurance ? queryState.insurance : []}
+                    onChange={(event, value) => handleInsuranceChange(value)}
+                    options={insurancesData ? insurancesData : []}
+                    getOptionLabel={option => option?.name ? option.name : ""}
+                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                    renderOption={(params, option, { selected }) => (
+                        <MenuItem
+                            {...params}>
+                            <Checkbox checked={selected} />
+                            <Avatar
+                                sx={{
+                                    width: 20,
+                                    height: 20,
+                                    borderRadius: 0.4
+                                }}
+                                alt={"insurance"}
+                                src={option.logoUrl}
+                            />
+                            <Typography
+                                sx={{ml: 1}}>{option.name}</Typography>
+                        </MenuItem>)}
+                    renderInput={(params) => (
+                        <FormControl component="form" fullWidth>
+                            <TextField color={"info"}
+                                       {...params}
+                                       sx={{paddingLeft: 0}}
+                                       placeholder={t("assurance-placeholder")}
+                                       variant="outlined"
+                            />
+                        </FormControl>)}
+                />
+            </MuiAutocompleteSelectAll.Provider>
         </Box>)
 }
 
