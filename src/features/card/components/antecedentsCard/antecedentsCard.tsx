@@ -18,11 +18,11 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {configSelector} from "@features/base";
 
 // selected dumy data
@@ -43,21 +43,27 @@ const emptyObject = {
     value: "",
 };
 
-function BackgroundCard({...props}) {
+function AntecedentsCard({...props}) {
     const {loading, patient, mutatePatientDetails} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
     const {direction} = useAppSelector(configSelector);
+    const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
 
     const [data, setdata] = useState([...cardItems]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const [antecedentsGroup, setAntecedentsGroup] = useState<any>({
+        allergic: [],
+        family_antecedents: [],
+        medical_antecedents: [],
+        surgical_antecedents: [],
+        way_of_life: []
+    });
 
     const codes: any = {
         way_of_life: "0",
@@ -68,6 +74,20 @@ function BackgroundCard({...props}) {
         surgical_antecedents: "5",
         medical_antecedents: "6",
     };
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger} = useRequestMutation(null, "/antecedent");
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
+        patient ?
+            {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`},
+            } : null,
+        SWRNoValidateConfig
+    );
+
 
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -89,7 +109,7 @@ function BackgroundCard({...props}) {
         ).then(() => {
             setOpenDialog(false);
             setInfo("");
-            mutatePatientDetails();
+            mutateAntecedents();
         });
     };
 
@@ -98,15 +118,11 @@ function BackgroundCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        //setState(patient.antecedents[action]);
+        setState(antecedentsGroup[action]);
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
     };
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
 
     const onChangeList = (prop: PatientDetailsList) => {
         const newState = data.map((obj) => {
@@ -118,9 +134,11 @@ function BackgroundCard({...props}) {
         setdata(newState);
     }
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
 
     if (!ready) return <div>Loading...</div>;
+
+    console.log(antecedentsData);
 
     return (
         <RootStyled>
@@ -134,10 +152,10 @@ function BackgroundCard({...props}) {
                     t("title")
                 )}
             </Typography>
-           {/* <Grid container spacing={2}>
-                {Object.keys(loading ? emptyObject : patient.antecedents).map(
+            <Grid container spacing={2}>
+                {Object.keys(loading ? emptyObject : antecedentsGroup).map(
                     (antecedent, idx: number) => (
-                        <Grid key={Math.random()} item md={6} sm={12} xs={12}>
+                        <Grid key={idx} item md={6} sm={12} xs={12}>
                             <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
                                 <Typography
                                     variant="body1"
@@ -145,7 +163,7 @@ function BackgroundCard({...props}) {
                                     className="item"
                                     component="span"
                                 >
-                                     <Icon path={antecedent.icon} />
+                                    {/*<Icon path={antecedent.icon}/>*/}
                                     {loading ? (
                                         <Skeleton
                                             variant="text"
@@ -157,7 +175,7 @@ function BackgroundCard({...props}) {
                                 </Typography>
                                 {(loading
                                         ? Array.from(new Array(3))
-                                        : patient.antecedents[antecedent]
+                                        : antecedentsGroup[antecedent]
                                 ).map((v: any) => (
                                     <Typography
                                         key={Math.random()}
@@ -188,7 +206,7 @@ function BackgroundCard({...props}) {
                         </Grid>
                     )
                 )}
-            </Grid>*/}
+            </Grid>
             {info && (
                 <Dialog
                     {...{
@@ -235,4 +253,4 @@ function BackgroundCard({...props}) {
     );
 }
 
-export default BackgroundCard;
+export default AntecedentsCard;

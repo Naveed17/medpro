@@ -64,9 +64,7 @@ function PersonalInfo({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
