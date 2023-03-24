@@ -150,7 +150,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: (state.type !== 'prescription' && state.type !== 'write_certif') || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis') || !state.uuid
         },
         {
             title: 'delete',
@@ -242,8 +242,15 @@ function DocumentDetailDialog({...props}) {
                             uuid: state.uuidDoc
                         }))
                         break;
-                    case "write_certif":
+                    case "requested-analysis":
                         console.log(state);
+                        dispatch(SetSelectedDialog({
+                            action: 'balance_sheet_request',
+                            state: state.info,
+                            uuid: state.uuidDoc
+                        }))
+                        break;
+                    case "write_certif":
                         dispatch(SetSelectedDialog({
                             action: 'write_certif',
                             state: state,

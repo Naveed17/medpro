@@ -736,6 +736,7 @@ function ConsultationInProgress() {
                     break;
                 case "requested-analysis":
                     info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
