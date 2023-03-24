@@ -53,13 +53,11 @@ function BalanceSheetDialog({...props}) {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
-
     const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
         setAnalysis(item.analyses)
         data.setState(item.analyses)
         setAnchorEl(null);
     };
-
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
@@ -108,12 +106,13 @@ function BalanceSheetDialog({...props}) {
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        analysis.unshift({...value, note: ""});
-        setAnalysis([...analysis]);
+        let copy = [...analysis]
+        copy.unshift({...value, note: ""});
+        setAnalysis([...copy]);
         const recents = localStorage.getItem("balance-Sheet-recent") ?
             JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...analysis.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
-        data.setState([...analysis]);
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...copy.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
+        data.setState([...copy]);
     }
 
     const saveModel = () => {
@@ -330,9 +329,10 @@ function BalanceSheetDialog({...props}) {
                                         <Typography>{item.name}</Typography>
                                         <IconButton size="small"
                                                     onClick={() => {
-                                                        analysis.splice(index, 1);
-                                                        setAnalysis([...analysis])
-                                                        data.setState([...analysis])
+                                                        const copy = [...analysis]
+                                                        copy.splice(index, 1);
+                                                        setAnalysis([...copy])
+                                                        data.setState([...copy])
                                                     }}>
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
@@ -353,8 +353,11 @@ function BalanceSheetDialog({...props}) {
                                             rows={5}
                                             value={item.note}
                                             onChange={event => {
-                                                analysis[index].note = event.target.value;
-                                                setAnalysis([...analysis])
+                                                let items = [...analysis];
+                                                let item = {...analysis[index]};
+                                                item.note = event.target.value;
+                                                items[index] = item;
+                                                setAnalysis([...items])
                                             }}
                                         />
                                     </Box>
