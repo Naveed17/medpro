@@ -4,8 +4,6 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
-
-import _ from "lodash";
 import {useAppSelector} from "@app/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
@@ -37,10 +35,10 @@ function InsuranceFilter({...props}) {
         });
 
         if (insurances.length === 0) {
-            const query = _.omit(queryState, "insurance");
             OnSearch({
                 query: {
-                    ...query
+                    ...queryState,
+                    insurance: null
                 }
             });
         } else {

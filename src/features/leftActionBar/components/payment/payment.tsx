@@ -1,5 +1,11 @@
 // components
-import {ActionBarState, BoxStyled, FilterRootStyled, PatientFilter, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    BoxStyled,
+    FilterRootStyled,
+    leftActionBarSelector,
+    PatientFilter, setFilterPayment
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -19,10 +25,10 @@ import {
     InsuranceFilter,
     DateFilter,
     BoxesFilter,
+    DateRangeFilter,
     cashBoxSelector,
     setCashBox
 } from "@features/leftActionBar";
-import DateRangeFilter from "@features/leftActionBar/components/payment/components/dateRangeFilter";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -33,7 +39,7 @@ function Payment() {
     const {selectedBox, insurances, paymentTypes, query} = useAppSelector(cashBoxSelector);
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
-
+    const {query: queryData} = useAppSelector(leftActionBarSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [filterDate, setFilterDate] = useState(true);
@@ -52,7 +58,7 @@ function Payment() {
                 <InsuranceFilter
                     {...{t}}
                     OnSearch={(data: { query: ActionBarState }) => {
-                        dispatch(setFilter({payment: data.query}));
+                        dispatch(setFilterPayment(data.query));
                     }}/>
             ),
         },
@@ -67,7 +73,7 @@ function Payment() {
                 <DateRangeFilter
                     {...{t}}
                     OnSearch={(data: { query: ActionBarState }) => {
-                        dispatch(setFilter({payment: data.query}));
+                        dispatch(setFilterPayment(data.query));
                     }}/>
             ),
         }
@@ -76,7 +82,6 @@ function Payment() {
     const locations = agendaConfig?.locations;
     const hours = locations && locations[0].openingHours[0].openingHours;
     const newVersion = process.env.NODE_ENV === 'development';
-
 
     useEffect(() => {
         if (cashboxes.length > 0) {
