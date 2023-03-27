@@ -665,14 +665,17 @@ function ConsultationInProgress() {
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
-                <Button
-                    variant="text-black"
+                <LoadingButton
+                    loading={loadingReq || loading}
+                    loadingPosition="start"
+                    variant="text"
+                    color={"black"}
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
                     <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("withoutSave")}
                     </Typography>
-                </Button>
+                </LoadingButton>
                 <Stack direction={"row"} spacing={2}>
                     <Button
                         variant="text-black"
@@ -1162,7 +1165,7 @@ function ConsultationInProgress() {
                     {...((info === "document_detail" || info === "end_consultation") && {
                         onClose: handleCloseDialog,
                     })}
-                    dialogClose={handleCloseDialog}
+                    {...(info !== "secretary_consultation_alert" && {dialogClose: handleCloseDialog})}
                     {...(actions && {
                         actionDialog: <DialogAction/>,
                     })}
