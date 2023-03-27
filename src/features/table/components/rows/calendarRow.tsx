@@ -222,7 +222,7 @@ function CalendarRow({...props}) {
                     <TableCell align="center">{data.title}</TableCell>
                     <TableCell align="center">{"Payment "}{config?.name}</TableCell>
                     <TableCell align="right">
-                        {data?.fees ? <Box>
+                        {data?.fees && data?.status?.key !== "PENDING" ? <Box>
                             <Stack direction={"row"}
                                    justifyContent={"flex-end"}
                                    sx={{
