@@ -37,6 +37,7 @@ import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
+import {DefaultCountry} from "@app/constants";
 
 const FileUploadProgress = dynamic(() => import("@features/progressUI/components/fileUploadProgress/components/fileUploadProgress"));
 
@@ -63,6 +64,10 @@ function ImportData() {
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [TabData] = useState([
         {
@@ -71,12 +76,12 @@ function ImportData() {
             label: "tabs.med",
             content: "tabs.content-1",
         },
-        {
+        ...doctor_country?.code === "tn" ? [{
             key: "med-win",
             icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
             label: "tabs.medWin",
             content: "tabs.content-2",
-        },
+        }] : []
         /*{
             key: "med-link",
             icon: "ic-upload",
@@ -99,8 +104,6 @@ function ImportData() {
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
