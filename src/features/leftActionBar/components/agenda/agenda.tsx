@@ -32,19 +32,14 @@ import {Checkbox, Typography} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 
 const CalendarPickers = dynamic(
-    () =>
-        import(
-            "@features/calendar/components/calendarPickers/components/calendarPickers"
-            )
-);
+    () => import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Agenda() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const {config: agendaConfig, sortedData: notes} =
-        useAppSelector(agendaSelector);
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
     const {data: user} = session as Session;

@@ -1,5 +1,10 @@
 // ______________________________
-import {PersonalInfoCard, BackgroundCard, PatientDetailContactCard, PersonalInsuranceCard} from "@features/card";
+import {
+    PersonalInfoCard,
+    PatientDetailContactCard,
+    PersonalInsuranceCard,
+    AntecedentsCard
+} from "@features/card";
 import {Stack} from "@mui/material";
 import {useState} from "react";
 
@@ -18,7 +23,7 @@ function PersonInfoPanel({...props}) {
                 editable, setEditable,
                 currentSection, setCurrentSection, ...props
             }} />
-            <BackgroundCard {...props} />
+            <AntecedentsCard {...props} />
         </Stack>
     );
 }

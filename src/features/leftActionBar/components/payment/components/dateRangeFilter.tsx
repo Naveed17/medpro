@@ -1,7 +1,5 @@
 import React, {useState} from "react";
-import {useRouter} from "next/router";
-import {Box, Popover, FormControl, Input, TextField, Button, Stack} from "@mui/material";
-import _ from "lodash";
+import {Box, Popover, FormControl, TextField, Button, Stack} from "@mui/material";
 import {useAppSelector} from "@app/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {DateRange} from 'react-date-range';
@@ -14,15 +12,12 @@ function DateRangeFilter({...props}) {
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const [queryState, setQueryState] = useState<any>({
-        dates: null
-    });
-    const [dateRange, setDateRange] = useState([
-        {
-            startDate: new Date(),
-            endDate: null,
+        dates: [{
+            startDate: filterData?.payment?.dates ? filterData.payment.dates[0].startDate : new Date(),
+            endDate: filterData?.payment?.dates ? filterData.payment.dates[0].endDate : null,
             key: 'selection'
-        }
-    ]);
+        }]
+    });
 
     const handleClick = (event: any) => {
         setAnchorEl(event.currentTarget);
@@ -33,7 +28,6 @@ function DateRangeFilter({...props}) {
     };
 
     const handleDateRangeChange = (dates: any) => {
-        setDateRange(dates);
         const dateRangeState = {
             ...queryState,
             dates
@@ -44,23 +38,29 @@ function DateRangeFilter({...props}) {
                 query: dateRangeState
             });
         } else {
-            const query = _.omit(queryState, "dates");
             OnSearch({
-                ...query
+                query: {
+                    ...queryState,
+                    dates: null
+                }
             });
         }
     }
 
     const resetDateRange = () => {
-        setDateRange([{
-            startDate: new Date(),
-            endDate: null,
-            key: 'selection'
-        }]);
+        setQueryState({
+            dates: [{
+                startDate: new Date(),
+                endDate: null,
+                key: 'selection'
+            }]
+        });
 
-        const query = _.omit(queryState, "dates");
         OnSearch({
-            ...query
+            query: {
+                ...queryState,
+                dates: null
+            }
         });
     }
 
@@ -76,7 +76,7 @@ function DateRangeFilter({...props}) {
                             textAlign: "center"
                         }
                     }}
-                    value={`${dateRange[0]?.startDate ? moment(dateRange[0].startDate).format('DD/MM/YYYY') : ""} — ${dateRange[0]?.endDate ? moment(dateRange[0].endDate).format('DD/MM/YYYY') : ""}`}
+                    value={`${queryState.dates[0]?.startDate ? moment(queryState.dates[0].startDate).format('DD/MM/YYYY') : ""} — ${queryState.dates[0]?.endDate ? moment(queryState.dates[0].endDate).format('DD/MM/YYYY') : ""}`}
                     onClick={handleClick}
                 />
             </FormControl>
@@ -98,7 +98,7 @@ function DateRangeFilter({...props}) {
                 <DateRange
                     onChange={item => handleDateRangeChange([item.selection])}
                     moveRangeOnFirstSelection={false}
-                    ranges={dateRange as any}
+                    ranges={queryState.dates as any}
                 />
                 <Stack direction={"row"} mb={1} mr={1} spacing={1.2} justifyContent={"flex-end"}>
                     <Button
