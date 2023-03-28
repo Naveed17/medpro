@@ -239,6 +239,10 @@ function FeesTab({...props}) {
                         <Button
                             variant="text-black"
                             onClick={(event) => {
+                                let type = "";
+                                if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                    type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
                                 event.stopPropagation();
                                 setInfo("document_detail");
                                 setState({
@@ -247,9 +251,7 @@ function FeesTab({...props}) {
                                     info: selectedAct,
                                     createdAt: moment().format("DD/MM/YYYY"),
                                     consultationFees: free ? 0 : consultationFees,
-                                    patient: `${
-                                        patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-                                    } ${patient.firstName} ${patient.lastName}`,
+                                    patient: `${type} ${patient.firstName} ${patient.lastName}`,
                                 });
                                 setOpenDialog(true);
                             }}

@@ -101,6 +101,11 @@ function HistoryContainer({...props}) {
     ];
 
     const printFees = (app: any) => {
+
+        let type = "";
+        if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
         const selectedActs: {
             uuid: string,
             act: { name: string }
@@ -122,7 +127,7 @@ function HistoryContainer({...props}) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
-            patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${patient.firstName} ${patient.lastName}`,
+            patient: `${type} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
     }
@@ -381,7 +386,7 @@ function HistoryContainer({...props}) {
                                                                     <Box key={`req-sheet-imgx-${idx}`}
                                                                          className={"boxHisto"}>
                                                                         <Typography
-                                                                            fontSize={12}>{rs["medical-imaging"].name}</Typography>
+                                                                            fontSize={12}>{rs["medical-imaging"]?.name}</Typography>
                                                                         {rs.uri &&
                                                                             <Grid container mb={0.1} mt={0}
                                                                                   spacing={1}>

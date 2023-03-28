@@ -57,8 +57,12 @@ function Consultation() {
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
+    const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
+    const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
+    const [wayOfLifeBadge, setWayOfLifeBadge] = useState(0);
+    const [allergicBadge, setAllergicBadge] = useState(0);
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
@@ -102,6 +106,42 @@ function Consultation() {
             : null,
         SWRNoValidateConfig
     );
+
+    const {data: httpPatientAntecedents,mutate:antecedentsMutate} = useRequest(
+        patient
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
+    useEffect(() => {
+        if (httpPatientAntecedents) {
+            const res = (httpPatientAntecedents as HttpResponse).data;
+            setPatientAntecedents(res);
+            if (res['way_of_life'])
+                setWayOfLifeBadge(res['way_of_life'].length)
+
+            if (res['allergic'])
+                setAllergicBadge(res['allergic']?.length)
+        }
+    }, [httpPatientAntecedents])
+    const {data: httpAnctecentType} = useRequest({
+        method: "GET",
+        url: `/api/private/antecedent-types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    useEffect(() => {
+        if (httpAnctecentType) {
+            setallAntecedents((httpAnctecentType as HttpResponse).data)
+        }
+    }, [httpAnctecentType])
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -164,27 +204,29 @@ function Consultation() {
                     icon: "ic-medicament",
                     badge: patient?.treatment?.length,
                 },
-                /*{
+
+                {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: patient.antecedents.way_of_life.length,
+                    badge: wayOfLifeBadge //patient.antecedents.way_of_life.length,
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: patient.antecedents.allergic.length,
+                    badge: allergicBadge //patient.antecedents.allergic.length,
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "ic-doc",
-                    badge:
-                        patient.antecedents.family_antecedents.length +
-                        patient.antecedents.medical_antecedents.length +
-                        patient.antecedents.surgical_antecedents.length,
-                },*/
+                    badge: 0
+                    /*patient.antecedents.family_antecedents.length +
+                    patient.antecedents.medical_antecedents.length +
+                    patient.antecedents.surgical_antecedents.length*/,
+                },
+
                 {
                     id: 2,
                     title: "balance_sheet_pending",
@@ -447,7 +489,10 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} patient={patient}/>
+                                        <Content id={col.id} patient={patient}
+                                                 antecedentsMutate={antecedentsMutate}
+                                                 patientAntecedents={patientAntecedents}
+                                                 allAntecedents={allAntecedents}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>

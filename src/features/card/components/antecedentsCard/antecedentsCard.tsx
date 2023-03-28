@@ -1,5 +1,5 @@
 // hooks
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
 import {
@@ -64,6 +64,7 @@ function AntecedentsCard({...props}) {
         surgical_antecedents: [],
         way_of_life: []
     });
+    const [allAntecedents, setallAntecedents] = useState<any>([]);
 
     const codes: any = {
         way_of_life: "0",
@@ -88,6 +89,18 @@ function AntecedentsCard({...props}) {
         SWRNoValidateConfig
     );
 
+    const {data: httpAnctecentType} = useRequest({
+        method: "GET",
+        url: `/api/private/antecedent-types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    useEffect(() => {
+        if (httpAnctecentType) {
+            setallAntecedents((httpAnctecentType as HttpResponse).data)
+        }
+    }, [httpAnctecentType])
+
 
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -100,7 +113,7 @@ function AntecedentsCard({...props}) {
         trigger(
             {
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${codes[info]}/${router.locale}`,
+                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === info).uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,

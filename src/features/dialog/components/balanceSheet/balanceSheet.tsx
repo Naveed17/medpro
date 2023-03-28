@@ -337,7 +337,7 @@ function BalanceSheetDialog({...props}) {
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
-                                    <Box padding={1} pt={0}>
+{/*                                    <Box padding={1} pt={0}>
                                         <TextField
                                             fullWidth
                                             placeholder={t("note")}
@@ -360,7 +360,7 @@ function BalanceSheetDialog({...props}) {
                                                 setAnalysis([...items])
                                             }}
                                         />
-                                    </Box>
+                                    </Box>*/}
                                 </Card>
                             ))
                             : <Card className='loading-card'>
