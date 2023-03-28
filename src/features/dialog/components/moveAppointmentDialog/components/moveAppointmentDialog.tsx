@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import moment from "moment-timezone";
+import moment, {Moment} from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
@@ -43,20 +43,17 @@ function MoveAppointmentDialog() {
 
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
-    const {
-        trigger
-    } = useRequestMutation(null, "/calendar/slots");
+    const {trigger} = useRequestMutation(null, "/calendar/slots");
 
     const getSlots = useCallback(() => {
         setLoading(true);
         trigger(agendaConfig ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
-            const slots = weekTimeSlots.find(slot =>
-                slot.date === moment(moveDialogDate).format("DD-MM-YYYY"))?.slots;
+            const slots = weekTimeSlots.find(slot => slot.date === moveDialogDate?.format("DD-MM-YYYY"))?.slots;
             if (slots) {
                 setTimeSlots(slots);
             }
@@ -70,7 +67,7 @@ function MoveAppointmentDialog() {
         }
     }, [getSlots, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
+    const handleDateChange = (type: string, newDate?: Moment, newTime?: string) => {
         dispatch(setMoveDateTime(type === 'date' ?
             {date: newDate, selected: true} : {time: newTime, selected: true}));
     }
