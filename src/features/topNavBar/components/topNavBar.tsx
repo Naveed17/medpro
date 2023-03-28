@@ -200,6 +200,7 @@ function TopNavBar({...props}) {
             const event: any = {
                 publicId: ongoing?.uuid as string,
                 extendedProps: {
+                    type: ongoing?.type,
                     patient: {
                         lastName: ongoing?.patient.split(" ")[1],
                         firstName: ongoing?.patient.split(" ")[0],

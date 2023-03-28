@@ -43,7 +43,7 @@ function DashLayout({children}: LayoutProps) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {closeSnackbar} = useSnackbar();
 
     const {t} = useTranslation('common');
 
