@@ -24,6 +24,7 @@ function LifeStyleDialog({...props}) {
 
     const action = props.data.action;
     const allAntecedents = props.data.antecedents;
+    console.log(allAntecedents)
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
@@ -37,7 +38,7 @@ function LifeStyleDialog({...props}) {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === action).uuid}/${router.locale}`,
+        url: `/api/private/antecedents/${allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -221,7 +222,7 @@ function LifeStyleDialog({...props}) {
                             size='small'
                             onClick={() => {
                                 const form = new FormData();
-                                form.append('type', allAntecedents.find((ant: { slug: any; }) => ant.slug === action).uuid);
+                                form.append('type', allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid);
                                 form.append('name', value);
                                 trigger({
                                     method: "POST",
@@ -234,7 +235,7 @@ function LifeStyleDialog({...props}) {
                                 }, {revalidate: true, populateCache: true}).then((data) => {
                                     antecedents.push({
                                         name: value,
-                                        type: allAntecedents.find((ant: { slug: any; }) => ant.slug === action).uuid,
+                                        type: allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid,
                                         uuid: (data?.data as HttpResponse).data.uuid,
                                         value_type: -1
                                     })

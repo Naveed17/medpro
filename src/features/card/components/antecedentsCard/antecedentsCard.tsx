@@ -2,14 +2,7 @@
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
-import {
-    Typography,
-    Paper,
-    Grid,
-    Button,
-    Skeleton,
-    DialogActions,
-} from "@mui/material";
+import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
 // ____________________________________
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -173,55 +166,57 @@ function AntecedentsCard({...props}) {
             <Grid container spacing={2}>
                 {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
                     (antecedent, idx: number) => (
-                        <Grid key={idx} item md={6} sm={12} xs={12}>
-                            <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
-                                <Typography
-                                    variant="body1"
-                                    color="text.primary"
-                                    className="item"
-                                    component="span"
-                                >
-                                    {/*<Icon path={antecedent.icon}/>*/}
-                                    {loading ? (
-                                        <Skeleton
-                                            variant="text"
-                                            sx={{maxWidth: 150, width: "100%"}}
-                                        />
-                                    ) : (
-                                        t(antecedent.slug)
-                                    )}
-                                </Typography>
-                                {(!antecedentsData
-                                        ? Array.from(new Array(3))
-                                        : antecedentsData[antecedent.slug] ? antecedentsData[antecedent.slug] : []
-                                ).map((antecedentData: any) => (
+                        <React.Fragment key={idx}>
+                            {antecedent.slug && <Grid item md={6} sm={12} xs={12}>
+                                <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
                                     <Typography
-                                        key={Math.random()}
-                                        mt={0.5}
-                                        color="text.secondary"
-                                        fontSize={11}
+                                        variant="body1"
+                                        color="text.primary"
+                                        className="item"
+                                        component="span"
                                     >
-                                        {loading ? <Skeleton variant="text"/> : antecedentData?.name}
+                                        {/*<Icon path={antecedent.icon}/>*/}
+                                        {loading ? (
+                                            <Skeleton
+                                                variant="text"
+                                                sx={{maxWidth: 150, width: "100%"}}
+                                            />
+                                        ) : (
+                                            t(antecedent.slug)
+                                        )}
                                     </Typography>
-                                ))}
-                                {loading ? (
-                                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                ) : (
-                                    <Button
-                                        variant="text"
-                                        color="primary"
-                                        size="small"
-                                        onClick={() => antecedent.slug && handleOpen(antecedent.slug)}
-                                        sx={{
-                                            mt: 1,
-                                            svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
-                                        }}
-                                    >
-                                        <Icon path="ic-plus"/> {t("add-background")}
-                                    </Button>
-                                )}
-                            </Paper>
-                        </Grid>
+                                    {(!antecedentsData
+                                            ? Array.from(new Array(3))
+                                            : antecedentsData[antecedent.slug] ? antecedentsData[antecedent.slug] : []
+                                    ).map((antecedentData: any) => (
+                                        <Typography
+                                            key={Math.random()}
+                                            mt={0.5}
+                                            color="text.secondary"
+                                            fontSize={11}
+                                        >
+                                            {loading ? <Skeleton variant="text"/> : antecedentData?.name}
+                                        </Typography>
+                                    ))}
+                                    {loading ? (
+                                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                    ) : (
+                                        <Button
+                                            variant="text"
+                                            color="primary"
+                                            size="small"
+                                            onClick={() => antecedent.slug && handleOpen(antecedent.slug)}
+                                            sx={{
+                                                mt: 1,
+                                                svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
+                                            }}
+                                        >
+                                            <Icon path="ic-plus"/> {t("add-background")}
+                                        </Button>
+                                    )}
+                                </Paper>
+                            </Grid>}
+                        </React.Fragment>
                     )
                 )}
             </Grid>
@@ -240,7 +235,8 @@ function AntecedentsCard({...props}) {
                         state,
                         setState,
                         patient_uuid: patient.uuid,
-                        action: info
+                        action: info,
+                        antecedents: allAntecedents
                     }}
                     title={t(info)}
                     dialogClose={() => {
