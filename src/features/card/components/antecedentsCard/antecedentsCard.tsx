@@ -24,6 +24,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {configSelector} from "@features/base";
+import {LoadingScreen} from "@features/loadingScreen";
 
 // selected dumy data
 const cardItems: PatientDetailsList[] = [
@@ -142,9 +143,7 @@ function AntecedentsCard({...props}) {
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
     const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
-    if (!ready) return <div>Loading...</div>;
-
-    console.log(antecedentsType, antecedentsData);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -159,7 +158,7 @@ function AntecedentsCard({...props}) {
                 )}
             </Typography>
             <Grid container spacing={2}>
-                {Object.keys(loading ? emptyObject : antecedentsGroup).map(
+                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
                     (antecedent, idx: number) => (
                         <Grid key={idx} item md={6} sm={12} xs={12}>
                             <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
@@ -176,20 +175,20 @@ function AntecedentsCard({...props}) {
                                             sx={{maxWidth: 150, width: "100%"}}
                                         />
                                     ) : (
-                                        t(antecedent)
+                                        t(antecedent.slug)
                                     )}
                                 </Typography>
-                                {(loading
+                                {(!antecedentsData
                                         ? Array.from(new Array(3))
-                                        : antecedentsGroup[antecedent]
-                                ).map((v: any) => (
+                                        : antecedentsData[antecedent.slug] ? antecedentsData[antecedent.slug] : []
+                                ).map((antecedentData: any) => (
                                     <Typography
                                         key={Math.random()}
                                         mt={0.5}
                                         color="text.secondary"
                                         fontSize={11}
                                     >
-                                        {loading ? <Skeleton variant="text"/> : v.name}
+                                        {loading ? <Skeleton variant="text"/> : antecedentData?.name}
                                     </Typography>
                                 ))}
                                 {loading ? (
@@ -199,7 +198,7 @@ function AntecedentsCard({...props}) {
                                         variant="text"
                                         color="primary"
                                         size="small"
-                                        onClick={() => handleOpen(antecedent)}
+                                        onClick={() => antecedent.slug && handleOpen(antecedent.slug)}
                                         sx={{
                                             mt: 1,
                                             svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
