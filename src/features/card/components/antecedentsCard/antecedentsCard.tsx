@@ -78,6 +78,11 @@ function AntecedentsCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/antecedent");
+    const {data: httpAntecedentsTypeResponse} = useRequest({
+        method: "GET",
+        url: `/api/private/antecedent-types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    }, SWRNoValidateConfig);
     const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
         patient ?
             {
@@ -135,10 +140,11 @@ function AntecedentsCard({...props}) {
     }
 
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
     if (!ready) return <div>Loading...</div>;
 
-    console.log(antecedentsData);
+    console.log(antecedentsType, antecedentsData);
 
     return (
         <RootStyled>
