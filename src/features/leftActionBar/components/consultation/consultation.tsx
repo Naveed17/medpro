@@ -276,7 +276,7 @@ function Consultation() {
         <ConsultationStyled>
             <Box className="header">
                 <Stack direction={"row"} alignItems={"flex-start"}>
-                    <Stack direction={"column"} alignItems={"center"}>
+                    <Stack direction={"column"} alignItems={"center"} spacing={.5}>
                         <label htmlFor="contained-button-file">
                             <Zoom>
                                 <Avatar
