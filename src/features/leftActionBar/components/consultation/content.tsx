@@ -62,7 +62,6 @@ const Content = ({...props}) => {
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
-    console.log(allAntecedents);
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
