@@ -51,6 +51,11 @@ function InsuranceFilter({...props}) {
         }
     }
 
+    const handleSelectAll = (insurances: any): void => {
+        setQueryState(insurances);
+        handleInsuranceChange(insurances.insurance);
+    }
+
     useEffect(() => {
         if (filterData?.payment && filterData?.payment?.insurance) {
             setQueryState({
@@ -63,7 +68,7 @@ function InsuranceFilter({...props}) {
         <Box>
             <MuiAutocompleteSelectAll.Provider
                 value={{
-                    onSelectAll: (selectedAll) => void setQueryState({insurance: selectedAll ? [] : insurancesData}),
+                    onSelectAll: (selectedAll) => void handleSelectAll({insurance: selectedAll ? [] : insurancesData}),
                     selectedAll,
                     indeterminate: !!queryState.insurance.length && !selectedAll,
                 }}
@@ -82,10 +87,10 @@ function InsuranceFilter({...props}) {
                     options={insurancesData ? insurancesData : []}
                     getOptionLabel={option => option?.name ? option.name : ""}
                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                    renderOption={(params, option, { selected }) => (
+                    renderOption={(params, option, {selected}) => (
                         <MenuItem
                             {...params}>
-                            <Checkbox checked={selected} />
+                            <Checkbox checked={selected}/>
                             <Avatar
                                 sx={{
                                     width: 20,

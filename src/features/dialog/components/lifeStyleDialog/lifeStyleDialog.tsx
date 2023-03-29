@@ -24,7 +24,6 @@ function LifeStyleDialog({...props}) {
 
     const action = props.data.action;
     const allAntecedents = props.data.antecedents;
-    console.log(allAntecedents)
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;

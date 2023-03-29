@@ -18,6 +18,8 @@ import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {configSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
+import {capitalizeFirst} from "@app/hooks";
+import {LoadingButton} from "@mui/lab";
 
 // selected dumy data
 const cardItems: PatientDetailsList[] = [
@@ -48,27 +50,12 @@ function AntecedentsCard({...props}) {
 
     const [data, setdata] = useState([...cardItems]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const [antecedentsGroup, setAntecedentsGroup] = useState<any>({
-        allergic: [],
-        family_antecedents: [],
-        medical_antecedents: [],
-        surgical_antecedents: [],
-        way_of_life: []
-    });
     const [allAntecedents, setallAntecedents] = useState<any>([]);
 
-    const codes: any = {
-        way_of_life: "0",
-        allergic: "1",
-        treatment: "2",
-        antecedents: "3",
-        family_antecedents: "4",
-        surgical_antecedents: "5",
-        medical_antecedents: "6",
-    };
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -106,6 +93,7 @@ function AntecedentsCard({...props}) {
     };
 
     const handleCloseDialog = () => {
+        setLoadingReq(true);
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
@@ -119,6 +107,7 @@ function AntecedentsCard({...props}) {
                 },
             }, TriggerWithoutValidation
         ).then(() => {
+            setLoadingReq(false);
             setOpenDialog(false);
             setInfo("");
             mutateAntecedents();
@@ -130,7 +119,7 @@ function AntecedentsCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        setState(antecedentsGroup[action]);
+        setState(antecedentsData[action as any] ? antecedentsData[action as any] : []);
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
@@ -181,9 +170,7 @@ function AntecedentsCard({...props}) {
                                                 variant="text"
                                                 sx={{maxWidth: 150, width: "100%"}}
                                             />
-                                        ) : (
-                                            t(antecedent.slug)
-                                        )}
+                                        ) : capitalizeFirst(antecedent.name)}
                                     </Typography>
                                     {(!antecedentsData
                                             ? Array.from(new Array(3))
@@ -253,12 +240,14 @@ function AntecedentsCard({...props}) {
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
                             </Button>
-                            <Button
+                            <LoadingButton
+                                loading={loadingReq}
+                                loadingPosition={"start"}
                                 variant="contained"
                                 onClick={handleCloseDialog}
                                 startIcon={<Icon path="ic-dowlaodfile"/>}>
                                 {t("register")}
-                            </Button>
+                            </LoadingButton>
                         </DialogActions>
                     }
                 />
