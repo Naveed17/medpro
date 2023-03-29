@@ -63,6 +63,7 @@ function Consultation() {
     const [isStarted, setIsStarted] = useState(false);
     const [wayOfLifeBadge, setWayOfLifeBadge] = useState(0);
     const [allergicBadge, setAllergicBadge] = useState(0);
+    const [antecedentBadge, setAntecedentBadge] = useState(0);
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
@@ -92,7 +93,7 @@ function Consultation() {
                 setIsLong(false);
             }
         }
-    }, [note])
+    }, [note]);
 
     const {data: httpPatientPhotoResponse} = useRequest(
         patient?.hasPhoto
@@ -120,17 +121,6 @@ function Consultation() {
         SWRNoValidateConfig
     );
 
-    useEffect(() => {
-        if (httpPatientAntecedents) {
-            const res = (httpPatientAntecedents as HttpResponse).data;
-            setPatientAntecedents(res);
-            if (res['way_of_life'])
-                setWayOfLifeBadge(res['way_of_life'].length)
-
-            if (res['allergic'])
-                setAllergicBadge(res['allergic']?.length)
-        }
-    }, [httpPatientAntecedents])
     const {data: httpAnctecentType} = useRequest({
         method: "GET",
         url: `/api/private/antecedent-types/${router.locale}`,
@@ -197,6 +187,24 @@ function Consultation() {
             setNote(patient.note ? patient.note : "");
             setName(`${patient.firstName} ${patient.lastName}`);
             setLoading(false);
+
+            if (httpPatientAntecedents) {
+                const res = (httpPatientAntecedents as HttpResponse).data;
+                setPatientAntecedents(res);
+                if (res['way_of_life'])
+                    setWayOfLifeBadge(res['way_of_life'].length)
+
+                if (res['allergic'])
+                    setAllergicBadge(res['allergic']?.length)
+
+                let nb = 0;
+                Object.keys(res).map(ant => {
+                    if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic"){
+                        nb+= res[ant].length;
+                    }
+                });
+                setAntecedentBadge(nb);
+            }
             setCollapseData([
                 {
                     id: 1,
@@ -209,22 +217,19 @@ function Consultation() {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: wayOfLifeBadge //patient.antecedents.way_of_life.length,
+                    badge: wayOfLifeBadge
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: allergicBadge //patient.antecedents.allergic.length,
+                    badge: allergicBadge
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "ic-doc",
-                    badge: 0
-                    /*patient.antecedents.family_antecedents.length +
-                    patient.antecedents.medical_antecedents.length +
-                    patient.antecedents.surgical_antecedents.length*/,
+                    badge: antecedentBadge
                 },
 
                 {
@@ -253,7 +258,7 @@ function Consultation() {
                 },
             ]);
         }
-    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [patient,httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
