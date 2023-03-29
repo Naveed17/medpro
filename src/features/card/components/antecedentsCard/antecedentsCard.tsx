@@ -18,11 +18,9 @@ import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {configSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
-import {capitalizeFirst} from "@app/hooks";
-import {LoadingButton} from "@mui/lab";
 
 // selected dumy data
-const cardItems: PatientDetailsList[] = [
+/*const cardItems: PatientDetailsList[] = [
     {
         id: 0,
         title: "title",
@@ -32,7 +30,7 @@ const cardItems: PatientDetailsList[] = [
             {id: 1, name: "Problèmes cardiaques / Hypertension"},
         ],
     },
-];
+];*/
 
 const emptyObject = {
     title: "",
@@ -40,7 +38,7 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient, mutatePatientDetails} = props;
+    const {loading, patient} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -48,12 +46,12 @@ function AntecedentsCard({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
 
-    const [data, setdata] = useState([...cardItems]);
+    //const [data, setdata] = useState([...cardItems]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
+
     const [allAntecedents, setallAntecedents] = useState<any>([]);
 
     const {data: user} = session as Session;
@@ -93,7 +91,6 @@ function AntecedentsCard({...props}) {
     };
 
     const handleCloseDialog = () => {
-        setLoadingReq(true);
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
@@ -107,7 +104,6 @@ function AntecedentsCard({...props}) {
                 },
             }, TriggerWithoutValidation
         ).then(() => {
-            setLoadingReq(false);
             setOpenDialog(false);
             setInfo("");
             mutateAntecedents();
@@ -119,13 +115,16 @@ function AntecedentsCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        setState(antecedentsData[action as any] ? antecedentsData[action as any] : []);
+        if (Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
+            setState(antecedentsData[action]);
+        }
+
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
     };
 
-    const onChangeList = (prop: PatientDetailsList) => {
+/*    const onChangeList = (prop: PatientDetailsList) => {
         const newState = data.map((obj) => {
             if (obj.id === prop.id) {
                 return {...prop};
@@ -133,7 +132,7 @@ function AntecedentsCard({...props}) {
             return obj;
         });
         setdata(newState);
-    }
+    }*/
 
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
     const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
@@ -156,7 +155,7 @@ function AntecedentsCard({...props}) {
                 {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
                     (antecedent, idx: number) => (
                         <React.Fragment key={idx}>
-                            {antecedent.slug && <Grid item md={6} sm={12} xs={12}>
+                            {antecedent.slug &&antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && <Grid item md={6} sm={12} xs={12}>
                                 <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
                                     <Typography
                                         variant="body1"
@@ -170,7 +169,9 @@ function AntecedentsCard({...props}) {
                                                 variant="text"
                                                 sx={{maxWidth: 150, width: "100%"}}
                                             />
-                                        ) : capitalizeFirst(antecedent.name)}
+                                        ) : (
+                                            t(antecedent.slug)
+                                        )}
                                     </Typography>
                                     {(!antecedentsData
                                             ? Array.from(new Array(3))
@@ -240,14 +241,12 @@ function AntecedentsCard({...props}) {
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
                             </Button>
-                            <LoadingButton
-                                loading={loadingReq}
-                                loadingPosition={"start"}
+                            <Button
                                 variant="contained"
                                 onClick={handleCloseDialog}
                                 startIcon={<Icon path="ic-dowlaodfile"/>}>
                                 {t("register")}
-                            </LoadingButton>
+                            </Button>
                         </DialogActions>
                     }
                 />

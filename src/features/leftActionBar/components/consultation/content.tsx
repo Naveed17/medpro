@@ -62,7 +62,6 @@ const Content = ({...props}) => {
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
-    console.log(allAntecedents);
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -692,7 +691,7 @@ const Content = ({...props}) => {
                 patient && patientAntecedents &&
                 allAntecedents.map(
                     (antecedent: { slug: string; }, index: number) =>
-                        antecedent.slug && antecedent.slug !== "way_of_life" &&
+                        antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && antecedent.slug !== "way_of_life" &&
                         antecedent.slug !== "allergic" && (
                             <Antecedent
                                 antecedent={antecedent.slug}

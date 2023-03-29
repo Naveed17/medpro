@@ -22,7 +22,7 @@ function PreviewDialog({...props}) {
     const [title, setTitle] = useState("Titre");
     const prescriptionRows = [
         {name: 'name', style: {'margin-bottom': 0, 'font-size': '20px', 'font-weight': 'bold'}},
-        {name: 'dosage', style: {'font-size': '16px', 'margin-top': 0, 'margin-bottom': '1px','margin-left':'14px'}},
+        {name: 'dosage', style: {'font-size': '16px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
         {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
         {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
     ];
@@ -98,7 +98,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el.analysis.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {}
+                                style: {marginBottom: 0}
                             })
                             if (el.note) {
                                 elx.append(`• ${el.note}`)
@@ -106,7 +106,7 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "gray", fontSize: "18px",marginTop:0}
+                                    style: {color: "gray", fontSize: "18px", marginTop: 0}
                                 })
                             }
                             pageX.appendChild(elx)
@@ -120,7 +120,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "black",marginBottom:0}
+                                style: {color: "black", marginBottom: 0}
                             })
 
                             if (el.note) {
@@ -129,7 +129,7 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "gray", fontSize: "18px",marginTop:0}
+                                    style: {color: "gray", fontSize: "18px", marginTop: 0}
                                 })
                             }
 
@@ -217,7 +217,7 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width =  '190mm'
+                elx.style.width = '190mm'
 
                 if (rows.length > 0) {
                     const header = document.createElement("tr");
@@ -260,7 +260,7 @@ function PreviewDialog({...props}) {
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
-                    elx.style.width =  '190mm'
+                    elx.style.width = '190mm'
                     elx.style.fontSize = "20px"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
@@ -277,7 +277,7 @@ function PreviewDialog({...props}) {
         setPages(pages)
     }
 
-    const getLines = (element: any) => {
+    /*const getLines = (element: any) => {
         const clone = element.cloneNode(true);
         const words = clone.innerText.replaceAll('&nbsp;', '').split(' ');
         const rows = [];
@@ -298,7 +298,7 @@ function PreviewDialog({...props}) {
         rows.push({nb: nbLine, row: row.innerHTML})
         document.body.removeChild(row);
         return rows;
-    }
+    }*/
 
     /*     const countLines = (element: any) => {
             const clone = element.cloneNode(true);

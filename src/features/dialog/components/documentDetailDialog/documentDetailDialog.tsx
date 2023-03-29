@@ -81,12 +81,12 @@ function DocumentDetailDialog({...props}) {
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155,textAlign:"center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA5',
         content: {
             show: true,
-            maxHeight: 400,
+            maxHeight: 500,
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
@@ -150,7 +150,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' ) || !state.uuid // && state.type !== 'requested-analysis'
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis') || !state.uuid
         },
         {
             title: 'delete',
@@ -243,10 +243,13 @@ function DocumentDetailDialog({...props}) {
                         }))
                         break;
                     case "requested-analysis":
-                        console.log(state);
+                        let res: AnalysisModel[] = []
+                        state.info.map((info: any) => {
+                            res.push({...info.analysis, note: info.note});
+                        });
                         dispatch(SetSelectedDialog({
                             action: 'balance_sheet_request',
-                            state: state.info,
+                            state: res,
                             uuid: state.uuidDoc
                         }))
                         break;
