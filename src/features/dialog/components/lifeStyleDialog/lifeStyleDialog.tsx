@@ -24,7 +24,6 @@ function LifeStyleDialog({...props}) {
 
     const action = props.data.action;
     const allAntecedents = props.data.antecedents;
-    console.log(allAntecedents)
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
@@ -32,6 +31,7 @@ function LifeStyleDialog({...props}) {
     const {data: session} = useSession();
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
+    const [loading, setLoading] = useState(true);
     const {trigger} = useRequestMutation(null, "/antecedent");
 
     const router = useRouter();
@@ -59,6 +59,7 @@ function LifeStyleDialog({...props}) {
                 }
             })
             setState(items)
+            setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
@@ -110,8 +111,7 @@ function LifeStyleDialog({...props}) {
                 />
                 {
 
-
-                    !httpAntecedentsResponse ?
+                    loading ?
                         initalData.map((item, index) => (
                             <Box
                                 key={index}

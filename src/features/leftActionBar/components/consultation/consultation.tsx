@@ -63,6 +63,7 @@ function Consultation() {
     const [isStarted, setIsStarted] = useState(false);
     const [wayOfLifeBadge, setWayOfLifeBadge] = useState(0);
     const [allergicBadge, setAllergicBadge] = useState(0);
+    const [antecedentBadge, setAntecedentBadge] = useState(0);
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
@@ -92,7 +93,7 @@ function Consultation() {
                 setIsLong(false);
             }
         }
-    }, [note])
+    }, [note]);
 
     const {data: httpPatientPhotoResponse} = useRequest(
         patient?.hasPhoto
@@ -129,6 +130,14 @@ function Consultation() {
 
             if (res['allergic'])
                 setAllergicBadge(res['allergic']?.length)
+
+            let nb = 0;
+            Object.keys(res).map(ant => {
+                if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic"){
+                    nb+= res[ant].length;
+                }
+            });
+            setAntecedentBadge(nb);
         }
     }, [httpPatientAntecedents])
     const {data: httpAnctecentType} = useRequest({
@@ -221,10 +230,7 @@ function Consultation() {
                     id: 4,
                     title: "antecedent",
                     icon: "ic-doc",
-                    badge: 0
-                    /*patient.antecedents.family_antecedents.length +
-                    patient.antecedents.medical_antecedents.length +
-                    patient.antecedents.surgical_antecedents.length*/,
+                    badge: antecedentBadge
                 },
 
                 {

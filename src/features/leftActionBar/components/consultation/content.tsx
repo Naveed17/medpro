@@ -691,7 +691,7 @@ const Content = ({...props}) => {
                 patient && patientAntecedents &&
                 allAntecedents.map(
                     (antecedent: { slug: string; }, index: number) =>
-                        antecedent.slug && antecedent.slug !== "way_of_life" &&
+                        antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && antecedent.slug !== "way_of_life" &&
                         antecedent.slug !== "allergic" && (
                             <Antecedent
                                 antecedent={antecedent.slug}
