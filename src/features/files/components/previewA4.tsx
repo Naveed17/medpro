@@ -21,8 +21,8 @@ function PreviewDialog({...props}) {
     const [pages, setPages] = useState<any[]>([]);
     const [title, setTitle] = useState("Titre");
     const prescriptionRows = [
-        {name: 'name', style: {'margin-bottom': 0, 'font-size': '15px', 'font-weight': 'bold'}},
-        {name: 'dosage', style: {'font-size': '14px', 'margin-top': 0, 'margin-bottom': '1px','margin-left':'14px'}},
+        {name: 'name', style: {'margin-bottom': 0, 'font-size': '20px', 'font-weight': 'bold'}},
+        {name: 'dosage', style: {'font-size': '16px', 'margin-top': 0, 'margin-bottom': '1px','margin-left':'14px'}},
         {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
         {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
     ];
@@ -93,9 +93,9 @@ function PreviewDialog({...props}) {
                         case "requested-analysis":
                             const elx = document.createElement('p');
                             elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            elx.append(`• ${el.name}`)
+                            elx.append(`• ${el.analysis.name}`)
                             rows.push({
-                                value: `• ${el.name}`,
+                                value: `• ${el.analysis.name}`,
                                 name: "name",
                                 element: "p",
                                 style: {}

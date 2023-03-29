@@ -26,6 +26,7 @@ function FamilyHistoryDialog({...props}) {
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
     const {trigger} = useRequestMutation(null, "/antecedent");
+    const allAntecedents = props.data.antecedents;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
@@ -59,7 +60,7 @@ function FamilyHistoryDialog({...props}) {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/4/${router.locale}`,
+        url: `/api/private/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -253,7 +254,7 @@ function FamilyHistoryDialog({...props}) {
                                                size='small'
                                                onClick={() => {
                                                    const form = new FormData();
-                                                   form.append('type', '4');
+                                                   form.append('type', allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid);
                                                    form.append('name', value);
                                                    trigger({
                                                        method: "POST",
@@ -266,7 +267,7 @@ function FamilyHistoryDialog({...props}) {
                                                    }, {revalidate: true, populateCache: true}).then((data) => {
                                                        antecedents.push({
                                                            name: value,
-                                                           type: 4,
+                                                           type: allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid,
                                                            uuid: (data?.data as HttpResponse).data.uuid,
                                                            value_type: -1
                                                        })

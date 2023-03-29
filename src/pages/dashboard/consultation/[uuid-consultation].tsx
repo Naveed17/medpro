@@ -703,6 +703,9 @@ function ConsultationInProgress() {
         );
     };
     const showDoc = (card: any) => {
+        let type = "";
+        if (!(appointement.patient.birthdate && moment().diff(moment(appointement.patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = appointement.patient.gender === "F" ? "Mme " : appointement.patient.gender === "U" ? "" : "Mr "
         if (card.documentType === "medical-certificate") {
             setInfo("document_detail");
             setState({
@@ -710,7 +713,7 @@ function ConsultationInProgress() {
                 certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${appointement.patient.gender === "F" ? "Mme " : appointement.patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     appointement.patient.firstName
                 } ${appointement.patient.lastName}`,
                 days: card.days,
@@ -752,7 +755,7 @@ function ConsultationInProgress() {
                 info: info,
                 detectedType: card.type,
                 uuidDoc: uuidDoc,
-                patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
                 mutate: mutateDoc,
@@ -1003,6 +1006,10 @@ function ConsultationInProgress() {
                                                 <Button
                                                     variant="text-black"
                                                     onClick={(event) => {
+                                                        let type = "";
+                                                        if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                            type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
                                                         event.stopPropagation();
                                                         setInfo("document_detail");
                                                         setState({
@@ -1011,9 +1018,7 @@ function ConsultationInProgress() {
                                                             info: selectedAct,
                                                             createdAt: moment().format("DD/MM/YYYY"),
                                                             consultationFees: free ? 0 : consultationFees,
-                                                            patient: `${
-                                                                patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-                                                            } ${patient.firstName} ${patient.lastName}`,
+                                                            patient: `${type} ${patient.firstName} ${patient.lastName}`,
                                                         });
                                                         setOpenDialog(true);
                                                     }}

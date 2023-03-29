@@ -150,7 +150,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis') || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' ) || !state.uuid // && state.type !== 'requested-analysis'
         },
         {
             title: 'delete',
