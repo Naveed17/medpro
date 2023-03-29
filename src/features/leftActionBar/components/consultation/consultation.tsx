@@ -61,9 +61,6 @@ function Consultation() {
     const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
-    const [wayOfLifeBadge, setWayOfLifeBadge] = useState(0);
-    const [allergicBadge, setAllergicBadge] = useState(0);
-    const [antecedentBadge, setAntecedentBadge] = useState(0);
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
@@ -187,15 +184,16 @@ function Consultation() {
             setNote(patient.note ? patient.note : "");
             setName(`${patient.firstName} ${patient.lastName}`);
             setLoading(false);
+            let wayOfLifeBadge = 0; let allergicBadge = 0; let antecedentBadge = 0;
 
             if (httpPatientAntecedents) {
                 const res = (httpPatientAntecedents as HttpResponse).data;
                 setPatientAntecedents(res);
                 if (res['way_of_life'])
-                    setWayOfLifeBadge(res['way_of_life'].length)
+                    wayOfLifeBadge = res['way_of_life'].length;
 
                 if (res['allergic'])
-                    setAllergicBadge(res['allergic']?.length)
+                    allergicBadge = res['allergic']?.length;
 
                 let nb = 0;
                 Object.keys(res).map(ant => {
@@ -203,7 +201,7 @@ function Consultation() {
                         nb+= res[ant].length;
                     }
                 });
-                setAntecedentBadge(nb);
+                antecedentBadge = nb;
             }
             setCollapseData([
                 {
@@ -212,7 +210,6 @@ function Consultation() {
                     icon: "ic-medicament",
                     badge: patient?.treatment?.length,
                 },
-
                 {
                     id: 6,
                     title: "riskFactory",
@@ -231,7 +228,6 @@ function Consultation() {
                     icon: "ic-doc",
                     badge: antecedentBadge
                 },
-
                 {
                     id: 2,
                     title: "balance_sheet_pending",
@@ -244,12 +240,6 @@ function Consultation() {
                     icon: "ic-soura",
                     badge: patient.requestedImaging.length,
                 },
-                /*{
-                            id: 3,
-                            title: 'consultation',
-                            icon: 'ic-agenda',
-                            badge: 0
-                        },*/
                 {
                     id: 8,
                     title: "documents",
