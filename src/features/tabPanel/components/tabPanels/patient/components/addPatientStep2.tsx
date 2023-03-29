@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, useEffect, useState} from "react";
+import React, {ChangeEvent, memo, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {addPatientSelector, onSubmitPatient} from "@features/tabPanel";
+import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -38,6 +38,7 @@ import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
+import PhoneInput from "react-phone-number-input/input";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -63,6 +64,7 @@ function AddPatientStep2({...props}) {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
+    const phoneInputRef = useRef(null);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -74,8 +76,7 @@ function AddPatientStep2({...props}) {
             Yup.object().shape({
                 insurance_number: Yup.string()
                     .min(3, t("add-patient.assurance-num-error"))
-                    .max(50, t("add-patient.assurance-num-error"))
-                    .required(t("add-patient.assurance-num-error")),
+                    .max(50, t("add-patient.assurance-num-error")),
                 insurance_uuid: Yup.string()
                     .min(3, t("add-patient.assurance-type-error"))
                     .max(50, t("add-patient.assurance-type-error"))
@@ -111,8 +112,10 @@ function AddPatientStep2({...props}) {
                         value: Yup.string().test({
                             name: 'phone-value-test',
                             message: t("add-patient.telephone-error"),
-                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
-                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
+                            test: (value, ctx: any) => {
+                                const isValidPhone = value ? isValidPhoneNumber(value) : false;
+                                return ctx.from[2].value.insurance_type === "0" || isValidPhone;
+                            }
                         }),
                         type: Yup.string(),
                         contact_type: Yup.string(),
@@ -224,7 +227,7 @@ function AddPatientStep2({...props}) {
         form.append('nationality', values.nationality);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
             code: phoneData.dial?.phone,
-            value: phoneData.phone,
+            value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
             contact_type: contacts[0].uuid,
             is_public: false,
@@ -237,12 +240,33 @@ function AddPatientStep2({...props}) {
         form.append('address', JSON.stringify({
             fr: values.address
         }));
+        const updatedInsurances: any[] = [];
         values.insurance.map((insurance: InsurancesModel) => {
+            let phone = null;
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];
             }
+
+            if (insurance.insurance_social) {
+                const localPhone = insurance.insurance_social.phone;
+                phone = localPhone.value.replace(localPhone.code, "");
+            }
+
+            updatedInsurances.push({
+                ...insurance,
+                ...(phone && {
+                    insurance_social: {
+                        ...insurance.insurance_social,
+                        phone: {
+                            ...insurance.insurance_social?.phone,
+                            contact_type: contacts[0].uuid,
+                            value: phone as string
+                        }
+                    }
+                })
+            })
         });
-        form.append('insurance', JSON.stringify(values.insurance));
+        form.append('insurance', JSON.stringify(updatedInsurances));
         form.append('email', values.email);
         form.append('family_doctor', values.family_doctor);
         form.append('region', values.region);
@@ -568,10 +592,12 @@ function AddPatientStep2({...props}) {
                                             }}
                                             action={
                                                 <IconButton
+                                                    size={"small"}
                                                     onClick={() => handleRemoveInsurance(index)}
                                                     className="error-light"
                                                     sx={{
                                                         mr: 1.5,
+                                                        mt: .3,
                                                         "& svg": {
                                                             width: 20,
                                                             height: 20,
@@ -597,7 +623,7 @@ function AddPatientStep2({...props}) {
                                                         id={"assure"}
                                                         options={SocialInsured}
                                                         groupBy={(option: any) => option.grouped}
-                                                        sx={{minWidth: 500}}
+                                                        sx={{minWidth: 460}}
                                                         getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                         isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                         renderGroup={(params) => {
@@ -777,11 +803,31 @@ function AddPatientStep2({...props}) {
                                                                 initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
                                                                     getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) : DefaultCountry}
                                                                 onSelect={(state: any) => {
-                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
+                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.value`, "");
+                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone);
                                                                 }}/>
                                                         </Grid>
                                                         <Grid item md={6} lg={8} xs={12}>
-                                                            <TextField
+                                                            <PhoneInput
+                                                                ref={phoneInputRef}
+                                                                international
+                                                                fullWidth
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
+                                                                withCountryCallingCode
+                                                                {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
+                                                                    {
+                                                                        helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                            getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                    })}
+                                                                country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
+                                                                    doctor_country.code) as any}
+                                                                value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                    getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
+                                                                onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
+                                                                inputComponent={CustomInput as any}
+                                                            />
+                                                            {/*<TextField
                                                                 variant="outlined"
                                                                 size="small"
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
@@ -799,7 +845,7 @@ function AddPatientStep2({...props}) {
                                                                         </InputAdornment>
                                                                     ),
                                                                 }}
-                                                            />
+                                                            />*/}
                                                         </Grid>
                                                     </Grid>
                                                 </Box>

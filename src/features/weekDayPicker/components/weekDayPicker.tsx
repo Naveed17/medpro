@@ -3,17 +3,17 @@ import {Box, Typography, IconButton, Container, Divider} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import WeekDayPickerStyled from './overrides/weekDayPickerStyled';
-import moment from "moment-timezone";
+import moment, {Moment} from "moment-timezone";
 
 const months: String[] = [];
 
 function WeekDayPicker({...props}) {
     const {date: initDate, action, onChange} = props;
 
-    const [offsetYearWeekStart, setOffsetYearWeekStart] = useState(action === "reschedule" ? 0 : moment(initDate).week() - moment().week());
+    const [offsetYearWeekStart, setOffsetYearWeekStart] = useState(action === "reschedule" ? 0 : initDate?.week() - moment().week());
     const [offsetYearWeekEnd, setOffsetYearWeekEnd] = useState(offsetYearWeekStart + 1);
     const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
-    const clonedDate = action === "reschedule" ? new Date() : new Date(initDate?.getTime());
+    const clonedDate = action === "reschedule" ? new Date() : initDate?.toDate();
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
     const [daysOfYear, setDaysOfYear] = useState<Date[]>([]);
 
@@ -22,13 +22,13 @@ function WeekDayPicker({...props}) {
             months.push(moment().set('month', index).format("MMMM")))
     }
 
-    const onChangeCallback = useCallback((date: Date) => {
+    const onChangeCallback = useCallback((date: Moment) => {
         onChange(date);
     }, [onChange]);
 
     const handleDateChange = (date: Date) => {
         setDate(date);
-        onChangeCallback(date);
+        onChangeCallback(moment(date));
     }
 
     useEffect(() => {

@@ -21,16 +21,9 @@ import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function LifeStyleDialog({...props}) {
-    const codes: any = {
-        way_of_life: '0',
-        allergic: '1',
-        treatment: '2',
-        antecedents: '3',
-        family_antecedents: '4',
-        surgical_antecedents: '5',
-        medical_antecedents: '6'
-    }
+
     const action = props.data.action;
+    const allAntecedents = props.data.antecedents;
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
@@ -38,13 +31,14 @@ function LifeStyleDialog({...props}) {
     const {data: session} = useSession();
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
+    const [loading, setLoading] = useState(true);
     const {trigger} = useRequestMutation(null, "/antecedent");
 
     const router = useRouter();
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/${codes[action]}/${router.locale}`,
+        url: `/api/private/antecedents/${allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -58,12 +52,14 @@ function LifeStyleDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map(item => {
+            items.map((item:any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    item.response = item.response[0].uuid
+                    console.log(item);
+                    item.response = item.antecedentValues[0].uuid
                 }
             })
             setState(items)
+            setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
@@ -115,8 +111,7 @@ function LifeStyleDialog({...props}) {
                 />
                 {
 
-
-                    !httpAntecedentsResponse ?
+                    loading ?
                         initalData.map((item, index) => (
                             <Box
                                 key={index}
@@ -227,7 +222,7 @@ function LifeStyleDialog({...props}) {
                             size='small'
                             onClick={() => {
                                 const form = new FormData();
-                                form.append('type', codes[action]);
+                                form.append('type', allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid);
                                 form.append('name', value);
                                 trigger({
                                     method: "POST",
@@ -240,7 +235,7 @@ function LifeStyleDialog({...props}) {
                                 }, {revalidate: true, populateCache: true}).then((data) => {
                                     antecedents.push({
                                         name: value,
-                                        type: codes[action],
+                                        type: allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid,
                                         uuid: (data?.data as HttpResponse).data.uuid,
                                         value_type: -1
                                     })

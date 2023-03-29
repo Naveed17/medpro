@@ -33,7 +33,7 @@ import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
+import {FileuploadProgress} from "@features/progressUI";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";

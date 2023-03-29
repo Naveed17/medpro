@@ -10,7 +10,7 @@ import {
 
 export type AppointmentState = {
     type: string;
-    motif: string;
+    motif: string[];
     duration: number | string;
     date: Date | null;
     recurringDates: RecurringDateModel[];
@@ -25,7 +25,7 @@ export type AppointmentState = {
 
 const initialState: AppointmentState = {
     type: "",
-    motif: "",
+    motif: [],
     duration : "15",
     date: null,
     recurringDates: [],

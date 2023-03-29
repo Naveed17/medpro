@@ -6,7 +6,7 @@ import {
     Button,
     DialogActions,
     DialogContent,
-    DialogTitle, Drawer,
+    DialogTitle, Drawer, LinearProgress,
     List,
     ListItem,
     Stack,
@@ -31,7 +31,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -49,6 +49,7 @@ import {
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import {EventDef} from "@fullcalendar/core/internal";
+import {leftActionBarSelector} from "@features/leftActionBar";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -124,7 +125,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "insurance",
         sortable: true,
-        align: "center",
+        align: "left",
     },
     {
         id: "type",
@@ -172,7 +173,7 @@ function Payment() {
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
-
+    const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {selectedBox, query, paymentTypes} = useAppSelector(cashBoxSelector);
@@ -207,9 +208,11 @@ function Payment() {
         selected: "",
     });
     const [collapse, setCollapse] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [collapseDate, setCollapseData] = useState<any>(null);
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [rows, setRows] = useState<any[]>([]);
+    const [filtredRows, setFiltredRows] = useState<any[]>([]);
     const [cheques, setCheques] = useState<ChequeModel[]>([
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
@@ -253,11 +256,18 @@ function Payment() {
 
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/insurances/${router.locale}`,
+    }, SWRNoValidateConfig);
+
     const {data: httpMedicalProfessionalResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    }, SWRNoValidateConfig);
+
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const handleCollapse = (props: any) => {
         //setCollapseData(props);
@@ -386,7 +396,8 @@ function Payment() {
         })
     }
 
-    const getAppointments = useCallback((query: string) => {
+    const getAppointments = useCallback((query: string, filterQuery: any) => {
+            setLoading(true);
             if (query.includes("format=list")) {
                 dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             }
@@ -410,7 +421,7 @@ function Payment() {
                         date: app.dayDate,
                         time: app.startTime,
                         name: `${app.patient.firstName} ${app.patient.lastName}`,
-                        insurance: "",
+                        insurance: app.patient.insurances,
                         patient: app.patient,
                         type: app.type.name,
                         payment_type: ["ic-argent", "ic-card-pen"],
@@ -447,10 +458,19 @@ function Payment() {
                     });
                 });
                 setRows([...r]);
+                setFiltredRows(filterQuery?.payment && filterQuery?.payment?.insurance ?
+                    [...r].filter(row => {
+                        const updatedData = filterQuery.payment?.insurance?.filter((insur: any) =>
+                            row.patient.insurances.map((insurance: any) => insurance.insurance.uuid).includes(insur));
+                        return row.patient.insurances.length > 0 && updatedData && updatedData.length > 0;
+                    })
+                    :
+                    [...r]);
                 setTotal(amout);
+                setLoading(false);
             });
         },
-        [agenda, medical_entity.uuid, router, session, trigger, dispatch]
+        [agenda, medical_entity.uuid, router, session, trigger, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     const generateFilter = () => {
@@ -513,10 +533,12 @@ function Payment() {
 
     useEffect(() => {
         if (agenda) {
-            const queryPath = `format=week&page=1&limit=50&start_date=${day}&end_date=${day}`;
-            getAppointments(queryPath);
+            const startDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].startDate).format('DD-MM-YYYY') : day;
+            const endDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].endDate).format('DD-MM-YYYY') : day;
+            const queryPath = `format=week&page=1&limit=50&start_date=${startDate}&end_date=${endDate}`;
+            getAppointments(queryPath, filterData);
         }
-    }, [getAppointments, agenda, day]);
+    }, [getAppointments, agenda, day, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -602,12 +624,15 @@ function Payment() {
                 </Stack>
             </SubHeader>
 
+            <LinearProgress sx={{visibility: loading ? "visible" : "hidden"}} color="warning"/>
+
             <Box className="container">
-                {rows.length > 0 ? (
+
+                {filtredRows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
                             <Otable
-                                {...{rows, select, t}}
+                                {...{rows: filtredRows, select, t, insurances}}
                                 headers={headCells}
                                 from={"payment"}
                                 handleEvent={handleTableActions}
@@ -615,7 +640,7 @@ function Payment() {
                         </DesktopContainer>
                         <MobileContainer>
                             <Stack spacing={2}>
-                                {rows.map((card, idx) => (
+                                {filtredRows.map((card, idx) => (
                                     <React.Fragment key={idx}>
                                         <PaymentMobileCard
                                             data={card}

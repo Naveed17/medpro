@@ -24,7 +24,7 @@ import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -45,8 +45,26 @@ import IconUrl from "@themes/urlIcon";
 import {DefaultCountry} from "@app/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
+import {agendaSelector, setConfig} from "@features/calendar";
+import {navBarSelector, setMutates} from "@features/topNavBar";
 
 export const headCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
     {
         id: "arrivaltime",
         numeric: false,
@@ -78,7 +96,8 @@ export const headCells = [
         label: "type",
         align: "left",
         sortable: false,
-    }, {
+    },
+    {
         id: "motif",
         numeric: false,
         disablePadding: true,
@@ -87,20 +106,14 @@ export const headCells = [
         sortable: false,
     },
     {
-        id: "patient",
-        numeric: false,
-        disablePadding: true,
-        label: "patient's name",
-        align: "left",
-        sortable: true,
-    }, {
         id: "fees",
         numeric: false,
         disablePadding: true,
         label: "empty",
         align: "right",
         sortable: false,
-    }, {
+    },
+    {
         id: "action",
         numeric: false,
         disablePadding: true,
@@ -129,7 +142,7 @@ function WaitingRoom() {
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, next} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -187,6 +200,9 @@ function WaitingRoom() {
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
+    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+
     const {data: httpAgendasResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
@@ -202,8 +218,6 @@ function WaitingRoom() {
             Authorization: `Bearer ${session?.accessToken}`
         }
     });
-
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
@@ -254,6 +268,23 @@ function WaitingRoom() {
         setPopoverActions(actions);
     };
 
+    const nextConsultation = (row: any) => {
+        const form = new FormData();
+        form.append('attribute', 'is_next');
+        form.append('value', `${!Boolean(row.is_next)}`);
+        updateTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            mutateWaitingRoom();
+            // refresh on going api
+            mutateOnGoing && mutateOnGoing();
+            setLoadingRequest(false);
+        });
+    }
+
     const startConsultation = (row: any) => {
         if (!isActive) {
             const event: any = {
@@ -291,6 +322,9 @@ function WaitingRoom() {
             case "onConsultationStart":
                 startConsultation(row);
                 break;
+            case "onNextConsultation":
+                nextConsultation(row);
+                break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
                     // refresh on going api
@@ -321,6 +355,7 @@ function WaitingRoom() {
     }
 
     const handleTableActions = (data: any) => {
+        setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
                 dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
@@ -328,6 +363,9 @@ function WaitingRoom() {
                 break;
             case "START_CONSULTATION":
                 startConsultation(data.row);
+                break;
+            case "NEXT_CONSULTATION":
+                nextConsultation(data.row);
                 break;
             default:
                 if (!data.row.fees &&
@@ -340,7 +378,6 @@ function WaitingRoom() {
                     }, ...popoverActions])
                 }
                 handleContextMenu(data.event);
-                setRow(data.row);
                 break;
         }
     }

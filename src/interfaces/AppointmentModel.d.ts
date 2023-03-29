@@ -15,6 +15,6 @@ interface AppointmentModel {
   PatientHasAgendaAppointment: boolean | null;
   overlapEvent: boolean | null;
   new: boolean;
-  consultationReason: ConsultationReasonLessModel;
-  patient: PatientLessModel;
+  consultationReasons: ConsultationReasonModel[];
+  patient: PatientModel;
 }

@@ -6,6 +6,7 @@ export {default as useIsMountedRef} from "./useIsMountedRef";
 export {default as useDateConverture} from "./useDateConverture";
 export {default as unsubscribeTopic} from "./unsubscribeTopic";
 export * from "./prepareSearchKeys";
+export * from "./capitalizeFirst";
 export * from "./rest/useAppointment";
 
 export function getDifference<T>(a: T[], b: T[]): T[] {
@@ -71,7 +72,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         fees: appointment.fees,
         isOnline: appointment.isOnline,
         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
-        motif: appointment.consultationReason,
+        motif: appointment.consultationReasons,
         instruction: appointment.instruction !== null ? appointment.instruction : "",
         id: appointment.uuid,
         updatedAt: moment(appointment.updatedAt, "DD-MM-YYYY HH:mm"),

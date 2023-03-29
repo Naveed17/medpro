@@ -2,7 +2,7 @@ import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     ConsultationIPToolbar,
     consultationSelector,
@@ -105,7 +105,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [loadingReq, setLoadingReq] = useState<boolean>(true);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
@@ -120,8 +120,7 @@ function ConsultationInProgress() {
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
     const {isActive, event} = useAppSelector(timerSelector);
-
-
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {drawer} = useAppSelector(
         (state: { dialog: DialogProps }) => state.dialog
     );
@@ -171,11 +170,8 @@ function ConsultationInProgress() {
 
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        ?.medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
     const {trigger: updateStatusTrigger} = useRequestMutation(
@@ -316,7 +312,6 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpAppResponse) {
             setAppointement((httpAppResponse as HttpResponse)?.data);
-            setLoadingReq(false);
             setLoading(false);
         }
     }, [httpAppResponse]);
@@ -454,7 +449,7 @@ function ConsultationInProgress() {
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
             form.append("treatment", exam.treatment ? exam.treatment : "");
-            form.append("consultation_reason", exam.motif);
+            form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
             if (!free)
                 form.append("consultation_fees", consultationFees.toString());
@@ -647,6 +642,8 @@ function ConsultationInProgress() {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
                 setActions(false);
+                // refresh on going api
+                mutateOnGoing && mutateOnGoing();
             });
         });
     };
@@ -668,14 +665,17 @@ function ConsultationInProgress() {
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
-                <Button
-                    variant="text-black"
+                <LoadingButton
+                    loading={loadingReq || loading}
+                    loadingPosition="start"
+                    variant="text"
+                    color={"black"}
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
                     <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("withoutSave")}
                     </Typography>
-                </Button>
+                </LoadingButton>
                 <Stack direction={"row"} spacing={2}>
                     <Button
                         variant="text-black"
@@ -686,7 +686,7 @@ function ConsultationInProgress() {
                         </Typography>
                     </Button>
                     <LoadingButton
-                        loading={loadingReq}
+                        loading={loadingReq || loading}
                         loadingPosition="start"
                         variant="contained"
                         color="error"
@@ -703,6 +703,9 @@ function ConsultationInProgress() {
         );
     };
     const showDoc = (card: any) => {
+        let type = "";
+        if (!(appointement.patient.birthdate && moment().diff(moment(appointement.patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = appointement.patient.gender === "F" ? "Mme " : appointement.patient.gender === "U" ? "" : "Mr "
         if (card.documentType === "medical-certificate") {
             setInfo("document_detail");
             setState({
@@ -710,7 +713,7 @@ function ConsultationInProgress() {
                 certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${appointement.patient.gender === "F" ? "Mme " : appointement.patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     appointement.patient.firstName
                 } ${appointement.patient.lastName}`,
                 days: card.days,
@@ -736,6 +739,7 @@ function ConsultationInProgress() {
                     break;
                 case "requested-analysis":
                     info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
@@ -751,7 +755,7 @@ function ConsultationInProgress() {
                 info: info,
                 detectedType: card.type,
                 uuidDoc: uuidDoc,
-                patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
                 mutate: mutateDoc,
@@ -1002,6 +1006,10 @@ function ConsultationInProgress() {
                                                 <Button
                                                     variant="text-black"
                                                     onClick={(event) => {
+                                                        let type = "";
+                                                        if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                            type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
                                                         event.stopPropagation();
                                                         setInfo("document_detail");
                                                         setState({
@@ -1010,9 +1018,7 @@ function ConsultationInProgress() {
                                                             info: selectedAct,
                                                             createdAt: moment().format("DD/MM/YYYY"),
                                                             consultationFees: free ? 0 : consultationFees,
-                                                            patient: `${
-                                                                patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-                                                            } ${patient.firstName} ${patient.lastName}`,
+                                                            patient: `${type} ${patient.firstName} ${patient.lastName}`,
                                                         });
                                                         setOpenDialog(true);
                                                     }}
@@ -1024,7 +1030,7 @@ function ConsultationInProgress() {
                                     )}
                                     <LoadingButton
                                         disabled={loading}
-                                        loading={loadingReq}
+                                        loading={loadingReq || loading}
                                         loadingPosition={"start"}
                                         onClick={
                                             appointement?.status === 5
@@ -1164,7 +1170,7 @@ function ConsultationInProgress() {
                     {...((info === "document_detail" || info === "end_consultation") && {
                         onClose: handleCloseDialog,
                     })}
-                    dialogClose={handleCloseDialog}
+                    {...(info !== "secretary_consultation_alert" && {dialogClose: handleCloseDialog})}
                     {...(actions && {
                         actionDialog: <DialogAction/>,
                     })}

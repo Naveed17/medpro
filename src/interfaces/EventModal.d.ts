@@ -11,7 +11,7 @@ interface EventModal {
     eventDurationEditable?: boolean;
     droppable?: boolean;
     borderColor: string;
-    motif: ConsultationReasonModel;
+    motif: ConsultationReasonModel[];
     type: AppointmentTypeModel;
     instruction: string;
     fees: string;

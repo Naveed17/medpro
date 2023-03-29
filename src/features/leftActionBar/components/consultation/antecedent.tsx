@@ -10,6 +10,7 @@ function Antecedent({...props}) {
 
     const {
         antecedent,
+        patientAntecedents,
         t,
         patient,
         medical_entity,
@@ -30,7 +31,7 @@ function Antecedent({...props}) {
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
                     <Typography fontWeight={600}>{t(antecedent)}</Typography>}
                 <List dense>
-                    {patient.antecedents[antecedent].map(
+                    {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
                             item: {
                                 uuid: string;
@@ -50,7 +51,7 @@ function Antecedent({...props}) {
                                     {item.startDate ? " / " + item.startDate : ""}{" "}
                                     {item.endDate ? " - " + item.endDate : ""}
                                     {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')':'' : ''}
+                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
                                 </Typography>
                                 <IconButton
                                     size="small"

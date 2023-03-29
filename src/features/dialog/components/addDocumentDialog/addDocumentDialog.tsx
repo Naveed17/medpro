@@ -3,12 +3,13 @@ import {CircularProgress, Grid, Stack, Theme, Typography, useTheme} from "@mui/m
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
-import {FileuploadProgress} from "@features/fileUploadProgress";
+import {FileuploadProgress} from "@features/progressUI";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
+import Resizer from "react-image-file-resizer";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
@@ -60,6 +61,18 @@ function AddDocumentDialog({...props}) {
                     setProgress(Math.round((e.loaded / e.total) * 100));
                 }
             };
+            if (file.type.includes('image')){
+                Resizer.imageFileResizer(file,
+                    500,
+                    500,
+                    file.type.split('/')[1],
+                    50,
+                    0,
+                    (uri) => {
+                        file = uri;
+                    },
+                    "file")
+            }
             reader.onloadend = () => {
                 docs.push({type: type, file, progress: 100})
             };

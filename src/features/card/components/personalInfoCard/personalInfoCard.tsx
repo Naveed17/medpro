@@ -64,9 +64,7 @@ function PersonalInfo({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -121,7 +119,7 @@ function PersonalInfo({...props}) {
         params.append('phone', JSON.stringify(
             patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
                 code: phone.code,
-                value: phone.value,
+                value: phone.value.replace(phone.code, ""),
                 type: "phone",
                 "contact_type": patient.contact[0].uuid,
                 "is_public": false,
