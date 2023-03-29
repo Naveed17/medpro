@@ -110,7 +110,7 @@
     "patient_history": "Fiche d'historique",
     "title": "Titre",
     "back": "Retour à la consultation d'aujourd'hui",
-    "updateHistory": "Vous modifiez la consultation du ",
+    "updateHistory": "Vous êtes en train de modifier la consultation du ",
     "add_reason": "Ajouter un nouveau motif",
     "close": "Réduire menu",
     "ureadbleFile": "Fichier fourni n'est pas compatible avec MedLINK",
