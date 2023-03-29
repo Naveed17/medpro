@@ -752,7 +752,7 @@ function PlacesDetail() {
                                                                     helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
-                                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
+                                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
                                                             {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any})}
                                                             value={data && values.phones[index] ? values.phones[index]?.value : ""}
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}

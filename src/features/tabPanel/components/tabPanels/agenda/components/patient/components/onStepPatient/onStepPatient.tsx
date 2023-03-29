@@ -540,7 +540,7 @@ function OnStepPatient({...props}) {
                                                     helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
-                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
+                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
                                             country={phoneObject.dial?.code.toUpperCase() as any}
                                             value={getFieldProps(`phones[${index}].phone`) ?
                                                 getFieldProps(`phones[${index}].phone`).value : ""}
