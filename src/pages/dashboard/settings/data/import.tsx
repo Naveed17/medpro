@@ -78,8 +78,9 @@ function ImportData() {
         },
         ...doctor_country?.code === "tn" ? [{
             key: "med-win",
-            icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
-            label: "tabs.medWin",
+            icon: "ic-upload",
+            variant: "default",
+            label: "tabs.file",
             content: "tabs.content-2",
         }] : []
         /*{
@@ -97,7 +98,7 @@ function ImportData() {
         loading: false
     });
     const [typeImport] = useState([
-        {label: "Patients", key: "1"},
+        // {label: "Patients", key: "1"},
         {label: "Toutes les données", key: "2"},
     ]);
     const [files, setFiles] = useState<any[]>([]);

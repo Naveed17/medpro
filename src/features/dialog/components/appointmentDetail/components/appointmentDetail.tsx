@@ -178,12 +178,11 @@ function AppointmentDetail({...props}) {
     };
 
     const setAppointmentDate = (action: string) => {
+        const newDate = moment(appointment?.extendedProps.time);
         dispatch(
             setMoveDateTime({
-                date: new Date(appointment?.extendedProps.time),
-                time: moment(
-                    new Date(appointment?.extendedProps.time)
-                ).format("HH:mm"),
+                date: newDate,
+                time: newDate.format("HH:mm"),
                 action,
                 selected: false
             })
@@ -276,7 +275,7 @@ function AppointmentDetail({...props}) {
                                 alignItems="center">
                                 <Alert
                                     sx={{
-                                        backgroundColor: (theme)=> theme.palette.error.lighter
+                                        backgroundColor: (theme) => theme.palette.error.lighter
                                     }}
                                     variant={"outlined"}
                                     severity="error"

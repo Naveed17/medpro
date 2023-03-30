@@ -722,7 +722,7 @@ function PatientContactDetailCard({...props}) {
                                                                             international
                                                                             disabled={!editable}
                                                                             fullWidth
-                                                                            error={Boolean((touched.phones && (touched.phones as any)[index]) || (errors.phones && (errors.phones as any)[index]))}
+                                                                            error={Boolean( errors.phones && (errors.phones as any)[index])}
                                                                             withCountryCallingCode
                                                                             {...((editable && getFieldProps(`phones[${index}].value`)) &&
                                                                                 {

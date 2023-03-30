@@ -166,9 +166,10 @@ function NotificationPopover({...props}) {
             case "onEdit":
                 // onClose();
                 dispatch(setSelectedEvent(eventUpdated));
+                const newDate = moment(eventUpdated?.extendedProps.time);
                 dispatch(setMoveDateTime({
-                    date: new Date(eventUpdated?.extendedProps.time),
-                    time: moment(new Date(eventUpdated?.extendedProps.time)).format("HH:mm"),
+                    date: newDate,
+                    time: newDate.format("HH:mm"),
                     action: "move",
                     selected: false
                 }));

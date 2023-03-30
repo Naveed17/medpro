@@ -6,6 +6,7 @@ export {default as useIsMountedRef} from "./useIsMountedRef";
 export {default as useDateConverture} from "./useDateConverture";
 export {default as unsubscribeTopic} from "./unsubscribeTopic";
 export * from "./prepareSearchKeys";
+export * from "./capitalizeFirst";
 export * from "./rest/useAppointment";
 
 export function getDifference<T>(a: T[], b: T[]): T[] {
