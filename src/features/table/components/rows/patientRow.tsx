@@ -190,7 +190,7 @@ function PatientRow({...props}) {
                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
                                 {row.insurances.map((insur: any, index: number) =>
                                     <Tooltip key={index} title={insur.insurance?.name}>
-                                        <Avatar variant={"circular"} >
+                                        <Avatar variant={"circular"}>
                                             <Image
                                                 style={{borderRadius: 2}}
                                                 alt={insur.insurance?.name}
@@ -247,7 +247,7 @@ function PatientRow({...props}) {
                                         extendedProps: {
                                             time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                                             patient: row,
-                                            motif: row.nextAppointment.consultationReason,
+                                            motif: row.nextAppointment.consultationReasons,
                                             description: "",
                                             meeting: false,
                                             dur: row.nextAppointment.duration,
@@ -255,9 +255,10 @@ function PatientRow({...props}) {
                                         }
                                     }
                                     dispatch(setSelectedEvent(appointment as any));
+                                    const newDate = moment(appointment?.extendedProps.time);
                                     dispatch(setMoveDateTime({
-                                        date: new Date(appointment?.extendedProps.time),
-                                        time: moment(new Date(appointment?.extendedProps.time)).format("HH:mm"),
+                                        date: newDate,
+                                        time: newDate.format("HH:mm"),
                                         action: "move",
                                         selected: false
                                     }));

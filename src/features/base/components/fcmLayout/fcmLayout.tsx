@@ -334,9 +334,10 @@ function FcmLayout({...props}) {
                             } as any;
                             router.push("/dashboard/agenda").then(() => {
                                 dispatch(setSelectedEvent(event));
+                                const newDate = moment(event?.extendedProps.time);
                                 dispatch(setMoveDateTime({
-                                    date: new Date(event?.extendedProps.time),
-                                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                                    date: newDate,
+                                    time: newDate.format("HH:mm"),
                                     action: "move",
                                     selected: false
                                 }));
