@@ -466,7 +466,7 @@ function Payment() {
                     })
                     :
                     [...r]);
-                setTotal(amout);
+                //setTotal(amout);
                 setLoading(false);
             });
         },
@@ -539,6 +539,12 @@ function Payment() {
             getAppointments(queryPath, filterData);
         }
     }, [getAppointments, agenda, day, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        let total = 0;
+        filtredRows.map(row => total += parseFloat(row.amount));
+        setTotal(total);
+    }, [filtredRows])
 
     return (
         <>
