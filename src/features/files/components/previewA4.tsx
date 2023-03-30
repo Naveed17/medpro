@@ -22,7 +22,7 @@ function PreviewDialog({...props}) {
     const [title, setTitle] = useState("Titre");
     const prescriptionRows = [
         {name: 'name', style: {'margin-bottom': 0, 'font-size': '20px', 'font-weight': 'bold'}},
-        {name: 'dosage', style: {'font-size': '16px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
+        {name: 'dosage', style: {'font-size': '19px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
         {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
         {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
     ];
