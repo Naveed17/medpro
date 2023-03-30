@@ -919,6 +919,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
                 "common",
                 "menu",
                 "agenda",
+                "consultation",
                 'patient',
                 "payment",
             ])),
