@@ -33,7 +33,7 @@ function RdvCard({...props}) {
             extendedProps: {
                 time: moment(`${inner.dayDate} ${inner.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                 patient: patient,
-                motif: inner.consultationReason,
+                motif: inner.consultationReasons,
                 instruction: inner.instruction,
                 description: "",
                 meeting: false,

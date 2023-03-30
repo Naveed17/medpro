@@ -54,7 +54,7 @@ export default function HistoryCard({...props}) {
                             extendedProps: {
                                 time: moment(`${row.dayDate} ${row.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                                 patient: patient,
-                                motif: row.consultationReason,
+                                motif: row.consultationReasons,
                                 description: "",
                                 meeting: false,
                                 status

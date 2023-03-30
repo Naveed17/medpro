@@ -26,11 +26,10 @@ function CipMedicProCard({...props}) {
                     <Typography fontWeight={400}>
                         {t("table.reason_for_consultation")}
                     </Typography>
-                    { row.consultationReason && <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                        <ModelDot color={row.consultationReason.color} selected={false} size={21} sizedot={13}
-                                  padding={3} marginRight={5}/>
-                        {row.consultationReason.name}
-                    </Typography>}
+                    {row.consultationReasons.length > 0 &&
+                        <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                            {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                        </Typography>}
                     <NextLink href="/">
                         <Link underline='none' sx={{cursor: 'pointer'}}>
                             {t("table.send_the_link")}
@@ -65,7 +64,7 @@ function CipMedicProCard({...props}) {
                                 extendedProps: {
                                     time: moment(`${row.dayDate} ${row.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                                     patient: patient,
-                                    motif: row.consultationReason,
+                                    motif: row.consultationReasons,
                                     description: "",
                                     meeting: false,
                                     status: status.value
