@@ -38,7 +38,7 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient} = props;
+    const {loading, patient,antecedentsData, mutateAntecedents} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -63,15 +63,7 @@ function AntecedentsCard({...props}) {
         url: `/api/private/antecedent-types/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
-        patient ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
+
 
     const {data: httpAnctecentType} = useRequest({
         method: "GET",
@@ -115,9 +107,10 @@ function AntecedentsCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        if (Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
+        if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
+            console.log(antecedentsData[action]);
             setState(antecedentsData[action]);
-        }
+        } else setState([])
 
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
@@ -134,7 +127,6 @@ function AntecedentsCard({...props}) {
         setdata(newState);
     }*/
 
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
     const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
