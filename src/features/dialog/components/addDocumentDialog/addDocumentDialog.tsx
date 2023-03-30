@@ -55,35 +55,30 @@ function AddDocumentDialog({...props}) {
         const filesAccepted = e.target.files;
         let docs: any = [];
         Array.from(filesAccepted).map((file) => {
-            const reader = new FileReader();
-            reader.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    setProgress(Math.round((e.loaded / e.total) * 100));
-                }
-            };
-            if (file.type.includes('image')){
+
+            if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
                     500,
                     500,
                     file.type.split('/')[1],
-                    50,
+                    40,
                     0,
                     (uri) => {
-                        file = uri;
+                        docs.push({type: type, file: uri, progress: 100})
+                        setFiles([...files, ...docs]);
+                        setLoad(false);
                     },
                     "file")
-            }
-            reader.onloadend = () => {
+            } else {
                 docs.push({type: type, file, progress: 100})
-            };
-            reader.readAsDataURL(file);
+                setTimeout(() => {
+                    setFiles([...files, ...docs]);
+                    setLoad(false);
+                }, 1000);
+            }
+
         })
 
-        setTimeout(() => {
-            setFiles([...files, ...docs]);
-            setLoad(false);
-
-        }, 1000);
 
         setTimeout(() => {
             const el = document.getElementById("label")

@@ -40,7 +40,8 @@ import {getBirthdayFormat} from "@app/hooks";
 import UrlIcon from "@themes/urlIcon";
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
+    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda,antecedentsData,
+        mutateAntecedents, loading} = props;
 
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
