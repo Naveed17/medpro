@@ -19,14 +19,12 @@ export default function HistoryCard({...props}) {
     return (
         <HistoryCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
-                {row.consultationReason && <Stack spacing={1} alignItems={'flex-start'}>
+                {row.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
                     <Typography fontWeight={400}>
                         {t("reason_for_consultation")}
                     </Typography>
                     <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                        <ModelDot color={row.consultationReason.color} selected={false} size={21} sizedot={13}
-                                  padding={3} marginRight={5}/>
-                        {row.consultationReason.name}
+                        {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                     </Typography>
                 </Stack>}
                 <Box display={{ md: 'block'}}>

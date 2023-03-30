@@ -51,10 +51,14 @@ function RdvCard({...props}) {
             <TableCell>
                 <Box sx={{display: "flex"}}>
                     <Stack spacing={1}>
-                        {inner.consultationReason && <Typography variant="body2" color="text.primary" sx={{mr: 3}}>
-                            {loading ? <Skeleton variant="text" width={100}/> :
-                                (<> {t("reason")} : {inner.consultationReason.name}</>)}
-                        </Typography>}
+                        {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
+                            <Typography fontWeight={400}>
+                                {t("reason")}
+                            </Typography>
+                            <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                                {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                            </Typography>
+                        </Stack>}
                         {inner?.type && <Stack direction='row' alignItems="center">
                             <ModelDot
                                 icon={IconsTypes[inner?.type.icon]}
