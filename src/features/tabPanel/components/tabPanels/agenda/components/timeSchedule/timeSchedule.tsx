@@ -83,7 +83,7 @@ function TimeSchedule({...props}) {
 
     const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 

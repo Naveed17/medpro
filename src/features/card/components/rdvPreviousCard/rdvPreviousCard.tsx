@@ -75,7 +75,7 @@ function RdvCard({...props}) {
                     <Skeleton variant="text" width={100}/>
                 ) : (
                     <Stack direction={"row"} justifyItems={"center"} spacing={1.2}>
-                        <Stack direction={"column"} spacing={1.2}>
+                        <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
                             {inner?.type && <Stack direction='row' alignItems="center">
                                 <ModelDot
                                     color={inner?.type?.color}

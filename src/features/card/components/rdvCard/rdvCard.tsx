@@ -11,6 +11,8 @@ import {AppointmentStatus, IconsTypes, openDrawer, setSelectedEvent} from "@feat
 import {useAppDispatch} from "@app/redux/hooks";
 import moment from "moment/moment";
 import {LoadingScreen} from "@features/loadingScreen";
+import {Label} from "@features/label";
+import React from "react";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;
@@ -49,26 +51,46 @@ function RdvCard({...props}) {
     return (
         <RootStyled>
             <TableCell>
-                <Box sx={{display: "flex"}}>
-                    <Stack spacing={1}>
-                        {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
-                            <Typography fontWeight={400}>
-                                {t("reason")}
-                            </Typography>
-                            <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                                {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
-                            </Typography>
-                        </Stack>}
+                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
+                        <Typography fontSize={12} fontWeight={400}>
+                            {t("reason")}
+                        </Typography>
+                        <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                            {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                        </Typography>
+                    </Stack>}
+                    <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
                         {inner?.type && <Stack direction='row' alignItems="center">
                             <ModelDot
-                                icon={IconsTypes[inner?.type.icon]}
                                 color={inner?.type?.color}
                                 selected={false} size={20} sizedot={12}
                                 padding={3} marginRight={5}/>
                             <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
                         </Stack>}
+                        {inner?.status && <Label
+                            variant="filled"
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0,
+                                },
+                            }}
+                            color={AppointmentStatus[inner?.status]?.classColor}>
+                            {AppointmentStatus[inner?.status]?.icon}
+                            <Typography
+                                sx={{
+                                    fontSize: 10,
+                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                        ? 0.5
+                                        : 0,
+                                }}>
+                                {AppointmentStatus[inner?.status]?.value}
+                            </Typography>
+                        </Label>}
                     </Stack>
-                </Box>
+                </Stack>
             </TableCell>
             <TableCell>
                 {loading ? (

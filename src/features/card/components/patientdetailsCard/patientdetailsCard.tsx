@@ -40,8 +40,10 @@ import {getBirthdayFormat} from "@app/hooks";
 import UrlIcon from "@themes/urlIcon";
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda,antecedentsData,
-        mutateAntecedents, loading} = props;
+    const {
+        patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, antecedentsData,
+        mutateAntecedents, loading
+    } = props;
 
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
@@ -142,50 +144,41 @@ function PatientDetailsCard({...props}) {
             <Form autoComplete="off" noValidate>
                 <RootStyled direction={"row"} justifyContent={"space-between"}>
                     <Box sx={{display: "inline-flex"}}>
-                        <Badge
-                            color="success"
-                            variant="dot"
-                            invisible={patient?.nextAppointments.length === 0 || loading}
-                            anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                            }}>
-                            {loading ? (
-                                <Skeleton
-                                    variant="rectangular"
-                                    width={pxToRem(100)}
-                                    height={pxToRem(100)}
-                                    sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                        {loading ? (
+                            <Skeleton
+                                variant="rectangular"
+                                width={pxToRem(100)}
+                                height={pxToRem(100)}
+                                sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                            />
+                        ) : (
+                            <label htmlFor="contained-button-file" style={{cursor: "pointer", height: 100}}>
+                                <InputStyled
+                                    id="contained-button-file"
+                                    onChange={(e) => handleDrop(e.target.files as FileList)}
+                                    type="file"
                                 />
-                            ) : (
-                                <label htmlFor="contained-button-file" style={{cursor: "pointer"}}>
-                                    <InputStyled
-                                        id="contained-button-file"
-                                        onChange={(e) => handleDrop(e.target.files as FileList)}
-                                        type="file"
-                                    />
-                                    <Avatar
-                                        src={values.picture.url}
-                                        sx={{
-                                            width: 100, height: 100, "& svg": {
-                                                padding: 1.5
-                                            }
-                                        }}
-                                    >
-                                        <IconUrl path="ic-user-profile"/>
-                                    </Avatar>
-                                    <IconButton
-                                        onClick={() => {
-                                            document.getElementById('contained-button-file')?.click()
-                                        }}
-                                        type="button"
-                                        className={"import-avatar"}
-                                    >
-                                        <IconUrl path="ic-return-photo"/>
-                                    </IconButton>
-                                </label>
-                            )}
-                        </Badge>
+                                <Avatar
+                                    src={values.picture.url}
+                                    sx={{
+                                        width: 100, height: 100, "& svg": {
+                                            padding: 1.5
+                                        }
+                                    }}
+                                >
+                                    <IconUrl path="ic-user-profile"/>
+                                </Avatar>
+                                <IconButton
+                                    onClick={() => {
+                                        document.getElementById('contained-button-file')?.click()
+                                    }}
+                                    type="button"
+                                    className={"import-avatar"}
+                                >
+                                    <IconUrl path="ic-return-photo"/>
+                                </IconButton>
+                            </label>
+                        )}
 
                         <Box mx={1}>
                             {loading ? (
