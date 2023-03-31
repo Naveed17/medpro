@@ -231,15 +231,11 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            {row.consultation_reason ? (
-                                <Label
-                                    variant="filled"
-                                    sx={{
-                                        bgcolor: row.consultation_reason.color,
-                                        color: "#fff",
-                                    }}>
-                                    {row.consultation_reason.name}
-                                </Label>
+                            {row.consultation_reasons?.length > 0 ? (
+                                <Typography
+                                    variant="body2">
+                                    {row.consultation_reasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                </Typography>
                             ) : (
                                 " -- "
                             )}
