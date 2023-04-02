@@ -181,7 +181,7 @@ function Agenda() {
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
-            DayOfWeek(openingHours[0], doctor_country?.code === "dz" ? 0 : 1) === moment(date).isoWeekday());
+            DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
             let hasError: boolean[] = [];
