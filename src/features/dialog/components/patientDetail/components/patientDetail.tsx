@@ -340,13 +340,13 @@ function PatientDetail({...props}) {
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
-        /*{
+        {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData}} />
+                <PatientFile {...{patient, antecedentsData,t}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },*/
+        },
         {
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
