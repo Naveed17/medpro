@@ -153,7 +153,7 @@ function CIPPatientHistoryCard({...props}) {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => triggerGetReasons({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((result: any) => {
             const {status} = result?.data;

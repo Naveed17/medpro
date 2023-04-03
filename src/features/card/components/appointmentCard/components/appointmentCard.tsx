@@ -41,7 +41,7 @@ function AppointmentCard({...props}) {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
