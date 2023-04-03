@@ -4,7 +4,8 @@ import {KeyedMutator} from "swr";
 
 
 export type dashLayoutState = {
-    waiting_room: number;
+    waiting_room?: number;
+    allowNotification?: boolean;
     import_data?: string[];
     mutate?: KeyedMutator<any> | null;
     last_fiche_id?: string;
@@ -25,6 +26,7 @@ export type dashLayoutState = {
 
 const initialState: dashLayoutState = {
     waiting_room: 0,
+    allowNotification: false,
     import_data: [],
     last_fiche_id: "0",
     mutate: null,
