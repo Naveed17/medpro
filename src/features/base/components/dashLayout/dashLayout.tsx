@@ -126,12 +126,13 @@ function DashLayout({children}: LayoutProps) {
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const justNumbers = (str: string) => {
-        const res = str.match(/\d+$/)
+        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
+            console.log("res",res);
             let numStr = res[0];
             let num = parseInt(numStr);
             num++;
-            str = str.replace(numStr, num.toString());
+            str = str.replace(/\d(?!.*\d)/, num.toString());
         }
         return str;
     }
