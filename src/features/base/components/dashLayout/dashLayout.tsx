@@ -17,6 +17,7 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
+import {checkNotification} from "@app/hooks";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -62,6 +63,8 @@ function DashLayout({children}: LayoutProps) {
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
+    // Check notification permission
+    const permission = checkNotification();
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
@@ -79,6 +82,17 @@ function DashLayout({children}: LayoutProps) {
 
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
+
+    const justNumbers = (chars: string) => {
+        const numsStr = chars.replace(/[^0-9]/g, '');
+        let charsStr = chars.replace(/[0-9]/, '');
+        if (charsStr === "undefined" || charsStr === undefined)
+            charsStr = ""
+        let nb = 1;
+        if (numsStr.length > 0)
+            nb = parseInt(numsStr) + 1;
+        return charsStr + nb;
+    }
 
     useEffect(() => {
         if (agenda) {
@@ -125,16 +139,11 @@ function DashLayout({children}: LayoutProps) {
         }
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const justNumbers = (chars: string) => {
-        const numsStr = chars.replace(/[^0-9]/g, '');
-        let charsStr = chars.replace(/[0-9]/, '');
-        if (charsStr === "undefined" || charsStr === undefined)
-            charsStr = ""
-        let nb = 1;
-        if (numsStr.length > 0)
-            nb = parseInt(numsStr) + 1;
-        return charsStr + nb;
-    }
+    useEffect(() => {
+        if (permission) {
+            dispatch(setOngoing({allowNotification: permission !== "denied"}));
+        }
+    }, [dispatch, permission])
 
     return (
         <SideBarMenu>
