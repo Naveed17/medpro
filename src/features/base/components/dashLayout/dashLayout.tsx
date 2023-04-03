@@ -125,15 +125,15 @@ function DashLayout({children}: LayoutProps) {
         }
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const justNumbers = (chars: string) => {
-        const numsStr = chars.replace(/[^0-9]/g, '');
-        let charsStr = chars.replace(/[0-9]/, '');
-        if (charsStr === "undefined" || charsStr === undefined)
-            charsStr = ""
-        let nb = 1;
-        if (numsStr.length > 0)
-            nb = parseInt(numsStr) + 1;
-        return charsStr + nb;
+    const justNumbers = (str: string) => {
+        const res = str.match(/\d+$/)
+        if (str && res) {
+            let numStr = res[0];
+            let num = parseInt(numStr);
+            num++;
+            str = str.replace(numStr, num.toString());
+        }
+        return str;
     }
 
     return (
