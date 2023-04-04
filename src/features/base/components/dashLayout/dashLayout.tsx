@@ -141,7 +141,7 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (permission) {
-            dispatch(setOngoing({allowNotification: permission !== "denied"}));
+            dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
     }, [dispatch, permission])
 
