@@ -330,6 +330,7 @@
       "family_antecedents": "Antécédents familiaux",
       "medical_antecedents": "Antécédents médicaux",
       "surgical_antecedents": "Antécédents chirurgicaux",
+      "notes": "Notes",
       "diagnostics": "Diagnostique",
       "treatments": "Traitements",
       "allergic": "Allergies",

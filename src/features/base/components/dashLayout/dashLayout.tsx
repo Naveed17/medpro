@@ -83,15 +83,15 @@ function DashLayout({children}: LayoutProps) {
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
-    const justNumbers = (chars: string) => {
-        const numsStr = chars.replace(/[^0-9]/g, '');
-        let charsStr = chars.replace(/[0-9]/, '');
-        if (charsStr === "undefined" || charsStr === undefined)
-            charsStr = ""
-        let nb = 1;
-        if (numsStr.length > 0)
-            nb = parseInt(numsStr) + 1;
-        return charsStr + nb;
+    const justNumbers = (str: string) => {
+        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        if (str && res) {
+            let numStr = res[0];
+            let num = parseInt(numStr);
+            num++;
+            str = str.replace(/\d(?!.*\d)/, num.toString());
+        }
+        return str;
     }
 
     useEffect(() => {

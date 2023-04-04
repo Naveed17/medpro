@@ -341,15 +341,15 @@ function PatientDetail({...props}) {
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
         {
+            title: "tabs.notes",
+            children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
                 <PatientFile {...{patient, antecedentsData,t}} />
             </PDFViewer>,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
-        {
-            title: "tabs.notes",
-            children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
