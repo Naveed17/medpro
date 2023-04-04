@@ -1,3 +1,10 @@
+## [4.15.2](https://github.com/SmartMedSA/med-pro/compare/v4.15.1...v4.15.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* last fiche id ([aa80b7e](https://github.com/SmartMedSA/med-pro/commit/aa80b7ec711a97af7d871bb3b8b5bbdf10d655da))
+
 ## [4.15.1](https://github.com/SmartMedSA/med-pro/compare/v4.15.0...v4.15.1) (2023-04-02)
 
 
