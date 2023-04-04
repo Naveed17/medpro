@@ -29,8 +29,7 @@ function ConsultationType() {
   const { data: session } = useSession();
   const { data: user } = session as Session;
   const router = useRouter();
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
+  const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
   const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
   const [edit, setEdit] = useState(false);
   const [selected, setSelected] = useState<any>();

@@ -59,6 +59,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
         prodEnv && smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
     }
 
+    // Get Layout for pages
     const getLayout = Component.getLayout ?? ((page) => page);
     return (
         <Provider store={store}>

@@ -17,6 +17,7 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
+import {checkNotification} from "@app/hooks";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -62,6 +63,8 @@ function DashLayout({children}: LayoutProps) {
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
+    // Check notification permission
+    const permission = checkNotification();
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
@@ -79,6 +82,17 @@ function DashLayout({children}: LayoutProps) {
 
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
+
+    const justNumbers = (str: string) => {
+        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        if (str && res) {
+            let numStr = res[0];
+            let num = parseInt(numStr);
+            num++;
+            str = str.replace(/\d(?!.*\d)/, num.toString());
+        }
+        return str;
+    }
 
     useEffect(() => {
         if (agenda) {
@@ -125,16 +139,11 @@ function DashLayout({children}: LayoutProps) {
         }
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const justNumbers = (str: string) => {
-        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
-        if (str && res) {
-            let numStr = res[0];
-            let num = parseInt(numStr);
-            num++;
-            str = str.replace(/\d(?!.*\d)/, num.toString());
+    useEffect(() => {
+        if (permission) {
+            dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
-        return str;
-    }
+    }, [dispatch, permission])
 
     return (
         <SideBarMenu>

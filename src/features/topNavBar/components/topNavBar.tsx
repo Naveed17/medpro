@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer
+    Popover, useMediaQuery, Button, Drawer, Stack, Typography
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -38,6 +38,7 @@ import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
 import {useRequestMutation} from "@app/axios";
@@ -68,7 +69,7 @@ function TopNavBar({...props}) {
     const {lock} = useAppSelector(appLockSelector);
     const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing, next, import_data, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {ongoing, next, import_data, allowNotification, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
 
@@ -195,6 +196,16 @@ function TopNavBar({...props}) {
         }
     }
 
+    const requestNotificationPermission = () => {
+        Notification.requestPermission().then((permission) => {
+            console.log("requestPermission", permission);
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+                console.log("requestPermission granted");
+            }
+        });
+    }
+
     useEffect(() => {
         if (ongoing) {
             const event: any = {
@@ -277,18 +288,7 @@ function TopNavBar({...props}) {
                                 <Icon path="ic-toggle"/>
                             </IconButton>
                         </Hidden>
-                        {/*                      <Hidden smUp>
-                            <Link href="/" className="nav-logo">
-                                <Box
-                                    component="img"
-                                    height={38}
-                                    width={38}
-                                    alt="company logo"
-                                    src="/static/icons/Med-logo_.svg"
-                                    mr={1}
-                                />
-                            </Link>
-                        </Hidden>*/}
+
                         <Hidden mdDown>
                             <IconButton
                                 onClick={() => {
@@ -314,6 +314,13 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
+                            {!allowNotification && <Button variant="contained"
+                                     onClick={() => requestNotificationPermission()}
+                                     sx={{mr: 3}}
+                                     startIcon={<NotificationsPausedIcon color={"warning"}/>}
+                                     color={"warning"}>
+                                <Typography variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
+                            </Button>}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}
