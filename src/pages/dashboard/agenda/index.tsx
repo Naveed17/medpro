@@ -379,18 +379,25 @@ function Agenda() {
             }
         };
         setEvent(defEvent);
-        if (info.oldEvent._def.extendedProps.status.key === "FINISHED") {
-            if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc().set({
-                hour: 0,
-                minute: 0,
-                second: 0
-            })) || onDurationChanged) {
+        const status = info.oldEvent._def.extendedProps.status.key;
+        switch (status) {
+            case "ON_GOING":
                 info.revert();
-            } else {
-                handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
-            }
-        } else {
-            handleDragEvent(defEvent?.extendedProps.newDate, "move");
+                break;
+            case "FINISHED":
+                if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc().set({
+                    hour: 0,
+                    minute: 0,
+                    second: 0
+                })) || onDurationChanged) {
+                    info.revert();
+                } else {
+                    handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
+                }
+                break;
+            default:
+                handleDragEvent(defEvent?.extendedProps.newDate, "move");
+                break;
         }
     }
 
