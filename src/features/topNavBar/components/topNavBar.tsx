@@ -319,7 +319,7 @@ function TopNavBar({...props}) {
                                      sx={{mr: 3}}
                                      startIcon={<NotificationsPausedIcon color={"warning"}/>}
                                      color={"warning"}>
-                                <Typography variant={"body2"}> {"Activer les notifications pour une meilleure expérience utilisateur"}</Typography>
+                                <Typography variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
                             </Button>}
                             {next &&
                                 <LoadingButton
