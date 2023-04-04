@@ -128,7 +128,6 @@ function DashLayout({children}: LayoutProps) {
     const justNumbers = (str: string) => {
         const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
-            console.log("res",res);
             let numStr = res[0];
             let num = parseInt(numStr);
             num++;
