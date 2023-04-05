@@ -5,5 +5,10 @@ const LifeStyleDialogStyled = styled(Stack)(({ theme }) => ({
     ".MuiFormGroup-root": {
         marginBottom: theme.spacing(1),
     },
+    ".selected-ant":{
+        border: "1px solid #bfbfc1",
+        borderRadius: 8,
+        padding: "15px 15px 0"
+    }
 }));
 export default LifeStyleDialogStyled;
