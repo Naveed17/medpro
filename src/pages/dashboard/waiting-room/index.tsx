@@ -16,7 +16,6 @@ import {
     LinearProgress,
     Menu,
     MenuItem,
-    Stack,
     useTheme
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
@@ -39,14 +38,13 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {useIsMountedRef} from "@app/hooks";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
-import {Dialog, PatientDetail} from "@features/dialog";
+import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {DefaultCountry} from "@app/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
-import {agendaSelector, setConfig} from "@features/calendar";
-import {navBarSelector, setMutates} from "@features/topNavBar";
+import PendingIcon from "@themes/overrides/icons/pendingIcon";
 
 export const headCells = [
     {
@@ -142,15 +140,17 @@ function WaitingRoom() {
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing, next} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
+    const {model} = useAppSelector(preConsultationSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -159,6 +159,7 @@ function WaitingRoom() {
     const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
         cash: {
@@ -178,6 +179,11 @@ function WaitingRoom() {
         selected: null
     });
     const [popoverActions, setPopoverActions] = useState([
+        {
+            title: "pre_consultation_data",
+            icon: <PendingIcon/>,
+            action: "onPreConsultation",
+        },
         {
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
@@ -202,6 +208,7 @@ function WaitingRoom() {
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
 
     const {data: httpAgendasResponse} = useRequest({
         method: "GET",
@@ -322,6 +329,10 @@ function WaitingRoom() {
             case "onConsultationStart":
                 startConsultation(row);
                 break;
+            case "onPreConsultation":
+                setRow(row);
+                setOpenPreConsultationDialog(true);
+                break;
             case "onNextConsultation":
                 nextConsultation(row);
                 break;
@@ -380,6 +391,29 @@ function WaitingRoom() {
                 handleContextMenu(data.event);
                 break;
         }
+    }
+
+    const submitPreConsultationData = () => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append("modal_uuid", model);
+        form.append(
+            "modal_data",
+            localStorage.getItem(`Modeldata${row?.uuid}`) as string
+        );
+
+        updatePreConsultationTrigger({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            setLoadingReq(false);
+            localStorage.removeItem(`Modeldata${row?.uuid}`);
+            setOpenPreConsultationDialog(false)
+        });
     }
 
     const waitingRooms = (httpWaitingRoomsResponse as HttpResponse)?.data as any;
@@ -586,6 +620,38 @@ function WaitingRoom() {
                             disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("save", {ns: "common"})}
+                        </Button>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                action={"pre_consultation_data"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openPreConsultationDialog}
+                data={{
+                    patient: row?.patient,
+                    uuid: row?.uuid
+                }}
+                size={"md"}
+                title={t("pre_consultation_dialog_title")}
+                {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "common"})}
+                        </Button>
+                        <Button
+                            disabled={loadingRequest}
+                            variant="contained"
+                            onClick={() => submitPreConsultationData()}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
                         </Button>

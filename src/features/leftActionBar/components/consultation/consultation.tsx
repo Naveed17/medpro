@@ -69,8 +69,7 @@ function Consultation() {
 
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     useEffect(() => {
         if (isStarted) {

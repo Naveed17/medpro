@@ -20,7 +20,7 @@ function PatientHistoryCard({...props}) {
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             closePatientDialog && closePatientDialog();
-            setSelectedTab("consultation_form");
+            setSelectedTab && setSelectedTab("consultation_form");
         });
     }
 

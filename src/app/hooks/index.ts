@@ -87,3 +87,4 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         status: AppointmentStatus[appointment.status]
     }
 }
+
