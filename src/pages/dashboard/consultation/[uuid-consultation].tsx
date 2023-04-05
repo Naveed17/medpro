@@ -36,7 +36,7 @@ import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule,} from "@features/tabPanel";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from "react-simple-image-viewer";
-import {Widget} from "@features/widget";
+import {WidgetForm} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -50,21 +50,6 @@ import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-const WidgetForm: any = memo(
-    ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel, isClose} = props;
-        return (
-            <Widget
-                {...{modal, data, models, appuuid, changes, setChanges, isClose}}
-                setModal={setSM}
-                handleClosePanel={handleClosePanel}></Widget>
-        );
-    },
-    // NEVER UPDATE
-    () => true
-);
-WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
     const theme = useTheme();

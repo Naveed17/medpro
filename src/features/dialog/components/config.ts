@@ -259,7 +259,14 @@ const dialogData = [
             )
         ),
     },
-
+    {
+        action: "pre_consultation_data",
+        component: dynamic((): any =>
+            import("@features/dialog/components/preConsultationDialog/components/preConsultationDialog").then(
+                (mod) => mod
+            )
+        ),
+    }
 ];
 
 export default dialogData;
