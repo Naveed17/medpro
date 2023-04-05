@@ -109,6 +109,8 @@ function ConsultationInProgress() {
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
+    const [notes, setNotes] = useState<any[]>([]);
+    const [diagnostics, setDiagnostics] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
@@ -399,6 +401,21 @@ function ConsultationInProgress() {
                 setFree(checkFree);
                 if (!checkFree) setTotal(consultationFees);
                 if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+
+                let noteHistories: any[] = []
+                let diagnosticHistories: any[] = []
+                appointement.latestAppointments.map((app: any) => {
+                    const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                    const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
+                    if (note && note.value !== '') {
+                        noteHistories.push({data: app.appointment.dayDate, value: note.value})
+                    }
+                    if (diagnostics && diagnostics.value !== '') {
+                        diagnosticHistories.push({data: app.appointment.dayDate, value: diagnostics.value})
+                    }
+                })
+                setNotes(noteHistories);
+                setDiagnostics(diagnosticHistories);
             }
         }, 2000)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -590,15 +607,12 @@ function ConsultationInProgress() {
               setNumPages(numPages);
           };*/
     const seeHistory = () => {
-        let histories: any[] = []
-        appointement.latestAppointments.map((app: any) => {
-            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-            if (note && note.value !== '') {
-                histories.push({data: app.appointment.dayDate, value: note.value})
-            }
-        })
         setOpenActDialog(true);
-        setstateAct(histories)
+        setstateAct(notes)
+    }
+    const seeHistoryDiagnostic = () => {
+        setOpenActDialog(true);
+        setstateAct(diagnostics)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -908,7 +922,10 @@ function ConsultationInProgress() {
                                         mutateDoc,
                                         medical_entity,
                                         session,
+                                        notes,
+                                        diagnostics,
                                         seeHistory,
+                                        seeHistoryDiagnostic,
                                         router,
                                     }}
                                 />
