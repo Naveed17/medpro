@@ -1,14 +1,26 @@
-import {CardContent, Stack, Typography} from '@mui/material'
+import {CardContent, Stack, Tooltip, tooltipClasses, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import moment from "moment/moment";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventRoundedIcon from '@mui/icons-material/EventRounded';
+import {styled} from "@mui/system";
+import {TooltipProps} from "@mui/material/Tooltip";
 
 function DocumentCard({...props}) {
     //const [openTooltip, setOpenTooltip] = useState<boolean>(false);
     const {data, onClick, t, date, title, time} = props;
+    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
+        <Tooltip {...props} classes={{popper: className}}/>
+    ))(({theme}) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: '#f5f5f9',
+            color: 'rgba(0, 0, 0, 0.87)',
+            maxWidth: 220,
+            border: '1px solid #dadde9',
+        },
+    }));
     /*const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -24,6 +36,15 @@ function DocumentCard({...props}) {
         <>
             {data.documentType !== "photo" &&
                 <DocumentCardStyled className={"document-card"}>
+                    <HtmlTooltip
+                        title={
+                            <React.Fragment>
+                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+
+                                }} fontSize={12}>Note : {data.description ?data.description:"--"}</Typography>
+                            </React.Fragment>
+                        }
+                    >
                     <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
                         {/*  <Stack direction="row" alignItems="center" justifyContent="end">
 
@@ -114,6 +135,7 @@ function DocumentCard({...props}) {
                             </Stack>}
                         </Stack>
                     </CardContent>
+                    </HtmlTooltip>
                 </DocumentCardStyled>
             }
             {data.documentType === "photo" &&
