@@ -1,3 +1,25 @@
+# [4.16.0](https://github.com/SmartMedSA/med-pro/compare/v4.15.2...v4.16.0) (2023-04-04)
+
+
+### Bug Fixes
+
+* payment date picker filter ([8f75d75](https://github.com/SmartMedSA/med-pro/commit/8f75d750f0608777757e8ece0c6d5be1d740e262))
+* prevent on going appointment from moving ([c9d0968](https://github.com/SmartMedSA/med-pro/commit/c9d0968bda5050bea20e71ae2389081e4c4bc7df))
+* request permission trigger ([301d75e](https://github.com/SmartMedSA/med-pro/commit/301d75efac718f8b669de33edbd5a6a6357a3a50))
+* undefined variable ([7a29f3d](https://github.com/SmartMedSA/med-pro/commit/7a29f3d9b816c1d6fc03320cc587b5c966380c89))
+
+
+### Features
+
+* request notification permission ([bc8f838](https://github.com/SmartMedSA/med-pro/commit/bc8f838921b76a2fc1fbb1de7de407f22427dd0b))
+
+## [4.15.2](https://github.com/SmartMedSA/med-pro/compare/v4.15.1...v4.15.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* last fiche id ([aa80b7e](https://github.com/SmartMedSA/med-pro/commit/aa80b7ec711a97af7d871bb3b8b5bbdf10d655da))
+
 ## [4.15.1](https://github.com/SmartMedSA/med-pro/compare/v4.15.0...v4.15.1) (2023-04-02)
 
 

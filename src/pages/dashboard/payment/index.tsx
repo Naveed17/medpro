@@ -413,8 +413,10 @@ function Payment() {
             ).then((result) => {
                 let amout = 0;
                 const r: any[] = [];
-                const appointments = (result?.data as HttpResponse)?.data.filter((app: { status: number }) => app.status === 5);
-                appointments.map((app: any) => {
+                const appointments = (result?.data as HttpResponse);
+                const filteredStatus = appointments?.data.filter((app: { status: number, dayDate: string }) => app.status === 5);
+                const filteredData = filterQuery.day ? filteredStatus?.filter((app: { status: number, dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
+                filteredData.map((app: any) => {
                     amout += Number(app.fees);
                     r.push({
                         uuid: app.uuid,
@@ -473,9 +475,13 @@ function Payment() {
         [agenda, medical_entity.uuid, router, session, trigger, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
-    const generateFilter = () => {
-        return `?start_date=${day}&end_date=${day}`;
-    };
+    const getFilteredData = (day: string) => {
+        const filterByRange = filterData?.payment && filterData?.payment?.dates;
+        const startDate = filterByRange ? moment(filterData?.payment?.dates[0].startDate).format('DD-MM-YYYY') : day;
+        const endDate = filterByRange ? moment(filterData?.payment?.dates[0].endDate).format('DD-MM-YYYY') : moment(day, "DD-MM-YYYY").add(1, "day").format("DD-MM-YYYY");
+        const queryPath = `format=week&start_date=${startDate}&end_date=${endDate}`;
+        getAppointments(queryPath, {...filterData, ...(!filterByRange && {day})});
+    }
 
     useEffect(() => {
         if (!lock) {
@@ -527,18 +533,14 @@ function Payment() {
         }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
 
     useEffect(() => {
-        setDay(moment(currentDate.date).format("DD-MM-YYYY"));
-        //console.log(currentDate)
-    }, [currentDate]);
+        const updatedDate = moment(currentDate.date).format("DD-MM-YYYY");
+        setDay(updatedDate);
+        getFilteredData(updatedDate);
+    }, [currentDate]);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (agenda) {
-            const startDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].startDate).format('DD-MM-YYYY') : day;
-            const endDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].endDate).format('DD-MM-YYYY') : day;
-            const queryPath = `format=week&page=1&limit=50&start_date=${startDate}&end_date=${endDate}`;
-            getAppointments(queryPath, filterData);
-        }
-    }, [getAppointments, agenda, day, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
+        agenda && getFilteredData(day);
+    }, [getAppointments, agenda, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let total = 0;
