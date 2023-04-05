@@ -967,7 +967,7 @@ function ConsultationInProgress() {
                                     patient,
                                     editAct,
                                     setTotal,
-                                    t,
+                                    t, router
                                 }}></FeesTab>
                         )}
                     </TabPanel>
