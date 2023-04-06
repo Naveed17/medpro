@@ -21,6 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment/moment";
 import IconUrl from "@themes/urlIcon";
 import {SubFooter} from "@features/subFooter";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 function FeesTab({...props}) {
 
@@ -95,8 +96,8 @@ function FeesTab({...props}) {
         setConsultationFees,
         consultationFees,
         free, setFree,
-        patient, isHistory,
-        total,setInfo,setState,setOpenDialog,
+        patient, isHistory, router,
+        total, setInfo, setState, setOpenDialog,
         t
     } = props;
 
@@ -198,6 +199,15 @@ function FeesTab({...props}) {
                         edit={editAct}
                         handleChange={setTotal}/>
                 </Box>
+
+                <Button
+                    onClick={() => {
+                        router.push("/dashboard/settings/actfees")
+                    }}
+                    size="small"
+                    startIcon={<TuneRoundedIcon/>}>
+                    {t('consultationIP.config')}
+                </Button>
             </Box>
             {/*<Stack spacing={2} display={{xs: "block", md: 'none'}}>
                 {

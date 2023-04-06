@@ -19,7 +19,14 @@ import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, seeHistory} = props;
+    const {exam: defaultExam,
+        changes,
+        setChanges,
+        uuind,
+        notes,
+        diagnostics,
+        seeHistory,
+        seeHistoryDiagnostic} = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
@@ -263,21 +270,21 @@ function CIPPatientHistoryCard({...props}) {
                                                                   variant="outlined" fullWidth/>}/>
                         </Box>
                         <Box>
-                            {<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
                                 <Typography variant="body2" fontWeight={500}>
                                     {t("notes")}
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        {notes.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
                                             seeHistory()
-                                        }}>{t('seeHistory')}</Typography>
+                                        }}>{t('seeHistory')}</Typography>}
                                     </>}
                                     <RecButton onClick={() => {
                                         startStopRec();
                                     }}/>
                                 </Stack>
-                            </Stack>}
+                            </Stack>
                             <TextField
                                 fullWidth
                                 multiline
@@ -300,9 +307,16 @@ function CIPPatientHistoryCard({...props}) {
                             />
                         </Box>
                         <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("diagnosis")}
-                            </Typography>
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
+                                <Typography variant="body2" fontWeight={500}>
+                                    {t("diagnosis")}
+                                </Typography>
+
+                                {diagnostics.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                    seeHistoryDiagnostic()
+                                }}>{t('seeHistory')}</Typography>}
+                            </Stack>
+
                             <TextField
                                 fullWidth
                                 id={"diagnosis"}
