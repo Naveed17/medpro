@@ -50,6 +50,14 @@ declare module "@mui/material/Chip" {
     }
 }
 
+declare module "@mui/material/SvgIcon" {
+    interface SvgIconPropsColorOverrides {
+        text: true,
+        white: true;
+        black: true;
+    }
+}
+
 declare module "@mui/material" {
 
     interface Color {
