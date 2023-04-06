@@ -85,7 +85,7 @@ function LifeStyleDialog({...props}) {
     return (
         <LifeStyleDialogStyled display='block'>
 
-            <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
+            <Box maxWidth={{xs: '100%', md: '100%'}} mx="auto">
                 <TextField
                     id="standard-basic"
                     variant="outlined"
@@ -127,7 +127,7 @@ function LifeStyleDialog({...props}) {
                             return item.name.toLowerCase().includes(value.toLowerCase());
                         })
                             .map((list: any, idx: number) =>
-                                <FormGroup row key={idx}>
+                                <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ?"selected-ant":""} row key={idx}>
                                     <FormControlLabel
                                         control={
                                             <Checkbox checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
@@ -166,7 +166,7 @@ function LifeStyleDialog({...props}) {
                                                     }/>
                                             </Stack>
                                             {
-                                                list.value_type === 1 &&
+                                                //list.value_type === 1 &&
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response : ''}
                                                     placeholder={t('note')}

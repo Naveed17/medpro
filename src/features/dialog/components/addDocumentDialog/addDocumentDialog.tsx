@@ -58,10 +58,10 @@ function AddDocumentDialog({...props}) {
 
             if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
-                    500,
-                    500,
+                    600,
+                    600,
                     file.type.split('/')[1],
-                    40,
+                    60,
                     0,
                     (uri) => {
                         docs.push({type: type, file: uri, progress: 100})
