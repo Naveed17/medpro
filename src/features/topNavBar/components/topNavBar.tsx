@@ -321,13 +321,13 @@ function TopNavBar({...props}) {
                                     <Avatar
                                         sx={{mr: 2, bgcolor: theme.palette.warning.main}}
                                         onClick={() => requestNotificationPermission()}>
-                                        <NotificationsPausedIcon color={"black"} />
+                                        <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
                                 </Tooltip>
                                 :
                                 <Button variant="contained"
                                         onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3}}
+                                        sx={{mr: 3, margin: "0 24px 8px"}}
                                         startIcon={<NotificationsPausedIcon color={"warning"}/>}
                                         color={"warning"}>
                                     <Typography

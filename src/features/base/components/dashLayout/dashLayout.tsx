@@ -65,7 +65,7 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = isAppleDevise() ? checkNotification(): false;
+    const permission = !isAppleDevise() ? checkNotification(): false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
