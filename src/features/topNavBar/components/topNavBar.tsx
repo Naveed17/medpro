@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer, Stack, Typography
+    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -64,6 +64,7 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
+    const theme = useTheme();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -314,13 +315,24 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {!allowNotification && <Button variant="contained"
-                                     onClick={() => requestNotificationPermission()}
-                                     sx={{mr: 3}}
-                                     startIcon={<NotificationsPausedIcon color={"warning"}/>}
-                                     color={"warning"}>
-                                <Typography variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
-                            </Button>}
+                            {!allowNotification && (isMobile ?
+                                <Tooltip
+                                    title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
+                                    <Avatar
+                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        onClick={() => requestNotificationPermission()}>
+                                        <NotificationsPausedIcon color={"black"} />
+                                    </Avatar>
+                                </Tooltip>
+                                :
+                                <Button variant="contained"
+                                        onClick={() => requestNotificationPermission()}
+                                        sx={{mr: 3}}
+                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
+                                        color={"warning"}>
+                                    <Typography
+                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
+                                </Button>)}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}
@@ -361,14 +373,21 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            {installable &&
-                                <Button sx={{mr: 2, p: "6px 12px"}}
-                                        onClick={handleInstallClick}
-                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
-                                        variant={"contained"}>
-                                    {"Installer l'app"}
-                                </Button>
-                            }
+                            {!installable && (isMobile ?
+                                    <Tooltip title={"Installer l'app"}>
+                                        <Avatar
+                                            sx={{mr: 2, bgcolor: theme.palette.primary.main}}
+                                            onClick={handleInstallClick}>
+                                            <IconUrl width={20} height={20} path={"Med-logo_white"}/>
+                                        </Avatar>
+                                    </Tooltip>
+                                    : <Button sx={{mr: 2, p: "6px 12px"}}
+                                              onClick={handleInstallClick}
+                                              startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                              variant={"contained"}>
+                                        {"Installer l'app"}
+                                    </Button>
+                            )}
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notifications}
