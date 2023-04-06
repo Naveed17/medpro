@@ -22,6 +22,7 @@ import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
 import {IconButton} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -99,6 +100,7 @@ function Widget({...props}) {
     const [change, setChange] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
+    const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
@@ -145,7 +147,7 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: "30vh", md: "44.5rem"},
+                    height: {xs: closeMobilePanel ?"50px":"30vh", md: "44.5rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
@@ -174,6 +176,16 @@ function Widget({...props}) {
                         className="btn-collapse"
                         disableRipple>
                         <ArrowBackIosIcon/>
+                    </IconButton>}
+                    {expandButton && <IconButton
+                        sx={{display: {xs: "flex", md: "none"}}}
+                        onClick={() => {
+                            setCloseMobilePanel(!closeMobilePanel);
+                            handleClosePanel(!closePanel);
+                        }}
+                        className="btn-collapse-mobile"
+                        disableRipple>
+                        <KeyboardArrowDownRoundedIcon/>
                     </IconButton>}
                     <Stack
                         spacing={1}
