@@ -229,6 +229,7 @@ function DocumentsPanel({...props}) {
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]['medical-imaging'];
+                    uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
             setDocument({

@@ -8,7 +8,7 @@ const LifeStyleDialogStyled = styled(Stack)(({ theme }) => ({
     ".selected-ant":{
         border: "1px solid #bfbfc1",
         borderRadius: 8,
-        padding: "15px 15px 0"
+        padding: 15
     }
 }));
 export default LifeStyleDialogStyled;
