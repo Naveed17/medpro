@@ -166,15 +166,28 @@ function LifeStyleDialog({...props}) {
                                                     }/>
                                             </Stack>
                                             {
-                                                //list.value_type === 1 &&
+                                                list.value_type === 1 &&
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response : ''}
                                                     placeholder={t('note')}
-                                                    sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
                                                     onChange={(e) => {
                                                         let items = state.map((item: AntecedentsModel) => ({...item}));
                                                         let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
                                                         if (item) item.response = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                            }
+                                            {
+                                                <TextField
+                                                    value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
+                                                    placeholder={t('note2')}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
+                                                    onChange={(e) => {
+                                                        let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                        let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                        if (item) item.note = e.target.value;
                                                         setState(items)
                                                     }
                                                     }/>

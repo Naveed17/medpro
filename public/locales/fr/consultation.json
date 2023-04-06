@@ -147,6 +147,7 @@
     "patientInfo": "Information patient",
     "fiche": "Fiche consultation",
     "note": "Note...",
+    "note2": "Remarque...",
     "nameReq": "Le nom est requis",
     "doseReq": "La posologie est nécessaire",
     "durationReq": "La durée est requise",
