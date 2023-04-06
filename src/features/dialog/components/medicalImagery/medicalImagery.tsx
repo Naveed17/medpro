@@ -34,7 +34,7 @@ function MedicalImageryDialog({...props}) {
 
     const [miList, setMiList] = useState<MIModel[]>([]);
     const [defaultMiList, setDefaultMiList] = useState<MIModel[]>([]);
-    const [mi, setMi] = useState<MIModel[]>(data.state);
+    const [mi, setMi] = useState<MIModel[]>([...data.state]);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/medicalImagery");
     const [name, setName] = useState('');
@@ -65,6 +65,7 @@ function MedicalImageryDialog({...props}) {
         setName('')
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
         mi.unshift({...value, note: ""})
+        console.log(mi);
         setMi([...mi])
         localStorage.setItem("medical-imagery-recent", JSON.stringify([...mi]));
         data.setState([...mi])
@@ -267,8 +268,12 @@ function MedicalImageryDialog({...props}) {
                                             rows={5}
                                             value={item.note}
                                             onChange={event => {
-                                                mi[index].note = event.target.value;
-                                                setMi([...mi])
+                                                let items = [...mi];
+                                                let x = {...mi[index]};
+                                                x.note = event.target.value;
+                                                items[index] = x;
+                                                setMi([...items])
+                                                data.setState([...items])
                                             }}
                                         />
                                     </Box>

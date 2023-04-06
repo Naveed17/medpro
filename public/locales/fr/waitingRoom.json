@@ -48,6 +48,8 @@
     "is_next": "Suivant",
     "see_patient_form": "Voir fiche Patient",
     "payment_dialog_title": "Ajouter une transaction",
+    "pre_consultation_data": "Remplir les données de suivi",
+    "pre_consultation_dialog_title": "Remplir les données de suivi de la consultation",
     "consultation_pay": "Payer",
     "leave_waiting_room": "Quitter la salle d'attente",
     "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente.",

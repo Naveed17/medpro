@@ -274,15 +274,16 @@ function ConsultationIPToolbar({...props}) {
             case "medical_imagery":
                 form.append("medical-imaging", JSON.stringify(state));
 
+                method = "POST"
+                url = `/api/medical-entity/${medical_entity.uuid}/appointment/${appuuid}/medical-imaging/${router.locale}`;
+                if (selectedDialog && selectedDialog.action === "medical_imagery") {
+                    method = "PUT"
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
+                }
+
                 trigger({
-                    method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointment/" +
-                        appuuid +
-                        "/medical-imaging/" +
-                        router.locale,
+                    method,
+                    url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -486,6 +487,13 @@ function ConsultationIPToolbar({...props}) {
                     break;
                 case "balance_sheet_request":
                     setInfo("balance_sheet_request");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setactions(true);
+                    break;
+                case "medical_imagery":
+                    setInfo("medical_imagery");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);

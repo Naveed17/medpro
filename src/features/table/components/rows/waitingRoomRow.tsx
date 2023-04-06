@@ -138,13 +138,20 @@ function WaitingRoomRow({...props}) {
                             display="flex"
                             alignItems="center"
                             sx={{
+
                                 svg: {
-                                    path: {fill: theme.palette.text.secondary},
+                                    path: {fill: theme.palette.success.main},
                                 },
                             }}>
                             <Icon path="ic-time"/>
-                            <Typography color="success" sx={{ml: 0.6}}>
-                                {row.appointment_time}
+                            <Typography
+                                sx={{
+                                    color: theme.palette.success.main,
+                                    ml: 0.6
+                                }}>
+                                {moment(row.arrive_time, "HH:mm")
+                                    .add(1, "hours")
+                                    .format("HH:mm")}
                             </Typography>
                         </Box>
                     ) : (
@@ -159,17 +166,14 @@ function WaitingRoomRow({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    color: theme.palette.success.main,
                                     svg: {
                                         width: 11,
                                         mx: 0.5,
-                                        path: {fill: theme.palette.success.main},
+                                        path: {fill: theme.palette.text.secondary},
                                     },
                                 }}>
                                 <Icon path="ic-time"/>
-                                {moment(row.arrive_time, "HH:mm")
-                                    .add(1, "hours")
-                                    .format("HH:mm")}
+                                {row.appointment_time}
                             </Typography>
                         </Box>
                     ) : (

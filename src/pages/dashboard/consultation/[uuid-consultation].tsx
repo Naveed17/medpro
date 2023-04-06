@@ -36,7 +36,7 @@ import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule,} from "@features/tabPanel";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from "react-simple-image-viewer";
-import {Widget} from "@features/widget";
+import {WidgetForm} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -50,21 +50,6 @@ import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-const WidgetForm: any = memo(
-    ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel, isClose} = props;
-        return (
-            <Widget
-                {...{modal, data, models, appuuid, changes, setChanges, isClose}}
-                setModal={setSM}
-                handleClosePanel={handleClosePanel}></Widget>
-        );
-    },
-    // NEVER UPDATE
-    () => true
-);
-WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -109,6 +94,8 @@ function ConsultationInProgress() {
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
+    const [notes, setNotes] = useState<any[]>([]);
+    const [diagnostics, setDiagnostics] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
@@ -399,6 +386,21 @@ function ConsultationInProgress() {
                 setFree(checkFree);
                 if (!checkFree) setTotal(consultationFees);
                 if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+
+                let noteHistories: any[] = []
+                let diagnosticHistories: any[] = []
+                appointement.latestAppointments.map((app: any) => {
+                    const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                    const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
+                    if (note && note.value !== '') {
+                        noteHistories.push({data: app.appointment.dayDate, value: note.value})
+                    }
+                    if (diagnostics && diagnostics.value !== '') {
+                        diagnosticHistories.push({data: app.appointment.dayDate, value: diagnostics.value})
+                    }
+                })
+                setNotes(noteHistories);
+                setDiagnostics(diagnosticHistories);
             }
         }, 2000)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -590,15 +592,12 @@ function ConsultationInProgress() {
               setNumPages(numPages);
           };*/
     const seeHistory = () => {
-        let histories: any[] = []
-        appointement.latestAppointments.map((app: any) => {
-            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-            if (note && note.value !== '') {
-                histories.push({data: app.appointment.dayDate, value: note.value})
-            }
-        })
         setOpenActDialog(true);
-        setstateAct(histories)
+        setstateAct(notes)
+    }
+    const seeHistoryDiagnostic = () => {
+        setOpenActDialog(true);
+        setstateAct(diagnostics)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -743,6 +742,7 @@ function ConsultationInProgress() {
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
             setState({
@@ -908,7 +908,10 @@ function ConsultationInProgress() {
                                         mutateDoc,
                                         medical_entity,
                                         session,
+                                        notes,
+                                        diagnostics,
                                         seeHistory,
+                                        seeHistoryDiagnostic,
                                         router,
                                     }}
                                 />
@@ -950,7 +953,7 @@ function ConsultationInProgress() {
                                     patient,
                                     editAct,
                                     setTotal,
-                                    t,
+                                    t, router
                                 }}></FeesTab>
                         )}
                     </TabPanel>

@@ -85,7 +85,7 @@ function LifeStyleDialog({...props}) {
     return (
         <LifeStyleDialogStyled display='block'>
 
-            <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
+            <Box maxWidth={{xs: '100%', md: '100%'}} mx="auto">
                 <TextField
                     id="standard-basic"
                     variant="outlined"
@@ -127,7 +127,7 @@ function LifeStyleDialog({...props}) {
                             return item.name.toLowerCase().includes(value.toLowerCase());
                         })
                             .map((list: any, idx: number) =>
-                                <FormGroup row key={idx}>
+                                <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ?"selected-ant":""} row key={idx}>
                                     <FormControlLabel
                                         control={
                                             <Checkbox checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
@@ -170,11 +170,24 @@ function LifeStyleDialog({...props}) {
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response : ''}
                                                     placeholder={t('note')}
-                                                    sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
                                                     onChange={(e) => {
                                                         let items = state.map((item: AntecedentsModel) => ({...item}));
                                                         let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
                                                         if (item) item.response = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                            }
+                                            {
+                                                <TextField
+                                                    value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
+                                                    placeholder={t('note2')}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
+                                                    onChange={(e) => {
+                                                        let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                        let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                        if (item) item.note = e.target.value;
                                                         setState(items)
                                                     }
                                                     }/>

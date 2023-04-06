@@ -150,7 +150,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis') || !state.uuid
+            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis' && state.type !== 'requested-medical-imaging') || !state.uuid
         },
         {
             title: 'delete',
@@ -158,6 +158,8 @@ function DocumentDetailDialog({...props}) {
             disabled: !state.uuid
         }
     ];
+
+    console.log(state.type);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -250,6 +252,21 @@ function DocumentDetailDialog({...props}) {
                         dispatch(SetSelectedDialog({
                             action: 'balance_sheet_request',
                             state: res,
+                            uuid: state.uuidDoc
+                        }))
+                        break;
+                    case "requested-medical-imaging":
+                        let mi: MIModel[] = []
+                        state.info.map((info: any) => {
+                            mi.push({
+                                uuid: info['medical-imaging'].uuid,
+                                name: info['medical-imaging'].name,
+                                note: info.note
+                            });
+                        });
+                        dispatch(SetSelectedDialog({
+                            action: 'medical_imagery',
+                            state: mi,
                             uuid: state.uuidDoc
                         }))
                         break;

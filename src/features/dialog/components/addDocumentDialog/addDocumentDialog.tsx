@@ -55,13 +55,12 @@ function AddDocumentDialog({...props}) {
         const filesAccepted = e.target.files;
         let docs: any = [];
         Array.from(filesAccepted).map((file) => {
-
             if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
-                    500,
-                    500,
+                    850,
+                    850,
                     file.type.split('/')[1],
-                    40,
+                    80,
                     0,
                     (uri) => {
                         docs.push({type: type, file: uri, progress: 100})
