@@ -261,13 +261,13 @@ function RdvCard({...props}) {
                         {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Typography>
                 </MenuItem>
-                <MenuItem
+{/*                <MenuItem
                     onClick={() => setOpenPreConsultationDialog(true)}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("pre_consultation_data")}
                     </Typography>
-                </MenuItem>
+                </MenuItem>*/}
             </Menu>
 
             <Drawer
