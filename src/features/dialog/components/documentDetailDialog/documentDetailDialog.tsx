@@ -159,8 +159,6 @@ function DocumentDetailDialog({...props}) {
         }
     ];
 
-    console.log(state.type);
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {trigger} = useRequestMutation(null, "/documents");
