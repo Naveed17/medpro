@@ -330,7 +330,6 @@ function ConsultationInProgress() {
             setActs([...acts]);
 
             if (appointement) {
-                console.log(appointement)
                 setPatient(appointement.patient);
 
                 if (appointement.consultation_fees) {
