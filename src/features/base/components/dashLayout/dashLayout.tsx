@@ -18,6 +18,7 @@ import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification} from "@app/hooks";
+import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -64,7 +65,7 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = checkNotification();
+    const permission = !isAppleDevise() ? checkNotification(): false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",

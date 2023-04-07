@@ -116,6 +116,8 @@
       "add-more-date": "Ajouter un autre RDV",
       "add_reason": "Ajouter un nouveau motif",
       "change-time": "Modifier l'heure",
+      "confirm-time": "Confirmer",
+      "cancel-time": "Annuler",
       "duration": {
         "title": "Durée de consultation",
         "hours": "heures",
