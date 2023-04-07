@@ -244,7 +244,6 @@ function PersonalInfo({...props}) {
 
                         <Grid container spacing={1}
                               onClick={() => {
-                                  console.log("click")
                                   if (!editable){
                                       setCurrentSection("PersonalInfo");
                                       setEditable(true);

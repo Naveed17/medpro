@@ -73,7 +73,6 @@ function ActFeesRow({...props}) {
                                 <Typography fontSize={11} ml={1}>{t('save')}</Typography>
                             </IconButton> :
                             <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
-                                console.log("click")
                                 setEdit(row.uuid)
                             }}>
                                 <IconUrl path="setting/edit"/>

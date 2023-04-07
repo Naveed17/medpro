@@ -146,6 +146,14 @@ const dialogData = [
         ),
     },
     {
+        action: "dynamicAnt",
+        component: dynamic((): any =>
+            import("@features/dialog/components/lifeStyleDialog/lifeStyleDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "family_antecedents",
         component: dynamic((): any =>
             import("@features/dialog/components/familyHistoryDialog/familyHistoryDialog").then(
