@@ -45,6 +45,7 @@ const Content = ({...props}) => {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
+    const [infoDynamic, setInfoDynamic] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
@@ -138,6 +139,7 @@ const Content = ({...props}) => {
 
         setOpenDialog(false);
         setInfo("");
+        setInfoDynamic("");
     };
 
     const dialogSave = () => {
@@ -161,10 +163,20 @@ const Content = ({...props}) => {
         if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
 
         setInfo(action);
+        setInfoDynamic(action)
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
 
         handleClickDialog();
     };
+
+    const handleOpenDynamic = (action: string) => {
+        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        setInfo("dynamicAnt");
+        setInfoDynamic(action);
+        bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
+        handleClickDialog();
+    }
+
 
     const showDoc = (card: any) => {
         let type = "";
@@ -697,6 +709,7 @@ const Content = ({...props}) => {
                             <Antecedent
                                 antecedent={antecedent.slug}
                                 patientAntecedents={patientAntecedents}
+                                allAntecedents={allAntecedents}
                                 t={t}
                                 patient={patient}
                                 trigger={trigger}
@@ -706,7 +719,7 @@ const Content = ({...props}) => {
                                 setSelected={setSelected}
                                 setOpenRemove={setOpenRemove}
                                 key={`card-content-${antecedent}${index}`}
-                                handleOpen={handleOpen}
+                                handleOpen={handleOpenDynamic}
                                 router={router}
                                 medical_entity={medical_entity}></Antecedent>
                         )
@@ -751,17 +764,18 @@ const Content = ({...props}) => {
                         setState: setState,
                         patient_uuid: patient.uuid,
                         antecedents: allAntecedents,
-                        action: info,
+                        action: infoDynamic,
                     }}
                     change={false}
                     max
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={t(info)}
+                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).type ? t(infoDynamic):infoDynamic}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");
+                        setInfoDynamic("");
                     }}
                     actionDialog={
                         <DialogActions>
@@ -769,6 +783,7 @@ const Content = ({...props}) => {
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
+                                    setInfoDynamic("");
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
