@@ -370,7 +370,8 @@ function ConsultationInProgress() {
                 }, 500);
             }
         }
-    }, [appointement, httpMPResponse, dispatch, mutate, uuind, consultationFees, mutateDoc]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointement, httpMPResponse, uuind, consultationFees]);
 
     useEffect(() => {
         if (httpMPResponse) {
