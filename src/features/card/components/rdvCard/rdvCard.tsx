@@ -60,7 +60,7 @@ function RdvCard({...props}) {
     };
 
     const handleContextMenu = (event: any) => {
-        event.preventDefault();
+        event.stopPropagation();
         setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
@@ -261,13 +261,13 @@ function RdvCard({...props}) {
                         {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Typography>
                 </MenuItem>
-{/*                <MenuItem
+                <MenuItem
                     onClick={() => setOpenPreConsultationDialog(true)}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("pre_consultation_data")}
                     </Typography>
-                </MenuItem>*/}
+                </MenuItem>
             </Menu>
 
             <Drawer
@@ -299,14 +299,14 @@ function RdvCard({...props}) {
                 actionDialog={
                     <DialogActions>
                         <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
+                            {t("cancel")}
                         </Button>
                         <Button
                             disabled={loadingReq}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("save", {ns: "common"})}
+                            startIcon={<IconUrl path="ic-edit"/>}>
+                            {t("register")}
                         </Button>
                     </DialogActions>
                 }

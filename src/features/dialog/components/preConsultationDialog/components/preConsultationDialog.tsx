@@ -98,8 +98,9 @@ function PreConsultationDialog({...props}) {
 
     useEffect(() => {
         if (sheetModal) {
+            const storageWidget = localStorage.getItem(`Modeldata${uuid}`);
+            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             setSelectedModel(sheetModal);
-            localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             dispatch(setModelPreConsultation(sheetModal.default_modal.uuid));
             setLoading(false);
         }
