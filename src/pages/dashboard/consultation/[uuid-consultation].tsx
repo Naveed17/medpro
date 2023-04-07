@@ -238,7 +238,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }
-            : null
+            : null,SWRNoValidateConfig
     );
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
@@ -330,6 +330,7 @@ function ConsultationInProgress() {
             setActs([...acts]);
 
             if (appointement) {
+                console.log(appointement)
                 setPatient(appointement.patient);
 
                 if (appointement.consultation_fees) {
