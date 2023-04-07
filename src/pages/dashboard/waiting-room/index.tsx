@@ -179,11 +179,11 @@ function WaitingRoom() {
         selected: null
     });
     const [popoverActions, setPopoverActions] = useState([
-        {
-            title: "pre_consultation_data",
-            icon: <PendingIcon/>,
-            action: "onPreConsultation",
-        },
+        // {
+        //     title: "pre_consultation_data",
+        //     icon: <PendingIcon/>,
+        //     action: "onPreConsultation",
+        // },
         {
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
