@@ -89,8 +89,6 @@ const styles = StyleSheet.create({
 
 function PatientFile({...props}) {
     const {patient, antecedentsData, t} = props
-    console.log(patient);
-    console.log(antecedentsData)
 
     return (
         <Document>
@@ -167,7 +165,7 @@ function PatientFile({...props}) {
                     antecedentsData && Object.keys(antecedentsData)?.map(key => (
                         <View key={`${key}-ant`}>
                             <Text style={styles.antecedent}>{t("filter." + key)}</Text>
-                            {antecedentsData[key] && antecedentsData[key]?.map((item: { uuid: React.Key | null | undefined; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; startDate: string; endDate: string; response: string | any[]; }) => (
+                            {antecedentsData[key] && Array.isArray(antecedentsData[key]) && antecedentsData[key]?.map((item: { uuid: React.Key | null | undefined; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; startDate: string; endDate: string; response: string | any[]; }) => (
                                 <Text style={{...styles.text, marginLeft: 10, marginBottom: 5}}
                                       key={item.uuid}>• {item.name} {item.startDate ? " / " + item.startDate : ""}{" "}{item.endDate ? " - " + item.endDate : ""}{(item as any).ascendantOf && `(${t("filter." + (item as any).ascendantOf)})`}{item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}</Text>
                             ))}
