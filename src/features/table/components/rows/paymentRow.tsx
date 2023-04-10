@@ -1,10 +1,10 @@
 import TableCell from "@mui/material/TableCell";
 import {
-    Avatar, AvatarGroup,
+    Avatar, AvatarGroup, Button,
     Checkbox,
     Collapse,
     IconButton,
-    Link,
+    Link, Menu, Popover,
     Skeleton,
     Stack,
     Table,
@@ -22,6 +22,7 @@ import React, {useEffect, useState} from 'react';
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import {PaymentFeesPopover} from "@features/popover";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -30,11 +31,25 @@ function PaymentRow({...props}) {
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+    const open = Boolean(anchorEl);
+    const id = open ? "simple-popover" : undefined;
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<any>([]);
+
+    const openFeesPopover = (event: React.MouseEvent<any>) => {
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    }
 
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
@@ -159,8 +174,9 @@ function PaymentRow({...props}) {
                             <Stack direction='row' alignItems="center" spacing={1}>
                                 <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
                                     {row.patient.insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
-                                        <Tooltip key={insuranceItem.insurance?.uuid} title={insuranceItem.insurance?.name}>
-                                            <Avatar variant={"circular"} >
+                                        <Tooltip key={insuranceItem.insurance?.uuid}
+                                                 title={insuranceItem.insurance?.name}>
+                                            <Avatar variant={"circular"}>
                                                 <Image
                                                     style={{borderRadius: 2}}
                                                     alt={insuranceItem.insurance?.name}
@@ -241,10 +257,38 @@ function PaymentRow({...props}) {
                                     <Icon path="ic-argent"/>
                                 </IconButton>
                             </Stack> :
-                            <Typography
-                                color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
-                                fontWeight={700}>{row.amount} {devise}</Typography>
+                            <>
+                                <Button  id={"popover-button"}
+                                         aria-controls={open ? 'popover-menu' : undefined}
+                                         aria-haspopup="true"
+                                         aria-expanded={open ? 'true' : undefined}
+                                         onClick={openFeesPopover}>
+                                    <Typography
+                                        sx={{cursor: "pointer"}}
 
+                                        color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
+                                        fontWeight={700}>{row.amount} {devise}</Typography>
+                                </Button>
+
+
+
+                                <Menu
+                                    id="popover-menu"
+                                    aria-labelledby="popover-button"
+                                    open={open}
+                                    anchorEl={anchorEl}
+                                    onClose={handleClose}
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'left',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'left',
+                                    }}>
+                                    <PaymentFeesPopover uuid={row.uuid}/>
+                                </Menu>
+                            </>
                     )}
                 </TableCell>
             </TableRowStyled>
