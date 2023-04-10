@@ -72,13 +72,13 @@ const Content = ({...props}) => {
     };
     const handleCloseDialog = () => {
         const form = new FormData();
-        if (allAntecedents.find((ant: { slug: any; }) => ant.slug === info)) {
+        if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === info).uuid}/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
