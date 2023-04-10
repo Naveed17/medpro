@@ -1060,6 +1060,7 @@ function Agenda() {
                             }}
                             OnEditDetail={(event: EventDef) => {
                                 setEvent(event);
+                                dispatch(openDrawer({type: "view", open: false}));
                                 dispatch(openDrawer({type: "patient", open: true}));
                             }}
                             SetMoveDialog={() => setMoveDialogInfo(true)}

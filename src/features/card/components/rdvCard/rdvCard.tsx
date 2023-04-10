@@ -9,7 +9,7 @@ import {
     Menu,
     useTheme,
     MenuItem,
-    DialogActions, Drawer
+    DialogActions
 } from "@mui/material";
 // urils
 import Icon from "@themes/urlIcon";
@@ -26,7 +26,7 @@ import {Label} from "@features/label";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {AppointmentDetail, Dialog, openDrawer as DialogOpenDrawer, preConsultationSelector} from "@features/dialog";
+import {Dialog, preConsultationSelector} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
@@ -52,7 +52,6 @@ function RdvCard({...props}) {
     } | null>(null);
     const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
-    const [appointmentDeatilDialog, setAppointmentDeatilDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
     const handleClose = () => {
@@ -121,7 +120,7 @@ function RdvCard({...props}) {
             }
         }
         dispatch(setSelectedEvent(event));
-        setAppointmentDeatilDialog(true);
+        dispatch(openDrawer({type: "view", open: true}));
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -208,16 +207,6 @@ function RdvCard({...props}) {
                             size="small">
                             <Icon path="more-vert"/>
                         </IconButton>
-                        /*<Button
-                            sx={{
-                                display: router.asPath.includes("/dashboard/agenda") ? "none" : "inline-block"
-                            }}
-                            variant="text"
-                            color="primary"
-                            size="small"
-                            onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
-                            {t(inner?.status === 5 ? "start-consultation" : "see-details")}
-                        </Button>*/
                     )}
                 </TableCell>
             </RootStyled>
@@ -269,16 +258,6 @@ function RdvCard({...props}) {
                     </Typography>
                 </MenuItem>
             </Menu>
-
-            <Drawer
-                anchor={"right"}
-                open={appointmentDeatilDialog}
-                dir={direction}
-                onClose={() => {
-                    setAppointmentDeatilDialog(false);
-                }}>
-                <AppointmentDetail/>
-            </Drawer>
 
             <Dialog
                 action={"pre_consultation_data"}
