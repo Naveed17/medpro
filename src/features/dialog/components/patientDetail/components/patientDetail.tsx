@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Stack, Tab, Tabs} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
@@ -34,12 +34,12 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {Dialog} from "@features/dialog";
+import {AppointmentDetail, Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import ReactPDF, {PDFViewer} from "@react-pdf/renderer";
@@ -82,8 +82,10 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
+
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {config: agenda, sortedData: groupSortedData, openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -544,6 +546,16 @@ function PatientDetail({...props}) {
                         onClickCancel={() => setIsAdd(false)}
                     />
                 )}
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}>
+                <AppointmentDetail/>
+            </Drawer>
         </>
     );
 }

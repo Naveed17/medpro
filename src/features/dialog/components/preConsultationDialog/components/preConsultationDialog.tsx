@@ -71,7 +71,7 @@ function PreConsultationDialog({...props}) {
         SWRNoValidateConfig
     );
 
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
+    const {data: httpSheetResponse} = useRequest(
         medical_professional && agenda
             ? {
                 method: "GET",
@@ -98,8 +98,9 @@ function PreConsultationDialog({...props}) {
 
     useEffect(() => {
         if (sheetModal) {
+            const storageWidget = localStorage.getItem(`Modeldata${uuid}`);
+            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             setSelectedModel(sheetModal);
-            localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             dispatch(setModelPreConsultation(sheetModal.default_modal.uuid));
             setLoading(false);
         }
@@ -201,7 +202,7 @@ function PreConsultationDialog({...props}) {
             {...{models, changes, setChanges, isClose}}
             expandButton={false}
             modal={selectedModel}
-            data={selectedModel.data}
+            data={sheetModal.data}
             appuuid={uuid}
             setSM={setSelectedModel}
             handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}

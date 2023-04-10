@@ -45,6 +45,7 @@ import {DefaultCountry} from "@app/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
+import {useSWRConfig} from "swr";
 
 export const headCells = [
     {
@@ -137,6 +138,7 @@ function WaitingRoom() {
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
@@ -179,11 +181,11 @@ function WaitingRoom() {
         selected: null
     });
     const [popoverActions, setPopoverActions] = useState([
-        // {
-        //     title: "pre_consultation_data",
-        //     icon: <PendingIcon/>,
-        //     action: "onPreConsultation",
-        // },
+        {
+            title: "pre_consultation_data",
+            icon: <PendingIcon/>,
+            action: "onPreConsultation",
+        },
         {
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
@@ -203,6 +205,7 @@ function WaitingRoom() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
@@ -412,7 +415,8 @@ function WaitingRoom() {
         }).then(() => {
             setLoadingReq(false);
             localStorage.removeItem(`Modeldata${row?.uuid}`);
-            setOpenPreConsultationDialog(false)
+            setOpenPreConsultationDialog(false);
+            mutate(`/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 
