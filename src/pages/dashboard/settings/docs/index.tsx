@@ -62,7 +62,7 @@ function DocsConfig() {
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155,textAlign:"center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA4',
         content: {
@@ -75,22 +75,28 @@ function DocsConfig() {
         }
     })
 
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "documents.config",
-    });
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest({
+    const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
+
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
-        },
-    }, SWRNoValidateConfig);
+        }
+    } : null, SWRNoValidateConfig);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -215,6 +221,7 @@ function DocsConfig() {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
+    console.log(medical_professional);
     return (
         <>
             <Grid container>
@@ -508,16 +515,16 @@ function DocsConfig() {
                                             onChange={handleAlignment}
                                             aria-label="text alignment">
                                             <ToggleButton value="left" aria-label="left aligned">
-                                                <FormatAlignLeftIcon />
+                                                <FormatAlignLeftIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="center" aria-label="centered">
-                                                <FormatAlignCenterIcon />
+                                                <FormatAlignCenterIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="right" aria-label="right aligned">
-                                                <FormatAlignRightIcon />
+                                                <FormatAlignRightIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="justify" aria-label="justified" disabled>
-                                                <FormatAlignJustifyIcon />
+                                                <FormatAlignJustifyIcon/>
                                             </ToggleButton>
                                         </ToggleButtonGroup>
                                     </Stack>

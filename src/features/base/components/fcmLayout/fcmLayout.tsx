@@ -61,6 +61,7 @@ function FcmLayout({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
@@ -235,14 +236,14 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
+            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
             const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
                     name: `${general_information.firstName} ${general_information.lastName}`,
                     email: general_information.email,
-                    role: general_information.roles[0]
+                    role: roles[0]
                 });
             }
         }
