@@ -771,7 +771,7 @@ const Content = ({...props}) => {
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).type ? t(infoDynamic):infoDynamic}
+                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic) ? allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)?.type ? t(infoDynamic):infoDynamic:t(infoDynamic)}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");
