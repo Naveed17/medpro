@@ -12,7 +12,9 @@ import {
   Select,
   MenuItem,
   Button,
-  ListItemText,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React, { useState } from "react";
@@ -24,6 +26,8 @@ import { Session } from "next-auth";
 import { IconsTypes } from "@features/calendar";
 import { ModelDot } from "@features/modelDot";
 import { LoadingScreen } from "@features/loadingScreen";
+import { number } from "yup/lib/locale";
+import { useSnackbar } from "notistack";
 const icons = [
   "ic-consultation",
   "ic-teleconsultation",
@@ -86,6 +90,7 @@ function EditMotifDialog({ ...props }) {
   const { mutateEvent } = props;
   const { data: session } = useSession();
   const { data: user } = session as Session;
+  const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
@@ -106,6 +111,17 @@ function EditMotifDialog({ ...props }) {
       name: props.data ? (props.data.name as string) : "",
       color: props.data ? (props.data.color as string) : "#0696D6",
       icon: props.data ? (props.data.icon as string) : icons[0],
+      isFree: props.data
+        ? (props.data.isFree as null | boolean)
+          ? true
+          : false
+        : false,
+
+      consultation_fees: props.data
+        ? (props.data.price as null | number)
+          ? props.data.price
+          : 0
+        : 0,
     },
     validationSchema,
 
@@ -120,6 +136,11 @@ function EditMotifDialog({ ...props }) {
         })
       );
       form.append("icon", values.icon);
+      form.append(
+        "isFree",
+        values.consultation_fees ? false : (values.isFree as any)
+      );
+      form.append("price", values.isFree ? null : values.consultation_fees);
       if (props.data) {
         trigger(
           {
@@ -138,7 +159,14 @@ function EditMotifDialog({ ...props }) {
             },
           },
           { revalidate: true, populateCache: true }
-        ).then((r: any) => mutateEvent());
+        )
+          .then((r: any) => {
+            enqueueSnackbar(t(`motifType.alert.edit`), { variant: "success" });
+            mutateEvent();
+          })
+          .catch((error) => {
+            enqueueSnackbar(error, { variant: "error" });
+          });
       } else {
         trigger(
           {
@@ -155,7 +183,14 @@ function EditMotifDialog({ ...props }) {
             },
           },
           { revalidate: true, populateCache: true }
-        ).then((r: any) => mutateEvent());
+        )
+          .then((r: any) => {
+            enqueueSnackbar(t(`motifType.alert.add`), { variant: "success" });
+            mutateEvent();
+          })
+          .catch((error) => {
+            enqueueSnackbar(error, { variant: "error" });
+          });
       }
     },
   });
@@ -176,7 +211,15 @@ function EditMotifDialog({ ...props }) {
     getFieldProps,
     setFieldValue,
   } = formik;
-
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = +(event.target as HTMLInputElement).value;
+    setFieldValue("consultation_fees", value);
+    if (value === 0) {
+      setFieldValue("isFree", true);
+    } else {
+      setFieldValue("isFree", false);
+    }
+  };
   return (
     <FormikProvider value={formik}>
       <PaperStyled
@@ -196,7 +239,7 @@ function EditMotifDialog({ ...props }) {
           gutterBottom>
           {t("motifType.dialog.info")}
         </Typography>
-        <Card sx={{ height: 1 }}>
+        <Card sx={{ height: 1, maxHeight: 400, overflowY: "auto" }}>
           <CardContent>
             <Stack spacing={2}>
               <Stack spacing={2} direction="row">
@@ -276,6 +319,39 @@ function EditMotifDialog({ ...props }) {
                   ))}
                 </Select>
               </FormControl>
+              <Stack direction="row" alignItems="flex-end" spacing={1}>
+                <FormControl>
+                  <Typography
+                    gutterBottom
+                    variant="body2"
+                    color="text.secondary">
+                    {t("motifType.dialog.type")}
+                  </Typography>
+                  <RadioGroup
+                    row
+                    value={values.consultation_fees}
+                    onChange={handleChange}>
+                    <FormControlLabel
+                      value={0}
+                      control={<Radio />}
+                      label={t("motifType.dialog.un_payed")}
+                    />
+                    <FormControlLabel
+                      value={
+                        values.consultation_fees ? values.consultation_fees : 1
+                      }
+                      control={<Radio />}
+                      label={t("motifType.dialog.payed")}
+                    />
+                  </RadioGroup>
+                </FormControl>
+                {+values.consultation_fees !== 0 && (
+                  <TextField
+                    type="number"
+                    {...getFieldProps("consultation_fees")}
+                  />
+                )}
+              </Stack>
             </Stack>
           </CardContent>
         </Card>
