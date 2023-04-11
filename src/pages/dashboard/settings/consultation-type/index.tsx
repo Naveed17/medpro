@@ -23,13 +23,14 @@ import { useRouter } from "next/router";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
 import { MotifTypeCard } from "@features/card";
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
 function ConsultationType() {
   const { data: session } = useSession();
   const { data: user } = session as Session;
   const router = useRouter();
-  const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
   const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
   const [edit, setEdit] = useState(false);
   const [selected, setSelected] = useState<any>();
@@ -57,8 +58,14 @@ function ConsultationType() {
   const { t, ready } = useTranslation(["settings", "common"], {
     keyPrefix: "motifType.config",
   });
-
-  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+  if (!ready)
+    return (
+      <LoadingScreen
+        error
+        button={"loading-error-404-reset"}
+        text={"loading-error"}
+      />
+    );
 
   const headCells = [
     {
@@ -67,6 +74,31 @@ function ConsultationType() {
       disablePadding: true,
       label: "name",
       align: "left",
+      sortable: true,
+    },
+    {
+      id: "empty_1",
+      numeric: false,
+      disablePadding: true,
+      label: "empty",
+      align: "left",
+      sortable: false,
+    },
+    {
+      id: "empty_2",
+      numeric: false,
+      disablePadding: true,
+      label: "empty",
+      align: "left",
+      sortable: false,
+    },
+
+    {
+      id: "fees",
+      numeric: false,
+      disablePadding: true,
+      label: "consultation_fees",
+      align: "center",
       sortable: true,
     },
 
@@ -146,7 +178,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
     ...(await serverSideTranslations(context.locale as string, [
       "common",
       "menu",
-      'patient',
+      "patient",
       "settings",
     ])),
   },
