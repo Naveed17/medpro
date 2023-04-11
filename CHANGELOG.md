@@ -1,3 +1,10 @@
+## [4.17.1](https://github.com/SmartMedSA/med-pro/compare/v4.17.0...v4.17.1) (2023-04-11)
+
+
+### Bug Fixes
+
+* fees acts ([a987423](https://github.com/SmartMedSA/med-pro/commit/a987423ba658ffce91fc7429bffef52cf84c96a9))
+
 # [4.17.0](https://github.com/SmartMedSA/med-pro/compare/v4.16.0...v4.17.0) (2023-04-10)
 
 
