@@ -106,8 +106,8 @@
         "action": "Action",
         "code": "Code",
         "icon": "Icône",
-        "empty":"",
-        "consultation_fees":"Frais de consultation"
+        "consultation_fees":"Frais de consultation",
+        "empty":""
       }
     },
     "dialog": {
@@ -119,7 +119,14 @@
       "tapez": "Tapez le nom du type",
       "cancel": "Annuler",
       "color": "couleur",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "type":"Type du motif",
+      "payed":"Payé",
+      "un_payed":"Non payé"
+    },
+    "alert": {
+      "add":"Ajouter motif de consultation",
+      "edit":"Modifier motif de consultation"
     }
   },
   "lieux": {

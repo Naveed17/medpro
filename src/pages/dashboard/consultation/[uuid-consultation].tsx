@@ -91,6 +91,7 @@ function ConsultationInProgress() {
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [loadingApp, setLoadingApp] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
@@ -197,7 +198,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }
-            : null
+            : null,SWRNoValidateConfig
     );
 
     const {data: httpModelResponse} = useRequest(
@@ -329,7 +330,7 @@ function ConsultationInProgress() {
             });
             setActs([...acts]);
 
-            if (appointement) {
+            if (appointement ) {
                 setPatient(appointement.patient);
 
                 if (appointement.consultation_fees) {
@@ -340,34 +341,37 @@ function ConsultationInProgress() {
                 dispatch(SetMutation(mutate));
                 dispatch(SetMutationDoc(mutateDoc));
 
-                setTimeout(() => {
-                    if (appointement.acts) {
-                        let sAct: any[] = [];
-                        appointement.acts.map(
-                            (act: { act_uuid: string; price: any; qte: any }) => {
-                                sAct.push({
-                                    ...act,
-                                    fees: act.price,
-                                    uuid: act.act_uuid,
-                                    act: {name: (act as any).name}
-                                });
-                                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
-                                if (actDetect === -1) {
-                                    acts.push({
+                if (!loadingApp){
+                    setTimeout(() => {
+                        if (appointement.acts) {
+                            let sAct: any[] = [];
+                            appointement.acts.map(
+                                (act: { act_uuid: string; price: any; qte: any }) => {
+                                    sAct.push({
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
                                         act: {name: (act as any).name}
                                     });
-                                } else {
-                                    acts[actDetect].fees = act.price;
+                                    const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                                    if (actDetect === -1) {
+                                        acts.push({
+                                            ...act,
+                                            fees: act.price,
+                                            uuid: act.act_uuid,
+                                            act: {name: (act as any).name}
+                                        });
+                                    } else {
+                                        acts[actDetect].fees = act.price;
+                                    }
                                 }
-                            }
-                        );
-                        setSelectedAct(sAct);
-                        setActs([...acts]);
-                    }
-                }, 500);
+                            );
+                            setSelectedAct(sAct);
+                            setActs([...acts]);
+                        }
+                    }, 500);
+                }
+
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -383,11 +387,14 @@ function ConsultationInProgress() {
     useEffect(() => {
         setTimeout(() => {
             if (appointement) {
-                const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
-                setFree(checkFree);
-                if (!checkFree) setTotal(consultationFees);
-                if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
-
+                if (!loadingApp){
+                    const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+                    setFree(checkFree);
+                    if (!checkFree) setTotal(consultationFees);
+                    if (appointement.fees) setTotal(appointement.fees)
+                    if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+                }
+                setLoadingApp(true);
                 let noteHistories: any[] = []
                 let diagnosticHistories: any[] = []
                 appointement.latestAppointments.map((app: any) => {
