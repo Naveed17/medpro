@@ -32,7 +32,10 @@ function PaymentRow({...props}) {
     const {data: user} = session as Session;
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
 
@@ -45,10 +48,22 @@ function PaymentRow({...props}) {
     const openFeesPopover = (event: React.MouseEvent<any>) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                null,
+        );
     };
 
     const handleClose = () => {
         setAnchorEl(null);
+        setContextMenu(null);
     }
 
     const handleChildSelect = (id: any) => {
@@ -258,33 +273,32 @@ function PaymentRow({...props}) {
                                 </IconButton>
                             </Stack> :
                             <>
-                                <Button  id={"popover-button"}
-                                         aria-controls={open ? 'popover-menu' : undefined}
-                                         aria-haspopup="true"
-                                         aria-expanded={open ? 'true' : undefined}
-                                         onClick={openFeesPopover}>
-                                    <Typography
-                                        sx={{cursor: "pointer"}}
-
-                                        color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
-                                        fontWeight={700}>{row.amount} {devise}</Typography>
-                                </Button>
-
-
+                                <Typography
+                                    sx={{cursor: "pointer"}}
+                                    id={"popover-button"}
+                                    aria-controls={open ? 'popover-menu' : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={open ? 'true' : undefined}
+                                    onClick={openFeesPopover}
+                                    color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
+                                    fontWeight={700}>{row.amount} {devise}</Typography>
 
                                 <Menu
-                                    id="popover-menu"
-                                    aria-labelledby="popover-button"
-                                    open={open}
-                                    anchorEl={anchorEl}
+                                    open={contextMenu !== null}
                                     onClose={handleClose}
+                                    anchorReference="anchorPosition"
+                                    anchorPosition={
+                                        contextMenu !== null
+                                            ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                            : undefined
+                                    }
                                     anchorOrigin={{
                                         vertical: 'top',
-                                        horizontal: 'left',
+                                        horizontal: 'right',
                                     }}
                                     transformOrigin={{
                                         vertical: 'top',
-                                        horizontal: 'left',
+                                        horizontal: 'right',
                                     }}>
                                     <PaymentFeesPopover uuid={row.uuid}/>
                                 </Menu>
