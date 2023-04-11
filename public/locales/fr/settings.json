@@ -105,7 +105,9 @@
         "name": "Nom",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "empty":"",
+        "consultation_fees":"Frais de consultation"
       }
     },
     "dialog": {
