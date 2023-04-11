@@ -19,6 +19,14 @@ import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const FormBuilder: any = dynamic(
+    () => import("@formio/react").then((mod: any) => mod.Form),
+    {
+        ssr: false,
+    }
+);
 
 function LifeStyleDialog({...props}) {
 
@@ -52,7 +60,7 @@ function LifeStyleDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map((item:any) => {
+            items.map((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
                     console.log(item);
                     item.response = item.antecedentValues[0].uuid
@@ -220,6 +228,31 @@ function LifeStyleDialog({...props}) {
                                                                 label={val.value}
                                                             />))}
                                                     </Stack>
+                                                </>
+                                            }
+                                            {
+                                                list.value_type === 7 &&
+                                                <>
+                                                    <FormBuilder
+                                                        onChange={(ev: any) => {
+                                                            let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                            let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                            if (item) item.response = JSON.stringify(ev.data);
+
+                                                            /*console.log(state);
+                                                            if (!equals(items, state)) {
+                                                                console.log("set el");
+                                                                setState(items)
+                                                            }*/
+                                                        }}
+                                                        submission={{
+                                                            //data: JSON.parse(list.response)
+                                                        }}
+                                                        form={{
+                                                            display: "form",
+                                                            components: list.values,
+                                                        }}
+                                                    />
                                                 </>
                                             }
                                         </>
