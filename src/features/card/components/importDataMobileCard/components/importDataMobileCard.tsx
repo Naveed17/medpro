@@ -184,7 +184,7 @@ function ImportDataMobileCard({ ...props }) {
                   );
               }
             })()}
-            {data.status == 1 || data.status == 3 ? (
+          {/*  {data.status == 1 || data.status == 3 ? (
               <LoadingButton
                 onClick={() => {
                   setLoadingAction(true);
@@ -199,7 +199,7 @@ function ImportDataMobileCard({ ...props }) {
               </LoadingButton>
             ) : (
               <Box width={120} />
-            )}
+            )}*/}
           </Stack>
         </Stack>
       </CardContent>

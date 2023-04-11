@@ -270,9 +270,11 @@ const dialogData = [
     {
         action: "pre_consultation_data",
         component: dynamic((): any =>
-            import("@features/dialog/components/preConsultationDialog/components/preConsultationDialog").then(
-                (mod) => mod
-            )
+                import("@features/dialog/components/preConsultationDialog/components/preConsultationDialog").then(
+                    (mod) => mod
+                ), {
+                ssr: false
+            }
         ),
     }
 ];

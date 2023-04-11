@@ -314,4 +314,4 @@ function Widget({...props}) {
     );
 }
 
-export default React.memo(Widget);
+export default Widget;
