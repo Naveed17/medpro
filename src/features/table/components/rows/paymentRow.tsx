@@ -274,12 +274,12 @@ function PaymentRow({...props}) {
                             </Stack> :
                             <>
                                 <Typography
-                                    sx={{cursor: "pointer"}}
+                                    {...(row.amount !== "0" && {sx: {cursor: "zoom-in"}})}
                                     id={"popover-button"}
                                     aria-controls={open ? 'popover-menu' : undefined}
                                     aria-haspopup="true"
                                     aria-expanded={open ? 'true' : undefined}
-                                    onClick={openFeesPopover}
+                                    {...(row.amount !== "0" && {onClick: openFeesPopover})}
                                     color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
                                     fontWeight={700}>{row.amount} {devise}</Typography>
 

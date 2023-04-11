@@ -10,7 +10,9 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import {DefaultCountry} from "@app/constants";
-import {Stack} from "@mui/material";
+import {LinearProgress, Stack} from "@mui/material";
+import React from "react";
+import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
 
 function PaymentFeesPopover({...props}) {
     const {uuid} = props;
@@ -36,24 +38,25 @@ function PaymentFeesPopover({...props}) {
     const appointment = (httpAppointmentResponse as HttpResponse)?.data as any;
 
     return (
-        <Box sx={{width: '100%', maxWidth: 460, p: "0 1rem", bgcolor: 'background.paper'}}>
-            {appointment && <List aria-label="secondary mailbox folders">
-                <ListItemButton disableRipple disableGutters>
-                    <ListItemText primary={`Consultation: ${appointment?.consultation_fees} ${devise}`}/>
+        <PaymentFeesPopoverStyled>
+            <LinearProgress sx={{visibility: !appointment ? "visible" : "hidden"}} color="warning"/>
+            {appointment && <List sx={{p: 0}} aria-label="secondary mailbox folders">
+                <ListItemButton sx={{p: 0}} disableRipple disableGutters>
+                    <ListItemText primary={`Consultation: ${appointment.consultation_fees} ${devise}`}/>
                 </ListItemButton>
-                {appointment.acts.map((act: any, index: number) => <ListItemButton key={index} disableRipple
+                {appointment.acts.map((act: any, index: number) => <ListItemButton sx={{p: 0}} key={index} disableRipple
                                                                                    disableGutters>
                     <ListItemText primary={`${act.name}: ${act.qte} x ${act.price} ${devise}`}/>
                 </ListItemButton>)}
             </List>}
             <Divider/>
-            <List aria-label="main mailbox folders">
+            {appointment && <List aria-label="main mailbox folders">
                 <Stack direction={"row"} justifyContent={"space-between"}>
                     <ListItemText primary={`Total`}/>
                     <ListItemText sx={{textAlign: "right"}} primary={`${appointment?.fees} ${devise}`}/>
                 </Stack>
-            </List>
-        </Box>
+            </List>}
+        </PaymentFeesPopoverStyled>
     )
 }
 
