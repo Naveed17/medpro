@@ -1,3 +1,12 @@
+## [4.17.2](https://github.com/SmartMedSA/med-pro/compare/v4.17.1...v4.17.2) (2023-04-12)
+
+
+### Bug Fixes
+
+* refresh result bilan ([daeb017](https://github.com/SmartMedSA/med-pro/commit/daeb0174241d9554e741b2f6a617651afc735e19))
+* refresh result bilan ([6da7b2b](https://github.com/SmartMedSA/med-pro/commit/6da7b2b9bd87887755a6151ae749d2307c0c827c))
+* result bilan ([2b974c0](https://github.com/SmartMedSA/med-pro/commit/2b974c006aa1302f6fb8836b6c9d2a4231d3fcb9))
+
 ## [4.17.1](https://github.com/SmartMedSA/med-pro/compare/v4.17.0...v4.17.1) (2023-04-11)
 
 
