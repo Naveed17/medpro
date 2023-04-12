@@ -330,7 +330,7 @@ function ConsultationInProgress() {
             });
             setActs([...acts]);
 
-            if (appointement && !loadingApp) {
+            if (appointement ) {
                 setPatient(appointement.patient);
 
                 if (appointement.consultation_fees) {
@@ -341,34 +341,37 @@ function ConsultationInProgress() {
                 dispatch(SetMutation(mutate));
                 dispatch(SetMutationDoc(mutateDoc));
 
-                setTimeout(() => {
-                    if (appointement.acts) {
-                        let sAct: any[] = [];
-                        appointement.acts.map(
-                            (act: { act_uuid: string; price: any; qte: any }) => {
-                                sAct.push({
-                                    ...act,
-                                    fees: act.price,
-                                    uuid: act.act_uuid,
-                                    act: {name: (act as any).name}
-                                });
-                                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
-                                if (actDetect === -1) {
-                                    acts.push({
+                if (!loadingApp){
+                    setTimeout(() => {
+                        if (appointement.acts) {
+                            let sAct: any[] = [];
+                            appointement.acts.map(
+                                (act: { act_uuid: string; price: any; qte: any }) => {
+                                    sAct.push({
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
                                         act: {name: (act as any).name}
                                     });
-                                } else {
-                                    acts[actDetect].fees = act.price;
+                                    const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                                    if (actDetect === -1) {
+                                        acts.push({
+                                            ...act,
+                                            fees: act.price,
+                                            uuid: act.act_uuid,
+                                            act: {name: (act as any).name}
+                                        });
+                                    } else {
+                                        acts[actDetect].fees = act.price;
+                                    }
                                 }
-                            }
-                        );
-                        setSelectedAct(sAct);
-                        setActs([...acts]);
-                    }
-                }, 500);
+                            );
+                            setSelectedAct(sAct);
+                            setActs([...acts]);
+                        }
+                    }, 500);
+                }
+
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

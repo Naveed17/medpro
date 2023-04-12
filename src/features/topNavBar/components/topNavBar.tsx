@@ -327,7 +327,7 @@ function TopNavBar({...props}) {
                                 :
                                 <Button variant="contained"
                                         onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3, margin: "0 24px 8px"}}
+                                        sx={{mr: 3}}
                                         startIcon={<NotificationsPausedIcon color={"warning"}/>}
                                         color={"warning"}>
                                     <Typography
