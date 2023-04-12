@@ -155,6 +155,22 @@ main {
     margin: 0.4rem;
   }
 }
+.form-control-title {
+  label {
+    width: 6rem;
+    margin-top: 0.4rem;
+    margin-right: 1em;
+    color: #7C878E;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  input{
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
 
 .form-control-pregnancy {
   label {
