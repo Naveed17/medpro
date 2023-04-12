@@ -20,6 +20,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
 import dynamic from "next/dynamic";
+import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -135,7 +136,9 @@ function LifeStyleDialog({...props}) {
                             return item.name.toLowerCase().includes(value.toLowerCase());
                         })
                             .map((list: any, idx: number) =>
-                                <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ?"selected-ant":""} row key={idx}>
+                                <FormGroup
+                                    className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""}
+                                    row key={idx}>
                                     <FormControlLabel
                                         control={
                                             <Checkbox checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
@@ -232,28 +235,9 @@ function LifeStyleDialog({...props}) {
                                             }
                                             {
                                                 list.value_type === 7 &&
-                                                <>
-                                                    <FormBuilder
-                                                        onChange={(ev: any) => {
-                                                            let items = state.map((item: AntecedentsModel) => ({...item}));
-                                                            let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
-                                                            if (item) item.response = JSON.stringify(ev.data);
-
-                                                            /*console.log(state);
-                                                            if (!equals(items, state)) {
-                                                                console.log("set el");
-                                                                setState(items)
-                                                            }*/
-                                                        }}
-                                                        submission={{
-                                                            //data: JSON.parse(list.response)
-                                                        }}
-                                                        form={{
-                                                            display: "form",
-                                                            components: list.values,
-                                                        }}
-                                                    />
-                                                </>
+                                                <Box padding={3} pb={0}>
+                                                    <AntecedentWidget {...{list, state,setState}}/>
+                                                </Box>
                                             }
                                         </>
                                     }
