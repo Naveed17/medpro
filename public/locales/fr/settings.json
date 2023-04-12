@@ -339,6 +339,17 @@
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "access_management":"Gestion des accès",
+      "add_new_role":"Ajouter nouveau rôle",
+      "add_a_new_role":"Ajouter un nouveau rôle",
+      "role_name":"Nom du rôle",
+      "select_permissions":"Choisissez les permissions",
+      "select_all":"Sélectionner tout",
+      "agenda_management":"Gestion Agenda",
+      "add_appointment":"Ajouter RDV",
+      "cancel":"Annuler",
+      "save":"Enregistrer",
+      "visitor_added":"Visiteur ajoute",
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
