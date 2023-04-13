@@ -178,13 +178,13 @@ function ConsultationIPToolbar({...props}) {
         const form = new FormData();
 
         switch (info) {
-            case "medical_prescription":
+            case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
                 let method = "POST"
                 let url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "medical_prescription") {
+                if (selectedDialog && selectedDialog.action === "medical_prescription_cycle") {
                     method = "PUT"
                     url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
@@ -387,7 +387,7 @@ function ConsultationIPToolbar({...props}) {
     const handleCloseDialog = () => {
         let pdoc = [...pendingDocuments];
         switch (info) {
-            case "medical_prescription":
+            case "medical_prescription_cycle":
                 if (state.length > 0) {
                     setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
@@ -431,7 +431,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setInfo("medical_prescription_cycle");
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -478,8 +478,8 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         if (selectedDialog) {
             switch (selectedDialog.action) {
-                case "medical_prescription":
-                    setInfo("medical_prescription");
+                case "medical_prescription_cycle":
+                    setInfo("medical_prescription_cycle");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
@@ -520,7 +520,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setInfo("medical_prescription_cycle");
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -798,7 +798,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
-                                    disabled={info === "medical_prescription" && state.length === 0}
+                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
                                     startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>

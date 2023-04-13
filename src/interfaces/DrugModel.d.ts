@@ -1,5 +1,6 @@
 interface DrugModel {
-  uuid: string;
+  uuid?: string;
   commercial_name: string;
   isVerified: boolean
+  inputValue?: string
 }
