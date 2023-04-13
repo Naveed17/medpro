@@ -39,7 +39,7 @@ import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
-    const {id, patient,patientAntecedents,allAntecedents,antecedentsMutate} = props;
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -63,6 +63,14 @@ const Content = ({...props}) => {
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
+    const getTitle = () => {
+        const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
+
+        if (info) {
+            return info.name;
+        }
+        return t(infoDynamic)
+    }
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -771,7 +779,7 @@ const Content = ({...props}) => {
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic) ? allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)?.type !== null ? t(infoDynamic):infoDynamic:t(infoDynamic)}
+                    title={getTitle()}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");

@@ -44,7 +44,7 @@ function MotifCard({...props}) {
                                             {getLabel(ml, 'label')} : <span style={{
                                             fontWeight: "bold",
                                             margin: '0 2px'
-                                        }}>{models.data[ml] ? models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
+                                        }}>{models.data[ml] ? typeof models.data[ml] ==="boolean" ? "✓": models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
                                         </ListItem>
                                     ))}
                                 </List>

@@ -1,4 +1,4 @@
-import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
@@ -198,7 +198,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }
-            : null,SWRNoValidateConfig
+            : null
     );
 
     const {data: httpModelResponse} = useRequest(
@@ -239,7 +239,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }
-            : null,SWRNoValidateConfig
+            : null, SWRNoValidateConfig
     );
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
@@ -330,7 +330,7 @@ function ConsultationInProgress() {
             });
             setActs([...acts]);
 
-            if (appointement ) {
+            if (appointement) {
                 setPatient(appointement.patient);
 
                 if (appointement.consultation_fees) {
@@ -341,36 +341,34 @@ function ConsultationInProgress() {
                 dispatch(SetMutation(mutate));
                 dispatch(SetMutationDoc(mutateDoc));
 
-                if (!loadingApp){
-                    setTimeout(() => {
-                        if (appointement.acts) {
-                            let sAct: any[] = [];
-                            appointement.acts.map(
-                                (act: { act_uuid: string; price: any; qte: any }) => {
-                                    sAct.push({
+                setTimeout(() => {
+                    if (appointement.acts && !loadingApp) {
+                        let sAct: any[] = [];
+                        appointement.acts.map(
+                            (act: { act_uuid: string; price: any; qte: any }) => {
+                                sAct.push({
+                                    ...act,
+                                    fees: act.price,
+                                    uuid: act.act_uuid,
+                                    act: {name: (act as any).name}
+                                });
+                                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                                if (actDetect === -1) {
+                                    acts.push({
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
                                         act: {name: (act as any).name}
                                     });
-                                    const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
-                                    if (actDetect === -1) {
-                                        acts.push({
-                                            ...act,
-                                            fees: act.price,
-                                            uuid: act.act_uuid,
-                                            act: {name: (act as any).name}
-                                        });
-                                    } else {
-                                        acts[actDetect].fees = act.price;
-                                    }
+                                } else {
+                                    acts[actDetect].fees = act.price;
                                 }
-                            );
-                            setSelectedAct(sAct);
-                            setActs([...acts]);
-                        }
-                    }, 500);
-                }
+                            }
+                        );
+                        setSelectedAct(sAct);
+                        setActs([...acts]);
+                    }
+                }, 1000);
 
             }
         }
@@ -380,8 +378,10 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpMPResponse) {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
+            if (!loadingApp)
+                setConsultationFees(Number(mpRes.consultation_fees));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [httpMPResponse]);
 
     useEffect(() => {

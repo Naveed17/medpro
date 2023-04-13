@@ -58,7 +58,7 @@ function Antecedent({...props}) {
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Typography fontWeight={600}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).type ?t(antecedent):antecedent}</Typography>}
+                    <Typography className={"title"}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).name}</Typography>}
                 <List dense>
                     {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
