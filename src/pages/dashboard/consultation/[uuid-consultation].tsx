@@ -387,12 +387,16 @@ function ConsultationInProgress() {
     useEffect(() => {
         setTimeout(() => {
             if (appointement) {
-                if (!loadingApp){
+                if (!loadingApp) {
                     const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
                     setFree(checkFree);
                     if (!checkFree) setTotal(consultationFees);
                     if (appointement.fees) setTotal(appointement.fees)
-                    if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+                    if (appointement.consultation_fees) {
+                        setConsultationFees(Number(appointement.consultation_fees));
+                    } else if (appointement.type.isFree !== null && !appointement.type.isFree && appointement.type.price) {
+                        setConsultationFees(Number(appointement.type.price));
+                    }
                 }
                 setLoadingApp(true);
                 let noteHistories: any[] = []
