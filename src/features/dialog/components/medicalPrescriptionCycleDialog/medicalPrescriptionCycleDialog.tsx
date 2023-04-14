@@ -4,7 +4,7 @@ import {
     Card,
     CardActions,
     CardContent,
-    Divider, TextField,
+    Divider, FormControlLabel, TextField,
     Theme,
 } from "@mui/material";
 import {
@@ -35,6 +35,7 @@ import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
+import * as Yup from "yup";
 
 
 function MedicalPrescriptionCycleDialog({...props}) {
@@ -51,164 +52,18 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const fractions = ["1/4", "1/2", "1", "2", "3", "4", "5", "6", "7", "8"];
     const [info, setInfo] = useState("");
     const [talkStart, setTalk] = useState(false);
-
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: {
-            dosageData: {
-                idx: 0,
-                index: 0,
-            },
-            data: [
-                {
-                    drug: null,
-                    unit: null,
-                    cycle: [
-                        {
-                            count: 2,
-                            dosageQty: "1",
-                            dosageDuration: 1,
-                            dosageMealValue: "",
-                            durationValue: "",
-                            dosageTime: [
-                                {
-                                    label: "morning",
-                                    value: false,
-                                },
-                                {
-                                    label: "mid_day",
-                                    value: false,
-                                },
-                                {
-                                    label: "evening",
-                                    value: false,
-                                },
-                                {
-                                    label: "before_sleeping",
-                                    value: false,
-                                },
-                            ],
-                            dosageMeal: [
-                                {
-                                    label: "before_meal",
-                                    value: "before meal",
-                                },
-                                {
-                                    label: "after_meal",
-                                    value: "after meal",
-                                },
-                                {
-                                    label: "with_meal",
-                                    value: "with meal",
-                                },
-                            ],
-                            duration: [
-                                {
-                                    label: "day",
-                                    value: "day",
-                                },
-                                {
-                                    label: "week",
-                                    value: "week",
-                                },
-                                {
-                                    label: "month",
-                                    value: "month",
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-        onSubmit: (values) => {
-            console.log(values);
-        },
-    });
-
-    const {setFieldValue, values, getFieldProps} = formik;
-
-    const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
-
-    const handleAddDrug = () => {
-        setFieldValue("data", [
-            ...values.data,
-            {
-                drug: null,
-                unit: null,
-                cycle: [
-                    {
-                        count: 2,
-                        dosageQty: "1",
-                        dosageDuration: 1,
-                        dosageMealValue: "",
-                        durationValue: "",
-                        dosageTime: [
-                            {
-                                label: "morning",
-                                value: false,
-                            },
-                            {
-                                label: "mid_day",
-                                value: false,
-                            },
-                            {
-                                label: "evening",
-                                value: false,
-                            },
-                            {
-                                label: "before_sleeping",
-                                value: false,
-                            },
-                        ],
-                        dosageMeal: [
-                            {
-                                label: "before_meal",
-                                value: "before meal",
-                            },
-                            {
-                                label: "after_meal",
-                                value: "after meal",
-                            },
-                            {
-                                label: "with_meal",
-                                value: "with meal",
-                            },
-                        ],
-                        duration: [
-                            {
-                                label: "day",
-                                value: "day",
-                            },
-                            {
-                                label: "week",
-                                value: "week",
-                            },
-                            {
-                                label: "month",
-                                value: "month",
-                            },
-                        ],
-                    },
-                ],
-            },
-        ]);
-    }
-
-    const handleRemoveCycle = (idx: number, value: any) => {
-        const filtered = values.data[idx].cycle.filter((item) => item !== value);
-        setFieldValue(`data[${idx}].cycle`, filtered);
-    }
-
-    const handAddCycle = (index: number) => {
-        setFieldValue(`data[${index}].cycle`, [
-            ...values.data[index].cycle,
+    const initData = {
+        drug: null,
+        unit: null,
+        cycle: [
             {
                 count: 2,
                 dosageQty: "1",
                 dosageDuration: 1,
                 dosageMealValue: "",
                 durationValue: "",
+                dosageInput: false,
+                dosageInputText: "",
                 dosageTime: [
                     {
                         label: "morning",
@@ -254,8 +109,82 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         label: "month",
                         value: "month",
                     },
+                    {
+                        label: "year",
+                        value: "year",
+                    }
                 ],
             },
+        ]
+    };
+
+    const validationSchema = Yup.object().shape({
+        dosageData: Yup.object().shape({
+            idx: Yup.number(),
+            index: Yup.number()
+        }),
+        data: Yup.array().of(Yup.object().shape({
+            drug: Yup.object().nullable().required("drug_error"),
+            unit: Yup.string().nullable(),
+            cycle: Yup.array().of(Yup.object().shape({
+                count: Yup.number(),
+                dosageQty: Yup.string(),
+                dosageDuration: Yup.number(),
+                dosageMealValue: Yup.string(),
+                durationValue: Yup.string(),
+                dosageInput: Yup.boolean(),
+                dosageInputText: Yup.string(),
+                dosageTime: Yup.array().of(Yup.object().shape({
+                    label: Yup.string(),
+                    value: Yup.boolean()
+                })),
+                dosageMeal: Yup.array().of(Yup.object().shape({
+                    label: Yup.string(),
+                    value: Yup.string()
+                })),
+                duration: Yup.array().of(Yup.object().shape({
+                    label: Yup.string(),
+                    value: Yup.string()
+                }))
+            }))
+        }))
+    });
+
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            dosageData: {
+                idx: 0,
+                index: 0,
+            },
+            data: [{...initData}]
+        },
+        validationSchema,
+        onSubmit: (values) => {
+            console.log(values);
+        },
+    });
+
+    const {setFieldValue, values, getFieldProps, errors} = formik;
+    console.log(errors);
+    const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
+
+    const handleAddDrug = () => {
+        setFieldValue("data", [
+            ...values.data,
+            {...initData}
+        ]);
+    }
+
+    const handleRemoveCycle = (idx: number, value: any) => {
+        const filtered = values.data[idx].cycle.filter((item) => item !== value);
+        setFieldValue(`data[${idx}].cycle`, filtered);
+    }
+
+    const handAddCycle = (index: number) => {
+        setFieldValue(`data[${index}].cycle`, [
+            ...values.data[index].cycle,
+            ...initData.cycle
         ]);
     };
     const updatedValue = (index: number, idx: number) => {
@@ -273,7 +202,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             index,
         });
         if (prop === "plus") {
-            if (values.data[idx].cycle[index].count < 8) {
+            if (values.data[idx].cycle[index].count < fractions.length) {
                 setFieldValue(
                     `data[${idx}].cycle[${index}].count`,
                     values.data[idx].cycle[index].count + 1
@@ -291,7 +220,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         if (prop === "plus") {
-            if (values.data[idx].cycle[index].dosageDuration < 7) {
+            if (values.data[idx].cycle[index].dosageDuration < fractions.length) {
                 setFieldValue(
                     `data[${idx}].cycle[${index}].dosageDuration`,
                     values.data[idx].cycle[index].dosageDuration + 1
@@ -408,7 +337,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             </MenuItem>
                                                         )}
                                                         renderInput={(params) => <TextField {...params}
-                                                                                            error={item.drug === null}
+                                                                                            error={Boolean(errors.data && (errors.data as any)[idx]?.drug)}
                                                                                             onChange={(ev) => {
                                                                                                 if (ev.target.value.length >= 2) {
                                                                                                     triggerDrugList({
@@ -426,7 +355,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         size='small'
                                                         placeholder={t("unit", {ns: "consultation"})}
                                                         noOptionsText={t('no_unit')}
-                                                        options={[]}
+                                                        options={["Comprimé"]}
                                                         renderInput={(params) => <TextField
                                                             placeholder={t('unit')}
                                                             {...params} />}
@@ -450,7 +379,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 <Typography gutterBottom>
                                                                     {t("dosage", {ns: "consultation"})}
                                                                 </Typography>
-                                                                <Stack
+                                                                {!values.data[idx].cycle[index].dosageInput && <Stack
                                                                     spacing={3}
                                                                     direction="row"
                                                                     flexWrap="wrap"
@@ -465,7 +394,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             component="label"
                                                                             endIcon={
                                                                                 <IconButton
-                                                                                    disabled={innerItem.dosageQty === "7"}
+                                                                                    disabled={innerItem.dosageQty === "8"}
                                                                                     onClick={() =>
                                                                                         handleDosageQty("plus", index, idx)
                                                                                     }
@@ -540,6 +469,24 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             </Button>
                                                                         ))}
                                                                     </Stack>
+                                                                </Stack>}
+                                                                <Stack>
+                                                                    <FormControlLabel
+                                                                        control={
+                                                                            <Checkbox
+                                                                                value={values.data[idx].cycle[index].dosageInput}
+                                                                                onChange={(event) => {
+                                                                                    setFieldValue(`data[${idx}].cycle[${index}].dosageInput`, event.target.checked)
+                                                                                }}
+                                                                                name="autre"/>
+                                                                        }
+                                                                        label="Autre"
+                                                                    />
+                                                                    {values.data[idx].cycle[index].dosageInput &&
+                                                                        <TextField
+                                                                            {...getFieldProps(`data[${idx}].cycle[${index}].dosageInputText`)}
+                                                                            fullWidth
+                                                                            placeholder={t("enter_your_dosage")}/>}
                                                                 </Stack>
                                                             </Stack>
                                                             <Stack mt={1}>
@@ -557,7 +504,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         endIcon={
                                                                             <IconButton
                                                                                 disabled={
-                                                                                    innerItem.dosageDuration === 7
+                                                                                    innerItem.dosageDuration === 8
                                                                                 }
                                                                                 onClick={() =>
                                                                                     durationCounter("plus", index, idx)
