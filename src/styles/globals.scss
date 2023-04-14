@@ -171,7 +171,22 @@ main {
     margin: 0;
   }
 }
-
+.checkbox-formio{
+  width: fit-content;
+  margin: auto;
+}
+.formio-component-table{
+  .table{
+    width: 100%;
+  }
+  .sr-only{
+    visibility: hidden;
+    height: 0;
+  }
+  p{
+    font-size: 12px;
+  }
+}
 .form-control-pregnancy {
   label {
     float: left;
