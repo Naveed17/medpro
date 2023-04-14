@@ -414,10 +414,9 @@ function ConsultationInProgress() {
                 setNotes(noteHistories);
                 setDiagnostics(diagnosticHistories);
             }
-        }, 2000)
+        }, 500)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
-
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -519,7 +518,6 @@ function ConsultationInProgress() {
             setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
         }
     }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const sendNotification = () => {
         if (secretary.length > 0) {
             const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
@@ -557,7 +555,6 @@ function ConsultationInProgress() {
             });
         }
     };
-
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
@@ -600,9 +597,6 @@ function ConsultationInProgress() {
             }
         }
     };
-    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
-              setNumPages(numPages);
-          };*/
     const seeHistory = () => {
         setOpenActDialog(true);
         setstateAct(notes)
@@ -787,7 +781,6 @@ function ConsultationInProgress() {
                 break;
         }
     };
-
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
         saveConsultation();
@@ -797,6 +790,7 @@ function ConsultationInProgress() {
         }
 
     }
+
     const {t, ready} = useTranslation("consultation");
 
     if (!ready)

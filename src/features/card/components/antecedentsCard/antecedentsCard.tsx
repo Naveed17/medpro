@@ -127,7 +127,6 @@ function AntecedentsCard({...props}) {
             return;
         }
         if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
-            console.log(antecedentsData[action]);
             setState(antecedentsData[action]);
         } else setState([])
 

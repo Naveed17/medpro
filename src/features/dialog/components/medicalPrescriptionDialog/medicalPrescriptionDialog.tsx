@@ -167,7 +167,6 @@ function MedicalPrescriptionDialog({...props}) {
         onSubmit: async (values) => {
             if (drug) {
                 drugs.push({...values,drugUuid:drug.uuid,name:drug.commercial_name})
-                console.log(drugs)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
