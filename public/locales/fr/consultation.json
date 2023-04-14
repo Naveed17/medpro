@@ -407,7 +407,10 @@
     "surgical_antecedents": "Antécédents chirurgicaux",
     "add-background": "Ajouter Antécédents",
     "register": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "father": "Père",
+    "mother": "Mère",
+    "both": "Les deux"
   }
 }
 

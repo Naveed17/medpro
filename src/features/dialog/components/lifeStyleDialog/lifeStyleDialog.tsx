@@ -55,7 +55,7 @@ function LifeStyleDialog({...props}) {
             items.map((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
                     console.log(item);
-                    item.response = item.antecedentValues[0].uuid
+                    item.response = item.response[0].uuid
                 }
             })
             setState(items)
@@ -264,7 +264,7 @@ function LifeStyleDialog({...props}) {
                                                 list.value_type === 2 &&
                                                 <>
                                                     <Typography fontSize={10} mt={2}
-                                                                ml={1}>{t('selectPlz')}</Typography>
+                                                                ml={1}>{t('selectPlz')} <span style={{color:"red"}}> *</span></Typography>
                                                     <Stack direction={'row'} spacing={1} mb={1} ml={1}>
                                                         {list.values.map((val: { uuid: string; value: string }) => (
                                                             <FormControlLabel
