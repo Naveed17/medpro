@@ -4,6 +4,30 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiOutlinedInput-root.Mui-focused": {
         background: theme.palette.background.default,
     },
+    "& .grid-action": {
+        paddingLeft: 8
+    },
+    ".btn-del-drug": {
+        borderRadius: 4,
+        padding: 6,
+        border: "1px solid transparent",
+        svg: {
+            width: 20,
+            height: 20,
+            path: {
+                fill: theme.palette.grey["A50"],
+            },
+        },
+        "&:hover": {
+            backgroundColor: theme.palette.common.white,
+            borderColor: theme.palette.grey[300],
+            svg: {
+                path: {
+                    fill: theme.palette.error.main,
+                },
+            },
+        },
+    },
     ".custom-paper": {
         backgroundColor: theme.palette.background.default,
         padding: theme.spacing(3, 1),

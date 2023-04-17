@@ -48,7 +48,7 @@ function MedicalPrescriptionDialog({...props}) {
     const open = Boolean(anchorEl);
     const {data} = props
     const {appointement} = useAppSelector(consultationSelector);
-    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>([...data.state]);
+    const [drugs, setDrugs] = useState<any[]>([...data.state]);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
     const [update, setUpdate] = useState<number>(-1);
@@ -166,7 +166,7 @@ function MedicalPrescriptionDialog({...props}) {
 
         onSubmit: async (values) => {
             if (drug) {
-                drugs.push({...values,drugUuid:drug.uuid,name:drug.commercial_name})
+                drugs.push({...values, drugUuid: drug.uuid, name: drug.commercial_name})
                 console.log(drugs)
                 setDrugs([...drugs])
                 data.setState([...drugs])
@@ -219,16 +219,16 @@ function MedicalPrescriptionDialog({...props}) {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])*/
 
-    useEffect(()=>{
+    useEffect(() => {
         let lastPrescription: any[] = []
         appointement.latestAppointments.map((la: { documents: any[]; }) => {
             const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
             if (prescriptions.length > 0) {
-                lastPrescription = [...lastPrescription,...prescriptions]
+                lastPrescription = [...lastPrescription, ...prescriptions]
             }
         })
         setLastPrescriptions(lastPrescription)
-    },[appointement])
+    }, [appointement])
 
     useEffect(() => {
         if (Object.keys(errors).length > 0)
@@ -243,16 +243,16 @@ function MedicalPrescriptionDialog({...props}) {
         data.setState([...drugs]);
     }
 
-    const importLast = () =>{
+    const importLast = () => {
         const last: any[] = [];
-        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) =>{
+        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
             last.push({
-                drugUuid:drug.standard_drug.uuid,
-                name:drug.standard_drug.commercial_name,
-                dosage:drug.dosage,
-                duration:drug.duration,
-                durationType:drug.duration_type,
-                note:drug.note
+                drugUuid: drug.standard_drug.uuid,
+                name: drug.standard_drug.commercial_name,
+                dosage: drug.dosage,
+                duration: drug.duration,
+                durationType: drug.duration_type,
+                note: drug.note
             });
         })
         setDrugs([...last])
@@ -295,7 +295,7 @@ function MedicalPrescriptionDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Stack direction={"row"} alignItems="center">
-                                    {!isMobile &&<Typography>{t('seeking_to_name_the_drug')}
+                                    {!isMobile && <Typography>{t('seeking_to_name_the_drug')}
                                         <Typography component="span" color="error">
                                             *
                                         </Typography>
@@ -335,7 +335,8 @@ function MedicalPrescriptionDialog({...props}) {
                                         }}
                                     >
                                         {
-                                            lastPrescriptions.length > 0 && <MenuItem sx={{color: theme => theme.palette.grey[0]}}
+                                            lastPrescriptions.length > 0 &&
+                                            <MenuItem sx={{color: theme => theme.palette.grey[0]}}
                                                       onClick={importLast}>{t('last_prescription')}</MenuItem>
                                         }
                                         {
@@ -454,7 +455,7 @@ function MedicalPrescriptionDialog({...props}) {
                                     update > -1 ? <Button variant="contained" color={"warning"}
                                                           onClick={() => {
                                                               if (drug) {
-                                                                  values.drugUuid = drug.uuid
+                                                                  values.drugUuid = drug.uuid as string
                                                                   values.name = drug.commercial_name
                                                                   drugs[update] = values
                                                                   setDrugs([...drugs])
@@ -472,7 +473,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                           }}>
                                             {t('updateDrug')}
                                         </Button> :
-                                        <Button variant="contained" endIcon={<RedoIcon />} type={"submit"}>
+                                        <Button variant="contained" endIcon={<RedoIcon/>} type={"submit"}>
                                             {t('add_a_drug')}
                                         </Button>
                                 }

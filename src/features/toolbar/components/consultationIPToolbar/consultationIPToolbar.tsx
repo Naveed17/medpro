@@ -236,8 +236,8 @@ function ConsultationIPToolbar({...props}) {
                 }
 
                 trigger({
-                    method:method,
-                    url:url,
+                    method: method,
+                    url: url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -504,7 +504,7 @@ function ConsultationIPToolbar({...props}) {
                     setState({
                         name: `${ginfo.firstName} ${ginfo.lastName}`,
                         days: '',
-                        uuid:selectedDialog.state.uuid,
+                        uuid: selectedDialog.state.uuid,
                         content: selectedDialog.state.content,
                         title: selectedDialog.state.title,
                         patient: `${selectedDialog.state.patient}`
@@ -777,7 +777,7 @@ function ConsultationIPToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t, setOpenDialog}}
+                    data={{appuuid, state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
