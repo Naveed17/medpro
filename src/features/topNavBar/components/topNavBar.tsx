@@ -119,9 +119,9 @@ function TopNavBar({...props}) {
         // Hide the app provided install promotion
         setInstallable(false);
         // Show the install prompt
-        deferredPrompt.prompt();
+        deferredPrompt?.prompt();
         // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult: any) => {
+        deferredPrompt?.userChoice.then((choiceResult: any) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the install prompt');
             } else {
@@ -373,21 +373,14 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            {!installable && (isMobile ?
-                                    <Tooltip title={"Installer l'app"}>
-                                        <Avatar
-                                            sx={{mr: 2, bgcolor: theme.palette.primary.main}}
-                                            onClick={handleInstallClick}>
-                                            <IconUrl width={20} height={20} path={"Med-logo_white"}/>
-                                        </Avatar>
-                                    </Tooltip>
-                                    : <Button sx={{mr: 2, p: "6px 12px"}}
-                                              onClick={handleInstallClick}
-                                              startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
-                                              variant={"contained"}>
-                                        {"Installer l'app"}
-                                    </Button>
-                            )}
+                            {(!installable && !isMobile) &&
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
+                                    {"Installer l'app"}
+                                </Button>
+                            }
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notifications}

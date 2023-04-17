@@ -237,7 +237,7 @@ function DocumentDetailDialog({...props}) {
                             })
                         })
                         dispatch(SetSelectedDialog({
-                            action: 'medical_prescription',
+                            action: 'medical_prescription_cycle',
                             state: prescriptions,
                             uuid: state.uuidDoc
                         }))
