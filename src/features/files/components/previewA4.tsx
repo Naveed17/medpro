@@ -336,7 +336,6 @@ function PreviewDialog({...props}) {
 
             /*const footer = document.getElementById('footer')
             if (footer && data.footer) {
-                console.log(data.footer)
                 footer.innerHTML = data.footer.content;
                 footer.className="footer-st"
             } */

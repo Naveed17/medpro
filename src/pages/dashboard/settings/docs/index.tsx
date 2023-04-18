@@ -42,6 +42,7 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
+import { Editor } from '@tinymce/tinymce-react';
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -56,6 +57,7 @@ function DocsConfig() {
     const componentRef = useRef<HTMLDivElement>(null);
 
     const [files, setFiles] = useState<any[]>([]);
+    const [title, setTitle] = useState("");
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
@@ -203,8 +205,6 @@ function DocsConfig() {
                     setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
                 else
                     setData(docInfo.data)
-
-                console.log(docInfo.data);
             }
 
             setTimeout(() => {
@@ -221,7 +221,6 @@ function DocsConfig() {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    console.log(medical_professional);
     return (
         <>
             <Grid container>
@@ -266,6 +265,23 @@ function DocsConfig() {
                             sx={{width: '100%', bgcolor: 'background.paper'}}
                             component="nav"
                             aria-labelledby="nested-list-subheader">
+
+                            <Typography fontSize={12} color={'#999'} mb={1}>{t('titleModel')}{" "}
+                                <Typography component="span" color="error">
+                                    *
+                                </Typography>
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                placeholder={t('titleholder')}
+                                required
+                                type={"number"}
+                                style={{marginBottom:15}}
+                                value={title}
+                                onChange={(ev) => {
+                                    setTitle(ev.target.value)
+                                }}
+                                fullWidth/>
 
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
@@ -447,14 +463,17 @@ function DocsConfig() {
                                 </ListItem>
 
                                 {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
-                                    <CKeditor
-                                        name="description"
+                                    <Editor
                                         value={data.footer.content}
-                                        onChange={(res: React.SetStateAction<string>) => {
+                                        apiKey='5z2ufor849kkaz900ye60ztlyfbx8jr7d6uubg6hbgjs5b2j'
+                                        onEditorChange={(res)=>{
                                             data.footer.content = res;
                                             setData({...data});
                                         }}
-                                        editorLoaded={true}/>
+                                        init={{
+
+                                        }}
+                                    />
                                 </Collapse>}
                             </Box>}
 

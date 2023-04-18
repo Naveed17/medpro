@@ -15,7 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "configdoc": "Configuration document",
+    "configdoc": "Documents",
     "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
@@ -545,7 +545,7 @@
   },
   "documents": {
     "config": {
-      "path": "Paramètres > Configuration ",
+      "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
       "case1": "Première case",
@@ -573,7 +573,10 @@
       "rightSide": "Côté droit",
       "paperSize": "Taille de papier",
       "A5": "A5",
-      "A4": "A4"
+      "A4": "A4",
+      "add": "Ajouter document",
+      "titleModel": "Titre du modèle",
+      "titleholder": "Ordonnance..."
     }
   }
 }
