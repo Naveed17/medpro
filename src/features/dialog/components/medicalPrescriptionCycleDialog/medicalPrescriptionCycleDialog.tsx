@@ -299,7 +299,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     })
                 }
             });
-            console.log(drugs, values);
             if (drugs.length > 0) {
                 setDrugs(drugs);
             }
