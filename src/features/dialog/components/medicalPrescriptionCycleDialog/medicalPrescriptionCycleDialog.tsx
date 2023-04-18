@@ -24,18 +24,20 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog, ModelPrescriptionList} from "@features/dialog";
 import {useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 
 import {motion, AnimatePresence} from "framer-motion";
 import {RecButton} from "@features/buttons";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {Session} from "next-auth";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data: {t}, data} = props;
@@ -83,7 +85,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
             value: "year",
         }
     ];
-
     const initData = {
         drug: null,
         unit: null,
@@ -160,7 +161,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
-            cycle: [] as any[]
+            cycle: initData.cycle as any[]
         }] : [];
         drugs?.map((drug: any) => {
             data.push({
@@ -221,7 +222,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
+
+    const {data: httpModelResponse, mutate} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [
@@ -248,7 +258,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     }
 
     const handleDosageQty = (prop: string, index: number, idx: number) => {
-        console.log("handleDosageQty", prop);
         if (prop === "plus") {
             if (values.data[idx].cycle[index].count < fractions.length - 1) {
                 const dosage = values.data[idx].cycle[index].count + 1;
@@ -304,6 +313,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const models = (httpModelResponse as HttpResponse)?.data as PrescriptionModalModel[];
 
     return (
         <MedicalPrescriptionCycleStyled>
@@ -648,7 +659,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             </FormikProvider>
                             <Stack spacing={2} mt={2} alignItems="flex-start">
                                 <Button startIcon={<AddIcon/>} onClick={handleAddDrug}>
-                                    {t("add_a_drug", {ns: "consultation"})}
+                                    {t("add_drug", {ns: "consultation"})}
                                 </Button>
                             </Stack>
                         </>
@@ -662,6 +673,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         />
                         <Stack width={1}>
                             <Button
+                                disabled={drugs?.length === 0}
                                 {...(isMobile && {
                                     fullWidth: true,
                                 })}
@@ -687,7 +699,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     left: -24,
                                 }}
                             />
-                            {/*<DocList models={models} t={t}/>*/}
+                            <ModelPrescriptionList {...{models, t}}/>
                         </Stack>
                     </Stack>
                 </Grid>
