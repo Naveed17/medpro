@@ -66,6 +66,14 @@ const dialogData = [
     ),
   },
   {
+    action: "medical_prescription_cycle",
+    component: dynamic((): any =>
+      import(
+        "@features/dialog/components/medicalPrescriptionCycleDialog/medicalPrescriptionCycleDialog"
+      ).then((mod) => mod)
+    ),
+  },
+  {
     action: "balance_sheet_request",
     component: dynamic((): any =>
       import("@features/dialog/components/balanceSheet/balanceSheet").then(

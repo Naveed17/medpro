@@ -63,6 +63,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
+      "updated":"Motif modifé",
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -73,7 +74,10 @@
         "active": "Active",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "minutes":"Minutes",
+        "hours":"Heures",
+        "hour":"Heure"
       }
     },
     "dialog": {

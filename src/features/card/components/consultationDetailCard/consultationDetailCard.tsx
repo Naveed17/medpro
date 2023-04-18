@@ -276,7 +276,7 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        {notes?.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
                                             seeHistory()
                                         }}>{t('seeHistory')}</Typography>}
                                     </>}
