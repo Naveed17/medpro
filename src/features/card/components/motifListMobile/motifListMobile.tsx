@@ -43,7 +43,7 @@ function MotifListMobile({ ...props }) {
               name="duration">
               {durations.map((duration: any) => (
                 <MenuItem key={duration.value} value={duration.value}>
-                  {duration.date + " " + t("times." + duration.unity)}
+                  {duration.date + " " + t("table." + duration.unity)}
                 </MenuItem>
               ))}
             </Select>
