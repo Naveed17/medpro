@@ -581,6 +581,9 @@
       "A4": "A4",
       "add": "Ajouter document",
       "titleModel": "Titre du modèle",
+      "cancel": "Annuler",
+      "askRemove": "Supprimer un modèle",
+      "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
       "remove": "Supprimer",
       "titleholder": "Ordonnance..."
     }

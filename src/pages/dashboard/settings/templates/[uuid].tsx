@@ -1,7 +1,7 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -13,7 +13,7 @@ import {
     Card,
     CardContent,
     Checkbox,
-    Collapse,
+    Collapse, DialogActions,
     Grid,
     IconButton,
     List,
@@ -47,8 +47,13 @@ import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import AddIcon from "@mui/icons-material/Add";
-
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
+import {Dialog} from "@features/dialog";
+import {Theme} from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {useAppSelector} from "@app/redux/hooks";
 function DocsConfig() {
     const {data: session} = useSession();
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -59,8 +64,10 @@ function DocsConfig() {
 
     const [files, setFiles] = useState<any[]>([]);
     const [file, setFile] = useState<File | null>(null);
+    const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState(null);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
@@ -85,6 +92,7 @@ function DocsConfig() {
     const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const {trigger} = useRequestMutation(null, "/MP/header");
+    const {direction} = useAppSelector(configSelector);
 
     const {data: httpDocumentHeader, mutate} = useRequest({
         method: "GET",
@@ -136,7 +144,6 @@ function DocsConfig() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [docHeader])
-
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -230,20 +237,33 @@ function DocsConfig() {
 
     }
 
-    const remove = () => {
-
-        trigger({
-            method: "DELETE",
-            url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+    const openDialog = ()=>{
+        setOpen(true);
+        setSelected({
+            title: t('askRemove'),
+            subtitle: t('subtitleRemove'),
+            icon: "/static/icons/setting/ic-edit-file.svg",
+            name1: title,
+            name2: "",
+           // data: props,
+            request: {
+                method: "DELETE",
+                url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
             }
-        }, TriggerWithoutValidation).then(() => {
-            mutate();
-            router.back();
         })
-        enqueueSnackbar(t("removed"), {variant: 'error'})
+    }
 
+
+    const remove = () => {
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(() => {
+                router.back();
+                enqueueSnackbar(t("removed"), {variant: 'error'})
+            });
+        });
     }
 
 
@@ -275,14 +295,14 @@ function DocsConfig() {
                     variant="contained"
                     color={"error"}
                     style={{marginRight: 10}}
-                    onClick={remove}>
-                    {!isMobile ? t("remove") : <AddIcon/>}
+                    onClick={openDialog}>
+                    {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
                 </Button>}
                 <Button
                     type="submit"
                     variant="contained"
                     onClick={save}>
-                    {!isMobile ? t("save") : <AddIcon/>}
+                    {!isMobile ? t("save") : <ModeEditOutlineRoundedIcon/>}
                 </Button>
             </SubHeader>
 
@@ -678,6 +698,26 @@ function DocsConfig() {
                     </Box>}
                 </Grid>
             </Grid>
+
+
+            <Dialog action={"remove"}
+                    open={open}
+                    data={selected}
+                    direction={direction}
+                    color={(theme: Theme) => theme.palette.error.main}
+                    title={t('remove')}
+                    t={t}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={()=>{setOpen(false);}}
+                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            <LoadingButton variant="contained"
+                                           loading={loading}
+                                           sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                           onClick={remove}>{t('remove')}</LoadingButton>
+                        </DialogActions>
+                    }
+            />
         </>
     );
 }
