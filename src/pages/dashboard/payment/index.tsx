@@ -58,7 +58,8 @@ import {
   setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import { EventDef } from "@fullcalendar/core/internal";
-import { leftActionBarSelector } from "@features/leftActionBar";
+import { PaymentFilter, leftActionBarSelector } from "@features/leftActionBar";
+import { DrawerBottom } from "@features/drawerBottom";
 
 interface HeadCell {
   disablePadding: boolean;
@@ -222,6 +223,7 @@ function Payment() {
   const [collapse, setCollapse] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [collapseDate, setCollapseData] = useState<any>(null);
+
   const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
   const [rows, setRows] = useState<any[]>([]);
   const [filtredRows, setFiltredRows] = useState<any[]>([]);
@@ -231,7 +233,7 @@ function Payment() {
   ]);
   const [total, setTotal] = useState(0);
   let [select, setSelect] = useState<any[]>([]);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState(false);
   let [collect, setCollect] = useState<any[]>([]);
   let [collected, setCollected] = useState(0);
   const [toReceive, setToReceive] = useState(0);
@@ -376,7 +378,6 @@ function Payment() {
   };
 
   const handleTableActions = (data: any) => {
-    console.log(data);
     switch (data.action) {
       case "PATIENT_DETAILS":
         dispatch(onOpenPatientDrawer({ patientId: data.row.patient.uuid }));
@@ -972,6 +973,26 @@ function Payment() {
           </Button>
         </DialogActions>
       </MuiDialog>
+      <Button
+        startIcon={<Icon path="ic-filter" />}
+        variant="filter"
+        onClick={() => setFilter(true)}
+        sx={{
+          position: "fixed",
+          bottom: 50,
+          transform: "translateX(-50%)",
+          left: "50%",
+          zIndex: 999,
+          display: { xs: "flex", md: "none" },
+        }}>
+        Filtrer (0)
+      </Button>
+      <DrawerBottom
+        handleClose={() => setFilter(false)}
+        open={filter}
+        title="Filter">
+        <PaymentFilter />
+      </DrawerBottom>
     </>
   );
 }
