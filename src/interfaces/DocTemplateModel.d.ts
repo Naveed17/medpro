@@ -1,6 +1,7 @@
 interface DocTemplateModel {
   uuid: string;
   title: string;
-  data: any;
+  isDefault:boolean;
   header:any;
+  types:string[];
 }

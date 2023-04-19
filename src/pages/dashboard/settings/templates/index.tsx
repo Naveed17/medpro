@@ -13,7 +13,6 @@ import PreviewA4 from "@features/files/components/previewA4";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 
 function TemplatesConfig() {
@@ -35,9 +34,9 @@ function TemplatesConfig() {
 
     const {data: httpDocumentHeader} = useRequest({
         method: "GET",
-        url: "/api/medical-professional/" + medical_professional?.uuid + "/header/" + router.locale,
+        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    });
 
     useEffect(()=>{
         if (httpDocumentHeader){
@@ -57,7 +56,7 @@ function TemplatesConfig() {
     };
 
     const edit = (id:string) =>{
-        console.log(id);
+        router.push(`/dashboard/settings/templates/${id}`);
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -74,6 +73,7 @@ function TemplatesConfig() {
                     type="submit"
                     variant="contained"
                     onClick={() => {
+                        router.push(`/dashboard/settings/templates/new`);
                     }}
                     color="success">
                     {!isMobile ? t("add") : <AddIcon />}
@@ -85,15 +85,15 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     {docs.map(res => (
-                        <Box key={res} className={"container"}>
-                            <div onMouseOver={()=>{handleMouseOver(res)}}
+                        <Box key={res.uuid} className={"container"}>
+                            <div onMouseOver={()=>{handleMouseOver(res.uuid)}}
                                  onMouseOut={handleMouseOut}>
-                                <PreviewA4  {...{eventHandler:null, data:res.data, values:res.header,state:null, loading}} />
+                                <PreviewA4  {...{eventHandler:null, data:res.header.data, values:res.header.header,state:null, loading}} />
                             </div>
-                            {isHovering === res &&
-                                <Button variant={"contained"} onMouseOver={()=>{handleMouseOver(res)}} className={"edit-btn"} onClick={()=>{edit(res)}}>Modifier</Button>}
+                            {isHovering === res.uuid &&
+                                <Button variant={"contained"} onMouseOver={()=>{handleMouseOver(res.uuid)}} className={"edit-btn"} onClick={()=>{edit(res.uuid)}}>Modifier</Button>}
                             <Stack direction={"row"} justifyContent={"space-between"} mt={2}>
-                                <Typography className={"doc-title"}>Mono ex</Typography>
+                                <Typography className={"doc-title"}>{res.title}</Typography>
                                 <div className={"heading"}>
                                     A5
                                 </div>

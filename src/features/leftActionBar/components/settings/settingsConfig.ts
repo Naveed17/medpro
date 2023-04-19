@@ -40,7 +40,7 @@ const settingsData = {
         {
             name: "configdoc",
             icon: "setting/ic-edit-file",
-            href: "/dashboard/settings/docs",
+            href: "/dashboard/settings/templates",
             disable: false
         },
         {

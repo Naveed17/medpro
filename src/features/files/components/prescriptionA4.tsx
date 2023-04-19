@@ -25,11 +25,11 @@ const Prescription = ({...props}) => {
             {!loading && <Box>
                 {data !== undefined && <div className={"portraitA4"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:''}}>
 
-                    {data.background.show && data.background.content !== '' && state === undefined && id === 0 &&
+                    {data.background.show && data.background.content !== '' && id === 0 &&
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={"portraitA4"}
-                             style={{position: "absolute", height: '421mm',width:'300mm'}}
-                             src={data.background.content} alt={'backgroud'}/>}
+                             style={{position: "absolute", height: '100%',width:'100%'}}
+                             src={data.background.content} alt={'background'}/>}
 
                     <Draggable
                         onStop={(ev, data) => {eventHandler(ev, data, 'header')}}
