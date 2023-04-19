@@ -65,7 +65,9 @@ const BoxStyled = styled(Box)(({ theme }) => ({
         },
       },
       ".MuiDayPicker-weekDayLabel": {
-        width: "100%",
+        [theme.breakpoints.down("sm")]: {
+          width: "100%",
+        },
       },
     },
   },
