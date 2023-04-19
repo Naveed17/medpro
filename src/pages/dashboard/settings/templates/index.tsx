@@ -94,9 +94,9 @@ function TemplatesConfig() {
                                 <Button variant={"contained"} onMouseOver={()=>{handleMouseOver(res.uuid)}} className={"edit-btn"} onClick={()=>{edit(res.uuid)}}>Modifier</Button>}
                             <Stack direction={"row"} justifyContent={"space-between"} mt={2}>
                                 <Typography className={"doc-title"}>{res.title}</Typography>
-                                <div className={"heading"}>
+                                {/*<div className={"heading"}>
                                     A5
-                                </div>
+                                </div>*/}
                             </Stack>
                         </Box>
                     ))}

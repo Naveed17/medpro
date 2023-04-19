@@ -557,7 +557,8 @@
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "Document modèle modifé",
+      "updated": "Document enregistré",
+      "removed": "Document supprimé",
       "background": "Importer le document actuel",
       "title": "Titre du document",
       "date": "Date",
@@ -580,6 +581,7 @@
       "A4": "A4",
       "add": "Ajouter document",
       "titleModel": "Titre du modèle",
+      "remove": "Supprimer",
       "titleholder": "Ordonnance..."
     }
   }

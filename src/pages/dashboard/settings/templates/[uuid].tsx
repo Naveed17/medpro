@@ -9,6 +9,7 @@ import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
+    Button,
     Card,
     CardContent,
     Checkbox,
@@ -25,6 +26,7 @@ import {
     ToggleButtonGroup,
     Tooltip,
     Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -34,7 +36,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
@@ -44,6 +45,9 @@ import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
+import AddIcon from "@mui/icons-material/Add";
 
 function DocsConfig() {
     const {data: session} = useSession();
@@ -87,15 +91,15 @@ function DocsConfig() {
         url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
+    const isMobile = useMediaQuery("(max-width:669px)");
 
 
     useEffect(() => {
-        if (uuid === 'new'){
+        if (uuid === 'new') {
             setTimeout(() => {
                 setLoading(false)
             }, 1000);
-        }
-        else if (httpDocumentHeader)
+        } else if (httpDocumentHeader)
             setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
     }, [httpDocumentHeader, uuid])
 
@@ -209,9 +213,9 @@ function DocsConfig() {
         if (file)
             form.append('file', file);
 
-        const url = uuid ==='new' ? `/api/medical-professional/${medical_professional.uuid}/header/${router.locale}` : `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`
+        const url = uuid === 'new' ? `/api/medical-professional/${medical_professional.uuid}/header/${router.locale}` : `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`
         trigger({
-            method: uuid === 'new' ? "POST":"PUT",
+            method: uuid === 'new' ? "POST" : "PUT",
             url,
             data: form,
             headers: {
@@ -226,6 +230,23 @@ function DocsConfig() {
 
     }
 
+    const remove = () => {
+
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(() => {
+            mutate();
+            router.back();
+        })
+        enqueueSnackbar(t("removed"), {variant: 'error'})
+
+    }
+
+
     const {data: httpTypeResponse} = useRequest({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`,
@@ -235,15 +256,36 @@ function DocsConfig() {
         },
     });
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(httpTypeResponse);
-    },[httpTypeResponse])
+    }, [httpTypeResponse])
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     // @ts-ignore
     return (
         <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document': 'Modifier document'}`}</p>
+                </RootStyled>
+
+                {uuid !== 'new' && <Button
+                    type="submit"
+                    variant="contained"
+                    color={"error"}
+                    style={{marginRight: 10}}
+                    onClick={remove}>
+                    {!isMobile ? t("remove") : <AddIcon/>}
+                </Button>}
+                <Button
+                    type="submit"
+                    variant="contained"
+                    onClick={save}>
+                    {!isMobile ? t("save") : <AddIcon/>}
+                </Button>
+            </SubHeader>
+
             <Grid container>
                 <Grid item xs={12} md={5}>
                     <Box padding={2} style={{background: "white"}}
@@ -267,16 +309,6 @@ function DocsConfig() {
                                     }}>
                                         <LocalPrintshopRoundedIcon
                                             style={{color: theme.palette.grey[400], fontSize: 16}}/>
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title={t("save")} TransitionComponent={Zoom}>
-                                    <IconButton onClick={save} sx={{
-                                        border: "1px solid",
-                                        mr: 1,
-                                        borderRadius: 2,
-                                        color: "primary.main"
-                                    }}>
-                                        <SaveRoundedIcon color={"primary"} style={{fontSize: 16}}/>
                                     </IconButton>
                                 </Tooltip>
                             </Stack>
