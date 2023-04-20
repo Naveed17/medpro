@@ -12,11 +12,11 @@ import {
 import IconUrl from "@themes/urlIcon";
 
 function ModelPrescriptionList({...props}) {
-    const [collapse, setCollapse] = useState<any>([]);
+    const [collapse, setCollapse] = useState<any>([1]);
     const [groupPrescriptionModel, setGroupPrescriptionModel] = useState<any[]>([
-        {uuid: 1, name: "Répertoire par défaut", collapse: [1]}
+        {uuid: 1, name: "Répertoire par défaut"}
     ]);
-    const {models, t} = props;
+    const {models, t, switchPrescriptionModel} = props;
 
     return (
         <List
@@ -27,44 +27,53 @@ function ModelPrescriptionList({...props}) {
                 overflowX: "scroll",
                 height: "21rem",
             }}>
-            {groupPrescriptionModel?.map((item: any, index: number) => (
+            {groupPrescriptionModel?.map((group: any, index: number) => (
                 <Box key={`model-${index}`}>
                     <ListItem
+                        sx={{cursor: "pointer"}}
                         onClick={() => {
-                            if (collapse.includes(item?.uuid)) {
+                            if (collapse.includes(group?.uuid)) {
                                 const filtered = collapse.filter(
-                                    (uuid: string) => item.uuid !== uuid
+                                    (uuid: string) => group.uuid !== uuid
                                 );
                                 setCollapse(filtered);
                             } else {
-                                setCollapse([...collapse, item.uuid]);
+                                setCollapse([...collapse, group.uuid]);
                             }
                         }}>
                         <IconUrl
                             style={{position: "absolute", left: 10}}
                             path={
-                                collapse.includes(item?.uuid) ? "ic-collapse" : "ic-uncollapse"
+                                collapse.includes(group?.uuid) ? "ic-collapse" : "ic-uncollapse"
                             }
                         />
                         <Stack direction="row" alignItems="center" spacing={0.5} ml={1}>
                             <IconUrl path="ic-doc"/>
-                            <Typography>{item.name}</Typography>
+                            <Typography>{group.name}</Typography>
                         </Stack>
                     </ListItem>
                     <Collapse
                         className="model-collapse"
-                        in={collapse.includes(item?.uuid)}>
+                        in={collapse.includes(group?.uuid)}>
                         <List sx={{p: 0, px: 4.5}}>
-                            {models?.map((item: any, index: number) =>
-                                (<ListItem key={index} sx={{py: 0, px: 0.5, borderRadius: 0.5}}>
+                            {models?.map((model: any, index: number) =>
+                                (<ListItem key={index}
+                                           onClick={event =>{
+                                               event.stopPropagation();
+                                               switchPrescriptionModel(model.prescription_modal_has_drugs)
+                                           }}
+                                           sx={{py: 0, px: 0.5, borderRadius: 0.5, cursor: "pointer"}}>
                                     <IconUrl path="ic-text" height={14} width={14}/>
                                     <Typography color="primary" variant="body2" ml={0.5}>
-                                        {item.name}
+                                        {model.name}
                                     </Typography>
                                     <IconButton
                                         disableRipple
                                         className="btn-del"
-                                        onClick={() => console.log(item.uuid)}>
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            console.log(model.uuid)
+                                        }}>
                                         <IconUrl color="red" width={12} height={12} path="icdelete"/>
                                     </IconButton>
                                 </ListItem>))}

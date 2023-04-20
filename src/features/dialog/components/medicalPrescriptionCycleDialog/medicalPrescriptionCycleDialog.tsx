@@ -160,7 +160,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }))
     });
 
-    const setInitData = () => {
+    const setInitData = (drugs: DrugModel[]) => {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
@@ -216,7 +216,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const formik = useFormik({
         enableReinitialize: false,
         initialValues: {
-            data: setInitData()
+            data: setInitData(drugs)
         },
         validationSchema,
         onSubmit: (values) => {
@@ -242,6 +242,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
             ...values.data,
             {...initData}
         ]);
+    }
+
+    const switchPrescriptionModel = (drugs: DrugModel[]) => {
+        setDrugs(drugs);
+        setFieldValue("data", setInitData(drugs));
     }
 
     const handleRemoveCycle = (idx: number, value: any) => {
@@ -326,7 +331,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     })
                 }
             });
-            console.log("drugs", drugs);
             if (drugs.length > 0) {
                 setDrugs(drugs);
             }
@@ -727,7 +731,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     left: -24,
                                 }}
                             />
-                            <ModelPrescriptionList {...{models, t}}/>
+                            <ModelPrescriptionList {...{models, t, switchPrescriptionModel}}/>
                         </Stack>
                     </Stack>
                 </Grid>
