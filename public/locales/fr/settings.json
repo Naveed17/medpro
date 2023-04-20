@@ -585,7 +585,8 @@
       "askRemove": "Supprimer un modèle",
       "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
       "remove": "Supprimer",
-      "titleholder": "Ordonnance..."
+      "titleholder": "Ordonnance...",
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )"
     }
   }
 }

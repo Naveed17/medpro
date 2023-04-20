@@ -2,9 +2,10 @@ import {
     Box,
     Button,
     Card,
+    Checkbox,
     DialogActions,
     DialogContent,
-    DialogContentText,
+    FormControlLabel,
     Grid,
     List,
     ListItem,
@@ -39,10 +40,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
+import HistoryEduRoundedIcon from '@mui/icons-material/HistoryEduRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -75,6 +76,8 @@ function DocumentDetailDialog({...props}) {
     const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
+    const [docs, setDocs] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
@@ -140,7 +143,7 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: 'settings',
-            icon: "ic-setting",
+            icon: "template",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
@@ -161,23 +164,16 @@ function DocumentDetailDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
     const {trigger} = useRequestMutation(null, "/documents");
 
-    const {data: httpProfessionalsResponse} = useRequest({
+
+    const {data: httpDocumentHeader} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-
-    const {data: httpHeaderData} = useRequest(medical_professional ? {
-        method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
+    });
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -188,9 +184,12 @@ function DocumentDetailDialog({...props}) {
     };
 
     const handleYes = () => {
-        router.push("/dashboard/settings/docs").then(() => {
+        const selected = docs.find((doc: any) => doc.uuid === selectedTemplate);
+        if (selected) {
+            setData((selected as any).header.data)
+            setHeader((selected as any).header.header)
             setOpenAlert(false);
-        })
+        }
     };
 
     const handlePrint = () => {
@@ -300,8 +299,7 @@ function DocumentDetailDialog({...props}) {
                 }
                 break;
             case "settings":
-                router.push("/dashboard/settings/docs").then(() => {
-                })
+                setOpenAlert(true)
                 break;
             default:
                 break;
@@ -336,21 +334,21 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
-        if (httpHeaderData) {
-            const docInfo = (httpHeaderData as HttpResponse).data
-            if (!docInfo.header) {
-                //handleClickOpen();
+        if (httpDocumentHeader) {
+            const docInfo = (httpDocumentHeader as HttpResponse).data
+            setDocs(docInfo);
+            if (docInfo.length === 0) {
                 console.log("no header");
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-                setData(docInfo.data)
-                setHeader(docInfo.header)
+                setSelectedTemplate(docInfo[0].uuid)
+                setData(docInfo[0].header.data)
+                setHeader(docInfo[0].header.header)
                 setLoading(false)
             }
         }
-    }, [httpHeaderData])
-
+    }, [httpDocumentHeader])
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
@@ -637,9 +635,16 @@ function DocumentDetailDialog({...props}) {
                 aria-describedby="alert-dialog-description">
                 <DialogContent>
                     <Typography variant={"h6"} mb={2}>{t('alertTitle')}</Typography>
-                    <DialogContentText id="alert-dialog-description">
-                        {t('alertDesc')}
-                    </DialogContentText>
+                    {docs.map((doc: any) => (<FormControlLabel
+                        key={doc.uuid}
+                        control={
+                            <Checkbox checked={selectedTemplate === doc.uuid}
+                                      onChange={() => {
+                                          setSelectedTemplate(doc.uuid)
+                                      }} name={doc.uuid}/>
+                        }
+                        label={doc.title}
+                    />))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>{t('notNow')}</Button>

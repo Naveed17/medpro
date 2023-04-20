@@ -13,12 +13,15 @@ import {
     Card,
     CardContent,
     Checkbox,
-    Collapse, DialogActions,
+    Collapse,
+    DialogActions,
+    FormControl,
     Grid,
     IconButton,
     List,
     ListItem,
     ListItemText,
+    MenuItem,
     Skeleton,
     Stack,
     TextField,
@@ -54,16 +57,29 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@app/redux/hooks";
+import Autocomplete from "@mui/material/Autocomplete";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+
 function DocsConfig() {
-    const {data: session} = useSession();
+
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
     const router = useRouter();
     const theme = useTheme();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const isMobile = useMediaQuery("(max-width:669px)");
+
     const {enqueueSnackbar} = useSnackbar();
+    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {direction} = useAppSelector(configSelector);
+
     const componentRef = useRef<HTMLDivElement>(null);
 
     const [files, setFiles] = useState<any[]>([]);
     const [file, setFile] = useState<File | null>(null);
+    const [types, setTypes] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [loading, setLoading] = useState(true);
@@ -86,21 +102,51 @@ function DocsConfig() {
             y: 150
         }
     })
+    const [queryState, setQueryState] = useState<any>({type: []});
     const uuid = router.query.uuid;
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
-    const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const {trigger} = useRequestMutation(null, "/MP/header");
-    const {direction} = useAppSelector(configSelector);
+    const selectedAll = queryState.type.length === types?.length;
 
     const {data: httpDocumentHeader, mutate} = useRequest({
         method: "GET",
         url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
-    const isMobile = useMediaQuery("(max-width:669px)");
 
+    const {data: httpTypeResponse} = useRequest({
+        method: "GET",
+        url: `/api/private/document/types/${router.locale}?is_active=0`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+
+    const formik = useFormik({
+        children: undefined,
+        component: undefined,
+        initialErrors: undefined,
+        initialTouched: undefined,
+        innerRef: undefined,
+        isInitialValid: undefined,
+
+        onSubmit: async (values) => {
+            return values;
+        },
+
+        enableReinitialize: true,
+        initialValues: {
+            left1: "",
+            left2: "",
+            left3: "",
+            right1: "",
+            right2: "",
+            right3: ""
+        }
+    })
+    let {values, getFieldProps, setFieldValue} = formik;
 
     useEffect(() => {
         if (uuid === 'new') {
@@ -145,22 +191,10 @@ function DocsConfig() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [docHeader])
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-    })
-
-    const handleAlignment = (
-        event: React.MouseEvent<HTMLElement>,
-        newAlignment: string | null,
-    ) => {
-        data.date.textAlign = newAlignment;
-        setData({...data});
-    };
-
-
-    const printNow = () => {
-        handlePrint()
-    }
+    useEffect(() => {
+        if (httpTypeResponse)
+            setTypes((httpTypeResponse as HttpResponse).data);
+    }, [httpTypeResponse])
 
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
@@ -176,49 +210,48 @@ function DocsConfig() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [files]
     );
+    const handleInsuranceChange = (gTypes: any[]) => {
+        setQueryState({
+            type: gTypes
+        });
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+    })
+    const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
+        data.date.textAlign = newAlignment;
+        setData({...data});
+    };
+    const printNow = () => {
+        handlePrint()
+    }
     const handleRemove = (file: any) => {
         setFiles(files.filter((_file: any) => _file !== file));
         data.background.content = ''
         setFile(null)
         setData({...data})
     };
-
-    const formik = useFormik({
-        children: undefined,
-        component: undefined,
-        initialErrors: undefined,
-        initialTouched: undefined,
-        innerRef: undefined,
-        isInitialValid: undefined,
-
-        onSubmit: async (values) => {
-            return values;
-        },
-
-        enableReinitialize: true,
-        initialValues: {
-            left1: "",
-            left2: "",
-            left3: "",
-            right1: "",
-            right2: "",
-            right3: ""
-        }
-    })
-
-    let {values, getFieldProps, setFieldValue} = formik;
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
     }
     const save = () => {
+        let typeUuids = ""
+        queryState.type.map((type: { uuid: string; }) => {
+            typeUuids += type.uuid + ','
+        });
+        typeUuids = typeUuids.slice(0, -1);
+
         const form = new FormData();
         data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
         form.append('title', title);
         if (file)
             form.append('file', file);
+        if (typeUuids.length > 0)
+            form.append('types', typeUuids);
 
         const url = uuid === 'new' ? `/api/medical-professional/${medical_professional.uuid}/header/${router.locale}` : `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`
         trigger({
@@ -229,15 +262,13 @@ function DocsConfig() {
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, TriggerWithoutValidation).then(() => {
-            // mutateDocumentHeader();
-            mutate();
-            router.back();
+            mutate().then(() => {
+                router.back();
+            });
         })
         enqueueSnackbar(t("updated"), {variant: 'success'})
-
     }
-
-    const openDialog = ()=>{
+    const openDialog = () => {
         setOpen(true);
         setSelected({
             title: t('askRemove'),
@@ -245,7 +276,7 @@ function DocsConfig() {
             icon: "/static/icons/setting/ic-edit-file.svg",
             name1: title,
             name2: "",
-           // data: props,
+            // data: props,
             request: {
                 method: "DELETE",
                 url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
@@ -255,8 +286,6 @@ function DocsConfig() {
             }
         })
     }
-
-
     const remove = () => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
             mutate().then(() => {
@@ -265,29 +294,18 @@ function DocsConfig() {
             });
         });
     }
-
-
-    const {data: httpTypeResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/document/types/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
-
-    useEffect(() => {
-        console.log(httpTypeResponse);
-    }, [httpTypeResponse])
+    const handleSelectAll = (insurances: any): void => {
+        setQueryState(insurances);
+        handleInsuranceChange(insurances.type);
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    // @ts-ignore
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document': 'Modifier document'}`}</p>
+                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
                 </RootStyled>
 
                 {uuid !== 'new' && <Button
@@ -354,6 +372,53 @@ function DocsConfig() {
                                     setTitle(ev.target.value)
                                 }}
                                 fullWidth/>
+
+                            <Typography fontSize={12} color={'#999'} mb={1}>{t('selectTypes')}{" "}
+                                <Typography component="span" color="error">
+                                    *
+                                </Typography>
+                            </Typography>
+
+                            <MuiAutocompleteSelectAll.Provider
+                                value={{
+                                    onSelectAll: (selectedAll) => void handleSelectAll({type: selectedAll ? [] : types}),
+                                    selectedAll,
+                                    indeterminate: !!queryState.type.length && !selectedAll,
+                                }}
+                            >
+                                <Autocomplete
+                                    size={"small"}
+                                    id={"types"}
+                                    multiple
+                                    autoHighlight
+                                    filterSelectedOptions
+                                    limitTags={3}
+                                    noOptionsText={"Aucun type selectionné"}
+                                    ListboxComponent={MuiAutocompleteSelectAll.ListBox}
+                                    value={queryState.type ? queryState.type : []}
+                                    onChange={(event, value) => handleInsuranceChange(value)}
+                                    options={types}
+                                    style={{marginBottom: 15}}
+                                    getOptionLabel={option => option?.name ? option.name : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                    renderOption={(params, option, {selected}) => (
+                                        <MenuItem
+                                            {...params}>
+                                            <Checkbox checked={selected}/>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                        </MenuItem>)}
+                                    renderInput={(params) => (
+                                        <FormControl component="form" fullWidth>
+                                            <TextField color={"info"}
+                                                       {...params}
+                                                       sx={{paddingLeft: 0}}
+                                                       placeholder={""}
+                                                       variant="outlined"
+                                            />
+                                        </FormControl>)}
+                                />
+                            </MuiAutocompleteSelectAll.Provider>
+
 
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
@@ -709,7 +774,9 @@ function DocsConfig() {
                     t={t}
                     actionDialog={
                         <DialogActions>
-                            <Button onClick={()=>{setOpen(false);}}
+                            <Button onClick={() => {
+                                setOpen(false);
+                            }}
                                     startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                             <LoadingButton variant="contained"
                                            loading={loading}

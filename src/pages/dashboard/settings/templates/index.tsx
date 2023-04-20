@@ -40,7 +40,6 @@ function TemplatesConfig() {
 
     useEffect(()=>{
         if (httpDocumentHeader){
-            console.log(httpDocumentHeader)
             setDocs((httpDocumentHeader as HttpResponse).data)
             setTimeout(()=>{
                 setLoading(false)
