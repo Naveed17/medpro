@@ -39,9 +39,11 @@ function ConsultationType() {
     method: "GET",
     url:
       "/api/medical-entity/" +
-      medical_entity.uuid +
-      "/appointments/types/" +
-      router.locale,
+        medical_entity.uuid +
+        "/appointments/types/" +
+        router.locale +
+        "?page=" +
+        router.query.page || 1 + "&limit=10&withPagination=true",
     headers: { Authorization: `Bearer ${session?.accessToken}` },
   });
 
@@ -144,9 +146,11 @@ function ConsultationType() {
             headers={headCells}
             rows={rows}
             from={"consultation-type"}
-            pagination={true}
+            pagination
             t={t}
             edit={editMotif}
+            total={(data as HttpResponse)?.data?.total}
+            totalPages={(data as HttpResponse)?.data?.totalPages}
           />
         </Box>
       </DesktopContainer>
