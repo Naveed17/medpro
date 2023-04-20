@@ -37,13 +37,9 @@ function ConsultationType() {
   const { direction } = useAppSelector(configSelector);
   const { data, error, mutate } = useRequest({
     method: "GET",
-    url:
-      "/api/medical-entity/" +
-        medical_entity.uuid +
-        "/appointments/types/" +
-        router.locale +
-        "?page=" +
-        router.query.page || 1 + "&limit=10&withPagination=true",
+    url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/?page=${
+      router.query.page || 1
+    }&limit=10&withPagination=true`,
     headers: { Authorization: `Bearer ${session?.accessToken}` },
   });
 
