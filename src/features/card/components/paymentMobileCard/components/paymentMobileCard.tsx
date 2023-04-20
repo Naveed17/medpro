@@ -110,14 +110,14 @@ function PaymentMobileCard({ ...props }) {
               </Typography>
             </Stack>
             <Stack direction="row" spacing={0.2} style={{ marginLeft: "auto" }}>
-              <ModelDot
+              {/*<ModelDot
                 color={"#0696D6"}
                 selected={false}
                 size={21}
                 sizedot={13}
                 padding={3}
                 marginRight={4}
-              />
+              />*/}
               {data.type ? (
                 <Typography variant="body2" color="text.primary">
                   {t(data.type)}
