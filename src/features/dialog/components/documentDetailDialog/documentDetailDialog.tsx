@@ -186,9 +186,13 @@ function DocumentDetailDialog({...props}) {
     const handleYes = () => {
         const selected = docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
+            setLoading(true);
             setData((selected as any).header.data)
             setHeader((selected as any).header.header)
             setOpenAlert(false);
+            setTimeout(()=>{
+                setLoading(false)
+            },1000)
         }
     };
 
