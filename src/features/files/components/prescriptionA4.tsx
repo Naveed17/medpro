@@ -36,7 +36,7 @@ const Prescription = ({...props}) => {
                         disabled={eventHandler === null}
                         bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
                         <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
-                            {data.header.show && <DocHeader data={values}></DocHeader>}
+                            {data.header.show && id === 0 && <DocHeader data={values}></DocHeader>}
                         </div>
                     </Draggable>
 

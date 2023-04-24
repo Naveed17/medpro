@@ -159,7 +159,10 @@ function DocsConfig() {
 
     useEffect(() => {
         if (docHeader) {
-            setTitle((docHeader as DocTemplateModel).title)
+            setTitle((docHeader as DocTemplateModel).title);
+            setQueryState({
+                type: ((docHeader as DocTemplateModel).types)
+            });
             const header = (docHeader as DocTemplateModel).header.header
             if (header) {
                 setFieldValue("left1", header.left1)
