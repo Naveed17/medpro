@@ -233,6 +233,8 @@
     "cautionary_note_placeholder": "Veuillez saisir la mise en garde",
     "add_a_drug": "Ajouter à la liste",
     "add_drug": "Ajouter un médicament",
+    "add_group_model": "Ajouter un nouveau dossier",
+    "group_model_name": "Nom du dossier",
     "drug_list": "Liste des médicaments",
     "name_of_drug":"Nom du médicament",
     "placeholder_drug_name": "Ex: Paracetamol ou le nom du médicament",

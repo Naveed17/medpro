@@ -249,6 +249,12 @@ function TopNavBar({...props}) {
             // Log install to analytics
             console.log('INSTALL: Success');
         });
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
+            console.log(matches);
+            if (matches) {
+                setInstallable(true);
+            }
+        });
     }, []);
 
     return (

@@ -320,7 +320,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     const drug = data.drug as DrugModel;
                     const cycles = data.cycle as any[];
                     const dosage = cycles.length > 0 && cycles[0].dosageInput ? cycles[0].dosageInputText : cycles.length > 0 && data.unit && cycles[0].dosageTime.some((time: any) => time.value) ?
-                        `${cycles[0].dosageQty} ${data.unit}, ${cycles[0].dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycles[0].dosageMealValue !== "" ? t(cycles[0].dosageMealValue) : ""}` : ""
+                        `${cycles[0].dosageQty} ${data.unit}, ${cycles[0].dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycles[0].dosageMealValue && cycles[0].dosageMealValue.length > 0 ? t(cycles[0].dosageMealValue) : ""}` : ""
                     drugs.push({
                         dosage,
                         drugUuid: drug?.uuid,
