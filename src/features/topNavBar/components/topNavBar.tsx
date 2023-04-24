@@ -119,9 +119,9 @@ function TopNavBar({...props}) {
         // Hide the app provided install promotion
         setInstallable(false);
         // Show the install prompt
-        deferredPrompt?.prompt();
+        deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
-        deferredPrompt?.userChoice.then((choiceResult: any) => {
+        deferredPrompt.userChoice.then((choiceResult: any) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the install prompt');
             } else {
@@ -198,7 +198,7 @@ function TopNavBar({...props}) {
     }
 
     const requestNotificationPermission = () => {
-        Notification.requestPermission().then((permission) => {
+        Notification?.requestPermission().then((permission) => {
             console.log("requestPermission", permission);
             // If the user accepts, let's create a notification
             if (permission === "granted") {
@@ -236,6 +236,7 @@ function TopNavBar({...props}) {
     }, [pendingAppointments]);
 
     useEffect(() => {
+        const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
@@ -247,14 +248,18 @@ function TopNavBar({...props}) {
 
         window.addEventListener('appinstalled', () => {
             // Log install to analytics
-            console.log('INSTALL: Success');
+            localStorage.setItem('Medlink-install', "true");
         });
+
         window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
-            console.log(matches);
             if (matches) {
-                setInstallable(true);
+                setInstallable(false);
             }
         });
+
+        if (appInstall) {
+            setInstallable(false);
+        }
     }, []);
 
     return (
@@ -379,7 +384,7 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            {(!installable && !isMobile) &&
+                            {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
                                         startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
