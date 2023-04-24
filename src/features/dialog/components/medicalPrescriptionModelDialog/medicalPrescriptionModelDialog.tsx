@@ -123,11 +123,11 @@ function MedicalPrescriptionModelDialog({...props}) {
                         bgcolor: (theme: Theme) => theme.palette.primary.main,
                         mb: 2,
                     }}>
-                    {t("add_name", {ns: "consultation"})}
+                    {t("add_group_model", {ns: "consultation"})}
                 </DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
-                        {t("add_name", {ns: "consultation"})}
+                        {t("group_model_name", {ns: "consultation"})}
                     </Typography>
                     <TextField
                         fullWidth
