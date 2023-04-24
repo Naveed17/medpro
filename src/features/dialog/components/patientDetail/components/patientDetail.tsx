@@ -41,6 +41,8 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
+import {PatientFile} from "@features/files/components/patientFile";
+import ReactPDF, {PDFViewer} from "@react-pdf/renderer";
 
 function a11yProps(index: number) {
     return {
@@ -150,6 +152,18 @@ function PatientDetail({...props}) {
         },
     } : null, SWRNoValidateConfig);
 
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
+        patient ?
+            {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`},
+            } : null,
+        SWRNoValidateConfig
+    );
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+
+
     const handleOpenFab = () => setOpenFabAdd(true);
 
     const handleCloseFab = () => setOpenFabAdd(false);
@@ -171,6 +185,10 @@ function PatientDetail({...props}) {
         dispatch(openDrawer({type: "patient", open: false}));
         dispatch(onOpenPatientDrawer({patientId: ""}));
         onCloseDialog(false);
+    }
+    const download = () => {
+        console.log(patient);
+        console.log(antecedentsData);
     }
     // handle tab change
     const handleStepperIndexChange = (
@@ -258,6 +276,8 @@ function PatientDetail({...props}) {
                 patient,
                 mutatePatientDetails,
                 mutatePatientList,
+                antecedentsData,
+                mutateAntecedents,
                 mutateAgenda
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
@@ -324,6 +344,13 @@ function PatientDetail({...props}) {
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.recap",
+            children: <PDFViewer height={470}>
+                <PatientFile {...{patient, antecedentsData,t}} />
+            </PDFViewer>,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
@@ -335,12 +362,15 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog}/>
+                    <PatientDetailsToolbar onClose={closePatientDialog} download={download}/>
+
                     <PatientDetailsCard
                         loading={!patient}
                         {...{
                             patient,
                             onConsultation,
+                            antecedentsData,
+                            mutateAntecedents,
                             onConsultationStart,
                             patientPhoto,
                             mutatePatientList,

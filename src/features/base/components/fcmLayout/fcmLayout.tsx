@@ -33,6 +33,7 @@ import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
+import {setProgress} from "@features/progressUI";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -103,11 +104,17 @@ function FcmLayout({...props}) {
                     if (data.body.hasOwnProperty('progress')) {
                         if (data.body.progress === -1 || data.body.progress === 100) {
                             localStorage.removeItem("import-data");
+                            localStorage.removeItem("import-data-progress");
                             importData.mutate && importData.mutate();
+                            // refresh on going api
+                            mutateOnGoing && mutateOnGoing();
                             closeSnackbar();
                             enqueueSnackbar((data.body.progress === -1 ?
                                     translationCommon.import_data.failed : translationCommon.import_data.end),
                                 {variant: data.body.progress === -1 ? "error" : "success"});
+                        } else {
+                            localStorage.setItem("import-data-progress", data.body.progress.toString());
+                            dispatch(setProgress(parseFloat(data.body.progress)));
                         }
                     }
                 }
@@ -327,9 +334,10 @@ function FcmLayout({...props}) {
                             } as any;
                             router.push("/dashboard/agenda").then(() => {
                                 dispatch(setSelectedEvent(event));
+                                const newDate = moment(event?.extendedProps.time);
                                 dispatch(setMoveDateTime({
-                                    date: new Date(event?.extendedProps.time),
-                                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                                    date: newDate,
+                                    time: newDate.format("HH:mm"),
                                     action: "move",
                                     selected: false
                                 }));

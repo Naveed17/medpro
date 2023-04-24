@@ -10,6 +10,8 @@ import {SnackbarProvider, useSnackbar} from "notistack";
 // import global style
 import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 // import moment locales
 import "moment/locale/ar-tn";
 import "moment/locale/fr";
@@ -57,6 +59,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
         prodEnv && smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
     }
 
+    // Get Layout for pages
     const getLayout = Component.getLayout ?? ((page) => page);
     return (
         <Provider store={store}>

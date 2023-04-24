@@ -172,7 +172,7 @@ function CalendarRow({...props}) {
 
                         <Typography variant="body2" color="primary.main">
                             {" "}
-                            {data.motif?.name}
+                            {data.motif?.map(reason => reason.name).join(", ")}
                         </Typography>
                     </TableCell>
                     <TableCell
@@ -222,7 +222,7 @@ function CalendarRow({...props}) {
                     <TableCell align="center">{data.title}</TableCell>
                     <TableCell align="center">{"Payment "}{config?.name}</TableCell>
                     <TableCell align="right">
-                        {data?.fees ? <Box>
+                        {data?.fees && data?.status?.key !== "PENDING" ? <Box>
                             <Stack direction={"row"}
                                    justifyContent={"flex-end"}
                                    sx={{
@@ -239,8 +239,8 @@ function CalendarRow({...props}) {
                                         </>
                                     }
                                 </Stack>
-                        </Stack>
-                            </Box> : "--"}
+                            </Stack>
+                        </Box> : "--"}
                     </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>

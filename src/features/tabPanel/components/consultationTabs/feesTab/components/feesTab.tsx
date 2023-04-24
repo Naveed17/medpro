@@ -21,6 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment/moment";
 import IconUrl from "@themes/urlIcon";
 import {SubFooter} from "@features/subFooter";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 function FeesTab({...props}) {
 
@@ -95,8 +96,8 @@ function FeesTab({...props}) {
         setConsultationFees,
         consultationFees,
         free, setFree,
-        patient, isHistory,
-        total,setInfo,setState,setOpenDialog,
+        patient, isHistory, router,
+        total, setInfo, setState, setOpenDialog,
         t
     } = props;
 
@@ -198,6 +199,15 @@ function FeesTab({...props}) {
                         edit={editAct}
                         handleChange={setTotal}/>
                 </Box>
+
+                <Button
+                    onClick={() => {
+                        router.push("/dashboard/settings/actfees")
+                    }}
+                    size="small"
+                    startIcon={<TuneRoundedIcon/>}>
+                    {t('consultationIP.config')}
+                </Button>
             </Box>
             {/*<Stack spacing={2} display={{xs: "block", md: 'none'}}>
                 {
@@ -239,6 +249,10 @@ function FeesTab({...props}) {
                         <Button
                             variant="text-black"
                             onClick={(event) => {
+                                let type = "";
+                                if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                    type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
                                 event.stopPropagation();
                                 setInfo("document_detail");
                                 setState({
@@ -247,9 +261,7 @@ function FeesTab({...props}) {
                                     info: selectedAct,
                                     createdAt: moment().format("DD/MM/YYYY"),
                                     consultationFees: free ? 0 : consultationFees,
-                                    patient: `${
-                                        patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-                                    } ${patient.firstName} ${patient.lastName}`,
+                                    patient: `${type} ${patient.firstName} ${patient.lastName}`,
                                 });
                                 setOpenDialog(true);
                             }}

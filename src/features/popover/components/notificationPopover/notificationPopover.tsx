@@ -81,7 +81,7 @@ function NotificationPopover({...props}) {
     const onMoveAppointment = () => {
         setMoveDialogInfo(false);
         const timeSplit = moveDialogTime.split(':');
-        const date = moment(moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
+        const date = moment(moveDialogDate?.clone().toDate().setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
         const defEvent = {
             ...selectedEvent,
             extendedProps: {
@@ -166,9 +166,10 @@ function NotificationPopover({...props}) {
             case "onEdit":
                 // onClose();
                 dispatch(setSelectedEvent(eventUpdated));
+                const newDate = moment(eventUpdated?.extendedProps.time);
                 dispatch(setMoveDateTime({
-                    date: new Date(eventUpdated?.extendedProps.time),
-                    time: moment(new Date(eventUpdated?.extendedProps.time)).format("HH:mm"),
+                    date: newDate,
+                    time: newDate.format("HH:mm"),
                     action: "move",
                     selected: false
                 }));

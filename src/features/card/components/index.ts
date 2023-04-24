@@ -1,5 +1,5 @@
 export * from "./personalInfoCard";
-export * from "./backgroundCard";
+export * from "./antecedentsCard";
 export * from "./rdvCard";
 export * from "./rdvMobileCard";
 export * from "./patientDetailsDocumentCard";

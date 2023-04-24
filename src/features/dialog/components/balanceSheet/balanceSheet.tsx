@@ -1,19 +1,28 @@
 import {
-    Grid,
-    Stack,
-    Typography,
+    Autocomplete,
+    Box,
     Button,
     Card,
+    DialogActions,
+    Grid,
     IconButton,
-    ListItemButton, ListItemText, List, Skeleton,
-    Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField, useMediaQuery
+    List,
+    ListItemButton,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Skeleton,
+    Stack,
+    TextField,
+    Typography,
+    useMediaQuery
 } from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -32,39 +41,39 @@ export const BalanceSheetCardData = {
 };
 
 function BalanceSheetDialog({...props}) {
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+
     const {data} = props;
-
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-
     const [model, setModel] = useState<string>('');
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [balanceValue, setBalance] = useState<AnalysisModel | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [balanceValue] = useState<AnalysisModel | null>(null);
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const open = Boolean(anchorEl);
+
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
-
     const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
         setAnalysis(item.analyses)
         data.setState(item.analyses)
         setAnchorEl(null);
     };
-
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
             name: ''
@@ -77,13 +86,11 @@ function BalanceSheetDialog({...props}) {
 
     const initialData = Array.from(new Array(20));
 
-    const router = useRouter();
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
+
 
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
-        url: "/api/private/analysis/" + router.locale,
+        url: `/api/private/analysis/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -91,29 +98,32 @@ function BalanceSheetDialog({...props}) {
 
     const {data: httpModelResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + '/requested-analysis-modal/' + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
     const analysisList = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
     const {handleSubmit} = formik;
 
-    const sortAnalysis = useCallback(() => {
-        const recents = localStorage.getItem("balance-Sheet-recent") ?
-            JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-        if (recents.length > 0 && analysisList) {
-            setSearchAnalysis(analysisList.sort(x => recents.find((r: AnalysisModel) => r.uuid === x.uuid) ? 1 : -1));
-        }
-    }, [analysisList])
+    /*
+        const sortAnalysis = useCallback(() => {
+            const recents = localStorage.getItem("balance-Sheet-recent") ?
+                JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
+            if (recents.length > 0 && analysisList) {
+                setSearchAnalysis(analysisList.sort(x => recents.find((r: AnalysisModel) => r.uuid === x.uuid) ? 1 : -1));
+            }
+        }, [analysisList])
+    */
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        analysis.unshift(value);
-        setAnalysis([...analysis]);
+        let copy = [...analysis]
+        copy.unshift({...value, note: ""});
+        setAnalysis([...copy]);
         const recents = localStorage.getItem("balance-Sheet-recent") ?
             JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...analysis.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
-        data.setState([...analysis]);
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...copy.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
+        data.setState([...copy]);
     }
 
     const saveModel = () => {
@@ -121,10 +131,9 @@ function BalanceSheetDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', model);
         form.append('analyses', JSON.stringify(analysis));
-
         trigger({
             method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/requested-analysis-modal/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
@@ -330,13 +339,39 @@ function BalanceSheetDialog({...props}) {
                                         <Typography>{item.name}</Typography>
                                         <IconButton size="small"
                                                     onClick={() => {
-                                                        analysis.splice(index, 1);
-                                                        setAnalysis([...analysis])
-                                                        data.setState([...analysis])
+                                                        const copy = [...analysis]
+                                                        copy.splice(index, 1);
+                                                        setAnalysis([...copy])
+                                                        data.setState([...copy])
                                                     }}>
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
+                                    <Box padding={1} pt={0}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder={t("note")}
+                                            multiline={true}
+                                            style={{backgroundColor: "white", borderRadius: 5}}
+                                            inputProps={
+                                                {
+                                                    style: {
+                                                        padding: 3
+                                                    },
+                                                }
+                                            }
+                                            rows={5}
+                                            value={item.note}
+                                            onChange={event => {
+                                                let items = [...analysis];
+                                                let x = {...analysis[index]};
+                                                x.note = event.target.value;
+                                                items[index] = x;
+                                                setAnalysis([...items])
+                                                data.setState([...items])
+                                            }}
+                                        />
+                                    </Box>
                                 </Card>
                             ))
                             : <Card className='loading-card'>

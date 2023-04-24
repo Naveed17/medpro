@@ -1,5 +1,16 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Collapse, IconButton, Link, Skeleton, Stack, Table, TableRow, Typography} from "@mui/material";
+import {
+    Avatar, AvatarGroup,
+    Checkbox,
+    Collapse,
+    IconButton,
+    Link,
+    Skeleton,
+    Stack,
+    Table,
+    TableRow, Tooltip,
+    Typography
+} from "@mui/material";
 import {addBilling, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 // redux
@@ -7,15 +18,15 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {alpha, Theme} from '@mui/material/styles';
 import Image from "next/image";
 import {Label} from '@features/label';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
-    const {row, isItemSelected, handleClick, handleEvent, t, labelId, loading, editMotif, handleChange} = props;
-
+    const {row, isItemSelected, handleClick, handleEvent, t, labelId, loading, editMotif, handleChange, data} = props;
+    const {insurances} = data;
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
@@ -144,11 +155,26 @@ function PaymentRow({...props}) {
                             <Skeleton width={100}/>
                         </Stack>
                     ) : (
-                        row.insurance ?
+                        row.patient.insurances && row.patient.insurances.length > 0 ?
                             <Stack direction='row' alignItems="center" spacing={1}>
-                                <Image src={`/static/img/${row.insurance.img}.png`} width={20} height={20}
-                                       alt={row.insurance.name}/>
-                                <Typography variant="body2">{row.insurance.name}</Typography>
+                                <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
+                                    {row.patient.insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
+                                        <Tooltip key={insuranceItem.insurance?.uuid} title={insuranceItem.insurance?.name}>
+                                            <Avatar variant={"circular"} >
+                                                <Image
+                                                    style={{borderRadius: 2}}
+                                                    alt={insuranceItem.insurance?.name}
+                                                    src="static/icons/Med-logo.png"
+                                                    width={20}
+                                                    height={20}
+                                                    loader={({src, width, quality}) => {
+                                                        return insurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl
+                                                    }}
+                                                />
+                                            </Avatar>
+                                        </Tooltip>
+                                    )}
+                                </AvatarGroup>
                             </Stack> :
                             <Typography>--</Typography>
 
