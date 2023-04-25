@@ -1,23 +1,31 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {lazy, ReactElement, Suspense, useEffect, useState,} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import dynamic from "next/dynamic";
+import React, {
+    ReactElement,
+    useState,
+    useEffect,
+    Suspense,
+    lazy,
+} from "react";
+import {DashLayout} from "@features/base";
 import {
-    Backdrop,
     Box,
     Button,
-    CircularProgress,
     Container,
     Drawer,
     Stack,
-    Theme,
     Typography,
     useMediaQuery,
     useTheme,
+    CircularProgress,
+    Backdrop,
+    Theme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
+import {configSelector} from "@features/base";
 import {useAppSelector} from "@app/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
@@ -27,13 +35,13 @@ import {useRouter} from "next/router";
 import {useDateConverture} from "@app/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {LoadingScreen} from "@features/loadingScreen";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {useSnackbar} from "notistack";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
 );
+import {LoadingScreen} from "@features/loadingScreen";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useSnackbar} from "notistack";
 
 function Motif() {
     const {data: session} = useSession();
@@ -274,8 +282,8 @@ function Motif() {
         });
 
         return () => window.removeEventListener("scroll", handleScroll);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpConsultReasonResponse, displayedItems]);
+    }, [httpConsultReasonResponse, displayedItems]);// eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <>
             <SubHeader>
