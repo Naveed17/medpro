@@ -165,6 +165,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const setInitData = (drugs: DrugModel[]) => {
+        console.log(drugs);
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
