@@ -179,7 +179,7 @@ function FcmLayout({...props}) {
                 setFcmToken(token as string);
                 getFcmMessage();
             }
-            if (analytics) {
+            if (analytics && process.env.NODE_ENV !== 'development') {
                 // identify firebase analytics user
                 setUserId(analytics, general_information.uuid);
                 setUserProperties(analytics, {
