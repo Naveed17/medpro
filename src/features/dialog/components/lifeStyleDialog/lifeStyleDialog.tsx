@@ -141,7 +141,7 @@ function LifeStyleDialog({...props}) {
                                         <>
 
                                             <Stack spacing={1} direction={'row'}>
-                                                <TextField
+                                                {!list.hideStartTime &&<TextField
                                                     name={`${list.uuid}`}
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
                                                     placeholder={t('starting_year')}
@@ -152,8 +152,8 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.startDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
-                                                <TextField
+                                                    }/>}
+                                                {!list.hideEndTime &&<TextField
                                                     name={`${list.uuid}`}
                                                     sx={{width: 130}}
                                                     value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
@@ -164,7 +164,7 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.endDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
+                                                    }/>}
                                             </Stack>
                                             {action ==='family_antecedents' && <Stack spacing={1} direction={'row'}>
                                                 <FormControlLabel
@@ -246,7 +246,7 @@ function LifeStyleDialog({...props}) {
                                                     }
                                                     }/>
                                             }
-                                            {
+                                            { !list.hideNote &&
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
                                                     placeholder={t('note2')}
