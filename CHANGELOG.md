@@ -1,3 +1,159 @@
+## [4.17.3](https://github.com/SmartMedSA/med-pro/compare/v4.17.2...v4.17.3) (2023-04-24)
+
+
+### Bug Fixes
+
+* disable maps in maroc ([f33cdc4](https://github.com/SmartMedSA/med-pro/commit/f33cdc4d5b3f38cac0daf63be0d6462db2c7a25f))
+
+## [4.17.2](https://github.com/SmartMedSA/med-pro/compare/v4.17.1...v4.17.2) (2023-04-12)
+
+
+### Bug Fixes
+
+* refresh result bilan ([daeb017](https://github.com/SmartMedSA/med-pro/commit/daeb0174241d9554e741b2f6a617651afc735e19))
+* refresh result bilan ([6da7b2b](https://github.com/SmartMedSA/med-pro/commit/6da7b2b9bd87887755a6151ae749d2307c0c827c))
+* result bilan ([2b974c0](https://github.com/SmartMedSA/med-pro/commit/2b974c006aa1302f6fb8836b6c9d2a4231d3fcb9))
+
+## [4.17.1](https://github.com/SmartMedSA/med-pro/compare/v4.17.0...v4.17.1) (2023-04-11)
+
+
+### Bug Fixes
+
+* fees acts ([a987423](https://github.com/SmartMedSA/med-pro/commit/a987423ba658ffce91fc7429bffef52cf84c96a9))
+
+# [4.17.0](https://github.com/SmartMedSA/med-pro/compare/v4.16.0...v4.17.0) (2023-04-10)
+
+
+### Bug Fixes
+
+* add antecedent ([bef7465](https://github.com/SmartMedSA/med-pro/commit/bef74656a3a2e3385a6fc20fae5082a6afa6be17))
+* add new consultation reason bug ([89a078f](https://github.com/SmartMedSA/med-pro/commit/89a078ffd595a03d42fd7c7a4e84571385064724))
+* antecedent file ([43f30a8](https://github.com/SmartMedSA/med-pro/commit/43f30a8ea73edbd6bfe8cb37a53828599dd6fafd))
+* check notification ios ([30cb353](https://github.com/SmartMedSA/med-pro/commit/30cb35307c56bdbb1730992cfd6ba5f3007c2a15))
+* check notification ios trigger ([b1131bd](https://github.com/SmartMedSA/med-pro/commit/b1131bd034d7b45eef61d2abf019a83ad52f3fed))
+* comment pre consultation feature ([c8c5b76](https://github.com/SmartMedSA/med-pro/commit/c8c5b76b44fe22b538663ec3001859eb2606b3ab))
+* decoche fees ([d2d8339](https://github.com/SmartMedSA/med-pro/commit/d2d8339618d6575fa11ca3b6433783c7064b0cb5))
+* decoche fees ([04029c0](https://github.com/SmartMedSA/med-pro/commit/04029c05556c064805f9629740a112a157a5b3b4))
+* patient adress field ([bbb7080](https://github.com/SmartMedSA/med-pro/commit/bbb7080e960fdbdcf2d1f957a1965570f4e23efb))
+* time picker update style and behavior ([a7f7f09](https://github.com/SmartMedSA/med-pro/commit/a7f7f09bab18b4d702abdf61f88d6fe6d8a239a9))
+* update resizer config ([26162ca](https://github.com/SmartMedSA/med-pro/commit/26162ca319c58aefa4cc458d927f9d787cb60c5c))
+* upgrade quality resize ([3139bfc](https://github.com/SmartMedSA/med-pro/commit/3139bfc2762af09c7613b97bc1a9b1259d5fad5b))
+
+
+### Features
+
+* config settings fees ([8e5d9d3](https://github.com/SmartMedSA/med-pro/commit/8e5d9d3a89ece5578525b24fd47fe554a40da9de))
+* diagnostics history ([4812149](https://github.com/SmartMedSA/med-pro/commit/48121499ac5cae28dec002bdb4bf68f447f496c1))
+* document note preview ([428e56e](https://github.com/SmartMedSA/med-pro/commit/428e56e114b8b98a21ede756bdef01fbd6401da0))
+* dynamic antecedent ([cfd4c1e](https://github.com/SmartMedSA/med-pro/commit/cfd4c1ecb95395692109d56e0903908ce4bff949))
+* note antecedent ([a8b025d](https://github.com/SmartMedSA/med-pro/commit/a8b025d119df9a911cf0a34597bc920a25688205))
+* pre consultation data insert ([5e547c1](https://github.com/SmartMedSA/med-pro/commit/5e547c1856aad6f1dee7d0c432e1085eb3bea73f))
+* print patient file ([3739927](https://github.com/SmartMedSA/med-pro/commit/3739927e9da9574906615244dddb7e4345f924ab))
+
+# [4.16.0](https://github.com/SmartMedSA/med-pro/compare/v4.15.2...v4.16.0) (2023-04-04)
+
+
+### Bug Fixes
+
+* payment date picker filter ([8f75d75](https://github.com/SmartMedSA/med-pro/commit/8f75d750f0608777757e8ece0c6d5be1d740e262))
+* prevent on going appointment from moving ([c9d0968](https://github.com/SmartMedSA/med-pro/commit/c9d0968bda5050bea20e71ae2389081e4c4bc7df))
+* request permission trigger ([301d75e](https://github.com/SmartMedSA/med-pro/commit/301d75efac718f8b669de33edbd5a6a6357a3a50))
+* undefined variable ([7a29f3d](https://github.com/SmartMedSA/med-pro/commit/7a29f3d9b816c1d6fc03320cc587b5c966380c89))
+
+
+### Features
+
+* request notification permission ([bc8f838](https://github.com/SmartMedSA/med-pro/commit/bc8f838921b76a2fc1fbb1de7de407f22427dd0b))
+
+## [4.15.2](https://github.com/SmartMedSA/med-pro/compare/v4.15.1...v4.15.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* last fiche id ([aa80b7e](https://github.com/SmartMedSA/med-pro/commit/aa80b7ec711a97af7d871bb3b8b5bbdf10d655da))
+
+## [4.15.1](https://github.com/SmartMedSA/med-pro/compare/v4.15.0...v4.15.1) (2023-04-02)
+
+
+### Bug Fixes
+
+* calendar start week day ([c36a660](https://github.com/SmartMedSA/med-pro/commit/c36a660d27ebd98fcb7df743c1a41f2ad43f157b))
+
+# [4.15.0](https://github.com/SmartMedSA/med-pro/compare/v4.14.1...v4.15.0) (2023-04-02)
+
+
+### Bug Fixes
+
+* add a condition for med-win available only in tunisia ([920af14](https://github.com/SmartMedSA/med-pro/commit/920af148e00003e1347472530110b13bee101f3a))
+* add consultation translation in payment page ([aebd89b](https://github.com/SmartMedSA/med-pro/commit/aebd89b4d12e676a3b7917628c81e4899b8ad020))
+* add spacing between div ([a3113b3](https://github.com/SmartMedSA/med-pro/commit/a3113b3160b8a63e8d5dd9e73750aff3f282afa0))
+* antecedents duplication ([03eddf0](https://github.com/SmartMedSA/med-pro/commit/03eddf0c5111639d3126b255d3bdade11da5ff7b))
+* calendar interval slots ([db2d9de](https://github.com/SmartMedSA/med-pro/commit/db2d9de5b8ec7e11103db083e9d0571169024813))
+* calendar interval slots ([65e8685](https://github.com/SmartMedSA/med-pro/commit/65e86853f18059d3c37ac2398339e654e25d6ed2))
+* clean code ([b4355ce](https://github.com/SmartMedSA/med-pro/commit/b4355cec8cefd4612a3e68040c79ae8b79d81e94))
+* clean code ([ce65024](https://github.com/SmartMedSA/med-pro/commit/ce650245d008e808d8c1a2b69c71305714643eb4))
+* comment patient antecedents ([cc7a48b](https://github.com/SmartMedSA/med-pro/commit/cc7a48bb8b746124273cc36fa6a97e01112b0c9f))
+* consultation reason row ([d7503ab](https://github.com/SmartMedSA/med-pro/commit/d7503ab48fe0239d2c20a4ed4b57230dba55ae21))
+* consultation reason sort param ([d825497](https://github.com/SmartMedSA/med-pro/commit/d825497b830a6f5d08eb988870b6e05586060d6f))
+* delete all phones number ([df4ae62](https://github.com/SmartMedSA/med-pro/commit/df4ae62ec83c87c507771580392a35313481e6f4))
+* first time open places page ([fd25c73](https://github.com/SmartMedSA/med-pro/commit/fd25c73f3e7ac485a5946c3e3e59c1d9053db0a7))
+* historic consultation reasons ([a5288e8](https://github.com/SmartMedSA/med-pro/commit/a5288e86412d8af480d83e46da9623c81ef362da))
+* historic consultation reasons ([aa9f66c](https://github.com/SmartMedSA/med-pro/commit/aa9f66c809fa225628efef18eaa7db6795765a72))
+* historic consultation reasons ([75559dc](https://github.com/SmartMedSA/med-pro/commit/75559dcf37a3e78f644e24b020515483ddca8b12))
+* image resize ([e1e14d5](https://github.com/SmartMedSA/med-pro/commit/e1e14d567dbdfd98cee05d3cfb708377a34e8929))
+* import only all data for Med ([2ded316](https://github.com/SmartMedSA/med-pro/commit/2ded316f404937594eb014adf6691eceaf4d785d))
+* international phone number validation ([7c6b15d](https://github.com/SmartMedSA/med-pro/commit/7c6b15d0ff68481f9484e303d4eb5bdccb00055e))
+* international phone number validation ([9f79adf](https://github.com/SmartMedSA/med-pro/commit/9f79adfae9a4048c8bfdd92c245213bc52b97e92))
+* international phone number validation in location ([4c50a59](https://github.com/SmartMedSA/med-pro/commit/4c50a592ca8b5c123ee7dec416612243ae8254b0))
+* med-req search ([cb31c17](https://github.com/SmartMedSA/med-pro/commit/cb31c17ad62205ea12305d5fc93039b71df69b03))
+* merge payment filter ([2f3c7ec](https://github.com/SmartMedSA/med-pro/commit/2f3c7ec109e526aa8c4964d4edd30f42a8e73214))
+* multi consultation reason select ([6e7d59f](https://github.com/SmartMedSA/med-pro/commit/6e7d59fc038f84ecd75c4dddd5cfc13a271b0b6b))
+* prevent the dialog from closing at the end of the consultation ([09fbffb](https://github.com/SmartMedSA/med-pro/commit/09fbffb830046fd0d7df9f3643846575da3748e1))
+* prevent the dialog from closing at the end of the consultation ([d75fc3b](https://github.com/SmartMedSA/med-pro/commit/d75fc3bdc5f2f03e183c26c08ad842421cbe9122))
+* reschedule appointment ended at 00:00 today ([e8d84c5](https://github.com/SmartMedSA/med-pro/commit/e8d84c59b4011c3784a9171ba0bca24b8e0be78f))
+* reset timer to start from zero ([60859fd](https://github.com/SmartMedSA/med-pro/commit/60859fdf739b4a5aa044ab5059bfda3bab908fed))
+* size note ([e2bce2f](https://github.com/SmartMedSA/med-pro/commit/e2bce2fd4f9508093c6bb8966a5c22071578ba40))
+* size note ([6ba9698](https://github.com/SmartMedSA/med-pro/commit/6ba96982ebf1a42d83ee51712177f075e66ce4c4))
+* start consultation in next patient card ([57f5480](https://github.com/SmartMedSA/med-pro/commit/57f5480433895b6786ead570a439c5c165a0be1a))
+* total amount filter insurance ([7de9dff](https://github.com/SmartMedSA/med-pro/commit/7de9dff16b5ca793f4b4038196047a6febdf4d11))
+* update badge behavior side bar ([7e80f94](https://github.com/SmartMedSA/med-pro/commit/7e80f94d2d6483efcd40eb1383158a8a7ec9b65b))
+* update multi appointment text in the same day ([a4de88e](https://github.com/SmartMedSA/med-pro/commit/a4de88e867d3f2fc0f0b484a3bcdc39358b261c2))
+* update multi consultation reason data ([d6392bf](https://github.com/SmartMedSA/med-pro/commit/d6392bfc652e3d69151ce2c31d6107746889e18f))
+* update phone validation number ([c5181ee](https://github.com/SmartMedSA/med-pro/commit/c5181eee5fc65678c853011be26bbae0de8c3063))
+
+
+### Features
+
+* add insurances patinet in consultation ([ae1b8fb](https://github.com/SmartMedSA/med-pro/commit/ae1b8fb653b8e751736515ed12c96896f60a355e))
+* add trigger install button ([ee1a551](https://github.com/SmartMedSA/med-pro/commit/ee1a551ee961f4719c95b1d7c58bf2c983257e23))
+* calendar multi consultation reasons ([35fd47a](https://github.com/SmartMedSA/med-pro/commit/35fd47a541f19b95a3696908c49782164c9c22f5))
+* country filter patient ([10316bc](https://github.com/SmartMedSA/med-pro/commit/10316bc2d5224fcecf6da403ae4fbeb519e9e363))
+* country filter patient ([dcc7ead](https://github.com/SmartMedSA/med-pro/commit/dcc7eadb0f1c78047e52c42f983ee75c8ca27b11))
+* date range payment filter ([6170c2a](https://github.com/SmartMedSA/med-pro/commit/6170c2a1eb9f107228a4bef711abcba54156a2ec))
+* date range payment filter ([30403c2](https://github.com/SmartMedSA/med-pro/commit/30403c2d3c31103954fb132575457536d3a62d01))
+* filter insurance in payment ([7428102](https://github.com/SmartMedSA/med-pro/commit/7428102c5c6635cb029746aff9e2d8bdd179f740))
+* filter insurance translation ([b2641bf](https://github.com/SmartMedSA/med-pro/commit/b2641bf4e131abcda4a4508dadee9ea51fd2ca30))
+* international phone number ([393d1e3](https://github.com/SmartMedSA/med-pro/commit/393d1e354e93a90ee302b12b23801950a1dc970e))
+* multi reason update ([dc5a4b1](https://github.com/SmartMedSA/med-pro/commit/dc5a4b16ca5ea7f7bd267733f5df8041f58f01d9))
+* next patient in waiting room ([ecd15b9](https://github.com/SmartMedSA/med-pro/commit/ecd15b91e41f5256fcb2be83ec79e6509c4404db))
+* phone validator ([cba4b37](https://github.com/SmartMedSA/med-pro/commit/cba4b37da9975ddeb1b182a42fd4bad083f2168b))
+* set local storage for progress import data ([01f6f39](https://github.com/SmartMedSA/med-pro/commit/01f6f39a13a48f728dd8c5e062e2d8b808ac35cb))
+* timer consultation type ([2a84f02](https://github.com/SmartMedSA/med-pro/commit/2a84f02ebfabf087a1e5b6e8b37e96dec8f82dbb))
+* update antecedents behaviors ([0d53bc0](https://github.com/SmartMedSA/med-pro/commit/0d53bc093e156ef5fbf09de5e860fc2a09d40fdf))
+* update import data Style and behavior ([bebb116](https://github.com/SmartMedSA/med-pro/commit/bebb116f3bda818ba48ba5947a93e33eedde5554))
+* update of the calendar picker indicator ([b674f9d](https://github.com/SmartMedSA/med-pro/commit/b674f9d83695c23e4eebc5c7b0c2f8249d2c801c))
+
+## [4.14.1](https://github.com/SmartMedSA/med-pro/compare/v4.14.0...v4.14.1) (2023-03-21)
+
+
+### Bug Fixes
+
+* consultation end ([43896bc](https://github.com/SmartMedSA/med-pro/commit/43896bc96a77e9c979f96f6a0f25dd0bda5d319f))
+* delete end consultation check status ([7046fb7](https://github.com/SmartMedSA/med-pro/commit/7046fb75227f6b867a47bbdb1dbe82b336367e21))
+* set control free pay ([2395c0f](https://github.com/SmartMedSA/med-pro/commit/2395c0f83345d556cf9cbf9dd9ac6988ce64e791))
+* set control free pay ([18fe542](https://github.com/SmartMedSA/med-pro/commit/18fe542de1d572b75808ff777c189bae0521424b))
+* set control free pay ([2995b4f](https://github.com/SmartMedSA/med-pro/commit/2995b4f02352fa7352c48edbd380ab69c11d0547))
+
 # [4.14.0](https://github.com/SmartMedSA/med-pro/compare/v4.13.0...v4.14.0) (2023-03-13)
 
 

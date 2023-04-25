@@ -48,7 +48,7 @@ const WARNING = {
 
 const ERROR = {
     lighter: "#FFE7E9",
-    light: "#F8D8E0",
+    light: "#f1cbdf",
     main: "#E83B68",
     dark: "#B72136",
     darker: "#E83B68"

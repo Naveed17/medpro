@@ -1,7 +1,7 @@
 import {createAction} from "@reduxjs/toolkit";
 
 export const setAppointmentType = createAction<string>("appointment/setAppointmentType");
-export const setAppointmentMotif = createAction<string>("appointment/setAppointmentMotif");
+export const setAppointmentMotif = createAction<string[]>("appointment/setAppointmentMotif");
 export const setAppointmentDuration = createAction<number | string>("appointment/setAppointmentDuration");
 export const setAppointmentSubmit = createAction<{ uuids: Array<string> }>("appointment/setAppointmentSubmit");
 export const setAppointmentDate = createAction<Date | null>("appointment/setAppointmentDate");

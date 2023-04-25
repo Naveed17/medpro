@@ -68,6 +68,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
+import {DefaultCountry} from "@app/constants";
 
 
 const actions = [
@@ -148,10 +149,7 @@ function Agenda() {
             disabled: true
         }
     ]);
-
     const [event, setEvent] = useState<EventDef | null>();
-    const [slotMinTime, setSlotMinTime] = useState(8);
-    const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
@@ -163,6 +161,7 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -182,13 +181,14 @@ function Agenda() {
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
-            DayOfWeek(openingHours[0], 0) === moment(date).isoWeekday());
+            DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
+            const interval = calendarIntervalSlot();
             let hasError: boolean[] = [];
             hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
                     hasError.push(!moment(date).isBetween(
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMinTime.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMaxTime}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMinSlot.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMaxSlot}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
                 }
             );
             return hasError.every(error => error);
@@ -248,6 +248,28 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const calendarIntervalSlot = () => {
+        let localMinSlot = 8; //8h
+        let localMaxSlot = 20; //20h
+        Object.entries(openingHours).map((openingHours: any) => {
+            openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                const min = moment.duration(openingHour?.start_time).asHours();
+                const max = moment.duration(openingHour?.end_time).asHours();
+                if (min < localMinSlot) {
+                    localMinSlot = min;
+                }
+                if (max > localMaxSlot) {
+                    localMaxSlot = max;
+                }
+            })
+        })
+
+        return {
+            localMinSlot,
+            localMaxSlot
+        }
+    }
+
     useEffect(() => {
         if (lastUpdateNotification) {
             refreshData();
@@ -292,23 +314,6 @@ function Agenda() {
         }
     }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (openingHours) {
-            Object.entries(openingHours).map((openingHours: any) => {
-                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
-                    const min = moment.duration(openingHour?.start_time).asHours();
-                    const max = moment.duration(openingHour?.end_time).asHours();
-                    if (min < slotMinTime) {
-                        setSlotMinTime(min);
-                    }
-                    if (max > slotMaxTime) {
-                        setSlotMaxTime(max);
-                    }
-                })
-            });
-        }
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const handleOnRangeChange = (event: DatesSetArg) => {
         dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
@@ -344,7 +349,7 @@ function Agenda() {
 
     const handleDragEvent = (DateTime: Moment, action: string) => {
         dispatch(setMoveDateTime({
-            date: DateTime.toDate(),
+            date: DateTime,
             time: DateTime.format("HH:mm"),
             action: action,
             selected: false
@@ -364,8 +369,8 @@ function Agenda() {
         const defEvent = {
             ...info.event._def,
             extendedProps: {
-                newDate: startDate,
-                oldDate: oldStartDate,
+                newDate: moment.utc(startDate),
+                oldDate: moment.utc(oldStartDate),
                 allDay: info.oldEvent._def.allDay,
                 duration,
                 oldDuration,
@@ -374,14 +379,25 @@ function Agenda() {
             }
         };
         setEvent(defEvent);
-        if (info.oldEvent._def.extendedProps.status.key === "FINISHED") {
-            if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc()) || onDurationChanged) {
+        const status = info.oldEvent._def.extendedProps.status.key;
+        switch (status) {
+            case "ON_GOING":
                 info.revert();
-            } else {
-                handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
-            }
-        } else {
-            handleDragEvent(moment(new Date(event?.extendedProps.time)), "move");
+                break;
+            case "FINISHED":
+                if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc().set({
+                    hour: 0,
+                    minute: 0,
+                    second: 0
+                })) || onDurationChanged) {
+                    info.revert();
+                } else {
+                    handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
+                }
+                break;
+            default:
+                handleDragEvent(defEvent?.extendedProps.newDate, "move");
+                break;
         }
     }
 
@@ -477,11 +493,19 @@ function Agenda() {
                 onPatientNoShow(event);
                 break;
             case "onMove":
-                dispatch(setSelectedEvent(event));
-                setEvent(event);
+                const newDate = moment(event?.extendedProps.time);
+                const defEvent = {
+                    ...event,
+                    extendedProps: {
+                        ...event.extendedProps,
+                        oldDate: newDate
+                    }
+                };
+                dispatch(setSelectedEvent(defEvent));
+                setEvent(defEvent);
                 dispatch(setMoveDateTime({
-                    date: new Date(event?.extendedProps.time),
-                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                    date: newDate,
+                    time: newDate.format("HH:mm"),
                     action: "move",
                     selected: false
                 }));
@@ -518,7 +542,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: waiting_room + 1}));
+               dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
                 // update pending notifications status
                 config?.mutate[1]();
             });
@@ -585,7 +609,7 @@ function Agenda() {
 
     const onUpdateDefEvent = () => {
         const timeSplit = moveDialogTime.split(':');
-        const date = moment(moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
+        const date = moveDialogDate?.set({hour: parseInt(timeSplit[0]), minute: parseInt(timeSplit[1])})
         const defEvent = {
             ...event,
             extendedProps: {
@@ -617,8 +641,7 @@ function Agenda() {
         setLoading(true);
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        form.append('start_time', event.extendedProps.newDate.format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
@@ -644,8 +667,8 @@ function Agenda() {
     const handleRescheduleAppointment = (event: EventDef) => {
         setLoading(true);
         const form = new FormData();
-        form.append('start_date', event.extendedProps.newDate.clone().format("DD-MM-YYYY"));
-        form.append('start_time', event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
+        form.append('start_time', event.extendedProps.newDate.format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
@@ -820,7 +843,7 @@ function Agenda() {
             "start_date": recurringDate.date,
             "start_time": recurringDate.time
         }))));
-        motif && params.append('consultation_reason_uuid', motif);
+        motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
         params.append('patient_uuid', patient?.uuid as string);
         params.append('type', type);
@@ -917,6 +940,7 @@ function Agenda() {
                                 <Calendar
                                     {...{
                                         events: events.current,
+                                        doctor_country,
                                         agenda,
                                         roles,
                                         refs,
@@ -1154,27 +1178,25 @@ function Agenda() {
                         setMoveDialog(false);
                     }}
                     dir={direction}
-                    action={() => {
-                        return (
-                            <Box sx={{minHeight: 150}}>
-                                <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
-                                <Typography sx={{textAlign: "center"}}
-                                            margin={2}>
-                                    {!event?.extendedProps.onDurationChanged ? <>
-                                        {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format(`DD-MM-YYYY ${event?.extendedProps.allDay ? '' : 'HH:mm'}`)} {" => "}
-                                        {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
-                                    </> : <>
-                                        {humanizeDuration(event?.extendedProps.oldDuration * 60000)} {" => "}
-                                        {humanizeDuration(event?.extendedProps.duration * 60000)}
-                                    </>
-                                    }
+                    action={() => (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>
+                                {!event?.extendedProps.onDurationChanged ? <>
+                                    {event?.extendedProps.oldDate.format(`DD-MM-YYYY ${event?.extendedProps.allDay ? '' : 'HH:mm'}`)} {" => "}
+                                    {event?.extendedProps.newDate?.format("DD-MM-YYYY")} {moveDialogTime}
+                                </> : <>
+                                    {humanizeDuration(event?.extendedProps.oldDuration * 60000)} {" => "}
+                                    {humanizeDuration(event?.extendedProps.duration * 60000)}
+                                </>
+                                }
 
-                                </Typography>
-                                <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
-                            </Box>)
-                    }}
+                            </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
+                        </Box>)}
                     open={moveDialog}
                     title={t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={

@@ -1,6 +1,6 @@
 import {
     Autocomplete, Avatar,
-    CardContent, Collapse, Divider, FormHelperText,
+    CardContent, Collapse, Divider, FormControl, FormHelperText,
     Grid,
     IconButton, InputAdornment,
     MenuItem,
@@ -13,12 +13,14 @@ import {DefaultCountry, SocialInsured} from "@app/constants";
 import Icon from "@themes/urlIcon";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import React, {memo} from "react";
+import React, {memo, useRef} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {CustomInput} from "@features/tabPanel";
+import PhoneInput from "react-phone-number-input/input";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -49,6 +51,7 @@ function InsuranceAddDialog({...props}) {
     } = data;
 
     const {data: session} = useSession();
+    const phoneInputRef = useRef(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -87,9 +90,9 @@ function InsuranceAddDialog({...props}) {
                                                alignItems={"center"}>
                                             <Autocomplete
                                                 size={"small"}
-                                                disablePortal
                                                 disableClearable
-                                                {...getFieldProps(`insurances[${index}].insurance_type`)}
+                                                value={getFieldProps(`insurances[${index}].insurance_type`) ?
+                                                    getFieldProps(`insurances[${index}].insurance_type`).value : ""}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_type`, insurance?.value);
                                                     const expended = insurance?.key !== "socialInsured";
@@ -198,9 +201,9 @@ function InsuranceAddDialog({...props}) {
                                             helperText={touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_number}
                                             size="small"
                                             fullWidth
+                                            {...getFieldProps(`insurances[${index}].insurance_number`)}
                                             value={getFieldProps(`insurances[${index}].insurance_number`) ?
                                                 getFieldProps(`insurances[${index}].insurance_number`).value : ""}
-                                            {...getFieldProps(`insurances[${index}].insurance_number`)}
                                         />
                                     </Grid>
                                     <Grid item xs={6} md={1}>
@@ -243,6 +246,8 @@ function InsuranceAddDialog({...props}) {
                                                             size="small"
                                                             fullWidth
                                                             {...getFieldProps(`insurances[${index}].insurance_social.firstName`)}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.firstName`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.firstName`).value : ""}
                                                         />
                                                     </Stack>
                                                 </Grid>
@@ -263,6 +268,8 @@ function InsuranceAddDialog({...props}) {
                                                             size="small"
                                                             fullWidth
                                                             {...getFieldProps(`insurances[${index}].insurance_social.lastName`)}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.lastName`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.lastName`).value : ""}
                                                         />
                                                     </Stack>
                                                 </Grid>
@@ -282,15 +289,20 @@ function InsuranceAddDialog({...props}) {
                                                             gutterBottom>
                                                     {t("birthdate")}
                                                 </Typography>
-                                                <CustomDatePicker
-                                                    value={values.insurances[index].insurance_social?.birthday ?
-                                                        moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
-                                                    onChange={(date: Date) => {
-                                                        const dateInput = moment(date);
-                                                        setFieldValue(`insurances[${index}].insurance_social.birthday`, dateInput.isValid() ? dateInput.format('DD-MM-YYYY') : "");
-                                                    }}
-                                                    inputFormat="dd/MM/yyyy"
-                                                />
+                                                <FormControl
+                                                    fullWidth
+                                                    error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.birthday)}
+                                                >
+                                                    <CustomDatePicker
+                                                        value={values.insurances[index].insurance_social?.birthday ?
+                                                            moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
+                                                        onChange={(date: Date) => {
+                                                            const dateInput = moment(date);
+                                                            setFieldValue(`insurances[${index}].insurance_social.birthday`, dateInput.isValid() ? dateInput.format('DD-MM-YYYY') : "");
+                                                        }}
+                                                        inputFormat="dd/MM/yyyy"
+                                                    />
+                                                </FormControl>
                                             </Stack>
                                             <Stack direction={"row"} alignItems={"center"}>
                                                 <Typography variant="body2" color="text.secondary"
@@ -303,29 +315,29 @@ function InsuranceAddDialog({...props}) {
                                                             initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
                                                                 getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) : doctor_country}
                                                             onSelect={(state: any) => {
-                                                                setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
+                                                                setFieldValue(`insurances[${index}].insurance_social.phone.value`, "");
+                                                                setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone);
                                                             }}/>
                                                     </Grid>
                                                     <Grid item md={6} lg={8} xs={12}>
-                                                        <TextField
-                                                            {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
-                                                            error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.phone?.value)}
-                                                            helperText={
-                                                                Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.phone)
-                                                                    ? String((errors.insurances as any)[index].insurance_social.phone.value)
-                                                                    : undefined
-                                                            }
-                                                            variant="outlined"
-                                                            size="small"
+                                                        <PhoneInput
+                                                            ref={phoneInputRef}
+                                                            international
                                                             fullWidth
-                                                            InputProps={{
-                                                                startAdornment: (
-                                                                    <InputAdornment
-                                                                        position="start">
-                                                                        {getFieldProps(`insurances[${index}].insurance_social.phone.code`)?.value}
-                                                                    </InputAdornment>
-                                                                ),
-                                                            }}
+                                                            error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social.phone)}
+                                                            withCountryCallingCode
+                                                            {...(getFieldProps(`insurances[${index}].insurance_social.phone.value`) &&
+                                                                {
+                                                                    helperText: `Format international: ${getFieldProps(`insurances[${index}].insurance_social.phone.value`)?.value ?
+                                                                        getFieldProps(`insurances[${index}].insurance_social.phone.value`).value : ""}`
+                                                                })}
+                                                            country={(getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
+                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value)?.code :
+                                                                doctor_country.code) as any}
+                                                            value={getFieldProps(`insurances[${index}].insurance_social.phone.value`) ?
+                                                                getFieldProps(`insurances[${index}].insurance_social.phone.value`).value : ""}
+                                                            onChange={value => setFieldValue(`insurances[${index}].insurance_social.phone.value`, value)}
+                                                            inputComponent={CustomInput as any}
                                                         />
                                                     </Grid>
                                                 </Grid>

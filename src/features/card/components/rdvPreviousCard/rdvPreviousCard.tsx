@@ -33,7 +33,7 @@ function RdvCard({...props}) {
             extendedProps: {
                 time: moment(`${inner.dayDate} ${inner.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                 patient: patient,
-                motif: inner.consultationReason,
+                motif: inner.consultationReasons,
                 instruction: inner.instruction,
                 description: "",
                 meeting: false,
@@ -75,39 +75,46 @@ function RdvCard({...props}) {
                     <Skeleton variant="text" width={100}/>
                 ) : (
                     <Stack direction={"row"} justifyItems={"center"} spacing={1.2}>
-                        {inner.meeting && <Icon path="ic-video"/>}
-                        {inner?.type && <Stack direction='row' alignItems="center">
-                            <ModelDot
-                                color={inner?.type?.color}
-                                selected={false} size={20} sizedot={12}
-                                padding={3} marginRight={5}/>
-                            <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
-                        </Stack>}
-                        {inner?.status && <Label
-                            variant="filled"
-                            sx={{
-                                "& .MuiSvgIcon-root": {
-                                    width: 16,
-                                    height: 16,
-                                    pl: 0,
-                                },
-                            }}
-                            color={AppointmentStatus[inner?.status]?.classColor}>
-                            {AppointmentStatus[inner?.status]?.icon}
-                            <Typography
+                        <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
+                            {inner?.type && <Stack direction='row' alignItems="center">
+                                <ModelDot
+                                    color={inner?.type?.color}
+                                    selected={false} size={20} sizedot={12}
+                                    padding={3} marginRight={5}/>
+                                <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
+                            </Stack>}
+
+                            {inner?.status && <Label
+                                variant="filled"
                                 sx={{
-                                    fontSize: 10,
-                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
-                                        ? 0.5
-                                        : 0,
-                                }}>
-                                {AppointmentStatus[inner?.status]?.value}
+                                    "& .MuiSvgIcon-root": {
+                                        width: 16,
+                                        height: 16,
+                                        pl: 0,
+                                    },
+                                }}
+                                color={AppointmentStatus[inner?.status]?.classColor}>
+                                {AppointmentStatus[inner?.status]?.icon}
+                                <Typography
+                                    sx={{
+                                        fontSize: 10,
+                                        ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                            ? 0.5
+                                            : 0,
+                                    }}>
+                                    {AppointmentStatus[inner?.status]?.value}
+                                </Typography>
+                            </Label>}
+                        </Stack>
+
+                        {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
+                            <Typography fontSize={12} fontWeight={400}>
+                                {t("reason")}
                             </Typography>
-                        </Label>}
-                        {inner.consultationReason && <Typography variant="body2" color="text.primary" sx={{mr: 3}}>
-                            {loading ? <Skeleton variant="text" width={100}/> :
-                                (<> {t("reason")} : {inner.consultationReason.name}</>)}
-                        </Typography>}
+                            <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                                {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                            </Typography>
+                        </Stack>}
                     </Stack>
                 )}
             </TableCell>
