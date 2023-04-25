@@ -43,7 +43,6 @@ import {configSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
-import HistoryEduRoundedIcon from '@mui/icons-material/HistoryEduRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -84,20 +83,21 @@ function DocumentDetailDialog({...props}) {
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
-        size: 'portraitA5',
+        size: 'portraitA4',
         content: {
             show: true,
-            maxHeight: 500,
+            maxHeight: 600,
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 70
+            y: 150
         }
     })
     const {direction} = useAppSelector(configSelector);
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
+    const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
@@ -346,13 +346,25 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-                setSelectedTemplate(docInfo[0].uuid)
-                setData(docInfo[0].header.data)
-                setHeader(docInfo[0].header.header)
+                const templates: any[] = [];
+                const slug = slugs[generatedDocs.findIndex(gd =>gd === state.type)];
+                docInfo.map((di: { types: any[]; }) => {
+                    if (di.types.find(type=> type.slug === slug))
+                        templates.push(di)
+                })
+                if (templates.length > 0){
+                    setSelectedTemplate(templates[0].uuid)
+                    setData(templates[0].header.data)
+                    setHeader(templates[0].header.header)
+                } else {
+                    setSelectedTemplate(docInfo[0].uuid)
+                    setData(docInfo[0].header.data)
+                    setHeader(docInfo[0].header.header)
+                }
                 setLoading(false)
             }
         }
-    }, [httpDocumentHeader])
+    }, [httpDocumentHeader, state])
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
