@@ -165,7 +165,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const setInitData = (drugs: DrugModel[]) => {
-        console.log(drugs);
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
@@ -185,7 +184,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 cycles: drug.cycles.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "" ? [] : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
                     count: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] === fractions[0] ? 0 : cycle.dosage.split(" ")[0] === fractions[1] ? 1 : parseInt(cycle.dosage.split(" ")[0]) + 1 : 2,
                     dosageQty: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] : "1",
-                    dosageDuration: cycle.duration ? drug.duration : 1,
+                    dosageDuration: cycle.duration ? cycle.duration : 1,
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
                     dosageInput: false,
