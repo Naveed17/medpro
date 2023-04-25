@@ -224,6 +224,7 @@
     "before_meal":"Avant le repas",
     "after_meal":"Après le repas",
     "with_meal":"Avec le repas",
+    "fasting":"À jeun",
     "file":"Dossiers",
     "new_model":"Veuiller nommé le modèle",
     "new_file":"Nouveau dossier",

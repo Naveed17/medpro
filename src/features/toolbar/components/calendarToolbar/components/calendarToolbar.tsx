@@ -135,7 +135,7 @@ function CalendarToolbar({...props}) {
 
                         <Button className="Current-date" variant="text-transparent">
                             <Typography variant="body2" component={"span"}>
-                                {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                                {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
 

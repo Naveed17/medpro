@@ -666,13 +666,13 @@ function PlacesDetail() {
                             </CardContent>
                         </Card>
 
-                        <Maps
+                        {doctor_country?.code !== "ma" && <Maps
                             data={uuind === "new" ? null : cords}
                             outerBounds={outerBounds}
                             editCords={(c: { lat: number; lng: number }) => {
                                 setCords([{name: values.name, points: [c.lat, c.lng]}]);
                             }}
-                            draggable={true}></Maps>
+                            draggable={true}></Maps>}
 
                         <Typography
                             textTransform="uppercase"
