@@ -154,7 +154,9 @@ function ActFees() {
   useEffect(() => {
     setLoading(true);
     if (httpProfessionalsActs !== undefined) {
-      const response = (httpProfessionalsActs as HttpResponse).data.reverse();
+      const response = (
+        httpProfessionalsActs as HttpResponse
+      ).data?.list.reverse();
       setMainActes(response as ActModel[]);
       setLoading(false);
     }
@@ -529,7 +531,6 @@ function ActFees() {
             </Stack>
           </Stack>
         )}
-
         <Otable
           headers={headCells}
           rows={mainActes}
