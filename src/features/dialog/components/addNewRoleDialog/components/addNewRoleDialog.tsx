@@ -309,7 +309,7 @@ function AddNewRoleDialog({ ...props }) {
     setValues({ ...values, id: selected ? selected.id : uid });
   React.useEffect(() => {
     getValues();
-  }, [values]);
+  }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <FormikProvider value={formik}>

@@ -48,6 +48,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
 
+    const [prescriptionModel, setPrescriptionModel] = useState<string>('');
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
@@ -97,6 +98,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 durationValue: "",
                 dosageInput: false,
                 dosageInputText: "",
+                cautionary_note: "",
                 dosageTime: [
                     {
                         label: "morning",
@@ -141,6 +143,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 durationValue: Yup.string(),
                 dosageInput: Yup.boolean(),
                 dosageInputText: Yup.string(),
+                cautionary_note: Yup.string(),
                 dosageTime: Yup.array().of(Yup.object().shape({
                     label: Yup.string(),
                     value: Yup.boolean()
@@ -157,7 +160,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }))
     });
 
-    const setInitData = () => {
+    const setInitData = (drugs: DrugModel[]) => {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
@@ -182,6 +185,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     durationValue: drug.durationType ? drug.durationType : "",
                     dosageInput: false,
                     dosageInputText: "",
+                    cautionary_note: drug.note !== "" ? drug.note : "",
                     dosageTime: [
                         {
                             label: "morning",
@@ -212,7 +216,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const formik = useFormik({
         enableReinitialize: false,
         initialValues: {
-            data: setInitData()
+            data: setInitData(drugs)
         },
         validationSchema,
         onSubmit: (values) => {
@@ -226,8 +230,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
-
-    const {data: httpModelResponse, mutate} = useRequest({
+    const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
+    const {data: httpModelResponse, mutate: mutatePrespectionModel} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -238,6 +242,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
             ...values.data,
             {...initData}
         ]);
+    }
+
+    const switchPrescriptionModel = (drugs: DrugModel[]) => {
+        setDrugs(drugs);
+        setFieldValue("data", setInitData(drugs));
     }
 
     const handleRemoveCycle = (idx: number, value: any) => {
@@ -289,6 +298,20 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }
     }
 
+    const handleSaveDialog = () => {
+        const form = new FormData();
+        form.append('globalNote', "");
+        form.append('name', prescriptionModel);
+        form.append('drugs', JSON.stringify(drugs));
+        triggerPrescriptionModel({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => mutatePrespectionModel());
+        setOpenDialog(false);
+    }
+
     useEffect(() => {
         if (values) {
             const drugs: any[] = [];
@@ -297,14 +320,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     const drug = data.drug as DrugModel;
                     const cycles = data.cycle as any[];
                     const dosage = cycles.length > 0 && cycles[0].dosageInput ? cycles[0].dosageInputText : cycles.length > 0 && data.unit && cycles[0].dosageTime.some((time: any) => time.value) ?
-                        `${cycles[0].dosageQty} ${data.unit}, ${cycles[0].dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycles[0].dosageMealValue !== "" ? t(cycles[0].dosageMealValue) : ""}` : ""
+                        `${cycles[0].dosageQty} ${data.unit}, ${cycles[0].dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycles[0].dosageMealValue && cycles[0].dosageMealValue.length > 0 ? t(cycles[0].dosageMealValue) : ""}` : ""
                     drugs.push({
                         dosage,
                         drugUuid: drug?.uuid,
                         duration: cycles.length > 0 && cycles[0].durationValue.length > 0 ? cycles[0].dosageDuration : "",
                         durationType: cycles.length > 0 && cycles[0].durationValue.length > 0 ? cycles[0].durationValue : "",
                         name: drug?.commercial_name,
-                        note: ""
+                        note: cycles.length > 0 && cycles[0].cautionary_note.length > 0 ? cycles[0].cautionary_note : ""
                     })
                 }
             });
@@ -634,6 +657,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     ))}
                                                                 </Stack>
                                                             </Stack>
+                                                            <Stack mt={1}>
+                                                                <Typography gutterBottom>
+                                                                    {t("cautionary_note", {ns: "consultation"})}
+                                                                </Typography>
+                                                                <TextField
+                                                                    {...getFieldProps(`data[${idx}].cycle[${index}].cautionary_note`)}
+                                                                    fullWidth
+                                                                    placeholder={t("cautionary_note_placeholder")}/>
+                                                            </Stack>
                                                             <IconButton
                                                                 onClick={() =>
                                                                     handleRemoveCycle(idx, innerItem)
@@ -678,7 +710,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     fullWidth: true,
                                 })}
                                 onClick={() => {
-                                    setInfo("change-model");
+                                    setInfo("medical_prescription_model");
                                     setOpenDialog(true);
                                 }}
                                 sx={{
@@ -699,7 +731,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     left: -24,
                                 }}
                             />
-                            <ModelPrescriptionList {...{models, t}}/>
+                            <ModelPrescriptionList {...{models, t, switchPrescriptionModel}}/>
                         </Stack>
                     </Stack>
                 </Grid>
@@ -709,51 +741,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 direction={direction}
                 open={openDialog}
                 data={{t}}
-                {...(info === "change-model" && {
-                    size: "sm",
-
-                    actionDialog: (
-                        <Stack
-                            direction={{xs: "column", md: "row"}}
-                            alignItems="center"
-                            justifyContent="flex-end"
-                            width={1}
-                            spacing={1}>
-                            <Button
-                                {...(isMobile && {
-                                    fullWidth: true,
-                                })}
-                                variant="text-black"
-                                onClick={() => {
-                                    setOpenDialog(false);
-                                }}
-                                startIcon={<CloseIcon/>}>
-                                {t("cancel", {
-                                    ns: "consultation",
-                                })}
-                            </Button>
-                            <LoadingButton
-                                {...(isMobile && {
-                                    fullWidth: true,
-                                })}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}
-                                variant="contained"
-                                onClick={() => {
-                                    setInfo("save-model");
-                                }}>
-                                {t("save", {
-                                    ns: "consultation",
-                                })}
-                            </LoadingButton>
-                        </Stack>
-                    ),
-                })}
-                {...(info === "save-model" && {
+                {...(info === "medical_prescription_model" && {
                     size: "xs",
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true},
+                    data: {t, dose: true, setPrescriptionModel},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
@@ -765,11 +758,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 {t("cancel", {ns: "consultation"})}
                             </Button>
                             <LoadingButton
+                                disabled={prescriptionModel.length === 0}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}
                                 variant="contained"
-                                onClick={() => {
-                                    setOpenDialog(false);
-                                }}>
+                                onClick={handleSaveDialog}>
                                 {t("save", {ns: "consultation"})}
                             </LoadingButton>
                         </Stack>
