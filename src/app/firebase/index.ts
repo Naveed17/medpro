@@ -17,7 +17,7 @@ const firebaseCloudSdk = {
     init: async () => {
         try {
             //init firebase analytics
-            const analytics = getAnalytics(firebaseCloudSdk.firebase);
+            const analytics = process.env.NODE_ENV !== 'development' && getAnalytics(firebaseCloudSdk.firebase);
             //init firebase messaging
             const messaging = getMessaging(firebaseCloudSdk.firebase);
             const tokenInLocalForage = await localStorage.getItem("fcm_token");
