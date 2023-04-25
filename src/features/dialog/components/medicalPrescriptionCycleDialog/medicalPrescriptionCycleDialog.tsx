@@ -187,8 +187,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dosageDuration: cycle.duration ? cycle.duration : 1,
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
-                    dosageInput: false,
-                    dosageInputText: "",
+                    dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
+                    dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
                     cautionary_note: cycle.note !== "" ? cycle.note : "",
                     dosageTime: [
                         {
@@ -586,7 +586,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     <FormControlLabel
                                                                         control={
                                                                             <Checkbox
-                                                                                value={values.data[idx].cycles[index].dosageInput}
+                                                                                checked={values.data[idx].cycles[index].dosageInput}
                                                                                 onChange={(event) => {
                                                                                     setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, event.target.checked)
                                                                                 }}
