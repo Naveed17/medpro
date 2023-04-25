@@ -59,6 +59,7 @@ import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@app/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {width} from "@mui/system";
 
 function DocsConfig() {
 
@@ -82,6 +83,7 @@ function DocsConfig() {
     const [types, setTypes] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [isDefault, setIsDefault] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState(null);
@@ -160,6 +162,7 @@ function DocsConfig() {
     useEffect(() => {
         if (docHeader) {
             setTitle((docHeader as DocTemplateModel).title);
+            setIsDefault((docHeader as DocTemplateModel).isDefault);
             setQueryState({
                 type: ((docHeader as DocTemplateModel).types)
             });
@@ -251,6 +254,7 @@ function DocsConfig() {
         data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
         form.append('title', title);
+        form.append('isDefault', JSON.stringify(isDefault));
         if (file)
             form.append('file', file);
         if (typeUuids.length > 0)
@@ -423,6 +427,17 @@ function DocsConfig() {
                             </MuiAutocompleteSelectAll.Provider>
 
 
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={isDefault}
+                                    onChange={(ev) => {
+                                         setIsDefault(ev.target.checked)
+                                    }}
+                                />
+                                <ListItemText primary={t("asDefault")}/>
+                            </ListItem>
+
+                            <div style={{width: '100%',borderTop:'1px solid rgba(0,0,0,.1)',marginBottom:20,marginTop:10}}></div>
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
                                 <legend>{t('configContent')}</legend>

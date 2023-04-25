@@ -357,9 +357,16 @@ function DocumentDetailDialog({...props}) {
                     setData(templates[0].header.data)
                     setHeader(templates[0].header.header)
                 } else {
-                    setSelectedTemplate(docInfo[0].uuid)
-                    setData(docInfo[0].header.data)
-                    setHeader(docInfo[0].header.header)
+                    const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                    if (defaultdoc){
+                        setSelectedTemplate(defaultdoc.uuid)
+                        setData(defaultdoc.header.data)
+                        setHeader(defaultdoc.header.header)
+                    } else {
+                        setSelectedTemplate(docInfo[0].uuid)
+                        setData(docInfo[0].header.data)
+                        setHeader(docInfo[0].header.header)
+                    }
                 }
                 setLoading(false)
             }
