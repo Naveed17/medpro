@@ -1,8 +1,9 @@
 import {initializeApp} from "firebase/app";
+import {getAnalytics} from "firebase/analytics";
 import {getMessaging, getToken} from "firebase/messaging";
 import axios from "axios";
 
-const firebaseCloudMessaging = {
+const firebaseCloudSdk = {
     firebase: initializeApp({
         apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY,
         authDomain: process.env.NEXT_PUBLIC_FCM_AUTH_DOMAIN,
@@ -15,12 +16,15 @@ const firebaseCloudMessaging = {
     }),
     init: async () => {
         try {
-            const messaging = getMessaging(firebaseCloudMessaging.firebase);
+            //init firebase analytics
+            const analytics = getAnalytics(firebaseCloudSdk.firebase);
+            //init firebase messaging
+            const messaging = getMessaging(firebaseCloudSdk.firebase);
             const tokenInLocalForage = await localStorage.getItem("fcm_token");
 
             // Return the token if it is already in our local storage
             if (tokenInLocalForage !== null) {
-                return tokenInLocalForage;
+                return {token: tokenInLocalForage, analytics};
             }
 
             // Request the push notification permission from browser
@@ -41,7 +45,7 @@ const firebaseCloudMessaging = {
                 // Set token in our local storage
                 if (fcm_token) {
                     localStorage.setItem("fcm_token", fcm_token);
-                    return fcm_token;
+                    return {token: fcm_token, analytics};
                 }
             }
         } catch (error) {
@@ -50,4 +54,4 @@ const firebaseCloudMessaging = {
         }
     },
 };
-export {firebaseCloudMessaging};
+export {firebaseCloudSdk};

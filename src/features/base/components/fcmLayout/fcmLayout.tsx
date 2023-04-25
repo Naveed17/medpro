@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {firebaseCloudMessaging} from "@app/firebase";
+import {firebaseCloudSdk} from "@app/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Dialog,
@@ -34,6 +34,7 @@ import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
+import {setUserId, setUserProperties} from "@firebase/analytics";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -84,6 +85,7 @@ function FcmLayout({...props}) {
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClickOpen = () => {
         setOpenDialog(true);
@@ -95,7 +97,7 @@ function FcmLayout({...props}) {
 
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
-        const messaging = getMessaging(firebaseCloudMessaging.firebase);
+        const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
             if (data.type === "no_action") {
@@ -172,10 +174,19 @@ function FcmLayout({...props}) {
 
     const setToken = async () => {
         try {
-            const token = await firebaseCloudMessaging.init();
+            const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
                 setFcmToken(token as string);
                 getFcmMessage();
+            }
+            if (analytics) {
+                // identify firebase analytics user
+                setUserId(analytics, general_information.uuid);
+                setUserProperties(analytics, {
+                    name: `${general_information.firstName} ${general_information.lastName}`,
+                    email: general_information.email,
+                    role: roles[0]
+                });
             }
         } catch (error) {
             console.log(error);
@@ -184,7 +195,7 @@ function FcmLayout({...props}) {
 
     const setRefreshToken = async (topicName: string, fcm_api_key: string) => {
         localStorage.removeItem("fcm_token");
-        const refreshToken = await firebaseCloudMessaging.init();
+        const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
             setFcmToken(refreshToken as string);
@@ -237,7 +248,6 @@ function FcmLayout({...props}) {
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
-            const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
