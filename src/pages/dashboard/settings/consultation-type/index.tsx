@@ -8,7 +8,10 @@ import {
   Container,
   Drawer,
   Stack,
+  Theme,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { MotifTypeDialog } from "@features/motifTypeDialog";
@@ -26,29 +29,63 @@ import { MotifTypeCard } from "@features/card";
 import { LoadingScreen } from "@features/loadingScreen";
 
 function ConsultationType() {
+  const theme: Theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { data: session } = useSession();
   const { data: user } = session as Session;
   const router = useRouter();
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
   const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
+  const [displayedItems, setDisplayedItems] = useState(10);
   const [edit, setEdit] = useState(false);
   const [selected, setSelected] = useState<any>();
   const { direction } = useAppSelector(configSelector);
   const { data, error, mutate } = useRequest({
     method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/?page=${
-      router.query.page || 1
-    }&limit=10&withPagination=true`,
+    url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${
+      !isMobile
+        ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
+        : ""
+    }`,
     headers: { Authorization: `Bearer ${session?.accessToken}` },
   });
-
+  const handleScroll = () => {
+    const total = (data as HttpResponse)?.data.length;
+    if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
+      if (total > displayedItems) {
+        setDisplayedItems(displayedItems + 10);
+      }
+      if (total - displayedItems < 10) {
+        setDisplayedItems(total);
+      }
+    }
+  };
   useEffect(() => {
     if (data !== undefined) {
-      setRows((data as any).data);
+      if (isMobile) {
+        setRows((data as HttpResponse).data);
+      } else {
+        setRows((data as HttpResponse).data?.list);
+      }
     }
   }, [data]);
+  useEffect(() => {
+    // Add scroll listener
+    if (isMobile) {
+      let promise = new Promise(function (resolve, reject) {
+        document.body.style.overflow = "hidden";
+        setTimeout(() => {
+          resolve(window.addEventListener("scroll", handleScroll));
+        }, 2000);
+      });
+      promise.then(() => {
+        return (document.body.style.overflow = "visible");
+      });
 
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [data, displayedItems]);
   const closeDraw = () => {
     setEdit(false);
   };
@@ -56,6 +93,7 @@ function ConsultationType() {
   const { t, ready } = useTranslation(["settings", "common"], {
     keyPrefix: "motifType.config",
   });
+
   if (!ready)
     return (
       <LoadingScreen
@@ -114,6 +152,7 @@ function ConsultationType() {
     setEdit(true);
     setSelected(props);
   };
+  console.log(data);
   return (
     <>
       <SubHeader>
@@ -153,7 +192,7 @@ function ConsultationType() {
       <MobileContainer>
         <Container>
           <Box pt={3.7}>
-            {rows.map((row, idx) => (
+            {rows?.slice(0, displayedItems).map((row, idx) => (
               <React.Fragment key={idx}>
                 <MotifTypeCard t={t} data={row} handleDrawer={editMotif} />
               </React.Fragment>
