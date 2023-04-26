@@ -1,3 +1,10 @@
+## [4.17.4](https://github.com/SmartMedSA/med-pro/compare/v4.17.3...v4.17.4) (2023-04-25)
+
+
+### Bug Fixes
+
+* calendar format date bug ([9190e53](https://github.com/SmartMedSA/med-pro/commit/9190e535a09d661e6495a96b92b2d19379e6d8ef))
+
 ## [4.17.3](https://github.com/SmartMedSA/med-pro/compare/v4.17.2...v4.17.3) (2023-04-24)
 
 
