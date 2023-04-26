@@ -25,7 +25,7 @@ import {
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {useSnackbar} from "notistack";
+import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
@@ -57,6 +57,7 @@ function FcmLayout({...props}) {
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
+    const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
     const {data: user} = session as Session;
@@ -86,10 +87,6 @@ function FcmLayout({...props}) {
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-
-    const handleClickOpen = () => {
-        setOpenDialog(true);
-    };
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -261,11 +258,27 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         setToken();
-
         // Event listener that listens for the push notification event in the background
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
+            });
+        }
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                // when we're back online
+                closeSnackbar(noConnection);
+                setNoConnection(undefined);
+            });
+
+            window.addEventListener("offline", () => {
+                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
+                    key: "offline",
+                    variant: 'error',
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
+                    persist: true
+                }));
             });
         }
     });
