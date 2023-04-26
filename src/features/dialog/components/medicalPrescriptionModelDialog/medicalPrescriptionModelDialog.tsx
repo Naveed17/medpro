@@ -1,17 +1,18 @@
 import {
-    Checkbox,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
     Link,
-    List,
     ListItem,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     Theme,
     Typography,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button, FormControlLabel, Radio, RadioGroup,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -23,7 +24,7 @@ import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {setPrescriptionModel, t, dose} = dialogData;
+    const {setPrescriptionModel, t} = dialogData;
     const [selected, setSelected] = useState<any>("1");
     const [value, setValue] = useState("");
     const [open, setOpen] = useState(false);
@@ -74,7 +75,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                     onChange={event => setSelected(event.target.value)}
                     name="radio-buttons-group"
                 >
-                    {data.map((item: any, idx: number) => (
+                    {data.map((item: any) => (
                         <ListItem
                             key={item.id}>
                             <Stack

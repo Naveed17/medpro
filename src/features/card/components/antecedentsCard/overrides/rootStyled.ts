@@ -6,7 +6,12 @@ const RootStyled = styled(Box)(({theme}) => ({
         display: "flex",
         alignItems: "center",
         marginBottom: theme.spacing(1),
-        svg: {marginRight: theme.spacing(1)}
+        svg: {marginRight: theme.spacing(1)},
+    },
+    ".ant-title":{
+        "&::first-letter": {
+            textTransform: "capitalize"
+        }
     }
 }));
 

@@ -65,7 +65,6 @@ function MedicalImageryDialog({...props}) {
         setName('')
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
         mi.unshift({...value, note: ""})
-        console.log(mi);
         setMi([...mi])
         localStorage.setItem("medical-imagery-recent", JSON.stringify([...mi]));
         data.setState([...mi])
