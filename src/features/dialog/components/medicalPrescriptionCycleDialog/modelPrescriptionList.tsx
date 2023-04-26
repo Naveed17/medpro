@@ -18,10 +18,6 @@ import TreeStyled from "./overrides/treeStyled";
 function ModelPrescriptionList({...props}) {
     const {models, t, switchPrescriptionModel} = props;
 
-    const [groupPrescriptionModel, setGroupPrescriptionModel] = useState<any[]>([
-        {uuid: 1, name: "Répertoire par défaut"},
-        {uuid: 2, name: "Vaccines"}
-    ]);
     const [treeData, setTreeData] = useState<any[]>([]);
 
     const handleDrop = (newTree: any, {dragSourceId, dropTargetId, dragSource, dropTarget}: any) => {
@@ -32,22 +28,26 @@ function ModelPrescriptionList({...props}) {
 
     useEffect(() => {
         if (models) {
-            setTreeData([
-                ...(groupPrescriptionModel.map(group => ({
-                        id: group.uuid,
+            const parentModels: PrescriptionPatternModel[] = [];
+            models.map((model: PrescriptionParentModel) => {
+                parentModels.push(...[
+                    {
+                        id: model.uuid,
                         parent: 0,
                         droppable: true,
-                        text: group.name
-                    })
-                )),
-                ...(models.map((model: any) => ({
-                    id: model.uuid,
-                    parent: 1,
-                    text: model.name,
-                    data: {
-                        drugs: model.prescription_modal_has_drugs
-                    }
-                })))]);
+                        text: model.name === "default" ? "Répertoire par défaut" : model.name
+                    },
+                    ...model.prescriptionModels.map((prescription) => ({
+                        id: prescription.uuid,
+                        parent: model.uuid,
+                        text: prescription.name,
+                        data: {
+                            drugs: prescription.prescriptionModalHasDrugs
+                        }
+                    }))
+                ]);
+            });
+            setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
 

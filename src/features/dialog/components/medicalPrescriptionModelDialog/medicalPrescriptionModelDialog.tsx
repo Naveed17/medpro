@@ -24,27 +24,16 @@ import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {setPrescriptionModel, t} = dialogData;
-    const [selected, setSelected] = useState<any>("1");
+    const {setPrescriptionModel, t, models} = dialogData;
+    const [selected, setSelected] = useState<any>(models[0]?.uuid);
     const [value, setValue] = useState("");
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("doc");
     const [error, setError] = useState(false);
-    const [data, setData] = useState<any[]>([
-        {id: 1, name: "Répertoire par défaut"}
-    ]);
 
     const handleAdd = () => {
         if (name) {
-            const lastItem = data[data.length - 1];
-            setName("doc");
-            setData([
-                ...data,
-                {
-                    id: lastItem.id + 1,
-                    name,
-                },
-            ]);
+
             setOpen(false);
         } else {
             setError(true);
@@ -75,9 +64,9 @@ function MedicalPrescriptionModelDialog({...props}) {
                     onChange={event => setSelected(event.target.value)}
                     name="radio-buttons-group"
                 >
-                    {data.map((item: any) => (
+                    {models.map((item: any) => (
                         <ListItem
-                            key={item.id}>
+                            key={item.uuid}>
                             <Stack
                                 width={1}
                                 sx={{
@@ -87,8 +76,9 @@ function MedicalPrescriptionModelDialog({...props}) {
                                 alignItems="center"
                                 spacing={0.5}>
                                 <FormControlLabel
-                                    value={item.id}
-                                    label={<Typography>{item.name}</Typography>}
+                                    value={item.uuid}
+                                    label={
+                                        <Typography>{item.name === "default" ? "Répertoire par défaut" : item.name}</Typography>}
                                     control={<Radio icon={<FolderOpenRoundedIcon/>}
                                                     checkedIcon={<FolderRoundedIcon color={"primary"}/>}/>}/>
                             </Stack>

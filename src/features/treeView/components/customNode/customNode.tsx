@@ -49,7 +49,7 @@ export const CustomNode = ({...props}) => {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setModelUuid(null);
-            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`).then(
+            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`).then(
                 () => {
                     setLoading(false);
                     setDeleteModelDialog(false);

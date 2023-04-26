@@ -235,9 +235,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
-    const {data: httpModelResponse, mutate: mutatePrescriptionModel} = useRequest({
+
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -312,7 +313,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutatePrescriptionModel());
+        }).then(() => mutateParentModel());
         setOpenDialog(false);
     }
 
@@ -348,7 +349,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const models = (httpModelResponse as HttpResponse)?.data as PrescriptionModalModel[];
+    const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
 
     return (
         <MedicalPrescriptionCycleStyled>
@@ -758,7 +759,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, setPrescriptionModel},
+                    data: {t, dose: true, setPrescriptionModel, models},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
