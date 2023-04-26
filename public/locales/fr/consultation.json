@@ -340,7 +340,16 @@
     "remove": "Supprimer",
     "askRemovemodel": "Vous voulez supprimer ce modèle",
     "subtitleRemovemodel": "",
-    "model": "modèle"
+    "model": "modèle",
+    "dialogs": {
+      "delete-dialog": {
+        "title": "Supprimer Modéle",
+        "sub-title": "Voulez-vous vraiment supprimer ce Modéle?",
+        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      }
+    }
   },
   "table": {
     "acts": "Actes",

@@ -235,7 +235,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
-    const {data: httpModelResponse, mutate: mutatePrespectionModel} = useRequest({
+    const {data: httpModelResponse, mutate: mutatePrescriptionModel} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -312,7 +312,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutatePrespectionModel());
+        }).then(() => mutatePrescriptionModel());
         setOpenDialog(false);
     }
 
