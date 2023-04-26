@@ -22,16 +22,7 @@ function ModelPrescriptionList({...props}) {
         {uuid: 1, name: "Répertoire par défaut"},
         {uuid: 2, name: "Vaccines"}
     ]);
-    const [treeData, setTreeData] = useState([
-        ...(groupPrescriptionModel.map(group =>
-            ({
-                id: group.uuid,
-                parent: 0,
-                droppable: true,
-                text: group.name
-            })
-        ))
-    ]);
+    const [treeData, setTreeData] = useState<any[]>([]);
 
     const handleDrop = (newTree: any, {dragSourceId, dropTargetId, dragSource, dropTarget}: any) => {
         // Do something
@@ -41,7 +32,14 @@ function ModelPrescriptionList({...props}) {
 
     useEffect(() => {
         if (models) {
-            setTreeData([...treeData,
+            setTreeData([
+                ...(groupPrescriptionModel.map(group => ({
+                        id: group.uuid,
+                        parent: 0,
+                        droppable: true,
+                        text: group.name
+                    })
+                )),
                 ...(models.map((model: any) => ({
                     id: model.uuid,
                     parent: 1,
@@ -62,7 +60,7 @@ function ModelPrescriptionList({...props}) {
                         rootId={0}
                         render={(node, {depth, isOpen, onToggle}) => (
                             <CustomNode
-                                {...{node, depth, isOpen, onToggle, switchPrescriptionModel}}
+                                {...{node, t, depth, isOpen, onToggle, switchPrescriptionModel}}
                             />
                         )}
                         enableAnimateExpand={true}
