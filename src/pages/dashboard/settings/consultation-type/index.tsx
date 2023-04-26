@@ -44,6 +44,8 @@ function ConsultationType() {
   const { data, error, mutate } = useRequest({
     method: "GET",
     url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${
+      router.locale
+    }${
       !isMobile
         ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
         : ""
@@ -152,7 +154,7 @@ function ConsultationType() {
     setEdit(true);
     setSelected(props);
   };
-  console.log(data);
+
   return (
     <>
       <SubHeader>
