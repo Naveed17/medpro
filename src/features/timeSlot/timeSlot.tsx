@@ -1,5 +1,5 @@
 // material
-import {Chip, Skeleton, Button} from "@mui/material";
+import {Chip, Skeleton, Button, Badge} from "@mui/material";
 
 // styles
 import {RootStyled} from "./overrides";
@@ -48,17 +48,21 @@ export default function TimeSlot({...props}) {
                 />)
                 :
                 data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
-                    <Chip
-                        {...rest}
-                        key={`time-slot-${index}`}
-                        className={value === item.start ? "active" : ""}
-                        onClick={() => onChange(item.start, index)}
-                        disabled={item.disabled}
-                        label={item.start}
-                        sx={{
-                            mb: "8px !important",
-                        }}
-                    />
+                    <Badge key={`time-slot-${index}`}
+                           badgeContent={item.appointments}
+                           invisible={item.appointments === 0}
+                           color="error">
+                        <Chip
+                            {...rest}
+                            className={value === item.start ? "active" : ""}
+                            onClick={() => onChange(item.start, index)}
+                            disabled={item.disabled}
+                            label={item.start}
+                            sx={{
+                                mb: "8px !important",
+                            }}
+                        />
+                    </Badge>
                 )
             }
             {seeMore && (
