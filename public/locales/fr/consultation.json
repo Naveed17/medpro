@@ -130,9 +130,9 @@
     "medical-imaging": "Imagerie",
     "analyse": "Analyse",
     "bal_sheet_req": "Demande de bilan",
-    "settings": "Configuration document",
+    "settings": "Modifier modèle",
     "qte": "Qte",
-    "alertTitle": "Configuration en-tête",
+    "alertTitle": "Sélectionnez un modèle",
     "alertDesc": "L'en-tête non encore configuré, cliquez sur \"Configurer\" ou vous pouvez configurer l'ip manuellement à partir du Paramètres> Configuration document",
     "notNow": "Pas maintement",
     "now": "Configurer",
@@ -431,7 +431,10 @@
     "surgical_antecedents": "Antécédents chirurgicaux",
     "add-background": "Ajouter Antécédents",
     "register": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "father": "Père",
+    "mother": "Mère",
+    "both": "Les deux"
   }
 }
 

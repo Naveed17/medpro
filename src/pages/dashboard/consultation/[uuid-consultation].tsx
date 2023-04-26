@@ -100,6 +100,9 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
+    const [keys, setKeys] = useState<any[]>([]);
+    const [dates, setDates] = useState<any[]>([]);
+    const [modelData, setModelData] = useState<any>(null);
     const [isHistory, setIsHistory] = useState(false);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
@@ -414,10 +417,9 @@ function ConsultationInProgress() {
                 setNotes(noteHistories);
                 setDiagnostics(diagnosticHistories);
             }
-        }, 2000)
+        }, 500)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
-
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -507,6 +509,29 @@ function ConsultationInProgress() {
         } else setIsHistory(false)
     }, [event, isActive, uuind])
 
+    useEffect(() => {
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r:any )=> {
+            const res = r?.data.data; let dates: string[] = []; let keys: string[] = [];
+
+            Object.keys(res).map(key => {
+                keys.push(key);
+                Object.keys(res[key]).map(date => {
+                    if (dates.indexOf(date) === -1)  dates.push(date);
+                })
+            })
+            setModelData(res);
+            setDates(dates);
+            setKeys(keys)
+        });
+    }, [medical_entity, patient, router, session, trigger])
+
+
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
@@ -519,7 +544,6 @@ function ConsultationInProgress() {
             setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
         }
     }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const sendNotification = () => {
         if (secretary.length > 0) {
             const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
@@ -557,7 +581,6 @@ function ConsultationInProgress() {
             });
         }
     };
-
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
@@ -600,9 +623,6 @@ function ConsultationInProgress() {
             }
         }
     };
-    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
-              setNumPages(numPages);
-          };*/
     const seeHistory = () => {
         setOpenActDialog(true);
         setstateAct(notes)
@@ -787,7 +807,6 @@ function ConsultationInProgress() {
                 break;
         }
     };
-
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
         saveConsultation();
@@ -797,6 +816,7 @@ function ConsultationInProgress() {
         }
 
     }
+
     const {t, ready} = useTranslation("consultation");
 
     if (!ready)
@@ -867,6 +887,7 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                dates,keys,modelData,
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}

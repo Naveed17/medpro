@@ -1,7 +1,7 @@
-import {GetStaticProps} from "next";
+import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -9,20 +9,27 @@ import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
+    Button,
     Card,
     CardContent,
     Checkbox,
     Collapse,
+    DialogActions,
+    FormControl,
     Grid,
     IconButton,
     List,
     ListItem,
     ListItemText,
+    MenuItem,
     Skeleton,
     Stack,
-    TextField, ToggleButton, ToggleButtonGroup,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup,
     Tooltip,
     Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -32,110 +39,92 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
-import dynamic from "next/dynamic";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import { Editor } from '@tinymce/tinymce-react';
-
-const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
-    ssr: false,
-});
+import {Editor} from '@tinymce/tinymce-react';
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
+import {Dialog} from "@features/dialog";
+import {Theme} from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {useAppSelector} from "@app/redux/hooks";
+import Autocomplete from "@mui/material/Autocomplete";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {width} from "@mui/system";
 
 function DocsConfig() {
-    const {data: session} = useSession();
+
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
     const router = useRouter();
     const theme = useTheme();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const isMobile = useMediaQuery("(max-width:669px)");
+
     const {enqueueSnackbar} = useSnackbar();
+    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {direction} = useAppSelector(configSelector);
+
     const componentRef = useRef<HTMLDivElement>(null);
 
     const [files, setFiles] = useState<any[]>([]);
+    const [file, setFile] = useState<File | null>(null);
+    const [types, setTypes] = useState([]);
+    const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [isDefault, setIsDefault] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState<any>();
+    const [docHeader, setDocHeader] = useState(null);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA4',
         content: {
             show: true,
-            maxHeight: 400,
+            maxHeight: 600,
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 70
+            y: 150
         }
     })
-
+    const [queryState, setQueryState] = useState<any>({type: []});
+    const uuid = router.query.uuid;
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const selectedAll = queryState.type.length === types?.length;
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
-
-    const {data: httpProfessionalsResponse} = useRequest({
+    const {data: httpDocumentHeader, mutate} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
+    const {data: httpTypeResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `/api/private/document/types/${router.locale}?is_active=0`,
         headers: {
+            ContentType: "multipart/form-data",
             Authorization: `Bearer ${session?.accessToken}`,
-        }
-    } : null, SWRNoValidateConfig);
-
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-    })
-
-    const handleAlignment = (
-        event: React.MouseEvent<HTMLElement>,
-        newAlignment: string | null,
-    ) => {
-        data.date.textAlign = newAlignment;
-        setData({...data});
-    };
-
-
-    const printNow = () => {
-        handlePrint()
-    }
-
-    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                data.background.content = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})
-            }
-            reader.readAsDataURL(acceptedFiles[0]);
-            setFiles([...files, ...acceptedFiles]);
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [files]
-    );
-
-    const handleRemove = (file: any) => {
-        setFiles(files.filter((_file: any) => _file !== file));
-        data.background.content = ''
-        setData({...data})
-    };
+    });
 
     const formik = useFormik({
         children: undefined,
@@ -159,52 +148,40 @@ function DocsConfig() {
             right3: ""
         }
     })
-
     let {values, getFieldProps, setFieldValue} = formik;
 
-
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
-        data[from].x = location.x
-        data[from].y = location.y
-        setData({...data})
-    }
-
-    const save = () => {
-        const form = new FormData();
-        data.background.content = "";
-        form.append('document_header', JSON.stringify({header: values, data}));
-        trigger({
-            method: "PATCH",
-            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then(() => {
-            mutateDocumentHeader();
-        })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-
-    }
+    useEffect(() => {
+        if (uuid === 'new') {
+            setTimeout(() => {
+                setLoading(false)
+            }, 1000);
+        } else if (httpDocumentHeader)
+            setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+    }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
-        if (httpData) {
-            const docInfo = (httpData as HttpResponse).data
-
-            if (docInfo.header) {
-                setFieldValue("left1", docInfo.header.left1);
-                setFieldValue("left2", docInfo.header.left2);
-                setFieldValue("left3", docInfo.header.left3);
-                setFieldValue("right1", docInfo.header.right1);
-                setFieldValue("right2", docInfo.header.right2);
-                setFieldValue("right3", docInfo.header.right3);
+        if (docHeader) {
+            setTitle((docHeader as DocTemplateModel).title);
+            setIsDefault((docHeader as DocTemplateModel).isDefault);
+            setQueryState({
+                type: ((docHeader as DocTemplateModel).types)
+            });
+            const header = (docHeader as DocTemplateModel).header.header
+            if (header) {
+                setFieldValue("left1", header.left1)
+                setFieldValue("left2", header.left2)
+                setFieldValue("left3", header.left3)
+                setFieldValue("right1", header.right1)
+                setFieldValue("right2", header.right2)
+                setFieldValue("right3", header.right3)
             }
 
-            if (docInfo.data) {
-                if (docInfo.data.footer === undefined)
-                    setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
+            const data = (docHeader as DocTemplateModel).header.data
+            if (data) {
+                if (data.footer === undefined)
+                    setData({...data, footer: {show: true, x: 0, y: 140, content: ''}})
                 else
-                    setData(docInfo.data)
+                    setData(data)
             }
 
             setTimeout(() => {
@@ -213,16 +190,147 @@ function DocsConfig() {
 
             setTimeout(() => {
                 const footer = document.getElementById('footer');
-                if (footer && docInfo.data.footer) footer.innerHTML = docInfo.data.footer.content
+                if (footer && data.footer) footer.innerHTML = data.footer.content
             }, 1200)
 
         }
-    }, [httpData, setFieldValue])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [docHeader])
+
+    useEffect(() => {
+        if (httpTypeResponse)
+            setTypes((httpTypeResponse as HttpResponse).data);
+    }, [httpTypeResponse])
+
+    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                data.background.content = (ev.target?.result as string)
+                data.background.show = true;
+                setData({...data})
+            }
+            reader.readAsDataURL(acceptedFiles[0]);
+            setFile(acceptedFiles[0]);
+            setFiles([...files, ...acceptedFiles]);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [files]
+    );
+    const handleInsuranceChange = (gTypes: any[]) => {
+        setQueryState({
+            type: gTypes
+        });
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+    })
+    const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
+        data.date.textAlign = newAlignment;
+        setData({...data});
+    };
+    const printNow = () => {
+        handlePrint()
+    }
+    const handleRemove = (file: any) => {
+        setFiles(files.filter((_file: any) => _file !== file));
+        data.background.content = ''
+        setFile(null)
+        setData({...data})
+    };
+    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+        data[from].x = location.x
+        data[from].y = location.y
+        setData({...data})
+    }
+    const save = () => {
+        let typeUuids = ""
+        queryState.type.map((type: { uuid: string; }) => {
+            typeUuids += type.uuid + ','
+        });
+        typeUuids = typeUuids.slice(0, -1);
+
+        const form = new FormData();
+        data.background.content = "";
+        form.append('document_header', JSON.stringify({header: values, data}));
+        form.append('title', title);
+        form.append('isDefault', JSON.stringify(isDefault));
+        if (file)
+            form.append('file', file);
+        if (typeUuids.length > 0)
+            form.append('types', typeUuids);
+
+        const url = uuid === 'new' ? `/api/medical-professional/${medical_professional.uuid}/header/${router.locale}` : `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`
+        trigger({
+            method: uuid === 'new' ? "POST" : "PUT",
+            url,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(() => {
+            mutate().then(() => {
+                router.back();
+            });
+        })
+        enqueueSnackbar(t("updated"), {variant: 'success'})
+    }
+    const openDialog = () => {
+        setOpen(true);
+        setSelected({
+            title: t('askRemove'),
+            subtitle: t('subtitleRemove'),
+            icon: "/static/icons/setting/ic-edit-file.svg",
+            name1: title,
+            name2: "",
+            // data: props,
+            request: {
+                method: "DELETE",
+                url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }
+        })
+    }
+    const remove = () => {
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(() => {
+                router.back();
+                enqueueSnackbar(t("removed"), {variant: 'error'})
+            });
+        });
+    }
+    const handleSelectAll = (insurances: any): void => {
+        setQueryState(insurances);
+        handleInsuranceChange(insurances.type);
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
+                </RootStyled>
+
+                {uuid !== 'new' && <Button
+                    type="submit"
+                    variant="contained"
+                    color={"error"}
+                    style={{marginRight: 10}}
+                    onClick={openDialog}>
+                    {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
+                </Button>}
+                <Button
+                    type="submit"
+                    variant="contained"
+                    onClick={save}>
+                    {!isMobile ? t("save") : <ModeEditOutlineRoundedIcon/>}
+                </Button>
+            </SubHeader>
+
             <Grid container>
                 <Grid item xs={12} md={5}>
                     <Box padding={2} style={{background: "white"}}
@@ -248,16 +356,6 @@ function DocsConfig() {
                                             style={{color: theme.palette.grey[400], fontSize: 16}}/>
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title={t("save")} TransitionComponent={Zoom}>
-                                    <IconButton onClick={save} sx={{
-                                        border: "1px solid",
-                                        mr: 1,
-                                        borderRadius: 2,
-                                        color: "primary.main"
-                                    }}>
-                                        <SaveRoundedIcon color={"primary"} style={{fontSize: 16}}/>
-                                    </IconButton>
-                                </Tooltip>
                             </Stack>
                         </Stack>
 
@@ -275,14 +373,71 @@ function DocsConfig() {
                                 variant="outlined"
                                 placeholder={t('titleholder')}
                                 required
-                                type={"number"}
-                                style={{marginBottom:15}}
+                                style={{marginBottom: 15}}
                                 value={title}
                                 onChange={(ev) => {
                                     setTitle(ev.target.value)
                                 }}
                                 fullWidth/>
 
+                            <Typography fontSize={12} color={'#999'} mb={1}>{t('selectTypes')}{" "}
+                                <Typography component="span" color="error">
+                                    *
+                                </Typography>
+                            </Typography>
+
+                            <MuiAutocompleteSelectAll.Provider
+                                value={{
+                                    onSelectAll: (selectedAll) => void handleSelectAll({type: selectedAll ? [] : types}),
+                                    selectedAll,
+                                    indeterminate: !!queryState.type.length && !selectedAll,
+                                }}
+                            >
+                                <Autocomplete
+                                    size={"small"}
+                                    id={"types"}
+                                    multiple
+                                    autoHighlight
+                                    filterSelectedOptions
+                                    limitTags={3}
+                                    noOptionsText={"Aucun type selectionné"}
+                                    ListboxComponent={MuiAutocompleteSelectAll.ListBox}
+                                    value={queryState.type ? queryState.type : []}
+                                    onChange={(event, value) => handleInsuranceChange(value)}
+                                    options={types}
+                                    style={{marginBottom: 15}}
+                                    getOptionLabel={option => option?.name ? option.name : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                    renderOption={(params, option, {selected}) => (
+                                        <MenuItem
+                                            {...params}>
+                                            <Checkbox checked={selected}/>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                        </MenuItem>)}
+                                    renderInput={(params) => (
+                                        <FormControl component="form" fullWidth>
+                                            <TextField color={"info"}
+                                                       {...params}
+                                                       sx={{paddingLeft: 0}}
+                                                       placeholder={""}
+                                                       variant="outlined"
+                                            />
+                                        </FormControl>)}
+                                />
+                            </MuiAutocompleteSelectAll.Provider>
+
+
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={isDefault}
+                                    onChange={(ev) => {
+                                         setIsDefault(ev.target.checked)
+                                    }}
+                                />
+                                <ListItemText primary={t("asDefault")}/>
+                            </ListItem>
+
+                            <div style={{width: '100%',borderTop:'1px solid rgba(0,0,0,.1)',marginBottom:20,marginTop:10}}></div>
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
                                 <legend>{t('configContent')}</legend>
@@ -466,11 +621,24 @@ function DocsConfig() {
                                     <Editor
                                         value={data.footer.content}
                                         apiKey='5z2ufor849kkaz900ye60ztlyfbx8jr7d6uubg6hbgjs5b2j'
-                                        onEditorChange={(res)=>{
+                                        onEditorChange={(res) => {
                                             data.footer.content = res;
                                             setData({...data});
                                         }}
                                         init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            plugins: [
+                                                'advlist autolink lists link image charmap print preview anchor',
+                                                'searchreplace visualblocks code fullscreen textcolor',
+                                                'insertdatetime media table paste code help wordcount'
+                                            ],
+                                            toolbar: 'undo redo | formatselect | ' +
+                                                'bold italic backcolor forecolor | alignleft aligncenter ' +
+                                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                                'removeformat | help',
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
 
                                         }}
                                     />
@@ -613,6 +781,28 @@ function DocsConfig() {
                     </Box>}
                 </Grid>
             </Grid>
+
+
+            <Dialog action={"remove"}
+                    open={open}
+                    data={selected}
+                    direction={direction}
+                    color={(theme: Theme) => theme.palette.error.main}
+                    title={t('remove')}
+                    t={t}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={() => {
+                                setOpen(false);
+                            }}
+                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            <LoadingButton variant="contained"
+                                           loading={loading}
+                                           sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                           onClick={remove}>{t('remove')}</LoadingButton>
+                        </DialogActions>
+                    }
+            />
         </>
     );
 }
@@ -628,6 +818,12 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ])),
     },
 });
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
+    return {
+        paths: [], //indicates that no page needs be created at build time
+        fallback: "blocking", //indicates the type of fallback
+    };
+};
 export default DocsConfig;
 
 DocsConfig.auth = true;

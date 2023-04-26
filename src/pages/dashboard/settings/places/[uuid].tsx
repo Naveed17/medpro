@@ -544,7 +544,7 @@ function PlacesDetail() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={6}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writeAdress")}
@@ -555,16 +555,19 @@ function PlacesDetail() {
                                                 {...getFieldProps("address")}
                                             />
                                         </Grid>
-                                        <Grid item xs={12} lg={1}>
+                                        <Grid item xs={12} lg={2}>
                                             <Typography
                                                 textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("lieux.new.postal")}
+                                                {t("lieux.new.postal")} {" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={3}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writePostal")}
