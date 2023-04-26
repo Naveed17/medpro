@@ -587,7 +587,8 @@
       "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
-      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )"
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
+      "asDefault": "Sélectionnez-le comme module par défaut"
     }
   }
 }
