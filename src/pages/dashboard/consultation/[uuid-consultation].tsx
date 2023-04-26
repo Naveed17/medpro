@@ -100,6 +100,9 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
+    const [keys, setKeys] = useState<any[]>([]);
+    const [dates, setDates] = useState<any[]>([]);
+    const [modelData, setModelData] = useState<any>(null);
     const [isHistory, setIsHistory] = useState(false);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
@@ -506,6 +509,29 @@ function ConsultationInProgress() {
         } else setIsHistory(false)
     }, [event, isActive, uuind])
 
+    useEffect(() => {
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r:any )=> {
+            const res = r?.data.data; let dates: string[] = []; let keys: string[] = [];
+
+            Object.keys(res).map(key => {
+                keys.push(key);
+                Object.keys(res[key]).map(date => {
+                    if (dates.indexOf(date) === -1)  dates.push(date);
+                })
+            })
+            setModelData(res);
+            setDates(dates);
+            setKeys(keys)
+        });
+    }, [medical_entity, patient, router, session, trigger])
+
+
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
@@ -861,6 +887,7 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                dates,keys,modelData,
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}
