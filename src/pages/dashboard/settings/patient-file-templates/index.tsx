@@ -39,6 +39,7 @@ function PatientFileTemplates() {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {data: user} = session as Session;
     const isMobile = useMediaQuery("(max-width:669px)");
+    const [displayedItems, setDisplayedItems] = useState(10);
     const {direction} = useAppSelector(configSelector);
     const router = useRouter();
     const [state, setState] = useState({
@@ -75,7 +76,8 @@ function PatientFileTemplates() {
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse)
+        .medical_entity as MedicalEntityModel;
 
     const {
         data: modalsHttpResponse,
@@ -83,7 +85,11 @@ function PatientFileTemplates() {
         mutate,
     } = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/modals?page=${router.query.page || 1}&limit=10&withPagination=true`,
+        url: `/api/medical-entity/${medical_entity.uuid}/modals${
+            !isMobile
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
+                : ""
+        }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
@@ -94,10 +100,40 @@ function PatientFileTemplates() {
 
     useEffect(() => {
         if (modalsHttpResponse !== undefined) {
-            setRows((modalsHttpResponse as HttpResponse).data);
+            if (isMobile) {
+                setRows((modalsHttpResponse as HttpResponse).data);
+            } else {
+                setRows((modalsHttpResponse as HttpResponse).data?.list);
+            }
         }
-    }, [modalsHttpResponse]);
+    }, [modalsHttpResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+    const handleScroll = () => {
+        const total = (modalsHttpResponse as HttpResponse)?.data.length;
+        if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
+            if (total > displayedItems) {
+                setDisplayedItems(displayedItems + 10);
+            }
+            if (total - displayedItems < 10) {
+                setDisplayedItems(total);
+            }
+        }
+    };
+    useEffect(() => {
+        // Add scroll listener
+        if (isMobile) {
+            let promise = new Promise(function (resolve, reject) {
+                document.body.style.overflow = "hidden";
+                setTimeout(() => {
+                    resolve(window.addEventListener("scroll", handleScroll));
+                }, 2000);
+            });
+            promise.then(() => {
+                return (document.body.style.overflow = "visible");
+            });
+        }
 
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
     const handleChange = (props: ModalModel, event: string, value: string) => {
         props.isEnabled = !props.isEnabled;
         setState({...state});
@@ -185,7 +221,7 @@ function PatientFileTemplates() {
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack spacing={1}>
-                        {rows?.map((row, idx) => (
+                        {rows?.slice(0, displayedItems).map((row, idx) => (
                             <React.Fragment key={idx}>
                                 <FileTemplateMobileCard
                                     data={row}

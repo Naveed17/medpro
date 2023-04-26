@@ -28,7 +28,6 @@ function PreviewDialog({...props}) {
     ];
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
-
         if (pageX) {
             if (state) {
                 const elx = document.createElement('p');
@@ -63,28 +62,35 @@ function PreviewDialog({...props}) {
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                                let val = ""
                                 switch (pr.name) {
                                     case "name":
-                                        val = `• ${el.standard_drug.commercial_name}`;
+                                        const val = `• ${el.standard_drug.commercial_name}`;
+                                        elx.append(val)
+                                        rows.push({
+                                            value: val,
+                                            name: pr.name,
+                                            element: "p",
+                                            style: pr.style
+                                        });
                                         break;
                                     case "dosage":
-                                        val = `${el.dosage}`
-                                        if (el.duration)
-                                            val += ` pendant ${el.duration} ${t(el.duration_type)}`
-                                        if (el.note)
-                                            val += ` (${el.note})`;
+                                        el.cycles.map((cycle: any) => {
+                                            let val = `${cycle.dosage}`
+                                            if (cycle.duration)
+                                                val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
+                                            if (cycle.note)
+                                                val += ` (${cycle.note})`;
+                                            elx.append(val);
+                                            rows.push({
+                                                value: val,
+                                                name: pr.name,
+                                                element: "p",
+                                                style: pr.style
+                                            });
+                                        })
                                         break;
                                 }
-                                elx.append(val)
                                 Object.assign(elx.style, pr.style)
-
-                                rows.push({
-                                    value: val,
-                                    name: pr.name,
-                                    element: "p",
-                                    style: pr.style
-                                })
                                 pageX.appendChild(elx)
 
                             });
@@ -120,7 +126,7 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "black",fontSize: "20px",fontWeight:"bold", marginBottom: 0}
+                                style: {color: "black", fontSize: "20px", fontWeight: "bold", marginBottom: 0}
                             })
 
                             if (el.note) {

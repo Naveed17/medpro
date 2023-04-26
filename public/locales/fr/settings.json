@@ -432,7 +432,8 @@
       "progress": "En cours",
       "success": "Importé",
       "failed": "Échoué",
-      "error": "Échoué"
+      "error": "Échoué",
+      "empty":""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",

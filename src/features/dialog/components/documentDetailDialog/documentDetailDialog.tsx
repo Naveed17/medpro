@@ -228,20 +228,13 @@ function DocumentDetailDialog({...props}) {
             case "edit":
                 switch (state.type) {
                     case "prescription":
-                        const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
-                        state.info.map((drug: { dosage: any; standard_drug: { uuid: any; commercial_name: any; }; duration: any; duration_type: any; note: any; }) => {
-                            prescriptions.push({
-                                dosage: drug.dosage,
-                                drugUuid: drug.standard_drug.uuid,
-                                duration: drug.duration,
-                                durationType: drug.duration_type,
-                                name: drug.standard_drug.commercial_name,
-                                note: drug.note
-                            })
-                        })
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
-                            state: prescriptions,
+                            state: state.info.map((drug: any) => ({
+                                cycles: drug.cycles,
+                                drugUuid: drug.standard_drug.uuid,
+                                name: drug.standard_drug.commercial_name,
+                            })),
                             uuid: state.uuidDoc
                         }))
                         break;
