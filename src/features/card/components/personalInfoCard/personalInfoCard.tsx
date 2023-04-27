@@ -64,9 +64,7 @@ function PersonalInfo({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -121,7 +119,7 @@ function PersonalInfo({...props}) {
         params.append('phone', JSON.stringify(
             patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
                 code: phone.code,
-                value: phone.value,
+                value: phone.value.replace(phone.code, ""),
                 type: "phone",
                 "contact_type": patient.contact[0].uuid,
                 "is_public": false,
@@ -245,6 +243,12 @@ function PersonalInfo({...props}) {
                         </AppBar>
 
                         <Grid container spacing={1}
+                              onClick={() => {
+                                  if (!editable){
+                                      setCurrentSection("PersonalInfo");
+                                      setEditable(true);
+                                  }
+                              }}
                               sx={{
                                   marginTop: "0.4rem"
                               }}>
@@ -277,7 +281,8 @@ function PersonalInfo({...props}) {
                                                     }
                                                 }
                                             })}
-                                        item md={8} sm={6} xs={9}>
+                                        item md={8} sm={6} xs={9}
+                                    >
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (

@@ -3,11 +3,11 @@ import {
     Button,
     CardContent,
     DialogActions,
-    IconButton, InputAdornment,
+    IconButton,
     List,
     ListItem,
     ListItemIcon,
-    Stack, TextField,
+    Stack,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -37,19 +37,18 @@ import {LoadingButton} from "@mui/lab";
 import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
-import SearchIcon from '@mui/icons-material/Search';
+
 const Content = ({...props}) => {
-    const {id, patient} = props;
+    const {id, patient,patientAntecedents,allAntecedents,antecedentsMutate} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
+    const [infoDynamic, setInfoDynamic] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
-    const [state, setState] = useState<
-        AntecedentsModel[] | FamilyAntecedentsModel[]
-    >([]);
+    const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
     const {mutate, mutateDoc} = useAppSelector(consultationSelector);
     const {trigger} = useRequestMutation(null, "/antecedent");
     const router = useRouter();
@@ -64,15 +63,6 @@ const Content = ({...props}) => {
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
-    const codes: any = {
-        way_of_life: "0",
-        allergic: "1",
-        treatment: "2",
-        antecedents: "3",
-        family_antecedents: "4",
-        surgical_antecedents: "5",
-        medical_antecedents: "6",
-    };
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -82,13 +72,13 @@ const Content = ({...props}) => {
     };
     const handleCloseDialog = () => {
         const form = new FormData();
-        if (codes[info]) {
+        if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${codes[info]}/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -98,6 +88,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutate();
+                antecedentsMutate();
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
@@ -117,6 +108,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutate();
+                antecedentsMutate();
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -137,20 +129,24 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutate();
+                antecedentsMutate();
             });
         } else if (info === "medical_imaging_pending") {
             mutate();
+            antecedentsMutate();
             mutateDoc();
         }
 
         setOpenDialog(false);
         setInfo("");
+        setInfoDynamic("");
     };
 
     const dialogSave = () => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(
             () => {
                 mutate();
+                antecedentsMutate();
             }
         );
         setOpenRemove(false);
@@ -164,15 +160,29 @@ const Content = ({...props}) => {
             return;
         }
 
-        if (patient.antecedents[action]) setState(patient.antecedents[action]);
+        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
 
         setInfo(action);
+        setInfoDynamic(action)
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
 
         handleClickDialog();
     };
 
+    const handleOpenDynamic = (action: string) => {
+        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        setInfo("dynamicAnt");
+        setInfoDynamic(action);
+        bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
+        handleClickDialog();
+    }
+
+
     const showDoc = (card: any) => {
+        let type = "";
+        if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+
         if (card.documentType === "medical-certificate") {
             setOpenDialogDoc(true);
             setDocument({
@@ -180,7 +190,7 @@ const Content = ({...props}) => {
                 certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
                 days: card.days,
@@ -203,9 +213,11 @@ const Content = ({...props}) => {
                     break;
                 case "requested-analysis":
                     info = card.requested_Analyses[0].analyses;
+                    uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
             setDocument({
@@ -218,7 +230,7 @@ const Content = ({...props}) => {
                 uuidDoc: uuidDoc,
                 description: card.description,
                 createdAt: card.createdAt,
-                patient: `${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "} ${
+                patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
                 mutate: mutatePatientDocuments,
@@ -256,19 +268,6 @@ const Content = ({...props}) => {
                     <CardContent style={{paddingBottom: pxToRem(15)}}>
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
-                                {patient?.treatment.length > 0 && <TextField
-                                    placeholder={"Exemple: chimio ..."}
-                                    value={treatementFilter}
-                                    onChange={(ev) => {
-                                        setTreatementFilter(ev.target.value);
-                                    }}
-                                    sx={{width: '100%'}}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                            <SearchIcon/>
-                                        </InputAdornment>,
-                                    }}
-                                />}
                                 <List dense>
                                     {patient?.treatment.filter(
                                         (tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
@@ -546,6 +545,7 @@ const Content = ({...props}) => {
                         antecedent={"way_of_life"}
                         t={t}
                         patient={patient}
+                        patientAntecedents={patientAntecedents}
                         trigger={trigger}
                         mutate={mutate}
                         setSelected={setSelected}
@@ -559,10 +559,12 @@ const Content = ({...props}) => {
                 patient && (
                     <Antecedent
                         antecedent={"allergic"}
+                        patientAntecedents={patientAntecedents}
                         t={t}
                         patient={patient}
                         trigger={trigger}
                         mutate={mutate}
+                        antecedentsMutate={antecedentsMutate}
                         session={session}
                         setSelected={setSelected}
                         setOpenRemove={setOpenRemove}
@@ -603,7 +605,7 @@ const Content = ({...props}) => {
                                 </p>
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
-                                        {ri["medical-imaging"].map((list: any, index: number) => (
+                                        {ri["medical-imaging"]?.map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
                                                     <CircleIcon/>
@@ -667,7 +669,7 @@ const Content = ({...props}) => {
                             spacing={2}
                             style={{overflowX: "auto", padding: 10, marginBottom: 5}}
                             direction={"row"}>
-                            {patientDocuments.reverse().map((pdoc: any, idx: number) => (
+                            {patientDocuments.map((pdoc: any, idx: number) => (
                                 <Stack key={`${idx}-item-doc-patient`} onClick={() => {
                                     showDoc(pdoc)
                                 }}>
@@ -699,13 +701,15 @@ const Content = ({...props}) => {
                     </CardContent>
                 </ContentStyled>
             ) : (
-                patient &&
-                Object.keys(patient.antecedents).map(
-                    (antecedent, index) =>
-                        antecedent !== "way_of_life" &&
-                        antecedent !== "allergic" && (
+                patient && patientAntecedents &&
+                allAntecedents.map(
+                    (antecedent: { slug: string; }, index: number) =>
+                        antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && antecedent.slug !== "way_of_life" &&
+                        antecedent.slug !== "allergic" && (
                             <Antecedent
-                                antecedent={antecedent}
+                                antecedent={antecedent.slug}
+                                patientAntecedents={patientAntecedents}
+                                allAntecedents={allAntecedents}
                                 t={t}
                                 patient={patient}
                                 trigger={trigger}
@@ -715,7 +719,7 @@ const Content = ({...props}) => {
                                 setSelected={setSelected}
                                 setOpenRemove={setOpenRemove}
                                 key={`card-content-${antecedent}${index}`}
-                                handleOpen={handleOpen}
+                                handleOpen={handleOpenDynamic}
                                 router={router}
                                 medical_entity={medical_entity}></Antecedent>
                         )
@@ -759,17 +763,19 @@ const Content = ({...props}) => {
                         state: state,
                         setState: setState,
                         patient_uuid: patient.uuid,
-                        action: info,
+                        antecedents: allAntecedents,
+                        action: infoDynamic,
                     }}
                     change={false}
                     max
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={t(info)}
+                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic) ? allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)?.type !== null ? t(infoDynamic):infoDynamic:t(infoDynamic)}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");
+                        setInfoDynamic("");
                     }}
                     actionDialog={
                         <DialogActions>
@@ -777,6 +783,7 @@ const Content = ({...props}) => {
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
+                                    setInfoDynamic("");
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}

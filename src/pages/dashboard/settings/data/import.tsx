@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -26,7 +26,6 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import {read, utils} from "xlsx";
-import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
 import {useAppSelector} from "@app/redux/hooks";
 import dynamic from "next/dynamic";
@@ -38,8 +37,9 @@ import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
+import {DefaultCountry} from "@app/constants";
 
-const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
+const FileUploadProgress = dynamic(() => import("@features/progressUI/components/fileUploadProgress/components/fileUploadProgress"));
 
 function ImportData() {
     const router = useRouter();
@@ -61,7 +61,12 @@ function ImportData() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [TabData] = useState([
@@ -71,12 +76,13 @@ function ImportData() {
             label: "tabs.med",
             content: "tabs.content-1",
         },
-        {
+        ...doctor_country?.code === "tn" ? [{
             key: "med-win",
-            icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
-            label: "tabs.medWin",
+            icon: "ic-upload",
+            variant: "default",
+            label: "tabs.file",
             content: "tabs.content-2",
-        },
+        }] : []
         /*{
             key: "med-link",
             icon: "ic-upload",
@@ -92,15 +98,13 @@ function ImportData() {
         loading: false
     });
     const [typeImport] = useState([
-        {label: "Patients", key: "1"},
+        // {label: "Patients", key: "1"},
         {label: "Toutes les données", key: "2"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
@@ -173,16 +177,8 @@ function ImportData() {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             if (value?.data.status === 'success') {
-                enqueueSnackbar("Importing data in progress", {
-                    persist: true,
-                    preventDuplicate: true,
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                    },
-                    content: (key, message) =>
-                        <CircularProgressbarCard {...{t}} id={key} message={message}/>,
-                });
+                // refresh on going api
+                mutateOnGoing && mutateOnGoing();
                 setLoading(false);
                 setCancelDialog(false);
                 localStorage.setItem("import-data", "true");
