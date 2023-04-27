@@ -191,20 +191,19 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
-        const newDate = moment(`${moment(date).format("DD-MM-YYYY")} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
+        const newDateFormat = moment.utc(date?.toString()).format("DD-MM-YYYY");
+        const newDate = moment(`${newDateFormat} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
         dispatch(setAppointmentDate(newDate));
-
         const updatedRecurringDates = [{
-            id: `${moment(date).format("DD-MM-YYYY")}--${newTime}`,
+            id: `${newDateFormat}--${newTime}`,
             time: newTime,
-            date: moment(date).format("DD-MM-YYYY"),
+            date: newDateFormat,
             status: "success"
         }, ...recurringDates].reduce(
             (unique: RecurringDateModel[], item) =>
                 (unique.find(recurringDate => recurringDate.id === item.id) ? unique : [...unique, item]),
             [],
         );
-
         setRecurringDates(updatedRecurringDates);
         dispatch(setAppointmentRecurringDates(updatedRecurringDates));
         setTime(newTime);

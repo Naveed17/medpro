@@ -63,7 +63,7 @@ export const CustomNode = ({...props}) => {
                 {...(props.node.parent !== 0 && {
                     onClick: event => {
                         event.stopPropagation();
-                        switchPrescriptionModel(props.node.data.drugs)
+                        switchPrescriptionModel(props.node.data.drugs);
                     }
                 })}
                 className={`tree-node`}

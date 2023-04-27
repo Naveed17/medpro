@@ -47,6 +47,11 @@ function ModelPrescriptionList({...props}) {
                     }))
                 ]);
             });
+            parentModels.sort(model => {
+                console.log(model);
+                return model.text === "Répertoire par défaut" && model.parent === 0 ? -1 : 1;
+            });
+            console.log("parentModels", parentModels);
             setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
