@@ -25,7 +25,7 @@ const Prescription = ({...props}) => {
             {!loading && <Box>
                 {data !== undefined && <div className={"portraitA4"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:''}}>
 
-                    {data.background.show && data.background.content !== '' && id === 0 &&
+                    {data.background.show && data.background.content !== '' &&
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={"portraitA4"}
                              style={{position: "absolute", height: '100%',width:'100%'}}

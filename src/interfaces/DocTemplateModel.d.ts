@@ -4,4 +4,5 @@ interface DocTemplateModel {
   isDefault:boolean;
   header:any;
   types:string[];
+  file:string;
 }
