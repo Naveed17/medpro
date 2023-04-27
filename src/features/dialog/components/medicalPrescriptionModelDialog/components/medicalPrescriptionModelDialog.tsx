@@ -26,23 +26,29 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {prescriptionSelector, setModelName, setParentModel} from "@features/dialog";
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {setPrescriptionModel, t, models} = dialogData;
+    const {t, models} = dialogData;
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
+    const dispatch = useAppDispatch();
+
+    const {name: prescriptionName, parent} = useAppSelector(prescriptionSelector);
+
+    const [selectedParent, setSelectedParent] = useState<string>(parent);
+    const [name, setName] = useState<string>(prescriptionName);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "/prescription/model/parent");
 
-    const [selectedParent, setSelectedParent] = useState<any>(models[0]?.uuid);
     const [value, setValue] = useState("");
     const [open, setOpen] = useState(false);
-    const [name, setName] = useState("");
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -60,7 +66,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                 mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`).then(
                     (result) => {
                         const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
-                        setSelectedParent(models[models.length - 1]?.uuid);
+                        dispatch(setParentModel(models[models.length - 1]?.uuid));
                         setOpen(false);
                         setLoading(false);
                     });
@@ -79,7 +85,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                             value={value}
                             onChange={(e) => {
                                 setValue(e.target.value);
-                                setPrescriptionModel(e.target.value);
+                                dispatch(setModelName(e.target.value));
                             }}
                             placeholder={t("new_model", {ns: "consultation"})}
                         />
@@ -91,7 +97,10 @@ function MedicalPrescriptionModelDialog({...props}) {
                 <RadioGroup
                     aria-labelledby="prescription-group-label"
                     value={selectedParent}
-                    onChange={event => setSelectedParent(event.target.value)}
+                    onChange={event => {
+                        setSelectedParent(event.target.value);
+                        dispatch(setParentModel(event.target.value));
+                    }}
                     name="radio-buttons-group"
                 >
                     {models.map((item: any) => (
@@ -108,7 +117,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                                 <FormControlLabel
                                     value={item.uuid}
                                     label={
-                                        <Typography>{item.name === "default" ? "Répertoire par défaut" : item.name}</Typography>}
+                                        <Typography>{item.isDefault ? "Répertoire par défaut" : item.name}</Typography>}
                                     control={<Radio icon={<FolderOpenRoundedIcon/>}
                                                     checkedIcon={<FolderRoundedIcon color={"primary"}/>}/>}/>
                             </Stack>
@@ -155,6 +164,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                         value={name}
                         onChange={(e) => {
                             setName(e.target.value);
+                            dispatch(setModelName(e.target.value));
                             setError(false);
                         }}
                         placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
@@ -173,7 +183,6 @@ function MedicalPrescriptionModelDialog({...props}) {
                         <Button
                             variant="text-black"
                             onClick={() => {
-                                setName("doc");
                                 setOpen(false);
                             }}
                             startIcon={<CloseIcon/>}>

@@ -24,8 +24,8 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
-import {Dialog as CustomDialog, ModelPrescriptionList} from "@features/dialog";
-import {useAppSelector} from "@app/redux/hooks";
+import {Dialog as CustomDialog, ModelPrescriptionList, prescriptionSelector, setParentModel} from "@features/dialog";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -44,11 +44,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {setState: setDrugs, state: drugs} = data;
     const {data: session} = useSession();
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const {direction} = useAppSelector(configSelector);
+    const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
-    const [prescriptionModel, setPrescriptionModel] = useState<string>('');
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
@@ -306,7 +307,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handleSaveDialog = () => {
         const form = new FormData();
         form.append('globalNote', "");
-        form.append('name', prescriptionModel);
+        form.append('name', modelName);
+        form.append('parent', modelParent);
         form.append('drugs', JSON.stringify(drugs));
         triggerPrescriptionModel({
             method: "POST",
@@ -322,6 +324,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
             cycle.dosageInputText : unit && cycle.dosageTime.some((time: any) => time.value) ?
                 `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? t(cycle.dosageMealValue) : ""}` : ""
     }
+
+    const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
+
+    useEffect(() => {
+        if (models && models.length > 0) {
+            dispatch(setParentModel(models[0].uuid));
+        }
+
+    }, [dispatch, models]);
 
     useEffect(() => {
         if (values) {
@@ -348,8 +359,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
 
     return (
         <MedicalPrescriptionCycleStyled>
@@ -759,7 +768,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, setPrescriptionModel, models},
+                    data: {t, dose: true, models},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
@@ -771,7 +780,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 {t("cancel", {ns: "consultation"})}
                             </Button>
                             <LoadingButton
-                                disabled={prescriptionModel.length === 0}
+                                disabled={modelName.length === 0}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}
                                 variant="contained"
                                 onClick={handleSaveDialog}>

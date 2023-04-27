@@ -343,9 +343,16 @@
     "subtitleRemovemodel": "",
     "model": "modèle",
     "dialogs": {
-      "delete-dialog": {
+      "delete-parent-dialog": {
+        "title": "Supprimer dossier",
+        "sub-title": "Voulez-vous vraiment supprimer ce dossier?",
+        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      },
+      "delete-model-dialog": {
         "title": "Supprimer Modéle",
-        "sub-title": "Voulez-vous vraiment supprimer ce Modéle?",
+        "sub-title": "Voulez-vous vraiment supprimer ce modéle?",
         "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
         "cancel": "Annuler",
         "confirm": "Supprimer"

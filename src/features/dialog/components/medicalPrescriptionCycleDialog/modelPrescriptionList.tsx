@@ -14,15 +14,37 @@ import {
 import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
+import {useRequestMutation} from "@app/axios";
+import {setParentModel} from "@features/dialog";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {useSWRConfig} from "swr";
+import {Session} from "next-auth";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, switchPrescriptionModel} = props;
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {mutate} = useSWRConfig();
 
     const [treeData, setTreeData] = useState<any[]>([]);
 
-    const handleDrop = (newTree: any, {dragSourceId, dropTargetId, dragSource, dropTarget}: any) => {
-        // Do something
-        console.log(dragSourceId, dropTargetId, dragSource, dropTarget);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerPrescriptionEdit} = useRequestMutation(null, "/prescription/model/edit");
+
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+        const form = new FormData();
+        form.append("parent", dropTargetId);
+        triggerPrescriptionEdit({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }).then(() => {
+            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`);
+        });
         setTreeData(newTree);
     }
 
@@ -35,7 +57,7 @@ function ModelPrescriptionList({...props}) {
                         id: model.uuid,
                         parent: 0,
                         droppable: true,
-                        text: model.name === "default" ? "Répertoire par défaut" : model.name
+                        text: model.isDefault ? "Répertoire par défaut" : model.name
                     },
                     ...model.prescriptionModels.map((prescription) => ({
                         id: prescription.uuid,
@@ -48,10 +70,8 @@ function ModelPrescriptionList({...props}) {
                 ]);
             });
             parentModels.sort(model => {
-                console.log(model);
-                return model.text === "Répertoire par défaut" && model.parent === 0 ? -1 : 1;
+                return model.isDefault ? -1 : 1;
             });
-            console.log("parentModels", parentModels);
             setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
