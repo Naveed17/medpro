@@ -86,7 +86,7 @@ function DocsConfig() {
     const [isDefault, setIsDefault] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
-    const [docHeader, setDocHeader] = useState(null);
+    const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
@@ -179,9 +179,9 @@ function DocsConfig() {
             const data = (docHeader as DocTemplateModel).header.data
             if (data) {
                 if (data.footer === undefined)
-                    setData({...data, footer: {show: true, x: 0, y: 140, content: ''}})
+                    setData({...data, footer: {show: true, x: 0, y: 140, content: ''},background:{show:docHeader.file !==null,content:docHeader.file ? docHeader.file:''}})
                 else
-                    setData(data)
+                    setData({...data,background:{show:docHeader.file !==null,content:docHeader.file ? docHeader.file:''}})
             }
 
             setTimeout(() => {

@@ -40,7 +40,13 @@ function TemplatesConfig() {
 
     useEffect(()=>{
         if (httpDocumentHeader){
-            setDocs((httpDocumentHeader as HttpResponse).data)
+            const dcs = (httpDocumentHeader as HttpResponse).data;
+            dcs.map((dc:DocTemplateModel) => {
+                if (dc.file) {
+                    dc.header.data.background.content = dc.file
+                }
+            });
+            setDocs(dcs)
             setTimeout(()=>{
                 setLoading(false)
             },500)
