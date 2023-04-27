@@ -32,6 +32,9 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { useSnackbar } from "notistack";
 import { LoadingScreen } from "@features/loadingScreen";
 import { DefaultCountry } from "@app/constants";
+import { ActFeesMobileCard } from "@features/card";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 
 interface HeadCell {
   disablePadding: boolean;
@@ -81,6 +84,7 @@ function ActFees() {
   const [mainActes, setMainActes] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [create, setCreate] = useState(false);
+  const [displayedItems, setDisplayedItems] = useState(10);
   const [consultationFees, setConsultationFees] = useState(0);
   const [newFees, setNewFees] = useState<{
     act: ActModel | string | null;
@@ -97,7 +101,9 @@ function ActFees() {
     ? medical_entity.country
     : DefaultCountry;
   const devise = doctor_country.currency?.name;
-
+  const isMobile = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down("sm")
+  );
   const { trigger } = useRequestMutation(null, "/settings/acts");
   const { trigger: triggerAddAct } = useRequestMutation(
     null,
@@ -123,9 +129,11 @@ function ActFees() {
       method: "GET",
       url: `/api/medical-entity/${medical_entity.uuid}/professionals/${
         medical_professional.uuid
-      }/acts/${router.locale}?page=${
-        router.query.page || 1
-      }&limit=10&withPagination=true`,
+      }/acts/${router.locale}${
+        !isMobile
+          ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
+          : ""
+      }`,
       headers: { Authorization: `Bearer ${session?.accessToken}` },
     },
     SWRNoValidateConfig
@@ -140,10 +148,6 @@ function ActFees() {
     SWRNoValidateConfig
   );
 
-  const isMobile = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.down("sm")
-  );
-
   useEffect(() => {
     if (httpMPResponse) {
       const mpRes = (httpMPResponse as HttpResponse)?.data[0];
@@ -153,12 +157,19 @@ function ActFees() {
 
   useEffect(() => {
     setLoading(true);
+
     if (httpProfessionalsActs !== undefined) {
-      const response = (
-        httpProfessionalsActs as HttpResponse
-      ).data?.list.reverse();
-      setMainActes(response as ActModel[]);
-      setLoading(false);
+      if (isMobile) {
+        const response = (httpProfessionalsActs as HttpResponse).data.reverse();
+        setMainActes(response as ActModel[]);
+        setLoading(false);
+      } else {
+        const response = (
+          httpProfessionalsActs as HttpResponse
+        ).data?.list.reverse();
+        setMainActes(response as ActModel[]);
+        setLoading(false);
+      }
     }
   }, [httpProfessionalsActs]);
 
@@ -300,6 +311,34 @@ function ActFees() {
       });
     });
   };
+  const handleScroll = () => {
+    const total = (httpProfessionalsActs as HttpResponse)?.data.length;
+    if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
+      setLoading(true);
+      if (total > displayedItems) {
+        setDisplayedItems(displayedItems + 10);
+      }
+      if (total - displayedItems < 10) {
+        setDisplayedItems(total);
+      }
+    }
+  };
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    // Add scroll listener
+    if (isMobile) {
+      let promise = new Promise(function (resolve, reject) {
+        document.body.style.overflow = "hidden";
+        setTimeout(() => {
+          resolve(window.addEventListener("scroll", handleScroll));
+        }, 2000);
+      });
+      promise.then(() => {
+        return (document.body.style.overflow = "visible");
+      });
+    }
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [httpProfessionalsActs, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
@@ -531,17 +570,35 @@ function ActFees() {
             </Stack>
           </Stack>
         )}
-        <Otable
-          headers={headCells}
-          rows={mainActes}
-          from={"actfees"}
-          edit={handleEdit}
-          remove={removeFees}
-          {...{ t, loading }}
-          total={(httpProfessionalsActs as HttpResponse)?.data?.total}
-          totalPages={(httpProfessionalsActs as HttpResponse)?.data?.totalPages}
-          pagination
-        />
+        <DesktopContainer>
+          <Otable
+            headers={headCells}
+            rows={mainActes}
+            from={"actfees"}
+            edit={handleEdit}
+            remove={removeFees}
+            {...{ t, loading }}
+            total={(httpProfessionalsActs as HttpResponse)?.data?.total}
+            totalPages={
+              (httpProfessionalsActs as HttpResponse)?.data?.totalPages
+            }
+            pagination
+          />
+        </DesktopContainer>
+        <MobileContainer>
+          <Stack spacing={1}>
+            {mainActes.slice(0, displayedItems).map((act: any) => (
+              <React.Fragment key={act.uuid}>
+                <ActFeesMobileCard
+                  data={act}
+                  editMotif={handleEdit}
+                  remove={removeFees}
+                  {...{ t }}
+                />
+              </React.Fragment>
+            ))}
+          </Stack>
+        </MobileContainer>
       </Box>
     </>
   );
