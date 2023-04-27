@@ -27,7 +27,6 @@ function PreviewDialog({...props}) {
     ];
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
-
         if (pageX) {
             if (state) {
                 const elx = document.createElement('p');

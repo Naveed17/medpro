@@ -20,6 +20,13 @@ declare module "next-auth" {
         error: string;
     }
 }
+
+declare module "notistack" {
+    interface VariantOverrides {
+        // adds `offline` variant
+        offline: true;
+    }
+}
 declare module "@mui/material/Button" {
     interface ButtonPropsVariantOverrides {
         google: true;

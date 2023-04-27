@@ -87,7 +87,7 @@ function ConsultationType() {
 
       return () => window.removeEventListener("scroll", handleScroll);
     }
-  }, [data, displayedItems]);
+  }, [data, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
   const closeDraw = () => {
     setEdit(false);
   };

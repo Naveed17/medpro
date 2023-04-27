@@ -121,7 +121,11 @@ function ActFees() {
   const { data: httpProfessionalsActs, mutate } = useRequest(
     {
       method: "GET",
-      url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+      url: `/api/medical-entity/${medical_entity.uuid}/professionals/${
+        medical_professional.uuid
+      }/acts/${router.locale}?page=${
+        router.query.page || 1
+      }&limit=10&withPagination=true`,
       headers: { Authorization: `Bearer ${session?.accessToken}` },
     },
     SWRNoValidateConfig
@@ -150,7 +154,9 @@ function ActFees() {
   useEffect(() => {
     setLoading(true);
     if (httpProfessionalsActs !== undefined) {
-      const response = (httpProfessionalsActs as HttpResponse).data.reverse();
+      const response = (
+        httpProfessionalsActs as HttpResponse
+      ).data?.list.reverse();
       setMainActes(response as ActModel[]);
       setLoading(false);
     }
@@ -258,6 +264,7 @@ function ActFees() {
         handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name);
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       medical_entity.uuid,
       medical_professional.uuid,
@@ -266,7 +273,7 @@ function ActFees() {
       session?.accessToken,
       triggerAddAct,
     ]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const handleEdit = (v: any, fees: string, name?: string) => {
     const form = new FormData();
@@ -524,7 +531,6 @@ function ActFees() {
             </Stack>
           </Stack>
         )}
-
         <Otable
           headers={headCells}
           rows={mainActes}
@@ -532,6 +538,9 @@ function ActFees() {
           edit={handleEdit}
           remove={removeFees}
           {...{ t, loading }}
+          total={(httpProfessionalsActs as HttpResponse)?.data?.total}
+          totalPages={(httpProfessionalsActs as HttpResponse)?.data?.totalPages}
+          pagination
         />
       </Box>
     </>

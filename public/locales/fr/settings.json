@@ -15,7 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "configdoc": "Configuration document",
+    "configdoc": "Documents",
     "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
@@ -432,7 +432,8 @@
       "progress": "En cours",
       "success": "Importé",
       "failed": "Échoué",
-      "error": "Échoué"
+      "error": "Échoué",
+      "empty":""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
@@ -549,7 +550,7 @@
   },
   "documents": {
     "config": {
-      "path": "Paramètres > Configuration ",
+      "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
       "case1": "Première case",
@@ -557,7 +558,8 @@
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "Document modèle modifé",
+      "updated": "Document enregistré",
+      "removed": "Document supprimé",
       "background": "Importer le document actuel",
       "title": "Titre du document",
       "date": "Date",
@@ -577,7 +579,16 @@
       "rightSide": "Côté droit",
       "paperSize": "Taille de papier",
       "A5": "A5",
-      "A4": "A4"
+      "A4": "A4",
+      "add": "Ajouter document",
+      "titleModel": "Titre du modèle",
+      "cancel": "Annuler",
+      "askRemove": "Supprimer un modèle",
+      "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
+      "remove": "Supprimer",
+      "titleholder": "Ordonnance...",
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
+      "asDefault": "Sélectionnez-le comme module par défaut"
     }
   }
 }

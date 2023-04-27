@@ -39,10 +39,10 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import ReactPDF, {PDFViewer} from "@react-pdf/renderer";
+import {PDFViewer} from "@react-pdf/renderer";
 
 function a11yProps(index: number) {
     return {
@@ -70,8 +70,6 @@ function PatientDetail({...props}) {
         isAddAppointment = false,
         currentStepper = 0,
         onCloseDialog,
-        onChangeStepper,
-        onAddAppointment,
         onConsultation = null,
         onConsultationStart = null,
         mutate: mutatePatientList,
@@ -188,10 +186,6 @@ function PatientDetail({...props}) {
         dispatch(onOpenPatientDrawer({patientId: ""}));
         onCloseDialog(false);
     }
-    const download = () => {
-        console.log(patient);
-        console.log(antecedentsData);
-    }
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -201,7 +195,7 @@ function PatientDetail({...props}) {
     };
 
     const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
+        const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
             steps[index].disabled = false;
             setStepperData(steps);
@@ -350,7 +344,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData,t}} />
+                <PatientFile {...{patient, antecedentsData, t}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
@@ -364,7 +358,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog} download={download}/>
+                    <PatientDetailsToolbar onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}

@@ -1,3 +1,17 @@
+## [4.17.4](https://github.com/SmartMedSA/med-pro/compare/v4.17.3...v4.17.4) (2023-04-25)
+
+
+### Bug Fixes
+
+* calendar format date bug ([9190e53](https://github.com/SmartMedSA/med-pro/commit/9190e535a09d661e6495a96b92b2d19379e6d8ef))
+
+## [4.17.3](https://github.com/SmartMedSA/med-pro/compare/v4.17.2...v4.17.3) (2023-04-24)
+
+
+### Bug Fixes
+
+* disable maps in maroc ([f33cdc4](https://github.com/SmartMedSA/med-pro/commit/f33cdc4d5b3f38cac0daf63be0d6462db2c7a25f))
+
 ## [4.17.2](https://github.com/SmartMedSA/med-pro/compare/v4.17.1...v4.17.2) (2023-04-12)
 
 

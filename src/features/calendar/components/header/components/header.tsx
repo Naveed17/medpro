@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 
 function Header({...props}) {
     const {isGridWeek, event, isMobile} = props;
-    const date = moment(event.date);
+    const date = moment(event.date.toLocaleDateString("fr"), "DD/MM/YYYY");
 
     return (
         <div className="header-day-main">

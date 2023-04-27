@@ -18,6 +18,7 @@ import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
+import {DefaultCountry} from "@app/constants";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -29,6 +30,8 @@ function Lieux() {
     const router = useRouter();
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+
     const [rows, setRows] = useState<MedicalEntityLocationModel[]>([])
     const [selected, setSelected] = useState<any>();
     const [cords, setCords] = useState<any[]>([]);
@@ -246,12 +249,10 @@ function Lieux() {
                 />
 
 
-                {
-                    rows.length > 0 &&
+                {(doctor_country?.code !== "ma" && rows.length > 0) &&
                     <Maps data={cords}
                           outerBounds={outerBounds}
-                          draggable={false}/>
-                }
+                          draggable={false}/>}
             </Box>
         </>
     );

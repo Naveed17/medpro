@@ -54,8 +54,7 @@ function LifeStyleDialog({...props}) {
             let items = state.map(item => ({...item}));
             items.map((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    console.log(item);
-                    item.response = item.antecedentValues[0].uuid
+                    item.response = item.response[0].uuid
                 }
             })
             setState(items)
@@ -142,7 +141,7 @@ function LifeStyleDialog({...props}) {
                                         <>
 
                                             <Stack spacing={1} direction={'row'}>
-                                                <TextField
+                                                {!list.hideStartTime &&<TextField
                                                     name={`${list.uuid}`}
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
                                                     placeholder={t('starting_year')}
@@ -153,8 +152,8 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.startDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
-                                                <TextField
+                                                    }/>}
+                                                {!list.hideEndTime &&<TextField
                                                     name={`${list.uuid}`}
                                                     sx={{width: 130}}
                                                     value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
@@ -165,7 +164,7 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.endDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
+                                                    }/>}
                                             </Stack>
                                             {action ==='family_antecedents' && <Stack spacing={1} direction={'row'}>
                                                 <FormControlLabel
@@ -247,7 +246,7 @@ function LifeStyleDialog({...props}) {
                                                     }
                                                     }/>
                                             }
-                                            {
+                                            { !list.hideNote &&
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
                                                     placeholder={t('note2')}
@@ -264,7 +263,7 @@ function LifeStyleDialog({...props}) {
                                                 list.value_type === 2 &&
                                                 <>
                                                     <Typography fontSize={10} mt={2}
-                                                                ml={1}>{t('selectPlz')}</Typography>
+                                                                ml={1}>{t('selectPlz')} <span style={{color:"red"}}> *</span></Typography>
                                                     <Stack direction={'row'} spacing={1} mb={1} ml={1}>
                                                         {list.values.map((val: { uuid: string; value: string }) => (
                                                             <FormControlLabel
