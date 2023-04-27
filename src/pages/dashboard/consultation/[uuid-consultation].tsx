@@ -1,4 +1,4 @@
-import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
@@ -36,7 +36,7 @@ import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule,} from "@features/tabPanel";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from "react-simple-image-viewer";
-import {Widget} from "@features/widget";
+import {WidgetForm} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -50,21 +50,6 @@ import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-const WidgetForm: any = memo(
-    ({src, ...props}: any) => {
-        const {modal, data, setSM, models, appuuid, changes, setChanges, handleClosePanel, isClose} = props;
-        return (
-            <Widget
-                {...{modal, data, models, appuuid, changes, setChanges, isClose}}
-                setModal={setSM}
-                handleClosePanel={handleClosePanel}></Widget>
-        );
-    },
-    // NEVER UPDATE
-    () => true
-);
-WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -106,12 +91,18 @@ function ConsultationInProgress() {
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [loadingApp, setLoadingApp] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
+    const [notes, setNotes] = useState<any[]>([]);
+    const [diagnostics, setDiagnostics] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
+    const [keys, setKeys] = useState<any[]>([]);
+    const [dates, setDates] = useState<any[]>([]);
+    const [modelData, setModelData] = useState<any>(null);
     const [isHistory, setIsHistory] = useState(false);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
@@ -251,7 +242,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }
-            : null
+            : null, SWRNoValidateConfig
     );
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
@@ -354,7 +345,7 @@ function ConsultationInProgress() {
                 dispatch(SetMutationDoc(mutateDoc));
 
                 setTimeout(() => {
-                    if (appointement.acts) {
+                    if (appointement.acts && !loadingApp) {
                         let sAct: any[] = [];
                         appointement.acts.map(
                             (act: { act_uuid: string; price: any; qte: any }) => {
@@ -380,30 +371,55 @@ function ConsultationInProgress() {
                         setSelectedAct(sAct);
                         setActs([...acts]);
                     }
-                }, 500);
+                }, 1000);
+
             }
         }
-    }, [appointement, httpMPResponse, dispatch, mutate, uuind, consultationFees, mutateDoc]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointement, httpMPResponse, uuind, consultationFees]);
 
     useEffect(() => {
         if (httpMPResponse) {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
+            if (!loadingApp)
+                setConsultationFees(Number(mpRes.consultation_fees));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [httpMPResponse]);
 
     useEffect(() => {
         setTimeout(() => {
             if (appointement) {
-                const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
-                setFree(checkFree);
-                if (!checkFree) setTotal(consultationFees);
-                if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+                if (!loadingApp) {
+                    const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
+                    setFree(checkFree);
+                    if (!checkFree) setTotal(consultationFees);
+                    if (appointement.fees) setTotal(appointement.fees)
+                    if (appointement.consultation_fees) {
+                        setConsultationFees(Number(appointement.consultation_fees));
+                    } else if (appointement.type.isFree !== null && !appointement.type.isFree && appointement.type.price) {
+                        setConsultationFees(Number(appointement.type.price));
+                    }
+                }
+                setLoadingApp(true);
+                let noteHistories: any[] = []
+                let diagnosticHistories: any[] = []
+                appointement.latestAppointments.map((app: any) => {
+                    const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                    const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
+                    if (note && note.value !== '') {
+                        noteHistories.push({data: app.appointment.dayDate, value: note.value})
+                    }
+                    if (diagnostics && diagnostics.value !== '') {
+                        diagnosticHistories.push({data: app.appointment.dayDate, value: diagnostics.value})
+                    }
+                })
+                setNotes(noteHistories);
+                setDiagnostics(diagnosticHistories);
             }
-        }, 2000)
+        }, 500)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
-
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -493,6 +509,29 @@ function ConsultationInProgress() {
         } else setIsHistory(false)
     }, [event, isActive, uuind])
 
+    useEffect(() => {
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r:any )=> {
+            const res = r?.data.data; let dates: string[] = []; let keys: string[] = [];
+
+            Object.keys(res).map(key => {
+                keys.push(key);
+                Object.keys(res[key]).map(date => {
+                    if (dates.indexOf(date) === -1)  dates.push(date);
+                })
+            })
+            setModelData(res);
+            setDates(dates);
+            setKeys(keys)
+        });
+    }, [medical_entity, patient, router, session, trigger])
+
+
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
@@ -505,7 +544,6 @@ function ConsultationInProgress() {
             setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
         }
     }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const sendNotification = () => {
         if (secretary.length > 0) {
             const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
@@ -543,7 +581,6 @@ function ConsultationInProgress() {
             });
         }
     };
-
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
@@ -586,19 +623,13 @@ function ConsultationInProgress() {
             }
         }
     };
-    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
-              setNumPages(numPages);
-          };*/
     const seeHistory = () => {
-        let histories: any[] = []
-        appointement.latestAppointments.map((app: any) => {
-            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-            if (note && note.value !== '') {
-                histories.push({data: app.appointment.dayDate, value: note.value})
-            }
-        })
         setOpenActDialog(true);
-        setstateAct(histories)
+        setstateAct(notes)
+    }
+    const seeHistoryDiagnostic = () => {
+        setOpenActDialog(true);
+        setstateAct(diagnostics)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -743,6 +774,7 @@ function ConsultationInProgress() {
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
             setState({
@@ -775,7 +807,6 @@ function ConsultationInProgress() {
                 break;
         }
     };
-
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
         saveConsultation();
@@ -785,6 +816,7 @@ function ConsultationInProgress() {
         }
 
     }
+
     const {t, ready} = useTranslation("consultation");
 
     if (!ready)
@@ -855,6 +887,7 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                dates,keys,modelData,
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}
@@ -908,7 +941,10 @@ function ConsultationInProgress() {
                                         mutateDoc,
                                         medical_entity,
                                         session,
+                                        notes,
+                                        diagnostics,
                                         seeHistory,
+                                        seeHistoryDiagnostic,
                                         router,
                                     }}
                                 />
@@ -950,7 +986,7 @@ function ConsultationInProgress() {
                                     patient,
                                     editAct,
                                     setTotal,
-                                    t,
+                                    t, router
                                 }}></FeesTab>
                         )}
                     </TabPanel>

@@ -62,7 +62,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
         time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
-        title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
+        title: appointment.patient?.firstName + ' ' + appointment.patient?.lastName,
         allDay: horsWork,
         eventStartEditable: !["FINISHED", "ON_GOING"].includes(AppointmentStatus[appointment.status].key),
         eventResizableFromStart: !["FINISHED", "ON_GOING"].includes(AppointmentStatus[appointment.status].key),
@@ -87,3 +87,4 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         status: AppointmentStatus[appointment.status]
     }
 }
+

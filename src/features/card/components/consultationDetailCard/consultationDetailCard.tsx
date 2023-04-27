@@ -11,23 +11,31 @@ import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges, uuind, seeHistory} = props;
+    const {exam: defaultExam,
+        changes,
+        setChanges,
+        uuind,
+        notes,
+        diagnostics,
+        seeHistory,
+        seeHistoryDiagnostic} = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
 
     const {exam, listen} = useAppSelector(consultationSelector);
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [loadingReq, setLoadingReq] = useState(false);
-    const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
 
@@ -36,6 +44,12 @@ function CIPPatientHistoryCard({...props}) {
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
+
+    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
@@ -57,50 +71,6 @@ function CIPPatientHistoryCard({...props}) {
 
     const {handleSubmit, values, setFieldValue} = formik;
 
-    useEffect(() => {
-        if (defaultExam) {
-            setCReason(defaultExam?.consultation_reasons);
-            // set data data from local storage to redux
-
-        }
-    }, [defaultExam]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        dispatch(
-            SetExam({
-                motif: storageData?.motif ? storageData.motif :
-                    (app_data?.consultation_reason ?
-                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
-                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
-                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-                treatment: exam.treatment
-            })
-        );
-    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (isStarted) {
-            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
-            setFieldValue("notes", notes);
-            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                ...storageData,
-                notes
-            }));
-            // set data data from local storage to redux
-            dispatch(
-                SetExam({
-                    notes
-                })
-            );
-        }
-    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        const item = changes.find((change: { name: string }) => change.name === "fiche")
-        item.checked = Object.values(values).filter(val => val !== '').length > 0;
-        setChanges([...changes])
-    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
-
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -113,6 +83,7 @@ function CIPPatientHistoryCard({...props}) {
         }
 
     }
+
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -151,22 +122,54 @@ function CIPPatientHistoryCard({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => triggerGetReasons({
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then((result: any) => {
+        }).then(() => mutateReasonsData().then((result: any) => {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
-                setCReason(reasonsUpdated);
-                handleReasonChange([...cReason.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                handleReasonChange([...reasons.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
             }
             setLoadingReq(false);
         }));
     }
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    useEffect(() => {
+        dispatch(
+            SetExam({
+                motif: storageData?.motif ? storageData.motif :
+                    (app_data?.consultation_reason ?
+                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
+                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
+                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                treatment: exam.treatment
+            })
+        );
+    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (isStarted) {
+            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
+            setFieldValue("notes", notes);
+            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+                ...storageData,
+                notes
+            }));
+            // set data data from local storage to redux
+            dispatch(
+                SetExam({
+                    notes
+                })
+            );
+        }
+    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const item = changes.find((change: { name: string }) => change.name === "fiche")
+        item.checked = Object.values(values).filter(val => val !== '').length > 0;
+        setChanges([...changes])
+    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
+
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -195,13 +198,13 @@ function CIPPatientHistoryCard({...props}) {
                             </Typography>
                             <Autocomplete
                                 id={"motif"}
-                                disabled={!cReason}
+                                disabled={!reasons}
                                 freeSolo
                                 multiple
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={values.motif ? cReason.filter(reason => values.motif.includes(reason.uuid)) : []}
+                                value={values.motif && reasons ? reasons.filter(reason => values.motif.includes(reason.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
                                     const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
@@ -226,8 +229,8 @@ function CIPPatientHistoryCard({...props}) {
                                     return filtered;
                                 }}
                                 sx={{color: "text.secondary"}}
-                                options={cReason ? cReason.filter(item => item.isEnabled) : []}
-                                loading={cReason?.length === 0}
+                                options={reasons ? reasons.filter(item => item.isEnabled) : []}
+                                loading={reasons?.length === 0}
                                 getOptionLabel={(option) => {
                                     // Value selected with enter, right from the input
                                     if (typeof option === 'string') {
@@ -267,21 +270,21 @@ function CIPPatientHistoryCard({...props}) {
                                                                   variant="outlined" fullWidth/>}/>
                         </Box>
                         <Box>
-                            {<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
                                 <Typography variant="body2" fontWeight={500}>
                                     {t("notes")}
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        {notes?.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
                                             seeHistory()
-                                        }}>{t('seeHistory')}</Typography>
+                                        }}>{t('seeHistory')}</Typography>}
                                     </>}
                                     <RecButton onClick={() => {
                                         startStopRec();
                                     }}/>
                                 </Stack>
-                            </Stack>}
+                            </Stack>
                             <TextField
                                 fullWidth
                                 multiline
@@ -304,9 +307,16 @@ function CIPPatientHistoryCard({...props}) {
                             />
                         </Box>
                         <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("diagnosis")}
-                            </Typography>
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
+                                <Typography variant="body2" fontWeight={500}>
+                                    {t("diagnosis")}
+                                </Typography>
+
+                                {diagnostics.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                    seeHistoryDiagnostic()
+                                }}>{t('seeHistory')}</Typography>}
+                            </Stack>
+
                             <TextField
                                 fullWidth
                                 id={"diagnosis"}

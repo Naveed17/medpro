@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {firebaseCloudMessaging} from "@app/firebase";
+import {firebaseCloudSdk} from "@app/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Dialog,
@@ -25,7 +25,7 @@ import {
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {useSnackbar} from "notistack";
+import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {setTimer} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
@@ -34,6 +34,7 @@ import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
+import {setUserId, setUserProperties} from "@firebase/analytics";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -56,11 +57,13 @@ function FcmLayout({...props}) {
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
+    const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
@@ -83,10 +86,7 @@ function FcmLayout({...props}) {
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-
-    const handleClickOpen = () => {
-        setOpenDialog(true);
-    };
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -94,7 +94,7 @@ function FcmLayout({...props}) {
 
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
-        const messaging = getMessaging(firebaseCloudMessaging.firebase);
+        const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
             if (data.type === "no_action") {
@@ -171,10 +171,19 @@ function FcmLayout({...props}) {
 
     const setToken = async () => {
         try {
-            const token = await firebaseCloudMessaging.init();
+            const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
                 setFcmToken(token as string);
                 getFcmMessage();
+            }
+            if (analytics) {
+                // identify firebase analytics user
+                setUserId(analytics, general_information.uuid);
+                setUserProperties(analytics, {
+                    name: `${general_information.firstName} ${general_information.lastName}`,
+                    email: general_information.email,
+                    role: roles[0]
+                });
             }
         } catch (error) {
             console.log(error);
@@ -183,7 +192,7 @@ function FcmLayout({...props}) {
 
     const setRefreshToken = async (topicName: string, fcm_api_key: string) => {
         localStorage.removeItem("fcm_token");
-        const refreshToken = await firebaseCloudMessaging.init();
+        const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
             setFcmToken(refreshToken as string);
@@ -235,14 +244,13 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
-            const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
                     name: `${general_information.firstName} ${general_information.lastName}`,
                     email: general_information.email,
-                    role: general_information.roles[0]
+                    role: roles[0]
                 });
             }
         }
@@ -250,11 +258,27 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         setToken();
-
         // Event listener that listens for the push notification event in the background
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
+            });
+        }
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                // when we're back online
+                closeSnackbar(noConnection);
+                setNoConnection(undefined);
+            });
+
+            window.addEventListener("offline", () => {
+                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
+                    key: "offline",
+                    variant: 'error',
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
+                    persist: true
+                }));
             });
         }
     });

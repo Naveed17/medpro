@@ -38,7 +38,7 @@ import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, PhoneRegExp} from "@app/constants";
+import {DefaultCountry} from "@app/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
@@ -290,6 +290,13 @@ function PatientContactDetailCard({...props}) {
                                 </Divider>
 
                                 <Grid item md={12} sm={12} xs={12}
+                                      onClick={()=>{
+                                          if (!editable){
+                                              setCurrentSection("PatientContactDetailCard");
+                                              setEditable(true)
+                                          }
+                                      }
+                                      }
                                       sx={{
                                           "& .MuiInputBase-readOnly": {
                                               ml: "0.3rem"
@@ -307,7 +314,8 @@ function PatientContactDetailCard({...props}) {
                                             </Typography>
                                         </Grid>
                                         <Grid
-                                            {...(editable && {className: "grid-border"})}
+                                            {...(editable && {className: "grid-border"} )}
+                                            {...(editable  && {style:{height: 120,paddingTop:10}})}
                                             item md={10.54} sm={9} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
@@ -315,12 +323,13 @@ function PatientContactDetailCard({...props}) {
                                                 <InputBase
                                                     readOnly={!editable}
                                                     sx={{width: "100%"}}
+                                                    multiline={editable}
+                                                    rows={editable ?5:1}
                                                     placeholder={t("address-placeholder")}
                                                     inputProps={{
-                                                        rows: 6,
                                                         style: {
                                                             background: "white",
-                                                            fontSize: 14
+                                                            fontSize: 14,
                                                         },
                                                     }}
                                                     {...getFieldProps("address")}
@@ -520,8 +529,7 @@ function PatientContactDetailCard({...props}) {
                                             <Typography
                                                 className="label"
                                                 variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
+                                                color="text.secondary">
                                                 {t("zip_code")}
                                             </Typography>
                                         </Grid>

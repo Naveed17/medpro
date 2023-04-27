@@ -155,7 +155,38 @@ main {
     margin: 0.4rem;
   }
 }
-
+.form-control-title {
+  label {
+    width: 6rem;
+    margin-top: 0.4rem;
+    margin-right: 1em;
+    color: #7C878E;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  input{
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+.checkbox-formio{
+  width: fit-content;
+  margin: auto;
+}
+.formio-component-table{
+  .table{
+    width: 100%;
+  }
+  .sr-only{
+    visibility: hidden;
+    height: 0;
+  }
+  p{
+    font-size: 12px;
+  }
+}
 .form-control-pregnancy {
   label {
     float: left;
@@ -271,6 +302,7 @@ fieldset {
 }
 
 .portraitA4 {
+  position: relative;
   width: 210mm;
   height: 295mm;
   zoom: 70%;

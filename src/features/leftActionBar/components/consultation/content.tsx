@@ -39,12 +39,13 @@ import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
-    const {id, patient,patientAntecedents,allAntecedents,antecedentsMutate} = props;
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
+    const [infoDynamic, setInfoDynamic] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
@@ -62,6 +63,14 @@ const Content = ({...props}) => {
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
+    const getTitle = () => {
+        const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
+
+        if (info) {
+            return info.name;
+        }
+        return t(infoDynamic)
+    }
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -71,13 +80,13 @@ const Content = ({...props}) => {
     };
     const handleCloseDialog = () => {
         const form = new FormData();
-        if (allAntecedents.find((ant: { slug: any; }) => ant.slug === info)) {
+        if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === info).uuid}/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -138,6 +147,7 @@ const Content = ({...props}) => {
 
         setOpenDialog(false);
         setInfo("");
+        setInfoDynamic("");
     };
 
     const dialogSave = () => {
@@ -161,10 +171,20 @@ const Content = ({...props}) => {
         if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
 
         setInfo(action);
+        setInfoDynamic(action)
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
 
         handleClickDialog();
     };
+
+    const handleOpenDynamic = (action: string) => {
+        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        setInfo("dynamicAnt");
+        setInfoDynamic(action);
+        bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
+        handleClickDialog();
+    }
+
 
     const showDoc = (card: any) => {
         let type = "";
@@ -205,6 +225,7 @@ const Content = ({...props}) => {
                     break;
                 case "requested-medical-imaging":
                     info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
             setDocument({
@@ -696,6 +717,7 @@ const Content = ({...props}) => {
                             <Antecedent
                                 antecedent={antecedent.slug}
                                 patientAntecedents={patientAntecedents}
+                                allAntecedents={allAntecedents}
                                 t={t}
                                 patient={patient}
                                 trigger={trigger}
@@ -705,7 +727,7 @@ const Content = ({...props}) => {
                                 setSelected={setSelected}
                                 setOpenRemove={setOpenRemove}
                                 key={`card-content-${antecedent}${index}`}
-                                handleOpen={handleOpen}
+                                handleOpen={handleOpenDynamic}
                                 router={router}
                                 medical_entity={medical_entity}></Antecedent>
                         )
@@ -750,17 +772,18 @@ const Content = ({...props}) => {
                         setState: setState,
                         patient_uuid: patient.uuid,
                         antecedents: allAntecedents,
-                        action: info,
+                        action: infoDynamic,
                     }}
                     change={false}
                     max
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={t(info)}
+                    title={getTitle()}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");
+                        setInfoDynamic("");
                     }}
                     actionDialog={
                         <DialogActions>
@@ -768,6 +791,7 @@ const Content = ({...props}) => {
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
+                                    setInfoDynamic("");
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}

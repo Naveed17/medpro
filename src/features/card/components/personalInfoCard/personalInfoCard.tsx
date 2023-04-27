@@ -243,6 +243,12 @@ function PersonalInfo({...props}) {
                         </AppBar>
 
                         <Grid container spacing={1}
+                              onClick={() => {
+                                  if (!editable){
+                                      setCurrentSection("PersonalInfo");
+                                      setEditable(true);
+                                  }
+                              }}
                               sx={{
                                   marginTop: "0.4rem"
                               }}>
@@ -275,7 +281,8 @@ function PersonalInfo({...props}) {
                                                     }
                                                 }
                                             })}
-                                        item md={8} sm={6} xs={9}>
+                                        item md={8} sm={6} xs={9}
+                                    >
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (

@@ -379,18 +379,25 @@ function Agenda() {
             }
         };
         setEvent(defEvent);
-        if (info.oldEvent._def.extendedProps.status.key === "FINISHED") {
-            if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc().set({
-                hour: 0,
-                minute: 0,
-                second: 0
-            })) || onDurationChanged) {
+        const status = info.oldEvent._def.extendedProps.status.key;
+        switch (status) {
+            case "ON_GOING":
                 info.revert();
-            } else {
-                handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
-            }
-        } else {
-            handleDragEvent(defEvent?.extendedProps.newDate, "move");
+                break;
+            case "FINISHED":
+                if (moment.utc(info.event?._instance?.range.start).isBefore(moment().utc().set({
+                    hour: 0,
+                    minute: 0,
+                    second: 0
+                })) || onDurationChanged) {
+                    info.revert();
+                } else {
+                    handleDragEvent(moment.utc(info.event?._instance?.range.start), "reschedule");
+                }
+                break;
+            default:
+                handleDragEvent(defEvent?.extendedProps.newDate, "move");
+                break;
         }
     }
 
@@ -535,7 +542,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                waiting_room && dispatch(setOngoing({waiting_room: waiting_room + 1}));
+               dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
                 // update pending notifications status
                 config?.mutate[1]();
             });
@@ -1053,6 +1060,7 @@ function Agenda() {
                             }}
                             OnEditDetail={(event: EventDef) => {
                                 setEvent(event);
+                                dispatch(openDrawer({type: "view", open: false}));
                                 dispatch(openDrawer({type: "patient", open: true}));
                             }}
                             SetMoveDialog={() => setMoveDialogInfo(true)}

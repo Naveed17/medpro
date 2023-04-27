@@ -20,6 +20,13 @@ declare module "next-auth" {
         error: string;
     }
 }
+
+declare module "notistack" {
+    interface VariantOverrides {
+        // adds `offline` variant
+        offline: true;
+    }
+}
 declare module "@mui/material/Button" {
     interface ButtonPropsVariantOverrides {
         google: true;
@@ -47,6 +54,14 @@ declare module "@mui/material/CircularProgress" {
 declare module "@mui/material/Chip" {
     interface ChipPropsVariantOverrides {
         contained: true;
+    }
+}
+
+declare module "@mui/material/SvgIcon" {
+    interface SvgIconPropsColorOverrides {
+        text: true,
+        white: true;
+        black: true;
     }
 }
 

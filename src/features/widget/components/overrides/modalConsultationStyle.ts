@@ -78,5 +78,16 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
             height: 16,
         },
     },
+    ".btn-collapse-mobile": {
+        backgroundColor: theme.palette.common.white,
+        width: 25,
+        height: 25,
+        borderRadius: 6,
+        marginLeft: 0,
+        svg: {
+            width: 16,
+            height: 16,
+        },
+    },
 }));
 export default ConsultationModalStyled;

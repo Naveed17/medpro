@@ -1,16 +1,30 @@
 import {pxToRem} from "@themes/formatFontSize";
-import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
+import {
+    Button,
+    CardContent,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    Stack,
+    Tooltip,
+    tooltipClasses,
+    Typography
+} from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
 import React from "react";
+import {styled} from "@mui/system";
+import {TooltipProps} from "@mui/material/Tooltip";
 
 function Antecedent({...props}) {
 
     const {
         antecedent,
         patientAntecedents,
+        allAntecedents,
         t,
         patient,
         medical_entity,
@@ -22,6 +36,21 @@ function Antecedent({...props}) {
         router
     } = props
 
+    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
+        <Tooltip {...props} classes={{popper: className}}/>
+    ))(({theme}) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: '#f5f5f9',
+            color: 'rgba(0, 0, 0, 0.87)',
+            maxWidth: 220,
+            border: '1px solid #dadde9',
+        },
+    }));
+    const isObject = (val: any) => {
+        if (val === null) { return false;}
+        return typeof val === 'object' && !Array.isArray(val)
+    }
+
     return (
         <ContentStyled
             key={`card-content-${antecedent}${index}`}
@@ -29,7 +58,7 @@ function Antecedent({...props}) {
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Typography fontWeight={600}>{t(antecedent)}</Typography>}
+                    <Typography className={"title"}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).name}</Typography>}
                 <List dense>
                     {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
@@ -38,6 +67,8 @@ function Antecedent({...props}) {
                                 name: string;
                                 startDate: string;
                                 endDate: string;
+                                note:string;
+                                ascendantOf: string;
                                 response: string | any[]
                             },
                             index: number
@@ -46,13 +77,29 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                <Typography variant="body2" color="text.secondary">
+                                <HtmlTooltip
+                                    title={
+                                        <React.Fragment>
+                                            <Typography color="gray" fontWeight={"bold"} fontSize={12}>{item.name}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date début : {item.startDate ? item.startDate: "-"}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date fin : {item.endDate ? item.endDate: "-"}</Typography>
+                                            {item.ascendantOf && <Typography color="gray" fontSize={12}>{item.ascendantOf}</Typography>}
+                                            <Typography color="gray" fontSize={12}>Note : {item.response ? typeof item.response === "string" ? item.response : item.response.length > 0 ?  item.response[0]?.value  : '-' : '-'}</Typography>
+                                            {item.note  && <Typography color="gray" fontSize={12}>RQ : {item.note}</Typography>}
+                                            {isObject(item.response) &&  Object.keys(item.response).map((rep:any) =>(
+                                                <Typography color="gray" fontSize={12} key={rep}>{rep} : {item.response[rep]}</Typography>
+                                            ))}
+                                        </React.Fragment>
+                                    }
+                                >
+                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
                                     {item.name}{" "}
                                     {item.startDate ? " / " + item.startDate : ""}{" "}
                                     {item.endDate ? " - " + item.endDate : ""}
                                     {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
                                     {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
                                 </Typography>
+                                </HtmlTooltip>
                                 <IconButton
                                     size="small"
                                     onClick={() => {

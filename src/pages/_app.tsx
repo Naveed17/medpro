@@ -38,7 +38,7 @@ type NextPageWithLayout = NextPage & {
 };
 
 const CloseSnackbarAction = ({id}: any) => {
-    const {closeSnackbar} = useSnackbar()
+    const {closeSnackbar} = useSnackbar();
     return (
         <IconButton
             className={"snackbar-notification-action"}
@@ -53,6 +53,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
     moment.locale('fr');
+
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
         // init smartlook client
@@ -64,7 +65,8 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
-                              action={key => <CloseSnackbarAction id={key}/>}
+                              preventDuplicate
+                              action={key => key !== "offline" && <CloseSnackbarAction id={key}/>}
                               maxSnack={3}
                               anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
                 <AppThemeProvider>

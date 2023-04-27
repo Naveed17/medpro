@@ -27,6 +27,12 @@ const ContentStyled = styled(Card)(({ theme }) => ({
         marginRight: theme.spacing(0.5),
       },
     },
+    ".title": {
+      fontWeight:600,
+      "&::first-letter": {
+        textTransform: "capitalize"
+      }
+    }
   },
 }));
 export default ContentStyled;

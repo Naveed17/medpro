@@ -18,6 +18,7 @@ import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification} from "@app/hooks";
+import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -64,7 +65,7 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = checkNotification();
+    const permission = !isAppleDevise() ? checkNotification(): false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
@@ -84,12 +85,12 @@ function DashLayout({children}: LayoutProps) {
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
     const justNumbers = (str: string) => {
-        const res = str.match(/\d+$/)
+        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
             let numStr = res[0];
             let num = parseInt(numStr);
             num++;
-            str = str.replace(numStr, num.toString());
+            str = str.replace(/\d(?!.*\d)/, num.toString());
         }
         return str;
     }
@@ -118,7 +119,6 @@ function DashLayout({children}: LayoutProps) {
                 dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
-            console.log(calendarStatus.last_fiche_id);
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
@@ -142,7 +142,7 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (permission) {
-            dispatch(setOngoing({allowNotification: permission !== "denied"}));
+            dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
     }, [dispatch, permission])
 

@@ -1,3 +1,84 @@
+## [4.17.4](https://github.com/SmartMedSA/med-pro/compare/v4.17.3...v4.17.4) (2023-04-25)
+
+
+### Bug Fixes
+
+* calendar format date bug ([9190e53](https://github.com/SmartMedSA/med-pro/commit/9190e535a09d661e6495a96b92b2d19379e6d8ef))
+
+## [4.17.3](https://github.com/SmartMedSA/med-pro/compare/v4.17.2...v4.17.3) (2023-04-24)
+
+
+### Bug Fixes
+
+* disable maps in maroc ([f33cdc4](https://github.com/SmartMedSA/med-pro/commit/f33cdc4d5b3f38cac0daf63be0d6462db2c7a25f))
+
+## [4.17.2](https://github.com/SmartMedSA/med-pro/compare/v4.17.1...v4.17.2) (2023-04-12)
+
+
+### Bug Fixes
+
+* refresh result bilan ([daeb017](https://github.com/SmartMedSA/med-pro/commit/daeb0174241d9554e741b2f6a617651afc735e19))
+* refresh result bilan ([6da7b2b](https://github.com/SmartMedSA/med-pro/commit/6da7b2b9bd87887755a6151ae749d2307c0c827c))
+* result bilan ([2b974c0](https://github.com/SmartMedSA/med-pro/commit/2b974c006aa1302f6fb8836b6c9d2a4231d3fcb9))
+
+## [4.17.1](https://github.com/SmartMedSA/med-pro/compare/v4.17.0...v4.17.1) (2023-04-11)
+
+
+### Bug Fixes
+
+* fees acts ([a987423](https://github.com/SmartMedSA/med-pro/commit/a987423ba658ffce91fc7429bffef52cf84c96a9))
+
+# [4.17.0](https://github.com/SmartMedSA/med-pro/compare/v4.16.0...v4.17.0) (2023-04-10)
+
+
+### Bug Fixes
+
+* add antecedent ([bef7465](https://github.com/SmartMedSA/med-pro/commit/bef74656a3a2e3385a6fc20fae5082a6afa6be17))
+* add new consultation reason bug ([89a078f](https://github.com/SmartMedSA/med-pro/commit/89a078ffd595a03d42fd7c7a4e84571385064724))
+* antecedent file ([43f30a8](https://github.com/SmartMedSA/med-pro/commit/43f30a8ea73edbd6bfe8cb37a53828599dd6fafd))
+* check notification ios ([30cb353](https://github.com/SmartMedSA/med-pro/commit/30cb35307c56bdbb1730992cfd6ba5f3007c2a15))
+* check notification ios trigger ([b1131bd](https://github.com/SmartMedSA/med-pro/commit/b1131bd034d7b45eef61d2abf019a83ad52f3fed))
+* comment pre consultation feature ([c8c5b76](https://github.com/SmartMedSA/med-pro/commit/c8c5b76b44fe22b538663ec3001859eb2606b3ab))
+* decoche fees ([d2d8339](https://github.com/SmartMedSA/med-pro/commit/d2d8339618d6575fa11ca3b6433783c7064b0cb5))
+* decoche fees ([04029c0](https://github.com/SmartMedSA/med-pro/commit/04029c05556c064805f9629740a112a157a5b3b4))
+* patient adress field ([bbb7080](https://github.com/SmartMedSA/med-pro/commit/bbb7080e960fdbdcf2d1f957a1965570f4e23efb))
+* time picker update style and behavior ([a7f7f09](https://github.com/SmartMedSA/med-pro/commit/a7f7f09bab18b4d702abdf61f88d6fe6d8a239a9))
+* update resizer config ([26162ca](https://github.com/SmartMedSA/med-pro/commit/26162ca319c58aefa4cc458d927f9d787cb60c5c))
+* upgrade quality resize ([3139bfc](https://github.com/SmartMedSA/med-pro/commit/3139bfc2762af09c7613b97bc1a9b1259d5fad5b))
+
+
+### Features
+
+* config settings fees ([8e5d9d3](https://github.com/SmartMedSA/med-pro/commit/8e5d9d3a89ece5578525b24fd47fe554a40da9de))
+* diagnostics history ([4812149](https://github.com/SmartMedSA/med-pro/commit/48121499ac5cae28dec002bdb4bf68f447f496c1))
+* document note preview ([428e56e](https://github.com/SmartMedSA/med-pro/commit/428e56e114b8b98a21ede756bdef01fbd6401da0))
+* dynamic antecedent ([cfd4c1e](https://github.com/SmartMedSA/med-pro/commit/cfd4c1ecb95395692109d56e0903908ce4bff949))
+* note antecedent ([a8b025d](https://github.com/SmartMedSA/med-pro/commit/a8b025d119df9a911cf0a34597bc920a25688205))
+* pre consultation data insert ([5e547c1](https://github.com/SmartMedSA/med-pro/commit/5e547c1856aad6f1dee7d0c432e1085eb3bea73f))
+* print patient file ([3739927](https://github.com/SmartMedSA/med-pro/commit/3739927e9da9574906615244dddb7e4345f924ab))
+
+# [4.16.0](https://github.com/SmartMedSA/med-pro/compare/v4.15.2...v4.16.0) (2023-04-04)
+
+
+### Bug Fixes
+
+* payment date picker filter ([8f75d75](https://github.com/SmartMedSA/med-pro/commit/8f75d750f0608777757e8ece0c6d5be1d740e262))
+* prevent on going appointment from moving ([c9d0968](https://github.com/SmartMedSA/med-pro/commit/c9d0968bda5050bea20e71ae2389081e4c4bc7df))
+* request permission trigger ([301d75e](https://github.com/SmartMedSA/med-pro/commit/301d75efac718f8b669de33edbd5a6a6357a3a50))
+* undefined variable ([7a29f3d](https://github.com/SmartMedSA/med-pro/commit/7a29f3d9b816c1d6fc03320cc587b5c966380c89))
+
+
+### Features
+
+* request notification permission ([bc8f838](https://github.com/SmartMedSA/med-pro/commit/bc8f838921b76a2fc1fbb1de7de407f22427dd0b))
+
+## [4.15.2](https://github.com/SmartMedSA/med-pro/compare/v4.15.1...v4.15.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* last fiche id ([aa80b7e](https://github.com/SmartMedSA/med-pro/commit/aa80b7ec711a97af7d871bb3b8b5bbdf10d655da))
+
 ## [4.15.1](https://github.com/SmartMedSA/med-pro/compare/v4.15.0...v4.15.1) (2023-04-02)
 
 

@@ -116,6 +116,8 @@
       "add-more-date": "Ajouter un autre RDV",
       "add_reason": "Ajouter un nouveau motif",
       "change-time": "Modifier l'heure",
+      "confirm-time": "Confirmer",
+      "cancel-time": "Annuler",
       "duration": {
         "title": "Durée de consultation",
         "hours": "heures",
@@ -150,7 +152,7 @@
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
         "family_doctor": "Médecin correspondant",
-        "family_doctor-placeholder": "Tapez le nom du médecin correspondant",
+        "family_doctor-placeholder": "Médecin correspondant",
         "day": "Jour",
         "month": "Mois",
         "year": "Année",

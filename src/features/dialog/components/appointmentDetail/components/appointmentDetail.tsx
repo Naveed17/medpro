@@ -140,7 +140,10 @@ function AppointmentDetail({...props}) {
     } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [canManageActions] = useState<boolean>(!["/dashboard/patient", "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
+    const [canManageActions] = useState<boolean>(![
+        "/dashboard/patient",
+        "/dashboard/waiting-room",
+        "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [avatar, setAvatar] = useState("");
     const [instruction, setInstruction] = useState(
         appointment?.extendedProps?.instruction
@@ -393,13 +396,13 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                {canManageActions &&
+                                {(canManageActions && OnEditDetail) &&
                                     <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
                                     </IconButton>}
                             </Stack>
 
-                            {(!roles.includes("ROLE_SECRETARY") && canManageActions) && (
+                            {(!roles.includes("ROLE_SECRETARY") && canManageActions && (OnConsultationView || OnConsultation)) && (
                                 <LoadingButton
                                     {...{loading}}
                                     loadingPosition="start"
@@ -438,7 +441,7 @@ function AppointmentDetail({...props}) {
                     <AppointmentCard
                         {...{t, roles}}
                         onDataUpdated={OnDataUpdated}
-                        {...(canManageActions && {
+                        {...((canManageActions && SetMoveDialog) && {
                             onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
                         })}
                         data={{
@@ -528,7 +531,7 @@ function AppointmentDetail({...props}) {
             </CardContent>
           </Card> */}
                 </Box>
-                {canManageActions && (
+                {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
                             {appointment?.extendedProps.patient.contact.length > 0 && <LoadingButton

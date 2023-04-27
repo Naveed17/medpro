@@ -6,7 +6,9 @@ import {
     Button,
     DialogActions,
     DialogContent,
-    DialogTitle, Drawer, LinearProgress,
+    DialogTitle,
+    Drawer,
+    LinearProgress,
     List,
     ListItem,
     Stack,
@@ -18,7 +20,11 @@ import {
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import {
+    onOpenPatientDrawer,
+    Otable,
+    tableActionSelector,
+} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {Dialog, PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
@@ -31,7 +37,10 @@ import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {
+    SWRNoValidateConfig,
+    TriggerWithoutValidation,
+} from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -49,7 +58,8 @@ import {
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import {EventDef} from "@fullcalendar/core/internal";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {DrawerBottom} from "@features/drawerBottom";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -144,13 +154,13 @@ const headCells: readonly HeadCell[] = [
         align: "center",
     },
     /*{
-          id: "billing_status",
-          numeric: true,
-          disablePadding: false,
-          label: "billing_status",
-          sortable: true,
-          align: "center",
-      },*/
+            id: "billing_status",
+            numeric: true,
+            disablePadding: false,
+            label: "billing_status",
+            sortable: true,
+            align: "center",
+        },*/
     {
         id: "amount",
         numeric: true,
@@ -166,7 +176,9 @@ function Payment() {
     const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
@@ -184,7 +196,8 @@ function Payment() {
         description: "no-data.description",
     };
 
-    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] =
+        useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -210,6 +223,7 @@ function Payment() {
     const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [collapseDate, setCollapseData] = useState<any>(null);
+
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [rows, setRows] = useState<any[]>([]);
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
@@ -219,7 +233,7 @@ function Payment() {
     ]);
     const [total, setTotal] = useState(0);
     let [select, setSelect] = useState<any[]>([]);
-    const [filter, setFilter] = useState("");
+    const [filter, setFilter] = useState(false);
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
     const [toReceive, setToReceive] = useState(0);
@@ -248,26 +262,39 @@ function Payment() {
 
     const newVersion = process.env.NODE_ENV === "development";
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const medical_entity = (user as UserDataResponse)
+        .medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country
+        ? medical_entity.country
+        : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateStatusTrigger} = useRequestMutation(
+        null,
+        "/agenda/update/appointment/status"
+    );
 
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
+    const {data: httpInsuranceResponse} = useRequest(
+        {
+            method: "GET",
+            url: `/api/public/insurances/${router.locale}`,
+        },
+        SWRNoValidateConfig
+    );
 
-    const {data: httpMedicalProfessionalResponse} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
+    const {data: httpMedicalProfessionalResponse} = useRequest(
+        {
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        },
+        SWRNoValidateConfig
+    );
 
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)
+        ?.data as InsuranceModel[];
 
     const handleCollapse = (props: any) => {
         //setCollapseData(props);
@@ -357,11 +384,15 @@ function Payment() {
                 setPatientDetailDrawer(true);
                 break;
         }
-    }
+    };
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+    const updateAppointmentStatus = (
+        appointmentUUid: string,
+        status: string,
+        params?: any
+    ) => {
         const form = new FormData();
-        form.append('status', status);
+        form.append("status", status);
         if (params) {
             Object.entries(params).map((param: any, index) => {
                 form.append(param[0], param[1]);
@@ -371,50 +402,61 @@ function Payment() {
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
         });
-    }
+    };
 
     const onConsultationStart = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                start_date: moment().format("DD-MM-YYYY"),
-                start_time: moment().format("HH:mm")
-            }).then(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({
-                        isActive: true,
-                        isPaused: false,
-                        event,
-                        startTime: moment().utc().format("HH:mm")
+        const slugConsultation = `/dashboard/consultation/${
+            event?.publicId ? event?.publicId : (event as any)?.id
+        }`;
+        router
+            .push(slugConsultation, slugConsultation, {locale: router.locale})
+            .then(() => {
+                updateAppointmentStatus(
+                    event?.publicId ? event?.publicId : (event as any)?.id,
+                    "4",
+                    {
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm"),
                     }
-                ));
-                // refresh on going api
-                mutateOnGoing && mutateOnGoing();
+                ).then(() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                    dispatch(
+                        setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm"),
+                        })
+                    );
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                });
             });
-        })
-    }
+    };
 
-    const getAppointments = useCallback((query: string, filterQuery: any) => {
+    const getAppointments = useCallback(
+        (query: string, filterQuery: any) => {
             setLoading(true);
             if (query.includes("format=list")) {
                 dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             }
-            trigger(
-                {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+            trigger({
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                 },
-                TriggerWithoutValidation
-            ).then((result) => {
+            }).then((result) => {
                 let amout = 0;
                 const r: any[] = [];
-                const appointments = (result?.data as HttpResponse)?.data.filter((app: { status: number }) => app.status === 5);
-                appointments.map((app: any) => {
+                const appointments = result?.data as HttpResponse;
+                const filteredStatus = appointments?.data.filter((app: { status: number; dayDate: string }) => app.status === 5);
+                const filteredData = filterQuery.day ? filteredStatus?.filter(
+                    (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
+
+                filteredData?.map((app: any) => {
                     amout += Number(app.fees);
                     r.push({
                         uuid: app.uuid,
@@ -428,44 +470,53 @@ function Payment() {
                         billing_status: "yes",
                         amount: app.fees,
                         /*collapse: [
-                                    {
-                                        uuid: 61,
-                                        date: "10/10/2022",
-                                        time: "15:30",
-                                        payment_type: [
-                                            {
-                                                name: "123456789",
-                                                icon: "ic-card-pen",
-                                            },
-                                        ],
-                                        billing_status: "yes",
-                                        amount: 10,
-                                    },
-                                    {
-                                        uuid: 62,
-                                        date: "10/10/2022",
-                                        time: "15:30",
-                                        payment_type: [
-                                            {
-                                                name: "credit_card",
-                                                icon: "ic-argent",
-                                            },
-                                        ],
-                                        billing_status: "yes",
-                                        amount: 10,
-                                    },
-                                ],*/
+                                                {
+                                                    uuid: 61,
+                                                    date: "10/10/2022",
+                                                    time: "15:30",
+                                                    payment_type: [
+                                                        {
+                                                            name: "123456789",
+                                                            icon: "ic-card-pen",
+                                                        },
+                                                    ],
+                                                    billing_status: "yes",
+                                                    amount: 10,
+                                                },
+                                                {
+                                                    uuid: 62,
+                                                    date: "10/10/2022",
+                                                    time: "15:30",
+                                                    payment_type: [
+                                                        {
+                                                            name: "credit_card",
+                                                            icon: "ic-argent",
+                                                        },
+                                                    ],
+                                                    billing_status: "yes",
+                                                    amount: 10,
+                                                },
+                                            ],*/
                     });
                 });
                 setRows([...r]);
-                setFiltredRows(filterQuery?.payment && filterQuery?.payment?.insurance ?
-                    [...r].filter(row => {
-                        const updatedData = filterQuery.payment?.insurance?.filter((insur: any) =>
-                            row.patient.insurances.map((insurance: any) => insurance.insurance.uuid).includes(insur));
-                        return row.patient.insurances.length > 0 && updatedData && updatedData.length > 0;
-                    })
-                    :
-                    [...r]);
+                setFiltredRows(
+                    filterQuery?.payment && filterQuery?.payment?.insurance
+                        ? [...r].filter((row) => {
+                            const updatedData = filterQuery.payment?.insurance?.filter(
+                                (insur: any) =>
+                                    row.patient.insurances
+                                        .map((insurance: any) => insurance.insurance.uuid)
+                                        .includes(insur)
+                            );
+                            return (
+                                row.patient.insurances.length > 0 &&
+                                updatedData &&
+                                updatedData.length > 0
+                            );
+                        })
+                        : [...r]
+                );
                 //setTotal(amout);
                 setLoading(false);
             });
@@ -473,8 +524,20 @@ function Payment() {
         [agenda, medical_entity.uuid, router, session, trigger, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
-    const generateFilter = () => {
-        return `?start_date=${day}&end_date=${day}`;
+    const getFilteredData = (day: string) => {
+        const filterByRange = filterData?.payment && filterData?.payment?.dates;
+        const startDate = filterByRange
+            ? moment(filterData?.payment?.dates[0].startDate).format("DD-MM-YYYY")
+            : day;
+        const endDate = filterByRange
+            ? moment(filterData?.payment?.dates[0].endDate).format("DD-MM-YYYY")
+            : moment(day, "DD-MM-YYYY").add(1, "day").format("DD-MM-YYYY");
+        const queryPath = `format=week&start_date=${startDate}&end_date=${endDate}`;
+        agenda &&
+        getAppointments(queryPath, {
+            ...filterData,
+            ...(!filterByRange && {day}),
+        });
     };
 
     useEffect(() => {
@@ -496,55 +559,46 @@ function Payment() {
                 )
             );
 
-            if (
-                (httpMedicalProfessionalResponse as HttpResponse).data[0].payments
-                    .length > 0
-            ) {
-                deals.selected = (
-                    httpMedicalProfessionalResponse as HttpResponse
-                ).data[0].payments[0].slug;
+            if ((httpMedicalProfessionalResponse as HttpResponse).data[0].payments.length > 0) {
+                deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
                 setDeals({...deals});
             }
         }
     }, [httpMedicalProfessionalResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /*    useEffect(() => {
-            if (selectedBox) {
-                setTotal(selectedBox.total);
-                setToReceive(selectedBox.total_insurance);
-                const filterQuery = generateFilter();
+              if (selectedBox) {
+                  setTotal(selectedBox.total);
+                  setToReceive(selectedBox.total_insurance);
+                  const filterQuery = generateFilter();
 
-                trigger({
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then((r: any) => {
-                    // console.log(r.data.data);
-                });
-            }
-        }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
-
-    useEffect(() => {
-        setDay(moment(currentDate.date).format("DD-MM-YYYY"));
-        //console.log(currentDate)
-    }, [currentDate]);
+                  trigger({
+                      method: "GET",
+                      url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
+                      headers: {
+                          Authorization: `Bearer ${session?.accessToken}`,
+                      },
+                  }).then((r: any) => {
+                      // console.log(r.data.data);
+                  });
+              }
+          }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
 
     useEffect(() => {
-        if (agenda) {
-            const startDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].startDate).format('DD-MM-YYYY') : day;
-            const endDate = filterData?.payment && filterData?.payment?.dates ? moment(filterData.payment.dates[0].endDate).format('DD-MM-YYYY') : day;
-            const queryPath = `format=week&page=1&limit=50&start_date=${startDate}&end_date=${endDate}`;
-            getAppointments(queryPath, filterData);
-        }
-    }, [getAppointments, agenda, day, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
+        const updatedDate = moment(currentDate.date).format("DD-MM-YYYY");
+        setDay(updatedDate);
+        getFilteredData(updatedDate);
+    }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        agenda && getFilteredData(day);
+    }, [getAppointments, agenda, filterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let total = 0;
-        filtredRows.map(row => total += parseFloat(row.amount));
+        filtredRows.map((row) => (total += parseFloat(row.amount)));
         setTotal(total);
-    }, [filtredRows])
+    }, [filtredRows]);
 
     return (
         <>
@@ -630,10 +684,12 @@ function Payment() {
                 </Stack>
             </SubHeader>
 
-            <LinearProgress sx={{visibility: loading ? "visible" : "hidden"}} color="warning"/>
+            <LinearProgress
+                sx={{visibility: loading ? "visible" : "hidden"}}
+                color="warning"
+            />
 
             <Box className="container">
-
                 {filtredRows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
@@ -651,7 +707,8 @@ function Payment() {
                                         <PaymentMobileCard
                                             data={card}
                                             t={t}
-                                            getCollapseData={handleCollapse}
+                                            insurances={insurances}
+                                            handleEvent={handleTableActions}
                                         />
                                     </React.Fragment>
                                 ))}
@@ -672,7 +729,6 @@ function Payment() {
                 )}
             </Box>
 
-
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}
@@ -680,8 +736,7 @@ function Payment() {
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
-                }}
-            >
+                }}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -689,7 +744,8 @@ function Payment() {
                         setPatientDetailDrawer(false);
                     }}
                     onConsultationStart={onConsultationStart}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                />
             </Drawer>
 
             <Dialog
@@ -907,6 +963,26 @@ function Payment() {
                     </Button>
                 </DialogActions>
             </MuiDialog>
+            <Button
+                startIcon={<Icon path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilter(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    display: {xs: "flex", md: "none"},
+                }}>
+                Filtrer (0)
+            </Button>
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title="Filter">
+                <PaymentFilter/>
+            </DrawerBottom>
         </>
     );
 }
@@ -920,7 +996,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
                 "menu",
                 "agenda",
                 "consultation",
-                'patient',
+                "patient",
                 "payment",
             ])),
         },

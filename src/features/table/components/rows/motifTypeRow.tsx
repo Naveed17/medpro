@@ -13,7 +13,7 @@ function MotifRow({...props}) {
     const {t, ready} = useTranslation("common");
     return (
         <TableRowStyled key={uniqueId}>
-            <TableCell>
+            <TableCell colSpan={3}>
                 {row ? (
                     <Box
                         sx={{
@@ -35,6 +35,24 @@ function MotifRow({...props}) {
                     </Box>
                 ) : (
                     <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>
+            <TableCell align="center">
+                {row ? (
+                    (row.isFree || row.price === null) ? (
+                        <Typography>--</Typography>
+                    ) : (
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            justifyContent="center">
+                            <IconUrl path="ic-argent"/>
+                            <Typography>{row.price ? row.price : 0}</Typography>
+                        </Stack>
+                    )
+                ) : (
+                    <Skeleton width={30} height={40} sx={{mx: "auto"}}/>
                 )}
             </TableCell>
             <TableCell align="right">
