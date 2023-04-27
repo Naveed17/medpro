@@ -14,10 +14,10 @@ function FileTemplateMobileCard({ ...props }) {
         },
       }}>
       <Grid container spacing={2} alignItems="center">
-        <Grid item xs={8}>
+        <Grid item xs={6}>
           <Typography>{data.label}</Typography>
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={6}>
           <Stack
             direction="row"
             spacing={1}
@@ -33,6 +33,18 @@ function FileTemplateMobileCard({ ...props }) {
               sx={{ mr: { md: 1 } }}
               onClick={() => edit(data, "see")}>
               <IconUrl path="setting/ic-voir" />
+            </IconButton>
+            <IconButton
+              size="small"
+              sx={{ mr: { md: 1 } }}
+              onClick={() => edit(data, "edit")}>
+              <IconUrl path="setting/edit" />
+            </IconButton>
+            <IconButton
+              size="small"
+              sx={{ mr: { md: 1 } }}
+              onClick={() => edit(data, "delete")}>
+              <IconUrl path="setting/icdelete" />
             </IconButton>
           </Stack>
         </Grid>

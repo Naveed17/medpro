@@ -93,6 +93,7 @@ function PfTemplateDetail({ ...props }) {
   const [modelColor, setModelColor] = useState(
     props.data ? props.data.color : "#FEBD15"
   );
+  console.log(props.data);
   const [sections, setSections] = useState<SpecialtyJsonWidgetModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
