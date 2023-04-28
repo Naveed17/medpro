@@ -605,6 +605,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             size={"small"}
                                                                             displayEmpty
                                                                             sx={{
+                                                                                maxHeight: 35,
                                                                                 "& .MuiSelect-select": {
                                                                                     background: "white"
                                                                                 }
