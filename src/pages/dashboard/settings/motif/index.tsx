@@ -1,6 +1,5 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import dynamic from "next/dynamic";
 import React, {
     ReactElement,
     useState,
@@ -72,31 +71,22 @@ function Motif() {
         .medical_entity as MedicalEntityModel;
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} =
-        useRequest(
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${
-                    router.locale
-                }${
-                    !isMobile
-                        ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
-                        : ""
-                }`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            },
-            SWRNoValidateConfig
-        );
+        useRequest({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}${
+                !isMobile
+                    ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
+                    : ""
+            }`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }, SWRNoValidateConfig);
 
     const closeDraw = () => {
         setEdit(false);
-    };
+    }
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data
-        ?.list as ConsultationReasonModel[];
-    const reasonsMobile = isMobile
-        ? ((httpConsultReasonResponse as HttpResponse)
-            ?.data as ConsultationReasonModel[])
-        : [];
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
+    const reasonsMobile = isMobile ? ((httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[]) : [];
 
     if (!ready)
         return (

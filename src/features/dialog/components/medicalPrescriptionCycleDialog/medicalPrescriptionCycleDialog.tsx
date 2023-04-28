@@ -3,8 +3,8 @@ import {
     Button,
     Card,
     CardActions,
-    CardContent,
-    Divider, FormControlLabel, TextField,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
+    Divider, FormControlLabel, Select, TextField,
     Theme,
 } from "@mui/material";
 import {
@@ -24,11 +24,17 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
-import {Dialog as CustomDialog, ModelPrescriptionList, prescriptionSelector, setParentModel} from "@features/dialog";
+import {
+    Dialog as CustomDialog,
+    ModelPrescriptionList,
+    prescriptionSelector,
+    setModelName,
+    setParentModel
+} from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
-
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {motion, AnimatePresence} from "framer-motion";
 import {RecButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -50,11 +56,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
+    const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
+    const [parentModelName, setParentModelName] = useState<string>("");
+
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
     const [info, setInfo] = useState("");
     const [talkStart, setTalk] = useState(false);
+    const [loading, setLoading] = useState(false);
     const dosageMeal = [
         {
             label: "before_meal",
@@ -102,8 +112,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 dosageMealValue: "",
                 durationValue: "",
                 dosageInput: false,
+                cautionaryNoteInput: false,
                 dosageInputText: "",
-                cautionary_note: "",
+                cautionaryNote: "",
                 dosageTime: [
                     {
                         label: "morning",
@@ -147,8 +158,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 dosageMealValue: Yup.string(),
                 durationValue: Yup.string(),
                 dosageInput: Yup.boolean(),
+                cautionaryNoteInput: Yup.boolean(),
                 dosageInputText: Yup.string(),
-                cautionary_note: Yup.string(),
+                cautionaryNote: Yup.string(),
                 dosageTime: Yup.array().of(Yup.object().shape({
                     label: Yup.string(),
                     value: Yup.boolean()
@@ -189,8 +201,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
                     dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
+                    cautionaryNoteInput: cycle.note.length > 0,
                     dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
-                    cautionary_note: cycle.note !== "" ? cycle.note : "",
+                    cautionaryNote: cycle.note !== "" ? cycle.note : "",
                     dosageTime: [
                         {
                             label: "morning",
@@ -236,6 +249,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
+    const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest({
         method: "GET",
@@ -273,6 +287,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     }
 
     const handleDosageQty = (prop: string, index: number, idx: number) => {
+        setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
         if (prop === "plus") {
             if (values.data[idx].cycles[index].count < fractions.length - 1) {
                 const dosage = values.data[idx].cycles[index].count + 1;
@@ -289,6 +304,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
+        setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
         if (prop === "plus") {
             if (values.data[idx].cycles[index].dosageDuration < fractions.length - 1) {
                 setFieldValue(
@@ -319,10 +335,29 @@ function MedicalPrescriptionCycleDialog({...props}) {
         setOpenDialog(false);
     }
 
+    const handleAddParentModel = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("name", parentModelName);
+        triggerPrescriptionParent({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }).then(() => {
+            mutateParentModel().then((result) => {
+                const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
+                dispatch(setParentModel(models[models.length - 1]?.uuid));
+                setOpenAddParentDialog(false);
+                setParentModelName("");
+                setLoading(false);
+            });
+        });
+    }
+
     const generateDosageText = (cycle: any, unit?: string) => {
-        return cycle.dosageInput && cycle.dosageInputText.length > 0 ?
-            cycle.dosageInputText : unit && cycle.dosageTime.some((time: any) => time.value) ?
-                `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? t(cycle.dosageMealValue) : ""}` : ""
+        return unit && cycle.dosageTime.some((time: any) => time.value) ?
+            `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? t(cycle.dosageMealValue) : ""}` : ""
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -331,7 +366,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
         if (models && models.length > 0) {
             dispatch(setParentModel(models[0].uuid));
         }
-
     }, [dispatch, models]);
 
     useEffect(() => {
@@ -341,10 +375,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 if (data.drug) {
                     const drug = data.drug as DrugModel;
                     const cycles = data.cycles.map((cycle: any) => ({
-                        dosage: generateDosageText(cycle, data.unit),
+                        dosage: cycle.dosageInput ? cycle.dosageInputText : generateDosageText(cycle, data.unit),
                         duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : "",
                         durationType: cycle.durationValue.length > 0 ? cycle.durationValue : "",
-                        note: cycle.cautionary_note.length > 0 ? cycle.cautionary_note : "",
+                        note: cycle.cautionaryNote.length > 0 ? cycle.cautionaryNote : "",
                         isOtherDosage: cycle.dosageInput
                     }));
                     drugs.push({
@@ -508,7 +542,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 <Typography gutterBottom>
                                                                     {t("dosage", {ns: "consultation"})}
                                                                 </Typography>
-                                                                {!values.data[idx].cycles[index].dosageInput && <Stack
+                                                                <Stack
                                                                     spacing={3}
                                                                     direction="row"
                                                                     flexWrap="wrap"
@@ -555,9 +589,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 startIcon={
                                                                                     <Checkbox
                                                                                         checked={values.data[idx].cycles[index].dosageTime[i].value}
-                                                                                        {...getFieldProps(
-                                                                                            `data[${idx}].cycles[${index}].dosageTime[${i}].value`
-                                                                                        )}
+                                                                                        onChange={event => {
+                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                                        }}
                                                                                     />
                                                                                 }
                                                                                 key={subitem.label}>
@@ -566,8 +601,36 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 })}
                                                                             </Button>
                                                                         ))}
+                                                                        <Select
+                                                                            size={"small"}
+                                                                            displayEmpty
+                                                                            sx={{
+                                                                                "& .MuiSelect-select": {
+                                                                                    background: "white"
+                                                                                }
+                                                                            }}
+                                                                            id="dosageMeal-select"
+                                                                            value={item.cycles[index].dosageMealValue}
+                                                                            onChange={event => {
+                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageMealValue`, event.target.value);
+                                                                            }}
+                                                                            renderValue={(selected) => {
+                                                                                if (selected.length === 0) {
+                                                                                    return <Typography color={"gray"}>
+                                                                                        Condition de prise
+                                                                                    </Typography>;
+                                                                                }
+
+                                                                                return t(selected, {ns: "consultation"});
+                                                                            }}>
+                                                                            {innerItem.dosageMeal.map((subitem: any, i: number) =>
+                                                                                <MenuItem
+                                                                                    key={subitem.label}
+                                                                                    value={subitem.label}>{t(subitem.label, {ns: "consultation"})}</MenuItem>)}
+                                                                        </Select>
                                                                     </Stack>
-                                                                    <Stack
+                                                                    {/*<Stack
                                                                         spacing={0.5}
                                                                         direction="row"
                                                                         flexWrap="wrap"
@@ -590,27 +653,21 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 {t(subitem.label, {ns: "consultation"})}
                                                                             </Button>
                                                                         ))}
-                                                                    </Stack>
-                                                                </Stack>}
-                                                                <Stack>
-                                                                    <FormControlLabel
-                                                                        control={
-                                                                            <Checkbox
-                                                                                checked={values.data[idx].cycles[index].dosageInput}
-                                                                                onChange={(event) => {
-                                                                                    setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, event.target.checked)
-                                                                                }}
-                                                                                name="autre"/>
-                                                                        }
-                                                                        label="Autre"
-                                                                    />
-                                                                    {values.data[idx].cycles[index].dosageInput &&
-                                                                        <TextField
-                                                                            value={generateDosageText(values.data[idx].cycles[index], values.data[idx].unit)}
-                                                                            onChange={event => setFieldValue(`data[${idx}].cycles[${index}].dosageInputText`, event.target.value)}
-                                                                            fullWidth
-                                                                            placeholder={t("enter_your_dosage")}/>}
+                                                                    </Stack>*/}
                                                                 </Stack>
+
+                                                                <TextField
+                                                                    sx={{mt: .5}}
+                                                                    value={values.data[idx].cycles[index].dosageInput ? values.data[idx].cycles[index].dosageInputText : generateDosageText(values.data[idx].cycles[index], values.data[idx].unit)}
+                                                                    onChange={event => {
+                                                                        const dosage = generateDosageText(values.data[idx].cycles[index], values.data[idx].unit);
+                                                                        const inputText = event.target.value;
+                                                                        const hasChange = inputText.length === 0 && values.data[idx].cycles[index].dosageInputText.length > 0;
+                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, !hasChange);
+                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageInputText`, hasChange ? dosage : inputText);
+                                                                    }}
+                                                                    fullWidth
+                                                                    placeholder={t("enter_your_dosage")}/>
                                                             </Stack>
                                                             <Stack mt={1}>
                                                                 <Typography gutterBottom>
@@ -680,13 +737,22 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 </Stack>
                                                             </Stack>
                                                             <Stack mt={1}>
-                                                                <Typography gutterBottom>
-                                                                    {t("cautionary_note", {ns: "consultation"})}
-                                                                </Typography>
-                                                                <TextField
-                                                                    {...getFieldProps(`data[${idx}].cycles[${index}].cautionary_note`)}
-                                                                    fullWidth
-                                                                    placeholder={t("cautionary_note_placeholder")}/>
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Checkbox
+                                                                            checked={values.data[idx].cycles[index].cautionaryNoteInput}
+                                                                            onChange={(event) => {
+                                                                                setFieldValue(`data[${idx}].cycles[${index}].cautionaryNoteInput`, event.target.checked)
+                                                                            }}
+                                                                            name="autre"/>
+                                                                    }
+                                                                    label={t("cautionary_note", {ns: "consultation"})}
+                                                                />
+                                                                {values.data[idx].cycles[index].cautionaryNoteInput &&
+                                                                    <TextField
+                                                                        {...getFieldProps(`data[${idx}].cycles[${index}].cautionaryNote`)}
+                                                                        fullWidth
+                                                                        placeholder={t("cautionary_note_placeholder")}/>}
                                                             </Stack>
                                                             <IconButton
                                                                 onClick={() =>
@@ -725,7 +791,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             orientation="vertical"
                             sx={{display: {xs: "none", md: "block"}}}
                         />
-                        <Stack width={1}>
+                        <Stack direction={"column"} sx={{width: "100%"}}>
                             <Button
                                 disabled={drugs?.length === 0}
                                 {...(isMobile && {
@@ -754,6 +820,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 }}
                             />
                             <ModelPrescriptionList {...{models, t, switchPrescriptionModel}}/>
+                            <Button size={"small"}
+                                    onClick={() => setOpenAddParentDialog(true)}
+                                    sx={{alignSelf: "flex-start"}}
+                                    color={"primary"}
+                                    startIcon={<AddRoundedIcon/>}>
+                                {t("new_file", {ns: "consultation"})}
+                            </Button>
                         </Stack>
                     </Stack>
                 </Grid>
@@ -768,7 +841,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, models},
+                    data: {t, dose: true, models, setOpenAddParentDialog},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
@@ -790,6 +863,61 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     ),
                 })}
             />
+            <Dialog
+                maxWidth="xs"
+                PaperProps={{
+                    sx: {
+                        width: "100%",
+                    },
+                }}
+                onClose={() => setOpenAddParentDialog(false)}
+                open={openAddParentDialog}>
+                <DialogTitle
+                    sx={{
+                        bgcolor: (theme: Theme) => theme.palette.primary.main,
+                        mb: 2,
+                    }}>
+                    {t("add_group_model", {ns: "consultation"})}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography gutterBottom>
+                        {t("group_model_name", {ns: "consultation"})}
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        value={parentModelName}
+                        onChange={(e) => {
+                            setParentModelName(e.target.value);
+                            dispatch(setModelName(e.target.value));
+                        }}
+                        placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Stack
+                        width={1}
+                        spacing={2}
+                        direction="row"
+                        justifyContent="flex-end">
+                        <Button
+                            variant="text-black"
+                            onClick={() => {
+                                setOpenAddParentDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "consultation"})}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            disabled={parentModelName.length === 0}
+                            onClick={handleAddParentModel}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                            variant="contained">
+                            {t("save", {ns: "consultation"})}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </MedicalPrescriptionCycleStyled>
     );
 }

@@ -104,10 +104,7 @@ function Data() {
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
 
-  const { trigger: triggerDeleteImportData } = useRequestMutation(
-    null,
-    "/import/data/delete"
-  );
+  const { trigger: triggerDeleteImportData } = useRequestMutation(null, "/import/data/delete");
 
   const { data: httpImportDataResponse, mutate: mutateImportData } = useRequest(
     {

@@ -88,8 +88,9 @@ export const CustomNode = ({...props}) => {
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
                                 variant="body2">{props.node.text}</Typography>
                 </div>
-                <IconButton
+                {!props.node.isDefault && <IconButton
                     disableRipple
+                    sx={{mt: "-6px"}}
                     className="btn-del"
                     onClick={(event) => {
                         event.stopPropagation();
@@ -98,7 +99,7 @@ export const CustomNode = ({...props}) => {
                         setDeleteModelDialog(true);
                     }}>
                     <IconUrl color="red" width={12} height={12} path="icdelete"/>
-                </IconButton>
+                </IconButton>}
             </CustomNodeStyled>
             <Dialog
                 color={theme.palette.error.main}
