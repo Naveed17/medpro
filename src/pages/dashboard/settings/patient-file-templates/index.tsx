@@ -198,7 +198,7 @@ function PatientFileTemplates() {
       },
     })
       .then(() => {
-        enqueueSnackbar("modal deleted", { variant: "success" });
+        enqueueSnackbar(t("alert.modal-deleted"), { variant: "success" });
         setLoading(false);
         setOpenDialog(false);
         mutate();
@@ -208,7 +208,8 @@ function PatientFileTemplates() {
           response: { data },
         } = error;
         setLoading(false);
-        enqueueSnackbar(data.message, { variant: "error" });
+        enqueueSnackbar(t("alert." +data.message.replace(/\s/g, '-').toLowerCase()), { variant: "error" });
+         setOpenDialog(false);
       });
   };
   const { t, ready } = useTranslation("settings", {
