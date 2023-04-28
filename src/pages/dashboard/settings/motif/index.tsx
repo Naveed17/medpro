@@ -123,7 +123,14 @@ function Motif() {
       align: "left",
       sortable: true,
     },
-
+    {
+        id: "duration",
+        numeric: false,
+        disablePadding: false,
+        label: "duration",
+        align: "left",
+        sortable: false,
+    },
     {
       id: "isEnabled",
       numeric: false,

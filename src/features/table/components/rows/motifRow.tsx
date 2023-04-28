@@ -1,12 +1,9 @@
-import React from "react";
+import React, { useCallback,useMemo  } from "react";
 import Switch from "@mui/material/Switch";
 import TableCell from "@mui/material/TableCell";
 import {
   IconButton,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
   Skeleton,
   Box,
   Stack,
@@ -14,18 +11,30 @@ import {
 import Lable from "@themes/overrides/Lable";
 import IconUrl from "@themes/urlIcon";
 import { TableRowStyled } from "@features/table";
-import { uniqueId } from "lodash";
 import { useTranslation } from "next-i18next";
 import { ModelDot } from "@features/modelDot";
-
 function MotifRow({ ...props }) {
   const { row, tableHeadData, active, handleChange, editMotif, ids, data } =
     props;
   const durations: DurationModel[] = data.durations;
   const delay: DurationModel[] = data.delay;
   const { t, ready } = useTranslation("common");
+  const duration = useMemo (() => {
+    if(row.duration < 60){
+      return row.duration  + " " + t("times.minutes");
+    }
+    if(row.duration > 59 && row.duration < 120){
+      return row.duration / 60  + " " + t("times.hour");
+    }
+    if(row.duration > 119){
+      return row.duration / 60  + " " + t("times.hours");
+    }
+}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  , [row.duration]);
+  
   return (
-    <TableRowStyled key={uniqueId}>
+    <TableRowStyled key={row.uuid}>
       <TableCell>
         {row ? (
           <Box
@@ -47,6 +56,12 @@ function MotifRow({ ...props }) {
           <Skeleton variant="text" width={100} />
         )}
       </TableCell>
+       <TableCell>
+        {
+        row ?
+        <Typography>{duration}</Typography>
+        : <Skeleton variant="rectangular" width={150} height={30}/>}
+            </TableCell>
       <TableCell align="center">
         {row ? (
           <Switch
