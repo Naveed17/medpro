@@ -60,13 +60,14 @@ function Consultation() {
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
+    const [analyses, setAnalyses] = useState<any>([]);
+    const [mi, setMi] = useState<any>([]);
     const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
     const {listen} = useAppSelector(consultationSelector);
-
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -129,6 +130,44 @@ function Consultation() {
         url: `/api/private/antecedent-types/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
+
+    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(
+        patient
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
+    const {data: httpPatientMI, mutate: miMutate} = useRequest(
+        patient
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
+    useEffect(() => {
+        if (httpPatientAnalyses) {
+            setAnalyses((httpPatientAnalyses as HttpResponse).data)
+        }
+    }, [httpPatientAnalyses])
+
+    useEffect(() => {
+        if (httpPatientMI) {
+            setMi((httpPatientMI as HttpResponse).data)
+        }
+    }, [httpPatientMI])
 
     useEffect(() => {
         if (httpAnctecentType) {
@@ -238,11 +277,17 @@ function Consultation() {
                     badge: antecedentBadge
                 },
                 {
+                    id: 9,
+                    title: "balance_sheet",
+                    icon: "ic-analyse",
+                    badge: patient.requestedAnalyses.length,
+                },
+                /*{
                     id: 2,
                     title: "balance_sheet_pending",
                     icon: "ic-analyse",
                     badge: patient.requestedAnalyses.length,
-                },
+                },*/
                 {
                     id: 5,
                     title: "medical_imaging_pending",
@@ -256,6 +301,8 @@ function Consultation() {
                     badge: 0,
                 },
             ]);
+            analysessMutate();
+            miMutate();
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -518,10 +565,7 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} patient={patient}
-                                                 antecedentsMutate={antecedentsMutate}
-                                                 patientAntecedents={patientAntecedents}
-                                                 allAntecedents={allAntecedents}/>
+                                        <Content id={col.id} {...{patient,antecedentsMutate,patientAntecedents,allAntecedents,analyses,mi}} patient={patient}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>

@@ -39,7 +39,7 @@ import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate} = props;
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate,analyses,mi} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -53,7 +53,6 @@ const Content = ({...props}) => {
     const {trigger} = useRequestMutation(null, "/antecedent");
     const router = useRouter();
     const [selected, setSelected] = useState<any>();
-    const [treatementFilter, setTreatementFilter] = useState("");
     const [openRemove, setOpenRemove] = useState(false);
     const {data: session, status} = useSession();
     const {direction} = useAppSelector(configSelector);
@@ -277,16 +276,13 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
-                                    {patient?.treatment.filter(
-                                        (tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
-                                    ).length > 0 && (
+                                    {patient?.treatment.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("tip")}
                                         </Typography>
                                     )}
 
                                     {patient?.treatment
-                                        .filter((tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
@@ -322,15 +318,12 @@ const Content = ({...props}) => {
                                             </ListItem>
                                         ))}
 
-                                    {patient?.treatment.filter(
-                                        (tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
-                                    ).length > 0 && (
+                                    {patient?.treatment.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("prescription")}
                                         </Typography>
                                     )}
                                     {patient?.treatment
-                                        .filter((tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
@@ -547,6 +540,94 @@ const Content = ({...props}) => {
                         </ContentStyled>
                     ))}
                 </>
+            ) : id === 9 ? (
+                <>
+                    {analyses.length === 0 && (
+                        <ContentStyled>
+                            <CardContent
+                                style={{
+                                    paddingBottom: "15px",
+                                    fontSize: "0.75rem",
+                                    color: "#7C878E",
+                                    textAlign: "center",
+                                    paddingTop: "15px",
+                                }}>
+                                {t("emptyBalance")}
+                            </CardContent>
+                        </ContentStyled>
+                    )}
+                    {analyses.map((ra: any, index: number) => (
+                        <ContentStyled key={index}>
+                            <CardContent style={{paddingBottom: 5}}>
+                                <p
+                                    style={{
+                                        textAlign: "right",
+                                        textTransform: "capitalize",
+                                        margin: "5px 15px",
+                                        fontSize: 12,
+                                        color: "#7C878E",
+                                    }}>
+                                    {moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY")}
+                                </p>
+                                <Stack spacing={2} alignItems="flex-start">
+                                    <List dense>
+                                        {ra.hasAnalysis.map((list: any, index: number) => (
+                                            <ListItem key={index}>
+                                                <ListItemIcon>
+                                                    <CircleIcon/>
+                                                </ListItemIcon>
+                                                <Typography variant="body2" color={list.result ?"":"text.secondary"}>
+                                                    {list.analysis.name}
+                                                    {list.result ? " : " + list.result : ""}
+                                                </Typography>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                    <Stack direction="row" spacing={2}>
+                                        <Button
+                                            onClick={() => {
+                                                setState(ra);
+                                                handleOpen("balance_sheet_pending");
+                                            }}
+                                            size="small"
+                                            startIcon={<Add/>}>
+                                            {t("add_result")}
+                                        </Button>
+                                        {patient?.requestedAnalyses.length > 0 && (
+                                            <Button
+                                                color="error"
+                                                size="small"
+                                                onClick={() => {
+                                                    setSelected({
+                                                        title: t("askRemoveBilan"),
+                                                        subtitle: t("subtitleRemoveBilan"),
+                                                        icon: "/static/icons/ic-analyse.svg",
+                                                        name1: t("balance_sheet_pending"),
+                                                        name2: moment(ra?.appointment, "DD-MM-YYYY").format(
+                                                            "MMM DD/YYYY"
+                                                        ),
+                                                        request: {
+                                                            method: "DELETE",
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            headers: {
+                                                                ContentType:
+                                                                    "application/x-www-form-urlencoded",
+                                                                Authorization: `Bearer ${session?.accessToken}`,
+                                                            },
+                                                        },
+                                                    });
+                                                    setOpenRemove(true);
+                                                }}
+                                                startIcon={<Icon path="setting/icdelete"/>}>
+                                                {t("ignore")}
+                                            </Button>
+                                        )}
+                                    </Stack>
+                                </Stack>
+                            </CardContent>
+                        </ContentStyled>
+                    ))}
+                </>
             ) : id === 6 ? (
                 patient && (
                     <Antecedent
@@ -582,7 +663,7 @@ const Content = ({...props}) => {
                 )
             ) : id === 5 ? (
                 <>
-                    {patient?.requestedImaging.length === 0 && (
+                    {mi.length === 0 && (
                         <ContentStyled>
                             <CardContent
                                 style={{
@@ -596,7 +677,7 @@ const Content = ({...props}) => {
                             </CardContent>
                         </ContentStyled>
                     )}
-                    {patient?.requestedImaging.map((ri: any, index: number) => (
+                    {mi.map((ri: any, index: number) => (
                         <ContentStyled key={index}>
                             <CardContent style={{paddingBottom: 5}}>
                                 <p
@@ -619,7 +700,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name}
+                                                    {list["medical-imaging"]?.name} {list?.note ? "("+list?.note+")" : ""}
                                                 </Typography>
                                             </ListItem>
                                         ))}
