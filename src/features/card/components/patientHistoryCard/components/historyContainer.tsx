@@ -517,7 +517,7 @@ function HistoryContainer({...props}) {
                                                                 )
                                                             )}
 
-                                                            <Stack mt={2} direction={"row"}
+                                                            <Stack mt={2} pt={1} direction={"row"}
                                                                    alignItems={"center"}
                                                                    justifyContent={"flex-end"}>
                                                                 <Typography textAlign={"right"} mr={2}
