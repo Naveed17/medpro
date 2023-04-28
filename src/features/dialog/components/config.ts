@@ -313,6 +313,14 @@ const dialogData = [
       ).then((mod) => mod)
     ),
   },
+  {
+    action: "delete-modal",
+    component: dynamic((): any =>
+      import(
+        "@features/dialog/components/deleteModalDialog/components/deleteModalDialog"
+      ).then((mod) => mod)
+    ),
+  },
 ];
 
 export default dialogData;
