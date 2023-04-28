@@ -56,6 +56,7 @@
     "treatment_in_progress": "Traitements",
     "tip": "Traitements en cours",
     "balance_sheet_pending": "Bilan en attente",
+    "balance_sheet": "Analyses demandées",
     "medical_imaging_pending": "Imagerie en attente",
     "consultation": "consultation",
     "medical_history": "Antécédent médical",
@@ -66,7 +67,7 @@
     "save": "Enregistrer",
     "dosage_unit": "jour",
     "add": "Ajouter",
-    "add_result": "Ajouter resultat",
+    "add_result": "Modifier résultat",
     "ignore": "Ignorer",
     "add_history": "Ajouter Antécédents",
     "family_history": "Antécédents familiaux",
@@ -236,6 +237,7 @@
     "add_drug": "Ajouter un médicament",
     "add_group_model": "Ajouter un nouveau dossier",
     "group_model_name": "Nom du dossier",
+    "group_model_name_placeholder": "Veuillez saisir le nom du dossier",
     "drug_list": "Liste des médicaments",
     "name_of_drug":"Nom du médicament",
     "placeholder_drug_name": "Ex: Paracetamol ou le nom du médicament",
@@ -342,9 +344,16 @@
     "subtitleRemovemodel": "",
     "model": "modèle",
     "dialogs": {
-      "delete-dialog": {
+      "delete-parent-dialog": {
+        "title": "Supprimer dossier",
+        "sub-title": "Voulez-vous vraiment supprimer ce dossier?",
+        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      },
+      "delete-model-dialog": {
         "title": "Supprimer Modéle",
-        "sub-title": "Voulez-vous vraiment supprimer ce Modéle?",
+        "sub-title": "Voulez-vous vraiment supprimer ce modéle?",
         "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
         "cancel": "Annuler",
         "confirm": "Supprimer"

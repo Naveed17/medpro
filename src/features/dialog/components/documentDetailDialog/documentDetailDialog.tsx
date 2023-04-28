@@ -184,11 +184,11 @@ function DocumentDetailDialog({...props}) {
     };
 
     const handleYes = () => {
-        const selected = docs.find((doc: any) => doc.uuid === selectedTemplate);
+        const selected:any= docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
             setLoading(true);
-            setData((selected as any).header.data)
-            setHeader((selected as any).header.header)
+            setData({...selected.header.data,background:{show:selected.file !==null,content:selected.file ? selected.file:''}})
+            setHeader(selected.header.header)
             setOpenAlert(false);
             setTimeout(()=>{
                 setLoading(false)
@@ -347,24 +347,24 @@ function DocumentDetailDialog({...props}) {
                 })
                 if (templates.length > 0){
                     setSelectedTemplate(templates[0].uuid)
-                    setData(templates[0].header.data)
+                    setData({...templates[0].header.data,background:{show:templates[0].file !==null,content:templates[0].file ? templates[0].file:''}})
                     setHeader(templates[0].header.header)
                 } else {
                     const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
                     if (defaultdoc){
                         setSelectedTemplate(defaultdoc.uuid)
-                        setData(defaultdoc.header.data)
+                        setData({...defaultdoc.header.data,background:{show:defaultdoc.file !==null,content:defaultdoc.file ? defaultdoc.file:''}})
                         setHeader(defaultdoc.header.header)
                     } else {
                         setSelectedTemplate(docInfo[0].uuid)
-                        setData(docInfo[0].header.data)
+                        setData({...docInfo[0].header.data,background:{show:docInfo.file !==null,content:docInfo.file ? docInfo.file:''}})
                         setHeader(docInfo[0].header.header)
                     }
                 }
                 setLoading(false)
             }
         }
-    }, [httpDocumentHeader, state])
+    }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);

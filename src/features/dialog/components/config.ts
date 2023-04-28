@@ -69,7 +69,7 @@ const dialogData = [
     action: "medical_prescription_model",
     component: dynamic((): any =>
       import(
-        "@features/dialog/components/medicalPrescriptionModelDialog/medicalPrescriptionModelDialog"
+        "@features/dialog/components/medicalPrescriptionModelDialog/components/medicalPrescriptionModelDialog"
       ).then((mod) => mod)
     ),
   },
@@ -310,14 +310,6 @@ const dialogData = [
     component: dynamic((): any =>
       import(
         "@features/dialog/components/addVisitorDialog/components/addVisitorDialog"
-      ).then((mod) => mod)
-    ),
-  },
-  {
-    action: "delete-modal",
-    component: dynamic((): any =>
-      import(
-        "@features/dialog/components/deleteModalDialog/components/deleteModalDialog"
       ).then((mod) => mod)
     ),
   },

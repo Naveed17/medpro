@@ -49,9 +49,16 @@ export default function TimeSlot({...props}) {
                 :
                 data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
                     <Badge key={`time-slot-${index}`}
+                           sx={{
+                               '& .MuiBadge-badge': {
+                                   border: `3px solid`,
+                                   padding: '0 4px',
+                                   fontSize: "10px"
+                               }
+                           }}
                            badgeContent={item.appointments}
                            invisible={item.appointments === 0}
-                           color="error">
+                           color="primary">
                         <Chip
                             {...rest}
                             className={value === item.start ? "active" : ""}

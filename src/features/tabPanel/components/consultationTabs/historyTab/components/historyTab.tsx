@@ -120,13 +120,13 @@ function HistoryTab({...props}) {
                 </Box>
             }
 
-            {modelData.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+            {Object.keys(modelData).length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
                 <Label variant="filled" color="warning">
                     {t("history")}
                 </Label>
             </Stack>}
 
-            {modelData.length > 0 &&
+            {Object.keys(modelData).length > 0 &&
                 <HistoryStyled>
                     <tbody>
                     <tr>

@@ -32,8 +32,9 @@ export const CustomNode = ({...props}) => {
     const {direction} = useAppSelector(configSelector);
 
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
+    const [dialogAction, setDialogAction] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
-    const [modelUuid, setModelUuid] = useState<string | null>(null);
+    const [selectedModel, setSelectedModel] = useState<any | null>(null);
 
     const handleToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -45,11 +46,11 @@ export const CustomNode = ({...props}) => {
         setLoading(true);
         triggerDeleteModel({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${modelUuid}/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
-            setModelUuid(null);
-            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`).then(
+            setSelectedModel(null);
+            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`).then(
                 () => {
                     setLoading(false);
                     setDeleteModelDialog(false);
@@ -63,7 +64,7 @@ export const CustomNode = ({...props}) => {
                 {...(props.node.parent !== 0 && {
                     onClick: event => {
                         event.stopPropagation();
-                        switchPrescriptionModel(props.node.data.drugs)
+                        switchPrescriptionModel(props.node.data.drugs);
                     }
                 })}
                 className={`tree-node`}
@@ -87,16 +88,17 @@ export const CustomNode = ({...props}) => {
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
                                 variant="body2">{props.node.text}</Typography>
                 </div>
-                {props.node.parent !== 0 && <IconButton
+                <IconButton
                     disableRipple
                     className="btn-del"
                     onClick={(event) => {
                         event.stopPropagation();
-                        setModelUuid(props.node.id);
+                        setSelectedModel(props.node);
+                        setDialogAction(props.node.parent === 0 ? "parent" : "model");
                         setDeleteModelDialog(true);
                     }}>
                     <IconUrl color="red" width={12} height={12} path="icdelete"/>
-                </IconButton>}
+                </IconButton>
             </CustomNodeStyled>
             <Dialog
                 color={theme.palette.error.main}
@@ -109,13 +111,13 @@ export const CustomNode = ({...props}) => {
                     return (
                         <Box sx={{minHeight: 150}}>
                             <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
+                                        variant="subtitle1">{t(`dialogs.delete-${dialogAction}-dialog.sub-title`)} </Typography>
                             <Typography sx={{textAlign: "center"}}
-                                        margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
+                                        margin={2}>{t(`dialogs.delete-${dialogAction}-dialog.description`)}</Typography>
                         </Box>)
                 }}
                 open={deleteModelDialog}
-                title={t(`dialogs.delete-dialog.title`)}
+                title={t(`dialogs.delete-${dialogAction}-dialog.title`)}
                 actionDialog={
                     <>
                         <Button
@@ -123,7 +125,7 @@ export const CustomNode = ({...props}) => {
                             onClick={() => setDeleteModelDialog(false)}
                             startIcon={<CloseIcon/>}
                         >
-                            {t(`dialogs.delete-dialog.cancel`)}
+                            {t(`dialogs.delete-${dialogAction}-dialog.cancel`)}
                         </Button>
                         <LoadingButton
                             {...{loading}}
@@ -133,7 +135,7 @@ export const CustomNode = ({...props}) => {
                             onClick={handleDeleteModel}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
-                            {t(`dialogs.delete-dialog.confirm`)}
+                            {t(`dialogs.delete-${dialogAction}-dialog.confirm`)}
                         </LoadingButton>
                     </>
                 }
