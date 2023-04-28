@@ -14,40 +14,65 @@ import {
 import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
+import {useRequestMutation} from "@app/axios";
+import {setParentModel} from "@features/dialog";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {useSWRConfig} from "swr";
+import {Session} from "next-auth";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, switchPrescriptionModel} = props;
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {mutate} = useSWRConfig();
 
-    const [groupPrescriptionModel, setGroupPrescriptionModel] = useState<any[]>([
-        {uuid: 1, name: "Répertoire par défaut"},
-        {uuid: 2, name: "Vaccines"}
-    ]);
     const [treeData, setTreeData] = useState<any[]>([]);
 
-    const handleDrop = (newTree: any, {dragSourceId, dropTargetId, dragSource, dropTarget}: any) => {
-        // Do something
-        console.log(dragSourceId, dropTargetId, dragSource, dropTarget);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerPrescriptionEdit} = useRequestMutation(null, "/prescription/model/edit");
+
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+        const form = new FormData();
+        form.append("parent", dropTargetId);
+        triggerPrescriptionEdit({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }).then(() => {
+            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`);
+        });
         setTreeData(newTree);
     }
 
     useEffect(() => {
         if (models) {
-            setTreeData([
-                ...(groupPrescriptionModel.map(group => ({
-                        id: group.uuid,
+            const parentModels: PrescriptionPatternModel[] = [];
+            models.map((model: PrescriptionParentModel) => {
+                parentModels.push(...[
+                    {
+                        id: model.uuid,
                         parent: 0,
                         droppable: true,
-                        text: group.name
-                    })
-                )),
-                ...(models.map((model: any) => ({
-                    id: model.uuid,
-                    parent: 1,
-                    text: model.name,
-                    data: {
-                        drugs: model.prescription_modal_has_drugs
-                    }
-                })))]);
+                        text: model.isDefault ? "Répertoire par défaut" : model.name
+                    },
+                    ...model.prescriptionModels.map((prescription) => ({
+                        id: prescription.uuid,
+                        parent: model.uuid,
+                        text: prescription.name,
+                        data: {
+                            drugs: prescription.prescriptionModalHasDrugs
+                        }
+                    }))
+                ]);
+            });
+            parentModels.sort(model => {
+                return model.isDefault ? -1 : 1;
+            });
+            setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
 
