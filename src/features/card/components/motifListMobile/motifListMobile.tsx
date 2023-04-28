@@ -21,32 +21,14 @@ function MotifListMobile({ ...props }) {
         },
       }}>
       <Box className="card-main">
-        <Typography
+        <Grid container spacing={1} alignItems="center">
+          <Grid item xs={6}>
+ <Typography
           variant={"subtitle2"}
           color="primary.main"
           className="title">
           {data?.name}
         </Typography>
-        <Grid container spacing={1} alignItems="flex-end">
-          <Grid item xs={6}>
-            <Typography gutterBottom variant="body2" fontWeight={500}>
-              {t("table.duration")}
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              id="demo-select-small"
-              value={data.duration}
-              onChange={(ev) => {
-                handleChange(data, "duration", ev.target.value);
-              }}
-              name="duration">
-              {durations.map((duration: any) => (
-                <MenuItem key={duration.value} value={duration.value}>
-                  {duration.date + " " + t("table." + duration.unity)}
-                </MenuItem>
-              ))}
-            </Select>
           </Grid>
           <Grid item xs={6}>
             <Stack
@@ -61,11 +43,17 @@ function MotifListMobile({ ...props }) {
                 checked={data.isEnabled}
               />
               <IconButton
-                onClick={() => editMotif(data)}
+                onClick={() => editMotif(data,"edit")}
                 size="small"
                 sx={{ mr: { md: 1 } }}>
                 <IconUrl path="setting/edit" />
               </IconButton>
+               <IconButton
+              size="small"
+              sx={{ mr: { md: 1 } }}
+              onClick={() => editMotif(data, "delete")}>
+              <IconUrl path="setting/icdelete" />
+            </IconButton>
             </Stack>
           </Grid>
         </Grid>

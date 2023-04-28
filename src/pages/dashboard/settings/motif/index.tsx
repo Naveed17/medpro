@@ -21,8 +21,13 @@ import {
   CircularProgress,
   Backdrop,
   Theme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
+import CloseIcon from '@mui/icons-material/Close';
 import { EditMotifDialog } from "@features/editMotifDialog";
 import { SubHeader } from "@features/subHeader";
 import { configSelector } from "@features/base";
@@ -42,12 +47,14 @@ const MotifListMobile = lazy(
 import { LoadingScreen } from "@features/loadingScreen";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import { useSnackbar } from "notistack";
-
+import { LoadingButton } from "@mui/lab";
+import Icon from "@themes/urlIcon";
 function Motif() {
   const { data: session } = useSession();
   const theme: Theme = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const durations = useDateConverture(15, 240);
   const delay = useDateConverture(1440, 21600);
   const [displayedItems, setDisplayedItems] = useState(10);
@@ -64,7 +71,7 @@ function Motif() {
     delay_max: true,
     isEnabled: true,
   });
-  const [selected, setSelected] = useState();
+  const [selected, setSelected] = useState<null | any>();
 
   const { trigger } = useRequestMutation(null, "/settings/motifs");
   const { data: user } = session as Session;
@@ -207,11 +214,43 @@ function Motif() {
     setState({ ...state });
   };
 
-  const editMotif = (props: any) => {
-    setEdit(true);
+  const editMotif = (props: any, event: string) => {
     setSelected(props);
-  };
+    if (event === "add") {
+      setEdit(true);
+    }
+    if (event === "edit") {
+      setEdit(true);
+    }
 
+    if (event === "delete") {
+      setOpen(true);
+    }
+  };
+  const removeReason = (uuid: any) => {
+    setLoading(true);
+    trigger({
+      method: "DELETE",
+      url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${uuid}/${router.locale}`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    })
+      .then(() => {
+        enqueueSnackbar(t("alert.delete-reason"), { variant: "success" });
+        setLoading(false);
+        setOpen(false);
+        mutateConsultReason();
+      })
+      .catch((error) => {
+        const {
+          response: { data },
+        } = error;
+        setLoading(false);
+        setOpen(false);
+        enqueueSnackbar(data.message, { variant: "error" });
+      });
+  };
   const handleScroll = () => {
     const total = (httpConsultReasonResponse as HttpResponse)?.data.length;
     if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -258,7 +297,7 @@ function Motif() {
             variant="contained"
             color="success"
             onClick={() => {
-              editMotif(null);
+              editMotif(null as any, "add");
             }}
             sx={{ ml: "auto" }}>
             {t("add")}
@@ -321,6 +360,43 @@ function Motif() {
         open={loading && isMobile}>
         <CircularProgress color="inherit" />
       </Backdrop>
+      <Dialog PaperProps={{sx:{
+        width: "100%"
+      }}} maxWidth="sm" open={open}>
+        <DialogTitle sx={{
+          bgcolor: (theme:Theme) => theme.palette.error.main,
+          px:1,
+          py:2,
+          
+        }}>
+         {t("dialog.title")}
+        </DialogTitle>
+        <DialogContent style={{paddingTop:20}}>
+          <Typography>
+          {t("dialog.desc")}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
+            <Stack direction="row" spacing={1}>
+            <Button
+              onClick={() => {
+                setLoading(false);
+                setOpen(false);
+              }}
+              startIcon={<CloseIcon />}>
+              {t("dialog.cancel")}
+            </Button>
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              color="error"
+              onClick={() => removeReason(selected?.uuid as any)}
+              startIcon={<Icon path="setting/icdelete" color="white" />}>
+              {t("dialog.delete")}
+            </LoadingButton>
+          </Stack>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

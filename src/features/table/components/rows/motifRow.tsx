@@ -9,6 +9,7 @@ import {
   MenuItem,
   Skeleton,
   Box,
+  Stack,
 } from "@mui/material";
 import Lable from "@themes/overrides/Lable";
 import IconUrl from "@themes/urlIcon";
@@ -59,12 +60,20 @@ function MotifRow({ ...props }) {
       </TableCell>
       <TableCell align="right">
         {row ? (
-          <IconButton
-            size="small"
-            sx={{ mr: { md: 1 } }}
-            onClick={() => editMotif(row)}>
-            <IconUrl path="setting/edit" />
-          </IconButton>
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <IconButton
+              size="small"
+              sx={{ mr: { md: 1 } }}
+              onClick={() => editMotif(row, "edit")}>
+              <IconUrl path="setting/edit" />
+            </IconButton>
+            <IconButton
+              size="small"
+              sx={{ mr: { md: 1 } }}
+              onClick={() => editMotif(row, "delete")}>
+              <IconUrl path="setting/icdelete" />
+            </IconButton>
+          </Stack>
         ) : (
           <Skeleton width={30} height={40} sx={{ m: "auto" }} />
         )}

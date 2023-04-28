@@ -63,7 +63,16 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
-      "updated":"Motif modifé",
+      "updated": "Motif modifé",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -75,9 +84,9 @@
         "action": "Action",
         "code": "Code",
         "icon": "Icône",
-        "minutes":"Minutes",
-        "hours":"Heures",
-        "hour":"Heure"
+        "minutes": "Minutes",
+        "hours": "Heures",
+        "hour": "Heure"
       }
     },
     "dialog": {
@@ -110,8 +119,8 @@
         "action": "Action",
         "code": "Code",
         "icon": "Icône",
-        "consultation_fees":"Frais de consultation",
-        "empty":""
+        "consultation_fees": "Frais de consultation",
+        "empty": ""
       }
     },
     "dialog": {
@@ -124,13 +133,13 @@
       "cancel": "Annuler",
       "color": "couleur",
       "save": "Enregistrer",
-      "type":"Type du motif",
-      "payed":"Payé",
-      "un_payed":"Non payé"
+      "type": "Type du motif",
+      "payed": "Payé",
+      "un_payed": "Non payé"
     },
     "alert": {
-      "add":"Ajouter motif de consultation",
-      "edit":"Modifier motif de consultation"
+      "add": "Ajouter motif de consultation",
+      "edit": "Modifier motif de consultation"
     }
   },
   "lieux": {
@@ -343,17 +352,17 @@
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
-      "access_management":"Gestion des accès",
-      "add_new_role":"Ajouter nouveau rôle",
-      "add_a_new_role":"Ajouter un nouveau rôle",
-      "role_name":"Nom du rôle",
-      "select_permissions":"Choisissez les permissions",
-      "select_all":"Sélectionner tout",
-      "agenda_management":"Gestion Agenda",
-      "add_appointment":"Ajouter RDV",
-      "cancel":"Annuler",
-      "save":"Enregistrer",
-      "visitor_added":"Visiteur ajoute",
+      "access_management": "Gestion des accès",
+      "add_new_role": "Ajouter nouveau rôle",
+      "add_a_new_role": "Ajouter un nouveau rôle",
+      "role_name": "Nom du rôle",
+      "select_permissions": "Choisissez les permissions",
+      "select_all": "Sélectionner tout",
+      "agenda_management": "Gestion Agenda",
+      "add_appointment": "Ajouter RDV",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "visitor_added": "Visiteur ajoute",
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
@@ -433,7 +442,7 @@
       "success": "Importé",
       "failed": "Échoué",
       "error": "Échoué",
-      "empty":""
+      "empty": ""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
