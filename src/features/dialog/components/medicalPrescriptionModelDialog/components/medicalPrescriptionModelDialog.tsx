@@ -1,9 +1,4 @@
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     FormControlLabel,
     Link,
     ListItem,
@@ -11,70 +6,31 @@ import {
     RadioGroup,
     Stack,
     TextField,
-    Theme,
     Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import MedicalPrescriptionModelDialogStyled from "./overrides/medicalPrescriptionModelDialogStyled";
 import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
-import {useRequestMutation} from "@app/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useSWRConfig} from "swr";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {prescriptionSelector, setModelName, setParentModel} from "@features/dialog";
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {t, models} = dialogData;
-    const {data: session} = useSession();
-    const router = useRouter();
-    const {mutate} = useSWRConfig();
+    const {t, models, setOpenAddParentDialog} = dialogData;
     const dispatch = useAppDispatch();
 
-    const {name: prescriptionName, parent} = useAppSelector(prescriptionSelector);
+    const {parent} = useAppSelector(prescriptionSelector);
 
-    const [selectedParent, setSelectedParent] = useState<string>(parent);
-    const [name, setName] = useState<string>(prescriptionName);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "/prescription/model/parent");
-
+    const [selectedParent, setSelectedParent] = useState<string>("");
     const [value, setValue] = useState("");
-    const [open, setOpen] = useState(false);
-    const [error, setError] = useState(false);
-    const [loading, setLoading] = useState(false);
 
-    const handleAddParentModel = () => {
-        if (name) {
-            setLoading(true);
-            const form = new FormData();
-            form.append("name", name);
-            triggerPrescriptionParent({
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }).then(() => {
-                mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`).then(
-                    (result) => {
-                        const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
-                        dispatch(setParentModel(models[models.length - 1]?.uuid));
-                        setOpen(false);
-                        setLoading(false);
-                    });
-            });
-        } else {
-            setError(true);
+    useEffect(() => {
+        if (parent?.length > 0) {
+            setSelectedParent(parent);
         }
-    }
+    }, [parent]);
 
     return (
         <>
@@ -97,12 +53,8 @@ function MedicalPrescriptionModelDialog({...props}) {
                 <RadioGroup
                     aria-labelledby="prescription-group-label"
                     value={selectedParent}
-                    onChange={event => {
-                        setSelectedParent(event.target.value);
-                        dispatch(setParentModel(event.target.value));
-                    }}
-                    name="radio-buttons-group"
-                >
+                    onChange={event => dispatch(setParentModel(event.target.value))}
+                    name="radio-buttons-group">
                     {models.map((item: any) => (
                         <ListItem
                             key={item.uuid}>
@@ -128,10 +80,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                     <Link
                         underline="none"
                         sx={{cursor: "pointer"}}
-                        onClick={() => {
-                            setOpen(true);
-                            setError(false);
-                        }}>
+                        onClick={() => setOpenAddParentDialog(true)}>
                         <Stack direction="row" alignItems="center">
                             <IconUrl path="ic-plus" className="ic-add"/>
                             {t("new_file", {ns: "consultation"})}
@@ -139,66 +88,6 @@ function MedicalPrescriptionModelDialog({...props}) {
                     </Link>
                 </ListItem>
             </MedicalPrescriptionModelDialogStyled>
-            <Dialog
-                maxWidth="xs"
-                PaperProps={{
-                    sx: {
-                        width: "100%",
-                    },
-                }}
-                onClose={() => setOpen(false)}
-                open={open}>
-                <DialogTitle
-                    sx={{
-                        bgcolor: (theme: Theme) => theme.palette.primary.main,
-                        mb: 2,
-                    }}>
-                    {t("add_group_model", {ns: "consultation"})}
-                </DialogTitle>
-                <DialogContent>
-                    <Typography gutterBottom>
-                        {t("group_model_name", {ns: "consultation"})}
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        value={name}
-                        onChange={(e) => {
-                            setName(e.target.value);
-                            dispatch(setModelName(e.target.value));
-                            setError(false);
-                        }}
-                        placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
-                        error={error}
-                        helperText={
-                            error && t("name_is_required", {ns: "consultation"})
-                        }
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Stack
-                        width={1}
-                        spacing={2}
-                        direction="row"
-                        justifyContent="flex-end">
-                        <Button
-                            variant="text-black"
-                            onClick={() => {
-                                setOpen(false);
-                            }}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "consultation"})}
-                        </Button>
-                        <LoadingButton
-                            {...{loading}}
-                            disabled={name.length === 0}
-                            onClick={handleAddParentModel}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
-                            variant="contained">
-                            {t("save", {ns: "consultation"})}
-                        </LoadingButton>
-                    </Stack>
-                </DialogActions>
-            </Dialog>
         </>
     );
 }
