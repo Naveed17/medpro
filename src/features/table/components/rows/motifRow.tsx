@@ -60,16 +60,16 @@ function MotifRow({ ...props }) {
       </TableCell>
       <TableCell align="right">
         {row ? (
-          <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
             <IconButton
               size="small"
-              sx={{ mr: { md: 1 } }}
+             
               onClick={() => editMotif(row, "edit")}>
               <IconUrl path="setting/edit" />
             </IconButton>
             <IconButton
               size="small"
-              sx={{ mr: { md: 1 } }}
+             
               onClick={() => editMotif(row, "delete")}>
               <IconUrl path="setting/icdelete" />
             </IconButton>

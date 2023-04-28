@@ -45,12 +45,11 @@ function MotifListMobile({ ...props }) {
               <IconButton
                 onClick={() => editMotif(data,"edit")}
                 size="small"
-                sx={{ mr: { md: 1 } }}>
+                >
                 <IconUrl path="setting/edit" />
               </IconButton>
                <IconButton
               size="small"
-              sx={{ mr: { md: 1 } }}
               onClick={() => editMotif(data, "delete")}>
               <IconUrl path="setting/icdelete" />
             </IconButton>

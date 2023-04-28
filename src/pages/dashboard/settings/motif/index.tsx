@@ -248,7 +248,7 @@ function Motif() {
         } = error;
         setLoading(false);
         setOpen(false);
-        enqueueSnackbar(data.message, { variant: "error" });
+        enqueueSnackbar(t("alert."+data.message.replace( /\s/g, '-').toLowerCase()), { variant: "error" });
       });
   };
   const handleScroll = () => {
