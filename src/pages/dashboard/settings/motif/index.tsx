@@ -362,11 +362,6 @@ function Motif() {
           closeDraw={closeDraw}
         />
       </Drawer>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: theme.zIndex.drawer + 1 }}
-        open={loading && isMobile}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
       <Dialog PaperProps={{sx:{
         width: "100%"
       }}} maxWidth="sm" open={open}>
