@@ -1,6 +1,4 @@
 import {countries} from "@features/countrySelect/countries";
-import React, {memo} from "react";
-import {Widget} from "@features/widget";
 
 export const SocialInsured = [
     {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "Lui-même"},

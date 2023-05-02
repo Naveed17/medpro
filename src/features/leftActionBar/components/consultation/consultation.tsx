@@ -61,6 +61,7 @@ function Consultation() {
     const [collapseData, setCollapseData] = useState<any[]>([]);
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
     const [analyses, setAnalyses] = useState<any>([]);
+    const [mi, setMi] = useState<any>([]);
     const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
@@ -143,11 +144,30 @@ function Consultation() {
         SWRNoValidateConfig
     );
 
+    const {data: httpPatientMI, mutate: miMutate} = useRequest(
+        patient
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
     useEffect(() => {
         if (httpPatientAnalyses) {
             setAnalyses((httpPatientAnalyses as HttpResponse).data)
         }
     }, [httpPatientAnalyses])
+
+    useEffect(() => {
+        if (httpPatientMI) {
+            setMi((httpPatientMI as HttpResponse).data)
+        }
+    }, [httpPatientMI])
 
     useEffect(() => {
         if (httpAnctecentType) {
@@ -282,6 +302,7 @@ function Consultation() {
                 },
             ]);
             analysessMutate();
+            miMutate();
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -544,7 +565,7 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} {...{patient,antecedentsMutate,patientAntecedents,allAntecedents,analyses,analysessMutate}} patient={patient}/>
+                                        <Content id={col.id} {...{patient,antecedentsMutate,patientAntecedents,allAntecedents,analyses,mi}} patient={patient}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>

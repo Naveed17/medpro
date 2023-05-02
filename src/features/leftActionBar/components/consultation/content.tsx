@@ -39,7 +39,7 @@ import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate,analyses} = props;
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate,analyses,mi} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -663,7 +663,7 @@ const Content = ({...props}) => {
                 )
             ) : id === 5 ? (
                 <>
-                    {patient?.requestedImaging.length === 0 && (
+                    {mi.length === 0 && (
                         <ContentStyled>
                             <CardContent
                                 style={{
@@ -677,7 +677,7 @@ const Content = ({...props}) => {
                             </CardContent>
                         </ContentStyled>
                     )}
-                    {patient?.requestedImaging.map((ri: any, index: number) => (
+                    {mi.map((ri: any, index: number) => (
                         <ContentStyled key={index}>
                             <CardContent style={{paddingBottom: 5}}>
                                 <p
@@ -700,7 +700,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name}
+                                                    {list["medical-imaging"]?.name} {list?.note ? "("+list?.note+")" : ""}
                                                 </Typography>
                                             </ListItem>
                                         ))}
