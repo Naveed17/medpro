@@ -1,6 +1,9 @@
 import {Stack, styled} from "@mui/material";
 
 const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
+    "& .MuiContainer-root": {
+        padding: 0
+    },
     "& .MuiOutlinedInput-root.Mui-focused": {
         background: theme.palette.background.default,
     },
@@ -128,5 +131,14 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
             },
         },
     },
+    "& .prescription-preview": {
+        width: '100%',
+        "& .MuiListItemButton-root": {
+            paddingTop: 0
+        },
+        "& .MuiListItemText-primary": {
+            fontWeight: "bold"
+        }
+    }
 }));
 export default MedicalPrescriptionCycleStyled;

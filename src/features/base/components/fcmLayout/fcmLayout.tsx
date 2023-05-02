@@ -186,7 +186,7 @@ function FcmLayout({...props}) {
                 });
             }
         } catch (error) {
-            console.log(error);
+            console.log("error: undefined token");
         }
     }
 
