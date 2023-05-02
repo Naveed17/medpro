@@ -11,7 +11,7 @@ import { IconsTypes } from "@features/calendar";
 function MotifRow({ ...props }) {
   const { row, editMotif, data } = props;
   const { t, ready } = useTranslation("common");
-  console.log(row);
+
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell colSpan={3}>
