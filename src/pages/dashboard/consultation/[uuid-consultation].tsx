@@ -521,7 +521,7 @@ function ConsultationInProgress() {
 
             Object.keys(res).map(key => {
                 keys.push(key);
-                Object.keys(res[key]).map(date => {
+                Object.keys(res[key].data).map(date => {
                     if (dates.indexOf(date) === -1)  dates.push(date);
                 })
             })

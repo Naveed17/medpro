@@ -137,9 +137,9 @@ function HistoryTab({...props}) {
                     </tbody>
                     {keys.map((key: string) => (
                         <tr key={key}>
-                            <td><Typography className={"keys col"}>{key}</Typography></td>
+                            <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
                             {dates.map((date: string) => (<td key={date}><Typography
-                                className={"data col"}>{modelData[key][date] ? modelData[key][date] : '-'}</Typography>
+                                className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
                             </td>))}
                         </tr>
                     ))}
