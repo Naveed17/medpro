@@ -287,6 +287,8 @@ function Calendar({...props}) {
         }
     }, [sortedData]);
 
+    console.log(date.toString());
+
     return (
         <Box bgcolor="#F0FAFF">
             {isMobile && <ClickAwayListener onClickAway={() => {
@@ -325,7 +327,7 @@ function Calendar({...props}) {
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
                                 droppable
-                                timeZone={date.toString().includes("UTC") ? "UTC" : "local"}
+                                timeZone={"local"}
                                 navLinks
                                 selectable
                                 eventDurationEditable

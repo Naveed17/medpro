@@ -355,7 +355,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateParentModel());
+        }).then(() => mutateParentModel().then(() => {
+            setPrescriptionTabIndex(1);
+        }));
         setOpenDialog(false);
     }
 

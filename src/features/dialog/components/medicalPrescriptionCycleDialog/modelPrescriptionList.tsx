@@ -70,7 +70,7 @@ function ModelPrescriptionList({...props}) {
                     }))
                 ]);
             });
-            parentModels.sort(model => model.isDefault ? 1 : -1);
+            parentModels.sort(model => model.isDefault ? -1 : 1);
             setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -87,7 +87,9 @@ function ModelPrescriptionList({...props}) {
                                 {...{node, t, depth, isOpen, onToggle, switchPrescriptionModel}}
                             />
                         )}
+                        sort={false}
                         enableAnimateExpand={true}
+                        initialOpen={true}
                         dragPreviewRender={(monitorProps) => (
                             <CustomDragPreview monitorProps={monitorProps}/>
                         )}
