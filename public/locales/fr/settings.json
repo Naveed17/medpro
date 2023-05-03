@@ -122,6 +122,15 @@
         "icon": "Icône",
         "consultation_fees": "Frais de consultation",
         "empty": ""
+      },
+      "dialog": {
+        "title": "Motif type suppression",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "desc": "voulez-vous supprimer le motif type"
+      },
+      "alert": {
+        "delete-reasonType": "le motif type a été supprimé"
       }
     },
     "dialog": {
@@ -140,7 +149,8 @@
     },
     "alert": {
       "add": "Ajouter motif de consultation",
-      "edit": "Modifier motif de consultation"
+      "edit": "Modifier motif de consultation",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "lieux": {
