@@ -22,7 +22,7 @@ import {useSWRConfig} from "swr";
 import {Session} from "next-auth";
 
 function ModelPrescriptionList({...props}) {
-    const {models, t, switchPrescriptionModel} = props;
+    const {models, t, initialOpenData, switchPrescriptionModel} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
@@ -89,7 +89,7 @@ function ModelPrescriptionList({...props}) {
                         )}
                         sort={false}
                         enableAnimateExpand={true}
-                        initialOpen={true}
+                        initialOpen={initialOpenData}
                         dragPreviewRender={(monitorProps) => (
                             <CustomDragPreview monitorProps={monitorProps}/>
                         )}

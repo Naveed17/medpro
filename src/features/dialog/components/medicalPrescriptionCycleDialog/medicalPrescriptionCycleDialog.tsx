@@ -78,6 +78,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [parentModelName, setParentModelName] = useState<string>("");
 
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
+    const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
     const [info, setInfo] = useState("");
@@ -356,6 +357,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateParentModel().then(() => {
+            setInitialOpenData([modelParent]);
             setPrescriptionTabIndex(1);
         }));
         setOpenDialog(false);
@@ -879,7 +881,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </List>
                                     </TabPanel>
                                     <TabPanel value={prescriptionTabIndex} index={1}>
-                                        <ModelPrescriptionList {...{models, t, switchPrescriptionModel}}/>
+                                        <ModelPrescriptionList {...{
+                                            models,
+                                            t,
+                                            initialOpenData,
+                                            switchPrescriptionModel
+                                        }}/>
                                         <Button size={"small"}
                                                 onClick={() => setOpenAddParentDialog(true)}
                                                 sx={{alignSelf: "flex-start", mb: 1}}

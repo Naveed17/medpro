@@ -287,8 +287,6 @@ function Calendar({...props}) {
         }
     }, [sortedData]);
 
-    console.log(date.toString());
-
     return (
         <Box bgcolor="#F0FAFF">
             {isMobile && <ClickAwayListener onClickAway={() => {
