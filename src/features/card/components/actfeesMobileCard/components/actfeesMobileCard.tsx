@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DefaultCountry } from "@app/constants";
 function ActfeesMobileCard({ ...props }) {
-  const { data, editMotif, t, remove } = props;
+  const { data, editMotif, t, handleSelected } = props;
   const [fees, setFees] = useState("");
   const [name, setName] = useState("");
   const [edit, setEdit] = useState("");
@@ -111,7 +111,7 @@ function ActfeesMobileCard({ ...props }) {
                 )}
                 <IconButton
                   onClick={() => {
-                    remove(data.uuid);
+                    handleSelected(data);
                   }}
                   size="small"
                   sx={{ mr: { md: 1 } }}>
