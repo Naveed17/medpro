@@ -325,7 +325,7 @@ function Calendar({...props}) {
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
                                 droppable
-                                timeZone={date.toString().includes("UTC") ? "UTC" : "local"}
+                                timeZone={"local"}
                                 navLinks
                                 selectable
                                 eventDurationEditable
