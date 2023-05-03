@@ -10,7 +10,7 @@ import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 function PatientHistoryCard({...props}) {
-    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null,setSelectedTab} = props;
+    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null, setSelectedTab} = props;
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const router = useRouter();
@@ -20,7 +20,7 @@ function PatientHistoryCard({...props}) {
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             closePatientDialog && closePatientDialog();
-            setSelectedTab("consultation_form");
+            setSelectedTab && setSelectedTab("consultation_form");
         });
     }
 
@@ -39,6 +39,7 @@ function PatientHistoryCard({...props}) {
                     className="card-header"
                     p={2}
                     direction="row"
+                    justifyContent={"space-between"}
                     alignItems="center"
                     onClick={() => {
                         keyID === selectedApp
@@ -55,8 +56,8 @@ function PatientHistoryCard({...props}) {
                         fontWeight={600}>
                         <Icon path={"ic-doc"}/>
                         {capitalize(t("reason_for_consultation"))}{" "}
-                        {data?.appointment.consultationReason ? (
-                            <>: {data?.appointment.consultationReason.name}</>
+                        {data?.appointment.consultationReasons.length > 0 ? (
+                            <>: {data?.appointment.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
                         ) : (
                             <>: --</>
                         )}

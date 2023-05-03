@@ -51,6 +51,20 @@ function PlaceFilter({...props}) {
     const handleChangeCity = (country: CountryModel) => {
         setstate({country: country ? country.uuid : "", states: []});
         setOpend('');
+        if (!country) {
+            const query = _.omit(queryState, "country");
+            OnSearch({
+                query
+            });
+        } else {
+            const query = _.omit(queryState, "states");
+            OnSearch({
+                query: {
+                    ...query,
+                    country: country.uuid
+                }
+            });
+        }
     }
 
     const handleStateChange = (statesInput: StateModel[]) => {
@@ -60,12 +74,16 @@ function PlaceFilter({...props}) {
         if (value.length === 0) {
             const query = _.omit(queryState, "states");
             OnSearch({
-                query
+                query: {
+                    ...query,
+                    country: state.country
+                }
             });
         } else {
+            const query = _.omit(queryState, "country");
             OnSearch({
                 query: {
-                    ...queryState,
+                    ...query,
                     states: value.join(",")
                 }
             });
@@ -102,10 +120,9 @@ function PlaceFilter({...props}) {
                 onChange={(event, country) => handleChangeCity(country as CountryModel)}
                 getOptionLabel={(option) => option.name}
                 renderOption={(props, option) => (
-                    <MenuItem
-                        {...props}
-                        key={Math.random()}
-                        value={option.uuid}>
+                    <Box
+                        component="li"
+                        {...props}>
                         {option?.code && <Avatar
                             sx={{
                                 width: 26,
@@ -116,7 +133,7 @@ function PlaceFilter({...props}) {
                             src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                         />}
                         <Typography sx={{ml: 1}}>{option.name}</Typography>
-                    </MenuItem>
+                    </Box>
                 )}
                 renderInput={(params) => (
                     <FormControl component="form" fullWidth>
@@ -149,12 +166,11 @@ function PlaceFilter({...props}) {
                 onChange={(event, states) => handleStateChange(states)}
                 getOptionLabel={(option) => option.name}
                 renderOption={(props, state) => (
-                    <MenuItem
-                        {...props}
-                        key={state.uuid}
-                        value={state.uuid}>
+                    <Box
+                        component="li"
+                        {...props}>
                         <Typography sx={{ml: 1}}>{state.name}</Typography>
-                    </MenuItem>
+                    </Box>
                 )}
                 renderInput={(params) => (
                     <FormControl component="form" fullWidth>

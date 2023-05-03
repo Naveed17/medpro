@@ -10,6 +10,8 @@ function Antecedent({...props}) {
 
     const {
         antecedent,
+        patientAntecedents,
+        allAntecedents,
         t,
         patient,
         medical_entity,
@@ -28,9 +30,9 @@ function Antecedent({...props}) {
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Typography fontWeight={600}>{t(antecedent)}</Typography>}
+                    <Typography fontWeight={600}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).type ?t(antecedent):antecedent}</Typography>}
                 <List dense>
-                    {patient.antecedents[antecedent].map(
+                    {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
                             item: {
                                 uuid: string;
@@ -50,7 +52,7 @@ function Antecedent({...props}) {
                                     {item.startDate ? " / " + item.startDate : ""}{" "}
                                     {item.endDate ? " - " + item.endDate : ""}
                                     {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')':'' : ''}
+                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
                                 </Typography>
                                 <IconButton
                                     size="small"

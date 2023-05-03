@@ -19,18 +19,19 @@ import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const FormBuilder: any = dynamic(
+    () => import("@formio/react").then((mod: any) => mod.Form),
+    {
+        ssr: false,
+    }
+);
 
 function LifeStyleDialog({...props}) {
-    const codes: any = {
-        way_of_life: '0',
-        allergic: '1',
-        treatment: '2',
-        antecedents: '3',
-        family_antecedents: '4',
-        surgical_antecedents: '5',
-        medical_antecedents: '6'
-    }
+
     const action = props.data.action;
+    const allAntecedents = props.data.antecedents;
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
@@ -38,13 +39,14 @@ function LifeStyleDialog({...props}) {
     const {data: session} = useSession();
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
+    const [loading, setLoading] = useState(true);
     const {trigger} = useRequestMutation(null, "/antecedent");
 
     const router = useRouter();
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/${codes[action]}/${router.locale}`,
+        url: `/api/private/antecedents/${allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -58,12 +60,14 @@ function LifeStyleDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map(item => {
+            items.map((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    item.response = item.response[0].uuid
+                    console.log(item);
+                    item.response = item.antecedentValues[0].uuid
                 }
             })
             setState(items)
+            setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
@@ -89,7 +93,7 @@ function LifeStyleDialog({...props}) {
     return (
         <LifeStyleDialogStyled display='block'>
 
-            <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
+            <Box maxWidth={{xs: '100%', md: '100%'}} mx="auto">
                 <TextField
                     id="standard-basic"
                     variant="outlined"
@@ -115,8 +119,7 @@ function LifeStyleDialog({...props}) {
                 />
                 {
 
-
-                    !httpAntecedentsResponse ?
+                    loading ?
                         initalData.map((item, index) => (
                             <Box
                                 key={index}
@@ -132,7 +135,7 @@ function LifeStyleDialog({...props}) {
                             return item.name.toLowerCase().includes(value.toLowerCase());
                         })
                             .map((list: any, idx: number) =>
-                                <FormGroup row key={idx}>
+                                <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ?"selected-ant":""} row key={idx}>
                                     <FormControlLabel
                                         control={
                                             <Checkbox checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
@@ -175,11 +178,24 @@ function LifeStyleDialog({...props}) {
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response : ''}
                                                     placeholder={t('note')}
-                                                    sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
                                                     onChange={(e) => {
                                                         let items = state.map((item: AntecedentsModel) => ({...item}));
                                                         let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
                                                         if (item) item.response = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                            }
+                                            {
+                                                <TextField
+                                                    value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
+                                                    placeholder={t('note2')}
+                                                    sx={{width: '100%', mt: 1, ml: 2}}
+                                                    onChange={(e) => {
+                                                        let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                        let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                        if (item) item.note = e.target.value;
                                                         setState(items)
                                                     }
                                                     }/>
@@ -214,6 +230,31 @@ function LifeStyleDialog({...props}) {
                                                     </Stack>
                                                 </>
                                             }
+                                            {
+                                                list.value_type === 7 &&
+                                                <>
+                                                    <FormBuilder
+                                                        onChange={(ev: any) => {
+                                                            let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                            let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                            if (item) item.response = JSON.stringify(ev.data);
+
+                                                            /*console.log(state);
+                                                            if (!equals(items, state)) {
+                                                                console.log("set el");
+                                                                setState(items)
+                                                            }*/
+                                                        }}
+                                                        submission={{
+                                                            //data: JSON.parse(list.response)
+                                                        }}
+                                                        form={{
+                                                            display: "form",
+                                                            components: list.values,
+                                                        }}
+                                                    />
+                                                </>
+                                            }
                                         </>
                                     }
                                 </FormGroup>
@@ -227,7 +268,7 @@ function LifeStyleDialog({...props}) {
                             size='small'
                             onClick={() => {
                                 const form = new FormData();
-                                form.append('type', codes[action]);
+                                form.append('type', allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid);
                                 form.append('name', value);
                                 trigger({
                                     method: "POST",
@@ -240,7 +281,7 @@ function LifeStyleDialog({...props}) {
                                 }, {revalidate: true, populateCache: true}).then((data) => {
                                     antecedents.push({
                                         name: value,
-                                        type: codes[action],
+                                        type: allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid,
                                         uuid: (data?.data as HttpResponse).data.uuid,
                                         value_type: -1
                                     })

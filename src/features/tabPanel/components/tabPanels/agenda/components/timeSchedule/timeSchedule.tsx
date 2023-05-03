@@ -25,13 +25,22 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
-import {Autocomplete, IconButton, LinearProgress, Stack, TextField, useTheme} from "@mui/material";
+import {
+    Autocomplete,
+    DialogActions,
+    IconButton,
+    LinearProgress,
+    TextField,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from '@mui/icons-material/Done';
+import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 
 function TimeSchedule({...props}) {
@@ -44,6 +53,7 @@ function TimeSchedule({...props}) {
     const bottomRef = useRef(null);
     const moreDateRef = useRef(false);
     const changeDateRef = useRef(false);
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
@@ -52,7 +62,7 @@ function TimeSchedule({...props}) {
         duration: initDuration, recurringDates: initRecurringDates
     } = useAppSelector(appointmentSelector);
 
-    const [reason, setReason] = useState(motif);
+    const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
     const [durations, setDurations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
@@ -67,7 +77,7 @@ function TimeSchedule({...props}) {
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
-    const [customTime, setCustomTime] = useState<Date | null>(moment('2023-04-07').toDate());
+    const [customTime, setCustomTime] = useState<Date | null>(null);
     const {t, ready} = useTranslation("agenda", {
         keyPrefix: "steppers",
     });
@@ -83,7 +93,7 @@ function TimeSchedule({...props}) {
 
     const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -122,20 +132,19 @@ function TimeSchedule({...props}) {
         });
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const onChangeReason = (event: ConsultationReasonModel) => {
-        const reason = event;
-        const reasonUuid = event.uuid;
-        setReason(reasonUuid);
-        dispatch(setAppointmentMotif(reasonUuid));
+    const onChangeReason = (reasons: ConsultationReasonModel[]) => {
+        const reasonsUuid = reasons.map(reason => reason.uuid);
+        setSelectedReasons(reasonsUuid);
+        dispatch(setAppointmentMotif(reasonsUuid));
 
-        if (reason) {
-            dispatch(setAppointmentDuration(reason.duration as any));
-            setDuration(reason.duration as any);
+        if (reasons.length > 0) {
+            dispatch(setAppointmentDuration(reasons[0].duration as any));
+            setDuration(reasons[0].duration as any);
         }
 
-        if (date && medical_professional?.uuid) {
+        if (date && medical_professional?.uuid && reasons.length > 0) {
             setTime(moment(date).format('HH:mm'));
-            getSlots(date, reason?.duration as any, moment(date).format('HH:mm'));
+            getSlots(date, reasons[0]?.duration as any, moment(date).format('HH:mm'));
         }
     };
 
@@ -182,13 +191,14 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
-        const newDate = moment(`${moment(date).format("DD-MM-YYYY")} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
+        const newDateFormat = moment.utc(date?.toString()).format("DD-MM-YYYY");
+        const newDate = moment(`${newDateFormat} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
         dispatch(setAppointmentDate(newDate));
 
         const updatedRecurringDates = [{
-            id: `${moment(date).format("DD-MM-YYYY")}--${newTime}`,
+            id: `${newDateFormat}--${newTime}`,
             time: newTime,
-            date: moment(date).format("DD-MM-YYYY"),
+            date: newDateFormat,
             status: "success"
         }, ...recurringDates].reduce(
             (unique: RecurringDateModel[], item) =>
@@ -226,7 +236,7 @@ function TimeSchedule({...props}) {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
-                onChangeReason(reasonsUpdated[0]);
+                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
             }
             setLoadingReq(false);
         }));
@@ -265,7 +275,6 @@ function TimeSchedule({...props}) {
     if (errorHttpConsultReason) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
 
-    // @ts-ignore
     return (
         <div>
             <LinearProgress sx={{
@@ -312,16 +321,18 @@ function TimeSchedule({...props}) {
                             <Autocomplete
                                 id={"select-reason"}
                                 disabled={!reasons}
+                                multiple
                                 autoHighlight
                                 freeSolo
                                 disableClearable
                                 size="small"
-                                value={reasons && reason.length > 0 ? reasons.find(motif => motif.uuid === reason) : ""}
+                                value={reasons && selectedReasons.length > 0 ? reasons.filter(motif => selectedReasons.includes(motif.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    if (newValue && newValue.inputValue) {
+                                    const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                    if (addReason) {
                                         // Create a new value from the user input
-                                        addNewReason(newValue.inputValue);
+                                        addNewReason(addReason.inputValue);
                                     } else {
                                         onChangeReason(newValue);
                                     }
@@ -391,7 +402,7 @@ function TimeSchedule({...props}) {
                         <Select
                             labelId="select-location"
                             id="select-location"
-                            disabled={reason === ''}
+                            disabled={selectedReasons.length === 0}
                             value={location}
                             onChange={onChangeLocation}
                             sx={{
@@ -414,7 +425,7 @@ function TimeSchedule({...props}) {
                             {t("stepper-1.date-message")}
                         </Typography>
                         <Grid container spacing={changeTime ? 3 : 6} sx={{height: "auto"}}>
-                            <Grid item md={6} xs={12}>
+                            {!changeTime && <Grid item md={6} xs={12}>
                                 <StaticDatePicker
                                     views={['day']}
                                     onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
@@ -422,8 +433,9 @@ function TimeSchedule({...props}) {
                                     value={(location) ? date : null}
                                     loading={!location || !medical_professional}
                                 />
-                            </Grid>
-                            <Grid item md={6} xs={12}>
+                            </Grid>}
+                            <Grid item
+                                  {...((!changeTime || isMobile) && {mt: 0})} md={changeTime ? 12 : 6} xs={12}>
                                 {!changeTime &&
                                     <>
                                         <Typography variant="body1" align={"center"} color="text.primary" my={2}>
@@ -444,56 +456,55 @@ function TimeSchedule({...props}) {
                                 }
 
                                 {changeTime ?
-                                    <div>
-                                        <Stack direction={"row"} sx={{
-                                            position: "relative",
-                                            float: "right",
-                                            right: "0.5rem",
-                                            marginBottom: "-3rem",
-                                            marginTop: "1rem"
-                                        }}>
-                                            <IconButton
-                                                onClick={() => {
-                                                    changeDateRef.current = false;
-                                                    setChangeTime(false);
-                                                    onTimeSlotChange(moment(customTime).format("HH:mm"));
-                                                }}
-                                            >
-                                                <DoneIcon/>
-                                            </IconButton>
-
-                                            <IconButton
-                                                onClick={() => {
-                                                    changeDateRef.current = false;
-                                                    setChangeTime(false);
-                                                }}>
-                                                <CloseIcon/>
-                                            </IconButton>
-                                        </Stack>
-
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <StaticTimePicker
-                                                className={"time-picker-schedule"}
-                                                ampmInClock={false}
-                                                ampm={false}
-                                                maxTime={new Date(0, 0, 0, 20, 0)}
-                                                minTime={new Date(0, 0, 0, 8)}
-                                                shouldDisableTime={(timeValue, clockType) => {
-                                                    return clockType === "minutes" && (timeValue % 5 !== 0);
-                                                }}
-                                                displayStaticWrapperAs="mobile"
-                                                value={customTime}
-                                                onChange={(newValue) => {
-                                                    setCustomTime(newValue);
-                                                }}
-                                                renderInput={(params) => <TextField {...params} />}
-                                            />
-                                        </LocalizationProvider>
-                                    </div>
-
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <StaticTimePicker
+                                            {...(!isMobile && {orientation: "landscape"})}
+                                            className={"time-picker-schedule"}
+                                            ampmInClock={false}
+                                            //componentsProps={{ actionBar: { actions: [] } }}
+                                            components={{
+                                                ActionBar: () => <DialogActions>
+                                                    <Button
+                                                        size={"small"}
+                                                        disabled={!customTime}
+                                                        onClick={() => {
+                                                            changeDateRef.current = false;
+                                                            setChangeTime(false);
+                                                            onTimeSlotChange(moment(customTime).format("HH:mm"));
+                                                        }}
+                                                        startIcon={<ScheduleRoundedIcon/>}>
+                                                        {t("stepper-1.confirm-time")}
+                                                    </Button>
+                                                    <Button
+                                                        size={"small"}
+                                                        color={"black"}
+                                                        onClick={() => {
+                                                            changeDateRef.current = false;
+                                                            setChangeTime(false);
+                                                        }}
+                                                        startIcon={<CloseIcon/>}>
+                                                        {t("stepper-1.cancel-time")}
+                                                    </Button>
+                                                </DialogActions>
+                                            }}
+                                            ampm={false}
+                                            maxTime={new Date(0, 0, 0, 20, 0)}
+                                            minTime={new Date(0, 0, 0, 8)}
+                                            shouldDisableTime={(timeValue, clockType) => {
+                                                return clockType === "minutes" && (timeValue % 5 !== 0);
+                                            }}
+                                            displayStaticWrapperAs="mobile"
+                                            value={customTime}
+                                            onChange={(newValue) => {
+                                                setCustomTime(newValue);
+                                            }}
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                    </LocalizationProvider>
                                     :
                                     <Button
                                         sx={{fontSize: 12, mt: 1}}
+                                        disabled={!date}
                                         onClick={() => {
                                             changeDateRef.current = true;
                                             setChangeTime(true);
@@ -502,7 +513,7 @@ function TimeSchedule({...props}) {
                                             <IconUrl
                                                 width={"14"}
                                                 height={"14"}
-                                                color={theme.palette.primary.main}
+                                                {...(!date && {color: "white"})}
                                                 path="ic-edit"/>} variant="text">{t("stepper-1.change-time")}</Button>}
                             </Grid>
                         </Grid>

@@ -20,13 +20,20 @@ import moment from "moment-timezone";
 import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {LoadingButton} from "@mui/lab";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function WaitingRoomRow({...props}) {
-    const {row, t, handleEvent, data, loading} = props;
+    const {index: key, row, t, handleEvent, data, loading} = props;
     const {doctor_country, roles, setLoading} = data;
 
     const theme = useTheme();
+
+    const {next} = useAppSelector(dashLayoutSelector);
+
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions, setActions] = useState<boolean>(false);
@@ -91,7 +98,7 @@ function WaitingRoomRow({...props}) {
             case "onOpenPatientDrawer":
                 break;
         }
-    };
+    }
 
     return (
         <>
@@ -100,18 +107,48 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
-                                component={"span"}
+                                component={"span"}>
+                                {`#${key + 1}`}
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Skeleton variant="text" width={80}/>
+                    )}
+                </TableCell>
+                <TableCell>
+                    {row ? (
+                        <Box display="flex" alignItems="center">
+                            <Typography
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row, event});
+                                }}
+                                color="primary"
+                                sx={{ml: 0.6, cursor: "pointer"}}>
+                                {row.patient.firstName} {row.patient.lastName}
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell>
+                <TableCell>
+                    {row ? (
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            sx={{
+
+                                svg: {
+                                    path: {fill: theme.palette.success.main},
+                                },
+                            }}>
+                            <Icon path="ic-time"/>
+                            <Typography
                                 sx={{
-                                    display: "flex",
-                                    alignItems: "center",
                                     color: theme.palette.success.main,
-                                    svg: {
-                                        width: 11,
-                                        mx: 0.5,
-                                        path: {fill: theme.palette.success.main},
-                                    },
+                                    ml: 0.6
                                 }}>
-                                <Icon path="ic-time"/>
                                 {moment(row.arrive_time, "HH:mm")
                                     .add(1, "hours")
                                     .format("HH:mm")}
@@ -123,16 +160,19 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell>
                     {row ? (
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{
-                                svg: {
-                                    path: {fill: theme.palette.text.secondary},
-                                },
-                            }}>
-                            <Icon path="ic-time"/>
-                            <Typography color="success" sx={{ml: 0.6}}>
+                        <Box display="flex" alignItems="center">
+                            <Typography
+                                component={"span"}
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    svg: {
+                                        width: 11,
+                                        mx: 0.5,
+                                        path: {fill: theme.palette.text.secondary},
+                                    },
+                                }}>
+                                <Icon path="ic-time"/>
                                 {row.appointment_time}
                             </Typography>
                         </Box>
@@ -195,15 +235,11 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            {row.consultation_reason ? (
-                                <Label
-                                    variant="filled"
-                                    sx={{
-                                        bgcolor: row.consultation_reason.color,
-                                        color: "#fff",
-                                    }}>
-                                    {row.consultation_reason.name}
-                                </Label>
+                            {row.consultation_reasons?.length > 0 ? (
+                                <Typography
+                                    variant="body2">
+                                    {row.consultation_reasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                </Typography>
                             ) : (
                                 " -- "
                             )}
@@ -217,25 +253,8 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell>
                     {row ? (
-                        <Box display="flex" alignItems="center">
-                            <Typography
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row, event});
-                                }}
-                                color="primary"
-                                sx={{ml: 0.6, cursor: "pointer"}}>
-                                {row.patient.firstName} {row.patient.lastName}
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <Skeleton variant="text" width={100}/>
-                    )}
-                </TableCell>
-                <TableCell>
-                    {row ? (
                         <>
-                            {row.fees ? (
+                            {row.fees && (
                                 <Stack
                                     direction="row"
                                     alignItems="center"
@@ -246,8 +265,6 @@ function WaitingRoomRow({...props}) {
                                         {row.fees} {currency}
                                     </Typography>
                                 </Stack>
-                            ) : (
-                                "--"
                             )}
                         </>
                     ) : (
@@ -256,19 +273,40 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell align="right">
                     <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1} minWidth={250}>
-                        {!roles.includes("ROLE_SECRETARY") && <LoadingButton
-                            {...{loading}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                setLoading(true);
-                                handleEvent({action: "START_CONSULTATION", row, event});
-                            }}
-                            size="small"
-                            startIcon={<PlayCircleIcon/>}
-                            loadingPosition={"start"}
-                            variant="text-black">
-                            {t("start_the_consultation")}
-                        </LoadingButton>}
+
+                        <Stack direction={"row"} spacing={1}>
+                            {!roles.includes("ROLE_SECRETARY") && <LoadingButton
+                                {...{loading}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setLoading(true);
+                                    handleEvent({action: "START_CONSULTATION", row, event});
+                                }}
+                                loadingPosition={"start"}
+                                color={"black"}
+                                startIcon={<PlayCircleIcon/>}
+                                size="small"
+                                variant="text">
+                                {t("start")}
+                            </LoadingButton>}
+                            <LoadingButton
+                                {...{loading}}
+                                disabled={next && !row.is_next}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setLoading(true);
+                                    handleEvent({action: "NEXT_CONSULTATION", row, event});
+                                }}
+                                color={"primary"}
+                                loadingPosition={row.is_next ? "end" : "start"}
+                                {...(!row.is_next && {startIcon: <ArrowForwardRoundedIcon/>})}
+                                {...(row.is_next && {endIcon: <CloseRoundedIcon/>})}
+                                variant={row.is_next ? "contained" : "text"}
+                                size="small">
+                                {t(row.is_next ? "is_next" : "next")}
+                            </LoadingButton>
+                        </Stack>
+
                         <IconButton
                             disabled={loading}
                             onClick={(event) => {
@@ -286,7 +324,6 @@ function WaitingRoomRow({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={null}
                     change={false}
                     size={"lg"}
                     color={

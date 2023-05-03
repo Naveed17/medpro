@@ -3,9 +3,10 @@ import {
     setLimit,
     setMoveDateTime
 } from './actions';
+import {Moment} from "moment-timezone";
 
 export type DialogMoveProps = {
-    date: Date | null;
+    date: Moment | null;
     time: string;
     action: string;
     limit: number;

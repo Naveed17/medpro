@@ -3,12 +3,13 @@ import {CircularProgress, Grid, Stack, Theme, Typography, useTheme} from "@mui/m
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
-import {FileuploadProgress} from "@features/fileUploadProgress";
+import {FileuploadProgress} from "@features/progressUI";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
+import Resizer from "react-image-file-resizer";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
@@ -54,23 +55,29 @@ function AddDocumentDialog({...props}) {
         const filesAccepted = e.target.files;
         let docs: any = [];
         Array.from(filesAccepted).map((file) => {
-            const reader = new FileReader();
-            reader.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    setProgress(Math.round((e.loaded / e.total) * 100));
-                }
-            };
-            reader.onloadend = () => {
+            if (file.type.includes('image')) {
+                Resizer.imageFileResizer(file,
+                    850,
+                    850,
+                    file.type.split('/')[1],
+                    80,
+                    0,
+                    (uri) => {
+                        docs.push({type: type, file: uri, progress: 100})
+                        setFiles([...files, ...docs]);
+                        setLoad(false);
+                    },
+                    "file")
+            } else {
                 docs.push({type: type, file, progress: 100})
-            };
-            reader.readAsDataURL(file);
+                setTimeout(() => {
+                    setFiles([...files, ...docs]);
+                    setLoad(false);
+                }, 1000);
+            }
+
         })
 
-        setTimeout(() => {
-            setFiles([...files, ...docs]);
-            setLoad(false);
-
-        }, 1000);
 
         setTimeout(() => {
             const el = document.getElementById("label")

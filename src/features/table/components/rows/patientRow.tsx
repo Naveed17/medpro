@@ -4,7 +4,7 @@ import {
     Box,
     Button,
     IconButton,
-    Skeleton, Stack, Chip, Avatar, Tooltip, Badge, styled
+    Skeleton, Stack, Chip, Avatar, Tooltip, Badge, styled, AvatarGroup
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -24,6 +24,7 @@ import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@app/hooks";
+import Image from "next/image";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -79,7 +80,7 @@ function PatientRow({...props}) {
                 <Box
                     display="flex"
                     alignItems="center"
-                    sx={{img: {borderRadius: "4px"},  minWidth: 200}}
+                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}
                 >
                     <Box ml={1}>
                         <Typography
@@ -186,16 +187,24 @@ function PatientRow({...props}) {
                 {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
                         {row.insurances.length > 0 ?
-                            (row.insurances.map((insur: any, index: number) =>
-                                <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
-                                    <Box
-                                        sx={{margin: "0 4px"}}
-                                        component="img" width={20} height={20}
-                                        src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
-                                    {row.insurances.length === 1 &&
-                                        <Typography variant={"body2"}
-                                                    color={"gray"}>{insur.insurance?.name}</Typography>}
-                                </Stack>))
+                            <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
+                                {row.insurances.map((insur: any, index: number) =>
+                                    <Tooltip key={index} title={insur.insurance?.name}>
+                                        <Avatar variant={"circular"}>
+                                            <Image
+                                                style={{borderRadius: 2}}
+                                                alt={insur.insurance?.name}
+                                                src="static/icons/Med-logo.png"
+                                                width={20}
+                                                height={20}
+                                                loader={({src, width, quality}) => {
+                                                    return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl
+                                                }}
+                                            />
+                                        </Avatar>
+                                    </Tooltip>
+                                )}
+                            </AvatarGroup>
                             : "-"}
                     </Stack>
                 ) || "-"}
@@ -238,7 +247,7 @@ function PatientRow({...props}) {
                                         extendedProps: {
                                             time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                                             patient: row,
-                                            motif: row.nextAppointment.consultationReason,
+                                            motif: row.nextAppointment.consultationReasons,
                                             description: "",
                                             meeting: false,
                                             dur: row.nextAppointment.duration,
@@ -246,9 +255,10 @@ function PatientRow({...props}) {
                                         }
                                     }
                                     dispatch(setSelectedEvent(appointment as any));
+                                    const newDate = moment(appointment?.extendedProps.time);
                                     dispatch(setMoveDateTime({
-                                        date: new Date(appointment?.extendedProps.time),
-                                        time: moment(new Date(appointment?.extendedProps.time)).format("HH:mm"),
+                                        date: newDate,
+                                        time: newDate.format("HH:mm"),
                                         action: "move",
                                         selected: false
                                     }));

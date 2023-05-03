@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
-    Avatar,
+    Avatar, AvatarGroup,
     Badge,
     Box,
     Button,
@@ -13,7 +13,7 @@ import {
     ListItem,
     ListItemIcon,
     Skeleton,
-    Stack,
+    Stack, Tooltip,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -38,6 +38,7 @@ import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {getBirthdayFormat} from "@app/hooks";
 import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
+import Image from "next/image";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -52,11 +53,14 @@ function Consultation() {
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
+    const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
+    const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
@@ -65,8 +69,7 @@ function Consultation() {
 
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     useEffect(() => {
         if (isStarted) {
@@ -88,7 +91,7 @@ function Consultation() {
                 setIsLong(false);
             }
         }
-    }, [note])
+    }, [note]);
 
     const {data: httpPatientPhotoResponse} = useRequest(
         patient?.hasPhoto
@@ -102,6 +105,36 @@ function Consultation() {
             : null,
         SWRNoValidateConfig
     );
+
+    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(
+        patient
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/insurances/${router.locale}`,
+    }, SWRNoValidateConfig);
+
+    const {data: httpAnctecentType} = useRequest({
+        method: "GET",
+        url: `/api/private/antecedent-types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    useEffect(() => {
+        if (httpAnctecentType) {
+            setallAntecedents((httpAnctecentType as HttpResponse).data)
+        }
+    }, [httpAnctecentType])
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -156,7 +189,29 @@ function Consultation() {
             setEmail(patient.email);
             setNote(patient.note ? patient.note : "");
             setName(`${patient.firstName} ${patient.lastName}`);
+            setInsurances(patient.insurances as any);
             setLoading(false);
+            let wayOfLifeBadge = 0;
+            let allergicBadge = 0;
+            let antecedentBadge = 0;
+
+            if (httpPatientAntecedents) {
+                const res = (httpPatientAntecedents as HttpResponse).data;
+                setPatientAntecedents(res);
+                if (res['way_of_life'])
+                    wayOfLifeBadge = res['way_of_life'].length;
+
+                if (res['allergic'])
+                    allergicBadge = res['allergic']?.length;
+
+                let nb = 0;
+                Object.keys(res).map(ant => {
+                    if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic") {
+                        nb += res[ant].length;
+                    }
+                });
+                antecedentBadge = nb;
+            }
             setCollapseData([
                 {
                     id: 1,
@@ -168,22 +223,19 @@ function Consultation() {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: patient.antecedents.way_of_life.length,
+                    badge: wayOfLifeBadge
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: patient.antecedents.allergic.length,
+                    badge: allergicBadge
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "ic-doc",
-                    badge:
-                        patient.antecedents.family_antecedents.length +
-                        patient.antecedents.medical_antecedents.length +
-                        patient.antecedents.surgical_antecedents.length,
+                    badge: antecedentBadge
                 },
                 {
                     id: 2,
@@ -197,12 +249,6 @@ function Consultation() {
                     icon: "ic-soura",
                     badge: patient.requestedImaging.length,
                 },
-                /*{
-                            id: 3,
-                            title: 'consultation',
-                            icon: 'ic-agenda',
-                            badge: 0
-                        },*/
                 {
                     id: 8,
                     title: "documents",
@@ -211,9 +257,10 @@ function Consultation() {
                 },
             ]);
         }
-    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     if (!ready)
         return (
@@ -227,28 +274,52 @@ function Consultation() {
     return (
         <ConsultationStyled>
             <Box className="header">
-                <Box className="about">
-                    <label htmlFor="contained-button-file">
-                        <Zoom>
-                            <Avatar
-                                src={
-                                    patientPhoto
-                                        ? patientPhoto
-                                        : patient?.gender === "M"
-                                            ? "/static/icons/men-avatar.svg"
-                                            : "/static/icons/women-avatar.svg"
-                                }
-                                sx={{
-                                    width: 59,
-                                    height: 59,
-                                    marginLeft: 2,
-                                    marginRight: 2,
-                                    borderRadius: 2,
-                                }}>
-                                <IconUrl width={"59"} height={"59"} path="men-avatar"/>
-                            </Avatar>
-                        </Zoom>
-                    </label>
+                <Stack direction={"row"} alignItems={"flex-start"}>
+                    <Stack direction={"column"} alignItems={"center"} spacing={.5}>
+                        <label htmlFor="contained-button-file">
+                            <Zoom>
+                                <Avatar
+                                    src={
+                                        patientPhoto
+                                            ? patientPhoto
+                                            : patient?.gender === "M"
+                                                ? "/static/icons/men-avatar.svg"
+                                                : "/static/icons/women-avatar.svg"
+                                    }
+                                    sx={{
+                                        width: 59,
+                                        height: 59,
+                                        marginLeft: 2,
+                                        marginRight: 2,
+                                        borderRadius: 2,
+                                    }}>
+                                    <IconUrl width={"59"} height={"59"} path="men-avatar"/>
+                                </Avatar>
+                            </Zoom>
+                        </label>
+                        {insurances && insurances.length > 0 &&
+                            <Stack direction='row' alignItems="center" spacing={1}>
+                                <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
+                                    {insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
+                                        <Tooltip key={insuranceItem.insurance?.uuid}
+                                                 title={insuranceItem.insurance?.name}>
+                                            <Avatar variant={"circular"}>
+                                                <Image
+                                                    style={{borderRadius: 2}}
+                                                    alt={insuranceItem.insurance?.name}
+                                                    src="static/icons/Med-logo.png"
+                                                    width={20}
+                                                    height={20}
+                                                    loader={({src, width, quality}) => {
+                                                        return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
+                                                    }}
+                                                />
+                                            </Avatar>
+                                        </Tooltip>
+                                    )}
+                                </AvatarGroup>
+                            </Stack>}
+                    </Stack>
 
                     <Box>
                         {loading ? (
@@ -314,7 +385,7 @@ function Consultation() {
                             <Icon path={"ic-duotone"}/>
                         </IconButton>
                     </Box>
-                </Box>
+                </Stack>
                 {patient?.fiche_id && (
                     <Stack spacing={1} mb={-2} mt={2} ml={3}>
                         {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
@@ -447,7 +518,10 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} patient={patient}/>
+                                        <Content id={col.id} patient={patient}
+                                                 antecedentsMutate={antecedentsMutate}
+                                                 patientAntecedents={patientAntecedents}
+                                                 allAntecedents={allAntecedents}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>
