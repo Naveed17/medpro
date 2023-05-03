@@ -172,7 +172,7 @@ function EditMotifDialog({ ...props }) {
           },
           { revalidate: true, populateCache: true }
         ).then((r: any) => {mutateEvent();
-        enqueueSnackbar(t("updated"), { variant: "success" });
+        enqueueSnackbar(t("motif.config.alert.updated"), { variant: "success" });
         });
       } else {
         trigger(
@@ -190,7 +190,9 @@ function EditMotifDialog({ ...props }) {
             },
           },
           { revalidate: true, populateCache: true }
-        ).then((r: any) => mutateEvent());
+        ).then((r: any) => {
+           enqueueSnackbar(t("motif.config.alert.add"), { variant: "success" });
+          mutateEvent()});
       }
     },
   });
