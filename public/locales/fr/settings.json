@@ -64,6 +64,16 @@
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
       "updated": "Motif modifé",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé",
+        "cannot-delete-resource": "Impossible de supprimer la ressource"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -112,6 +122,15 @@
         "icon": "Icône",
         "consultation_fees": "Frais de consultation",
         "empty": ""
+      },
+      "dialog": {
+        "title": "Motif type suppression",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "desc": "voulez-vous supprimer le motif type"
+      },
+      "alert": {
+        "delete-reasonType": "le motif type a été supprimé"
       }
     },
     "dialog": {
@@ -130,7 +149,8 @@
     },
     "alert": {
       "add": "Ajouter motif de consultation",
-      "edit": "Modifier motif de consultation"
+      "edit": "Modifier motif de consultation",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "lieux": {

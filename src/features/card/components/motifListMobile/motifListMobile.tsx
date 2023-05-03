@@ -1,3 +1,4 @@
+import { useMemo  } from "react";
 import {
   Typography,
   IconButton,
@@ -10,8 +11,23 @@ import {
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import IconUrl from "@themes/urlIcon";
+import { useTranslation } from "next-i18next";
 function MotifListMobile({ ...props }) {
-  const { data, t, durations, handleChange, editMotif } = props;
+  const { data,  durations, handleChange, editMotif } = props;
+  const { t, ready } = useTranslation("common");
+  const duration = useMemo (() => {
+    if(data.duration < 60){
+      return data.duration  + " " + t("times.minutes");
+    }
+    if(data.duration > 59 && data.duration < 120){
+      return data.duration / 60  + " " + t("times.hour");
+    }
+    if(data.duration > 119){
+      return data.duration / 60  + " " + t("times.hours");
+    }
+}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  , [data.duration]);
   return (
     <RootStyled
       sx={{
@@ -21,32 +37,17 @@ function MotifListMobile({ ...props }) {
         },
       }}>
       <Box className="card-main">
-        <Typography
+         <Typography
           variant={"subtitle2"}
           color="primary.main"
           className="title">
           {data?.name}
         </Typography>
-        <Grid container spacing={1} alignItems="flex-end">
+        <Grid container spacing={1} alignItems="center">
           <Grid item xs={6}>
-            <Typography gutterBottom variant="body2" fontWeight={500}>
-              {t("table.duration")}
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              id="demo-select-small"
-              value={data.duration}
-              onChange={(ev) => {
-                handleChange(data, "duration", ev.target.value);
-              }}
-              name="duration">
-              {durations.map((duration: any) => (
-                <MenuItem key={duration.value} value={duration.value}>
-                  {duration.date + " " + t("table." + duration.unity)}
-                </MenuItem>
-              ))}
-            </Select>
+       <Typography>
+          {duration}
+        </Typography>
           </Grid>
           <Grid item xs={6}>
             <Stack
@@ -61,11 +62,16 @@ function MotifListMobile({ ...props }) {
                 checked={data.isEnabled}
               />
               <IconButton
-                onClick={() => editMotif(data)}
+                onClick={() => editMotif(data,"edit")}
                 size="small"
-                sx={{ mr: { md: 1 } }}>
+                >
                 <IconUrl path="setting/edit" />
               </IconButton>
+               <IconButton
+              size="small"
+              onClick={() => editMotif(data, "delete")}>
+              <IconUrl path="setting/icdelete" />
+            </IconButton>
             </Stack>
           </Grid>
         </Grid>
