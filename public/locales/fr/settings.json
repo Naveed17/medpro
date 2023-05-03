@@ -63,7 +63,6 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
-      "updated": "Motif modifé",
       "dialog": {
         "title": "Supprimer le motif",
         "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
@@ -72,7 +71,9 @@
       },
       "alert": {
         "delete-reason": "le motif a été supprimé",
-        "cannot-delete-resource": "Impossible de supprimer la ressource"
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "add": "Le motif a été ajouté",
+        "updated": "Motif modifé"
       },
       "table": {
         "name": "Nom",
@@ -417,7 +418,6 @@
     "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
-    "removed": "Acte est supprimé",
     "addedfees": "Acte est ajouté",
     "updated": "Acte est modifé",
     "price_of_act": "Prix",
@@ -437,7 +437,17 @@
       "editAct": "Modifier acte",
       "info": "Information d'acte",
       "name": "Nom d'acte",
-      "price": "Prix"
+      "price": "Prix",
+      "delete-act-title": "Acte supprimer",
+      "delete-act-desc": "Voulez-vous supprimer l'acte",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "alert": {
+      "add": "Acte est ajouté",
+      "updated": "Acte est modifé",
+      "delete-act": "Acte est supprimé",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "import-data": {

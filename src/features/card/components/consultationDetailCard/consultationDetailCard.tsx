@@ -280,7 +280,9 @@ function CIPPatientHistoryCard({...props}) {
                                             seeHistory()
                                         }}>{t('seeHistory')}</Typography>}
                                     </>}
-                                    <RecButton onClick={() => {
+                                    <RecButton 
+                                    small
+                                    onClick={() => {
                                         startStopRec();
                                     }}/>
                                 </Stack>

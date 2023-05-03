@@ -88,7 +88,7 @@ function Motif() {
           !isMobile
             ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
             : ""
-        }`,
+        }?sort=true`,
         headers: { Authorization: `Bearer ${session?.accessToken}` },
       },
       SWRNoValidateConfig
