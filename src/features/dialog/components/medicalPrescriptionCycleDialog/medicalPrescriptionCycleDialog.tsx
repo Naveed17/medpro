@@ -10,7 +10,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
+    Divider, Fab,
     FormControlLabel,
     List,
     ListItemButton,
@@ -877,6 +877,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         </React.Fragment>
                                                     }
                                                 />
+                                                <IconButton
+                                                    onClick={event => {
+                                                        event.stopPropagation();
+                                                        handleRemoveDrug(index);
+                                                    }}
+                                                    className="btn-del"
+                                                    disableRipple>
+                                                    <IconUrl color="red" width={12} height={12} path="icdelete"/>
+                                                </IconButton>
                                             </ListItemButton>)}
                                         </List>
                                     </TabPanel>

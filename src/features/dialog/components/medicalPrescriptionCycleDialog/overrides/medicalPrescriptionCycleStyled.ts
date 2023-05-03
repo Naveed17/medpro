@@ -134,7 +134,8 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .prescription-preview": {
         width: '100%',
         "& .MuiListItemButton-root": {
-            paddingTop: 0
+            paddingTop: 0,
+            paddingRight: 0
         },
         "& .MuiListItemText-primary": {
             fontWeight: "bold"
