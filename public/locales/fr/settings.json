@@ -64,6 +64,16 @@
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
       "updated": "Motif modifé",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé",
+        "cannot-delete-resource": "Impossible de supprimer la ressource"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
