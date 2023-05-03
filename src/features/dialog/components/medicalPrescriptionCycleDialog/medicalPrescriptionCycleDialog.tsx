@@ -10,7 +10,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
+    Divider, Fab,
     FormControlLabel,
     List,
     ListItemButton,
@@ -78,6 +78,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [parentModelName, setParentModelName] = useState<string>("");
 
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
+    const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
     const [info, setInfo] = useState("");
@@ -355,7 +356,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateParentModel());
+        }).then(() => mutateParentModel().then(() => {
+            setInitialOpenData([modelParent]);
+            setPrescriptionTabIndex(1);
+        }));
         setOpenDialog(false);
     }
 
@@ -873,11 +877,25 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         </React.Fragment>
                                                     }
                                                 />
+                                                <IconButton
+                                                    onClick={event => {
+                                                        event.stopPropagation();
+                                                        handleRemoveDrug(index);
+                                                    }}
+                                                    className="btn-del"
+                                                    disableRipple>
+                                                    <IconUrl color="red" width={12} height={12} path="icdelete"/>
+                                                </IconButton>
                                             </ListItemButton>)}
                                         </List>
                                     </TabPanel>
                                     <TabPanel value={prescriptionTabIndex} index={1}>
-                                        <ModelPrescriptionList {...{models, t, switchPrescriptionModel}}/>
+                                        <ModelPrescriptionList {...{
+                                            models,
+                                            t,
+                                            initialOpenData,
+                                            switchPrescriptionModel
+                                        }}/>
                                         <Button size={"small"}
                                                 onClick={() => setOpenAddParentDialog(true)}
                                                 sx={{alignSelf: "flex-start", mb: 1}}
