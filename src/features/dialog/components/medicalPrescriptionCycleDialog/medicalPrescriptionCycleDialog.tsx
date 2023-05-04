@@ -3,14 +3,13 @@ import {
     Box,
     Button,
     Card,
-    CardActions,
     CardContent,
     Container,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider, Fab,
+    Divider,
     FormControlLabel,
     List,
     ListItemButton,
@@ -51,7 +50,6 @@ import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {motion, AnimatePresence} from "framer-motion";
-import {RecButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -61,15 +59,20 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {Session} from "next-auth";
 import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
+import {IconSwitch} from "@features/buttons";
+import {useTranslation} from "next-i18next";
 
 function MedicalPrescriptionCycleDialog({...props}) {
-    const {data: {t}, data} = props;
+    const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
+    const localStorageSwitchUI = localStorage.getItem("prescription-switch-ui");
+
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
     const {direction} = useAppSelector(configSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
@@ -84,6 +87,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [info, setInfo] = useState("");
     const [talkStart, setTalk] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [switchUI, setSwitchUI] = useState(localStorageSwitchUI !== null ? Boolean(localStorageSwitchUI) : true);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
 
     const dosageMeal = [
@@ -416,7 +420,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     })
                 }
             });
-            if (drugs.length > 0) {
+            if (drugs.length > 0 || values.data && values.data.length === 0) {
                 setDrugs(drugs);
             }
         }
@@ -424,376 +428,362 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     return (
         <MedicalPrescriptionCycleStyled>
+            <Stack direction="row" mb={1} spacing={1} alignItems="center">
+                <Typography>{t("switch_ui_classic")}</Typography>
+                <IconSwitch defaultChecked
+                            value={switchUI}
+                            onChange={event => localStorage.setItem("prescription-switch-ui", event.target.checked as any)}
+                            inputProps={{'aria-label': 'switch UI'}}/>
+                <Typography>{t("switch_ui_new")}</Typography>
+            </Stack>
             <Container fixed>
                 <Grid
                     container
                     spacing={{xs: 0, md: 2}}
                     sx={{flexDirection: {xs: "column-reverse", md: "row"}}}>
                     <Grid item md={8} xs={12}>
-                        {talkStart ? (
-                            <Stack spacing={4}>
-                                <Card>
-                                    <CardContent>
-                                        <Stack width={1} height={"20rem"}>
-                                            <CardActions sx={{mt: "auto", justifyContent: "center"}}>
-                                                <RecButton/>
-                                            </CardActions>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                                <Button
-                                    onClick={() => setTalk(false)}
-                                    sx={{alignSelf: "flex-start"}}
-                                    startIcon={<IconUrl path="ic-edit"/>}>
-                                    {t("write_your_order", {ns: "consultation"})}
-                                </Button>
-                            </Stack>
-                        ) : (
-                            <>
-                                <FormikProvider value={formik}>
-                                    <Stack
-                                        component={Form}
-                                        spacing={1}
-                                        autoComplete="off"
-                                        noValidate>
-                                        {values.data.map((item: any, idx: number) => (
-                                            <Paper ref={element => {
-                                                (refs.current as any)[idx] = element
-                                            }}
-                                                   className="custom-paper" key={idx}>
-                                                <Grid container spacing={2} alignItems="flex-end">
-                                                    <Grid item md={8} xs={12}>
-                                                        <Typography gutterBottom>
-                                                            {t("name_of_drug", {ns: "consultation"})}
-                                                        </Typography>
-                                                        {drugsList && <Autocomplete
-                                                            id="cmo"
-                                                            value={item.drug}
-                                                            freeSolo
-                                                            onChange={(e, drug) => {
-                                                                e.stopPropagation();
-                                                                if ((drug as DrugModel)?.inputValue || typeof drug === "string") {
-                                                                    // Create a new value from the user input
-                                                                    setFieldValue(`data[${idx}].drug`, {
-                                                                        commercial_name: typeof drug === "string" ? drug : (drug as DrugModel)?.inputValue,
-                                                                        isVerified: false
-                                                                    });
-                                                                } else {
-                                                                    setFieldValue(`data[${idx}].drug`, drug as DrugModel);
-                                                                    setFieldValue(`data[${idx}].unit`, drug?.form);
-                                                                }
-                                                            }}
-                                                            size='small'
-                                                            options={drugsList}
-                                                            noOptionsText={t('startWriting')}
-                                                            getOptionLabel={(option) => {
-                                                                // Value selected with enter, right from the input
-                                                                if (typeof option === 'string') {
-                                                                    return option;
-                                                                }
-                                                                // Add "xxx" option created dynamically
-                                                                if (option.inputValue) {
-                                                                    return option.inputValue;
-                                                                }
-                                                                // Regular option
-                                                                return option.commercial_name;
-                                                            }}
-                                                            filterOptions={(options, params) => {
-                                                                const {inputValue} = params;
-                                                                const filtered = options.filter(option => option.commercial_name.toLowerCase().includes(inputValue.toLowerCase()));
-                                                                // Suggest the creation of a new value
-                                                                const isExisting = options.some((option) => inputValue.toLowerCase() === option.commercial_name.toLowerCase());
-                                                                if (inputValue !== '' && !isExisting) {
-                                                                    filtered.push({
-                                                                        inputValue,
-                                                                        commercial_name: `${t('add_drug')} "${inputValue}"`,
-                                                                        isVerified: false
-                                                                    });
-                                                                }
-                                                                return filtered;
-                                                            }}
-                                                            isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
-                                                            renderOption={(props, option) => (
-                                                                <MenuItem
-                                                                    {...props}
-                                                                    key={option.uuid ? option.uuid : "-1"}
-                                                                    value={option.uuid}>
-                                                                    {option.commercial_name}
-                                                                </MenuItem>
-                                                            )}
-                                                            renderInput={(params) => <TextField {...params}
-                                                                                                error={Boolean(touched.data && errors.data && (errors.data as any)[idx]?.drug)}
-                                                                                                onChange={(ev) => {
-                                                                                                    if (ev.target.value.length >= 2) {
-                                                                                                        triggerDrugList({
-                                                                                                            method: "GET",
-                                                                                                            url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
-                                                                                                            headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                                        }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
-                                                                                                    }
-                                                                                                }}
-                                                                                                placeholder={t('placeholder_drug_name')}/>}/>
+                        <FormikProvider value={formik}>
+                            <Stack
+                                component={Form}
+                                spacing={1}
+                                autoComplete="off"
+                                noValidate>
+                                {values.data.map((item: any, idx: number) => (
+                                    <Paper ref={element => {
+                                        (refs.current as any)[idx] = element
+                                    }}
+                                           className="custom-paper" key={idx}>
+                                        <Grid container spacing={2} alignItems="flex-end">
+                                            <Grid item md={8} xs={12}>
+                                                <Typography gutterBottom>
+                                                    {t("name_of_drug", {ns: "consultation"})}
+                                                </Typography>
+                                                {drugsList && <Autocomplete
+                                                    id="cmo"
+                                                    value={item.drug}
+                                                    freeSolo
+                                                    onChange={(e, drug) => {
+                                                        e.stopPropagation();
+                                                        if ((drug as DrugModel)?.inputValue || typeof drug === "string") {
+                                                            // Create a new value from the user input
+                                                            setFieldValue(`data[${idx}].drug`, {
+                                                                commercial_name: typeof drug === "string" ? drug : (drug as DrugModel)?.inputValue,
+                                                                isVerified: false
+                                                            });
+                                                        } else {
+                                                            setFieldValue(`data[${idx}].drug`, drug as DrugModel);
+                                                            setFieldValue(`data[${idx}].unit`, drug?.form);
                                                         }
-                                                    </Grid>
-                                                    <Grid item md={3.2} xs={12}>
-                                                        <Autocomplete
-                                                            size='small'
-                                                            freeSolo
-                                                            value={values.data[idx].unit ? values.data[idx].unit : ""}
-                                                            onChange={(event, unit) => setFieldValue(`data[${idx}].unit`, unit)}
-                                                            placeholder={t("unit", {ns: "consultation"})}
-                                                            noOptionsText={t('no_unit')}
-                                                            options={["Comprimé"]}
-                                                            renderInput={(params) => <TextField
-                                                                placeholder={t('unit')}
-                                                                {...params} />}
-                                                        />
-                                                    </Grid>
-                                                    <Grid className={"grid-action"} item md={.8} xs={12} pb={.2}>
-                                                        <IconButton
-                                                            onClick={() => handleRemoveDrug(idx)}
-                                                            className="btn-del-drug">
-                                                            <IconUrl path="icdelete"/>
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                                <Stack
-                                                    component={AnimatePresence}
-                                                    exitBeforeEnter
-                                                    spacing={2}>
-                                                    {item.cycles.map((innerItem: any, index: number) => (
-                                                        <Card
-                                                            component={motion.div}
-                                                            initial={{y: -100}}
-                                                            animate={{y: 0}}
-                                                            transition={{duration: 0.5}}
-                                                            className="cycle-card"
-                                                            key={index}>
-                                                            <CardContent>
-                                                                <Stack>
-                                                                    <Typography gutterBottom>
-                                                                        {t("dosage", {ns: "consultation"})}
-                                                                    </Typography>
-                                                                    <Stack
-                                                                        spacing={3}
-                                                                        direction="row"
-                                                                        flexWrap="wrap"
-                                                                        alignItems="center">
-                                                                        <Stack
-                                                                            spacing={0.5}
-                                                                            mb={0.5}
-                                                                            flexWrap="wrap"
-                                                                            direction="row"
-                                                                            alignItems="center">
-                                                                            <Button
-                                                                                onClick={(event: any) => {
-                                                                                    event.stopPropagation();
-                                                                                    event.preventDefault();
-                                                                                }}
-                                                                                component="label"
-                                                                                endIcon={
-                                                                                    <IconButton
-                                                                                        disabled={innerItem.dosageQty === fractions[fractions.length - 1]}
-                                                                                        onClick={(event) => handleDosageQty("plus", index, idx)}
-                                                                                        size="small"
-                                                                                        disableRipple>
-                                                                                        <AddIcon/>
-                                                                                    </IconButton>
-                                                                                }
-                                                                                startIcon={
-                                                                                    <IconButton
-                                                                                        disabled={innerItem.dosageQty === fractions[0]}
-                                                                                        onClick={(event) => handleDosageQty("minus", index, idx)}
-                                                                                        size="small"
-                                                                                        disableRipple>
-                                                                                        <RemoveIcon/>
-                                                                                    </IconButton>
-                                                                                }
-                                                                                variant="white"
-                                                                                disableRipple>
-                                                                                {innerItem.dosageQty}
-                                                                            </Button>
-                                                                            {innerItem.dosageTime.map((subitem: any, i: number) => (
-                                                                                <Button
-                                                                                    component="label"
-                                                                                    variant="white"
-                                                                                    disableRipple
-                                                                                    startIcon={
-                                                                                        <Checkbox
-                                                                                            checked={values.data[idx].cycles[index].dosageTime[i].value}
-                                                                                            onChange={event => {
-                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
-                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
-                                                                                            }}
-                                                                                        />
-                                                                                    }
-                                                                                    key={subitem.label}>
-                                                                                    {t(subitem.label, {
-                                                                                        ns: "consultation",
-                                                                                    })}
-                                                                                </Button>
-                                                                            ))}
-                                                                            <Select
-                                                                                size={"small"}
-                                                                                displayEmpty
-                                                                                sx={{
-                                                                                    maxHeight: 35,
-                                                                                    "& .MuiSelect-select": {
-                                                                                        background: "white"
-                                                                                    }
-                                                                                }}
-                                                                                id="dosageMeal-select"
-                                                                                value={item.cycles[index]?.dosageMealValue ? item.cycles[index].dosageMealValue : ""}
-                                                                                onChange={event => {
-                                                                                    setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
-                                                                                    setFieldValue(`data[${idx}].cycles[${index}].dosageMealValue`, event.target.value);
-                                                                                }}
-                                                                                renderValue={(selected) => {
-                                                                                    if (!selected || selected && selected.length === 0) {
-                                                                                        return <Typography
-                                                                                            color={"gray"}>
-                                                                                            Condition de prise
-                                                                                        </Typography>;
-                                                                                    }
-
-                                                                                    return t(selected, {ns: "consultation"});
-                                                                                }}>
-                                                                                {innerItem.dosageMeal.map((subitem: any, i: number) =>
-                                                                                    <MenuItem
-                                                                                        key={subitem.label}
-                                                                                        value={subitem.label}>{t(subitem.label, {ns: "consultation"})}</MenuItem>)}
-                                                                            </Select>
-                                                                        </Stack>
-                                                                    </Stack>
-
-                                                                    <TextField
-                                                                        sx={{mt: .5}}
-                                                                        value={values.data[idx].cycles[index].dosageInput ? values.data[idx].cycles[index].dosageInputText : generateDosageText(values.data[idx].cycles[index], values.data[idx].unit)}
-                                                                        onChange={event => {
-                                                                            const dosage = generateDosageText(values.data[idx].cycles[index], values.data[idx].unit);
-                                                                            const inputText = event.target.value;
-                                                                            const hasChange = inputText.length === 0 && values.data[idx].cycles[index].dosageInputText.length > 0;
-                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, !hasChange);
-                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInputText`, hasChange ? dosage : inputText);
+                                                    }}
+                                                    size='small'
+                                                    options={drugsList}
+                                                    noOptionsText={t('startWriting')}
+                                                    getOptionLabel={(option) => {
+                                                        // Value selected with enter, right from the input
+                                                        if (typeof option === 'string') {
+                                                            return option;
+                                                        }
+                                                        // Add "xxx" option created dynamically
+                                                        if (option.inputValue) {
+                                                            return option.inputValue;
+                                                        }
+                                                        // Regular option
+                                                        return option.commercial_name;
+                                                    }}
+                                                    filterOptions={(options, params) => {
+                                                        const {inputValue} = params;
+                                                        const filtered = options.filter(option => option.commercial_name.toLowerCase().includes(inputValue.toLowerCase()));
+                                                        // Suggest the creation of a new value
+                                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.commercial_name.toLowerCase());
+                                                        if (inputValue !== '' && !isExisting) {
+                                                            filtered.push({
+                                                                inputValue,
+                                                                commercial_name: `${t('add_drug')} "${inputValue}"`,
+                                                                isVerified: false
+                                                            });
+                                                        }
+                                                        return filtered;
+                                                    }}
+                                                    isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
+                                                    renderOption={(props, option) => (
+                                                        <MenuItem
+                                                            {...props}
+                                                            key={option.uuid ? option.uuid : "-1"}
+                                                            value={option.uuid}>
+                                                            {option.commercial_name}
+                                                        </MenuItem>
+                                                    )}
+                                                    renderInput={(params) => <TextField {...params}
+                                                                                        error={Boolean(touched.data && errors.data && (errors.data as any)[idx]?.drug)}
+                                                                                        onChange={(ev) => {
+                                                                                            if (ev.target.value.length >= 2) {
+                                                                                                triggerDrugList({
+                                                                                                    method: "GET",
+                                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
+                                                                                            }
+                                                                                        }}
+                                                                                        placeholder={t('placeholder_drug_name')}/>}/>
+                                                }
+                                            </Grid>
+                                            <Grid item md={3.2} xs={12}>
+                                                <Autocomplete
+                                                    size='small'
+                                                    freeSolo
+                                                    value={values.data[idx].unit ? values.data[idx].unit : ""}
+                                                    onChange={(event, unit) => setFieldValue(`data[${idx}].unit`, unit)}
+                                                    placeholder={t("unit", {ns: "consultation"})}
+                                                    noOptionsText={t('no_unit')}
+                                                    options={["Comprimé"]}
+                                                    renderInput={(params) => <TextField
+                                                        placeholder={t('unit')}
+                                                        {...params} />}
+                                                />
+                                            </Grid>
+                                            <Grid className={"grid-action"} item md={.8} xs={12} pb={.2}>
+                                                <IconButton
+                                                    onClick={() => handleRemoveDrug(idx)}
+                                                    className="btn-del-drug">
+                                                    <IconUrl path="icdelete"/>
+                                                </IconButton>
+                                            </Grid>
+                                        </Grid>
+                                        <Stack
+                                            component={AnimatePresence}
+                                            exitBeforeEnter
+                                            spacing={2}>
+                                            {item.cycles.map((innerItem: any, index: number) => (
+                                                <Card
+                                                    component={motion.div}
+                                                    initial={{y: -100}}
+                                                    animate={{y: 0}}
+                                                    transition={{duration: 0.5}}
+                                                    className="cycle-card"
+                                                    key={index}>
+                                                    <CardContent>
+                                                        <Stack>
+                                                            <Typography gutterBottom>
+                                                                {t("dosage", {ns: "consultation"})}
+                                                            </Typography>
+                                                            <Stack
+                                                                spacing={3}
+                                                                direction="row"
+                                                                flexWrap="wrap"
+                                                                alignItems="center">
+                                                                <Stack
+                                                                    spacing={0.5}
+                                                                    mb={0.5}
+                                                                    flexWrap="wrap"
+                                                                    direction="row"
+                                                                    alignItems="center">
+                                                                    <Button
+                                                                        onClick={(event: any) => {
+                                                                            event.stopPropagation();
+                                                                            event.preventDefault();
                                                                         }}
-                                                                        fullWidth
-                                                                        placeholder={t("enter_your_dosage")}/>
-                                                                </Stack>
-                                                                <Stack mt={1}>
-                                                                    <Typography gutterBottom>
-                                                                        {t("durations", {ns: "consultation"})}
-                                                                    </Typography>
-                                                                    <Stack
-                                                                        spacing={0.5}
-                                                                        mb={0.5}
-                                                                        flexWrap="wrap"
-                                                                        direction="row"
-                                                                        alignItems="center">
+                                                                        component="label"
+                                                                        endIcon={
+                                                                            <IconButton
+                                                                                disabled={innerItem.dosageQty === fractions[fractions.length - 1]}
+                                                                                onClick={(event) => handleDosageQty("plus", index, idx)}
+                                                                                size="small"
+                                                                                disableRipple>
+                                                                                <AddIcon/>
+                                                                            </IconButton>
+                                                                        }
+                                                                        startIcon={
+                                                                            <IconButton
+                                                                                disabled={innerItem.dosageQty === fractions[0]}
+                                                                                onClick={(event) => handleDosageQty("minus", index, idx)}
+                                                                                size="small"
+                                                                                disableRipple>
+                                                                                <RemoveIcon/>
+                                                                            </IconButton>
+                                                                        }
+                                                                        variant="white"
+                                                                        disableRipple>
+                                                                        {innerItem.dosageQty}
+                                                                    </Button>
+                                                                    {innerItem.dosageTime.map((subitem: any, i: number) => (
                                                                         <Button
                                                                             component="label"
-                                                                            onClick={(event: any) => {
-                                                                                event.stopPropagation();
-                                                                                event.preventDefault();
-                                                                            }}
-                                                                            endIcon={
-                                                                                <IconButton
-                                                                                    sx={{p: 1, m: 0}}
-                                                                                    disabled={
-                                                                                        innerItem.dosageDuration === parseInt(fractions[fractions.length - 1])
-                                                                                    }
-                                                                                    onClick={(event) => durationCounter("plus", index, idx)}
-                                                                                    size="small"
-                                                                                    disableRipple>
-                                                                                    <AddIcon/>
-                                                                                </IconButton>
-                                                                            }
-                                                                            startIcon={
-                                                                                <IconButton
-                                                                                    sx={{p: 1, m: 0}}
-                                                                                    disabled={
-                                                                                        innerItem.dosageDuration === 1
-                                                                                    }
-                                                                                    onClick={(event) => durationCounter("minus", index, idx)}
-                                                                                    size="small"
-                                                                                    disableRipple>
-                                                                                    <RemoveIcon/>
-                                                                                </IconButton>
-                                                                            }
                                                                             variant="white"
-                                                                            disableRipple>
-                                                                            {innerItem.dosageDuration}
+                                                                            disableRipple
+                                                                            startIcon={
+                                                                                <Checkbox
+                                                                                    checked={values.data[idx].cycles[index].dosageTime[i].value}
+                                                                                    onChange={event => {
+                                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+                                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                                    }}
+                                                                                />
+                                                                            }
+                                                                            key={subitem.label}>
+                                                                            {t(subitem.label, {
+                                                                                ns: "consultation",
+                                                                            })}
                                                                         </Button>
-                                                                        {innerItem.duration.map((subitem: any, i: number) => (
-                                                                            <Button
-                                                                                component="label"
-                                                                                variant="white"
-                                                                                disableRipple
-                                                                                startIcon={
-                                                                                    <Radio
-                                                                                        {...getFieldProps(
-                                                                                            `data[${idx}].cycles[${index}].durationValue`
-                                                                                        )}
-                                                                                        value={subitem.value}
-                                                                                        checked={
-                                                                                            item.cycles[index].durationValue ===
-                                                                                            subitem.value
-                                                                                        }
-                                                                                    />
-                                                                                }
-                                                                                key={subitem.label}>
-                                                                                {t(subitem.label, {ns: "consultation"})}
-                                                                            </Button>
-                                                                        ))}
-                                                                    </Stack>
+                                                                    ))}
+                                                                    <Select
+                                                                        size={"small"}
+                                                                        displayEmpty
+                                                                        sx={{
+                                                                            maxHeight: 35,
+                                                                            "& .MuiSelect-select": {
+                                                                                background: "white"
+                                                                            }
+                                                                        }}
+                                                                        id="dosageMeal-select"
+                                                                        value={item.cycles[index]?.dosageMealValue ? item.cycles[index].dosageMealValue : ""}
+                                                                        onChange={event => {
+                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageMealValue`, event.target.value);
+                                                                        }}
+                                                                        renderValue={(selected) => {
+                                                                            if (!selected || selected && selected.length === 0) {
+                                                                                return <Typography
+                                                                                    color={"gray"}>
+                                                                                    Condition de prise
+                                                                                </Typography>;
+                                                                            }
+
+                                                                            return t(selected, {ns: "consultation"});
+                                                                        }}>
+                                                                        {innerItem.dosageMeal.map((subitem: any, i: number) =>
+                                                                            <MenuItem
+                                                                                key={subitem.label}
+                                                                                value={subitem.label}>{t(subitem.label, {ns: "consultation"})}</MenuItem>)}
+                                                                    </Select>
                                                                 </Stack>
-                                                                <Stack mt={1}>
-                                                                    <FormControlLabel
-                                                                        control={
-                                                                            <Checkbox
-                                                                                checked={values.data[idx].cycles[index].cautionaryNoteInput}
-                                                                                onChange={(event) => {
-                                                                                    setFieldValue(`data[${idx}].cycles[${index}].cautionaryNoteInput`, event.target.checked)
-                                                                                }}
-                                                                                name="autre"/>
-                                                                        }
-                                                                        label={t("cautionary_note", {ns: "consultation"})}
-                                                                    />
-                                                                    {values.data[idx].cycles[index].cautionaryNoteInput &&
-                                                                        <TextField
-                                                                            {...getFieldProps(`data[${idx}].cycles[${index}].cautionaryNote`)}
-                                                                            fullWidth
-                                                                            placeholder={t("cautionary_note_placeholder")}/>}
-                                                                </Stack>
-                                                                <IconButton
-                                                                    onClick={() =>
-                                                                        handleRemoveCycle(idx, innerItem)
+                                                            </Stack>
+
+                                                            <TextField
+                                                                sx={{mt: .5}}
+                                                                value={values.data[idx].cycles[index].dosageInput ? values.data[idx].cycles[index].dosageInputText : generateDosageText(values.data[idx].cycles[index], values.data[idx].unit)}
+                                                                onChange={event => {
+                                                                    const dosage = generateDosageText(values.data[idx].cycles[index], values.data[idx].unit);
+                                                                    const inputText = event.target.value;
+                                                                    const hasChange = inputText.length === 0 && values.data[idx].cycles[index].dosageInputText.length > 0;
+                                                                    setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, !hasChange);
+                                                                    setFieldValue(`data[${idx}].cycles[${index}].dosageInputText`, hasChange ? dosage : inputText);
+                                                                }}
+                                                                fullWidth
+                                                                placeholder={t("enter_your_dosage")}/>
+                                                        </Stack>
+                                                        <Stack mt={1}>
+                                                            <Typography gutterBottom>
+                                                                {t("durations", {ns: "consultation"})}
+                                                            </Typography>
+                                                            <Stack
+                                                                spacing={0.5}
+                                                                mb={0.5}
+                                                                flexWrap="wrap"
+                                                                direction="row"
+                                                                alignItems="center">
+                                                                <Button
+                                                                    component="label"
+                                                                    onClick={(event: any) => {
+                                                                        event.stopPropagation();
+                                                                        event.preventDefault();
+                                                                    }}
+                                                                    endIcon={
+                                                                        <IconButton
+                                                                            sx={{p: 1, m: 0}}
+                                                                            disabled={
+                                                                                innerItem.dosageDuration === parseInt(fractions[fractions.length - 1])
+                                                                            }
+                                                                            onClick={(event) => durationCounter("plus", index, idx)}
+                                                                            size="small"
+                                                                            disableRipple>
+                                                                            <AddIcon/>
+                                                                        </IconButton>
                                                                     }
-                                                                    className="btn-del"
+                                                                    startIcon={
+                                                                        <IconButton
+                                                                            sx={{p: 1, m: 0}}
+                                                                            disabled={
+                                                                                innerItem.dosageDuration === 1
+                                                                            }
+                                                                            onClick={(event) => durationCounter("minus", index, idx)}
+                                                                            size="small"
+                                                                            disableRipple>
+                                                                            <RemoveIcon/>
+                                                                        </IconButton>
+                                                                    }
+                                                                    variant="white"
                                                                     disableRipple>
-                                                                    <IconUrl path="icdelete"/>
-                                                                </IconButton>
-                                                            </CardContent>
-                                                        </Card>
-                                                    ))}
-                                                </Stack>
-                                                <Button
-                                                    {...(values.data[idx].cycles.length === 0 && {sx: {mt: 1}})}
-                                                    onClick={() => handAddCycle(idx)}
-                                                    size="small"
-                                                    startIcon={<AddIcon/>}>
-                                                    {t("cycle", {ns: "consultation"})}
-                                                </Button>
-                                            </Paper>
-                                        ))}
-                                    </Stack>
-                                </FormikProvider>
-                                <Stack spacing={2} mt={2} alignItems="flex-start">
-                                    <Button startIcon={<AddIcon/>} onClick={handleAddDrug}>
-                                        {t("add_drug", {ns: "consultation"})}
-                                    </Button>
-                                </Stack>
-                            </>
-                        )}
+                                                                    {innerItem.dosageDuration}
+                                                                </Button>
+                                                                {innerItem.duration.map((subitem: any, i: number) => (
+                                                                    <Button
+                                                                        component="label"
+                                                                        variant="white"
+                                                                        disableRipple
+                                                                        startIcon={
+                                                                            <Radio
+                                                                                {...getFieldProps(
+                                                                                    `data[${idx}].cycles[${index}].durationValue`
+                                                                                )}
+                                                                                value={subitem.value}
+                                                                                checked={
+                                                                                    item.cycles[index].durationValue ===
+                                                                                    subitem.value
+                                                                                }
+                                                                            />
+                                                                        }
+                                                                        key={subitem.label}>
+                                                                        {t(subitem.label, {ns: "consultation"})}
+                                                                    </Button>
+                                                                ))}
+                                                            </Stack>
+                                                        </Stack>
+                                                        <Stack mt={1}>
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox
+                                                                        checked={values.data[idx].cycles[index].cautionaryNoteInput}
+                                                                        onChange={(event) => {
+                                                                            setFieldValue(`data[${idx}].cycles[${index}].cautionaryNoteInput`, event.target.checked)
+                                                                        }}
+                                                                        name="autre"/>
+                                                                }
+                                                                label={t("cautionary_note", {ns: "consultation"})}
+                                                            />
+                                                            {values.data[idx].cycles[index].cautionaryNoteInput &&
+                                                                <TextField
+                                                                    {...getFieldProps(`data[${idx}].cycles[${index}].cautionaryNote`)}
+                                                                    fullWidth
+                                                                    placeholder={t("cautionary_note_placeholder")}/>}
+                                                        </Stack>
+                                                        <IconButton
+                                                            onClick={() =>
+                                                                handleRemoveCycle(idx, innerItem)
+                                                            }
+                                                            className="btn-del"
+                                                            disableRipple>
+                                                            <IconUrl path="icdelete"/>
+                                                        </IconButton>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </Stack>
+                                        <Button
+                                            {...(values.data[idx].cycles.length === 0 && {sx: {mt: 1}})}
+                                            onClick={() => handAddCycle(idx)}
+                                            size="small"
+                                            startIcon={<AddIcon/>}>
+                                            {t("cycle", {ns: "consultation"})}
+                                        </Button>
+                                    </Paper>
+                                ))}
+                            </Stack>
+                        </FormikProvider>
+                        <Stack spacing={2} mt={2} alignItems="flex-start">
+                            <Button startIcon={<AddIcon/>} onClick={handleAddDrug}>
+                                {t("add_drug", {ns: "consultation"})}
+                            </Button>
+                        </Stack>
                     </Grid>
                     <Grid item md={4} xs={12}>
                         <Stack direction="row"

@@ -128,7 +128,7 @@ function PatientDetail({...props}) {
         },
     } : null);
 
-    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
+    const {data: httpPatientHistoryResponse, mutate: mutatePatientHis} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {
@@ -293,6 +293,7 @@ function PatientDetail({...props}) {
                         previousAppointmentsData,
                         patient,
                         mutate: mutatePatientDocuments,
+                        mutatePatientHis,
                         closePatientDialog
                     }} />
                 ) : (
