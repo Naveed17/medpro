@@ -2,11 +2,9 @@ import {Box, Button, DialogActions, Stack, Typography, useTheme} from '@mui/mate
 import {HistoryContainer} from '@features/card'
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
-import IconUrl from '@themes/urlIcon'
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -55,7 +53,6 @@ function HistoryPanel({...props}) {
     }
 
     const showDoc = (card: any) => {
-        console.log(card);
         if (card.documentType === 'medical-certificate') {
             setInfo('document_detail');
             setState({
@@ -184,7 +181,7 @@ function HistoryPanel({...props}) {
                                 apps,
                                 setApps,
                                 appID,
-                                appuuid: app.appointment.uuid,
+                                appuuid: '',
                                 dispatch,
                                 t,
                                 setInfo,
