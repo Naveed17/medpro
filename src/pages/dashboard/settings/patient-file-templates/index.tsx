@@ -102,7 +102,7 @@ function PatientFileTemplates() {
         }
     }
 
-    const handleChange = (props: ModalModel, event: string, value: string) => {
+    const handleChange = (props: ModalModel) => {
         props.isEnabled = !props.isEnabled;
         setState({...state});
         const form = new FormData();
@@ -124,11 +124,11 @@ function PatientFileTemplates() {
             },
             {revalidate: true, populateCache: true}
         )
-            .then((r) => enqueueSnackbar("updated", {variant: "success"}))
+            .then(() => enqueueSnackbar("updated", {variant: "success"}))
             .finally(() => closeSnackbar());
     };
 
-    const handleEdit = (props: ModalModel, event: string, value: string) => {
+    const handleEdit = (props: ModalModel, event: string) => {
         setOpen(true);
         setAction(event);
         setData(props);
@@ -152,7 +152,7 @@ function PatientFileTemplates() {
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise( (resolve) => {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
                     resolve(window.addEventListener("scroll", handleScroll));

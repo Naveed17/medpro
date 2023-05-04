@@ -261,7 +261,7 @@ function Motif() {
     useEffect(() => {
         // Add scroll listener
 
-        let promise = new Promise(function (resolve, reject) {
+        let promise = new Promise((resolve) => {
             document.body.style.overflow = "hidden";
             setTimeout(() => {
                 resolve(window.addEventListener("scroll", handleScroll));

@@ -47,7 +47,6 @@ function CIPPatientHistoryCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
 
     const {
         data: httpConsultReasonResponse,

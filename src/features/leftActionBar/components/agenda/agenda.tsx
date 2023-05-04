@@ -161,7 +161,7 @@ function Agenda() {
                                             id={status.key}
                                             onChange={(event) => {
                                                 const selected = event.target.checked;
-                                                const statusKey = Object.entries(AppointmentStatus).find((value, index) => value[1].key === status.key);
+                                                const statusKey = Object.entries(AppointmentStatus).find((value) => value[1].key === status.key);
 
                                                 if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
                                                     const type = (statusKey && statusKey[1]) as AppointmentStatusModel;

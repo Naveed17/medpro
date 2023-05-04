@@ -17,7 +17,7 @@ import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation,} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {
@@ -105,7 +105,7 @@ function ConsultationInProgress() {
     const [loading, setLoading] = useState<boolean>(true);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [loadingApp, setLoadingApp] = useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
     const [notes, setNotes] = useState<any[]>([]);

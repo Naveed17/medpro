@@ -16,7 +16,6 @@ import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {formatPhoneNumber} from "react-phone-number-input";
 import {dashLayoutSelector} from "@features/base";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));

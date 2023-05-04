@@ -18,7 +18,7 @@ import {
     TextField,
     useMediaQuery,
     Zoom,
-    SpeedDial, Fab,
+    Fab
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -193,7 +193,7 @@ function Patient() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const [loading, setLoading] = useState<boolean>(status === "loading");
+    const [loading] = useState<boolean>(status === "loading");
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
     const [dataPatient, setDataPatient] = useState([
@@ -360,7 +360,7 @@ function Patient() {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }

@@ -15,10 +15,7 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
-} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";

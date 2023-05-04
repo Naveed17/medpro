@@ -53,7 +53,6 @@ function PreConsultationDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
@@ -143,7 +142,7 @@ function PreConsultationDialog({...props}) {
                                             src="static/icons/Med-logo.png"
                                             width={20}
                                             height={20}
-                                            loader={({src, width, quality}) => {
+                                            loader={() => {
                                                 return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
                                             }}
                                         />

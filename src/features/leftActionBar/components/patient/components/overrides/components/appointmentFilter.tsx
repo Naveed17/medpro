@@ -1,6 +1,5 @@
 import {Typography, Box, InputLabel} from "@mui/material";
 import {DatePicker} from "@features/datepicker";
-import {useSession} from "next-auth/react";
 import React, {useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
@@ -15,7 +14,6 @@ interface StateProps {
 
 function AppointmentFilter({...props}) {
     const {item, t, ready, keyPrefix = "", OnSearch} = props;
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
     const {query} = useAppSelector(leftActionBarSelector);

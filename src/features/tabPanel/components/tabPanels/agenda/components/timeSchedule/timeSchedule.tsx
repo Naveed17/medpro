@@ -66,7 +66,7 @@ function TimeSchedule({...props}) {
 
     const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
-    const [durations, setDurations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
+    const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [recurringDates, setRecurringDates] = useState<RecurringDateModel[]>(initRecurringDates);
@@ -102,7 +102,7 @@ function TimeSchedule({...props}) {
 
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
-    const {data: httpSlotsResponse, trigger} = useRequestMutation(null, "/calendar/slots");
+    const {trigger} = useRequestMutation(null, "/calendar/slots");
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
 
@@ -244,7 +244,6 @@ function TimeSchedule({...props}) {
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const slots = (httpSlotsResponse as HttpResponse)?.data as TimeSlotModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
 

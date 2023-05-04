@@ -17,7 +17,7 @@ import {
     FormControlLabel, InputAdornment,
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
-import React, {useState} from "react";
+import React from "react";
 import {useTranslation} from "next-i18next";
 import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
@@ -101,8 +101,6 @@ function EditMotifDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-    const initalData = Array.from(new Array(20));
-    const [submit, setSubmit] = useState(false);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -128,8 +126,7 @@ function EditMotifDialog({...props}) {
                 : 0,
         },
         validationSchema,
-
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             props.closeDraw();
             const form = new FormData();
             form.append("color", values.color);

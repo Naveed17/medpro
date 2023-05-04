@@ -176,7 +176,7 @@ function ConsultationType() {
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise((resolve) => {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
                     resolve(window.addEventListener("scroll", handleScroll));

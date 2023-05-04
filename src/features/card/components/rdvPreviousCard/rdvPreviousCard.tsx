@@ -50,13 +50,12 @@ function RdvCard({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
+    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
@@ -66,7 +65,7 @@ function RdvCard({...props}) {
 
     const handleContextMenu = (event: any) => {
         event.stopPropagation();
-        setAnchorEl(event.currentTarget);
+        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
