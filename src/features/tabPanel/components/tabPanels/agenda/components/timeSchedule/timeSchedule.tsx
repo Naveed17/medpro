@@ -39,9 +39,9 @@ import {AnimatePresence, motion} from "framer-motion";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
-import DoneIcon from '@mui/icons-material/Done';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
+import {dashLayoutSelector} from "@features/base";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -55,16 +55,18 @@ function TimeSchedule({...props}) {
     const changeDateRef = useRef(false);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
         date: selectedDate,
         duration: initDuration, recurringDates: initRecurringDates
     } = useAppSelector(appointmentSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
-    const [durations, setDurations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
+    const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [recurringDates, setRecurringDates] = useState<RecurringDateModel[]>(initRecurringDates);
@@ -78,9 +80,6 @@ function TimeSchedule({...props}) {
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
     const [customTime, setCustomTime] = useState<Date | null>(null);
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -91,15 +90,19 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
+    const {
+        data: httpConsultReasonResponse,
+        error: errorHttpConsultReason,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
-    const {data: httpSlotsResponse, trigger} = useRequestMutation(null, "/calendar/slots");
+    const {trigger} = useRequestMutation(null, "/calendar/slots");
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
 
@@ -241,7 +244,6 @@ function TimeSchedule({...props}) {
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const slots = (httpSlotsResponse as HttpResponse)?.data as TimeSlotModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
 

@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
@@ -33,25 +33,28 @@ import {MotifTypeCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from "notistack";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
+
 function ConsultationType() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {data: session} = useSession();
-     const {trigger} = useRequestMutation(null, "/settings/type");
+    const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [edit, setEdit] = useState(false);
     const [selected, setSelected] = useState<any>();
     const [open, setOpen] = useState(false);
-const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const headCells = [
@@ -99,40 +102,41 @@ const {enqueueSnackbar} = useSnackbar();
         },
     ];
 
-    const {data, error, mutate} = useRequest({
+    const {data, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}${
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    } : null);
+
     const removeAppointmentType = (uuid: any) => {
         setLoading(true)
-    trigger({
-      method: "DELETE",
-      url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${uuid}/${router.locale}`,
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    })
-      .then(() => {
-        enqueueSnackbar(t("alert.delete-reasonType"), { variant: "success" });
-        setLoading(false)
-        setOpen(false);
-        mutate();
-      })
-      .catch((error) => {
-        const {
-          response: { data },
-        } = error;
-        
-        setOpen(false);
-        setLoading(false)
-        enqueueSnackbar(data.message, { variant: "error" });
-      });
-  };
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        })
+            .then(() => {
+                enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
+                setLoading(false)
+                setOpen(false);
+                mutate();
+            })
+            .catch((error) => {
+                const {
+                    response: {data},
+                } = error;
+
+                setOpen(false);
+                setLoading(false)
+                enqueueSnackbar(data.message, {variant: "error"});
+            });
+    };
     const handleScroll = () => {
         const total = (data as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -149,16 +153,16 @@ const {enqueueSnackbar} = useSnackbar();
         setEdit(false);
     }
 
-    const editMotif = (props: any,event:string) => {
-         setSelected(props);
-        if(event === "edit" || event ==="add") {
-        setEdit(true);
-       
+    const editMotif = (props: any, event: string) => {
+        setSelected(props);
+        if (event === "edit" || event === "add") {
+            setEdit(true);
+
+        }
+        if (event === "delete") {
+            setOpen(true);
+        }
     }
-    if(event === "delete") {
-        setOpen(true);
-    }
-}
 
     useEffect(() => {
         if (data !== undefined) {
@@ -172,10 +176,11 @@ const {enqueueSnackbar} = useSnackbar();
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise((resolve) => {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
-                    resolve(window.addEventListener("scroll", handleScroll));
+                    window.addEventListener("scroll", handleScroll);
+                    resolve(true);
                 }, 2000);
             });
             promise.then(() => {
@@ -200,7 +205,7 @@ const {enqueueSnackbar} = useSnackbar();
                     <Button
                         variant="contained"
                         color="success"
-                        onClick={() => editMotif(null,"add")}
+                        onClick={() => editMotif(null, "add")}
                         sx={{ml: "auto"}}>
                         {t("add")}
                     </Button>
@@ -242,43 +247,45 @@ const {enqueueSnackbar} = useSnackbar();
                     closeDraw={closeDraw}
                 />
             </Drawer>
-            <Dialog PaperProps={{sx:{
-        width: "100%"
-      }}} maxWidth="sm" open={open}>
-        <DialogTitle sx={{
-          bgcolor: (theme:Theme) => theme.palette.error.main,
-          px:1,
-          py:2,
+            <Dialog PaperProps={{
+                sx: {
+                    width: "100%"
+                }
+            }} maxWidth="sm" open={open}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
 
-        }}>
-         {t("dialog.title")}
-        </DialogTitle>
-        <DialogContent style={{paddingTop:20}}>
-          <Typography>
-          {t("dialog.desc")}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
-            <Stack direction="row" spacing={1}>
-            <Button
-              onClick={() => {
-                
-                setOpen(false);
-              }}
-              startIcon={<CloseIcon />}>
-              {t("dialog.cancel")}
-            </Button>
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              color="error"
-              onClick={() => removeAppointmentType(selected?.uuid as any)}
-              startIcon={<Icon path="setting/icdelete" color="white" />}>
-              {t("dialog.delete")}
-            </LoadingButton>
-          </Stack>
-        </DialogActions>
-      </Dialog>
+                }}>
+                    {t("dialog.title")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("dialog.desc")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+
+                                setOpen(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            color="error"
+                            onClick={() => removeAppointmentType(selected?.uuid as any)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("dialog.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

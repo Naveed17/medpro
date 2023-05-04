@@ -15,6 +15,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
+import {dashLayoutSelector} from "@features/base";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -25,6 +26,7 @@ function PreConsultationDialog({...props}) {
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
     const [changes, setChanges] = useState([
@@ -51,7 +53,6 @@ function PreConsultationDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
@@ -71,13 +72,11 @@ function PreConsultationDialog({...props}) {
         SWRNoValidateConfig
     );
 
-    const {data: httpSheetResponse} = useRequest(
-        medical_professional && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            } : null);
+    const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {data: httpModelResponse} = useRequest({
         method: "GET",
@@ -143,7 +142,7 @@ function PreConsultationDialog({...props}) {
                                             src="static/icons/Med-logo.png"
                                             width={20}
                                             height={20}
-                                            loader={({src, width, quality}) => {
+                                            loader={() => {
                                                 return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
                                             }}
                                         />

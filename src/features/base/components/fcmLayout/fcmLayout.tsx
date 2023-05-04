@@ -28,7 +28,7 @@ import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {setTimer} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@app/constants";
 import {setMoveDateTime} from "@features/dialog";
@@ -74,15 +74,23 @@ function FcmLayout({...props}) {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequest({
+    const {data: httpUserResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/appointments/types/" + router.locale,
+        url: `/api/medical-entity/${medical_entity?.uuid}/professional/user/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
+
+    const medicalEntityHasUser = (httpUserResponse as HttpResponse)?.data as MedicalEntityHasUsersModel[];
+
+    const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
@@ -282,6 +290,18 @@ function FcmLayout({...props}) {
             });
         }
     });
+
+    useEffect(() => {
+        if (medicalEntityHasUser) {
+            dispatch(setOngoing({medicalEntityHasUser}));
+        }
+    }, [dispatch, medicalEntityHasUser])
+
+    useEffect(() => {
+        if (appointmentTypes) {
+            dispatch(setOngoing({appointmentTypes}));
+        }
+    }, [dispatch, appointmentTypes])
 
     return (
         <>

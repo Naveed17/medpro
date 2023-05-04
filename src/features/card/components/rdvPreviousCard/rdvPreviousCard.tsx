@@ -26,7 +26,7 @@ import {ModelDot} from "@features/modelDot";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
@@ -44,18 +44,18 @@ function RdvCard({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {model} = useAppSelector(preConsultationSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
+    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
@@ -65,7 +65,7 @@ function RdvCard({...props}) {
 
     const handleContextMenu = (event: any) => {
         event.stopPropagation();
-        setAnchorEl(event.currentTarget);
+        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
@@ -99,7 +99,7 @@ function RdvCard({...props}) {
             setLoadingReq(false);
             localStorage.removeItem(`Modeldata${inner?.uuid}`);
             setOpenPreConsultationDialog(false);
-            mutate(`/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`);
+            medicalEntityHasUser && mutate(`/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/consultation-sheet/${router.locale}`);
         });
     }
 

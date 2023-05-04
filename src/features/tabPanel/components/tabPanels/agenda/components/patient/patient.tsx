@@ -16,7 +16,7 @@ import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {formatPhoneNumber} from "react-phone-number-input";
+import {dashLayoutSelector} from "@features/base";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -28,6 +28,7 @@ function Patient({...props}) {
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {currentStepper} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
@@ -39,13 +40,11 @@ function Patient({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpPatientResponse, isValidating, mutate} = useRequest({
+    const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
 

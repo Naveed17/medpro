@@ -15,10 +15,7 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
-} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
@@ -27,32 +24,28 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
+import {dashLayoutSelector} from "@features/base";
 
 function AppointmentCard({...props}) {
     const {data, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
+
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
+
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest({
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
     const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
@@ -62,7 +55,6 @@ function AppointmentCard({...props}) {
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
     const updateDetails = (input: { reason?: string[]; type?: string }) => {
         const form = new FormData();
@@ -215,7 +207,7 @@ function AppointmentCard({...props}) {
                                                             return <em>{t("stepper-1.type-placeholder")}</em>;
                                                         }
 
-                                                        const type = types?.find(
+                                                        const type = appointmentTypes?.find(
                                                             (type) => type.uuid === selected
                                                         );
                                                         return (
@@ -230,7 +222,7 @@ function AppointmentCard({...props}) {
                                                             </Box>
                                                         );
                                                     }}>
-                                                    {types?.map((type) => (
+                                                    {appointmentTypes?.map((type) => (
                                                         <MenuItem value={type.uuid} key={type.uuid}>
                                                             <FiberManualRecordIcon
                                                                 fontSize="small"
