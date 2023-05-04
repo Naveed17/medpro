@@ -60,9 +60,10 @@ import {Session} from "next-auth";
 import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {IconSwitch} from "@features/buttons";
+import {useTranslation} from "next-i18next";
 
 function MedicalPrescriptionCycleDialog({...props}) {
-    const {data: {t}, data} = props;
+    const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
     const {data: session} = useSession();
     const router = useRouter();
@@ -71,7 +72,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const refs = useRef([]);
     const localStorageSwitchUI = localStorage.getItem("prescription-switch-ui");
 
-    console.log("localStorageSwitchUI", localStorageSwitchUI);
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
+
     const {direction} = useAppSelector(configSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
@@ -418,7 +420,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     })
                 }
             });
-            if (drugs.length > 0) {
+            if (drugs.length > 0 || values.data && values.data.length === 0) {
                 setDrugs(drugs);
             }
         }

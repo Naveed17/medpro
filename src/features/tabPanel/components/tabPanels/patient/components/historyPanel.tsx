@@ -41,43 +41,21 @@ function HistoryPanel({...props}) {
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [actions, setActions] = useState<boolean>(false);
     const [dialog, setDialog] = useState<string>("");
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
     const [apps, setApps] = useState<any>([]);
+    const [selectedAppointment, setSelectedAppointment] = useState<string>("");
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-    };
-
-    const DialogAction = () => {
-        return (
-            <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
-                <Button
-                    variant="text-black"
-                    startIcon={<LogoutRoundedIcon/>}>
-                    {t("withoutSave")}
-                </Button>
-                <Stack direction={"row"} spacing={2}>
-                    <Button
-                        variant="text-black"
-                        startIcon={<CloseIcon/>}>
-                        {t("cancel")}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        startIcon={<IconUrl path="ic-check"/>}>
-                        {t("end_consultation")}
-                    </Button>
-                </Stack>
-            </DialogActions>
-        );
-    };
+        setInfo(null);
+        setSelectedAppointment("");
+    }
 
     const showDoc = (card: any) => {
+        console.log(card);
         if (card.documentType === 'medical-certificate') {
             setInfo('document_detail');
             setState({
@@ -142,7 +120,7 @@ function HistoryPanel({...props}) {
 
                 triggerUpdate({
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${"appuuid"}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${selectedAppointment}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`
@@ -185,6 +163,7 @@ function HistoryPanel({...props}) {
                     setInfo("medical_prescription_cycle");
                     setState(selectedDialog.state);
                     setOpenDialog(true);
+                    setDialogAction(true);
                     break;
             }
         }
@@ -205,13 +184,16 @@ function HistoryPanel({...props}) {
                                 apps,
                                 setApps,
                                 appID,
-                                appuuid: '',
+                                appuuid: app.appointment.uuid,
                                 dispatch,
                                 t,
                                 setInfo,
                                 setState,
                                 setOpenDialog,
-                                showDoc,
+                                showDoc: ((data: any) => {
+                                    setSelectedAppointment(app.appointment.uuid);
+                                    showDoc(data);
+                                }),
                                 mutate,
                                 patient,
                                 session,
@@ -245,18 +227,15 @@ function HistoryPanel({...props}) {
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                    title={t(info === "document_detail" ? "doc_detail_title" : `${info === "medical_prescription_cycle" ? "consultationIP." : ""}${info}`)}
                     {...((info === "document_detail" || info === "end_consultation") && {
                         onClose: handleCloseDialog,
                     })}
                     dialogClose={handleCloseDialog}
-                    {...(actions && {
+                    {...(dialogAction && {
                         actionDialog: <DialogActions>
                             <Button
-                                onClick={() => {
-                                    setOpenDialog(false);
-                                    setInfo(null);
-                                }}
+                                onClick={handleCloseDialog}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
                             </Button>
@@ -265,7 +244,7 @@ function HistoryPanel({...props}) {
                                 onClick={handleSaveDialog}
                                 disabled={info === "medical_prescription_cycle" && state.length === 0}
                                 startIcon={<SaveRoundedIcon/>}>
-                                {t("save")}
+                                {t("consultationIP.save")}
                             </Button>
                         </DialogActions>,
                     })}
