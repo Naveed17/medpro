@@ -125,9 +125,9 @@ function ActFees() {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}${
             !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
-                : ""
-        }?sort=true`,
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+                : "?sort=true"
+        }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
