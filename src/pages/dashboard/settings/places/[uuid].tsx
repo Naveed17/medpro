@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import React, {ReactElement, useCallback, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -47,6 +47,9 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry} from "@app/constants";
+import {CustomInput} from "@features/tabPanel";
+import PhoneInput from "react-phone-number-input/input";
+import {isValidPhoneNumber} from "libphonenumber-js";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -116,7 +119,9 @@ const FormStyled = styled(Form)(({theme}) => ({
 
 function PlacesDetail() {
     const router = useRouter();
-    const uuind = router.query.uuid;
+    const {data: session} = useSession();
+    const phoneInputRef = useRef(null);
+
     const {t} = useTranslation("settings");
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -131,31 +136,46 @@ function PlacesDetail() {
         phones: Yup.array().of(
             Yup.object().shape({
                 code: Yup.string(),
-                /*
-                                phone: Yup.string()
-                                    .test({
-                                        name: 'is-phone',
-                                        message: t("lieux.new.telephone-error"),
-                                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
-                                    })
-                                    .matches(PhoneRegExp, t("lieu.new.telephone-error"))
-                */
+                value: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : true
+                        }
+                    })
             })),
         town: Yup.string().required(t("lieux.new.townReq")),
         city: Yup.string().required(t("lieux.new.cityReq")),
     });
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const uuind = router.query.uuid;
+
+    const {trigger} = useRequestMutation(null, "/settings/place");
+    const {data, mutate} = useRequest(
+        uuind !== "new"
+            ? {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity.uuid}/locations/${uuind}/${router.locale}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`},
+            }
+            : null
+    );
+
+    const {data: httpStateResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    });
     const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
@@ -163,9 +183,8 @@ function PlacesDetail() {
     const [cords, setCords] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [alldays, setAllDays] = useState<boolean>(false);
-    const [contacts, setContacts] = useState<any[]>([doctor_country]);
+    const [contacts, setContacts] = useState<any[]>([]);
     const [cities, setCities] = useState<LocationModel[]>([]);
-
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
         {
             isMain: false,
@@ -190,7 +209,14 @@ function PlacesDetail() {
             postalCode: row ? row.address.postalCode : "",
             town: row ? row.address.state.uuid : "",
             city: "",
-            phones: contacts,
+            phones: contacts.map(contact => ({
+                code: contact.code,
+                value: contact.value ? `${contact.code}${contact.value}` : "",
+                type: "phone",
+                contact_type: contact.contact_type,
+                is_public: contact.is_public,
+                is_support: contact.is_support
+            })),
             information: "",
         },
         validationSchema,
@@ -199,34 +225,21 @@ function PlacesDetail() {
             cleanData();
             let method: string;
             let url: string;
-            let phones: {
-                value: string;
-                code: string;
-                type: string;
-                contact_type: string;
-                is_public: boolean;
-                is_support: boolean;
-            }[] = [];
-            values.phones.map((value) => {
-                if (value.phone)
-                    phones.push({
-                        value: value.phone,
-                        code: value.code,
-                        type: "phone",
-                        contact_type: contactTypes.filter(type => type.name === 'Téléphone')[0].uuid,
-                        is_public: !value.hidden,
-                        is_support: false,
-                    });
-            });
             const form = new FormData();
             form.append("postal_code", values.postalCode);
             form.append("access_data", JSON.stringify({}));
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
             form.append("name", JSON.stringify({fr: values.name}));
-
             form.append("address", JSON.stringify({fr: values.address}));
-            form.append("contacts", JSON.stringify(phones));
+            const updatedPhones: any[] = [];
+            values.phones.map((phone: any) => {
+                updatedPhones.push({
+                    ...phone,
+                    value: phone.value.replace(phone.code, "")
+                })
+            });
+            form.append("contacts", JSON.stringify(updatedPhones));
 
             if (cords.length > 0) {
                 form.append("latitude", cords[0].points[0]);
@@ -275,28 +288,6 @@ function PlacesDetail() {
         setFieldValue,
     } = formik;
 
-    useEffect(() => {
-        console.log(Object.keys(errors));
-    }, [errors])
-
-    const {data, mutate} = useRequest(
-        uuind !== "new"
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/locations/${uuind}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }
-            : null
-    );
-
-    const {data: httpStateResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
-
-    const {trigger} = useRequestMutation(null, "/settings/place");
-
     const getCities = (state: string) => {
         trigger(
             {
@@ -336,6 +327,52 @@ function PlacesDetail() {
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
     }
+
+    const apply = () => {
+        Object.keys(horaires[0].openingHours).map((day) => {
+            if (day !== "MON") {
+                horaires[0].openingHours[day] = [];
+            }
+        })
+        setAllDays(true)
+    };
+
+    const cleanData = () => {
+        Object.keys(horaires[0].openingHours).map((day) => {
+            horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
+                (hour: { start_time: string; end_time: string }) =>
+                    hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
+            );
+        });
+        setHoraires([...horaires]);
+    };
+
+    const onChangeState = (event: SelectChangeEvent) => {
+        setFieldValue("town", event.target.value);
+        setFieldValue("city", "");
+        getCities(event.target.value);
+    };
+
+    const handleAddPhone = () => {
+        const phones = [
+            ...values.phones,
+            {
+                code: doctor_country.phone,
+                value: "",
+                type: "phone",
+                contact_type: contactTypes && contactTypes[0].uuid,
+                is_public: false,
+                is_support: false
+            }
+        ];
+        setFieldValue("phones", phones);
+    };
+
+    const handleRemovePhone = (props: number) => {
+        const phones = values.phones.filter((item, index) => index !== props);
+        setFieldValue("phones", phones);
+    }
+
 
     useEffect(() => {
         if (data !== undefined) {
@@ -392,15 +429,14 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = row.contacts.length > 0 ? [] : [
-                DefaultCountry
-            ];
+            const cnts: any[] = row.contacts.length > 0 ? [] : [];
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
                     code: contact.code,
-                    phone: contact.value,
-                    name: getCountryByCode(contact.code)?.name,
-                    hidden: !contact.isPublic
+                    value: contact.value,
+                    contact_type: contact.contactType,
+                    is_support: contact.isSupport,
+                    is_public: contact.isPublic
                 });
             });
             setContacts([...cnts]);
@@ -433,126 +469,6 @@ function PlacesDetail() {
             setCheck(false);
         }
     }, [check, initialCites, row]);
-
-    // useEffect(() => {
-    //     if (row !== undefined && check) {
-    //         /*row.openingHours.map((ohours: any, index: number) => {
-    //             horaires[index].isMain = ohours.isMain;
-    //             horaires[index].isVisible = ohours.isVisible;
-    //             Object.keys(horaires[index].openingHours).map(day => {
-    //                 horaires[index].openingHours[day] = ohours.openingHours[day]
-    //             });
-    //         });
-    //         setHoraires([...horaires]);*/
-    //         setHoraires(row.openingHours)
-    //         setOuterBounds([row.address.location.point]);
-    //         setCords([{name: "name", points: row.address.location.point}]);
-    //         //initialCites();
-    //         setCheck(false);
-    //         row.contacts.map((contact: ContactModel) => {
-    //             contacts.push({
-    //                 countryCode: '',
-    //                 phone: contact.value,
-    //                 hidden: !contact.isPublic
-    //             });
-    //         });
-    //         setContacts([...contacts])
-    //
-    //     }
-    // }, [check, contacts, row])
-
-    /*    const [rows, setRows] = useState([
-              {
-                  id: 1,
-                  name: 'Salma Bousaiid',
-                  type: 'Sécrétaire',
-                  access: 3
-              },
-              {
-                  id: 2,
-                  name: 'Rym Jablaoui',
-                  type: 'Sécrétaire',
-                  access: 1
-              }
-          ]);*/
-
-    /*
-          // access array not exit in backend
-          const headCells = [
-              {
-                  id: 'name',
-                  numeric: false,
-                  disablePadding: true,
-                  label: t('lieux.new.user'),
-                  align: 'left',
-                  sortable: true,
-              },
-              {
-                  id: 'access',
-                  numeric: false,
-                  disablePadding: true,
-                  label: t('lieux.new.userPermission'),
-                  align: 'left',
-                  sortable: false,
-              }
-          ];
-
-          const editPlaces = (props: any) => {
-              console.log('edit', props);
-          }
-          const handleConfig = (props: any, event: string) => {
-              console.log('handleConfig', event);
-          }
-
-          const handleChange = (props: any, event: any) => {
-              props.access = event.target.value
-              rows.filter(row => row.id === props.id)[0].access = event.target.value
-              setRows([...rows])
-          }
-      */
-
-    const apply = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
-            if (day !== "MON") {
-                horaires[0].openingHours[day] = [];
-            }
-        })
-        setAllDays(true)
-    };
-
-    const cleanData = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
-            horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
-                (hour: { start_time: string; end_time: string }) =>
-                    hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
-            );
-        });
-        setHoraires([...horaires]);
-    };
-
-    const onChangeState = (event: SelectChangeEvent) => {
-        setFieldValue("town", event.target.value);
-        setFieldValue("city", "");
-        getCities(event.target.value);
-    };
-
-    const handleAddPhone = () => {
-        const phones = [
-            ...values.phones,
-            {
-                code: doctor_country.phone,
-                phone: "",
-                name: doctor_country.name,
-                hidden: false
-            }
-        ];
-        setFieldValue("phones", phones);
-    };
-
-    const handleRemovePhone = (props: number) => {
-        const phones = values.phones.filter((item, index) => index !== props);
-        setFieldValue("phones", phones);
-    }
 
     return (
         <>
@@ -628,7 +544,7 @@ function PlacesDetail() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={6}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writeAdress")}
@@ -639,16 +555,19 @@ function PlacesDetail() {
                                                 {...getFieldProps("address")}
                                             />
                                         </Grid>
-                                        <Grid item xs={12} lg={1}>
+                                        <Grid item xs={12} lg={2}>
                                             <Typography
                                                 textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("lieux.new.postal")}
+                                                {t("lieux.new.postal")} {" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={3}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writePostal")}
@@ -750,13 +669,13 @@ function PlacesDetail() {
                             </CardContent>
                         </Card>
 
-                        <Maps
+                        {doctor_country?.code !== "ma" && <Maps
                             data={uuind === "new" ? null : cords}
                             outerBounds={outerBounds}
                             editCords={(c: { lat: number; lng: number }) => {
                                 setCords([{name: values.name, points: [c.lat, c.lng]}]);
                             }}
-                            draggable={true}></Maps>
+                            draggable={true}></Maps>}
 
                         <Typography
                             textTransform="uppercase"
@@ -772,8 +691,8 @@ function PlacesDetail() {
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        {values.phones.map((_, index) => (
+                                        justifyContent="center">
+                                        {values.phones.map((phone, index) => (
                                             <React.Fragment key={index}>
                                                 <Grid item xs={12} lg={2}>
                                                     <Typography
@@ -791,68 +710,73 @@ function PlacesDetail() {
                                                         direction="row"
                                                         alignItems="center"
                                                         position="relative">
-
-                                                        <TextField
-                                                            sx={{
-                                                                "& .MuiAutocomplete-popperDisablePortal": {
-                                                                    width: 200
-                                                                }
-                                                            }}
-                                                            variant="outlined"
-                                                            placeholder="00 000 000"
-                                                            className="form-control"
+                                                        <PhoneInput
+                                                            ref={phoneInputRef}
+                                                            international
                                                             fullWidth
-                                                            required
-                                                            helperText={touched.phones && errors.phones && (errors.phones as any)[index]?.phone}
-                                                            error={Boolean(touched.phones && (touched.phones as any)[index] && errors.phones && errors.phones[index])}
-                                                            {...getFieldProps(`phones[${index}].phone`)}
-                                                            value={values.phones[index] ? values.phones[index]?.phone : ""}
+                                                            withCountryCallingCode
                                                             InputProps={{
                                                                 startAdornment: (
-                                                                    <InputAdornment position="start">
+                                                                    <InputAdornment
+                                                                        position="start"
+                                                                        sx={{
+                                                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                                                outline: "none",
+                                                                                borderColor: "transparent"
+                                                                            },
+                                                                            "& fieldset": {
+                                                                                border: "none!important",
+                                                                                boxShadow: "none!important"
+                                                                            },
+                                                                        }}>
                                                                         <CountrySelect
+                                                                            disablePortal
                                                                             initCountry={{
-                                                                                code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
-                                                                                name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
-                                                                                phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                                code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
                                                                             }}
                                                                             sx={{width: 140}}
                                                                             onSelect={(v: any) =>
                                                                                 setFieldValue(
                                                                                     `phones[${index}]`, {
+                                                                                        ...values.phones[index],
                                                                                         code: v.phone,
-                                                                                        hidden: values.phones[index].hidden,
-                                                                                        name: v.name,
-                                                                                        phone: values.phones[index].phone,
+                                                                                        value: ""
                                                                                     }
                                                                                 )
                                                                             }
                                                                         />
-                                                                        {values.phones[index] && <Typography
-                                                                            color={"info"}
-                                                                            variant={"body1"}>{values.phones[index].code}</Typography>}
                                                                     </InputAdornment>
                                                                 ),
                                                             }}
+                                                            {...(getFieldProps(`phones[${index}].phone`) &&
+                                                                {
+                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                        getFieldProps(`phones[${index}].value`).value : ""}`
+                                                                })}
+                                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any})}
+                                                            value={data && values.phones[index] ? values.phones[index]?.value : ""}
+                                                            onChange={value => setFieldValue(`phones[${index}].value`, value)}
+                                                            inputComponent={CustomInput as any}
                                                         />
-                                                        {index !== 0 && (
-                                                            <IconButton
-                                                                onClick={() => handleRemovePhone(index)}
-                                                                sx={{position: "absolute", right: -40}}
-                                                                size="small">
-                                                                <IconUrl path="setting/icdelete"/>
-                                                            </IconButton>
-                                                        )}
+                                                        <IconButton
+                                                            onClick={() => handleRemovePhone(index)}
+                                                            sx={{position: "absolute", right: -40, top: 6}}
+                                                            size="small">
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={12} lg={4} sx={{ml: "auto"}}>
                                                     <FormControlLabel
                                                         control={
                                                             <Switch
-                                                                checked={values.phones[index]?.hidden}
+                                                                checked={values.phones[index]?.is_public ? values.phones[index].is_public : false}
                                                                 onChange={(e) =>
                                                                     setFieldValue(
-                                                                        `phones[${index}].hidden`,
+                                                                        `phones[${index}].is_public`,
                                                                         e.target.checked
                                                                     )
                                                                 }

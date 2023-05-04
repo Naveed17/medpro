@@ -42,6 +42,7 @@ import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {getBirthdayFormat} from "@app/hooks";
+import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 
 const menuList = [
     {
@@ -139,7 +140,10 @@ function AppointmentDetail({...props}) {
     } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [canManageActions] = useState<boolean>(!["/dashboard/patient", "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
+    const [canManageActions] = useState<boolean>(![
+        "/dashboard/patient",
+        "/dashboard/waiting-room",
+        "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [avatar, setAvatar] = useState("");
     const [instruction, setInstruction] = useState(
         appointment?.extendedProps?.instruction
@@ -177,12 +181,11 @@ function AppointmentDetail({...props}) {
     };
 
     const setAppointmentDate = (action: string) => {
+        const newDate = moment(appointment?.extendedProps.time);
         dispatch(
             setMoveDateTime({
-                date: new Date(appointment?.extendedProps.time),
-                time: moment(
-                    new Date(appointment?.extendedProps.time)
-                ).format("HH:mm"),
+                date: newDate,
+                time: newDate.format("HH:mm"),
                 action,
                 selected: false
             })
@@ -273,7 +276,13 @@ function AppointmentDetail({...props}) {
                                 direction="row"
                                 justifyContent="space-between"
                                 alignItems="center">
-                                <Alert variant="filled" severity="warning">{t(error)}</Alert>
+                                <Alert
+                                    sx={{
+                                        backgroundColor: (theme) => theme.palette.error.lighter
+                                    }}
+                                    variant={"outlined"}
+                                    severity="error"
+                                    icon={<ReportProblemRoundedIcon/>}>{t(error)}</Alert>
                             </Stack>
                         )
                     )}
@@ -387,13 +396,13 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                {canManageActions &&
+                                {(canManageActions && OnEditDetail) &&
                                     <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
                                     </IconButton>}
                             </Stack>
 
-                            {(!roles.includes("ROLE_SECRETARY") && canManageActions) && (
+                            {(!roles.includes("ROLE_SECRETARY") && canManageActions && (OnConsultationView || OnConsultation)) && (
                                 <LoadingButton
                                     {...{loading}}
                                     loadingPosition="start"
@@ -432,7 +441,7 @@ function AppointmentDetail({...props}) {
                     <AppointmentCard
                         {...{t, roles}}
                         onDataUpdated={OnDataUpdated}
-                        {...(canManageActions && {
+                        {...((canManageActions && SetMoveDialog) && {
                             onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
                         })}
                         data={{
@@ -522,7 +531,7 @@ function AppointmentDetail({...props}) {
             </CardContent>
           </Card> */}
                 </Box>
-                {canManageActions && (
+                {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
                             {appointment?.extendedProps.patient.contact.length > 0 && <LoadingButton

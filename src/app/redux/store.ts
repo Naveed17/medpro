@@ -5,16 +5,23 @@ import {ProfileMenuReducer} from "@features/profilMenu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
-import {QsSidebarReducer, leftActionBarReducer} from "@features/leftActionBar";
+import {QsSidebarReducer, leftActionBarReducer, CashboxReducer} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
-import {DialogReducer, dialogMoveAppointmentReducer, dialogPatientDetailReducer} from "@features/dialog";
+import {
+    DialogReducer,
+    dialogMoveAppointmentReducer,
+    dialogPatientDetailReducer,
+    PrescriptionReducer,
+    PreConsultationReducer
+} from "@features/dialog";
 import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
 import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
-import {CashboxReducer} from "@features/leftActionBar/components/payment/reducer";
+import {navBarReducer} from "@features/topNavBar/reducer";
+import {ProgressUIReducer} from "@features/progressUI/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -38,7 +45,11 @@ export const store = configureStore({
         dashLayout: DashLayoutReducer,
         appLock: AppLockReducer,
         patientDetail: dialogPatientDetailReducer,
-        duplicate: DuplicatedReducer
+        duplicate: DuplicatedReducer,
+        navBar: navBarReducer,
+        progressUI: ProgressUIReducer,
+        preConsultation: PreConsultationReducer,
+        prescription: PrescriptionReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {

@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery
+    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -27,7 +27,7 @@ import {
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, setTimer, timerSelector} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {
     AppointmentStatsPopover,
     NotificationPopover,
@@ -36,27 +36,59 @@ import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector, setLock} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
+import IconUrl from "@themes/urlIcon";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
+import {onOpenPatientDrawer} from "@features/table";
+import {PatientDetail} from "@features/dialog";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useSWRConfig} from "swr";
+import {LoadingButton} from "@mui/lab";
+import moment from "moment-timezone";
+import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
 );
 
+let deferredPrompt: any;
+
 function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
+
+    const {mutate} = useSWRConfig();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
+    const theme = useTheme();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {pendingAppointments} = useAppSelector(agendaSelector);
+    const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing} = useAppSelector(dashLayoutSelector);
+    const {ongoing, next, import_data, allowNotification, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {progress} = useAppSelector(progressUISelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+
+    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+
+    const [patientId, setPatientId] = useState("");
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
     const [notifications, setNotifications] = useState(0);
+    const [installable, setInstallable] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
@@ -83,11 +115,104 @@ function TopNavBar({...props}) {
         dispatch(toggleSideBar(true));
     }
 
+    const handleInstallClick = (e: any) => {
+        // Hide the app provided install promotion
+        setInstallable(false);
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult: any) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+        });
+    }
+
+    const resetNextConsultation = (uuid: string) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('attribute', 'is_next');
+        form.append('value', 'false');
+        updateTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            // refresh on going api
+            mutateOnGoing && mutateOnGoing();
+            // refresh waiting room api
+            mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
+                .then(() => setLoading(false));
+        });
+    }
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const handleStartConsultation = (nextPatient: any) => {
+        const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
+        const event: any = {
+            publicId: nextPatient.uuid,
+            extendedProps: {
+                patient: {
+                    uuid: nextPatient?.patient_uuid,
+                    firstName: nextPatient?.patient.split(" ")[0],
+                    lastName: nextPatient?.patient.split(" ")[1]
+                }
+            }
+        };
+        if (router.asPath !== slugConsultation) {
+            router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                updateAppointmentStatus(nextPatient.uuid, "4", {
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                }).then(() => {
+                    dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm")
+                        }
+                    ));
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                });
+            });
+        }
+    }
+
+    const requestNotificationPermission = () => {
+        Notification?.requestPermission().then((permission) => {
+            console.log("requestPermission", permission);
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+                console.log("requestPermission granted");
+            }
+        });
+    }
+
     useEffect(() => {
         if (ongoing) {
             const event: any = {
                 publicId: ongoing?.uuid as string,
                 extendedProps: {
+                    type: ongoing?.type,
                     patient: {
                         lastName: ongoing?.patient.split(" ")[1],
                         firstName: ongoing?.patient.split(" ")[0],
@@ -109,6 +234,33 @@ function TopNavBar({...props}) {
     useEffect(() => {
         setNotifications(pendingAppointments.length);
     }, [pendingAppointments]);
+
+    useEffect(() => {
+        const appInstall = localStorage.getItem('Medlink-install');
+        window.addEventListener("beforeinstallprompt", (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            setInstallable(true);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            // Log install to analytics
+            localStorage.setItem('Medlink-install', "true");
+        });
+
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
+            if (matches) {
+                setInstallable(false);
+            }
+        });
+
+        if (appInstall) {
+            setInstallable(false);
+        }
+    }, []);
 
     return (
         <>
@@ -148,18 +300,7 @@ function TopNavBar({...props}) {
                                 <Icon path="ic-toggle"/>
                             </IconButton>
                         </Hidden>
-                        {/*                      <Hidden smUp>
-                            <Link href="/" className="nav-logo">
-                                <Box
-                                    component="img"
-                                    height={38}
-                                    width={38}
-                                    alt="company logo"
-                                    src="/static/icons/Med-logo_.svg"
-                                    mr={1}
-                                />
-                            </Link>
-                        </Hidden>*/}
+
                         <Hidden mdDown>
                             <IconButton
                                 onClick={() => {
@@ -178,11 +319,79 @@ function TopNavBar({...props}) {
                                 className="btn">
                                 <Icon path="ic-scan"/>
                             </IconButton>
-                            {/*<TextFieldSearch color="primary" className="topbar-search"/>*/}
+                            {(import_data && import_data.length > 0) &&
+                                <Box sx={{width: '16%'}}>
+                                    <LinearProgressWithLabel value={progress}/>
+                                </Box>}
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {isActive && <CipCard/>}
+                            {!allowNotification && (isMobile ?
+                                <Tooltip
+                                    title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
+                                    <Avatar
+                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        onClick={() => requestNotificationPermission()}>
+                                        <NotificationsPausedIcon color={"black"}/>
+                                    </Avatar>
+                                </Tooltip>
+                                :
+                                <Button variant="contained"
+                                        onClick={() => requestNotificationPermission()}
+                                        sx={{mr: 3}}
+                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
+                                        color={"warning"}>
+                                    <Typography
+                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
+                                </Button>)}
+                            {next &&
+                                <LoadingButton
+                                    {...{loading}}
+                                    disableRipple
+                                    color={"black"}
+                                    onClick={() => {
+                                        if (isActive || roles.includes('ROLE_SECRETARY')) {
+                                            setPatientId(next.patient_uuid);
+                                            setPatientDetailDrawer(true);
+                                        } else {
+                                            handleStartConsultation(next);
+                                        }
+                                    }}
+                                    sx={{
+                                        mr: 2,
+                                        p: "6px 12px",
+                                        backgroundColor: (theme) => theme.palette.info.lighter,
+                                        '&:hover': {
+                                            backgroundColor: (theme) => theme.palette.info.lighter,
+                                        }
+                                    }}
+                                    loadingPosition={"start"}
+                                    startIcon={<IconUrl width={20} height={20} path={"ic-next-patient"}/>}
+                                    variant={"contained"}>
+                                    {next.patient}
+                                    <CloseRoundedIcon
+                                        sx={{ml: 1}}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            resetNextConsultation(next.uuid);
+                                        }}/>
+                                </LoadingButton>
+                            }
+                            {isActive &&
+                                <CipCard
+                                    openPatientDialog={(uuid: string) => {
+                                        setPatientId(uuid);
+                                        setPatientDetailDrawer(true);
+                                    }}/>
+                            }
+                            {(installable && !isMobile) &&
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
+                                    {"Installer l'app"}
+                                </Button>
+                            }
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notifications}
@@ -245,6 +454,24 @@ function TopNavBar({...props}) {
                             </MenuItem>
                         </MenuList>}
                     </Toolbar>
+                    <Drawer
+                        anchor={"right"}
+                        open={patientDetailDrawer}
+                        dir={direction}
+                        onClose={() => {
+                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            setPatientDetailDrawer(false);
+                        }}>
+                        <PatientDetail
+                            {...{patientId}}
+                            onCloseDialog={() => {
+                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                setPatientDetailDrawer(false);
+                            }}
+                            onConsultation={(event: string) => console.log(event)}
+                            onAddAppointment={() => console.log("onAddAppointment")}
+                        />
+                    </Drawer>
                 </NavbarStyled>
             ) : (
                 <NavbarStepperStyled dir={dir} position="fixed" color="inherit">

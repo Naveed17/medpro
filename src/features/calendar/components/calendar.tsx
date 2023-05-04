@@ -56,6 +56,7 @@ function Calendar({...props}) {
         refs,
         t: translation,
         sortedData,
+        doctor_country,
         OnInit,
         OnLeaveWaitingRoom,
         OnConfirmEvent,
@@ -100,81 +101,6 @@ function Calendar({...props}) {
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
-
-    useEffect(() => {
-        let days: BusinessHoursInput[] = [];
-        if (openingHours) {
-            Object.entries(openingHours).map((openingHours: any) => {
-                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
-                    const min = moment.duration(openingHour?.start_time).asHours();
-                    const max = moment.duration(openingHour?.end_time).asHours();
-                    if (min < slotMinTime) {
-                        setSlotMinTime(min);
-                    }
-
-                    if (max > slotMaxTime) {
-                        setSlotMaxTime(max);
-                    }
-
-                    days.push({
-                        daysOfWeek: [DayOfWeek(openingHours[0], 0)],
-                        startTime: openingHour.start_time,
-                        endTime: openingHour.end_time
-                    });
-                })
-            });
-            setDaysOfWeek(days);
-            setLoading(false);
-        }
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        const calendarEl = calendarRef.current;
-        if (isMounted.current && calendarEl) {
-            OnInit(calendarEl);
-        }
-    }, [OnInit, isMounted]);
-
-    useEffect(() => {
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            if (currentDate.fallback) {
-                calendarApi.gotoDate(currentDate.date);
-            }
-        }
-    }, [currentDate]);
-
-    useEffect(() => {
-        const calendarEl = calendarRef.current;
-        if (calendarEl && prevView.current !== "listWeek") {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            if (calendarApi.view.type !== view) {
-                calendarApi.changeView(view as string);
-            }
-        } else {
-            OnViewChange(view as string);
-        }
-        prevView.current = view;
-    }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        setEvents(appointments);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [appointments]);
-
-    useEffect(() => {
-        setEventGroupByDay(sortedData);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [sortedData]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -286,6 +212,81 @@ function Calendar({...props}) {
         preventScrollOnSwipe: true
     });
 
+    useEffect(() => {
+        let days: BusinessHoursInput[] = [];
+        if (openingHours) {
+            Object.entries(openingHours).map((openingHours: any) => {
+                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                    const min = moment.duration(openingHour?.start_time).asHours();
+                    const max = moment.duration(openingHour?.end_time).asHours();
+                    if (min < slotMinTime) {
+                        setSlotMinTime(min);
+                    }
+
+                    if (max > slotMaxTime) {
+                        setSlotMaxTime(max);
+                    }
+
+                    days.push({
+                        daysOfWeek: [DayOfWeek(openingHours[0], 0)],
+                        startTime: openingHour.start_time,
+                        endTime: openingHour.end_time
+                    });
+                })
+            });
+            setDaysOfWeek(days);
+            setLoading(false);
+        }
+    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (isMounted.current && calendarEl) {
+            OnInit(calendarEl);
+        }
+    }, [OnInit, isMounted]);
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            if (currentDate.fallback) {
+                calendarApi.gotoDate(currentDate.date);
+            }
+        }
+    }, [currentDate]);
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (calendarEl && prevView.current !== "listWeek") {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            if (calendarApi.view.type !== view) {
+                calendarApi.changeView(view as string);
+            }
+        } else {
+            OnViewChange(view as string);
+        }
+        prevView.current = view;
+    }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        setEvents(appointments);
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.refetchEvents();
+        }
+    }, [appointments]);
+
+    useEffect(() => {
+        setEventGroupByDay(sortedData);
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.refetchEvents();
+        }
+    }, [sortedData]);
+
     return (
         <Box bgcolor="#F0FAFF">
             {isMobile && <ClickAwayListener onClickAway={() => {
@@ -324,6 +325,7 @@ function Calendar({...props}) {
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
                                 droppable
+                                timeZone={"local"}
                                 navLinks
                                 selectable
                                 eventDurationEditable
@@ -392,7 +394,7 @@ function Calendar({...props}) {
                                 slotMinTime={getSlotsFormat(slotMinTime)}
                                 slotMaxTime={getSlotsFormat(slotMaxTime)}
                                 businessHours={daysOfWeek}
-                                firstDay={1}
+                                firstDay={doctor_country?.code === "dz" ? 0 : 1}
                                 initialView={view}
                                 dayMaxEventRows={isLgScreen ? 6 : 3}
                                 eventMaxStack={1}

@@ -71,12 +71,12 @@ function AppointmentPatientCard({...props}) {
                     <Typography>{data?.type?.name}</Typography>
                 </Box>
             </Stack>}
-            {data?.motif && <Stack
+            {data?.motif.length > 0 && <Stack
                 direction="row"
                 spacing={1}
                 sx={{p: "0  .2rem .6rem .8rem"}}
             >
-                Motif: <Typography ml={1}>{data?.motif.name}</Typography>
+                Motif: <Typography ml={1}>{data?.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
             </Stack>}
             <Stack sx={{p: 2, background: "rgba(255, 212, 0, 0.4)",}}>
                 <Box>

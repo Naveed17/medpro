@@ -58,7 +58,7 @@ function Document() {
                                     textTransform: "uppercase",
                                 }}
                             >
-                                {file.name}
+                                {file?.name}
                                 <Typography variant="body2" color="text.secondary">
                                     {file.size / 1000} KB
                                 </Typography>

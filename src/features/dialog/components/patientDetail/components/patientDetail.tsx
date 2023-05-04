@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Stack, Tab, Tabs} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
@@ -34,13 +34,15 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {Dialog} from "@features/dialog";
+import {AppointmentDetail, Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
+import {PatientFile} from "@features/files/components/patientFile";
+import {PDFViewer} from "@react-pdf/renderer";
 
 function a11yProps(index: number) {
     return {
@@ -68,8 +70,6 @@ function PatientDetail({...props}) {
         isAddAppointment = false,
         currentStepper = 0,
         onCloseDialog,
-        onChangeStepper,
-        onAddAppointment,
         onConsultation = null,
         onConsultationStart = null,
         mutate: mutatePatientList,
@@ -80,8 +80,10 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
+
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {config: agenda, sortedData: groupSortedData, openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -126,7 +128,7 @@ function PatientDetail({...props}) {
         },
     } : null);
 
-    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
+    const {data: httpPatientHistoryResponse, mutate: mutatePatientHis} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {
@@ -149,6 +151,18 @@ function PatientDetail({...props}) {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
+
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
+        patient ?
+            {
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`},
+            } : null,
+        SWRNoValidateConfig
+    );
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -181,7 +195,7 @@ function PatientDetail({...props}) {
     };
 
     const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
+        const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
             steps[index].disabled = false;
             setStepperData(steps);
@@ -258,6 +272,8 @@ function PatientDetail({...props}) {
                 patient,
                 mutatePatientDetails,
                 mutatePatientList,
+                antecedentsData,
+                mutateAntecedents,
                 mutateAgenda
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
@@ -277,6 +293,7 @@ function PatientDetail({...props}) {
                         previousAppointmentsData,
                         patient,
                         mutate: mutatePatientDocuments,
+                        mutatePatientHis,
                         closePatientDialog
                     }} />
                 ) : (
@@ -324,6 +341,13 @@ function PatientDetail({...props}) {
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.recap",
+            children: <PDFViewer height={470}>
+                <PatientFile {...{patient, antecedentsData, t}} />
+            </PDFViewer>,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
@@ -336,11 +360,14 @@ function PatientDetail({...props}) {
                     <Backdrop open={openFabAdd}/>
                     {" "}
                     <PatientDetailsToolbar onClose={closePatientDialog}/>
+
                     <PatientDetailsCard
                         loading={!patient}
                         {...{
                             patient,
                             onConsultation,
+                            antecedentsData,
+                            mutateAntecedents,
                             onConsultationStart,
                             patientPhoto,
                             mutatePatientList,
@@ -514,6 +541,16 @@ function PatientDetail({...props}) {
                         onClickCancel={() => setIsAdd(false)}
                     />
                 )}
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}>
+                <AppointmentDetail/>
+            </Drawer>
         </>
     );
 }

@@ -55,7 +55,7 @@ function CertifDialog({...props}) {
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
-    const [models, setModels] = useState<DocTemplateModel[]>([]);
+    const [models, setModels] = useState<CertifModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
     const [openRemove, setOpenRemove] = useState(false);
@@ -101,7 +101,7 @@ function CertifDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const selectModel = (model: DocTemplateModel) => {
+    const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
         data.state.title = model.title;
@@ -140,7 +140,7 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (httpModelResponse) {
-            const template: DocTemplateModel[] = [];
+            const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
             modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild

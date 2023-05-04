@@ -176,14 +176,15 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
+
         switch (info) {
-            case "medical_prescription":
+            case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
                 let method = "POST"
                 let url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "medical_prescription") {
+                if (selectedDialog && selectedDialog.action === "medical_prescription_cycle") {
                     method = "PUT"
                     url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
@@ -201,6 +202,10 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo("document_detail");
                     const res = r.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
                     setState({
                         uri: res[1],
                         name: "prescription",
@@ -210,7 +215,7 @@ function ConsultationIPToolbar({...props}) {
                         uuidDoc: res[0].uuid,
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
                     setactions(false);
@@ -223,16 +228,16 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "balance_sheet_request":
                 form.append("analyses", JSON.stringify(state));
+                method = "POST"
+                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${router.locale}`;
+                if (selectedDialog && selectedDialog.action === "balance_sheet_request") {
+                    method = "PUT"
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
+                }
 
                 trigger({
-                    method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointments/" +
-                        appuuid +
-                        "/requested-analysis/" +
-                        router.locale,
+                    method: method,
+                    url: url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -244,6 +249,10 @@ function ConsultationIPToolbar({...props}) {
                     setCheckUp([]);
                     setInfo("document_detail");
                     const res = r.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
@@ -252,7 +261,7 @@ function ConsultationIPToolbar({...props}) {
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         info: res[0].analyses,
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
                     setactions(false);
@@ -265,15 +274,16 @@ function ConsultationIPToolbar({...props}) {
             case "medical_imagery":
                 form.append("medical-imaging", JSON.stringify(state));
 
+                method = "POST"
+                url = `/api/medical-entity/${medical_entity.uuid}/appointment/${appuuid}/medical-imaging/${router.locale}`;
+                if (selectedDialog && selectedDialog.action === "medical_imagery") {
+                    method = "PUT"
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
+                }
+
                 trigger({
-                    method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointment/" +
-                        appuuid +
-                        "/medical-imaging/" +
-                        router.locale,
+                    method,
+                    url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -285,6 +295,9 @@ function ConsultationIPToolbar({...props}) {
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
@@ -293,7 +306,7 @@ function ConsultationIPToolbar({...props}) {
                         info: res[0]["medical-imaging"],
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
-                        patient: `${res[0].patient.gender === "F" ? "Mme " : res[0].patient.gender ==="U" ?"":"Mr "} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                         mutate: mutateDoc
                     });
                     setOpenDialog(true);
@@ -374,7 +387,7 @@ function ConsultationIPToolbar({...props}) {
     const handleCloseDialog = () => {
         let pdoc = [...pendingDocuments];
         switch (info) {
-            case "medical_prescription":
+            case "medical_prescription_cycle":
                 if (state.length > 0) {
                     setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
@@ -418,7 +431,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setInfo("medical_prescription_cycle");
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -436,7 +449,7 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointement.patient.gender === "F" ? "Mme " :appointement.patient.gender === "U" ?"": "Mr "} ${appointement.patient.firstName} ${appointement.patient.lastName}`
+                    patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`
                 });
                 break;
             case "upload_document":
@@ -465,8 +478,22 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         if (selectedDialog) {
             switch (selectedDialog.action) {
-                case "medical_prescription":
-                    setInfo("medical_prescription");
+                case "medical_prescription_cycle":
+                    setInfo("medical_prescription_cycle");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setactions(true);
+                    break;
+                case "balance_sheet_request":
+                    setInfo("balance_sheet_request");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setactions(true);
+                    break;
+                case "medical_imagery":
+                    setInfo("medical_imagery");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
@@ -477,7 +504,7 @@ function ConsultationIPToolbar({...props}) {
                     setState({
                         name: `${ginfo.firstName} ${ginfo.lastName}`,
                         days: '',
-                        uuid:selectedDialog.state.uuid,
+                        uuid: selectedDialog.state.uuid,
                         content: selectedDialog.state.content,
                         title: selectedDialog.state.title,
                         patient: `${selectedDialog.state.patient}`
@@ -493,7 +520,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setInfo("medical_prescription_cycle");
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -750,7 +777,7 @@ function ConsultationIPToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t, setOpenDialog}}
+                    data={{appuuid, state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -771,7 +798,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
-                                    disabled={info === "medical_prescription" && state.length === 0}
+                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
                                     startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>

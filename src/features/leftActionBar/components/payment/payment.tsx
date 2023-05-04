@@ -1,54 +1,94 @@
 // components
-import {ActionBarState, BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    BoxStyled,
+    FilterRootStyled,
+    leftActionBarSelector,
+    PatientFilter, setFilterPayment
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, DayOfWeek} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
-import {Box, Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
+import {
+    Box,
+    Checkbox,
+    FormControlLabel,
+    Stack,
+    Typography
+} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
-import {setCashBox} from "@features/leftActionBar/components/payment/actions";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
-import DateFilter from "@features/leftActionBar/components/payment/overrides/dateFilter";
-import BoxesFilter from "@features/leftActionBar/components/payment/overrides/boxesFilter";
+import {
+    InsuranceFilter,
+    DateFilter,
+    BoxesFilter,
+    DateRangeFilter,
+    cashBoxSelector,
+    setCashBox
+} from "@features/leftActionBar";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Payment() {
+    const dispatch = useAppDispatch();
 
+    const {selectedBox, insurances, paymentTypes, query} = useAppSelector(cashBoxSelector);
+    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
-    const locations = agendaConfig?.locations;
+    const {query: queryData} = useAppSelector(leftActionBarSelector);
+
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
-
-
     const [filterDate, setFilterDate] = useState(true);
     const [byPeriod, setByPeriod] = useState(false);
+    const [cashboxes, setCashboxes] = useState<CashBox[]>([]);
+    const [filterData, setFilterData] = useState<any[]>();
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: true,
+            children: (
+                <InsuranceFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        dispatch(setFilterPayment(data.query));
+                    }}/>
+            ),
+        },
+        {
+            heading: {
+                id: "date-range",
+                icon: "ic-agenda-jour",
+                title: "date-range",
+            },
+            expanded: true,
+            children: (
+                <DateRangeFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        dispatch(setFilterPayment(data.query));
+                    }}/>
+            ),
+        }
+    ]);
 
-    const router = useRouter();
-    const {data: session} = useSession();
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
-    const dispatch = useAppDispatch();
-    const {selectedBox, insurances, paymentTypes, query} = useAppSelector(cashBoxSelector);
-
+    const locations = agendaConfig?.locations;
     const hours = locations && locations[0].openingHours[0].openingHours;
     const newVersion = process.env.NODE_ENV === 'development';
-    const [cashboxes, setCashboxes] = useState<CashBox[]>([]);
-
-    const [filterData, setFilterData] = useState<any[]>();
 
     useEffect(() => {
         if (cashboxes.length > 0) {
             dispatch(setCashBox(cashboxes[0]));
         }
     }, [cashboxes, dispatch])
+
     useEffect(() => {
         const disabledDay: number[] = []
         hours && Object.entries(hours).filter((openingHours: any) => {
@@ -59,7 +99,6 @@ function Payment() {
         setDisabledDay(disabledDay);
     }, [hours]);
 
-    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
 
     return (
         <BoxStyled className="container-filter">
@@ -68,13 +107,21 @@ function Payment() {
                 {...{notes, disabled: !filterDate || byPeriod}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
 
+            <Accordion
+                translate={{
+                    t: t,
+                    ready: ready,
+                }}
+                data={accordionData}
+                setData={setFilterData}
+            />
+
             {
                 newVersion && <Accordion
                     translate={{
                         t: t,
                         ready: ready,
                     }}
-                    defaultValue={""}
                     data={[
                         {
                             heading: {

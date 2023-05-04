@@ -68,7 +68,7 @@ function AppointmentListMobile({...props}) {
                         </Label>
                     </Box>
                     <Typography variant={"subtitle2"} color="text.primary" mt={1}>
-                        {event.motif?.name}
+                        {event.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                     </Typography>
                 </Box>
                 <Box className="action">

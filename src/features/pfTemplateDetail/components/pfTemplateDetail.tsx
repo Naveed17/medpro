@@ -1,26 +1,21 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
+import { Form, FormikProvider, useFormik } from "formik";
 import {
-  Typography,
+  Box,
+  Button,
   Card,
   CardContent,
-  Stack,
-  Box,
-  TextField,
-  FormControl,
-  Button,
-  ListItemText,
-  ListItem,
   Checkbox,
-  Collapse,
+  FormControl,
   Skeleton,
-  IconButton,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { ModelDot } from "@features/modelDot";
-import IconUrl from "@themes/urlIcon";
 import dynamic from "next/dynamic";
 import { useRequest, useRequestMutation } from "@app/axios";
 import { useSession } from "next-auth/react";
@@ -67,6 +62,9 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     width: "650px",
     bottom: 0,
     borderTop: `3px solid ${theme.palette.grey["A700"]}`,
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+    },
   },
   "& fieldset legend": {
     display: "none",
@@ -96,6 +94,7 @@ function PfTemplateDetail({ ...props }) {
     props.data ? props.data.color : "#FEBD15"
   );
   const [sections, setSections] = useState<SpecialtyJsonWidgetModel[]>([]);
+  const [loading, setLoading] = useState(false);
   const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
   const [open, setOpen] = useState<string[]>([]);
   const [components, setComponents] = useState<any[]>([]);
@@ -116,11 +115,7 @@ function PfTemplateDetail({ ...props }) {
 
   const { data: httpProfessionalsResponse } = useRequest({
     method: "GET",
-    url:
-      "/api/medical-entity/" +
-      medical_entity.uuid +
-      "/professionals/" +
-      router.locale,
+    url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
     headers: { Authorization: `Bearer ${session?.accessToken}` },
   });
 
@@ -163,6 +158,7 @@ function PfTemplateDetail({ ...props }) {
     },
     validationSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
+      setLoading(true);
       const struct: any[] = [];
       widget.map((w) => {
         w.jsonWidgets.map((jw) => {
@@ -172,17 +168,17 @@ function PfTemplateDetail({ ...props }) {
       });
 
       /*if (struct.length > 0)
-                struct[0].components.push({
-                    key: "submit",
-                    type: "button",
-                    input: true,
-                    label: "Submit",
-                    tableView: false,
-                    customClass: "sub-btn",
-                    disableOnInvalid: true,
-                    saveOnEnter: false,
-                    showValidations: false,
-                })*/
+                      struct[0].components.push({
+                          key: "submit",
+                          type: "button",
+                          input: true,
+                          label: "Submit",
+                          tableView: false,
+                          customClass: "sub-btn",
+                          disableOnInvalid: true,
+                          saveOnEnter: false,
+                          showValidations: false,
+                      })*/
 
       const form = new FormData();
       form.append("label", values.name);
@@ -194,11 +190,7 @@ function PfTemplateDetail({ ...props }) {
         trigger(
           {
             method: "PUT",
-            url:
-              "/api/medical-entity/" +
-              medical_entity.uuid +
-              "/modals/" +
-              props.data.uuid,
+            url: `/api/medical-entity/${medical_entity.uuid}/modals/${props.data.uuid}`,
             data: form,
             headers: {
               ContentType: "application/x-www-form-urlencoded",
@@ -209,12 +201,13 @@ function PfTemplateDetail({ ...props }) {
         ).then(() => {
           props.mutate();
           props.closeDraw();
+          setLoading(false);
         });
       } else {
         trigger(
           {
             method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/modals",
+            url: `/api/medical-entity/${medical_entity.uuid}/modals`,
             data: form,
             headers: {
               ContentType: "application/x-www-form-urlencoded",
@@ -225,6 +218,7 @@ function PfTemplateDetail({ ...props }) {
         ).then(() => {
           props.mutate();
           props.closeDraw();
+          setLoading(false);
         });
       }
     },
@@ -461,7 +455,11 @@ function PfTemplateDetail({ ...props }) {
 
                                                     <Collapse
                                                         in={open.find((i: string) => i == section.uuid) !== undefined}>*/}
-                              <Card style={{ width: "50%", margin: 5 }}>
+                              <Card
+                                sx={{
+                                  width: { xs: "100%", md: "50%" },
+                                  margin: 0.5,
+                                }}>
                                 <CardContent>
                                   {section.jsonWidgets.map(
                                     (jw: JsonWidgetModel) => (
@@ -517,7 +515,11 @@ function PfTemplateDetail({ ...props }) {
               spacing={2}
               direction={"row"}>
               <Button onClick={props.closeDraw}>{t("cancel")}</Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button
+                type="submit"
+                disabled={loading}
+                variant="contained"
+                color="primary">
                 {t("save")}
               </Button>
             </Stack>

@@ -15,6 +15,7 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {DefaultCountry} from "@app/constants";
+import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
@@ -69,17 +70,15 @@ function AppointmentPopoverCard({...props}) {
                        direction="row">
                     <Alert
                         sx={{
+                            backgroundColor: (theme)=> theme.palette.error.lighter,
                             p: "0 .4rem",
                             m: "0 .4rem 0 0",
-                            "& .MuiSvgIcon-root": {
-                                width: 8,
-                                height: 8
-                            },
                             "& .MuiAlert-icon": {
                                 mr: 1
                             }
                         }}
-                        icon={<Icon width={"12"} height={"12"} path="danger"/>}
+                        icon={<ReportProblemRoundedIcon/>}
+                        variant={"outlined"}
                         severity="error">
                         {t(error, {ns: "common"})}
                     </Alert>
@@ -193,9 +192,9 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
             </Stack>
 
-            {data.motif && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
+            {data.motif.length > 0 && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
                 <Typography sx={{fontSize: 12}} color={"back"}>
-                    {" Motif: "}{data.motif?.name}</Typography>
+                    {" Motif: "}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
             </Stack>}
 
         </RootStyled>

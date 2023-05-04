@@ -14,7 +14,7 @@ import {
   Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import ListCheckbox from "@themes/overrides/ListCheckbox";
+import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
 import { useRequest, useRequestMutation } from "@app/axios";
@@ -74,6 +74,7 @@ function EditMotifDialog({ ...props }) {
   const { mutateEvent } = props;
   const { data: session } = useSession();
   const { data: user } = session as Session;
+   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
@@ -170,7 +171,9 @@ function EditMotifDialog({ ...props }) {
             },
           },
           { revalidate: true, populateCache: true }
-        ).then((r: any) => mutateEvent());
+        ).then((r: any) => {mutateEvent();
+        enqueueSnackbar(t("motif.config.alert.updated"), { variant: "success" });
+        });
       } else {
         trigger(
           {
@@ -187,7 +190,9 @@ function EditMotifDialog({ ...props }) {
             },
           },
           { revalidate: true, populateCache: true }
-        ).then((r: any) => mutateEvent());
+        ).then((r: any) => {
+           enqueueSnackbar(t("motif.config.alert.add"), { variant: "success" });
+          mutateEvent()});
       }
     },
   });

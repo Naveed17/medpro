@@ -13,9 +13,12 @@ import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
-import {CircularProgressbarCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
+import {setProgress} from "@features/progressUI";
+import {checkNotification} from "@app/hooks";
+import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -42,7 +45,7 @@ function DashLayout({children}: LayoutProps) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {closeSnackbar} = useSnackbar();
 
     const {t} = useTranslation('common');
 
@@ -61,6 +64,8 @@ function DashLayout({children}: LayoutProps) {
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
+    // Check notification permission
+    const permission = !isAppleDevise() ? checkNotification(): false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
@@ -79,6 +84,17 @@ function DashLayout({children}: LayoutProps) {
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
+    const justNumbers = (str: string) => {
+        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        if (str && res) {
+            let numStr = res[0];
+            let num = parseInt(numStr);
+            num++;
+            str = str.replace(/\d(?!.*\d)/, num.toString());
+        }
+        return str;
+    }
+
     useEffect(() => {
         if (agenda) {
             dispatch(setConfig({...agenda, mutate: [mutateAgenda, mutatePendingAppointment]}));
@@ -96,24 +112,18 @@ function DashLayout({children}: LayoutProps) {
         if (calendarStatus) {
             if (calendarStatus.import_data?.length === 0) {
                 localStorage.removeItem("import-data");
+                localStorage.removeItem("import-data-progress");
                 closeSnackbar();
             } else {
-                enqueueSnackbar("Importing data in progress", {
-                    persist: true,
-                    preventDuplicate: true,
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                    },
-                    content: (key, message) =>
-                        <CircularProgressbarCard id={key} message={message}/>,
-                });
+                const progress = localStorage.getItem("import-data-progress")
+                dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
                 import_data: calendarStatus.import_data,
+                next: calendarStatus.next ? calendarStatus.next : null,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
             }));
@@ -130,16 +140,11 @@ function DashLayout({children}: LayoutProps) {
         }
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const justNumbers = (chars: string) => {
-        const numsStr = chars.replace(/[^0-9]/g, '');
-        let charsStr = chars.replace(/[0-9]/, '');
-        if (charsStr === "undefined" || charsStr === undefined)
-            charsStr = ""
-        let nb = 1;
-        if (numsStr.length > 0)
-            nb = parseInt(numsStr) + 1;
-        return charsStr + nb;
-    }
+    useEffect(() => {
+        if (permission) {
+            dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
+        }
+    }, [dispatch, permission])
 
     return (
         <SideBarMenu>

@@ -17,6 +17,10 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -32,7 +36,12 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
 import {DefaultCountry} from "@app/constants";
-
+import {ActFeesMobileCard} from "@features/card";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import { LoadingButton } from "@mui/lab";
+import Icon from "@themes/urlIcon";
+import CloseIcon from '@mui/icons-material/Close';
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -75,27 +84,25 @@ function ActFees() {
     const {data: session} = useSession();
     const theme = useTheme();
     const router = useRouter();
-
+    const {enqueueSnackbar} = useSnackbar();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
-
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [open,setOpen]=useState<boolean>(false)
+    const [selected,setSelected] = useState<any>("")
     const [create, setCreate] = useState(false);
+    const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
     const [newFees, setNewFees] = useState<{
         act: ActModel | string | null;
         fees: string;
     }>({act: null, fees: ""});
-    const {enqueueSnackbar} = useSnackbar();
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse)
-        .medical_professional as MedicalProfessionalModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "/settings/acts");
@@ -104,41 +111,31 @@ function ActFees() {
         "/settings/acts/add"
     );
 
-    const {data: httpActSpeciality} = useRequest(
-        medical_professional
-            ? {
-                method: "GET",
-                url: `/api/public/acts/${router.locale}`,
-                params: {
-                    ["specialities[0]"]:
-                    medical_professional.specialities[0].speciality.uuid,
-                },
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }
-            : null
-    );
-
-    const {data: httpProfessionalsActs, mutate} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+    const {data: httpActSpeciality} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `/api/public/acts/${router.locale}`,
+        params: {
+            ["specialities[0]"]:
+            medical_professional.specialities[0].speciality.uuid,
         },
-        SWRNoValidateConfig
-    );
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
-    const {data: httpMPResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpProfessionalsActs, mutate} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}${
+            !isMobile
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+                : "?sort=true"
+        }`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    }, SWRNoValidateConfig);
 
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const {data: httpMPResponse} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    }, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpMPResponse) {
@@ -150,15 +147,23 @@ function ActFees() {
     useEffect(() => {
         setLoading(true);
         if (httpProfessionalsActs !== undefined) {
-            const response = (httpProfessionalsActs as HttpResponse).data.reverse();
-            setMainActes(response as ActModel[]);
-            setLoading(false);
+            if (isMobile) {
+                const response = (httpProfessionalsActs as HttpResponse).data;
+                setMainActes(response as ActModel[]);
+                setLoading(false);
+            } else {
+                const response = (
+                    httpProfessionalsActs as HttpResponse
+                ).data?.list;
+                setMainActes(response as ActModel[]);
+                setLoading(false);
+            }
         }
-    }, [httpProfessionalsActs]);
+    }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleCreate = () => {
         setCreate(true);
-    };
+    }
 
     const handleRemove = () => {
         setCreate(false);
@@ -178,10 +183,11 @@ function ActFees() {
                 },
             },
             TriggerWithoutValidation
-        ).then(() => enqueueSnackbar(t("feesupdated"), {variant: "success"}));
+        ).then(() => enqueueSnackbar(t("alert.updated"), {variant: "success"}));
     };
 
     const removeFees = (uuid: string) => {
+        setLoading(true)
         trigger(
             {
                 method: "DELETE",
@@ -193,9 +199,18 @@ function ActFees() {
             TriggerWithoutValidation
         ).then(() => {
             mutate().then(() => {
-                enqueueSnackbar(t("removed"), {variant: "success"});
+                setOpen(false);
+                setLoading(false)
+                enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
             });
-        });
+        }).catch((error) => {
+        const {
+          response: { data },
+        } = error;
+        setLoading(false);
+        setOpen(false);
+        enqueueSnackbar(t("alert."+data.message.replace( /\s/g, '-').toLowerCase()), { variant: "error" });
+      });
     };
 
     const saveFees = () => {
@@ -223,78 +238,94 @@ function ActFees() {
                 mutate().then(() => {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});
-                    enqueueSnackbar(t("addedfees"), {variant: "success"});
+                    enqueueSnackbar(t("alert.add"), {variant: "success"});
                 });
             });
         }
     };
 
-    const setActFees = useCallback(
-        (
+    const setActFees = useCallback((
             isTopAct: boolean,
             actFees: { act: ActModel | string | null; fees: string }
         ) => {
             const form = new FormData();
             form.append("topAct", isTopAct.toString());
             form.append("act", (actFees.act as ActModel)?.uuid);
-            triggerAddAct(
-                {
-                    method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/professionals/" +
-                        medical_professional.uuid +
-                        "/acts/" +
-                        router.locale,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                TriggerWithoutValidation
-            ).then(() => {
-                handleEdit(actFees, actFees.fees,(actFees.act as ActModel).name);
-            });
-        }, [medical_entity.uuid, medical_professional.uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
+            triggerAddAct({
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [
+            medical_entity.uuid,
+            medical_professional.uuid,
+            mutate,
+            router.locale,
+            session?.accessToken,
+            triggerAddAct,
+        ]
+    );
 
-    const handleEdit = (v: any, fees: string,name?:string) => {
+    const handleEdit = (v: any, fees: string, name?: string) => {
         const form = new FormData();
         form.append("price", fees);
         name && form.append("name", name);
-
-        trigger(
-            {
-                method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+        trigger({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
             },
-            TriggerWithoutValidation
-        ).then(() => {
+        }).then(() => {
             mutate().then(() => {
-                enqueueSnackbar(t("updated"), {variant: "success"});
+                enqueueSnackbar(t("alert.updated"), {variant: "success"});
                 if (typeof newFees.act !== "string") {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});
                 }
             });
         });
+    }
+const handleSelected = (prop:string)=>{
+    setOpen(true);
+    setSelected(prop)
+}
+    const handleScroll = () => {
+        const total = (httpProfessionalsActs as HttpResponse)?.data.length;
+        if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
+            setLoading(true);
+            if (total > displayedItems) {
+                setDisplayedItems(displayedItems + 10);
+            }
+            if (total - displayedItems < 10) {
+                setDisplayedItems(total);
+            }
+        }
     };
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+        // Add scroll listener
+        if (isMobile) {
+            let promise = new Promise(function (resolve, reject) {
+                document.body.style.overflow = "hidden";
+                setTimeout(() => {
+                    resolve(window.addEventListener("scroll", handleScroll));
+                }, 2000);
+            });
+            promise.then(() => {
+                return (document.body.style.overflow = "visible");
+            });
+        }
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [httpProfessionalsActs, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <>
@@ -498,7 +529,6 @@ function ActFees() {
                                 disabled={newFees.act === null || newFees.fees.length === 0}
                                 variant="contained"
                                 onClick={() => {
-
                                     if (typeof newFees.act === "string") {
                                         saveFees();
                                     } else {
@@ -516,16 +546,69 @@ function ActFees() {
                         </Stack>
                     </Stack>
                 )}
-
-                <Otable
-                    headers={headCells}
-                    rows={mainActes}
-                    from={"actfees"}
-                    edit={handleEdit}
-                    remove={removeFees}
-                    {...{t, loading}}
-                />
+                <DesktopContainer>
+                    <Otable
+                        headers={headCells}
+                        rows={mainActes}
+                        from={"actfees"}
+                        edit={handleEdit}
+                        {...{t, loading,handleSelected}}
+                        total={(httpProfessionalsActs as HttpResponse)?.data?.total}
+                        totalPages={(httpProfessionalsActs as HttpResponse)?.data?.totalPages}
+                        pagination
+                    />
+                </DesktopContainer>
+                <MobileContainer>
+                    <Stack spacing={1}>
+                        {mainActes.slice(0, displayedItems).map((act: any) => (
+                            <React.Fragment key={act.uuid}>
+                                <ActFeesMobileCard
+                                    data={act}
+                                    editMotif={handleEdit}
+                                    {...{t,handleSelected}}
+                                />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
+                </MobileContainer>
             </Box>
+            <Dialog PaperProps={{sx:{
+        width: "100%"
+      }}} maxWidth="sm" open={open}>
+        <DialogTitle sx={{
+          bgcolor: (theme:Theme) => theme.palette.error.main,
+          px:1,
+          py:2,
+
+        }}>
+         {t("dialog.delete-act-title")}
+        </DialogTitle>
+        <DialogContent style={{paddingTop:20}}>
+          <Typography>
+          {t("dialog.delete-act-desc")}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
+            <Stack direction="row" spacing={1}>
+            <Button
+              onClick={() => {
+                
+                setOpen(false);
+              }}
+              startIcon={<CloseIcon />}>
+              {t("dialog.cancel")}
+            </Button>
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              color="error"
+              onClick={() => removeFees(selected?.uuid as any)}
+              startIcon={<Icon path="setting/icdelete" color="white" />}>
+              {t("dialog.delete")}
+            </LoadingButton>
+          </Stack>
+        </DialogActions>
+      </Dialog>
         </>
     );
 }
@@ -536,7 +619,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            'patient',
+            "patient",
             "settings",
         ])),
     },

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {HistoryCard, HistoryContainer, PatientHistoryStaticCard,} from "@features/card";
+import {HistoryCard, HistoryContainer,} from "@features/card";
 import {Label} from "@features/label";
 import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@app/redux/hooks";
@@ -9,6 +9,8 @@ import {useRequest} from "@app/axios";
 import Icon from "@themes/urlIcon";
 import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
+import HistoryStyled
+    from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
 
 function HistoryTab({...props}) {
 
@@ -27,6 +29,7 @@ function HistoryTab({...props}) {
         setSelectedTab,
         session,
         mutate,
+        dates, keys, modelData,
         router
     } = props;
 
@@ -116,6 +119,31 @@ function HistoryTab({...props}) {
                     </Box>
                 </Box>
             }
+
+            {Object.keys(modelData).length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+                <Label variant="filled" color="warning">
+                    {t("history")}
+                </Label>
+            </Stack>}
+
+            {Object.keys(modelData).length > 0 &&
+                <HistoryStyled>
+                    <tbody>
+                    <tr>
+                        <td className={'col'}></td>
+                        {dates.map((date: string) => (<td key={date} className={'col'}><Typography
+                            className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
+                    </tr>
+                    </tbody>
+                    {keys.map((key: string) => (
+                        <tr key={key}>
+                            <td><Typography className={"keys col"}>{key}</Typography></td>
+                            {dates.map((date: string) => (<td key={date}><Typography
+                                className={"data col"}>{modelData[key][date] ? modelData[key][date] : '-'}</Typography>
+                            </td>))}
+                        </tr>
+                    ))}
+                </HistoryStyled>}
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>

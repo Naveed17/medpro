@@ -287,8 +287,7 @@ function Patient() {
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
 
-    const insurances = (httpInsuranceResponse as HttpResponse)
-        ?.data as InsuranceModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     useEffect(() => {
         if (filter?.type || filter?.patient) {
@@ -399,7 +398,7 @@ function Patient() {
     const onUpdateMoveAppointmentData = () => {
         const timeSplit = moveDialogTime.split(":");
         const date = moment(
-            moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1]))
+            moveDialogDate?.clone().toDate().setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1]))
         );
         const defEvent = {
             ...appointmentMoveData,

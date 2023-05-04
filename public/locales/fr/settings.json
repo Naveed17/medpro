@@ -15,7 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "configdoc": "Configuration document",
+    "configdoc": "Documents",
     "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
@@ -63,6 +63,18 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé",
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "add": "Le motif a été ajouté",
+        "updated": "Motif modifé"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -73,7 +85,10 @@
         "active": "Active",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "minutes": "Minutes",
+        "hours": "Heures",
+        "hour": "Heure"
       }
     },
     "dialog": {
@@ -105,7 +120,18 @@
         "name": "Nom",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "consultation_fees": "Frais de consultation",
+        "empty": ""
+      },
+      "dialog": {
+        "title": "Motif type suppression",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "desc": "voulez-vous supprimer le motif type"
+      },
+      "alert": {
+        "delete-reasonType": "le motif type a été supprimé"
       }
     },
     "dialog": {
@@ -117,7 +143,15 @@
       "tapez": "Tapez le nom du type",
       "cancel": "Annuler",
       "color": "couleur",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "type": "Type du motif",
+      "payed": "Payé",
+      "un_payed": "Non payé"
+    },
+    "alert": {
+      "add": "Ajouter motif de consultation",
+      "edit": "Modifier motif de consultation",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "lieux": {
@@ -330,6 +364,17 @@
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "access_management": "Gestion des accès",
+      "add_new_role": "Ajouter nouveau rôle",
+      "add_a_new_role": "Ajouter un nouveau rôle",
+      "role_name": "Nom du rôle",
+      "select_permissions": "Choisissez les permissions",
+      "select_all": "Sélectionner tout",
+      "agenda_management": "Gestion Agenda",
+      "add_appointment": "Ajouter RDV",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "visitor_added": "Visiteur ajoute",
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
@@ -373,7 +418,6 @@
     "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
-    "removed": "Acte est supprimé",
     "addedfees": "Acte est ajouté",
     "updated": "Acte est modifé",
     "price_of_act": "Prix",
@@ -393,7 +437,17 @@
       "editAct": "Modifier acte",
       "info": "Information d'acte",
       "name": "Nom d'acte",
-      "price": "Prix"
+      "price": "Prix",
+      "delete-act-title": "Acte supprimer",
+      "delete-act-desc": "Voulez-vous supprimer l'acte",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "alert": {
+      "add": "Acte est ajouté",
+      "updated": "Acte est modifé",
+      "delete-act": "Acte est supprimé",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "import-data": {
@@ -408,7 +462,8 @@
       "progress": "En cours",
       "success": "Importé",
       "failed": "Échoué",
-      "error": "Échoué"
+      "error": "Échoué",
+      "empty": ""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
@@ -525,7 +580,7 @@
   },
   "documents": {
     "config": {
-      "path": "Paramètres > Configuration ",
+      "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
       "case1": "Première case",
@@ -533,7 +588,8 @@
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "Document modèle modifé",
+      "updated": "Document enregistré",
+      "removed": "Document supprimé",
       "background": "Importer le document actuel",
       "title": "Titre du document",
       "date": "Date",
@@ -553,7 +609,16 @@
       "rightSide": "Côté droit",
       "paperSize": "Taille de papier",
       "A5": "A5",
-      "A4": "A4"
+      "A4": "A4",
+      "add": "Ajouter document",
+      "titleModel": "Titre du modèle",
+      "cancel": "Annuler",
+      "askRemove": "Supprimer un modèle",
+      "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
+      "remove": "Supprimer",
+      "titleholder": "Ordonnance...",
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
+      "asDefault": "Sélectionnez-le comme module par défaut"
     }
   }
 }

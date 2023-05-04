@@ -33,7 +33,7 @@ import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
+import {FileuploadProgress} from "@features/progressUI";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
@@ -42,6 +42,7 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
+import { Editor } from '@tinymce/tinymce-react';
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -56,13 +57,14 @@ function DocsConfig() {
     const componentRef = useRef<HTMLDivElement>(null);
 
     const [files, setFiles] = useState<any[]>([]);
+    const [title, setTitle] = useState("");
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155,textAlign:"center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
         size: 'portraitA4',
         content: {
@@ -75,22 +77,28 @@ function DocsConfig() {
         }
     })
 
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "documents.config",
-    });
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest({
+    const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
+
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
-        },
-    }, SWRNoValidateConfig);
+        }
+    } : null, SWRNoValidateConfig);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -197,8 +205,6 @@ function DocsConfig() {
                     setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
                 else
                     setData(docInfo.data)
-
-                console.log(docInfo.data);
             }
 
             setTimeout(() => {
@@ -259,6 +265,23 @@ function DocsConfig() {
                             sx={{width: '100%', bgcolor: 'background.paper'}}
                             component="nav"
                             aria-labelledby="nested-list-subheader">
+
+                            <Typography fontSize={12} color={'#999'} mb={1}>{t('titleModel')}{" "}
+                                <Typography component="span" color="error">
+                                    *
+                                </Typography>
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                placeholder={t('titleholder')}
+                                required
+                                type={"number"}
+                                style={{marginBottom:15}}
+                                value={title}
+                                onChange={(ev) => {
+                                    setTitle(ev.target.value)
+                                }}
+                                fullWidth/>
 
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
@@ -440,14 +463,17 @@ function DocsConfig() {
                                 </ListItem>
 
                                 {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
-                                    <CKeditor
-                                        name="description"
+                                    <Editor
                                         value={data.footer.content}
-                                        onChange={(res: React.SetStateAction<string>) => {
+                                        apiKey='5z2ufor849kkaz900ye60ztlyfbx8jr7d6uubg6hbgjs5b2j'
+                                        onEditorChange={(res)=>{
                                             data.footer.content = res;
                                             setData({...data});
                                         }}
-                                        editorLoaded={true}/>
+                                        init={{
+
+                                        }}
+                                    />
                                 </Collapse>}
                             </Box>}
 
@@ -508,16 +534,16 @@ function DocsConfig() {
                                             onChange={handleAlignment}
                                             aria-label="text alignment">
                                             <ToggleButton value="left" aria-label="left aligned">
-                                                <FormatAlignLeftIcon />
+                                                <FormatAlignLeftIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="center" aria-label="centered">
-                                                <FormatAlignCenterIcon />
+                                                <FormatAlignCenterIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="right" aria-label="right aligned">
-                                                <FormatAlignRightIcon />
+                                                <FormatAlignRightIcon/>
                                             </ToggleButton>
                                             <ToggleButton value="justify" aria-label="justified" disabled>
-                                                <FormatAlignJustifyIcon />
+                                                <FormatAlignJustifyIcon/>
                                             </ToggleButton>
                                         </ToggleButtonGroup>
                                     </Stack>
