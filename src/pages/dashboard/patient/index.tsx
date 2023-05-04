@@ -175,7 +175,7 @@ function Patient() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
@@ -272,13 +272,11 @@ function Patient() {
 
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
-    const {data: httpPatientsResponse, mutate} = useRequest({
+    const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",

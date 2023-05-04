@@ -149,52 +149,31 @@ function EditMotifDialog({...props}) {
                 trigger(
                     {
                         method: "PUT",
-                        url:
-                            "/api/medical-entity/" +
-                            medical_entity.uuid +
-                            "/appointments/types/" +
-                            props.data.uuid +
-                            "/" +
-                            router.locale,
+                        url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                         data: form,
                         headers: {
                             ContentType: "application/x-www-form-urlencoded",
                             Authorization: `Bearer ${session?.accessToken}`,
                         },
-                    },
-                    {revalidate: true, populateCache: true}
-                )
-                    .then((r: any) => {
-                        enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
-                        mutateEvent();
-                    })
-                    .catch((error) => {
-                        enqueueSnackbar(error, {variant: "error"});
-                    });
+                    }).then(() => {
+                    enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
+                    mutateEvent();
+                }).catch((error) => {
+                    enqueueSnackbar(error, {variant: "error"});
+                });
             } else {
                 trigger(
                     {
                         method: "POST",
-                        url:
-                            "/api/medical-entity/" +
-                            medical_entity.uuid +
-                            "/appointments/types/" +
-                            router.locale,
+                        url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}`,
                         data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    },
-                    {revalidate: true, populateCache: true}
-                )
-                    .then((r: any) => {
-                        enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
-                        mutateEvent();
-                    })
-                    .catch((error) => {
-                        enqueueSnackbar(error, {variant: "error"});
-                    });
+                        headers: {Authorization: `Bearer ${session?.accessToken}`},
+                    }).then(() => {
+                    enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
+                    mutateEvent();
+                }).catch((error) => {
+                    enqueueSnackbar(error, {variant: "error"});
+                });
             }
         },
     });
@@ -218,14 +197,7 @@ function EditMotifDialog({...props}) {
         }
     };
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

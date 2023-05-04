@@ -54,6 +54,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     useLeavePageConfirm(() => {
         setLoading(true);
@@ -66,6 +67,18 @@ function ConsultationInProgress() {
                   }*/
         }
     });
+
+    const {t, ready} = useTranslation("consultation");
+    const {direction} = useAppSelector(configSelector);
+    const {exam} = useAppSelector(consultationSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {lock} = useAppSelector(appLockSelector);
 
     const leaveDialog = useRef(false);
     const [filterdrawer, setFilterDrawer] = useState(false);
@@ -104,21 +117,9 @@ function ConsultationInProgress() {
     const [dates, setDates] = useState<any[]>([]);
     const [modelData, setModelData] = useState<any>(null);
     const [isHistory, setIsHistory] = useState(false);
-    const {direction} = useAppSelector(configSelector);
-    const {exam} = useAppSelector(consultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const {isActive, event} = useAppSelector(timerSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
-    const {drawer} = useAppSelector(
-        (state: { dialog: DialogProps }) => state.dialog
-    );
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const dispatch = useAppDispatch();
     const [end, setEnd] = useState(false);
-    const {selectedDialog} = useAppSelector(consultationSelector);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
@@ -137,8 +138,6 @@ function ConsultationInProgress() {
         },
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
-    const {lock} = useAppSelector(appLockSelector);
-
     const EventStepper = [
         {
             title: "steppers.tabs.tab-1",
@@ -157,19 +156,14 @@ function ConsultationInProgress() {
         },
     ];
 
-    const {trigger} = useRequestMutation(null, "/endConsultation");
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(
-        null,
-        "/agenda/update/appointment/status",
-        TriggerWithoutValidation
-    );
+    const {trigger} = useRequestMutation(null, "consultation/end");
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const updateAppointmentStatus = (
         appointmentUUid: string,
@@ -191,86 +185,53 @@ function ConsultationInProgress() {
         });
     };
 
-    const {data: httpMPResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null
-    );
+    const {data: httpMPResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
 
-    const {data: httpModelResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/modals",
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpModelResponse} = useRequest(medical_entity && medicalEntityHasUser ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpUsersResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/users",
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpUsersResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/users",
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpAppResponse, mutate} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null, SWRNoValidateConfig
-    );
+    const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null
-    );
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`,},
+    } : null);
 
-    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpDocumentResponse) {
@@ -355,7 +316,9 @@ function ConsultationInProgress() {
                                     uuid: act.act_uuid,
                                     act: {name: (act as any).name}
                                 });
-                                const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
+                                const actDetect = acts.findIndex((a: {
+                                    uuid: string
+                                }) => a.uuid === act.act_uuid) as any;
                                 if (actDetect === -1) {
                                     acts.push({
                                         ...act,
@@ -516,13 +479,15 @@ function ConsultationInProgress() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        }).then((r:any )=> {
-            const res = r?.data.data; let dates: string[] = []; let keys: string[] = [];
+        }).then((r: any) => {
+            const res = r?.data.data;
+            let dates: string[] = [];
+            let keys: string[] = [];
 
             Object.keys(res).map(key => {
                 keys.push(key);
                 Object.keys(res[key]).map(date => {
-                    if (dates.indexOf(date) === -1)  dates.push(date);
+                    if (dates.indexOf(date) === -1) dates.push(date);
                 })
             })
             setModelData(res);
@@ -544,6 +509,7 @@ function ConsultationInProgress() {
             setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
         }
     }, [dispatch, sheet, uuind]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const sendNotification = () => {
         if (secretary.length > 0) {
             const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
@@ -581,6 +547,7 @@ function ConsultationInProgress() {
             });
         }
     };
+
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
@@ -623,14 +590,17 @@ function ConsultationInProgress() {
             }
         }
     };
+
     const seeHistory = () => {
         setOpenActDialog(true);
         setstateAct(notes)
     }
+
     const seeHistoryDiagnostic = () => {
         setOpenActDialog(true);
         setstateAct(diagnostics)
     }
+
     const openDialogue = (item: any) => {
         switch (item.id) {
             case 1:
@@ -641,9 +611,11 @@ function ConsultationInProgress() {
                 break;
         }
     };
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
+
     const submitStepper = (index: number) => {
         if (EventStepper.length !== index) {
             EventStepper[index].disabled = false;
@@ -651,14 +623,17 @@ function ConsultationInProgress() {
             mutate();
         }
     };
+
     const handleCloseDialogAct = () => {
         setOpenActDialog(false);
     };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
         setActions(false);
     };
+
     const clearData = () => {
         localStorage.removeItem(`Modeldata${uuind}`);
         localStorage.removeItem(`Model-${uuind}`);
@@ -667,6 +642,7 @@ function ConsultationInProgress() {
         localStorage.removeItem(`consultation-fees`);
         localStorage.removeItem(`consultation-acts-${uuind}`);
     }
+
     const leave = () => {
         clearData();
         updateAppointmentStatus(uuind as string, "11").then(() => {
@@ -678,9 +654,11 @@ function ConsultationInProgress() {
             });
         });
     };
+
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
+
     const saveConsultation = () => {
         const btn = document.getElementsByClassName("sub-btn")[1];
         const examBtn = document.getElementsByClassName("sub-exam")[0];
@@ -688,11 +666,13 @@ function ConsultationInProgress() {
         (examBtn as HTMLElement)?.click();
         setEnd(true);
     };
+
     const endConsultation = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
         setActions(true);
     };
+
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
@@ -733,6 +713,7 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     };
+
     const showDoc = (card: any) => {
         let type = "";
         if (!(appointement.patient.birthdate && moment().diff(moment(appointement.patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -796,6 +777,7 @@ function ConsultationInProgress() {
             setOpenDialog(true);
         }
     };
+
     const handleTableActions = (action: string, event: any) => {
         switch (action) {
             case "onDetailPatient":
@@ -807,6 +789,7 @@ function ConsultationInProgress() {
                 break;
         }
     };
+
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
         saveConsultation();
@@ -817,16 +800,7 @@ function ConsultationInProgress() {
 
     }
 
-    const {t, ready} = useTranslation("consultation");
-
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <>
@@ -887,7 +861,7 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
-                                dates,keys,modelData,
+                                dates, keys, modelData,
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}

@@ -142,7 +142,7 @@ function WaitingRoom() {
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -416,7 +416,7 @@ function WaitingRoom() {
             setLoadingReq(false);
             localStorage.removeItem(`Modeldata${row?.uuid}`);
             setOpenPreConsultationDialog(false);
-            mutate(`/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`)
+            medicalEntityHasUser && mutate(`/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 

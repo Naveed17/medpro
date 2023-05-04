@@ -1,51 +1,37 @@
-import { Typography, Box, InputLabel } from "@mui/material";
-import { DatePicker } from "@features/datepicker";
-import { useRequest } from "@app/axios";
-import { SWRNoValidateConfig } from "@app/swr/swrProvider";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { SidebarCheckbox } from "@features/sidebarCheckbox";
-import { leftActionBarSelector, setFilter } from "@features/leftActionBar";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import {Typography, Box, InputLabel} from "@mui/material";
+import {DatePicker} from "@features/datepicker";
+import {useSession} from "next-auth/react";
+import React, {useState} from "react";
+import {SidebarCheckbox} from "@features/sidebarCheckbox";
+import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import _ from "lodash";
+import {dashLayoutSelector} from "@features/base";
 
 interface StateProps {
     appointment_date: Date | null;
 }
 
-function AppointmentFilter({ ...props }) {
-    const { item, t, ready, keyPrefix = "", OnSearch } = props;
-    const router = useRouter();
-    const { data: session } = useSession();
+function AppointmentFilter({...props}) {
+    const {item, t, ready, keyPrefix = "", OnSearch} = props;
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
-    const { query } = useAppSelector(leftActionBarSelector);
+    const {query} = useAppSelector(leftActionBarSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
     const [queryState, setQueryState] = useState<StateProps>({
         appointment_date: null
     });
 
-    const { data: user } = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const { data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes } = useRequest({
-        method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
-        headers: { Authorization: `Bearer ${session?.accessToken}` }
-    }, SWRNoValidateConfig);
-
-    const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
-
     return (
-        <Box component="figure" sx={{ m: 0 }}>
+        <Box component="figure" sx={{m: 0}}>
             <Typography variant="body2" color="text.secondary">
                 {t(`${keyPrefix}${item.type?.heading}`)}
             </Typography>
             <Box>
-                {types?.map((item, index) =>
+                {appointmentTypes?.map((item, index) =>
                     <SidebarCheckbox
                         key={index}
                         label={"name"}
@@ -68,11 +54,11 @@ function AppointmentFilter({ ...props }) {
                                         sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
                                 }))
                             }
-                        }} />
+                        }}/>
                 )}
             </Box>
             <Box>
-                <InputLabel shrink sx={{ mt: 2 }}>
+                <InputLabel shrink sx={{mt: 2}}>
                     {t(`${keyPrefix}appointment`)}
                 </InputLabel>
                 <DatePicker
@@ -97,7 +83,7 @@ function AppointmentFilter({ ...props }) {
                                 query,
                             });
                         }
-                    }} />
+                    }}/>
             </Box>
         </Box>
     );

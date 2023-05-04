@@ -17,22 +17,26 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam,
+    const {
+        exam: defaultExam,
         changes,
         setChanges,
         uuind,
         notes,
         diagnostics,
         seeHistory,
-        seeHistoryDiagnostic} = props;
+        seeHistoryDiagnostic
+    } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
 
     const {exam, listen} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [loadingReq, setLoadingReq] = useState(false);
@@ -45,11 +49,14 @@ function CIPPatientHistoryCard({...props}) {
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
@@ -276,15 +283,16 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes?.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                            seeHistory()
-                                        }}>{t('seeHistory')}</Typography>}
+                                        {notes?.length > 0 &&
+                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                                seeHistory()
+                                            }}>{t('seeHistory')}</Typography>}
                                     </>}
-                                    <RecButton 
-                                    small
-                                    onClick={() => {
-                                        startStopRec();
-                                    }}/>
+                                    <RecButton
+                                        small
+                                        onClick={() => {
+                                            startStopRec();
+                                        }}/>
                                 </Stack>
                             </Stack>
                             <TextField
@@ -314,9 +322,10 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {diagnostics.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                    seeHistoryDiagnostic()
-                                }}>{t('seeHistory')}</Typography>}
+                                {diagnostics.length > 0 &&
+                                    <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        seeHistoryDiagnostic()
+                                    }}>{t('seeHistory')}</Typography>}
                             </Stack>
 
                             <TextField
