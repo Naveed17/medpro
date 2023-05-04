@@ -54,7 +54,7 @@ function LifeStyleDialog({...props}) {
             let items = state.map(item => ({...item}));
             items.map((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    item.response = item.response[0].uuid
+                    item.response = item.response[0]?.uuid
                 }
             })
             setState(items)

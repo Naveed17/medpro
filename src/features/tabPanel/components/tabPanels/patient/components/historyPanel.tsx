@@ -11,30 +11,47 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {consultationSelector} from "@features/toolbar";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import moment from "moment-timezone";
+import {useRouter} from "next/router";
+import {useRequestMutation} from "@app/axios";
 
 function HistoryPanel({...props}) {
-    const {previousAppointmentsData: previousAppointments, patient, mutate, closePatientDialog} = props;
+    const {
+        previousAppointmentsData: previousAppointments,
+        patient,
+        mutate,
+        mutatePatientHis,
+        closePatientDialog
+    } = props;
 
-    const {direction} = useAppSelector(configSelector);
-    const {t} = useTranslation("consultation");
     const theme = useTheme();
     const dispatch = useAppDispatch();
-
     const {data: session} = useSession();
-    const {data: user} = session as Session;
+    const router = useRouter();
 
+    const {direction} = useAppSelector(configSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {t} = useTranslation("consultation");
+
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions, setActions] = useState<boolean>(false);
     const [dialog, setDialog] = useState<string>("");
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
+    const [dialogAction, setDialogAction] = useState<boolean>(false);
     const [apps, setApps] = useState<any>([]);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
@@ -78,6 +95,7 @@ function HistoryPanel({...props}) {
                 mutate
             })
             setOpenDialog(true);
+            setDialogAction(true);
         } else {
             setInfo('document_detail')
             let info = card
@@ -113,9 +131,64 @@ function HistoryPanel({...props}) {
         }
     }
 
+    const handleSaveDialog = () => {
+        const form = new FormData();
+
+        switch (info) {
+            case "medical_prescription_cycle":
+                form.append("globalNote", "");
+                form.append("isOtherProfessional", "false");
+                form.append("drugs", JSON.stringify(state));
+
+                triggerUpdate({
+                    method: "PUT",
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${"appuuid"}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
+                }).then((r: any) => {
+                    mutatePatientHis();
+                    mutate();
+                    setInfo("document_detail");
+                    const res = r.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
+                    setState({
+                        uri: res[1],
+                        name: "prescription",
+                        type: "prescription",
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        uuidDoc: res[0].uuid,
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                    });
+                    setOpenDialog(true);
+                    setDialogAction(false);
+                });
+                break;
+        }
+    }
+
     useEffect(() => {
         setApps(previousAppointments ? [...previousAppointments] : []);
     }, [previousAppointments, dispatch]);
+
+    useEffect(() => {
+        if (selectedDialog) {
+            switch (selectedDialog.action) {
+                case "medical_prescription_cycle":
+                    setInfo("medical_prescription_cycle");
+                    setState(selectedDialog.state);
+                    setOpenDialog(true);
+                    break;
+            }
+        }
+    }, [selectedDialog]);
 
     return (
         <PanelStyled>
@@ -178,7 +251,23 @@ function HistoryPanel({...props}) {
                     })}
                     dialogClose={handleCloseDialog}
                     {...(actions && {
-                        actionDialog: <DialogAction/>,
+                        actionDialog: <DialogActions>
+                            <Button
+                                onClick={() => {
+                                    setOpenDialog(false);
+                                    setInfo(null);
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("cancel")}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={handleSaveDialog}
+                                disabled={info === "medical_prescription_cycle" && state.length === 0}
+                                startIcon={<SaveRoundedIcon/>}>
+                                {t("save")}
+                            </Button>
+                        </DialogActions>,
                     })}
                 />
             )}
