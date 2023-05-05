@@ -1,6 +1,7 @@
 import { Stack, styled } from "@mui/material";
 const RootStyled = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(0, 7),
+  paddingTop: theme.spacing(2),
   [theme.breakpoints.down("md")]: {
     padding: 0,
   },

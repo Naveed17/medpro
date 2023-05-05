@@ -13,13 +13,29 @@ import {
   FormControlLabel,
   Checkbox,
   Collapse,
+  Switch,
+  DialogActions,
+  Button
 } from "@mui/material";
 import { IconButton } from "@mui/material";
+import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
+import { useSession } from "next-auth/react";
+import { useRequestMutation } from "@app/axios";
+import { Session } from "next-auth";
+import {useRouter} from "next/router";
+import { useSnackbar } from "notistack";
+import { LoadingButton } from "@mui/lab";
 function AddNewRoleDialog({ ...props }) {
-  const {
-    data: { t, selected, setValues },
-  } = props;
+  const {data: { t, selected, setValues,handleMutate,handleVisitor,handleClose }} = props;
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [loading, setLoading] = useState(false);
+   const { data: session } = useSession();
+   const router = useRouter();
+    const { data: userSession } = session as Session;
+  const medical_entity = (userSession as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+    const {trigger} = useRequestMutation(null, "/profile");
   const generateID = () => {
     return Math.random().toString(36).slice(2);
   };
@@ -106,14 +122,33 @@ function AddNewRoleDialog({ ...props }) {
     enableReinitialize: true,
     initialValues: {
       role_name: selected ? selected.role_name : "",
+      description:"",
+      is_standard:true,
       permissions: state,
     },
     onSubmit: async (values) => {
+    setLoading(true);
+      const form = new FormData();
+      form.append("name", values.role_name);
+      form.append("description", values.role_name);
+      form.append("is_standard ", values.is_standard.toString());
+      form.append("permissions", values.permissions);
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+          handleMutate();
+          handleVisitor((prev:boolean) => !prev);
+           setLoading(false)
+        })
       console.log("ok", values);
     },
   });
 
   const { getFieldProps, values, setFieldValue } = formik;
+console.log(values)
   function checkAllValuesTrue(obj: any) {
     if (obj.hasOwnProperty("value") && obj.value === false) {
       return false;
@@ -305,17 +340,17 @@ function AddNewRoleDialog({ ...props }) {
       setState(newPermissions);
     }
   };
-  const getValues = () =>
-    setValues({ ...values, id: selected ? selected.id : uid });
-  React.useEffect(() => {
-    getValues();
-  }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
+  // const getValues = () =>
+  //   //setValues({ ...values, id: selected ? selected.id : uid });
+  // React.useEffect(() => {
+  //   getValues();
+  // }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <FormikProvider value={formik}>
         <Form noValidate>
-          <RootStyled spacing={2}>
-            <Stack>
+          <RootStyled spacing={2} height={400} overflow='scroll' pt={2}>
+            <Stack spacing={2}>
               <Typography gutterBottom textTransform="uppercase">
                 {t("role_name")}
               </Typography>
@@ -323,6 +358,16 @@ function AddNewRoleDialog({ ...props }) {
                 {...getFieldProps("role_name")}
                 placeholder={t("role_name")}
               />
+               <Typography gutterBottom textTransform="uppercase">
+                {t("description")}
+              </Typography>
+              <TextField
+                {...getFieldProps("description")}
+                placeholder={t("description_placeholder")}
+                multiline
+                rows={4}
+              />
+              <FormControlLabel control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard} />}  label={t("is_standard")} />
             </Stack>
             <Box className="permissions-wrapper">
               <Typography gutterBottom>{t("select_permissions")}</Typography>
@@ -444,6 +489,31 @@ function AddNewRoleDialog({ ...props }) {
               </Card>
             </Box>
           </RootStyled>
+        
+            <Stack
+              p={1}
+              direction="row"
+              spacing={2}
+              borderTop={1}
+              borderColor="divider"
+              ml={-3}
+              mr={-3}
+              mt={2}
+              justifyContent="flex-end">
+              <Button
+              onClick={()=>handleClose()}
+                variant="text-black"
+                startIcon={<IconClose />}>
+                {t("cancel")}
+              </Button>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={loading}
+                startIcon={<IconUrl path="ic-dowlaodfile" />}>
+                {t("save")}
+              </LoadingButton>
+            </Stack>
         </Form>
       </FormikProvider>
     </>

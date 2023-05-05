@@ -375,6 +375,10 @@
       "cancel": "Annuler",
       "save": "Enregistrer",
       "visitor_added": "Visiteur ajoute",
+      "description": "Description",
+      "description_placeholder": "Description de l'profile",
+      "is_standard": "Est le Standrad",
+      "profile_created": "Profil créé",
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",

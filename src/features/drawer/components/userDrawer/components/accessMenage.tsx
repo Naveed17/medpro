@@ -8,19 +8,41 @@ import {
   ListItem,
   Dialog,
 } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import AccessMenageStyled from "./overrides/accessMenageStyle";
 import { useAppSelector } from "@app/redux/hooks";
 import { Dialog as CustomDialog } from "@features/dialog";
 import { configSelector } from "@features/base";
 import { AddVisitorDialog } from "@features/dialog";
+import { useRequest } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 function AccessMenage({ ...props }) {
   const { direction } = useAppSelector(configSelector);
+  const router = useRouter();
   const { t } = props;
   const [info, setInfo] = useState("");
+  const [profiles,setProfiles] = useState<any>([])
   const [open, setOpen] = useState(false);
+   const { data: session } = useSession();
+  const { data: user } = session as Session;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+  const { data: httpProfilesResponse,mutate } = useRequest({
+    method: "GET",
+    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  
+   useEffect(() => {
+        if (httpProfilesResponse)
+            setProfiles((httpProfilesResponse as HttpResponse)?.data)
+    }, [httpProfilesResponse])
+    
   const [data, setData] = useState([
     {
       id: 1,
@@ -108,9 +130,7 @@ function AccessMenage({ ...props }) {
     const filtered = data.filter((item) => item.id !== props.id);
     setData(filtered);
   };
-  const handleNewRole = () => {
-    setData([...data, values]);
-  };
+ 
   const handleUpdate = () => {
     const newArray = [...data];
     const upd_obj = newArray.findIndex((obj) => obj.id === selected.id);
@@ -126,9 +146,9 @@ function AccessMenage({ ...props }) {
   useEffect(() => {
     handleClose();
   }, [openVisitorDialog]);
-  console.log(data);
+  
   return (
-    <AccessMenageStyled spacing={2}>
+    <AccessMenageStyled spacing={2} height={1}>
       <Toolbar>
         <Stack
           width={1}
@@ -148,10 +168,11 @@ function AccessMenage({ ...props }) {
           </Button>
         </Stack>
       </Toolbar>
+      {profiles?.length > 0 ? (
       <List>
-        {data?.map((item: any, i: number) => (
+        {profiles?.map((item: any, i: number) => (
           <ListItem key={item.id}>
-            <Typography>{item.role_name}</Typography>
+            <Typography>{item.name}</Typography>
             <Stack spacing={0.5} ml="auto" direction="row" alignItems="center">
               <IconButton
                 onClick={() => {
@@ -173,42 +194,30 @@ function AccessMenage({ ...props }) {
           </ListItem>
         ))}
       </List>
+      ):(
+        <Stack px={2} alignItems='center' height={1} justifyContent='center'>
+        <Button
+            onClick={() => {
+              setInfo("add-new-role");
+              setOpen(true);
+              setSelected(null);
+            }}
+            variant="contained"
+            color="success">
+            {t("add_new_role")}
+          </Button>
+          </Stack>
+      )}
       <CustomDialog
         action={info}
         open={open}
         direction={direction}
-        data={{ t, selected, setValues }}
+        data={{ t, selected, setValues,handleMutate:mutate,handleVisitor:setVisitorDialog,handleClose:() =>setOpen(false) }}
         {...(info === "add-new-role" && {
           title: t("add_a_new_role"),
           size: "md",
+          sx:{py:0},
           dialogClose: () => setOpen(false),
-          actionDialog: (
-            <Stack
-              width={1}
-              direction="row"
-              spacing={2}
-              justifyContent="flex-end">
-              <Button
-                onClick={() => setOpen(false)}
-                variant="text-black"
-                startIcon={<IconClose />}>
-                {t("cancel")}
-              </Button>
-              <Button
-                onClick={() => {
-                  if (selected) {
-                    handleUpdate();
-                  } else {
-                    handleNewRole();
-                  }
-                  setVisitorDialog(true);
-                }}
-                variant="contained"
-                startIcon={<IconUrl path="ic-dowlaodfile" />}>
-                {t("save")}
-              </Button>
-            </Stack>
-          ),
         })}
         {...(info === "add-visitor" && {
           size: "xs",

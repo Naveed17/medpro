@@ -29,15 +29,21 @@ import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-
+import {useRequestMutation} from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
     const {agendas} = useAppSelector(agendaSelector);
-
+    const { data: session } = useSession();
+    const { data: userSession } = session as Session;
+  const medical_entity = (userSession as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
     const [agendaRoles, setAgendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
+    const {trigger} = useRequestMutation(null, "/users");
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
@@ -68,8 +74,26 @@ function NewUser() {
         },
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
+            const form = new FormData();
+            form.append('username', values.name);
+            form.append('email', values.email);
+            form.append('is_owner', values.admin);
+            form.append('is_active', 'true');
+            form.append('is_professional', values.professionnel);
+            form.append('is_accepted', 'true');
+            form.append('is_public', "true");
+            form.append('is_default', "true");
+            
             dispatch(addUser({...values}));
+            trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
             router.push("/dashboard/settings/users");
+        })
+           
         },
     });
 
@@ -81,7 +105,7 @@ function NewUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-
+    console.log(agendaRoles);
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -290,6 +314,7 @@ function NewUser() {
                                             <FormControlLabel
                                                 control={<Checkbox/>}
                                                 label={agenda.name}
+                                                
                                             />
                                         </Grid>
                                         <Grid item xs={12} lg={7}>

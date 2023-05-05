@@ -1,11 +1,11 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { DashLayout } from "@features/base";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { configSelector } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { RootStyled } from "@features/toolbar";
-import { Box, Button, Stack, Drawer } from "@mui/material";
+import { Box, Button, Stack, Drawer,useMediaQuery,Theme } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { Otable, resetUser } from "@features/table";
 import { useRouter } from "next/router";
@@ -82,24 +82,23 @@ const headCells = [
 function Users() {
   const router = useRouter();
   const { data: session } = useSession();
+  const [users,setUsers] = useState<UserModel[]>([]);
   const dispatch = useAppDispatch();
-
+  const isMobile = useMediaQuery((theme:Theme)=>theme.breakpoints.down('md'));
   const { data: user } = session as Session;
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
-
-  const { data: httpUsersResponse } = useRequest({
+  const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+  const { data: httpUsersResponse}= useRequest({
     method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
+    url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}${!isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`: `?sort=true`}`,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
   });
 
-  const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
-
-  const [edit, setEdit] = useState(false);
-  const [selected, setSelected] = useState<any>("");
+useEffect(() => {
+        if (httpUsersResponse)
+            setUsers((httpUsersResponse as HttpResponse)?.data as UserModel[])
+    }, [httpUsersResponse])
   const { direction } = useAppSelector(configSelector);
   const [open, setOpen] = useState(false);
   const handleChange = (props: any) => {};
@@ -113,7 +112,6 @@ function Users() {
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "users.config",
   });
-
   if (!ready)
     return (
       <LoadingScreen
