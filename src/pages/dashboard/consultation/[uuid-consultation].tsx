@@ -310,7 +310,6 @@ function ConsultationInProgress() {
                         let sAct: any[] = [];
                         appointement.acts.map(
                             (act: { act_uuid: string; price: any; qte: any }) => {
-                                console.log(act)
                                 sAct.push({
                                     ...act,
                                     fees: act.price,
@@ -390,7 +389,6 @@ function ConsultationInProgress() {
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
         let uuids: string[] = [];
-        console.log(selectedAct)
         selectedAct.map((act) => {
             uuids.push(act.uuid);
             act.qte
@@ -586,7 +584,6 @@ function ConsultationInProgress() {
                 );
             } else {
                 row.qte = 1;
-                console.log(row);
                 setSelectedAct([...selectedAct, row]);
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
