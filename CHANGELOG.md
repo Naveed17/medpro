@@ -1,3 +1,10 @@
+## [4.17.7](https://github.com/SmartMedSA/med-pro/compare/v4.17.6...v4.17.7) (2023-05-05)
+
+
+### Bug Fixes
+
+* antecedent undefined uuid ([21594f6](https://github.com/SmartMedSA/med-pro/commit/21594f62cb67500fc9e2fe9fe70c91e64df52d3d))
+
 ## [4.17.6](https://github.com/SmartMedSA/med-pro/compare/v4.17.5...v4.17.6) (2023-05-03)
 
 
