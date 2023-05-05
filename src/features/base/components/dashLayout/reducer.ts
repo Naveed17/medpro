@@ -7,6 +7,8 @@ export type dashLayoutState = {
     waiting_room?: number;
     allowNotification?: boolean;
     import_data?: string[];
+    medicalEntityHasUser?: MedicalEntityHasUsersModel[];
+    appointmentTypes?: AppointmentTypeModel[];
     mutate?: KeyedMutator<any> | null;
     last_fiche_id?: string;
     ongoing?: {

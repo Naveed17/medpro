@@ -22,7 +22,7 @@ import {useSWRConfig} from "swr";
 import {Session} from "next-auth";
 
 function ModelPrescriptionList({...props}) {
-    const {models, t, switchPrescriptionModel} = props;
+    const {models, t, initialOpenData, switchPrescriptionModel} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
@@ -55,6 +55,7 @@ function ModelPrescriptionList({...props}) {
                 parentModels.push(...[
                     {
                         id: model.uuid,
+                        isDefault: model.isDefault,
                         parent: 0,
                         droppable: true,
                         text: model.isDefault ? "Répertoire par défaut" : model.name
@@ -69,9 +70,7 @@ function ModelPrescriptionList({...props}) {
                     }))
                 ]);
             });
-            parentModels.sort(model => {
-                return model.isDefault ? -1 : 1;
-            });
+            parentModels.sort(model => model.isDefault ? -1 : 1);
             setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -88,7 +87,9 @@ function ModelPrescriptionList({...props}) {
                                 {...{node, t, depth, isOpen, onToggle, switchPrescriptionModel}}
                             />
                         )}
+                        sort={false}
                         enableAnimateExpand={true}
+                        initialOpen={initialOpenData}
                         dragPreviewRender={(monitorProps) => (
                             <CustomDragPreview monitorProps={monitorProps}/>
                         )}

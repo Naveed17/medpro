@@ -1,3 +1,17 @@
+## [4.17.6](https://github.com/SmartMedSA/med-pro/compare/v4.17.5...v4.17.6) (2023-05-03)
+
+
+### Bug Fixes
+
+* calendar local timezone ([7c32535](https://github.com/SmartMedSA/med-pro/commit/7c3253506583d7c70c7c233f039136915ea9b5a9))
+
+## [4.17.5](https://github.com/SmartMedSA/med-pro/compare/v4.17.4...v4.17.5) (2023-04-27)
+
+
+### Bug Fixes
+
+* calendar timezone ([f4a4433](https://github.com/SmartMedSA/med-pro/commit/f4a443376ba0b0f9a3f27ec32bb4c42681442891))
+
 ## [4.17.4](https://github.com/SmartMedSA/med-pro/compare/v4.17.3...v4.17.4) (2023-04-25)
 
 

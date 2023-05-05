@@ -15,11 +15,6 @@ import {
     SidebarCheckboxStyled,
 } from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
@@ -30,41 +25,23 @@ import {
 import moment from "moment-timezone";
 import {Checkbox, Typography} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
+import {dashLayoutSelector} from "@features/base";
 
 const CalendarPickers = dynamic(
     () => import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Agenda() {
-    const {data: session} = useSession();
-    const router = useRouter();
     const dispatch = useAppDispatch();
 
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-
-    const {data: httpAppointmentTypesResponse} = useRequest(
-        {
-            method: "GET",
-            url:
-                "/api/medical-entity/" +
-                medical_entity.uuid +
-                "/appointments/types/" +
-                router.locale,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "filter"});
 
     const locations = agendaConfig?.locations;
     const openingHours = locations && locations[0].openingHours[0].openingHours;
-    const types = (httpAppointmentTypesResponse as HttpResponse)
-        ?.data as AppointmentTypeModel[];
+    const types = appointmentTypes ? [...appointmentTypes] : [];
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [accordionData, setAccordionData] = useState<any[]>([]);
@@ -81,7 +58,7 @@ function Agenda() {
     }, [openingHours]);
 
     useEffect(() => {
-        if (types) {
+        if (appointmentTypes) {
             setAccordionData([
                 {
                     heading: {
@@ -184,7 +161,7 @@ function Agenda() {
                                             id={status.key}
                                             onChange={(event) => {
                                                 const selected = event.target.checked;
-                                                const statusKey = Object.entries(AppointmentStatus).find((value, index) => value[1].key === status.key);
+                                                const statusKey = Object.entries(AppointmentStatus).find((value) => value[1].key === status.key);
 
                                                 if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
                                                     const type = (statusKey && statusKey[1]) as AppointmentStatusModel;
@@ -218,11 +195,11 @@ function Agenda() {
                 },
             ]);
         }
-    }, [types]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [appointmentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         types?.map((type) => {
-            Object.assign(type, {
+            Object.assign({...type}, {
                 checked:
                     query?.type
                         ?.split(",")

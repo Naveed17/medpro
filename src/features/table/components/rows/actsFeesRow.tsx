@@ -115,7 +115,7 @@ function ActFeesRow({ ...props }) {
             )}
             <IconButton
               onClick={() => {
-                data.remove(row.uuid);
+                data.handleSelected(row);
               }}
               size="small"
               sx={{ mr: { md: 1 } }}>

@@ -11,7 +11,7 @@ import { IconsTypes } from "@features/calendar";
 function MotifRow({ ...props }) {
   const { row, editMotif, data } = props;
   const { t, ready } = useTranslation("common");
-  console.log(row);
+
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell colSpan={3}>
@@ -58,12 +58,20 @@ function MotifRow({ ...props }) {
       </TableCell>
       <TableCell align="right">
         {row ? (
+          <Stack direction='row' alignItems='center' justifyContent='flex-end'>
           <IconButton
             size="small"
             sx={{ mr: { md: 1 } }}
-            onClick={() => editMotif(row)}>
+            onClick={() => editMotif(row,"edit")}>
             <IconUrl path="setting/edit" />
           </IconButton>
+           <IconButton
+            size="small"
+            sx={{ mr: { md: 1 } }}
+            onClick={() => editMotif(row,"delete")}>
+            <IconUrl path="setting/icdelete" />
+          </IconButton>
+          </Stack>
         ) : (
           <Skeleton width={30} height={40} sx={{ m: "auto" }} />
         )}

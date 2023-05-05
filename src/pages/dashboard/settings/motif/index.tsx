@@ -1,6 +1,5 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import dynamic from "next/dynamic";
 import React, {
     ReactElement,
     useState,
@@ -8,7 +7,7 @@ import React, {
     Suspense,
     lazy,
 } from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
@@ -18,11 +17,14 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
-    CircularProgress,
-    Backdrop,
     Theme,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
+import CloseIcon from '@mui/icons-material/Close';
 import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {configSelector} from "@features/base";
@@ -42,21 +44,25 @@ const MotifListMobile = lazy(
 import {LoadingScreen} from "@features/loadingScreen";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSnackbar} from "notistack";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
 
 function Motif() {
     const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
+
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
     const durations = useDateConverture(15, 240);
     const delay = useDateConverture(1440, 21600);
     const [displayedItems, setDisplayedItems] = useState(10);
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-    const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "motif.config",
-    });
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [edit, setEdit] = useState(false);
     const [state, setState] = useState({
         duration: true,
@@ -64,28 +70,22 @@ function Motif() {
         delay_max: true,
         isEnabled: true,
     });
-    const [selected, setSelected] = useState();
+    const [selected, setSelected] = useState<null | any>();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/settings/motifs");
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} =
-        useRequest(
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${
-                    router.locale
-                }${
-                    !isMobile
-                        ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
-                        : ""
-                }`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            },
-            SWRNoValidateConfig
-        );
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}${
+            !isMobile
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+                : "?sort=true"
+        }`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
     const closeDraw = () => {
         setEdit(false);
@@ -124,38 +124,6 @@ function Motif() {
             align: "left",
             sortable: false,
         },
-        /*{
-                id: 'delay_min',
-                numeric: false,
-                disablePadding: false,
-                label: 'delay_min',
-                align: 'left',
-                sortable: false
-            },
-            {
-                id: 'delay_max',
-                numeric: true,
-                disablePadding: false,
-                label: 'delay_max',
-                align: 'left',
-                sortable: false
-            },*/
-        /*{
-                id: 'agenda',
-                numeric: true,
-                disablePadding: false,
-                label: 'agenda',
-                align: 'center',
-                sortable: false
-            },
-            {
-                id: 'type',
-                numeric: false,
-                disablePadding: false,
-                label: 'type',
-                align: 'center',
-                sortable: true
-            },*/
         {
             id: "isEnabled",
             numeric: false,
@@ -169,7 +137,7 @@ function Motif() {
             numeric: false,
             disablePadding: false,
             label: "action",
-            align: "center",
+            align: "right",
             sortable: false,
         },
     ];
@@ -216,18 +184,9 @@ function Motif() {
 
         trigger({
             method: "PATCH",
-            url:
-                "/api/medical-entity/" +
-                medical_entity.uuid +
-                "/consultation-reasons/" +
-                props.uuid +
-                "/" +
-                router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form,
-            headers: {
-                ContentType: "application/x-www-form-urlencoded",
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
         })
             .then(() => {
                 mutateConsultReason();
@@ -246,11 +205,43 @@ function Motif() {
         setState({...state});
     };
 
-    const editMotif = (props: any) => {
-        setEdit(true);
+    const editMotif = (props: any, event: string) => {
         setSelected(props);
-    };
+        if (event === "add") {
+            setEdit(true);
+        }
+        if (event === "edit") {
+            setEdit(true);
+        }
 
+        if (event === "delete") {
+            setOpen(true);
+        }
+    };
+    const removeReason = (uuid: any) => {
+        setLoading(true);
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        })
+            .then(() => {
+                enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
+                setLoading(false);
+                setOpen(false);
+                mutateConsultReason();
+            })
+            .catch((error) => {
+                const {
+                    response: {data},
+                } = error;
+                setLoading(false);
+                setOpen(false);
+                enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+            });
+    };
     const handleScroll = () => {
         const total = (httpConsultReasonResponse as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -270,10 +261,11 @@ function Motif() {
     useEffect(() => {
         // Add scroll listener
 
-        let promise = new Promise(function (resolve, reject) {
+        let promise = new Promise((resolve) => {
             document.body.style.overflow = "hidden";
             setTimeout(() => {
-                resolve(window.addEventListener("scroll", handleScroll));
+                window.addEventListener("scroll", handleScroll);
+                resolve(true);
             }, 2000);
         });
         promise.then(() => {
@@ -282,7 +274,7 @@ function Motif() {
         });
 
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [httpConsultReasonResponse, displayedItems]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -297,7 +289,7 @@ function Motif() {
                         variant="contained"
                         color="success"
                         onClick={() => {
-                            editMotif(null);
+                            editMotif(null as any, "add");
                         }}
                         sx={{ml: "auto"}}>
                         {t("add")}
@@ -355,11 +347,45 @@ function Motif() {
                     closeDraw={closeDraw}
                 />
             </Drawer>
-            <Backdrop
-                sx={{color: "#fff", zIndex: theme.zIndex.drawer + 1}}
-                open={loading && isMobile}>
-                <CircularProgress color="inherit"/>
-            </Backdrop>
+            <Dialog PaperProps={{
+                sx: {
+                    width: "100%"
+                }
+            }} maxWidth="sm" open={open}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
+
+                }}>
+                    {t("dialog.title")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("dialog.desc")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoading(false);
+                                setOpen(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            color="error"
+                            onClick={() => removeReason(selected?.uuid as any)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("dialog.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

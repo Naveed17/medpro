@@ -132,7 +132,9 @@ function HistoryContainer({...props}) {
         setOpenDialog(true);
     }
 
-    const editReqSheet = (apps: { [x: string]: { appointment: { requestedAnalyses: { [x: string]: any; }; }; }; }, iid: number, idx: number) => {
+    const editReqSheet = (apps: {
+        [x: string]: { appointment: { requestedAnalyses: { [x: string]: any; }; }; };
+    }, iid: number, idx: number) => {
         const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
@@ -180,7 +182,7 @@ function HistoryContainer({...props}) {
             open={app.appointment.uuid === selectedApp}
             key={`${app.appointment.uuid}timeline`}>
             <PatientHistoryCard
-                {...{selectedApp, t, appuuid, dispatch, closePatientDialog,setSelectedTab}}
+                {...{selectedApp, t, appuuid, dispatch, closePatientDialog, setSelectedTab}}
                 key={app.appointment.uuid}
                 keyID={app.appointment.uuid}
                 data={app}>
@@ -210,7 +212,9 @@ function HistoryContainer({...props}) {
                                                 {col.type === "treatment" && <>
                                                     {
                                                         app.appointment.treatments.length > 0 ? <>
-                                                            {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                            {app.appointment.treatments.filter((t: {
+                                                                isOtherProfessional: any;
+                                                            }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                                     <Box
                                                                         key={`list-treatement-${idx}`}
                                                                         className={'boxHisto'}>
@@ -228,11 +232,15 @@ function HistoryContainer({...props}) {
                                                             )}
 
                                                             {
-                                                                app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).length > 0 &&
+                                                                app.appointment.treatments.filter((t: {
+                                                                    isOtherProfessional: any;
+                                                                }) => !t.isOtherProfessional).length > 0 &&
                                                                 <Typography fontSize={12}
                                                                             fontWeight={"bold"}>{t('prescription')}</Typography>
                                                             }
-                                                            {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                            {app.appointment.treatments.filter((t: {
+                                                                isOtherProfessional: any;
+                                                            }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                                     <Box
                                                                         key={`list-treatement-${idx}`}
                                                                         className={'boxHisto'}>
@@ -391,7 +399,9 @@ function HistoryContainer({...props}) {
                                                                             <Grid container mb={0.1} mt={0}
                                                                                   spacing={1}>
                                                                                 {
-                                                                                    app.documents.filter((doc: { uri: any; }) => rs.uri.includes(doc.uri)).map((card: any) => (
+                                                                                    app.documents.filter((doc: {
+                                                                                        uri: any;
+                                                                                    }) => rs.uri.includes(doc.uri)).map((card: any) => (
                                                                                         <Grid item xs={3}
                                                                                               key={`doc-item-${card.uuid}`}>
                                                                                             <Stack direction={"row"}
