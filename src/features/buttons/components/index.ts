@@ -7,3 +7,4 @@ export * from "./filterButton";
 export * from "./recButton";
 export * from "./materialUISwitch";
 export * from "./iconSwitch";
+export * from "./switchPrescriptionUI";
