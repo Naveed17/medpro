@@ -25,6 +25,7 @@ import Add from "@mui/icons-material/Add";
 import React, {useState} from "react";
 import Draggable from "react-draggable";
 import {useTranslation} from "next-i18next";
+import adultTooths from "@features/widget/components/adult";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -59,7 +60,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function ToothsWidget({...props}) {
-    let {acts,setSelectedAct,selectedAct} = props
+    let {acts,setActs,setSelectedAct,selectedAct} = props
     const {t} = useTranslation("consultation", {keyPrefix: "widget"});
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
@@ -72,45 +73,7 @@ export default function ToothsWidget({...props}) {
     }]);
     const [open, setOpen] = useState("");
     const [absent, setAbsent] = useState<string[]>([]);
-    const tooths = [
-        {id: '11', x: [73, 84], y: [9, 21]},
-        {id: '12', x: [56, 67], y: [17, 29]},
-        {id: '13', x: [44, 55], y: [25, 37]},
-        {id: '14', x: [37, 48], y: [40, 52]},
-        {id: '15', x: [30, 41], y: [55, 67]},
-        {id: '16', x: [23, 38], y: [71, 87]},
-        {id: '17', x: [20, 35], y: [93, 109]},
-        {id: '18', x: [19, 34], y: [114, 130]},
-
-        {id: '21', x: [88, 99], y: [9, 21]},
-        {id: '22', x: [104, 115], y: [17, 29]},
-        {id: '23', x: [116, 127], y: [25, 37]},
-        {id: '24', x: [124, 135], y: [40, 52]},
-        {id: '25', x: [131, 142], y: [55, 67]},
-        {id: '26', x: [134, 149], y: [71, 87]},
-        {id: '27', x: [137, 152], y: [93, 109]},
-        {id: '28', x: [138, 153], y: [114, 130]},
-
-        {id: '31', x: [87, 97], y: [254, 263]},
-        {id: '32', x: [99, 109], y: [249, 258]},
-        {id: '33', x: [111, 121], y: [242, 251]},
-        {id: '34', x: [120, 130], y: [228, 239]},
-        {id: '35', x: [127, 137], y: [213, 225]},
-        {id: '36', x: [130, 147], y: [193, 209]},
-        {id: '37', x: [134, 151], y: [170, 186]},
-        {id: '38', x: [138, 153], y: [150, 166]},
-
-        {id: '41', x: [74, 84], y: [254, 263]},
-        {id: '42', x: [62, 72], y: [249, 258]},
-        {id: '43', x: [50, 60], y: [242, 251]},
-        {id: '44', x: [41, 51], y: [228, 239]},
-        {id: '45', x: [35, 45], y: [213, 225]},
-        {id: '46', x: [25, 42], y: [193, 209]},
-        {id: '47', x: [21, 38], y: [170, 186]},
-        {id: '48', x: [18, 33], y: [150, 166]},
-
-
-    ];
+    const tooths = adultTooths;
     const between = (val: number, min: number, max: number) => {
         return val >= min && val <= max;
     }
@@ -180,22 +143,25 @@ export default function ToothsWidget({...props}) {
     const handleChangeAct = (event: SelectChangeEvent<string[]>, traitement: number) => {
         const {target: {value}} = event;
         traitements[traitement].acts = typeof value === 'string' ? value.split(',') : value;
+
+        let teethActs:any[] = [];
         Array.isArray(value) && value.map(act => {
             const index = selectedAct.findIndex((sa: { uuid: string; }) => sa.uuid === act)
             if (index === -1) {
-                const actDetail = acts.find((ac: { uuid: string; }) => ac.uuid === act)
-                selectedAct = [...selectedAct, {
-                    act: {name: actDetail.act.name},
-                    act_uuid: actDetail.uuid,
-                    fees: actDetail.fees,
-                    name:  actDetail.act.name,
-                    price: actDetail.fees,
+                const indexAct = acts.findIndex((ac: { uuid: string; }) => ac.uuid === act)
+                teethActs = [...teethActs, {
+                    act: {name: acts[indexAct].act.name},
+                    act_uuid: acts[indexAct].uuid,
+                    fees: acts[indexAct].fees,
+                    name:  acts[indexAct].act.name,
+                    price: acts[indexAct].fees,
                     qte: 1,
-                    uuid: actDetail.uuid
+                    uuid: acts[indexAct].uuid
                 }]
-                setSelectedAct([...selectedAct])
+                acts[indexAct].qte = 1
+                setActs([...acts]);
+                setSelectedAct([...selectedAct,...teethActs])
             }
-
         })
         setTraitements([...traitements])
     };
@@ -414,7 +380,7 @@ export default function ToothsWidget({...props}) {
                                                                  }}/>} label={t('absente')}/>
                             {traitements.map((traitement, index) => (
                                 <FormControlLabel key={traitement.id} control={<Checkbox
-                                    checked={traitement.tooths.find(t => t === open) !== undefined} onChange={(ev) => {
+                                    checked={traitement.tooths.find(t => t === open) !== undefined} onChange={() => {
                                     const tooths:string[] = traitement.tooths;
                                     const st = traitement.tooths.findIndex(t => t === open)
                                     if (st >= 0) tooths.splice(st, 1)

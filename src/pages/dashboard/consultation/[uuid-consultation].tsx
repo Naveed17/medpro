@@ -48,6 +48,7 @@ import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
+import ToothsWidget from "@features/widget/components/toothsWidget";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -310,10 +311,12 @@ function ConsultationInProgress() {
                         let sAct: any[] = [];
                         appointement.acts.map(
                             (act: { act_uuid: string; price: any; qte: any }) => {
+                                console.log(act)
                                 sAct.push({
                                     ...act,
                                     fees: act.price,
                                     uuid: act.act_uuid,
+                                    qte:act.qte,
                                     act: {name: (act as any).name}
                                 });
                                 const actDetect = acts.findIndex((a: {
@@ -324,6 +327,7 @@ function ConsultationInProgress() {
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
+                                        qte:act.qte,
                                         act: {name: (act as any).name}
                                     });
                                 } else {
@@ -387,6 +391,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
         let uuids: string[] = [];
+        console.log(selectedAct)
         selectedAct.map((act) => {
             uuids.push(act.uuid);
             act.qte
@@ -582,6 +587,7 @@ function ConsultationInProgress() {
                 );
             } else {
                 row.qte = 1;
+                console.log(row);
                 setSelectedAct([...selectedAct, row]);
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
@@ -891,6 +897,7 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                                <ToothsWidget {...{acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}/>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{models, changes, setChanges, isClose}}
