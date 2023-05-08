@@ -108,7 +108,6 @@ useEffect(() => {
   const onDelete = (props: any) => {
     console.log(props);
   };
-
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "users.config",
   });

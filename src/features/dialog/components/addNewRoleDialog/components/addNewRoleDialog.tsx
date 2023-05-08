@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Form, FormikProvider, useFormik } from "formik";
 import RootStyled from "./overrides/rootStyle";
 import {
@@ -21,14 +21,12 @@ import { IconButton } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import { useSession } from "next-auth/react";
-import { useRequestMutation } from "@app/axios";
+import { useRequestMutation,useRequest } from "@app/axios";
 import { Session } from "next-auth";
 import {useRouter} from "next/router";
-import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 function AddNewRoleDialog({ ...props }) {
-  const {data: { t, selected, setValues,handleMutate,handleVisitor,handleClose }} = props;
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const {data: { t, selected,handleMutate,handleVisitor,handleClose }} = props;
     const [loading, setLoading] = useState(false);
    const { data: session } = useSession();
    const router = useRouter();
@@ -36,103 +34,47 @@ function AddNewRoleDialog({ ...props }) {
   const medical_entity = (userSession as UserDataResponse)
     .medical_entity as MedicalEntityModel;
     const {trigger} = useRequestMutation(null, "/profile");
-  const generateID = () => {
-    return Math.random().toString(36).slice(2);
-  };
-  const uid = generateID();
-  const [state, setState] = useState(
-    selected
-      ? selected.permissions
-      : [
-          {
-            id: 1,
-            label: "agenda_management",
-            value: false,
-            insideList: [
-              {
-                id: "01",
-                label: "add_appointment",
-                value: false,
-              },
-              {
-                id: "02",
-                label: "add_appointment",
-                value: false,
-                insideList: [
-                  {
-                    id: "001",
-                    label: "add_appointment",
-                    value: false,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            id: 2,
-            label: "agenda_management",
-            value: false,
-            insideList: [
-              {
-                id: "01",
-                label: "add_appointment",
-                value: false,
-              },
-              {
-                id: "02",
-                label: "add_appointment",
-                value: false,
-                insideList: [
-                  {
-                    id: "001",
-                    label: "add_appointment",
-                    value: false,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            id: 3,
-            label: "agenda_management",
-            value: false,
-            insideList: [
-              {
-                id: "01",
-                label: "add_appointment",
-                value: false,
-              },
-              {
-                id: "02",
-                label: "add_appointment",
-                value: false,
-                insideList: [
-                  {
-                    id: "001",
-                    label: "add_appointment",
-                    value: false,
-                  },
-                ],
-              },
-            ],
-          },
-        ]
-  );
+
+  const [permissions, setPermissions] = useState<any>(null);
+   const { data: httpPermissionsResponse}= useRequest({
+    method: "GET",
+    url: "/api/medical-entity/permissions",
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  useEffect(() => {
+        if (httpPermissionsResponse)
+            setPermissions((httpPermissionsResponse as HttpResponse)?.data)
+    }, [httpPermissionsResponse]);
+console.log(permissions)
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      role_name: selected ? selected.role_name : "",
-      description:"",
-      is_standard:true,
-      permissions: state,
+      role_name: selected ? selected?.name : "",
+      description: selected ? selected?.description : "",
+      is_standard: selected ? selected?.is_standard ?? true : true,
+      permissions
     },
     onSubmit: async (values) => {
     setLoading(true);
       const form = new FormData();
       form.append("name", values.role_name);
-      form.append("description", values.role_name);
+      form.append("description", values.description);
       form.append("is_standard ", values.is_standard.toString());
       form.append("permissions", values.permissions);
+      if(selected){
+           trigger({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+          handleMutate();
+          handleVisitor((prev:boolean) => !prev);
+           setLoading(false)
+        })
+      }else{
         trigger({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/profile`,
@@ -143,203 +85,204 @@ function AddNewRoleDialog({ ...props }) {
           handleVisitor((prev:boolean) => !prev);
            setLoading(false)
         })
+      }
       console.log("ok", values);
     },
   });
 
   const { getFieldProps, values, setFieldValue } = formik;
-console.log(values)
-  function checkAllValuesTrue(obj: any) {
-    if (obj.hasOwnProperty("value") && obj.value === false) {
-      return false;
-    }
-    if (obj.hasOwnProperty("insideList")) {
-      for (let i = 0; i < obj.insideList.length; i++) {
-        if (!checkAllValuesTrue(obj.insideList[i])) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
 
-  let allValuesTrue = true;
-  for (let i = 0; i < values.permissions.length; i++) {
-    if (!checkAllValuesTrue(values.permissions[i])) {
-      allValuesTrue = false;
-      break;
-    }
-  }
-  const handleToggleAllSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      const newPermissions = values.permissions.map((permission: any) => {
-        permission.value = true;
-        if (permission.insideList) {
-          permission.insideList = permission.insideList.map(
-            (insidePermission: any) => {
-              insidePermission.value = true;
+  // function checkAllValuesTrue(obj: any) {
+  //   if (obj.hasOwnProperty("value") && obj.value === false) {
+  //     return false;
+  //   }
+  //   if (obj.hasOwnProperty("insideList")) {
+  //     for (let i = 0; i < obj.insideList.length; i++) {
+  //       if (!checkAllValuesTrue(obj.insideList[i])) {
+  //         return false;
+  //       }
+  //     }
+  //   }
+  //   return true;
+  // }
 
-              if (insidePermission.insideList) {
-                insidePermission.insideList = insidePermission.insideList.map(
-                  (nestedPermission: any) => {
-                    nestedPermission.value = true;
-                    return nestedPermission;
-                  }
-                );
-              }
+  // let allValuesTrue = true;
+  // for (let i = 0; i < values.permissions.length; i++) {
+  //   if (!checkAllValuesTrue(values.permissions[i])) {
+  //     allValuesTrue = false;
+  //     break;
+  //   }
+  // }
+  // const handleToggleAllSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.checked) {
+  //     const newPermissions = values.permissions.map((permission: any) => {
+  //       permission.value = true;
+  //       if (permission.insideList) {
+  //         permission.insideList = permission.insideList.map(
+  //           (insidePermission: any) => {
+  //             insidePermission.value = true;
 
-              return insidePermission;
-            }
-          );
-        }
-        return permission;
-      });
-      setState(newPermissions);
-    } else {
-      const newPermissions = values.permissions.map((permission: any) => {
-        permission.value = false;
-        if (permission.insideList) {
-          permission.insideList = permission.insideList.map(
-            (insidePermission: any) => {
-              insidePermission.value = false;
+  //             if (insidePermission.insideList) {
+  //               insidePermission.insideList = insidePermission.insideList.map(
+  //                 (nestedPermission: any) => {
+  //                   nestedPermission.value = true;
+  //                   return nestedPermission;
+  //                 }
+  //               );
+  //             }
 
-              if (insidePermission.insideList) {
-                insidePermission.insideList = insidePermission.insideList.map(
-                  (nestedPermission: any) => {
-                    nestedPermission.value = false;
-                    return nestedPermission;
-                  }
-                );
-              }
+  //             return insidePermission;
+  //           }
+  //         );
+  //       }
+  //       return permission;
+  //     });
+  //     setState(newPermissions);
+  //   } else {
+  //     const newPermissions = values.permissions.map((permission: any) => {
+  //       permission.value = false;
+  //       if (permission.insideList) {
+  //         permission.insideList = permission.insideList.map(
+  //           (insidePermission: any) => {
+  //             insidePermission.value = false;
 
-              return insidePermission;
-            }
-          );
-        }
+  //             if (insidePermission.insideList) {
+  //               insidePermission.insideList = insidePermission.insideList.map(
+  //                 (nestedPermission: any) => {
+  //                   nestedPermission.value = false;
+  //                   return nestedPermission;
+  //                 }
+  //               );
+  //             }
 
-        return permission;
-      });
+  //             return insidePermission;
+  //           }
+  //         );
+  //       }
 
-      setState(newPermissions);
-    }
-  };
-  const handleCheckBox = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    if (e.target.checked) {
-      const newPermissions = values.permissions.map(
-        (permission: any, idx: number) => {
-          if (index === idx) {
-            permission.value = true;
-            permission.insideList = permission.insideList.map(
-              (insidePermission: any) => {
-                insidePermission.value = true;
-                if (insidePermission.insideList) {
-                  insidePermission.insideList = insidePermission.insideList.map(
-                    (nestedPermission: any) => {
-                      insidePermission.value = false;
-                      return nestedPermission;
-                    }
-                  );
-                }
+  //       return permission;
+  //     });
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setState(newPermissions);
-    } else {
-      const newPermissions = values.permissions.map(
-        (permission: any, idx: any) => {
-          if (index === idx) {
-            permission.value = false;
-            permission.insideList = permission.insideList.map(
-              (insidePermission: any) => {
-                insidePermission.value = false;
-                if (insidePermission.insideList) {
-                  insidePermission.insideList = insidePermission.insideList.map(
-                    (nestedPermission: any) => {
-                      return nestedPermission;
-                    }
-                  );
-                }
+  //     setState(newPermissions);
+  //   }
+  // };
+  // const handleCheckBox = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   index: number
+  // ) => {
+  //   if (e.target.checked) {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, idx: number) => {
+  //         if (index === idx) {
+  //           permission.value = true;
+  //           permission.insideList = permission.insideList.map(
+  //             (insidePermission: any) => {
+  //               insidePermission.value = true;
+  //               if (insidePermission.insideList) {
+  //                 insidePermission.insideList = insidePermission.insideList.map(
+  //                   (nestedPermission: any) => {
+  //                     insidePermission.value = false;
+  //                     return nestedPermission;
+  //                   }
+  //                 );
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setState(newPermissions);
+  //   } else {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, idx: any) => {
+  //         if (index === idx) {
+  //           permission.value = false;
+  //           permission.insideList = permission.insideList.map(
+  //             (insidePermission: any) => {
+  //               insidePermission.value = false;
+  //               if (insidePermission.insideList) {
+  //                 insidePermission.insideList = insidePermission.insideList.map(
+  //                   (nestedPermission: any) => {
+  //                     return nestedPermission;
+  //                   }
+  //                 );
+  //               }
 
-          return permission;
-        }
-      );
-      setState(newPermissions);
-    }
-  };
-  const handleCheckBoxInside = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    mainIndex: number
-  ) => {
-    if (e.target.checked) {
-      const newPermissions = values.permissions.map(
-        (permission: any, i: number) => {
-          if (i === mainIndex) {
-            permission.insideList = permission.insideList.map(
-              (insidePermission: any, idx: number) => {
-                if (idx === index) {
-                  insidePermission.value = true;
-                  if (insidePermission.insideList) {
-                    insidePermission.insideList =
-                      insidePermission.insideList.map(
-                        (nestedPermission: any) => {
-                          nestedPermission.value = true;
-                          return nestedPermission;
-                        }
-                      );
-                  }
-                }
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setState(newPermissions);
-    } else {
-      const newPermissions = values.permissions.map(
-        (permission: any, i: number) => {
-          if (i === mainIndex) {
-            permission.insideList = permission.insideList.map(
-              (insidePermission: any, idx: number) => {
-                if (idx === index) {
-                  insidePermission.value = false;
-                  if (insidePermission.insideList) {
-                    insidePermission.insideList =
-                      insidePermission.insideList.map(
-                        (nestedPermission: any) => {
-                          nestedPermission.value = false;
-                          return nestedPermission;
-                        }
-                      );
-                  }
-                }
+  //         return permission;
+  //       }
+  //     );
+  //     setState(newPermissions);
+  //   }
+  // };
+  // const handleCheckBoxInside = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   index: number,
+  //   mainIndex: number
+  // ) => {
+  //   if (e.target.checked) {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, i: number) => {
+  //         if (i === mainIndex) {
+  //           permission.insideList = permission.insideList.map(
+  //             (insidePermission: any, idx: number) => {
+  //               if (idx === index) {
+  //                 insidePermission.value = true;
+  //                 if (insidePermission.insideList) {
+  //                   insidePermission.insideList =
+  //                     insidePermission.insideList.map(
+  //                       (nestedPermission: any) => {
+  //                         nestedPermission.value = true;
+  //                         return nestedPermission;
+  //                       }
+  //                     );
+  //                 }
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setState(newPermissions);
-    }
-  };
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setState(newPermissions);
+  //   } else {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, i: number) => {
+  //         if (i === mainIndex) {
+  //           permission.insideList = permission.insideList.map(
+  //             (insidePermission: any, idx: number) => {
+  //               if (idx === index) {
+  //                 insidePermission.value = false;
+  //                 if (insidePermission.insideList) {
+  //                   insidePermission.insideList =
+  //                     insidePermission.insideList.map(
+  //                       (nestedPermission: any) => {
+  //                         nestedPermission.value = false;
+  //                         return nestedPermission;
+  //                       }
+  //                     );
+  //                 }
+  //               }
+
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setState(newPermissions);
+  //   }
+  // };
   // const getValues = () =>
   //   //setValues({ ...values, id: selected ? selected.id : uid });
   // React.useEffect(() => {
@@ -369,7 +312,7 @@ console.log(values)
               />
               <FormControlLabel control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard} />}  label={t("is_standard")} />
             </Stack>
-            <Box className="permissions-wrapper">
+            {/* <Box className="permissions-wrapper">
               <Typography gutterBottom>{t("select_permissions")}</Typography>
               <Card>
                 <List sx={{ p: 0 }}>
@@ -487,7 +430,7 @@ console.log(values)
                   ))}
                 </List>
               </Card>
-            </Box>
+            </Box> */}
           </RootStyled>
         
             <Stack

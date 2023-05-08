@@ -357,7 +357,14 @@
       "ntc": "Nom est trop court",
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
-      "mailReq": "Adresse mail est obligatoire"
+      "mailReq": "Adresse mail est obligatoire",
+      "consultation_fees": "Frais de consultation",
+      "birthdate": "Date de naissance",
+      "firstname": "Prénom",
+      "lastname": "Nom de famille",
+      "phone": "Téléphone",
+      "password": "Mot de passe",
+      "profile": "Profil"
     },
     "config": {
       "add": "Ajouter",
@@ -379,6 +386,12 @@
       "description_placeholder": "Description de l'profile",
       "is_standard": "Est le Standrad",
       "profile_created": "Profil créé",
+      "dialog": {
+        "delete-profile-title": "Suppression du profil",
+        "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",

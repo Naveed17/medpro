@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useState,useEffect} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import {useFormik, FormikProvider} from "formik";
@@ -29,14 +29,17 @@ import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation,useRequest} from "@app/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
+import { DatePicker } from "@features/datepicker";
+import dayjs from 'dayjs';
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
     const {agendas} = useAppSelector(agendaSelector);
+    const[profiles,setProfiles] = useState<any[]>([]);
     const { data: session } = useSession();
     const { data: userSession } = session as Session;
   const medical_entity = (userSession as UserDataResponse)
@@ -48,7 +51,18 @@ function NewUser() {
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-
+const { data: httpProfilesResponse, } = useRequest({
+    method: "GET",
+    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  useEffect(() => {
+   if (httpProfilesResponse){
+      setProfiles((httpProfilesResponse as HttpResponse)?.data)
+   }
+    }, [httpProfilesResponse])
     const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
@@ -59,8 +73,22 @@ function NewUser() {
         email: Yup.string()
             .email(t("users.new.mailInvalid"))
             .required(t("users.new.mailReq")),
+        consultation_fees: Yup.string()
+            .required(),   
+        birthdate: Yup.string()
+            .required(), 
+        firstname: Yup.string()
+            .required(),
+        lastname: Yup.string()
+            .required(),
+        phone: Yup.string()
+            .required(),
+        password: Yup.string()
+            .required(), 
+        profile: Yup.string()
+            .required(),       
     });
-
+    
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -71,6 +99,13 @@ function NewUser() {
             name: user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : "",
             message: user.message || "",
             admin: user.admin || false,
+            consultation_fees:"",
+            birthdate:'',
+            firstname :"",
+            lastname:"",
+            phone:"",
+            password:"", 
+            profile:""
         },
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
@@ -83,14 +118,20 @@ function NewUser() {
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
-            
-            dispatch(addUser({...values}));
+            form.append('consultation_fees', values.consultation_fees);
+            form.append('birthdate', values.birthdate);
+            form.append('firstname', values.firstname);
+            form.append('lastname', values.lastname);
+            form.append('phone', values.phone);
+            form.append('password', values.password);
+            form.append('profile', values.profile); 
             trigger({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
+            dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
         })
            
@@ -105,9 +146,8 @@ function NewUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-    console.log(agendaRoles);
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-
+    console.log(values)
     return (
         <>
             <SubHeader>
@@ -219,6 +259,217 @@ function NewUser() {
                                                 error={Boolean(touched.name && errors.name)}
                                                 {...getFieldProps("name")}
                                             />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.consultation_fees")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("users.new.consultation_fees")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.consultation_fees && errors.consultation_fees)}
+                                                {...getFieldProps("consultation_fees")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.birthdate")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <DatePicker
+                                            value={values.birthdate}
+                                           onChange={(newValue: any) => {
+                                           setFieldValue("birthdate", newValue);
+                                           }}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.firstname")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                                variant="outlined"
+                                                placeholder={t("users.new.firstname")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.firstname && errors.firstname)}
+                                                {...getFieldProps("firstname")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.lastname")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                                variant="outlined"
+                                                placeholder={t("users.new.lastname")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.lastname && errors.lastname)}
+                                                {...getFieldProps("lastname")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.phone")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                               type="tel"
+                                                variant="outlined"
+                                                placeholder={t("users.new.phone")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.phone && errors.phone)}
+                                                {...getFieldProps("phone")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                               type="tel"
+                                                variant="outlined"
+                                                placeholder={t("users.new.password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.password && errors.password)}
+                                                {...getFieldProps("password")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.new.profile")}{" "}
+                                               
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <FormControl size="small" fullWidth>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id={"role"}
+                                                {...getFieldProps("profile")}
+                                                renderValue={selected => {
+                                                    if (selected.length === 0) {
+                                                        return <em>{t("users.new.profile")}</em>;
+                                                    }
+                                                    const profile = profiles?.find(profile => profile.uuid === selected);
+                                                    return <Typography>{profile?.name}</Typography>
+                                                }}
+                                                displayEmpty
+                                                sx={{color: "text.secondary"}}>
+                                                {profiles.map(profile =>
+                                                    <MenuItem key={profile.uuid} value={profile.uuid}>{profile.name}</MenuItem>)}
+                                            </Select>
+                                        </FormControl>
                                         </Grid>
                                     </Grid>
                                 </Box>
