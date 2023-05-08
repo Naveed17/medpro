@@ -22,7 +22,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -34,14 +34,20 @@ import Antecedent from "@features/leftActionBar/components/consultation/antecede
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
-import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate,analyses,mi} = props;
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate, analyses, mi} = props;
     const dispatch = useAppDispatch();
+    const {data: session, status} = useSession();
+    const router = useRouter();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
@@ -49,18 +55,15 @@ const Content = ({...props}) => {
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
-    const {trigger} = useRequestMutation(null, "/antecedent");
-    const router = useRouter();
     const [selected, setSelected] = useState<any>();
     const [openRemove, setOpenRemove] = useState(false);
-    const {data: session, status} = useSession();
-    const {direction} = useAppSelector(configSelector);
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger} = useRequestMutation(null, "/antecedent");
 
     const getTitle = () => {
         const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
@@ -70,13 +73,15 @@ const Content = ({...props}) => {
         }
         return t(infoDynamic)
     }
+
     const handleClickDialog = () => {
         setOpenDialog(true);
-    };
+    }
 
     const handleCloseDialogDoc = () => {
         setOpenDialogDoc(false);
-    };
+    }
+
     const handleCloseDialog = () => {
         const form = new FormData();
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
@@ -85,7 +90,9 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                        slug: any;
+                    }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -184,7 +191,6 @@ const Content = ({...props}) => {
         handleClickDialog();
     }
 
-
     const showDoc = (card: any) => {
         let type = "";
         if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -246,27 +252,19 @@ const Content = ({...props}) => {
         }
     };
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} =
-        useRequest(
-            patient
-                ? {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/documents/${router.locale}`,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`},
-                }
-                : null
-        );
+    const {
+        data: httpPatientDocumentsResponse,
+        mutate: mutatePatientDocuments
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
-    if (!ready || status === "loading")
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready || status === "loading") return (
+        <LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <React.Fragment>
@@ -576,7 +574,7 @@ const Content = ({...props}) => {
                                                 <ListItemIcon>
                                                     <CircleIcon/>
                                                 </ListItemIcon>
-                                                <Typography variant="body2" color={list.result ?"":"text.secondary"}>
+                                                <Typography variant="body2" color={list.result ? "" : "text.secondary"}>
                                                     {list.analysis.name}
                                                     {list.result ? " : " + list.result : ""}
                                                 </Typography>
@@ -700,7 +698,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name} {list?.note ? "("+list?.note+")" : ""}
+                                                    {list["medical-imaging"]?.name} {list?.note ? "(" + list?.note + ")" : ""}
                                                 </Typography>
                                             </ListItem>
                                         ))}

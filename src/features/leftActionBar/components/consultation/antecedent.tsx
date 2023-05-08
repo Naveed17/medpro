@@ -18,6 +18,8 @@ import ContentStyled from "./overrides/contantStyle";
 import React from "react";
 import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function Antecedent({...props}) {
 
@@ -36,6 +38,8 @@ function Antecedent({...props}) {
         router
     } = props
 
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
         <Tooltip {...props} classes={{popper: className}}/>
     ))(({theme}) => ({
@@ -47,7 +51,9 @@ function Antecedent({...props}) {
         },
     }));
     const isObject = (val: any) => {
-        if (val === null) { return false;}
+        if (val === null) {
+            return false;
+        }
         return typeof val === 'object' && !Array.isArray(val)
     }
 
@@ -58,7 +64,9 @@ function Antecedent({...props}) {
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Typography className={"title"}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).name}</Typography>}
+                    <Typography className={"title"}>{allAntecedents.find((ant: {
+                        slug: any;
+                    }) => ant.slug === antecedent).name}</Typography>}
                 <List dense>
                     {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
@@ -67,7 +75,7 @@ function Antecedent({...props}) {
                                 name: string;
                                 startDate: string;
                                 endDate: string;
-                                note:string;
+                                note: string;
                                 ascendantOf: string;
                                 response: string | any[]
                             },
@@ -80,30 +88,37 @@ function Antecedent({...props}) {
                                 <HtmlTooltip
                                     title={
                                         <React.Fragment>
-                                            <Typography color="gray" fontWeight={"bold"} fontSize={12}>{item.name}</Typography>
-                                            <Typography color="gray" fontSize={12}>Date début : {item.startDate ? item.startDate: "-"}</Typography>
-                                            <Typography color="gray" fontSize={12}>Date fin : {item.endDate ? item.endDate: "-"}</Typography>
-                                            {item.ascendantOf && <Typography color="gray" fontSize={12}>{item.ascendantOf}</Typography>}
-                                            <Typography color="gray" fontSize={12}>Note : {item.response ? typeof item.response === "string" ? item.response : item.response.length > 0 ?  item.response[0]?.value  : '-' : '-'}</Typography>
-                                            {item.note  && <Typography color="gray" fontSize={12}>RQ : {item.note}</Typography>}
-                                            {isObject(item.response) &&  Object.keys(item.response).map((rep:any) =>(
-                                                <Typography color="gray" fontSize={12} key={rep}>{rep} : {item.response[rep]}</Typography>
+                                            <Typography color="gray" fontWeight={"bold"}
+                                                        fontSize={12}>{item.name}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date début
+                                                : {item.startDate ? item.startDate : "-"}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date fin
+                                                : {item.endDate ? item.endDate : "-"}</Typography>
+                                            {item.ascendantOf &&
+                                                <Typography color="gray" fontSize={12}>{item.ascendantOf}</Typography>}
+                                            <Typography color="gray" fontSize={12}>Note
+                                                : {item.response ? typeof item.response === "string" ? item.response : item.response.length > 0 ? item.response[0]?.value : '-' : '-'}</Typography>
+                                            {item.note &&
+                                                <Typography color="gray" fontSize={12}>RQ : {item.note}</Typography>}
+                                            {isObject(item.response) && Object.keys(item.response).map((rep: any) => (
+                                                <Typography color="gray" fontSize={12}
+                                                            key={rep}>{rep} : {item.response[rep]}</Typography>
                                             ))}
                                         </React.Fragment>
                                     }
                                 >
-                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
-                                    {item.name}{" "}
-                                    {item.startDate ? " / " + item.startDate : ""}{" "}
-                                    {item.endDate ? " - " + item.endDate : ""}
-                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
-                                </Typography>
+                                    <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
+                                        {item.name}{" "}
+                                        {item.startDate ? " / " + item.startDate : ""}{" "}
+                                        {item.endDate ? " - " + item.endDate : ""}
+                                        {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
+                                        {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
+                                    </Typography>
                                 </HtmlTooltip>
                                 <IconButton
                                     size="small"
                                     onClick={() => {
-                                        setSelected({
+                                        medicalEntityHasUser && setSelected({
                                             title: t('askRemove'),
                                             subtitle: t(antecedent),
                                             icon: "/static/icons/ic-recherche.svg",
@@ -111,7 +126,7 @@ function Antecedent({...props}) {
                                             name2: "",
                                             request: {
                                                 method: "DELETE",
-                                                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
+                                                url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
                                                 headers: {
                                                     ContentType: "multipart/form-data",
                                                     Authorization: `Bearer ${session?.accessToken}`,

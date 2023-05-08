@@ -37,6 +37,7 @@ import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -63,16 +64,15 @@ function ConsultationIPToolbar({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-    const {t, ready} = useTranslation("consultation", {
-        keyPrefix: "consultationIP",
-    });
-    const {trigger} = useRequestMutation(null, "/drugs");
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
     const {data: session} = useSession();
-    //const intervalref = useRef<number | null>(null);
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
+    const {record, timer} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {trigger} = useRequestMutation(null, "/drugs");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -87,21 +87,17 @@ function ConsultationIPToolbar({...props}) {
     const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
     const hasLatestAppointments = appointement.latestAppointments.length === 0;
-
     const [tabsData, setTabsData] = useState<any[]>([]);
-    const {record, timer} = useAppSelector(consultationSelector);
+    let [time, setTime] = useState(timer);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
-    let [time, setTime] = useState(timer);
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const startRecord = () => {

@@ -43,6 +43,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {getBirthdayFormat} from "@app/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
+import {dashLayoutSelector} from "@features/base";
 
 const menuList = [
     {
@@ -125,18 +126,17 @@ function AppointmentDetail({...props}) {
 
     const {t, ready} = useTranslation("common");
     const {config: agendaConfig, selectedEvent: appointment} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: updateInstructionTrigger} = useRequestMutation(null, "/agenda/update/instruction");
 
     const {
         data: httpPatientPhotoResponse,
         mutate: mutatePatientPhoto
-    } = useRequest(appointment?.extendedProps?.patient?.hasPhoto ? {
+    } = useRequest(medicalEntityHasUser && appointment?.extendedProps?.patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);

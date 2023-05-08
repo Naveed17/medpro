@@ -39,7 +39,7 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
@@ -61,7 +61,9 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [name, setName] = useState(state.name);
     const [note, setNote] = useState(state.description ? state.description : "");
@@ -168,7 +170,6 @@ function DocumentDetailDialog({...props}) {
 
     const {trigger} = useRequestMutation(null, "/documents");
 
-
     const {data: httpDocumentHeader} = useRequest({
         method: "GET",
         url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
@@ -184,15 +185,18 @@ function DocumentDetailDialog({...props}) {
     };
 
     const handleYes = () => {
-        const selected:any= docs.find((doc: any) => doc.uuid === selectedTemplate);
+        const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
             setLoading(true);
-            setData({...selected.header.data,background:{show:selected.file !==null,content:selected.file ? selected.file:''}})
+            setData({
+                ...selected.header.data,
+                background: {show: selected.file !== null, content: selected.file ? selected.file : ''}
+            })
             setHeader(selected.header.header)
             setOpenAlert(false);
-            setTimeout(()=>{
+            setTimeout(() => {
                 setLoading(false)
-            },1000)
+            }, 1000)
         }
     };
 
@@ -340,24 +344,39 @@ function DocumentDetailDialog({...props}) {
             } else {
                 setOpenAlert(false);
                 const templates: any[] = [];
-                const slug = slugs[generatedDocs.findIndex(gd =>gd === state.type)];
+                const slug = slugs[generatedDocs.findIndex(gd => gd === state.type)];
                 docInfo.map((di: { types: any[]; }) => {
-                    if (di.types.find(type=> type.slug === slug))
+                    if (di.types.find(type => type.slug === slug))
                         templates.push(di)
                 })
-                if (templates.length > 0){
+                if (templates.length > 0) {
                     setSelectedTemplate(templates[0].uuid)
-                    setData({...templates[0].header.data,background:{show:templates[0].file !==null,content:templates[0].file ? templates[0].file:''}})
+                    setData({
+                        ...templates[0].header.data,
+                        background: {
+                            show: templates[0].file !== null,
+                            content: templates[0].file ? templates[0].file : ''
+                        }
+                    })
                     setHeader(templates[0].header.header)
                 } else {
                     const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
-                    if (defaultdoc){
+                    if (defaultdoc) {
                         setSelectedTemplate(defaultdoc.uuid)
-                        setData({...defaultdoc.header.data,background:{show:defaultdoc.file !==null,content:defaultdoc.file ? defaultdoc.file:''}})
+                        setData({
+                            ...defaultdoc.header.data,
+                            background: {
+                                show: defaultdoc.file !== null,
+                                content: defaultdoc.file ? defaultdoc.file : ''
+                            }
+                        })
                         setHeader(defaultdoc.header.header)
                     } else {
                         setSelectedTemplate(docInfo[0].uuid)
-                        setData({...docInfo[0].header.data,background:{show:docInfo.file !==null,content:docInfo.file ? docInfo.file:''}})
+                        setData({
+                            ...docInfo[0].header.data,
+                            background: {show: docInfo.file !== null, content: docInfo.file ? docInfo.file : ''}
+                        })
                         setHeader(docInfo[0].header.header)
                     }
                 }
@@ -368,11 +387,11 @@ function DocumentDetailDialog({...props}) {
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(() => {
+        }).then(() => {
             state.mutate && state.mutate();
             state.mutateDetails && state.mutateDetails()
             setOpenRemove(false);

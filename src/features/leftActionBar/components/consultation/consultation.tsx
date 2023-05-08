@@ -46,6 +46,7 @@ function Consultation() {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -75,25 +76,21 @@ function Consultation() {
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(patient ? {
+    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
+        url: `/api/public/insurances/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpAnctecentType} = useRequest({
@@ -102,20 +99,16 @@ function Consultation() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(patient ? {
+    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientMI, mutate: miMutate} = useRequest(patient ? {
+    const {data: httpPatientMI, mutate: miMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const editPatientInfo = () => {

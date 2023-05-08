@@ -59,18 +59,11 @@ function PreConsultationDialog({...props}) {
         url: `/api/public/insurances/${router.locale}`,
     }, SWRNoValidateConfig);
 
-    const {data: httpPatientPhotoResponse} = useRequest(
-        patient?.hasPhoto
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",

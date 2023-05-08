@@ -126,46 +126,42 @@ function PatientDetail({...props}) {
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPatientHistoryResponse, mutate: mutatePatientHis} = useRequest(patientId ? {
+    const {
+        data: httpPatientHistoryResponse,
+        mutate: mutatePatientHis
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
+    const {
+        data: httpPatientDocumentsResponse,
+        mutate: mutatePatientDocuments
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
-        patient ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -217,13 +213,11 @@ function PatientDetail({...props}) {
         documentConfig.files.map((file: any) => {
             params.append(`document[${file.type}][]`, file.file, file.name);
         });
-        triggerUploadDocuments({
+        medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             mutatePatientDocuments();
             setLoadingRequest(false);
