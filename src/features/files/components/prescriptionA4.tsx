@@ -23,7 +23,7 @@ const Prescription = ({...props}) => {
     return (
         <>
             {!loading && <Box>
-                {data !== undefined && <div className={"portraitA4"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:''}}>
+                {data !== undefined && <div className={"portraitA4"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:'',fontSize: data.size==='portraitA4' ?'15px':''}}>
 
                     {data.background.show && data.background.content !== '' &&
                         // eslint-disable-next-line @next/next/no-img-element

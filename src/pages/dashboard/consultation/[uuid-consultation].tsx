@@ -314,6 +314,7 @@ function ConsultationInProgress() {
                                     ...act,
                                     fees: act.price,
                                     uuid: act.act_uuid,
+                                    qte: act.qte,
                                     act: {name: (act as any).name}
                                 });
                                 const actDetect = acts.findIndex((a: {
@@ -324,6 +325,7 @@ function ConsultationInProgress() {
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
+                                        qte: act.qte,
                                         act: {name: (act as any).name}
                                     });
                                 } else {
@@ -486,7 +488,7 @@ function ConsultationInProgress() {
 
             Object.keys(res).map(key => {
                 keys.push(key);
-                Object.keys(res[key]).map(date => {
+                Object.keys(res[key].data).map(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);
                 })
             })
@@ -891,6 +893,9 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                                {/*
+                                <ToothsWidget {...{acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}/>
+*/}
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{models, changes, setChanges, isClose}}
