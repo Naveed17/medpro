@@ -59,18 +59,17 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {Session} from "next-auth";
 import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
-import {IconSwitch} from "@features/buttons";
+import {SwitchPrescriptionUI} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs} = data;
+    const {setState: setDrugs, state: drugs, handleSwitchUI = null} = data;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
-    const localStorageSwitchUI = localStorage.getItem("prescription-switch-ui");
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
@@ -87,7 +86,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [info, setInfo] = useState("");
     const [talkStart, setTalk] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [switchUI, setSwitchUI] = useState(localStorageSwitchUI !== null ? Boolean(localStorageSwitchUI) : true);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
 
     const dosageMeal = [
@@ -428,14 +426,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     return (
         <MedicalPrescriptionCycleStyled>
-            <Stack direction="row" mb={1} spacing={1} alignItems="center">
-                <Typography>{t("switch_ui_classic")}</Typography>
-                <IconSwitch defaultChecked
-                            value={switchUI}
-                            onChange={event => localStorage.setItem("prescription-switch-ui", event.target.checked as any)}
-                            inputProps={{'aria-label': 'switch UI'}}/>
-                <Typography>{t("switch_ui_new")}</Typography>
-            </Stack>
+            <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
             <Container fixed>
                 <Grid
                     container
