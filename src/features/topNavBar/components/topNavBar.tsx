@@ -11,7 +11,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
+    Popover, useMediaQuery, Button, Drawer, Avatar, useTheme
 } from "@mui/material";
 // config
 import {siteHeader} from "@features/sideBarMenu";
@@ -65,7 +65,6 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const theme = useTheme();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -116,7 +115,7 @@ function TopNavBar({...props}) {
         dispatch(toggleSideBar(true));
     }
 
-    const handleInstallClick = (e: any) => {
+    const handleInstallClick = () => {
         // Hide the app provided installation promotion
         setInstallable(false);
         // Show the installation prompt
@@ -154,7 +153,7 @@ function TopNavBar({...props}) {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
