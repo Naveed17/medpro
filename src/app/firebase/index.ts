@@ -50,7 +50,7 @@ const firebaseCloudSdk = {
             }
         } catch (error) {
             console.error("firebaseCloudMessaging", error);
-            return null;
+            return {token: null, analytics: null};
         }
     },
 };

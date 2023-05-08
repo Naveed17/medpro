@@ -48,6 +48,7 @@ import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
+import {WarningTooltip} from "./warningTooltip";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -116,9 +117,9 @@ function TopNavBar({...props}) {
     }
 
     const handleInstallClick = (e: any) => {
-        // Hide the app provided install promotion
+        // Hide the app provided installation promotion
         setInstallable(false);
-        // Show the install prompt
+        // Show the installation prompt
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult: any) => {
@@ -326,24 +327,15 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {!allowNotification && (isMobile ?
-                                <Tooltip
+                            {!allowNotification &&
+                                <WarningTooltip
                                     title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
                                     <Avatar
-                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        className={"Custom-MuiAvatar-root"}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
-                                </Tooltip>
-                                :
-                                <Button variant="contained"
-                                        onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3}}
-                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
-                                        color={"warning"}>
-                                    <Typography
-                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
-                                </Button>)}
+                                </WarningTooltip>}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}
