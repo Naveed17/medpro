@@ -13,11 +13,13 @@ import {DefaultCountry} from "@app/constants";
 import {LinearProgress, Stack} from "@mui/material";
 import React from "react";
 import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
+import {useUrlSuffix} from "@app/hooks";
 
 function PaymentFeesPopover({...props}) {
     const {uuid} = props;
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {config: agenda} = useAppSelector(agendaSelector);
 
@@ -28,12 +30,11 @@ function PaymentFeesPopover({...props}) {
     const devise = doctor_country.currency?.name;
 
     const {data: httpAppointmentResponse} = useRequest(
-        medical_professional && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            } : null);
+        medical_professional && agenda ? {
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        } : null);
 
     const appointment = (httpAppointmentResponse as HttpResponse)?.data as any;
 

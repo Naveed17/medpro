@@ -43,6 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
+import {useUrlSuffix} from "@app/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -61,6 +62,7 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -313,7 +315,7 @@ function DocumentDetailDialog({...props}) {
         form.append('value', value);
         trigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/documents/${state.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/documents/${state.uuid}/${router.locale}`,
             data: form,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
@@ -636,31 +638,30 @@ function DocumentDetailDialog({...props}) {
                                     </ListItem>
                                 )
                             }
-
-
                         </List>
                     </>}
                 </Grid>
             </Grid>
 
-            <CustomDialog action={"remove"}
-                          direction={direction}
-                          open={openRemove}
-                          data={selected}
-                          color={(theme: Theme) => theme.palette.error.main}
-                          title={t('removedoc')}
-                          t={t}
-                          actionDialog={
-                              <DialogActions>
-                                  <Button onClick={() => {
-                                      setOpenRemove(false);
-                                  }}
-                                          startIcon={<CloseIcon/>}>{t('cancel')}</Button>
-                                  <LoadingButton variant="contained"
-                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                                 onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
-                              </DialogActions>
-                          }
+            <CustomDialog
+                action={"remove"}
+                direction={direction}
+                open={openRemove}
+                data={selected}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemove(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
             />
 
             <Dialog

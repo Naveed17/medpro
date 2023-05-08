@@ -43,6 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {PDFViewer} from "@react-pdf/renderer";
+import {useUrlSuffix} from "@app/hooks";
 
 function a11yProps(index: number) {
     return {
@@ -80,6 +81,7 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {direction} = useAppSelector(configSelector);
@@ -125,7 +127,7 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
@@ -134,7 +136,7 @@ function PatientDetail({...props}) {
         mutate: mutatePatientHis
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
@@ -143,7 +145,7 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDocuments
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
@@ -151,13 +153,13 @@ function PatientDetail({...props}) {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null, SWRNoValidateConfig);
 
@@ -215,7 +217,7 @@ function PatientDetail({...props}) {
         });
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
@@ -234,7 +236,7 @@ function PatientDetail({...props}) {
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });

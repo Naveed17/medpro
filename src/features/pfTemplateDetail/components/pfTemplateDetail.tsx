@@ -25,6 +25,7 @@ import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -76,6 +77,7 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -112,7 +114,7 @@ function PfTemplateDetail({...props}) {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
@@ -186,7 +188,7 @@ function PfTemplateDetail({...props}) {
             if (props.action === "edit" && !props.data.hasData) {
                 medicalEntityHasUser && trigger({
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals/${props.data.uuid}`,
+                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.data.uuid}`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
@@ -197,7 +199,7 @@ function PfTemplateDetail({...props}) {
             } else {
                 medicalEntityHasUser && trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals`,
+                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {

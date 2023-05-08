@@ -31,6 +31,7 @@ import {configSelector} from "@features/base";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {useUrlSuffix} from "@app/hooks";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;
@@ -38,6 +39,7 @@ function RdvCard({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {direction} = useAppSelector(configSelector);
@@ -93,7 +95,7 @@ function RdvCard({...props}) {
 
         updatePreConsultationTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/data/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/data/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,

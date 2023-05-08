@@ -60,6 +60,7 @@ import {
 import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
+import {useUrlSuffix} from "@app/hooks";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -176,9 +177,8 @@ function Payment() {
     const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
@@ -196,8 +196,7 @@ function Payment() {
         description: "no-data.description",
     };
 
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -262,39 +261,25 @@ function Payment() {
 
     const newVersion = process.env.NODE_ENV === "development";
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(
-        null,
-        "/agenda/update/appointment/status"
-    );
-
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
-    const {data: httpInsuranceResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/public/insurances/${router.locale}`,
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/insurances/${router.locale}`,
+    }, SWRNoValidateConfig);
 
-    const {data: httpMedicalProfessionalResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpMedicalProfessionalResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    }, SWRNoValidateConfig);
 
-    const insurances = (httpInsuranceResponse as HttpResponse)
-        ?.data as InsuranceModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const handleCollapse = (props: any) => {
         //setCollapseData(props);
@@ -316,8 +301,6 @@ function Payment() {
     };
 
     const handleSubmit = (data: any) => {
-        console.log(action);
-        console.log(selectedPayment.payments);
         const trans_data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
             console.log(sp);
@@ -340,7 +323,7 @@ function Payment() {
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -400,7 +383,7 @@ function Payment() {
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         });
@@ -444,7 +427,7 @@ function Payment() {
             }
             trigger({
                 method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
@@ -452,7 +435,10 @@ function Payment() {
                 let amout = 0;
                 const r: any[] = [];
                 const appointments = result?.data as HttpResponse;
-                const filteredStatus = appointments?.data.filter((app: { status: number; dayDate: string }) => app.status === 5);
+                const filteredStatus = appointments?.data.filter((app: {
+                    status: number;
+                    dayDate: string
+                }) => app.status === 5);
                 const filteredData = filterQuery.day ? filteredStatus?.filter(
                     (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
 
@@ -574,7 +560,7 @@ function Payment() {
 
                   trigger({
                       method: "GET",
-                      url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
+                      url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
                       headers: {
                           Authorization: `Bearer ${session?.accessToken}`,
                       },

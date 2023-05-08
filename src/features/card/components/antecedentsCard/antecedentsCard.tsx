@@ -20,6 +20,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
+import {useUrlSuffix} from "@app/hooks";
 
 const emptyObject = {
     title: "",
@@ -31,6 +32,7 @@ function AntecedentsCard({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
@@ -81,7 +83,7 @@ function AntecedentsCard({...props}) {
         form.append("patient_uuid", patient.uuid);
         medicalEntityHasUser && trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
             data: form,

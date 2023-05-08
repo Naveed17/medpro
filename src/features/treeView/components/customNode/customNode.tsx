@@ -16,6 +16,7 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
+import {useUrlSuffix} from "@app/hooks";
 
 export const CustomNode = ({...props}) => {
     const {switchPrescriptionModel, t, node: {droppable, data}, depth: {indent}} = props;
@@ -23,6 +24,7 @@ export const CustomNode = ({...props}) => {
     const theme = useTheme();
     const router = useRouter();
     const {mutate} = useSWRConfig();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -46,11 +48,11 @@ export const CustomNode = ({...props}) => {
         setLoading(true);
         triggerDeleteModel({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setSelectedModel(null);
-            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`).then(
+            mutate(`${urlMedicalEntitySuffix}/prescriptions/modals/parents/${router.locale}`).then(
                 () => {
                     setLoading(false);
                     setDeleteModelDialog(false);

@@ -41,7 +41,7 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useUrlSuffix} from "@app/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {dashLayoutSelector} from "@features/base";
 
@@ -117,6 +117,7 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const [openTooltip, setOpenTooltip] = useState(false);
 
@@ -135,7 +136,7 @@ function AppointmentDetail({...props}) {
         mutate: mutatePatientPhoto
     } = useRequest(medicalEntityHasUser && appointment?.extendedProps?.patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -168,7 +169,7 @@ function AppointmentDetail({...props}) {
         form.append("value", instruction);
         updateInstructionTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appUuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appUuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {

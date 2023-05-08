@@ -22,7 +22,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -36,12 +36,15 @@ import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
+import {useUrlSuffix} from "@app/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
 
 const Content = ({...props}) => {
     const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate, analyses, mi} = props;
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);
@@ -90,7 +93,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                    url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                         slug: any;
                     }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
@@ -112,7 +115,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -131,7 +134,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${
+                    url: `${urlMedicalEntitySuffix}/appointments/${
                         router.query["uuid-consultation"]
                     }/requested-analysis/${(state as any).uuid}/${router.locale}`,
                     data: form,
@@ -257,7 +260,7 @@ const Content = ({...props}) => {
         mutate: mutatePatientDocuments
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
@@ -300,7 +303,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -341,7 +344,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -518,7 +521,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -606,7 +609,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -729,7 +732,7 @@ const Content = ({...props}) => {
                                                         ).format("MMM DD/YYYY"),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",

@@ -30,6 +30,7 @@ import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@app/constants";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 const icons = [
     "ic-consultation",
@@ -97,6 +98,7 @@ function EditMotifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {trigger} = useRequestMutation(null, "/settings/type");
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -146,10 +148,9 @@ function EditMotifDialog({...props}) {
             );
             form.append("price", values.isFree ? null : values.consultation_fees);
             if (props.data) {
-                medicalEntityHasUser && trigger(
-                    {
+                medicalEntityHasUser && trigger({
                         method: "PUT",
-                        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                         data: form,
                         headers: {Authorization: `Bearer ${session?.accessToken}`}
                     }).then(() => {
@@ -162,7 +163,7 @@ function EditMotifDialog({...props}) {
                 medicalEntityHasUser && trigger(
                     {
                         method: "POST",
-                        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
                         data: form,
                         headers: {Authorization: `Bearer ${session?.accessToken}`},
                     }).then(() => {

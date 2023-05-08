@@ -16,10 +16,15 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {getDifference} from "@app/hooks";
+import {getDifference, useUrlSuffix} from "@app/hooks";
 
 function Acts() {
     const {data: session} = useSession();
+    const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
+    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
+
     const [mainActs, setMainActs] = useState<ActModel[]>([]);
     const [secondaryActs, setSecondaryActs] = useState<ActModel[]>([]);
     const [selected, setSelected] = useState<ActModel>();
@@ -30,7 +35,6 @@ function Acts() {
 
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
-    const router = useRouter();
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
 
     const initialData = Array.from(new Array(8));
@@ -40,7 +44,7 @@ function Acts() {
 
     const {data: httpProfessionalsResponse, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -57,7 +61,7 @@ function Acts() {
     const removeFees = (uuid: string) => {
         triggerDeleteAct({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -70,17 +74,11 @@ function Acts() {
         form.append('act', actUuid);
         triggerAddAct({
             method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/acts/' + router.locale,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/acts/${router.locale}`,
             data: form,
-            headers: {
-                ContentType: 'application/x-www-form-urlencoded',
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then(() => {
-            mutate();
-        })
-
-    }, [medical_entity.uuid, medical_professional_uuid, mutate, router.locale, session?.accessToken, triggerAddAct]);
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => mutate());
+    }, [medical_entity.uuid, medical_professional_uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (data !== undefined) {
@@ -168,7 +166,6 @@ function Acts() {
         setItems(val.slice(0, 10));
     };
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -388,7 +385,7 @@ function Acts() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient','settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient', 'settings']))
     }
 })
 

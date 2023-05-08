@@ -39,6 +39,7 @@ import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
+import {useUrlSuffix} from "@app/hooks";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -65,6 +66,7 @@ function AddPatientStep2({...props}) {
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -279,7 +281,7 @@ function AddPatientStep2({...props}) {
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },

@@ -35,7 +35,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useUrlSuffix} from "@app/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
@@ -46,6 +46,7 @@ function Consultation() {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -78,13 +79,13 @@ function Consultation() {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -101,13 +102,13 @@ function Consultation() {
 
     const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpPatientMI, mutate: miMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -148,7 +149,7 @@ function Consultation() {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },

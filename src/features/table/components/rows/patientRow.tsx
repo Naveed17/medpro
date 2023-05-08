@@ -23,7 +23,7 @@ import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
-import {ConditionalWrapper} from "@app/hooks";
+import {ConditionalWrapper, useUrlSuffix} from "@app/hooks";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 
@@ -40,6 +40,7 @@ function PatientRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -48,7 +49,7 @@ function PatientRow({...props}) {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && row?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 

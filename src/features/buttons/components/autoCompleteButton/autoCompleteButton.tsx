@@ -12,6 +12,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 function AutoCompleteButton({...props}) {
     const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
@@ -19,6 +20,7 @@ function AutoCompleteButton({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {patient: initData} = useAppSelector(appointmentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -38,7 +40,7 @@ function AutoCompleteButton({...props}) {
     const onEditPatient = () => {
         medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             }

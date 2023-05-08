@@ -34,7 +34,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
-import {useDateConverture} from "@app/hooks";
+import {useDateConverture, useUrlSuffix} from "@app/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 
@@ -53,6 +53,7 @@ function Motif() {
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -79,7 +80,7 @@ function Motif() {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -91,12 +92,8 @@ function Motif() {
         setEdit(false);
     };
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data
-        ?.list as ConsultationReasonModel[];
-    const reasonsMobile = isMobile
-        ? ((httpConsultReasonResponse as HttpResponse)
-            ?.data as ConsultationReasonModel[])
-        : [];
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
+    const reasonsMobile = isMobile ? ((httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[]) : [];
 
     if (!ready)
         return (
@@ -184,7 +181,7 @@ function Motif() {
 
         medicalEntityHasUser && trigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {
@@ -220,7 +217,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },

@@ -14,6 +14,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@app/axios";
+import {useUrlSuffix} from "@app/hooks";
 
 function HistoryPanel({...props}) {
     const {
@@ -28,6 +29,7 @@ function HistoryPanel({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
@@ -117,7 +119,7 @@ function HistoryPanel({...props}) {
 
                 triggerUpdate({
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${selectedAppointment}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/appointments/${selectedAppointment}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`
@@ -154,7 +156,7 @@ function HistoryPanel({...props}) {
     }, [previousAppointments, dispatch]);
 
     useEffect(() => {
-        if (selectedDialog) {
+        if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
             switch (selectedDialog.action) {
                 case "medical_prescription_cycle":
                     setInfo("medical_prescription_cycle");
@@ -164,7 +166,7 @@ function HistoryPanel({...props}) {
                     break;
             }
         }
-    }, [selectedDialog]);
+    }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <PanelStyled>

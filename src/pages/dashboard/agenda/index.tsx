@@ -61,7 +61,7 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useUrlSuffix} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -87,9 +87,9 @@ function Agenda() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
-
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -203,7 +203,7 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -646,7 +646,7 @@ function Agenda() {
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -672,7 +672,7 @@ function Agenda() {
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -697,7 +697,7 @@ function Agenda() {
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
@@ -851,7 +851,7 @@ function Agenda() {
 
         addAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {

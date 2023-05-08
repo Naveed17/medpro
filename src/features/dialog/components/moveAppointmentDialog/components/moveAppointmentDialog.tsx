@@ -9,7 +9,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useIsMountedRef} from "@app/hooks";
+import {useIsMountedRef, useUrlSuffix} from "@app/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
@@ -23,6 +23,7 @@ function MoveAppointmentDialog() {
     const isMounted = useIsMountedRef();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t} = useTranslation(['agenda', 'common']);
 
@@ -37,7 +38,7 @@ function MoveAppointmentDialog() {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -49,7 +50,7 @@ function MoveAppointmentDialog() {
         setLoading(true);
         trigger(agendaConfig ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];

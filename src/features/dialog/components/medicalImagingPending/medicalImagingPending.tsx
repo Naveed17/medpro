@@ -8,9 +8,11 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useUrlSuffix} from "@app/hooks";
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const [images] = useState<any>(data.state);
     const [files, setFiles] = useState<any[]>([]);
@@ -40,7 +42,7 @@ function MedicalImagingDialog({...props}) {
             trigger(
                 {
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",

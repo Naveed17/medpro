@@ -42,6 +42,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -54,6 +55,7 @@ function TimeSchedule({...props}) {
     const moreDateRef = useRef(false);
     const changeDateRef = useRef(false);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
@@ -86,7 +88,7 @@ function TimeSchedule({...props}) {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -96,7 +98,7 @@ function TimeSchedule({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -114,7 +116,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -230,7 +232,7 @@ function TimeSchedule({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {

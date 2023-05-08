@@ -30,6 +30,7 @@ import {FileTemplateMobileCard} from "@features/card";
 import {useSnackbar} from "notistack";
 import CloseIcon from "@mui/icons-material/Close";
 import {useRouter} from "next/router";
+import {useUrlSuffix} from "@app/hooks";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
@@ -37,6 +38,7 @@ function PatientFileTemplates() {
     const router = useRouter();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const isMobile = useMediaQuery("(max-width:669px)");
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -75,12 +77,9 @@ function PatientFileTemplates() {
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {data: modalsHttpResponse, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals${
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -109,7 +108,7 @@ function PatientFileTemplates() {
         form.append("enabled", props.isEnabled.toString());
         medicalEntityHasUser && trigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals/${props.uuid}/activity`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.uuid}/activity`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => enqueueSnackbar("updated", {variant: "success"}))
