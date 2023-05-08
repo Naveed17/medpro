@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {Stack, Typography} from "@mui/material";
-import {IconSwitch} from "@features/buttons";
 import Switch from "@mui/material/Switch";
 
 function SwitchPrescriptionUI({...props}) {
@@ -9,7 +8,7 @@ function SwitchPrescriptionUI({...props}) {
     const [switchUI, setSwitchUI] = useState(localStorageSwitchUI !== null ? JSON.parse(localStorageSwitchUI) : true);
 
     return (<Stack direction="row" mb={1} spacing={1} alignItems="center">
-        <Typography>{t("switch_ui_classic")}</Typography>
+        <Typography>{t(`${switchUI ? "switch_" : ""}ui_classic`)}</Typography>
         <Switch
             checked={switchUI}
             onChange={event => {
@@ -18,7 +17,7 @@ function SwitchPrescriptionUI({...props}) {
                 handleSwitchUI && handleSwitchUI();
             }}
             inputProps={{'aria-label': 'controlled'}}/>
-        <Typography>{t("switch_ui_new")}</Typography>
+        <Typography>{t(`${!switchUI ? "switch_" : ""}ui_new`)}</Typography>
     </Stack>)
 }
 
