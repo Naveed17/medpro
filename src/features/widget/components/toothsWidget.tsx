@@ -26,6 +26,7 @@ import React, {useState} from "react";
 import Draggable from "react-draggable";
 import {useTranslation} from "next-i18next";
 import adultTooths from "@features/widget/components/adult";
+import childTooths from "@features/widget/components/child";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -73,7 +74,7 @@ export default function ToothsWidget({...props}) {
     }]);
     const [open, setOpen] = useState("");
     const [absent, setAbsent] = useState<string[]>([]);
-    const tooths = adultTooths;
+    const tooths = childTooths;
     const between = (val: number, min: number, max: number) => {
         return val >= min && val <= max;
     }
@@ -94,6 +95,7 @@ export default function ToothsWidget({...props}) {
         }
         PosX = PosX - ImgPos[0];
         PosY = PosY - ImgPos[1];
+        console.log(PosX,PosY);
 
         tooths.map(teeth => {
             if (teeth.x) {
@@ -190,6 +192,19 @@ export default function ToothsWidget({...props}) {
                     ))
                 )}
 
+               {/* <div onClick={(ev) => {
+
+                }}  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: 3,
+                    height: 3,
+                    background: "black",
+                    opacity: 0.5,
+                    borderRadius: 15
+                }}/>*/}
+
                 {absent.map(a => (
                     <div
                         onClick={(ev) => {
@@ -209,7 +224,7 @@ export default function ToothsWidget({...props}) {
                         }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={"/static/img/tooth.svg"}
+                <img src={"/static/img/childTooths.svg"}
                      id={"tooth"}
                      onClick={GetCoordinates}
                      alt={"adult tooth"}/>
