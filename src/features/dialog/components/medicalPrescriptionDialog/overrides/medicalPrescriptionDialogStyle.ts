@@ -4,7 +4,7 @@ import {styled} from "@mui/material/styles";
 const MedicalPrescriptionDialogStyled = styled(Stack)(({theme}) => ({
     minWidth: 892,
     width: "100%",
-    "& .grid-container": {
+    "& .MuiGrid-root .grid-container": {
         paddingTop: 0,
         marginTop: 40
     },
