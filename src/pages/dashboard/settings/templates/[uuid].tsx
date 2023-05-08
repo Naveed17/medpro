@@ -458,14 +458,13 @@ function DocsConfig() {
                             </fieldset>
 
                             {/*we will add it late*/}
-                            {/*<fieldset style={{marginBottom: 10}}>
+                            <fieldset style={{marginBottom: 10}}>
                                     <legend>{t('paperSize')}</legend>
                                     <ListItem style={{padding: 0, marginBottom: 5}}>
                                         <Checkbox
                                             checked={data.size === 'portraitA5'}
                                             onChange={(ev) => {
                                                 data.size = 'portraitA5';
-                                                data.content.maxWidth = 130;
                                                 setData({...data})
                                             }}
                                         />
@@ -476,13 +475,12 @@ function DocsConfig() {
                                             checked={data.size === 'portraitA4'}
                                             onChange={(ev) => {
                                                 data.size = 'portraitA4';
-                                                data.content.maxWidth = 190;
                                                 setData({...data})
                                             }}
                                         />
                                         <ListItemText primary={t("A4")}/>
                                     </ListItem>
-                                </fieldset>*/}
+                                </fieldset>
                             {/*Import document*/}
                             <ListItem style={{padding: 0, marginBottom: 5}}>
                                 <Checkbox

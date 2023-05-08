@@ -456,6 +456,16 @@
     "father": "Père",
     "mother": "Mère",
     "both": "Les deux"
+  },
+  "widget": {
+    "hiddenTeeth": "Dents manquantes",
+    "traitements": "Traitements",
+    "selectTeeth": "Sélectionner les dents",
+    "selectActs": "Sélectionner les acts",
+    "teeth": "Dent",
+    "add": "Ajouter",
+    "traitement": "Traitement",
+    "absente": "Absente"
   }
 }
 

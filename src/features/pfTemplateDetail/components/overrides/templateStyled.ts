@@ -17,7 +17,7 @@ const TemplateStyled = styled("div")(({theme}) => ({
         backgroundColor: theme.palette.primary.main,
         color: "#fff",
         textTransform: "uppercase",
-        fontSize: 10,
+        fontSize: 12,
         width: "fit-content",
         height:"fit-content",
         lineHeight: 1,
