@@ -34,6 +34,8 @@ import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -45,6 +47,8 @@ function PersonalInsuranceCard({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
@@ -294,9 +298,9 @@ function PersonalInsuranceCard({...props}) {
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },

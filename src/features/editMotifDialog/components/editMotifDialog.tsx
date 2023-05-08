@@ -1,310 +1,287 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
+import {useFormik, Form, FormikProvider} from "formik";
 import {
-  Typography,
-  Card,
-  CardContent,
-  FormHelperText,
-  Stack,
-  Box,
-  TextField,
-  FormControl,
-  Select,
-  MenuItem,
-  Button,
+    Typography,
+    Card,
+    CardContent,
+    FormHelperText,
+    Stack,
+    TextField,
+    FormControl,
+    Select,
+    MenuItem,
+    Button,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useSnackbar } from "notistack";
-import React, { useState } from "react";
-import { useTranslation } from "next-i18next";
-import { useRequest, useRequestMutation } from "@app/axios";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { ModelDot } from "@features/modelDot";
-import { LoadingScreen } from "@features/loadingScreen";
-const PaperStyled = styled(Form)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  borderRadius: 0,
-  border: "none",
-  minWidth: "650px",
-  height: "100%",
-  boxShadow: theme.customShadows.motifDialog,
-  padding: theme.spacing(2),
-  paddingBottom: theme.spacing(0),
-  [theme.breakpoints.down("md")]: {
-    minWidth: "100%",
-  },
-  "& .container": {
-    maxHeight: 680,
-    overflowY: "auto",
-    "& .MuiCard-root": {
-      border: "none",
-      "& .MuiCardContent-root": {
-        padding: theme.spacing(2),
-      },
-    },
-  },
-  "& .bottom-section": {
-    background: theme.palette.background.paper,
-    padding: theme.spacing(1),
-    marginTop: theme.spacing(2),
-    marginLeft: theme.spacing(-2),
-    marginRight: theme.spacing(-2),
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    borderTop: `3px solid ${theme.palette.grey["A700"]}`,
+import {styled} from "@mui/material/styles";
+import {useSnackbar} from "notistack";
+import React, {useState} from "react";
+import {useTranslation} from "next-i18next";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {ModelDot} from "@features/modelDot";
+import {LoadingScreen} from "@features/loadingScreen";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+
+const PaperStyled = styled(Form)(({theme}) => ({
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 0,
+    border: "none",
+    minWidth: "650px",
+    height: "100%",
+    boxShadow: theme.customShadows.motifDialog,
+    padding: theme.spacing(2),
+    paddingBottom: theme.spacing(0),
     [theme.breakpoints.down("md")]: {
-      position: "fixed"
+        minWidth: "100%",
     },
-  },
+    "& .container": {
+        maxHeight: 680,
+        overflowY: "auto",
+        "& .MuiCard-root": {
+            border: "none",
+            "& .MuiCardContent-root": {
+                padding: theme.spacing(2),
+            },
+        },
+    },
+    "& .bottom-section": {
+        background: theme.palette.background.paper,
+        padding: theme.spacing(1),
+        marginTop: theme.spacing(2),
+        marginLeft: theme.spacing(-2),
+        marginRight: theme.spacing(-2),
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        borderTop: `3px solid ${theme.palette.grey["A700"]}`,
+        [theme.breakpoints.down("md")]: {
+            position: "fixed"
+        },
+    },
 }));
 const colors = [
-  "#FEBD15",
-  "#FF9070",
-  "#DF607B",
-  "#9A5E8A",
-  "#526686",
-  "#96B9E8",
-  "#0696D6",
-  "#56A97F",
+    "#FEBD15",
+    "#FF9070",
+    "#DF607B",
+    "#9A5E8A",
+    "#526686",
+    "#96B9E8",
+    "#0696D6",
+    "#56A97F",
 ];
-function EditMotifDialog({ ...props }) {
-  const { mutateEvent } = props;
-  const { data: session } = useSession();
-  const { data: user } = session as Session;
-   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const router = useRouter();
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
-  const initalData = Array.from(new Array(20));
-  const [submit, setSubmit] = useState(false);
 
-  const { trigger } = useRequestMutation(null, "/settings/motif");
+function EditMotifDialog({...props}) {
+    const {mutateEvent} = props;
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const router = useRouter();
 
-  const { t, ready } = useTranslation("settings");
+    const {t, ready} = useTranslation("settings");
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, t("users.new.ntc"))
-      .max(50, t("users.new.ntl"))
-      .required(t("users.new.nameReq")),
-  });
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const initalData = Array.from(new Array(20));
+    const [submit, setSubmit] = useState(false);
 
-  /*const { data: typesHttpResponse, error: typesHttpError } = useRequest({
+    const {trigger} = useRequestMutation(null, "/settings/motif");
+
+    const validationSchema = Yup.object().shape({
+        name: Yup.string()
+            .min(3, t("users.new.ntc"))
+            .max(50, t("users.new.ntl"))
+            .required(t("users.new.nameReq")),
+    });
+
+
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
         method: "GET",
-        url: "/api/public/consultation-reason-types/" + router.locale,
-        headers: { Authorization: `Bearer ${session?.accessToken}` }
-    });*/
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
 
-  const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
+    const agendas = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : [];
+    //const types = typesHttpResponse ? (typesHttpResponse as HttpResponse).data : [];
 
-  const agendas = httpAgendasResponse
-    ? (httpAgendasResponse as HttpResponse).data
-    : [];
-  //const types = typesHttpResponse ? (typesHttpResponse as HttpResponse).data : [];
+    /*    let typesUiids: string[] = [];
+          if (props.data) {
+              props.data.types.map((type: ConsultationReasonTypeModel) => typesUiids.push(type.uuid))
+          }*/
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            name: props.data ? (props.data.name as string) : "",
+            color: props.data ? (props.data.color as string) : "#0696D6",
+            duration: props.data ? props.data.duration : "15",
+            minimumDelay: props.data ? props.data.minimumDelay : "",
+            maximumDelay: props.data ? props.data.maximumDelay : "",
+            //typeOfMotif: typesUiids,
+            agendas: props.data ? props.data.agenda : [],
+        },
+        validationSchema,
 
-  /*    let typesUiids: string[] = [];
-        if (props.data) {
-            props.data.types.map((type: ConsultationReasonTypeModel) => typesUiids.push(type.uuid))
-        }*/
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      name: props.data ? (props.data.name as string) : "",
-      color: props.data ? (props.data.color as string) : "#0696D6",
-      duration: props.data ? props.data.duration : "15",
-      minimumDelay: props.data ? props.data.minimumDelay : "",
-      maximumDelay: props.data ? props.data.maximumDelay : "",
-      //typeOfMotif: typesUiids,
-      agendas: props.data ? props.data.agenda : [],
-    },
-    validationSchema,
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
+            setSubmit(true);
+            //if (values.typeOfMotif.length > 0) {
+            props.closeDraw();
+            const form = new FormData();
+            form.append("color", values.color);
+            form.append(
+                "translations",
+                JSON.stringify({
+                    fr: values.name,
+                })
+            );
+            form.append("duration", values.duration);
+            let selectedTypes = "";
+            let selectedAgendas = "";
+            //values.typeOfMotif.map((typ) => selectedTypes += typ + ',')
+            values.agendas.map((ang: string) => (selectedAgendas += ang + ","));
+            form.append("type", selectedTypes.substring(0, selectedTypes.length - 1));
+            form.append(
+                "agendas",
+                selectedAgendas.substring(0, selectedAgendas.length - 1)
+            );
+            form.append("delay_min", values.minimumDelay);
+            form.append("delay_max", values.maximumDelay);
+            form.append("is_enabled", props.data ? props.data.isEnabled : "true");
+            if (props.data) {
+                medicalEntityHasUser && trigger({
+                    method: "PUT",
+                    url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.data.uuid}/${router.locale}`,
+                    data: form,
+                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                }).then(() => {
+                    mutateEvent();
+                    enqueueSnackbar(t("motif.config.alert.updated"), {variant: "success"});
+                });
+            } else {
+                medicalEntityHasUser && trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+                    data: form,
+                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                }).then(() => {
+                    enqueueSnackbar(t("motif.config.alert.add"), {variant: "success"});
+                    mutateEvent();
+                });
+            }
+        },
+    });
 
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
-      setSubmit(true);
-      //if (values.typeOfMotif.length > 0) {
-      props.closeDraw();
-      const form = new FormData();
-      form.append("color", values.color);
-      form.append(
-        "translations",
-        JSON.stringify({
-          fr: values.name,
-        })
-      );
-      form.append("duration", values.duration);
-      let selectedTypes = "";
-      let selectedAgendas = "";
-      //values.typeOfMotif.map((typ) => selectedTypes += typ + ',')
-      values.agendas.map((ang: string) => (selectedAgendas += ang + ","));
-      form.append("type", selectedTypes.substring(0, selectedTypes.length - 1));
-      form.append(
-        "agendas",
-        selectedAgendas.substring(0, selectedAgendas.length - 1)
-      );
-      form.append("delay_min", values.minimumDelay);
-      form.append("delay_max", values.maximumDelay);
-      form.append("is_enabled", props.data ? props.data.isEnabled : "true");
-      if (props.data) {
-        trigger(
-          {
-            method: "PUT",
-            url:
-              "/api/medical-entity/" +
-              medical_entity.uuid +
-              "/consultation-reasons/" +
-              props.data.uuid +
-              "/" +
-              router.locale,
-            data: form,
-            headers: {
-              ContentType: "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-          },
-          { revalidate: true, populateCache: true }
-        ).then((r: any) => {mutateEvent();
-        enqueueSnackbar(t("motif.config.alert.updated"), { variant: "success" });
-        });
-      } else {
-        trigger(
-          {
-            method: "POST",
-            url:
-              "/api/medical-entity/" +
-              medical_entity.uuid +
-              "/consultation-reasons/" +
-              router.locale,
-            data: form,
-            headers: {
-              ContentType: "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-          },
-          { revalidate: true, populateCache: true }
-        ).then((r: any) => {
-           enqueueSnackbar(t("motif.config.alert.add"), { variant: "success" });
-          mutateEvent()});
-      }
-    },
-  });
+    if (!ready)
+        return (
+            <LoadingScreen
+                error
+                button={"loading-error-404-reset"}
+                text={"loading-error"}
+            />
+        );
 
-  if (!ready)
+    const {
+        values,
+        errors,
+        touched,
+        handleSubmit,
+        getFieldProps,
+        setFieldValue,
+    } = formik;
+
     return (
-      <LoadingScreen
-        error
-        button={"loading-error-404-reset"}
-        text={"loading-error"}
-      />
-    );
-
-  const {
-    values,
-    errors,
-    touched,
-    handleSubmit,
-    getFieldProps,
-    setFieldValue,
-  } = formik;
-
-  return (
-    <FormikProvider value={formik}>
-      <PaperStyled
-        autoComplete="off"
-        noValidate
-        className="root"
-        onSubmit={handleSubmit}>
-        <Typography variant="h6" gutterBottom>
-          {props.data ? t("motif.dialog.update") : t("motif.dialog.add")}
-        </Typography>
-        <Typography
-          variant="body1"
-          fontWeight={400}
-          margin={"16px 0"}
-          gutterBottom>
-          {t("motif.dialog.info")}
-        </Typography>
-        <Card>
-          <CardContent>
-            <Stack spacing={2}>
-              <Stack>
+        <FormikProvider value={formik}>
+            <PaperStyled
+                autoComplete="off"
+                noValidate
+                className="root"
+                onSubmit={handleSubmit}>
+                <Typography variant="h6" gutterBottom>
+                    {props.data ? t("motif.dialog.update") : t("motif.dialog.add")}
+                </Typography>
                 <Typography
-                  display="flex"
-                  justifyContent="flex-start"
-                  variant="body2"
-                  color="text.secondary"
-                  gutterBottom>
-                  {t("motifType.dialog.color")}{" "}
-                  <Typography component="span" color="error" ml={0.2}>
-                    *
-                  </Typography>
+                    variant="body1"
+                    fontWeight={400}
+                    margin={"16px 0"}
+                    gutterBottom>
+                    {t("motif.dialog.info")}
                 </Typography>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  {colors.map((color) => (
-                    <ModelDot
-                      key={color}
-                      color={color}
-                      onClick={() => {
-                        setFieldValue("color", color);
-                      }}
-                      selected={color === values.color}></ModelDot>
-                  ))}
-                </Stack>
-                {touched.color && errors.color && (
-                  <FormHelperText error sx={{ mx: 0 }}>
-                    {Boolean(touched.color && errors.color)}
-                  </FormHelperText>
-                )}
-              </Stack>
-              <Stack>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {t("motif.dialog.nom")}{" "}
-                  <Typography component="span" color="error">
-                    *
-                  </Typography>
-                </Typography>
-                <TextField
-                  variant="outlined"
-                  placeholder={t("motif.dialog.tapez")}
-                  required
-                  fullWidth
-                  helperText={touched.name && errors.name}
-                  {...getFieldProps("name")}
-                  error={Boolean(touched.name && errors.name)}
-                />
-              </Stack>
-              <FormControl size="small" fullWidth>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {t("motif.dialog.duree")}
-                </Typography>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id={"duration"}
-                  {...getFieldProps("duration")}
-                  displayEmpty={true}
-                  sx={{ color: "text.secondary" }}>
-                  <MenuItem key={"0"} value={0}>
-                    -
-                  </MenuItem>
-                  {props.durations.map((duration: DurationModel) => (
-                    <MenuItem key={duration.value} value={duration.value}>
-                      {duration.date +
-                        " " +
-                        t("common:times." + duration.unity)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                <Card>
+                    <CardContent>
+                        <Stack spacing={2}>
+                            <Stack>
+                                <Typography
+                                    display="flex"
+                                    justifyContent="flex-start"
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom>
+                                    {t("motifType.dialog.color")}{" "}
+                                    <Typography component="span" color="error" ml={0.2}>
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    {colors.map((color) => (
+                                        <ModelDot
+                                            key={color}
+                                            color={color}
+                                            onClick={() => {
+                                                setFieldValue("color", color);
+                                            }}
+                                            selected={color === values.color}></ModelDot>
+                                    ))}
+                                </Stack>
+                                {touched.color && errors.color && (
+                                    <FormHelperText error sx={{mx: 0}}>
+                                        {Boolean(touched.color && errors.color)}
+                                    </FormHelperText>
+                                )}
+                            </Stack>
+                            <Stack>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    {t("motif.dialog.nom")}{" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("motif.dialog.tapez")}
+                                    required
+                                    fullWidth
+                                    helperText={touched.name && errors.name}
+                                    {...getFieldProps("name")}
+                                    error={Boolean(touched.name && errors.name)}
+                                />
+                            </Stack>
+                            <FormControl size="small" fullWidth>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    {t("motif.dialog.duree")}
+                                </Typography>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"duration"}
+                                    {...getFieldProps("duration")}
+                                    displayEmpty={true}
+                                    sx={{color: "text.secondary"}}>
+                                    <MenuItem key={"0"} value={0}>
+                                        -
+                                    </MenuItem>
+                                    {props.durations.map((duration: DurationModel) => (
+                                        <MenuItem key={duration.value} value={duration.value}>
+                                            {duration.date +
+                                                " " +
+                                                t("common:times." + duration.unity)}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-              {/*
+                            {/*
               <Stack spacing={2} direction={{ xs: "column", lg: "row" }}>
                 <Box width={1}>
                   <FormControl size="small" fullWidth>
@@ -363,10 +340,10 @@ function EditMotifDialog({ ...props }) {
                 </Box>
               </Stack>
 */}
-            </Stack>
-          </CardContent>
-        </Card>
-        {/*<Box mt={2}>
+                        </Stack>
+                    </CardContent>
+                </Card>
+                {/*<Box mt={2}>
                     <Typography variant="body1" color={values.typeOfMotif.length == 0 && submit ? 'error' : ''}
                         fontWeight={400} margin={'16px 0'} gutterBottom>
                         {t('motif.dialog.type')}
@@ -395,7 +372,7 @@ function EditMotifDialog({ ...props }) {
                         </CardContent>
                     </Card>
                 </Box>*/}
-{/*        <Box mt={2}>
+                {/*        <Box mt={2}>
           <Typography
             variant="body1"
             fontWeight={400}
@@ -437,19 +414,19 @@ function EditMotifDialog({ ...props }) {
 
         <div style={{ height: 70 }}></div>*/}
 
-        <Stack
-          className="bottom-section"
-          justifyContent="flex-end"
-          spacing={2}
-          direction={"row"}>
-          <Button onClick={props.closeDraw}>{t("motif.dialog.cancel")}</Button>
-          <Button type="submit" variant="contained" color="primary">
-            {t("motif.dialog.save")}
-          </Button>
-        </Stack>
-      </PaperStyled>
-    </FormikProvider>
-  );
+                <Stack
+                    className="bottom-section"
+                    justifyContent="flex-end"
+                    spacing={2}
+                    direction={"row"}>
+                    <Button onClick={props.closeDraw}>{t("motif.dialog.cancel")}</Button>
+                    <Button type="submit" variant="contained" color="primary">
+                        {t("motif.dialog.save")}
+                    </Button>
+                </Stack>
+            </PaperStyled>
+        </FormikProvider>
+    );
 }
 
 export default EditMotifDialog;

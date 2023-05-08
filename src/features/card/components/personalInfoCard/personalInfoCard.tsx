@@ -37,6 +37,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
+import {dashLayoutSelector} from "@features/base";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -65,6 +66,7 @@ function PersonalInfo({...props}) {
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -139,9 +141,9 @@ function PersonalInfo({...props}) {
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },

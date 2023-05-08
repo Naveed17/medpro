@@ -70,6 +70,8 @@ function AddPatientStep2({...props}) {
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
     const {stepsData} = useAppSelector(addPatientSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
         insurance: Yup.array().of(
@@ -275,9 +277,9 @@ function AddPatientStep2({...props}) {
         form.append('profession', values.profession);
         form.append('note', values.note ? values.note : "");
 
-        triggerAddPatient({
+        medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },

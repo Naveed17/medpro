@@ -228,9 +228,9 @@ function TimeSchedule({...props}) {
             fr: name
         }));
 
-        triggerAddReason({
+        medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {

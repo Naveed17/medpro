@@ -107,26 +107,14 @@ function PatientFileTemplates() {
         setState({...state});
         const form = new FormData();
         form.append("enabled", props.isEnabled.toString());
-        trigger(
-            {
-                method: "PATCH",
-                url:
-                    "/api/medical-entity/" +
-                    medical_entity.uuid +
-                    "/modals/" +
-                    props.uuid +
-                    "/activity",
-                data: form,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {revalidate: true, populateCache: true}
-        )
-            .then(() => enqueueSnackbar("updated", {variant: "success"}))
+        medicalEntityHasUser && trigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals/${props.uuid}/activity`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => enqueueSnackbar("updated", {variant: "success"}))
             .finally(() => closeSnackbar());
-    };
+    }
 
     const handleEdit = (props: ModalModel, event: string) => {
         setOpen(true);

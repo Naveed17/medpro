@@ -129,16 +129,14 @@ function Patient({...props}) {
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
 
-        trigger(
-            {
-                method: selectedPatient ? "PUT" : "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-                data: form
-            }, TriggerWithoutValidation
-        ).then((res: any) => {
+        medicalEntityHasUser && trigger({
+            method: selectedPatient ? "PUT" : "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+            data: form
+        }).then((res: any) => {
             const {data: patient} = res;
             const {status} = patient;
             if (status === "success") {

@@ -114,29 +114,25 @@ function ConsultationType() {
 
     const removeAppointmentType = (uuid: any) => {
         setLoading(true)
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${uuid}/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        })
-            .then(() => {
-                enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
-                setLoading(false)
-                setOpen(false);
-                mutate();
-            })
-            .catch((error) => {
-                const {
-                    response: {data},
-                } = error;
+        }).then(() => {
+            enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
+            setLoading(false)
+            setOpen(false);
+            mutate();
+        }).catch((error) => {
+            const {response: {data}} = error;
+            setOpen(false);
+            setLoading(false)
+            enqueueSnackbar(data.message, {variant: "error"});
+        });
+    }
 
-                setOpen(false);
-                setLoading(false)
-                enqueueSnackbar(data.message, {variant: "error"});
-            });
-    };
     const handleScroll = () => {
         const total = (data as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {

@@ -83,6 +83,8 @@ function PatientDetail({...props}) {
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {direction} = useAppSelector(configSelector);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
+    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {config: agenda, sortedData: groupSortedData, openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
@@ -91,8 +93,6 @@ function PatientDetail({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    const {openUploadDialog} = useAppSelector(addPatientSelector);
-    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
@@ -120,9 +120,12 @@ function PatientDetail({...props}) {
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
+    const {
+        data: httpPatientDetailsResponse,
+        mutate: mutatePatientDetails
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },

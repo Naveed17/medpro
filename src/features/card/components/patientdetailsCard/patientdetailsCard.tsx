@@ -38,6 +38,7 @@ import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {getBirthdayFormat} from "@app/hooks";
 import UrlIcon from "@themes/urlIcon";
+import {dashLayoutSelector} from "@features/base";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -65,9 +66,8 @@ function PatientDetailsCard({...props}) {
     });
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "patient-details",
-    });
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -111,9 +111,9 @@ function PatientDetailsCard({...props}) {
                 fr: patient?.address[0]?.street
             }));
 
-            triggerPatientUpdate({
+            medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },

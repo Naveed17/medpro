@@ -9,11 +9,15 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useRequestMutation} from "@app/axios";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -46,9 +50,9 @@ function NotesPanel({...props}) {
                 fr: patient?.address[0]?.street
             }));
 
-            triggerPatientUpdate({
+            medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
