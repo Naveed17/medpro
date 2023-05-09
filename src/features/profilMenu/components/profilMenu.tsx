@@ -29,24 +29,25 @@ import {Session} from "next-auth";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
-import {unsubscribeTopic} from "@app/hooks";
+import {unsubscribeTopic, useUrlSuffix} from "@app/hooks";
 
 function ProfilMenu() {
     const {data: session} = useSession();
     const router = useRouter();
-    const {opened} = useAppSelector(profileMenuSelector);
-    const {agendas, config} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
     const {t, ready} = useTranslation('menu');
+    const {opened} = useAppSelector(profileMenuSelector);
+    const {agendas, config} = useAppSelector(agendaSelector);
 
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
     const [loading, setLoading] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
 
     const {trigger} = useRequestMutation(null, "/settings");
@@ -60,11 +61,9 @@ function ProfilMenu() {
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
         trigger({
             method: "PATCH",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/agendas/" + agenda.uuid + '/switch/' + router.locale,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then(result => {
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/switch/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
             setLoading(true);
             router.reload();
         })

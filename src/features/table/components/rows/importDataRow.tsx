@@ -12,7 +12,7 @@ import {
     Stack,
     Table,
     TableRow,
-    Typography, useTheme
+    Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
@@ -33,6 +33,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
+import {useUrlSuffix} from "@app/hooks";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -45,20 +46,12 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const theme = useTheme();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
-    /*    const [infoDuplication, setInfoDuplication] = useState<Array<{
-            key: string;
-            row: string;
-            data: PatientModel | null;
-            fixed: boolean;
-        }>>([]);*/
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [expanded, setExpanded] = useState(false);
@@ -70,7 +63,7 @@ function ImportDataRow({...props}) {
         setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             const {data} = value?.data;

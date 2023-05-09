@@ -17,7 +17,7 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification} from "@app/hooks";
+import {checkNotification, useUrlSuffix} from "@app/hooks";
 import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
@@ -46,6 +46,7 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t} = useTranslation('common');
 
@@ -56,7 +57,7 @@ function DashLayout({children}: LayoutProps) {
 
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -65,17 +66,17 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = !isAppleDevise() ? checkNotification(): false;
+    const permission = !isAppleDevise() ? checkNotification() : false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -85,7 +86,7 @@ function DashLayout({children}: LayoutProps) {
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
     const justNumbers = (str: string) => {
-        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        const res = str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
             let numStr = res[0];
             let num = parseInt(numStr);

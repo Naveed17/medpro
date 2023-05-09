@@ -16,10 +16,11 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
+import {useUrlSuffix} from "@app/hooks";
 
 const emptyObject = {
     title: "",
@@ -31,9 +32,11 @@ function AntecedentsCard({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
@@ -78,18 +81,16 @@ function AntecedentsCard({...props}) {
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
-        trigger(
-            {
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
-                    slug: any;
-                }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }, TriggerWithoutValidation
-        ).then(() => {
+        medicalEntityHasUser && trigger({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+                slug: any;
+            }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
             setOpenDialog(false);
             setInfo("");
             setInfoDynamic("");

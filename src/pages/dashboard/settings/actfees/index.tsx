@@ -42,6 +42,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
+import {useUrlSuffix} from "@app/hooks";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -86,7 +87,10 @@ function ActFees() {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
+
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [open,setOpen]=useState<boolean>(false)
@@ -106,10 +110,7 @@ function ActFees() {
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "/settings/acts");
-    const {trigger: triggerAddAct} = useRequestMutation(
-        null,
-        "/settings/acts/add"
-    );
+    const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
 
     const {data: httpActSpeciality} = useRequest(medical_professional ? {
         method: "GET",
@@ -123,7 +124,7 @@ function ActFees() {
 
     const {data: httpProfessionalsActs, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -133,7 +134,7 @@ function ActFees() {
 
     const {data: httpMPResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
@@ -176,7 +177,7 @@ function ActFees() {
         trigger(
             {
                 method: "PATCH",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -191,7 +192,7 @@ function ActFees() {
         trigger(
             {
                 method: "DELETE",
-                url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
@@ -227,7 +228,7 @@ function ActFees() {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -253,7 +254,7 @@ function ActFees() {
             form.append("act", (actFees.act as ActModel)?.uuid);
             triggerAddAct({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
@@ -275,7 +276,7 @@ function ActFees() {
         name && form.append("name", name);
         trigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -592,7 +593,7 @@ const handleSelected = (prop:string)=>{
             <Stack direction="row" spacing={1}>
             <Button
               onClick={() => {
-                
+
                 setOpen(false);
               }}
               startIcon={<CloseIcon />}>

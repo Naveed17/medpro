@@ -21,6 +21,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
+import {useUrlSuffix} from "@app/hooks";
 
 function HistoryContainer({...props}) {
     const {
@@ -42,9 +43,11 @@ function HistoryContainer({...props}) {
         session,
         medical_entity,
     } = props;
+    const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
-    const router = useRouter();
 
     const {trigger} = useRequestMutation(null, "/editRA");
 
@@ -141,7 +144,7 @@ function HistoryContainer({...props}) {
         trigger(
             {
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     ContentType: "application/x-www-form-urlencoded",

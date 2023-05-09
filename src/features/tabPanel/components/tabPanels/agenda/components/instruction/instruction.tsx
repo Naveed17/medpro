@@ -33,6 +33,7 @@ import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useUrlSuffix} from "@app/hooks";
 
 function Instruction({...props}) {
     const {onNext, onBack, OnAction, modal} = props;
@@ -40,6 +41,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {
         motif,
@@ -118,7 +120,7 @@ function Instruction({...props}) {
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {

@@ -37,6 +37,8 @@ import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -63,16 +65,16 @@ function ConsultationIPToolbar({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-    const {t, ready} = useTranslation("consultation", {
-        keyPrefix: "consultationIP",
-    });
-    const {trigger} = useRequestMutation(null, "/drugs");
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
     const {data: session} = useSession();
-    //const intervalref = useRef<number | null>(null);
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
+    const {record, timer} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {trigger} = useRequestMutation(null, "/drugs");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -87,21 +89,17 @@ function ConsultationIPToolbar({...props}) {
     const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
     const hasLatestAppointments = appointement.latestAppointments.length === 0;
-
     const [tabsData, setTabsData] = useState<any[]>([]);
-    const {record, timer} = useAppSelector(consultationSelector);
+    let [time, setTime] = useState(timer);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
-    let [time, setTime] = useState(timer);
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const startRecord = () => {
@@ -162,7 +160,7 @@ function ConsultationIPToolbar({...props}) {
                 form.append(`files[${audios[0].uuid}][]`, file, file.name);
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -188,10 +186,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
                 let method = "POST"
-                let url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${router.locale}`;
+                let url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${router.locale}`;
                 if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
 
                 trigger({
@@ -234,10 +232,10 @@ function ConsultationIPToolbar({...props}) {
             case "balance_sheet_request":
                 form.append("analyses", JSON.stringify(state));
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "balance_sheet_request") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
@@ -280,10 +278,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("medical-imaging", JSON.stringify(state));
 
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointment/${appuuid}/medical-imaging/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointment/${appuuid}/medical-imaging/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "medical_imagery") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
@@ -331,7 +329,7 @@ function ConsultationIPToolbar({...props}) {
 
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -347,10 +345,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("title", state.title);
 
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "write_certif") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
                 }
 
                 trigger({

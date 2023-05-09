@@ -33,6 +33,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
 import {Theme} from "@mui/material/styles";
+import {useUrlSuffix} from "@app/hooks";
 
 export const BalanceSheetCardData = {
     mainIcon: "ic-analyse",
@@ -41,8 +42,11 @@ export const BalanceSheetCardData = {
 };
 
 function BalanceSheetDialog({...props}) {
-
     const {data} = props;
+    const urlMedicalEntitySuffix = useUrlSuffix();
+    const router = useRouter();
+    const {data: session} = useSession();
+
     const [model, setModel] = useState<string>('');
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -54,8 +58,6 @@ function BalanceSheetDialog({...props}) {
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
-    const router = useRouter();
-    const {data: session} = useSession();
     const {data: user} = session as Session;
     const open = Boolean(anchorEl);
 
@@ -86,8 +88,6 @@ function BalanceSheetDialog({...props}) {
 
     const initialData = Array.from(new Array(20));
 
-
-
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
         url: `/api/private/analysis/${router.locale}`,
@@ -98,7 +98,7 @@ function BalanceSheetDialog({...props}) {
 
     const {data: httpModelResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -133,7 +133,7 @@ function BalanceSheetDialog({...props}) {
         form.append('analyses', JSON.stringify(analysis));
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/requested-analysis-modal/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {

@@ -36,6 +36,7 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
+import {useUrlSuffix} from "@app/hooks";
 
 function ConsultationType() {
     const theme: Theme = useTheme();
@@ -43,6 +44,8 @@ function ConsultationType() {
     const {data: session} = useSession();
     const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);
@@ -54,7 +57,7 @@ function ConsultationType() {
     const [edit, setEdit] = useState(false);
     const [selected, setSelected] = useState<any>();
     const [open, setOpen] = useState(false);
-    const {enqueueSnackbar} = useSnackbar();
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const headCells = [
@@ -104,7 +107,7 @@ function ConsultationType() {
 
     const {data, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -114,29 +117,25 @@ function ConsultationType() {
 
     const removeAppointmentType = (uuid: any) => {
         setLoading(true)
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        })
-            .then(() => {
-                enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
-                setLoading(false)
-                setOpen(false);
-                mutate();
-            })
-            .catch((error) => {
-                const {
-                    response: {data},
-                } = error;
+        }).then(() => {
+            enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
+            setLoading(false)
+            setOpen(false);
+            mutate();
+        }).catch((error) => {
+            const {response: {data}} = error;
+            setOpen(false);
+            setLoading(false)
+            enqueueSnackbar(data.message, {variant: "error"});
+        });
+    }
 
-                setOpen(false);
-                setLoading(false)
-                enqueueSnackbar(data.message, {variant: "error"});
-            });
-    };
     const handleScroll = () => {
         const total = (data as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
