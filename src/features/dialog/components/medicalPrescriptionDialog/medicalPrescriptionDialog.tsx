@@ -28,8 +28,6 @@ import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import * as Yup from "yup";
-import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";

@@ -19,12 +19,9 @@ import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useAppSelector} from "@app/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
 import {useUrlSuffix} from "@app/hooks";
 
 const FormBuilder: any = dynamic(
