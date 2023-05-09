@@ -65,3 +65,5 @@ export const SubMotifCard = [
         type: "act-fees",
     },
 ];
+
+export const UrlMedicalEntitySuffix = '/api/medical-entity';

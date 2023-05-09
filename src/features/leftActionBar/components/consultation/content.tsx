@@ -34,14 +34,23 @@ import Antecedent from "@features/leftActionBar/components/consultation/antecede
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
-import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
+import {useUrlSuffix} from "@app/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate,analyses,mi} = props;
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate, analyses, mi} = props;
     const dispatch = useAppDispatch();
+    const {data: session, status} = useSession();
+    const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
@@ -49,18 +58,15 @@ const Content = ({...props}) => {
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
-    const {trigger} = useRequestMutation(null, "/antecedent");
-    const router = useRouter();
     const [selected, setSelected] = useState<any>();
     const [openRemove, setOpenRemove] = useState(false);
-    const {data: session, status} = useSession();
-    const {direction} = useAppSelector(configSelector);
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger} = useRequestMutation(null, "/antecedent");
 
     const getTitle = () => {
         const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
@@ -70,13 +76,15 @@ const Content = ({...props}) => {
         }
         return t(infoDynamic)
     }
+
     const handleClickDialog = () => {
         setOpenDialog(true);
-    };
+    }
 
     const handleCloseDialogDoc = () => {
         setOpenDialogDoc(false);
-    };
+    }
+
     const handleCloseDialog = () => {
         const form = new FormData();
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
@@ -85,7 +93,9 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                        slug: any;
+                    }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -105,7 +115,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -124,7 +134,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${
+                    url: `${urlMedicalEntitySuffix}/appointments/${
                         router.query["uuid-consultation"]
                     }/requested-analysis/${(state as any).uuid}/${router.locale}`,
                     data: form,
@@ -183,7 +193,6 @@ const Content = ({...props}) => {
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
         handleClickDialog();
     }
-
 
     const showDoc = (card: any) => {
         let type = "";
@@ -246,27 +255,19 @@ const Content = ({...props}) => {
         }
     };
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} =
-        useRequest(
-            patient
-                ? {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/documents/${router.locale}`,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`},
-                }
-                : null
-        );
+    const {
+        data: httpPatientDocumentsResponse,
+        mutate: mutatePatientDocuments
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
-    if (!ready || status === "loading")
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready || status === "loading") return (
+        <LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <React.Fragment>
@@ -302,7 +303,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -343,7 +344,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -520,7 +521,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -576,7 +577,7 @@ const Content = ({...props}) => {
                                                 <ListItemIcon>
                                                     <CircleIcon/>
                                                 </ListItemIcon>
-                                                <Typography variant="body2" color={list.result ?"":"text.secondary"}>
+                                                <Typography variant="body2" color={list.result ? "" : "text.secondary"}>
                                                     {list.analysis.name}
                                                     {list.result ? " : " + list.result : ""}
                                                 </Typography>
@@ -608,7 +609,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -700,7 +701,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name} {list?.note ? "("+list?.note+")" : ""}
+                                                    {list["medical-imaging"]?.name} {list?.note ? "(" + list?.note + ")" : ""}
                                                 </Typography>
                                             </ListItem>
                                         ))}
@@ -731,7 +732,7 @@ const Content = ({...props}) => {
                                                         ).format("MMM DD/YYYY"),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",

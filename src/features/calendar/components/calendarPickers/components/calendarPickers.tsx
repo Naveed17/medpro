@@ -13,6 +13,7 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {useUrlSuffix} from "@app/hooks";
 
 type CalendarPickerView = "day" | "month" | "year";
 
@@ -22,6 +23,7 @@ function CalendarPickers({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -30,18 +32,11 @@ function CalendarPickers({...props}) {
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpAppCountResponse} = useRequest(
-        agendaConfig ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpAppCountResponse} = useRequest(agendaConfig ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
     const handleDateChange = (date: Date | null) => {
         if (date) {

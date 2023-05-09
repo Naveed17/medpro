@@ -11,6 +11,8 @@ import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
+import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 function HistoryTab({...props}) {
 
@@ -32,16 +34,18 @@ function HistoryTab({...props}) {
         dates, keys, modelData,
         router
     } = props;
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
     const [photos, setPhotos] = useState<any[]>([]);
 
-    const {data: httpPatientDocumentsResponse} = useRequest(patient ? {
+    const {data: httpPatientDocumentsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
