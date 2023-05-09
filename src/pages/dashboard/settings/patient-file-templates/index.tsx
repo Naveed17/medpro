@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout} from "@features/base";
 import {
     Button,
     Box,
@@ -27,22 +27,17 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
-import {useSnackbar} from "notistack";
 import CloseIcon from "@mui/icons-material/Close";
 import {useRouter} from "next/router";
-import {useUrlSuffix} from "@app/hooks";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [displayedItems, setDisplayedItems] = useState(10);
     const [state, setState] = useState({active: true,});
@@ -77,14 +72,17 @@ function PatientFileTemplates() {
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
 
-    const {data: modalsHttpResponse, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
+    const {data: modalsHttpResponse, mutate} = useRequest(medical_professional ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals${
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
         }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
     const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
@@ -106,13 +104,12 @@ function PatientFileTemplates() {
         setState({...state});
         const form = new FormData();
         form.append("enabled", props.isEnabled.toString());
-        medicalEntityHasUser && trigger({
+        trigger({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.uuid}/activity`,
+            url: `/api/medical-professional/${medical_professional?.uuid}/modals/${props.uuid}/activity`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => enqueueSnackbar("updated", {variant: "success"}))
-            .finally(() => closeSnackbar());
+        });
     }
 
     const handleEdit = (props: ModalModel, event: string) => {

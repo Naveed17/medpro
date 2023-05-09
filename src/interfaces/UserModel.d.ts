@@ -1,5 +1,7 @@
 interface UserModel {
+  agendaDefaultFormat?: string;
   uuid: string;
+  userUuid?: string;
   firstName: string;
   lastName: string;
   email: string;
