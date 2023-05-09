@@ -185,7 +185,7 @@ function Agenda() {
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
             let hasError: boolean[] = [];
-            hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
+            hasDayWorkHours[1].map(() => {
                     hasError.push(!moment(date).isBetween(
                         moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMinSlot.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
                         moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMaxSlot}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
@@ -322,7 +322,7 @@ function Agenda() {
         }
     }
 
-    const handleOnToday = (event: React.MouseEventHandler) => {
+    const handleOnToday = () => {
         const calendarApi = (calendarEl as FullCalendar).getApi();
         calendarApi.today();
         dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
