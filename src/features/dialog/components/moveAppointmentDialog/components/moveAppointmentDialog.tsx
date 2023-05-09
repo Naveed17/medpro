@@ -60,7 +60,7 @@ function MoveAppointmentDialog() {
             }
             setLoading(false)
         });
-    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]);
+    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && medical_professional?.uuid) {

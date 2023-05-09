@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {consultationSelector} from "@features/toolbar";
+import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
@@ -52,6 +52,7 @@ function HistoryPanel({...props}) {
         setOpenDialog(false);
         setInfo(null);
         setSelectedAppointment("");
+        dispatch(SetSelectedDialog(null));
     }
 
     const showDoc = (card: any) => {

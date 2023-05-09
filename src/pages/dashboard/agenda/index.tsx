@@ -204,10 +204,8 @@ function Agenda() {
         trigger({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then((result) => {
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
@@ -307,7 +305,7 @@ function Agenda() {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
             getAppointments(queryPath, view, view !== 'listWeek');
-        } else if (localFilter) {
+        } else if (localFilter.length > 0) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
@@ -542,7 +540,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-               dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
+                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
                 // update pending notifications status
                 config?.mutate[1]();
             });

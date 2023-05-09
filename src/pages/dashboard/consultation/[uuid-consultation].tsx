@@ -494,7 +494,7 @@ function ConsultationInProgress() {
             setDates(dates);
             setKeys(keys)
         });
-    }, [medical_entity, patient, router, session, trigger])
+    }, [medical_entity, patient, router, session, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;

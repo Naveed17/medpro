@@ -1,4 +1,4 @@
-import {Box, Button, Checkbox, DialogActions, FormControlLabel, IconButton, Stack} from "@mui/material";
+import {Box, Button, Checkbox, DialogActions, FormControlLabel, IconButton, Stack, useTheme} from "@mui/material";
 import {setCashBox} from "@features/leftActionBar/components/payment/actions";
 import IconUrl from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
@@ -12,8 +12,9 @@ import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
 import {useUrlSuffix} from "@app/hooks";
+import {useSession} from "next-auth/react";
 
-function BoxsesFilter ({...props}){
+function BoxsesFilter({...props}) {
     const {cashboxes, setCashboxes} = props;
     const theme = useTheme();
     const {data: session} = useSession();
@@ -79,9 +80,9 @@ function BoxsesFilter ({...props}){
     }
 
 
-    return(
+    return (
         <Box>
-            {cashboxes.map((cb:any, id:number) => (
+            {cashboxes.map((cb: any, id: number) => (
                 <Stack direction={"row"} justifyContent={"space-between"} key={`cash-box-${id}`}>
                     <FormControlLabel
                         label={`${cb.name}`}
@@ -140,4 +141,5 @@ function BoxsesFilter ({...props}){
         </Box>
     )
 }
+
 export default BoxsesFilter
