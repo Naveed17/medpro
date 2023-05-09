@@ -23,7 +23,7 @@ function BoxsesFilter({...props}) {
     const router = useRouter();
 
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
-    const {selectedBox, query} = useAppSelector(cashBoxSelector);
+    const {selectedBox} = useAppSelector(cashBoxSelector);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [cashName, setCashName] = useState("");

@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import moment, {Moment} from "moment-timezone";
+import {Moment} from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";

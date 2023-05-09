@@ -689,7 +689,7 @@ function Agenda() {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
@@ -785,7 +785,7 @@ function Agenda() {
     }
 
     const submitStepper = (index: number) => {
-        const steps: any = eventStepper.map((stepper, index) => ({...stepper}));
+        const steps: any = eventStepper.map((stepper) => ({...stepper}));
         if (eventStepper.length !== index) {
             steps[index].disabled = false;
             setEventStepper(steps);
