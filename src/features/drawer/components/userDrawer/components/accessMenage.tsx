@@ -45,96 +45,14 @@ function AccessMenage({ ...props }) {
    useEffect(() => {
     setMainLoading(true)
     new Promise(function (resolve, reject) {
-    
    if (httpProfilesResponse){
     resolve(
       setProfiles((httpProfilesResponse as HttpResponse)?.data)
      )
     }
     }).finally(() => setMainLoading(false))
-        
     }, [httpProfilesResponse])
     
-  const [data, setData] = useState([
-    {
-      id: 1,
-      role_name: "xyz",
-      permissions: [
-        {
-          id: 1,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 2,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]);
   const [openVisitorDialog, setVisitorDialog] = useState(false);
   const [openDeleteDialog, setDeleteDialog] = useState(false);
   

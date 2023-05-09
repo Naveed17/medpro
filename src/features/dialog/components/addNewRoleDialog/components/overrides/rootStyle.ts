@@ -17,10 +17,12 @@ const RootStyled = styled(Stack)(({ theme }) => ({
       ".MuiFormControlLabel-label": {
         fontWeight: 700,
         fontSize: 14,
+        
       },
     },
     ".MuiFormControlLabel-label": {
       fontSize: 14,
+      //textTransform: "capitalize",
     },
     ".inside-list": {
       padding: 0,
