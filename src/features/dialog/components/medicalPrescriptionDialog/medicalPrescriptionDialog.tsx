@@ -104,9 +104,6 @@ function MedicalPrescriptionDialog({...props}) {
             url: `${urlMedicalEntitySuffix}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
         }).then((cnx) => {
             mutate().then(() => {
                 setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -127,9 +124,6 @@ function MedicalPrescriptionDialog({...props}) {
                 url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -147,9 +141,6 @@ function MedicalPrescriptionDialog({...props}) {
                 method: "DELETE",
                 url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -377,9 +368,6 @@ function MedicalPrescriptionDialog({...props}) {
                                                                                     method: "GET",
                                                                                     url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
                                                                                     headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }, {
-                                                                                    revalidate: true,
-                                                                                    populateCache: true
                                                                                 }).then((cnx) => {
                                                                                     if (cnx?.data as HttpResponse)
                                                                                         setDrugsList((cnx?.data as HttpResponse).data)

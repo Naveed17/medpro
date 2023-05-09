@@ -77,14 +77,17 @@ function PatientFileTemplates() {
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
 
-    const {data: modalsHttpResponse, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
+    const {data: modalsHttpResponse, mutate} = useRequest(medical_professional ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals${
+        url: `/api/medical-professional/${medical_professional.uuid}/modals${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
         }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
     const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
@@ -106,13 +109,12 @@ function PatientFileTemplates() {
         setState({...state});
         const form = new FormData();
         form.append("enabled", props.isEnabled.toString());
-        medicalEntityHasUser && trigger({
+        trigger({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.uuid}/activity`,
+            url: `/api/medical-professional/${medical_professional?.uuid}/modals/${props.uuid}/activity`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => enqueueSnackbar("updated", {variant: "success"}))
-            .finally(() => closeSnackbar());
+        });
     }
 
     const handleEdit = (props: ModalModel, event: string) => {

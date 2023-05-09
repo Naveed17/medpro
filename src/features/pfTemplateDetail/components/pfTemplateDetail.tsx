@@ -107,7 +107,7 @@ function PfTemplateDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
-    const {trigger} = useRequestMutation(null, "/settings/pfTemplateDetails");
+    const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -184,30 +184,17 @@ function PfTemplateDetail({...props}) {
             form.append("color", modelColor);
             form.append("medicalProfessionalUuid", medical_professional_uuid);
             form.append("structure", JSON.stringify(struct));
-
-            if (props.action === "edit" && !props.data.hasData) {
-                medicalEntityHasUser && trigger({
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.data.uuid}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            } else {
-                medicalEntityHasUser && trigger({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            }
+            const editAction = props.action === "edit" && !props.data.hasData;
+            triggerModalRequest({
+                method: editAction ? "PUT" : "POST",
+                url: `/api/medical-professional/${medical_professional_uuid}/modals${editAction ? `/${props.data.uuid}` : ""}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => {
+                props.mutate();
+                props.closeDraw();
+                setLoading(false);
+            });
         },
     });
     const {

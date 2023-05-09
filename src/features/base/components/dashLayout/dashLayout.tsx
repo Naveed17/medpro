@@ -6,7 +6,7 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import React, {useEffect, useState} from "react";
-import {setAgendas, setConfig, setPendingAppointments} from "@features/calendar";
+import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
@@ -53,7 +53,7 @@ function DashLayout({children}: LayoutProps) {
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const general_information = (user as UserDataResponse).general_information;
 
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
         method: "GET",
@@ -146,6 +146,13 @@ function DashLayout({children}: LayoutProps) {
             dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
     }, [dispatch, permission])
+
+    useEffect(() => {
+        if (general_information && general_information?.agendaDefaultFormat) {
+            // Set default calendar view
+            dispatch(setView(general_information.agendaDefaultFormat));
+        }
+    }, [dispatch, general_information])
 
     return (
         <SideBarMenu>
