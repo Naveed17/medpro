@@ -74,7 +74,7 @@ function PreConsultationDialog({...props}) {
 
     const {data: httpModelResponse} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/modals`,
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 

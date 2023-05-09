@@ -82,7 +82,7 @@ function PatientFileTemplates() {
 
     const {data: modalsHttpResponse, mutate} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/modals${
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"

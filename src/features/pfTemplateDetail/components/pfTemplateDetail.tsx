@@ -187,7 +187,7 @@ function PfTemplateDetail({...props}) {
             const editAction = props.action === "edit" && !props.data.hasData;
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
-                url: `/api/medical-professional/${medical_professional_uuid}/modals${editAction ? `/${props.data.uuid}` : ""}`,
+                url: `/api/medical-professional/${medical_professional_uuid}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => {
