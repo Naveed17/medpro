@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout} from "@features/base";
 import {
     Button,
     Box,
@@ -27,22 +27,17 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
-import {useSnackbar} from "notistack";
 import CloseIcon from "@mui/icons-material/Close";
 import {useRouter} from "next/router";
-import {useUrlSuffix} from "@app/hooks";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [displayedItems, setDisplayedItems] = useState(10);
     const [state, setState] = useState({active: true,});

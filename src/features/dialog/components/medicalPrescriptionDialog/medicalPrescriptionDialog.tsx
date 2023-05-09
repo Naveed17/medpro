@@ -69,24 +69,9 @@ function MedicalPrescriptionDialog({...props}) {
     const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
 
-    const validationSchema = Yup.object().shape({
-        /*dosage: Yup.string().required(),
-        duration: Yup.string().required(),
-        durationType: Yup.string().required()*/
-    });
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const open = Boolean(anchorEl);
 
     const {trigger} = useRequestMutation(null, "/drugs");
-
-    const {data: httpDrugsResponse} = useRequest({
-        method: "GET",
-        url: `/api/drugs/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",

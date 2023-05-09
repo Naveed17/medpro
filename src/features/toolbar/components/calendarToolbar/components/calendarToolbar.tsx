@@ -34,7 +34,6 @@ import {Otable} from "@features/table";
 import {appointmentGroupByDate, appointmentPrepareEvent, useUrlSuffix} from "@app/hooks";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 
 function CalendarToolbar({...props}) {

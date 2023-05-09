@@ -80,7 +80,6 @@ function PfTemplateDetail({...props}) {
     const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const colors = [
         "#FEBD15",
@@ -108,9 +107,6 @@ function PfTemplateDetail({...props}) {
     });
 
     const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
@@ -156,7 +152,7 @@ function PfTemplateDetail({...props}) {
             name: props.data ? (props.data.label as string) : "",
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             const struct: any[] = [];
             widget.map((w) => {
