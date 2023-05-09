@@ -59,7 +59,6 @@ import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@app/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-import {width} from "@mui/system";
 
 function DocsConfig() {
 
@@ -179,9 +178,16 @@ function DocsConfig() {
             const data = (docHeader as DocTemplateModel).header.data
             if (data) {
                 if (data.footer === undefined)
-                    setData({...data, footer: {show: true, x: 0, y: 140, content: ''},background:{show:docHeader.file !==null,content:docHeader.file ? docHeader.file:''}})
+                    setData({
+                        ...data,
+                        footer: {show: true, x: 0, y: 140, content: ''},
+                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                    })
                 else
-                    setData({...data,background:{show:docHeader.file !==null,content:docHeader.file ? docHeader.file:''}})
+                    setData({
+                        ...data,
+                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                    })
             }
 
             setTimeout(() => {
@@ -431,13 +437,18 @@ function DocsConfig() {
                                 <Checkbox
                                     checked={isDefault}
                                     onChange={(ev) => {
-                                         setIsDefault(ev.target.checked)
+                                        setIsDefault(ev.target.checked)
                                     }}
                                 />
                                 <ListItemText primary={t("asDefault")}/>
                             </ListItem>
 
-                            <div style={{width: '100%',borderTop:'1px solid rgba(0,0,0,.1)',marginBottom:20,marginTop:10}}></div>
+                            <div style={{
+                                width: '100%',
+                                borderTop: '1px solid rgba(0,0,0,.1)',
+                                marginBottom: 20,
+                                marginTop: 10
+                            }}></div>
                             {/*Content*/}
                             <fieldset style={{marginBottom: 10}}>
                                 <legend>{t('configContent')}</legend>
@@ -459,28 +470,28 @@ function DocsConfig() {
 
                             {/*we will add it late*/}
                             <fieldset style={{marginBottom: 10}}>
-                                    <legend>{t('paperSize')}</legend>
-                                    <ListItem style={{padding: 0, marginBottom: 5}}>
-                                        <Checkbox
-                                            checked={data.size === 'portraitA5'}
-                                            onChange={(ev) => {
-                                                data.size = 'portraitA5';
-                                                setData({...data})
-                                            }}
-                                        />
-                                        <ListItemText primary={t("A5")}/>
-                                    </ListItem>
-                                    <ListItem style={{padding: 0, marginBottom: 5}}>
-                                        <Checkbox
-                                            checked={data.size === 'portraitA4'}
-                                            onChange={(ev) => {
-                                                data.size = 'portraitA4';
-                                                setData({...data})
-                                            }}
-                                        />
-                                        <ListItemText primary={t("A4")}/>
-                                    </ListItem>
-                                </fieldset>
+                                <legend>{t('paperSize')}</legend>
+                                <ListItem style={{padding: 0, marginBottom: 5}}>
+                                    <Checkbox
+                                        checked={data.size === 'portraitA5'}
+                                        onChange={(ev) => {
+                                            data.size = 'portraitA5';
+                                            setData({...data})
+                                        }}
+                                    />
+                                    <ListItemText primary={t("A5")}/>
+                                </ListItem>
+                                <ListItem style={{padding: 0, marginBottom: 5}}>
+                                    <Checkbox
+                                        checked={data.size === 'portraitA4'}
+                                        onChange={(ev) => {
+                                            data.size = 'portraitA4';
+                                            setData({...data})
+                                        }}
+                                    />
+                                    <ListItemText primary={t("A4")}/>
+                                </ListItem>
+                            </fieldset>
                             {/*Import document*/}
                             <ListItem style={{padding: 0, marginBottom: 5}}>
                                 <Checkbox
