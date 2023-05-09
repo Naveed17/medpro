@@ -72,11 +72,11 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest({
+    const {data: httpModelResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/modals`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
