@@ -23,6 +23,8 @@ import {motion} from "framer-motion";
 import {IconButton} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import TeethWidget from "@features/widget/components/teethWidget";
+import adultTeeth from "@features/widget/components/adult";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -39,8 +41,9 @@ const variants = {
 };
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
+
     let cmp: any[] = [];
-    const {modal, appuuid, data, changes, setChanges} = props;
+    const {modal, appuuid, data, changes, setChanges,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid} = props;
     if (modal) {
         cmp = [...modal];
     }
@@ -54,8 +57,12 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
        })
        console.log(cmp)*/
 
+    console.log(cmp)
     return (
         <>
+
+            <TeethWidget {...{acts,setActs,of:'child',setSelectedAct,selectedAct,setSelectedUuid,appuuid}}/>
+
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -94,6 +101,7 @@ function Widget({...props}) {
         setChanges,
         isClose,
         handleClosePanel,
+        acts,setActs,setSelectedAct,selectedAct,setSelectedUuid
     } = props;
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
@@ -253,7 +261,7 @@ function Widget({...props}) {
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
                                     <WidgetForm
-                                        {...{appuuid, changes, setChanges, data}}
+                                        {...{appuuid, changes, setChanges, data,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
                                 )

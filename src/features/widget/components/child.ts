@@ -1,4 +1,4 @@
-const childTooths = [
+const childTeeth = [
   {id: '51', x: [58, 74], y: [5, 21]},
   {id: '52', x: [41, 57], y: [11, 27]},
   {id: '53', x: [30, 47], y: [25, 42]},
@@ -25,4 +25,4 @@ const childTooths = [
   {id: '65', x: [124, 145], y: [64, 96]},
 
 ];
-export default childTooths;
+export default childTeeth;

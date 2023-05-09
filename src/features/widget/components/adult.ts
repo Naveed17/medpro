@@ -1,4 +1,4 @@
-const adultTooths = [
+const adultTeeth = [
   {id: '11', x: [73, 84], y: [9, 21]},
   {id: '12', x: [56, 67], y: [17, 29]},
   {id: '13', x: [44, 55], y: [25, 37]},
@@ -35,4 +35,4 @@ const adultTooths = [
   {id: '47', x: [21, 38], y: [170, 186]},
   {id: '48', x: [18, 33], y: [150, 166]},
 ];
-export default adultTooths;
+export default adultTeeth;

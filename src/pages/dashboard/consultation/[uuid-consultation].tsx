@@ -893,12 +893,9 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
-                                {/*
-                                <ToothsWidget {...{acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}/>
-*/}
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose}}
+                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}

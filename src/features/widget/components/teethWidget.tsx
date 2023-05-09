@@ -22,11 +22,11 @@ import {
 } from "@mui/material";
 import {GithubPicker} from "react-color";
 import Add from "@mui/icons-material/Add";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Draggable from "react-draggable";
 import {useTranslation} from "next-i18next";
-import adultTooths from "@features/widget/components/adult";
-import childTooths from "@features/widget/components/child";
+import adultTeeth from "@features/widget/components/adult";
+import childTeeth from "@features/widget/components/child";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -60,8 +60,8 @@ function PaperComponent(props: PaperProps) {
     );
 }
 
-export default function ToothsWidget({...props}) {
-    let {acts,setActs,setSelectedAct,selectedAct} = props
+export default function TeethWidget({...props}) {
+    let {acts,setActs,of,setSelectedAct,selectedAct,appuuid} = props
     const {t} = useTranslation("consultation", {keyPrefix: "widget"});
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
@@ -69,12 +69,22 @@ export default function ToothsWidget({...props}) {
         name: 'Traitement 1',
         color: '#B80000',
         showPicker: false,
-        tooths: [],
+        teeth: [],
         acts: []
     }]);
     const [open, setOpen] = useState("");
     const [absent, setAbsent] = useState<string[]>([]);
-    const tooths = childTooths;
+    const teeth = of === 'adult' ?adultTeeth: childTeeth;
+
+    useEffect(()=>{
+        const data = localStorage.getItem(`Teeth${of}` + appuuid);
+        if (data){
+            const res = JSON.parse(data)
+            console.log(res.traitements);
+            setTraitements([...res.traitements]);
+            setAbsent(res.absent);
+        }
+    },[appuuid])
     const between = (val: number, min: number, max: number) => {
         return val >= min && val <= max;
     }
@@ -95,12 +105,11 @@ export default function ToothsWidget({...props}) {
         }
         PosX = PosX - ImgPos[0];
         PosY = PosY - ImgPos[1];
-        console.log(PosX,PosY);
 
-        tooths.map(teeth => {
-            if (teeth.x) {
-                if (between(PosX, teeth.x[0], teeth.x[1]) && between(PosY, teeth.y[0], teeth.y[1])) {
-                    setOpen(teeth.id);
+        teeth.map(tooth => {
+            if (tooth.x) {
+                if (between(PosX, tooth.x[0], tooth.x[1]) && between(PosY, tooth.y[0], tooth.y[1])) {
+                    setOpen(tooth.id);
                 }
             }
         })
@@ -118,20 +127,20 @@ export default function ToothsWidget({...props}) {
     }
     const getPosition = (traitement: string, pos: string) => {
         let data = 0;
-        const teeth = tooths.find(t => t.id === traitement);
-        if (teeth) {
+        const tooth = teeth.find(t => t.id === traitement);
+        if (tooth) {
             switch (pos) {
                 case 'top':
-                    data = teeth.y[0];
+                    data = tooth.y[0];
                     break
                 case 'left':
-                    data = teeth.x[0];
+                    data = tooth.x[0];
                     break
                 case 'width':
-                    data = teeth.x[1] - teeth.x[0];
+                    data = tooth.x[1] - tooth.x[0];
                     break
                 case 'height':
-                    data = teeth.y[1] - teeth.y[0];
+                    data = tooth.y[1] - tooth.y[0];
                     break
             }
         }
@@ -139,8 +148,9 @@ export default function ToothsWidget({...props}) {
     }
     const handleChange = (event: SelectChangeEvent<string[]>, traitement: number) => {
         const {target: {value}} = event;
-        traitements[traitement].tooths = typeof value === 'string' ? value.split(',') : value;
+        traitements[traitement].teeth = typeof value === 'string' ? value.split(',') : value;
         setTraitements([...traitements])
+        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
     };
     const handleChangeAct = (event: SelectChangeEvent<string[]>, traitement: number) => {
         const {target: {value}} = event;
@@ -166,6 +176,7 @@ export default function ToothsWidget({...props}) {
             }
         })
         setTraitements([...traitements])
+        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
     };
     const handleClose = () => {
         setOpen("");
@@ -175,7 +186,7 @@ export default function ToothsWidget({...props}) {
         <Card style={{margin: 10, marginBottom: 0, display: "flex"}}>
             <div style={{position: "relative"}}>
                 {traitements.map(traitement =>
-                    traitement.tooths.map(st => (
+                    traitement.teeth.map(st => (
                         <div onClick={(ev) => {
                             ev.stopPropagation()
                             setOpen(st)
@@ -224,10 +235,10 @@ export default function ToothsWidget({...props}) {
                         }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={"/static/img/childTooths.svg"}
+                <img src={`/static/img/${of === 'adult' ?'adultTeeth':'childTeeth'}.svg`}
                      id={"tooth"}
                      onClick={GetCoordinates}
-                     alt={"adult tooth"}/>
+                     alt={"patient teeth"}/>
 
                 <Stack direction={"row"} alignItems={"center"} spacing={1} p={1}>
                     <div style={{
@@ -258,10 +269,12 @@ export default function ToothsWidget({...props}) {
                                        onChange={(ev) => {
                                            traitements[index].name = ev.target.value;
                                            setTraitements([...traitements])
+                                           localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                                        }}></input>
                                 <div onClick={() => {
                                     traitements[index].showPicker = !traitements[index].showPicker;
                                     setTraitements([...traitements]);
+                                    localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                                 }}
                                      style={{
                                          background: traitement.color,
@@ -276,6 +289,7 @@ export default function ToothsWidget({...props}) {
                                                                         traitements[index].color = ev.hex;
                                                                         traitements[index].showPicker = false;
                                                                         setTraitements([...traitements])
+                                                                        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                                                                     }}/>}
 
 
@@ -285,11 +299,11 @@ export default function ToothsWidget({...props}) {
                                 id="demo-multiple-chip"
                                 sx={{
                                     "& .MuiOutlinedInput-input": {
-                                        padding: "5px"
+                                        padding: "0 5px 5px"
                                     }
                                 }}
                                 multiple
-                                value={traitement.tooths}
+                                value={traitement.teeth}
                                 onChange={(res) => {
                                     handleChange(res, index)
                                 }}
@@ -304,13 +318,13 @@ export default function ToothsWidget({...props}) {
                                 )}
                                 MenuProps={MenuProps}
                             >
-                                {tooths.map((teeth) => (
+                                {teeth.map((tooth) => (
                                     <MenuItem
-                                        key={teeth.id}
-                                        value={teeth.id}
-                                        style={getStyles(teeth.id, traitement.tooths, theme)}
+                                        key={tooth.id}
+                                        value={tooth.id}
+                                        style={getStyles(tooth.id, traitement.teeth, theme)}
                                     >
-                                        {teeth.id}
+                                        {tooth.id}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -323,7 +337,7 @@ export default function ToothsWidget({...props}) {
                                 multiple
                                 sx={{
                                     "& .MuiOutlinedInput-input": {
-                                        padding: "5px"
+                                        padding: "0 5px 5px"
                                     }
                                 }}
                                 value={traitement.acts}
@@ -354,16 +368,17 @@ export default function ToothsWidget({...props}) {
 
                 <Button
                     onClick={() => {
-                        const max = traitements.reduce((acc, shot) => acc = acc > shot.id ? acc : shot.id, 0);
+                        const max = traitements.reduce((acc, shot) =>  acc > shot.id ? acc : shot.id, 0);
                         traitements = [...traitements, {
                             id: max + 1,
                             name: `${t('traitement')} ${max + 1}`,
                             color: '#006B76',
                             showPicker: false,
-                            tooths: [],
+                            teeth: [],
                             acts: []
                         }]
                         setTraitements([...traitements])
+                        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                     }
                     }
                     size="small"
@@ -391,17 +406,19 @@ export default function ToothsWidget({...props}) {
                                                                          absent.push(open)
                                                                      else absent.splice(absent.findIndex(a => a === open), 1);
                                                                      setAbsent([...absent]);
+                                                                     localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                                                                      setOpen("")
                                                                  }}/>} label={t('absente')}/>
                             {traitements.map((traitement, index) => (
                                 <FormControlLabel key={traitement.id} control={<Checkbox
-                                    checked={traitement.tooths.find(t => t === open) !== undefined} onChange={() => {
-                                    const tooths:string[] = traitement.tooths;
-                                    const st = traitement.tooths.findIndex(t => t === open)
-                                    if (st >= 0) tooths.splice(st, 1)
-                                    else tooths.push(open)
-                                    traitements[index].tooths = tooths;
+                                    checked={traitement.teeth.find(t => t === open) !== undefined} onChange={() => {
+                                    const teeth:string[] = traitement.teeth;
+                                    const st = traitement.teeth.findIndex(t => t === open)
+                                    if (st >= 0) teeth.splice(st, 1)
+                                    else teeth.push(open)
+                                    traitements[index].teeth = teeth;
                                     setTraitements([...traitements])
+                                    localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
                                     setOpen("")
                                 }}/>} label={traitement.name}/>
                             ))}
