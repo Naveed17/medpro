@@ -4,6 +4,7 @@ import {
     Box,
     Card,
     CardContent,
+    IconButton,
     List,
     ListItem,
     ListItemIcon,
@@ -20,11 +21,9 @@ import {ModelDot} from "@features/modelDot";
 import ConsultationModalStyled from "./overrides/modalConsultationStyle";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import {IconButton} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TeethWidget from "@features/widget/components/teethWidget";
-import adultTeeth from "@features/widget/components/adult";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -42,8 +41,22 @@ const variants = {
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
 
+
     let cmp: any[] = [];
-    const {modal, appuuid, data, changes, setChanges,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid} = props;
+    const {
+        modal,
+        appuuid,
+        data,
+        changes,
+        setChanges,
+        acts,
+        setActs,
+        setSelectedAct,
+        selectedAct,
+        setSelectedUuid
+    } = props;
+    const [teethWidget, setTeethWidget] = useState("");
+
     if (modal) {
         cmp = [...modal];
     }
@@ -57,12 +70,24 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
        })
        console.log(cmp)*/
 
-    console.log(cmp)
+    setTimeout(() => {
+        if (document.getElementById('adultTeeth'))
+            setTeethWidget('adult')
+        if (document.getElementById('childTeeth'))
+            setTeethWidget('child')
+    }, 1000)
+
     return (
         <>
-
-            <TeethWidget {...{acts,setActs,of:'child',setSelectedAct,selectedAct,setSelectedUuid,appuuid}}/>
-
+            {teethWidget !== "" && <TeethWidget {...{
+                acts,
+                setActs,
+                of: teethWidget,
+                setSelectedAct,
+                selectedAct,
+                setSelectedUuid,
+                appuuid
+            }}/>}
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -101,12 +126,9 @@ function Widget({...props}) {
         setChanges,
         isClose,
         handleClosePanel,
-        acts,setActs,setSelectedAct,selectedAct,setSelectedUuid
+        acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
     const [open, setOpen] = useState(false);
-    const [pageLoading, setPageLoading] = useState(false);
-    const [change, setChange] = useState(false);
-    const [openDialog, setOpenDialog] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -142,20 +164,11 @@ function Widget({...props}) {
         setOpen(false);
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setChange(false);
-    };
-
-    const handleChange = () => {
-        setChange(true);
-    };
-
     return (
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ?"50px":"30vh", md: "44.5rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "44.5rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
@@ -261,13 +274,22 @@ function Widget({...props}) {
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
                                     <WidgetForm
-                                        {...{appuuid, changes, setChanges, data,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
+                                        {...{
+                                            appuuid,
+                                            changes,
+                                            setChanges,
+                                            data,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid
+                                        }}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
                                 )
                         )}
-                        {pageLoading &&
-                            Array.from({length: 3}).map((_, idx) => (
+                        {Array.from({length: 3}).map((_, idx) => (
                                 <Box key={`loading-box-${idx}`}>
                                     <Typography alignSelf="center" marginBottom={2} marginTop={2}>
                                         <Skeleton width={130} variant="text"/>
