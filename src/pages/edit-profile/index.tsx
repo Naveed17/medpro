@@ -5,7 +5,7 @@ import React, { ReactElement, useState } from "react";
 import { Box, Button, Container, Paper, Toolbar, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { TopNavBar } from "@features/topNavBar";
-import { MainMenuStyled } from "@features/sideBarMenu";
+import { MainMenuStyled } from "src/features/menu/components/sideBarMenu";
 import { CheckProfileStatus } from "@features/checkProfileStatus";
 import { LoadingScreen } from "@features/loadingScreen";
 import { Session } from "next-auth";

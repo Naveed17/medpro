@@ -1,7 +1,7 @@
 import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
 import {ConfigReducer} from "@features/base/reducer";
-import {SideBarReducer} from "@features/sideBarMenu/reducer";
-import {ProfileMenuReducer} from "@features/profilMenu";
+import {SideBarReducer} from "@features/menu/components/sideBarMenu/reducer";
+import {ProfileMenuReducer} from "src/features/menu/components/profilMenu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";

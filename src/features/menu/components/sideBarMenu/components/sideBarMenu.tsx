@@ -30,14 +30,14 @@ import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar} from "@features/sideBarMenu/actions";
+import {sideBarSelector} from "@features/menu/components/sideBarMenu/selectors";
+import {toggleMobileBar} from "@features/menu/components/sideBarMenu/actions";
 import React, {useEffect, useRef, useState} from "react";
 import {
     ListItemTextStyled,
     MainMenuStyled,
     MobileDrawerStyled,
-} from "@features/sideBarMenu";
+} from "@features/menu/components/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
@@ -47,7 +47,7 @@ import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 import {unsubscribeTopic} from "@app/hooks";
 import axios from "axios";
-import {logout} from "@features/profilMenu";
+import {logout} from "@features/menu/components/profilMenu";
 import {Session} from "next-auth";
 
 function SideBarMenu({children}: LayoutProps) {

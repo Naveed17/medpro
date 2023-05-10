@@ -35,6 +35,7 @@ import {appointmentGroupByDate, appointmentPrepareEvent, useUrlSuffix} from "@ap
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {DefaultViewMenu} from "@features/menu";
 
 function CalendarToolbar({...props}) {
     const {
@@ -48,10 +49,7 @@ function CalendarToolbar({...props}) {
         OnConfirmEvent
     } = props;
     const theme = useTheme();
-    const {data: session} = useSession();
-    const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useUrlSuffix();
     let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
     const isRTL = theme.direction === "rtl";
 
@@ -66,18 +64,7 @@ function CalendarToolbar({...props}) {
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
-    const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
-
     const handleViewChange = (view: string) => {
-        const form = new FormData();
-        form.append("attribute", "agenda_default_view");
-        form.append("value", view);
-        triggerViewChange({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/users/edit/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
         dispatch(setView(view));
     }
 
@@ -240,6 +227,7 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
+                    <DefaultViewMenu/>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
                                  TransitionComponent={Zoom}

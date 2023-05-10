@@ -53,7 +53,7 @@ import {
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useUrlSuffix} from "@app/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";

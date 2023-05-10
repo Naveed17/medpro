@@ -34,7 +34,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {useIsMountedRef, useUrlSuffix} from "@app/hooks";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";

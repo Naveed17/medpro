@@ -5,7 +5,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import LockIcon from "@themes/overrides/icons/lockIcon";
 import {setLock} from "@features/appLock";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {useAppDispatch} from "@app/redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {

@@ -45,7 +45,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";

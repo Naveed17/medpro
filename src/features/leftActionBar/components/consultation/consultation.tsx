@@ -23,7 +23,7 @@ import Content from "./content";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";

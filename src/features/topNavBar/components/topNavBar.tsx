@@ -14,11 +14,11 @@ import {
     Popover, useMediaQuery, Button, Drawer, Avatar, useTheme
 } from "@mui/material";
 // config
-import {siteHeader} from "@features/sideBarMenu";
+import {siteHeader} from "src/features/menu/components/sideBarMenu";
 // components
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
+import {sideBarSelector} from "@features/menu/components/sideBarMenu/selectors";
+import {toggleMobileBar, toggleSideBar} from "@features/menu/components/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {
     NavbarStepperStyled,
@@ -52,7 +52,7 @@ import {WarningTooltip} from "./warningTooltip";
 import {useUrlSuffix} from "@app/hooks";
 
 const ProfilMenuIcon = dynamic(
-    () => import("@features/profilMenu/components/profilMenu")
+    () => import("@features/menu/components/profilMenu/components/profilMenu")
 );
 
 let deferredPrompt: any;

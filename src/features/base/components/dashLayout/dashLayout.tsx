@@ -20,7 +20,7 @@ import {setProgress} from "@features/progressUI";
 import {checkNotification, useUrlSuffix} from "@app/hooks";
 import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
-const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
+const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 const variants = {
     hidden: {opacity: 0},
@@ -152,7 +152,7 @@ function DashLayout({children}: LayoutProps) {
             // Set default calendar view
             dispatch(setView(general_information.agendaDefaultFormat));
         }
-    }, [dispatch, general_information])
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>

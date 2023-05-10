@@ -19,7 +19,7 @@ import {SubFooter} from "@features/subFooter";
 import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@app/redux/hooks";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function AppLock() {
