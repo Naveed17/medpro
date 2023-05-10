@@ -84,7 +84,7 @@ function AccessMenage({ ...props }) {
   useEffect(() => {
     handleClose();
   }, [openVisitorDialog]);
-  
+  console.log(profiles)
   return (
     <AccessMenageStyled spacing={2} height={1}>
       <Toolbar>

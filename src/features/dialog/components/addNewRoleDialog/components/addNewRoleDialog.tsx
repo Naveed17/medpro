@@ -15,7 +15,8 @@ import {
   Collapse,
   Switch,
   DialogActions,
-  Button
+  Button,
+  Skeleton
 } from "@mui/material";
 import { IconButton } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
@@ -25,8 +26,10 @@ import { useRequestMutation,useRequest } from "@app/axios";
 import { Session } from "next-auth";
 import {useRouter} from "next/router";
 import { LoadingButton } from "@mui/lab";
+import {useTranslation} from "next-i18next";
 function AddNewRoleDialog({ ...props }) {
-  const {data: { t, selected,handleMutate,handleVisitor,handleClose }} = props;
+  const {data: { selected,handleMutate,handleVisitor,handleClose }} = props;
+  const {t, ready} = useTranslation(["settings","common"]);
     const [loading, setLoading] = useState(false);
    const { data: session } = useSession();
    const router = useRouter();
@@ -35,7 +38,7 @@ function AddNewRoleDialog({ ...props }) {
     .medical_entity as MedicalEntityModel;
     const {trigger} = useRequestMutation(null, "/profile");
 
-  const [permissions, setPermissions] = useState<any>(null);
+  const [permissions, setPermissions] = useState<any>([]);
    const { data: httpPermissionsResponse}= useRequest({
     method: "GET",
     url: "/api/medical-entity/permissions",
@@ -44,6 +47,7 @@ function AddNewRoleDialog({ ...props }) {
     },
   });
   useEffect(() => {
+        
         if (httpPermissionsResponse){
            const response = (httpPermissionsResponse as HttpResponse)?.data
            const permissions = response.map((item: any) => {
@@ -60,7 +64,7 @@ function AddNewRoleDialog({ ...props }) {
           });
           setPermissions(permissions);
         }
-           
+      
     }, [httpPermissionsResponse]);
 
   const formik = useFormik({
@@ -311,38 +315,46 @@ function AddNewRoleDialog({ ...props }) {
           <RootStyled spacing={2} height={400} overflow='scroll' pt={2}>
             <Stack spacing={2}>
               <Typography gutterBottom textTransform="uppercase">
-                {t("role_name")}
+                {t("users.dialog.role_name")}
               </Typography>
               <TextField
                 {...getFieldProps("role_name")}
-                placeholder={t("role_name")}
+                placeholder={t("users.dialog.role_name")}
               />
                <Typography gutterBottom textTransform="uppercase">
-                {t("description")}
+                {t("users.dialog.description")}
               </Typography>
               <TextField
                 {...getFieldProps("description")}
-                placeholder={t("description_placeholder")}
+                placeholder={t("users.dialog.description_placeholder")}
                 multiline
                 rows={4}
               />
-              <FormControlLabel control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard} />}  label={t("is_standard")} />
+              <FormControlLabel control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard} />}  label={t("users.dialog.is_standard")} />
             </Stack>
             <Box className="permissions-wrapper">
-              <Typography gutterBottom>{t("select_permissions")}</Typography>
+              <Typography gutterBottom>{t("users.dialog.select_permissions")}</Typography>
               <Card>
                 <List sx={{ p: 0 }}>
+                  {values.permissions.length > 0 ?
                   <ListItem>
                     <FormControlLabel
                       className="bold-label"
                       control={<Checkbox onChange={handleToggleAllSelect} />}
-                      label={t("select_all")}
+                      label={t("users.dialog.select_all")}
                       checked={allValuesTrue}
                     />
+                  </ListItem>: 
+                  <ListItem>
+                    <Skeleton width={25} height={40} />
+                        <Skeleton width={ 150 } sx={{ml:1}} />
                   </ListItem>
-                  {values.permissions?.map((item: any, idx: number) => (
-                    <React.Fragment key={item.uuid}>
+                   }
+                  {(values.permissions.length === 0 ? Array.from({length:5}):values.permissions)?.map((item: any, idx: number) => (
+                    <React.Fragment key={item ? item.uuid:idx}>
+                      {item ? 
                       <ListItem className="main-list">
+                        
                         <FormControlLabel
                         {
                           ...(item.children && {
@@ -356,7 +368,7 @@ function AddNewRoleDialog({ ...props }) {
                               checked={item.value}
                             />
                           }
-                          label={t("permissions." + item.slug)}
+                          label={t("permissions." + item.slug,{ns:'common'})}
                         />
                         <IconButton
                           sx={{
@@ -369,7 +381,12 @@ function AddNewRoleDialog({ ...props }) {
                           <IconUrl path="setting/ic-down-arrow" width={12} height={12} />
                         </IconButton>
                       </ListItem>
-                      {item.children && (
+                      : <ListItem className="main-list">
+                        <Skeleton width={25} height={40} />
+                        <Skeleton width={ 250 } sx={{ml:1}} />
+                      </ListItem>
+                          }
+                      { item && item.children && (
                         <Collapse in={item.value} className="inner-collapse">
                           <List className="inside-list">
                             {item.children.map(
@@ -398,7 +415,7 @@ function AddNewRoleDialog({ ...props }) {
                                           checked={insideItem.value}
                                         />
                                       }
-                                      label={t("permissions." + insideItem.slug)}
+                                      label={t("permissions." + insideItem.slug,{ns:'common'})}
                                     />
                                    
                                   </ListItem>
@@ -430,14 +447,14 @@ function AddNewRoleDialog({ ...props }) {
               onClick={()=>handleClose()}
                 variant="text-black"
                 startIcon={<IconClose />}>
-                {t("cancel")}
+                {t("users.dialog.cancel")}
               </Button>
               <LoadingButton
                 type="submit"
                 variant="contained"
                 loading={loading}
                 startIcon={<IconUrl path="ic-dowlaodfile" />}>
-                {t("save")}
+                {t("users.dialog.save")}
               </LoadingButton>
             </Stack>
         </Form>

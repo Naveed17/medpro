@@ -22,7 +22,7 @@ const RootStyled = styled(Stack)(({ theme }) => ({
     },
     ".MuiFormControlLabel-label": {
       fontSize: 14,
-      //textTransform: "capitalize",
+      textTransform: "capitalize",
     },
     ".inside-list": {
       padding: 0,
