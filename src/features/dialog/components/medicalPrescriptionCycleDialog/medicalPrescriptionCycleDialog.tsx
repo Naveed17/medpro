@@ -663,8 +663,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 fullWidth
                                                                 placeholder={t("enter_your_dosage")}/>
                                                         </Stack>
-                                                        <Stack mt={1}>
-                                                            <Typography gutterBottom>
+                                                        <Stack mt={1} direction={"row"} alignItems={"center"}>
+                                                            <Typography gutterBottom mr={1}>
                                                                 {t("durations", {ns: "consultation"})}
                                                             </Typography>
                                                             <Stack

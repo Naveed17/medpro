@@ -4,6 +4,9 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiContainer-root": {
         padding: 0
     },
+    "& .MuiCardContent-root": {
+        paddingBottom: 10
+    },
     "& .MuiOutlinedInput-root.Mui-focused": {
         background: theme.palette.background.default,
     },
