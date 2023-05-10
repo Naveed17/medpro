@@ -222,7 +222,6 @@ function Payment() {
     const [collapseDate] = useState<any>(null);
 
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
-    const [rows, setRows] = useState<any[]>([]);
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
     const [cheques] = useState<ChequeModel[]>([
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
@@ -481,7 +480,6 @@ function Payment() {
                                             ],*/
                     });
                 });
-                setRows([...r]);
                 setFiltredRows(
                     filterQuery?.payment && filterQuery?.payment?.insurance
                         ? [...r].filter((row) => {
@@ -656,7 +654,7 @@ function Payment() {
                                         sx: {minWidth: 40},
                                     })}
                                     onClick={() => {
-                                        handleCollapse(null);
+                                        handleCollapse();
                                     }}>
                                     <KeyboardArrowDownIcon/> {!isMobile && t("Encaisser")}
                                 </Button>
