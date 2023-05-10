@@ -19,7 +19,7 @@ import {SubFooter} from "@features/subFooter";
 import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@app/redux/hooks";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function AppLock() {
@@ -30,7 +30,7 @@ function AppLock() {
         currentPassword: localStorage.getItem("app_lock") ? Yup.string().required("This field is required") : Yup.string(),
         newPassword: Yup.string().required("This field is required"),
         confirmPassword: Yup.string().when("newPassword", {
-            is: (val: any) => (val && val.length > 0 ? true : false),
+            is: (val: any) => (!!(val && val.length > 0)),
             then: Yup.string()
                 .required("This Field is Required")
                 .oneOf([Yup.ref("newPassword")], "Both password need to be the same"),
@@ -45,7 +45,7 @@ function AppLock() {
             confirmPassword: "",
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             localStorage.setItem("app_lock", values.confirmPassword);
             localStorage.setItem('lock-on', "true");
             resetForm();
@@ -60,9 +60,9 @@ function AppLock() {
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
         resetForm
     } = formik;
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (

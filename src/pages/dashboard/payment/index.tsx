@@ -38,22 +38,20 @@ import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
+    SWRNoValidateConfig
 } from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+import {cashBoxSelector} from "@features/leftActionBar";
 import {DefaultCountry} from "@app/constants";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-    setCashBox,
     setInsurances,
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
@@ -188,7 +186,7 @@ function Payment() {
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {selectedBox, query, paymentTypes} = useAppSelector(cashBoxSelector);
+    const {selectedBox, paymentTypes} = useAppSelector(cashBoxSelector);
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -197,7 +195,7 @@ function Payment() {
     };
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
@@ -221,21 +219,20 @@ function Payment() {
     });
     const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [collapseDate, setCollapseData] = useState<any>(null);
+    const [collapseDate] = useState<any>(null);
 
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
-    const [rows, setRows] = useState<any[]>([]);
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
-    const [cheques, setCheques] = useState<ChequeModel[]>([
+    const [cheques] = useState<ChequeModel[]>([
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
     ]);
     const [total, setTotal] = useState(0);
-    let [select, setSelect] = useState<any[]>([]);
+    let [select] = useState<any[]>([]);
     const [filter, setFilter] = useState(false);
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
+    const [toReceive] = useState(0);
     const [somme, setSomme] = useState(0);
     const [freeTrans, setFreeTrans] = useState(0);
     const [action, setAction] = useState("");
@@ -281,7 +278,7 @@ function Payment() {
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
-    const handleCollapse = (props: any) => {
+    const handleCollapse = () => {
         //setCollapseData(props);
         setCollapse(true);
     };
@@ -300,7 +297,7 @@ function Payment() {
         setCollected(res + freeTrans);
     };
 
-    const handleSubmit = (data: any) => {
+    const handleSubmit = () => {
         const trans_data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
             console.log(sp);
@@ -328,8 +325,6 @@ function Payment() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        }).then((r: any) => {
-            // console.log(r.data.data);
         });
         setOpenPaymentDialog(false);
     };
@@ -377,7 +372,7 @@ function Payment() {
         const form = new FormData();
         form.append("status", status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
@@ -485,7 +480,6 @@ function Payment() {
                                             ],*/
                     });
                 });
-                setRows([...r]);
                 setFiltredRows(
                     filterQuery?.payment && filterQuery?.payment?.insurance
                         ? [...r].filter((row) => {
@@ -660,7 +654,7 @@ function Payment() {
                                         sx: {minWidth: 40},
                                     })}
                                     onClick={() => {
-                                        handleCollapse(null);
+                                        handleCollapse();
                                     }}>
                                     <KeyboardArrowDownIcon/> {!isMobile && t("Encaisser")}
                                 </Button>
