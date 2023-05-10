@@ -24,6 +24,7 @@ import {motion} from "framer-motion";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TeethWidget from "@features/widget/components/teethWidget";
+import ReactDOM from 'react-dom';
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -53,9 +54,9 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         setActs,
         setSelectedAct,
         selectedAct,
-        setSelectedUuid
+        setSelectedUuid,
     } = props;
-    const [teethWidget, setTeethWidget] = useState("");
+    let teethWidget = "";
 
     if (modal) {
         cmp = [...modal];
@@ -71,15 +72,10 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
        console.log(cmp)*/
 
     setTimeout(() => {
-        if (document.getElementById('adultTeeth'))
-            setTeethWidget('adult')
-        if (document.getElementById('childTeeth'))
-            setTeethWidget('child')
-    }, 1000)
-
-    return (
-        <>
-            {teethWidget !== "" && <TeethWidget {...{
+        if (document.getElementById('adultTeeth')) {
+            const teethDiv = document.getElementById('teeth');
+            const reactDiv = document.createElement('div');
+            ReactDOM.render(<TeethWidget {...{
                 acts,
                 setActs,
                 of: teethWidget,
@@ -87,7 +83,16 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                 selectedAct,
                 setSelectedUuid,
                 appuuid
-            }}/>}
+            }}/>, reactDiv);
+            if (teethDiv)
+                teethDiv.appendChild(reactDiv);
+
+        }
+
+    }, 6000)
+    return (
+        <>
+            <div id={"teeth"}></div>
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -129,6 +134,7 @@ function Widget({...props}) {
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
     const [open, setOpen] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -270,6 +276,32 @@ function Widget({...props}) {
                         </Paper>
                     </motion.div>
                     <Box>
+                        {pageLoading &&
+                            Array.from({length: 3}).map((_, idx) => (
+                                <Box key={`loading-box-${idx}`} padding={"0 16px"}>
+                                    <Typography alignSelf="center" marginBottom={2} marginTop={2}>
+                                        <Skeleton width={130} variant="text"/>
+                                    </Typography>
+                                    <Card className="loading-card">
+                                        <Stack spacing={2}>
+                                            <List style={{marginTop: 25}}>
+                                                {Array.from({length: 4}).map((_, idx) => (
+                                                    <ListItem
+                                                        key={`skeleton-item-${idx}`}
+                                                        sx={{py: 0.5}}>
+                                                        <Skeleton width={"40%"} variant="text"/>
+                                                        <Skeleton
+                                                            sx={{ml: 1}}
+                                                            width={"50%"}
+                                                            variant="text"/>
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </Stack>
+                                    </Card>
+                                </Box>
+                            ))}
+
                         {models?.map(
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
@@ -289,31 +321,6 @@ function Widget({...props}) {
                                         modal={m.structure}></WidgetForm>
                                 )
                         )}
-                        {Array.from({length: 3}).map((_, idx) => (
-                                <Box key={`loading-box-${idx}`}>
-                                    <Typography alignSelf="center" marginBottom={2} marginTop={2}>
-                                        <Skeleton width={130} variant="text"/>
-                                    </Typography>
-                                    <Card className="loading-card">
-                                        <Stack spacing={2}>
-                                            <List style={{marginTop: 25}}>
-                                                {Array.from({length: 4}).map((_, idx) => (
-                                                    <ListItem
-                                                        key={`skeleton-item-${idx}`}
-                                                        sx={{py: 0.5}}>
-                                                        <Skeleton width={"40%"} variant="text"/>
-                                                        <Skeleton
-                                                            sx={{ml: 1}}
-                                                            width={"50%"}
-                                                            variant="text"
-                                                        />
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Stack>
-                                    </Card>
-                                </Box>
-                            ))}
                     </Box>
                 </CardContent>
             </ConsultationModalStyled>
