@@ -1,4 +1,11 @@
-import {logout, openMenu, ProfileMenuConfig, profileMenuSelector, ProfileSectionStyled} from "@features/menu/components/profilMenu";
+import {
+    logout,
+    openMenu,
+    ProfileMenuConfig,
+    profileMenuSelector,
+    toggleMobileBar,
+    ProfileSectionStyled
+} from "@features/menu";
 import {
     Box,
     ClickAwayListener,
@@ -22,11 +29,9 @@ import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
 import {Theme} from "@mui/material/styles";
-import {toggleMobileBar} from "src/features/menu/components/sideBarMenu";
 import {agendaSelector} from "@features/calendar";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
 import {unsubscribeTopic, useUrlSuffix} from "@app/hooks";

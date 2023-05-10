@@ -11,14 +11,11 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer, Avatar, useTheme
+    Popover, useMediaQuery, Button, Drawer, Avatar
 } from "@mui/material";
-// config
-import {siteHeader} from "src/features/menu/components/sideBarMenu";
 // components
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/menu/components/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/menu/components/sideBarMenu/actions";
+import {siteHeader, sideBarSelector, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
 import {
     NavbarStepperStyled,

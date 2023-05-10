@@ -5,7 +5,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import LockIcon from "@themes/overrides/icons/lockIcon";
 import {setLock} from "@features/appLock";
-import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {useAppDispatch} from "@app/redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
@@ -36,7 +36,7 @@ function AuthGuard({children}: LayoutProps) {
     }, [status, router]);
     // Make sure that you show a loading state for BOTH loading and unauthenticated.
     // This is because when status becomes `unathenticated` the component renders,
-    // returns children and then the useEffect redirect is fired afterwards,
+    // returns children and then the useEffect redirect is fired afterward,
     // hence the temporary flash of the child content.
     if (status === "loading" || status === "unauthenticated") {
         return <LoadingScreen/>

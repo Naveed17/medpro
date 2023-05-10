@@ -9,9 +9,7 @@ import {
     Hidden,
     Toolbar,
     useMediaQuery,
-    Badge,
-    Chip,
-    Typography,
+    Badge
 } from "@mui/material";
 import {Theme} from "@mui/material/styles";
 // utils
@@ -30,14 +28,15 @@ import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/menu/components/sideBarMenu/selectors";
-import {toggleMobileBar} from "@features/menu/components/sideBarMenu/actions";
 import React, {useEffect, useRef, useState} from "react";
 import {
+    sideBarSelector,
+    toggleMobileBar,
+    logout,
     ListItemTextStyled,
     MainMenuStyled,
     MobileDrawerStyled,
-} from "@features/menu/components/sideBarMenu";
+} from "@features/menu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
@@ -47,7 +46,6 @@ import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 import {unsubscribeTopic} from "@app/hooks";
 import axios from "axios";
-import {logout} from "@features/menu/components/profilMenu";
 import {Session} from "next-auth";
 
 function SideBarMenu({children}: LayoutProps) {

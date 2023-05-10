@@ -60,7 +60,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
-import {sideBarSelector} from "src/features/menu/components/sideBarMenu";
+import {sideBarSelector} from "@features/menu";
 import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useUrlSuffix} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 

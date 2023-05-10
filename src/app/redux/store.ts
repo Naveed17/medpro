@@ -1,7 +1,6 @@
 import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
 import {ConfigReducer} from "@features/base/reducer";
-import {SideBarReducer} from "@features/menu/components/sideBarMenu/reducer";
-import {ProfileMenuReducer} from "src/features/menu/components/profilMenu";
+import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
@@ -20,8 +19,8 @@ import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
 import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
-import {navBarReducer} from "@features/topNavBar/reducer";
-import {ProgressUIReducer} from "@features/progressUI/reducer";
+import {navBarReducer} from "@features/topNavBar";
+import {ProgressUIReducer} from "@features/progressUI";
 
 export const store = configureStore({
     reducer: {

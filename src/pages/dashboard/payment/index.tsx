@@ -38,18 +38,17 @@ import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
+    SWRNoValidateConfig
 } from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {toggleSideBar} from "src/features/menu/components/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+import {cashBoxSelector} from "@features/leftActionBar";
 import {DefaultCountry} from "@app/constants";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
