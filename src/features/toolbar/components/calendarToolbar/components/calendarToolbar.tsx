@@ -31,7 +31,10 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, useUrlSuffix} from "@app/hooks";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
 function CalendarToolbar({...props}) {
     const {
@@ -45,14 +48,17 @@ function CalendarToolbar({...props}) {
         OnConfirmEvent
     } = props;
     const theme = useTheme();
+    const {data: session} = useSession();
+    const router = useRouter();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useUrlSuffix();
     let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
     const isRTL = theme.direction === "rtl";
 
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
     const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
-
+    const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
         {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
@@ -60,9 +66,18 @@ function CalendarToolbar({...props}) {
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
-    const [pendingDialog, setPendingDialog] = useState(false);
+    const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
 
     const handleViewChange = (view: string) => {
+        const form = new FormData();
+        form.append("attribute", "agenda_default_view");
+        form.append("value", view);
+        triggerViewChange({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/users/edit/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
         dispatch(setView(view));
     }
 
@@ -82,11 +97,12 @@ function CalendarToolbar({...props}) {
                 OnMoveEvent(eventData);
                 break;
         }
-    };
+    }
+
     useEffect(() => {
         pendingEvents.current = [];
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
-    }, [pendingAppointments]);
+    }, [pendingAppointments])
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 

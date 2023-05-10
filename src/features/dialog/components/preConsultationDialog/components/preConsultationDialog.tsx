@@ -53,7 +53,7 @@ function PreConsultationDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
@@ -72,9 +72,9 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medicalEntityHasUser ? {
+    const {data: httpModelResponse} = useRequest(medical_professional ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 

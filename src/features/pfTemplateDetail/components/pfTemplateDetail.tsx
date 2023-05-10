@@ -19,12 +19,9 @@ import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useAppSelector} from "@app/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
 import {useUrlSuffix} from "@app/hooks";
 
 const FormBuilder: any = dynamic(
@@ -80,7 +77,6 @@ function PfTemplateDetail({...props}) {
     const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const colors = [
         "#FEBD15",
@@ -107,10 +103,7 @@ function PfTemplateDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
-    const {trigger} = useRequestMutation(null, "/settings/pfTemplateDetails");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
@@ -156,7 +149,7 @@ function PfTemplateDetail({...props}) {
             name: props.data ? (props.data.label as string) : "",
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             const struct: any[] = [];
             widget.map((w) => {
@@ -184,30 +177,17 @@ function PfTemplateDetail({...props}) {
             form.append("color", modelColor);
             form.append("medicalProfessionalUuid", medical_professional_uuid);
             form.append("structure", JSON.stringify(struct));
-
-            if (props.action === "edit" && !props.data.hasData) {
-                medicalEntityHasUser && trigger({
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals/${props.data.uuid}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            } else {
-                medicalEntityHasUser && trigger({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            }
+            const editAction = props.action === "edit" && !props.data.hasData;
+            triggerModalRequest({
+                method: editAction ? "PUT" : "POST",
+                url: `/api/medical-professional/${medical_professional_uuid}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => {
+                props.mutate();
+                props.closeDraw();
+                setLoading(false);
+            });
         },
     });
     const {

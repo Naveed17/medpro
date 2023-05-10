@@ -162,6 +162,7 @@ function ConsultationInProgress() {
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
@@ -197,9 +198,9 @@ function ConsultationInProgress() {
         },
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medical_entity && medicalEntityHasUser ? {
+    const {data: httpModelResponse} = useRequest(medical_professional ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/modals`,
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 

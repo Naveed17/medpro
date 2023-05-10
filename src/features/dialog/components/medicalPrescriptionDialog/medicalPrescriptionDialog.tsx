@@ -28,8 +28,6 @@ import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import * as Yup from "yup";
-import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
@@ -69,24 +67,9 @@ function MedicalPrescriptionDialog({...props}) {
     const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
 
-    const validationSchema = Yup.object().shape({
-        /*dosage: Yup.string().required(),
-        duration: Yup.string().required(),
-        durationType: Yup.string().required()*/
-    });
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const open = Boolean(anchorEl);
 
     const {trigger} = useRequestMutation(null, "/drugs");
-
-    const {data: httpDrugsResponse} = useRequest({
-        method: "GET",
-        url: `/api/drugs/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
@@ -104,9 +87,6 @@ function MedicalPrescriptionDialog({...props}) {
             url: `${urlMedicalEntitySuffix}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
         }).then((cnx) => {
             mutate().then(() => {
                 setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -127,9 +107,6 @@ function MedicalPrescriptionDialog({...props}) {
                 url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -147,9 +124,6 @@ function MedicalPrescriptionDialog({...props}) {
                 method: "DELETE",
                 url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -377,9 +351,6 @@ function MedicalPrescriptionDialog({...props}) {
                                                                                     method: "GET",
                                                                                     url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
                                                                                     headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }, {
-                                                                                    revalidate: true,
-                                                                                    populateCache: true
                                                                                 }).then((cnx) => {
                                                                                     if (cnx?.data as HttpResponse)
                                                                                         setDrugsList((cnx?.data as HttpResponse).data)
