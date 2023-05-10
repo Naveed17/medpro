@@ -72,9 +72,6 @@ function Consultation() {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
@@ -321,7 +318,7 @@ function Consultation() {
                                                     src="static/icons/Med-logo.png"
                                                     width={20}
                                                     height={20}
-                                                    loader={({src, width, quality}) => {
+                                                    loader={() => {
                                                         return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
                                                     }}
                                                 />
