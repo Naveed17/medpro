@@ -6,7 +6,6 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 // material components
 import {
     Box,
@@ -51,9 +50,9 @@ import {
     PatientDetail,
 } from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
+import {prepareSearchKeys, useIsMountedRef, useUrlSuffix} from "@app/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -166,6 +165,7 @@ function Patient() {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useUrlSuffix();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -267,14 +267,11 @@ function Patient() {
         },
     ]);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
 
     const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
@@ -324,7 +321,7 @@ function Patient() {
         params.append("duration", event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: params,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -366,7 +363,7 @@ function Patient() {
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });

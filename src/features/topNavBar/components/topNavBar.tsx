@@ -11,14 +11,11 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
+    Popover, useMediaQuery, Button, Drawer, Avatar
 } from "@mui/material";
-// config
-import {siteHeader} from "@features/sideBarMenu";
 // components
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
+import {siteHeader, sideBarSelector, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
 import {
     NavbarStepperStyled,
@@ -48,9 +45,11 @@ import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
+import {WarningTooltip} from "./warningTooltip";
+import {useUrlSuffix} from "@app/hooks";
 
 const ProfilMenuIcon = dynamic(
-    () => import("@features/profilMenu/components/profilMenu")
+    () => import("@features/menu/components/profilMenu/components/profilMenu")
 );
 
 let deferredPrompt: any;
@@ -64,7 +63,7 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const theme = useTheme();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -75,7 +74,6 @@ function TopNavBar({...props}) {
     const {progress} = useAppSelector(progressUISelector);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
@@ -115,10 +113,10 @@ function TopNavBar({...props}) {
         dispatch(toggleSideBar(true));
     }
 
-    const handleInstallClick = (e: any) => {
-        // Hide the app provided install promotion
+    const handleInstallClick = () => {
+        // Hide the app provided installation promotion
         setInstallable(false);
-        // Show the install prompt
+        // Show the installation prompt
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult: any) => {
@@ -137,14 +135,14 @@ function TopNavBar({...props}) {
         form.append('value', 'false');
         updateTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             // refresh on going api
             mutateOnGoing && mutateOnGoing();
             // refresh waiting room api
-            mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
+            mutate(`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`)
                 .then(() => setLoading(false));
         });
     }
@@ -153,13 +151,13 @@ function TopNavBar({...props}) {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
@@ -326,24 +324,15 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {!allowNotification && (isMobile ?
-                                <Tooltip
+                            {!allowNotification &&
+                                <WarningTooltip
                                     title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
                                     <Avatar
-                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        className={"Custom-MuiAvatar-root"}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
-                                </Tooltip>
-                                :
-                                <Button variant="contained"
-                                        onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3}}
-                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
-                                        color={"warning"}>
-                                    <Typography
-                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
-                                </Button>)}
+                                </WarningTooltip>}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}

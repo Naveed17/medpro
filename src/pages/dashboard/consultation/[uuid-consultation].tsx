@@ -48,6 +48,7 @@ import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
+import {useUrlSuffix} from "@app/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -56,6 +57,8 @@ function ConsultationInProgress() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useUrlSuffix();
+
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
@@ -159,6 +162,7 @@ function ConsultationInProgress() {
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
@@ -179,7 +183,7 @@ function ConsultationInProgress() {
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         });
@@ -187,31 +191,28 @@ function ConsultationInProgress() {
 
     const {data: httpMPResponse} = useRequest(medical_entity ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {
             ContentType: "multipart/form-data",
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medical_entity && medicalEntityHasUser ? {
+    const {data: httpModelResponse} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/${medicalEntityHasUser[0].uuid}/modals`,
+        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/users",
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/users`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {
             ContentType: "multipart/form-data",
             Authorization: `Bearer ${session?.accessToken}`,
@@ -220,13 +221,13 @@ function ConsultationInProgress() {
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`,},
     } : null);
 
     const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
         headers: {
             ContentType: "multipart/form-data",
             Authorization: `Bearer ${session?.accessToken}`,
@@ -314,6 +315,7 @@ function ConsultationInProgress() {
                                     ...act,
                                     fees: act.price,
                                     uuid: act.act_uuid,
+                                    qte: act.qte,
                                     act: {name: (act as any).name}
                                 });
                                 const actDetect = acts.findIndex((a: {
@@ -324,6 +326,7 @@ function ConsultationInProgress() {
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
+                                        qte: act.qte,
                                         act: {name: (act as any).name}
                                     });
                                 } else {
@@ -436,7 +439,7 @@ function ConsultationInProgress() {
 
             trigger({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -473,12 +476,10 @@ function ConsultationInProgress() {
     }, [event, isActive, uuind])
 
     useEffect(() => {
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((r: any) => {
             const res = r?.data.data;
             let dates: string[] = [];
@@ -486,7 +487,7 @@ function ConsultationInProgress() {
 
             Object.keys(res).map(key => {
                 keys.push(key);
-                Object.keys(res[key]).map(date => {
+                Object.keys(res[key].data).map(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);
                 })
             })
@@ -494,7 +495,7 @@ function ConsultationInProgress() {
             setDates(dates);
             setKeys(keys)
         });
-    }, [medical_entity, patient, router, session, trigger])
+    }, [medical_entity, patient, router, session, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
@@ -539,7 +540,7 @@ function ConsultationInProgress() {
             );
             trigger({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${secretary}/notification/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -737,7 +738,6 @@ function ConsultationInProgress() {
                 type: "write_certif",
                 mutate: mutateDoc,
                 mutateDetails: mutate
-
             });
             setOpenDialog(true);
         } else {
@@ -891,6 +891,9 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                                {/*
+                                <ToothsWidget {...{acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}/>
+*/}
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{models, changes, setChanges, isClose}}

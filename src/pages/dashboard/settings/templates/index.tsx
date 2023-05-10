@@ -97,11 +97,11 @@ function TemplatesConfig() {
                             </div>
                             {isHovering === res.uuid &&
                                 <Button variant={"contained"} onMouseOver={()=>{handleMouseOver(res.uuid)}} className={"edit-btn"} onClick={()=>{edit(res.uuid)}}>Modifier</Button>}
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={2}>
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
                                 <Typography className={"doc-title"}>{res.title}</Typography>
-                                {res.isDefault && <div className={"heading"}>
-                                    Par défault
-                                </div>}
+                                 <div className={"heading"}>
+                                     {res.header.data.size ==='portraitA4'?'A4':'A5'}
+                                </div>
                             </Stack>
                         </Box>
                     ))}

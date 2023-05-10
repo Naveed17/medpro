@@ -20,12 +20,14 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
 import {Session} from "next-auth";
+import {useUrlSuffix} from "@app/hooks";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, initialOpenData, switchPrescriptionModel} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const [treeData, setTreeData] = useState<any[]>([]);
 
@@ -39,11 +41,11 @@ function ModelPrescriptionList({...props}) {
         form.append("parent", dropTargetId);
         triggerPrescriptionEdit({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {
-            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`);
+            mutate(`${urlMedicalEntitySuffix}/prescriptions/modals/parents/${router.locale}`);
         });
         setTreeData(newTree);
     }

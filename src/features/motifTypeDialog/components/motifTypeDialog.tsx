@@ -28,6 +28,9 @@ import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@app/constants";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useUrlSuffix} from "@app/hooks";
 
 const icons = [
     "ic-consultation",
@@ -95,8 +98,10 @@ function EditMotifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {trigger} = useRequestMutation(null, "/settings/type");
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {t, ready} = useTranslation("settings");
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -143,15 +148,11 @@ function EditMotifDialog({...props}) {
             );
             form.append("price", values.isFree ? null : values.consultation_fees);
             if (props.data) {
-                trigger(
-                    {
+                medicalEntityHasUser && trigger({
                         method: "PUT",
-                        url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                         data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
+                        headers: {Authorization: `Bearer ${session?.accessToken}`}
                     }).then(() => {
                     enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
                     mutateEvent();
@@ -159,10 +160,10 @@ function EditMotifDialog({...props}) {
                     enqueueSnackbar(error, {variant: "error"});
                 });
             } else {
-                trigger(
+                medicalEntityHasUser && trigger(
                     {
                         method: "POST",
-                        url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
                         data: form,
                         headers: {Authorization: `Bearer ${session?.accessToken}`},
                     }).then(() => {

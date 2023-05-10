@@ -53,14 +53,15 @@ function Event({...props}) {
                         ...(appointment.isOnline && {width: "98%"})
                     }
                 }} color="primary" noWrap>
-                    <span>{event.event._def.title}</span>
+                    <>{event.event._def.title}</>
                     {view === "timeGridDay" && (
                         <>
                             {appointment.patient?.contact.length > 0 && <>
                                 <Icon path="ic-phone"/>
                                 {appointment.patient?.contact[0]?.code} {appointment.patient?.contact[0].value}
                             </>}
-                            {appointment.motif.length > 0 && <>{" Motif: "}{appointment.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>}
+                            {appointment.motif.length > 0 && <span
+                                style={{marginLeft: 4}}>{"Motif: "}{appointment.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
                         </>
                     )}
                 </Typography>

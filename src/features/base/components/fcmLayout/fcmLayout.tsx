@@ -35,6 +35,7 @@ import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
+import {useUrlSuffix} from "@app/hooks";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -48,6 +49,7 @@ function FcmLayout({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -74,13 +76,13 @@ function FcmLayout({...props}) {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
     const {data: httpUserResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/professional/user/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -88,7 +90,7 @@ function FcmLayout({...props}) {
 
     const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -244,7 +246,7 @@ function FcmLayout({...props}) {
         form.append('status', status);
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });

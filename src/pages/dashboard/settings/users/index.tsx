@@ -17,70 +17,71 @@ import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { LoadingScreen } from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
-import { AccessMenage } from "@features/drawer";
+import {AccessMenage} from "@features/drawer";
+import {useUrlSuffix} from "@app/hooks";
 
 const CardData = {
-  mainIcon: "ic-user",
-  title: "no-data.user.title",
-  description: "no-data.user.description",
-  buttonText: "no-data.user.button-text",
-  buttonIcon: "ic-agenda-+",
-  buttonVariant: "warning",
+    mainIcon: "ic-user",
+    title: "no-data.user.title",
+    description: "no-data.user.description",
+    buttonText: "no-data.user.button-text",
+    buttonIcon: "ic-agenda-+",
+    buttonVariant: "warning",
 };
 
 const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "name",
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "fonction",
-    numeric: false,
-    disablePadding: false,
-    label: "fonction",
-    align: "center",
-    sortable: true,
-  },
-  {
-    id: "status",
-    numeric: false,
-    disablePadding: false,
-    label: "request",
-    align: "center",
-    sortable: true,
-  },
-  {
-    id: "admin",
-    numeric: false,
-    disablePadding: false,
-    label: "accessSetting",
-    align: "center",
-    sortable: true,
-  },
-  {
-    id: "access",
-    numeric: true,
-    disablePadding: false,
-    label: "access",
-    align: "center",
-    sortable: true,
-  },
-  {
-    id: "action",
-    numeric: false,
-    disablePadding: false,
-    label: "action",
-    align: "center",
-    sortable: false,
-  },
+    {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "name",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "fonction",
+        numeric: false,
+        disablePadding: false,
+        label: "fonction",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "status",
+        numeric: false,
+        disablePadding: false,
+        label: "request",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "admin",
+        numeric: false,
+        disablePadding: false,
+        label: "accessSetting",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "access",
+        numeric: true,
+        disablePadding: false,
+        label: "access",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "action",
+        numeric: false,
+        disablePadding: false,
+        label: "action",
+        align: "center",
+        sortable: false,
+    },
 ];
 
 function Users() {
-  const router = useRouter();
+    const router = useRouter();
   const { data: session } = useSession();
   const [users,setUsers] = useState<UserModel[]>([]);
   const dispatch = useAppDispatch();
@@ -112,79 +113,79 @@ useEffect(() => {
     keyPrefix: "users.config",
   });
   if (!ready)
+        return (
+            <LoadingScreen
+                error
+                button={"loading-error-404-reset"}
+                text={"loading-error"}
+            />
+        );
+    
     return (
-      <LoadingScreen
-        error
-        button={"loading-error-404-reset"}
-        text={"loading-error"}
-      />
+        <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t("path")}</p>
+                </RootStyled>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                    <Button
+                        onClick={() => setOpen(true)}
+                        startIcon={<IconUrl path="ic-setting"/>}
+                        variant="contained">
+                        {t("access_management")}
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={() => {
+                            dispatch(resetUser());
+                            router.push(`/dashboard/settings/users/new`);
+                        }}
+                        color="success">
+                        {t("add")}
+                    </Button>
+                </Stack>
+            </SubHeader>
+            <Box className="container">
+                {users && users.length > 0 ? (
+                    <Otable
+                        headers={headCells}
+                        rows={users}
+                        from={"users"}
+                        {...{t, handleChange}}
+                        edit={onDelete}
+                    />
+                ) : (
+                    <NoDataCard t={t} ns={"settings"} data={CardData}/>
+                )}
+            </Box>
+            <Drawer
+                PaperProps={{
+                    sx: {
+                        maxWidth: 650,
+                        width: "100%",
+                    },
+                }}
+                anchor={"right"}
+                open={open}
+                dir={direction}
+                onClose={closeDraw}>
+                <AccessMenage t={t}/>
+            </Drawer>
+        </>
     );
-
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-        </RootStyled>
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Button
-            onClick={() => setOpen(true)}
-            startIcon={<IconUrl path="ic-setting" />}
-            variant="contained">
-            {t("access_management")}
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            onClick={() => {
-              dispatch(resetUser());
-              router.push(`/dashboard/settings/users/new`);
-            }}
-            color="success">
-            {t("add")}
-          </Button>
-        </Stack>
-      </SubHeader>
-      <Box className="container">
-        {users && users.length > 0 ? (
-          <Otable
-            headers={headCells}
-            rows={users}
-            from={"users"}
-            {...{ t, handleChange }}
-            edit={onDelete}
-          />
-        ) : (
-          <NoDataCard t={t} ns={"settings"} data={CardData} />
-        )}
-      </Box>
-      <Drawer
-        PaperProps={{
-          sx: {
-            maxWidth: 650,
-            width: "100%",
-          },
-        }}
-        anchor={"right"}
-        open={open}
-        dir={direction}
-        onClose={closeDraw}>
-        <AccessMenage t={t} />
-      </Drawer>
-    </>
-  );
 }
 
 export const getStaticProps: GetStaticProps = async (context) => ({
-  props: {
-    fallback: false,
-    ...(await serverSideTranslations(context.locale as string, [
-      "common",
-      "menu",
-      "patient",
-      "settings",
-    ])),
-  },
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, [
+            "common",
+            "menu",
+            "patient",
+            "settings",
+        ])),
+    },
 });
 
 export default Users;
@@ -192,5 +193,5 @@ export default Users;
 Users.auth = true;
 
 Users.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
+    return <DashLayout>{page}</DashLayout>;
 };

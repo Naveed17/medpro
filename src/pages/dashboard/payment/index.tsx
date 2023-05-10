@@ -38,28 +38,27 @@ import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
+    SWRNoValidateConfig
 } from "@app/swr/swrProvider";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+import {cashBoxSelector} from "@features/leftActionBar";
 import {DefaultCountry} from "@app/constants";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-    setCashBox,
     setInsurances,
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
+import {useUrlSuffix} from "@app/hooks";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -176,9 +175,8 @@ function Payment() {
     const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const urlMedicalEntitySuffix = useUrlSuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
@@ -188,7 +186,7 @@ function Payment() {
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {selectedBox, query, paymentTypes} = useAppSelector(cashBoxSelector);
+    const {selectedBox, paymentTypes} = useAppSelector(cashBoxSelector);
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -196,9 +194,8 @@ function Payment() {
         description: "no-data.description",
     };
 
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
@@ -222,21 +219,20 @@ function Payment() {
     });
     const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [collapseDate, setCollapseData] = useState<any>(null);
+    const [collapseDate] = useState<any>(null);
 
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
-    const [rows, setRows] = useState<any[]>([]);
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
-    const [cheques, setCheques] = useState<ChequeModel[]>([
+    const [cheques] = useState<ChequeModel[]>([
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
     ]);
     const [total, setTotal] = useState(0);
-    let [select, setSelect] = useState<any[]>([]);
+    let [select] = useState<any[]>([]);
     const [filter, setFilter] = useState(false);
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
+    const [toReceive] = useState(0);
     const [somme, setSomme] = useState(0);
     const [freeTrans, setFreeTrans] = useState(0);
     const [action, setAction] = useState("");
@@ -262,41 +258,27 @@ function Payment() {
 
     const newVersion = process.env.NODE_ENV === "development";
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(
-        null,
-        "/agenda/update/appointment/status"
-    );
-
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
-    const {data: httpInsuranceResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/public/insurances/${router.locale}`,
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/insurances/${router.locale}`,
+    }, SWRNoValidateConfig);
 
-    const {data: httpMedicalProfessionalResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpMedicalProfessionalResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    }, SWRNoValidateConfig);
 
-    const insurances = (httpInsuranceResponse as HttpResponse)
-        ?.data as InsuranceModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
-    const handleCollapse = (props: any) => {
+    const handleCollapse = () => {
         //setCollapseData(props);
         setCollapse(true);
     };
@@ -315,9 +297,7 @@ function Payment() {
         setCollected(res + freeTrans);
     };
 
-    const handleSubmit = (data: any) => {
-        console.log(action);
-        console.log(selectedPayment.payments);
+    const handleSubmit = () => {
         const trans_data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
             console.log(sp);
@@ -340,13 +320,11 @@ function Payment() {
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        }).then((r: any) => {
-            // console.log(r.data.data);
         });
         setOpenPaymentDialog(false);
     };
@@ -394,13 +372,13 @@ function Payment() {
         const form = new FormData();
         form.append("status", status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         });
@@ -444,7 +422,7 @@ function Payment() {
             }
             trigger({
                 method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
@@ -452,7 +430,10 @@ function Payment() {
                 let amout = 0;
                 const r: any[] = [];
                 const appointments = result?.data as HttpResponse;
-                const filteredStatus = appointments?.data.filter((app: { status: number; dayDate: string }) => app.status === 5);
+                const filteredStatus = appointments?.data.filter((app: {
+                    status: number;
+                    dayDate: string
+                }) => app.status === 5);
                 const filteredData = filterQuery.day ? filteredStatus?.filter(
                     (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
 
@@ -499,7 +480,6 @@ function Payment() {
                                             ],*/
                     });
                 });
-                setRows([...r]);
                 setFiltredRows(
                     filterQuery?.payment && filterQuery?.payment?.insurance
                         ? [...r].filter((row) => {
@@ -574,7 +554,7 @@ function Payment() {
 
                   trigger({
                       method: "GET",
-                      url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
+                      url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
                       headers: {
                           Authorization: `Bearer ${session?.accessToken}`,
                       },
@@ -674,7 +654,7 @@ function Payment() {
                                         sx: {minWidth: 40},
                                     })}
                                     onClick={() => {
-                                        handleCollapse(null);
+                                        handleCollapse();
                                     }}>
                                     <KeyboardArrowDownIcon/> {!isMobile && t("Encaisser")}
                                 </Button>
