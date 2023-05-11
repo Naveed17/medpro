@@ -10,7 +10,7 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+import {cashBoxSelector} from "@features/leftActionBar";
 import {useMedicalEntitySuffix} from "@app/hooks";
 import {useSession} from "next-auth/react";
 
