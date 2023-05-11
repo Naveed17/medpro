@@ -31,7 +31,7 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent, useUrlSuffix} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@app/hooks";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";

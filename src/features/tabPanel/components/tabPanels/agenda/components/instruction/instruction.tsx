@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function Instruction({...props}) {
     const {onNext, onBack, OnAction, modal} = props;
@@ -41,7 +41,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {
         motif,

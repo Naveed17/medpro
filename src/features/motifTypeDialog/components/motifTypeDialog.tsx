@@ -30,7 +30,7 @@ import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@app/constants";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const icons = [
     "ic-consultation",
@@ -98,7 +98,7 @@ function EditMotifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {trigger} = useRequestMutation(null, "/settings/type");
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -150,7 +150,7 @@ function EditMotifDialog({...props}) {
             if (props.data) {
                 medicalEntityHasUser && trigger({
                         method: "PUT",
-                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                         data: form,
                         headers: {Authorization: `Bearer ${session?.accessToken}`}
                     }).then(() => {
@@ -163,7 +163,7 @@ function EditMotifDialog({...props}) {
                 medicalEntityHasUser && trigger(
                     {
                         method: "POST",
-                        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
                         data: form,
                         headers: {Authorization: `Bearer ${session?.accessToken}`},
                     }).then(() => {

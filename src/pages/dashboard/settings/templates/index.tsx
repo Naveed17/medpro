@@ -34,7 +34,7 @@ function TemplatesConfig() {
 
     const {data: httpDocumentHeader} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
+        url: `${useMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 

@@ -19,7 +19,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {SettingAgendaMobileCard, NoDataCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function Agenda() {
     const CardData = {
@@ -32,7 +32,7 @@ function Agenda() {
     };
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "agenda.config"});
     const {direction} = useAppSelector(configSelector);

@@ -12,7 +12,7 @@ import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 type ChipColors = OverridableStringUnion<
     | "default"
@@ -30,7 +30,7 @@ function ImportDataMobileCard({...props}) {
     const theme = useTheme();
     const [loadingAction, setLoadingAction] = useState<boolean>(false);
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const {data: session} = useSession();
 
     const [expanded, setExpanded] = useState(false);

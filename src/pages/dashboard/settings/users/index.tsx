@@ -15,7 +15,7 @@ import {useRequest} from "@app/axios";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 import {useSession} from "next-auth/react";
 
 const CardData = {
@@ -82,7 +82,7 @@ function Users() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
 

@@ -34,7 +34,7 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
-import {unsubscribeTopic, useUrlSuffix} from "@app/hooks";
+import {unsubscribeTopic, useMedicalEntitySuffix} from "@app/hooks";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -42,7 +42,7 @@ function ProfilMenu() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation('menu');
     const {opened} = useAppSelector(profileMenuSelector);

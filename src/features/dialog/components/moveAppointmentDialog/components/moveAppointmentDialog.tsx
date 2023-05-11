@@ -9,7 +9,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useIsMountedRef, useUrlSuffix} from "@app/hooks";
+import {useIsMountedRef, useMedicalEntitySuffix} from "@app/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
@@ -23,7 +23,7 @@ function MoveAppointmentDialog() {
     const isMounted = useIsMountedRef();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation(['agenda', 'common']);
 
