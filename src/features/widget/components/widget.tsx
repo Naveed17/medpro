@@ -24,7 +24,7 @@ import {motion} from "framer-motion";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TeethWidget from "@features/widget/components/teethWidget";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import {useTranslation} from "next-i18next";
 
 const Form: any = dynamic(
@@ -146,42 +146,35 @@ function Widget({...props}) {
         uuid: "",
     });
 
-    useEffect(()=>{
-        setTimeout(()=>{
-            const adultTeeth = document.getElementById('adultTeeth');
-            const childTeeth = document.getElementById('childTeeth');
-            console.log("adultTeeth",adultTeeth);
-            console.log("childTeeth",childTeeth);
-
-            const reactDiv = document.createElement('div');
-            ReactDOM.render(<TeethWidget {...{
-                acts,
-                setActs,
-                t,
-                of: childTeeth ? 'child':'adult',
-                setSelectedAct,
-                selectedAct,
-                setSelectedUuid,
-                appuuid
-            }}/>, reactDiv);
-           if (childTeeth) childTeeth.appendChild(reactDiv);
-           if (adultTeeth) adultTeeth.appendChild(reactDiv);
-
-
-            /*if (adultTeeth)
-                setTeethWidget("adult")
-            else if (childTeeth)
-                setTeethWidget("child")
-            else setTeethWidget("")*/
-
-        },3000)
-        // checkTeethWidget()
-    },[acts, appuuid, ready, selectedAct, setActs, setSelectedAct, setSelectedUuid, t])
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
+            console.log(modal)
         }
     }, [modal]);
+    useEffect(()=>{
+        console.log(ready);
+        if (ready){
+            setTimeout(()=>{
+                const adultTeeth = document.getElementById('adultTeeth');
+                const childTeeth = document.getElementById('childTeeth');
+                console.log("adultTeeth",adultTeeth)
+                if (adultTeeth){
+                    const root = ReactDOM.createRoot(adultTeeth);
+                    root.render(<TeethWidget {...{
+                        acts,
+                        setActs,
+                        t,
+                        of: 'adult',
+                        setSelectedAct,
+                        selectedAct,
+                        setSelectedUuid,
+                        appuuid
+                    }}/>)
+                }
+            },2000)
+        }
+    },[ready])
     const handleClickAway = () => {
         setOpen(!open);
     };
@@ -331,16 +324,6 @@ function Widget({...props}) {
                                     </Card>
                                 </Box>
                             ))}
-
-                        {teethWidget !== "" && <TeethWidget {...{
-                            acts,
-                            setActs,
-                            of: teethWidget,
-                            setSelectedAct,
-                            selectedAct,
-                            setSelectedUuid,
-                            appuuid
-                        }}/>}
                         {models?.map(
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (

@@ -6,7 +6,6 @@ import {
     CssBaseline,
     Dialog,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     FormControlLabel,
     MenuItem,
@@ -77,12 +76,9 @@ export default function TeethWidget({...props}) {
 
     useEffect(() => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
-        console.log(data);
         if (data) {
             const res = JSON.parse(data)[`${of}Teeth`]
-            console.log(res);
-            if (res){
-                console.log(res);
+            if (res) {
                 setTraitements([...res.traitements]);
                 setAbsent(res.absent);
             }
@@ -185,9 +181,8 @@ export default function TeethWidget({...props}) {
         setOpen("");
     };
     const editStorage = (trait: TraitementTeeth[]) => {
-        const data =  localStorage.getItem(`Modeldata${appuuid}`)
-        const res =  data? JSON.parse(data) : {};
-        console.log(res)
+        const data = localStorage.getItem(`Modeldata${appuuid}`)
+        const res = data ? JSON.parse(data) : {};
         res[`${of}Teeth`] = {
             absent,
             traitements: [...trait]
@@ -400,7 +395,7 @@ export default function TeethWidget({...props}) {
                     }
                     }
                     size="small"
-                    style={{width: "fit-content",fontSize:10}}
+                    style={{width: "fit-content", fontSize: 10}}
                     startIcon={<Add/>}>
                     {t("add")}
                 </Button>
@@ -417,33 +412,31 @@ export default function TeethWidget({...props}) {
                     {t('teeth')} {open}
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        <Stack direction={"row"}>
-                            <FormControlLabel
-                                control={<Checkbox checked={absent.find(a => a === open) !== undefined}
-                                                   onChange={(ev) => {
-                                                       if (ev.target.checked)
-                                                           absent.push(open)
-                                                       else absent.splice(absent.findIndex(a => a === open), 1);
-                                                       setAbsent([...absent]);
-                                                       editStorage(traitements)
-                                                       setOpen("")
-                                                   }}/>} label={t('absente')}/>
-                            {traitements.map((traitement, index) => (
-                                <FormControlLabel key={traitement.id} control={<Checkbox
-                                    checked={traitement.teeth.find(t => t === open) !== undefined} onChange={() => {
-                                    const teeth: string[] = traitement.teeth;
-                                    const st = traitement.teeth.findIndex(t => t === open)
-                                    if (st >= 0) teeth.splice(st, 1)
-                                    else teeth.push(open)
-                                    traitements[index].teeth = teeth;
-                                    setTraitements([...traitements])
-                                    editStorage(traitements)
-                                    setOpen("")
-                                }}/>} label={traitement.name}/>
-                            ))}
-                        </Stack>
-                    </DialogContentText>
+                    <Stack direction={"row"}>
+                        <FormControlLabel
+                            control={<Checkbox checked={absent.find(a => a === open) !== undefined}
+                                               onChange={(ev) => {
+                                                   if (ev.target.checked)
+                                                       absent.push(open)
+                                                   else absent.splice(absent.findIndex(a => a === open), 1);
+                                                   setAbsent([...absent]);
+                                                   editStorage(traitements)
+                                                   setOpen("")
+                                               }}/>} label={t('absente')}/>
+                        {traitements.map((traitement, index) => (
+                            <FormControlLabel key={traitement.id} control={<Checkbox
+                                checked={traitement.teeth.find(t => t === open) !== undefined} onChange={() => {
+                                const teeth: string[] = traitement.teeth;
+                                const st = traitement.teeth.findIndex(t => t === open)
+                                if (st >= 0) teeth.splice(st, 1)
+                                else teeth.push(open)
+                                traitements[index].teeth = teeth;
+                                setTraitements([...traitements])
+                                editStorage(traitements)
+                                setOpen("")
+                            }}/>} label={traitement.name}/>
+                        ))}
+                    </Stack>
                 </DialogContent>
             </Dialog>
         </GlobleStyles>
