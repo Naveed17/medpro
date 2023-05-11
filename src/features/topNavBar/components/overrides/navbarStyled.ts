@@ -14,7 +14,10 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
         marginRight: 8,
         backgroundColor: theme.palette.warning.main,
         width: 38,
-        height: 36
+        height: 36,
+        "&.active": {
+            marginRight: 26
+        }
     },
     "& .btn": {
         marginRight: pxToRem(24),

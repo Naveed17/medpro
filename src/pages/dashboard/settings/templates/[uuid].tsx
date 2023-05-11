@@ -59,6 +59,7 @@ import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@app/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function DocsConfig() {
 
@@ -67,12 +68,11 @@ function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
-    const {data: user} = session as Session;
-
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
-
     const {enqueueSnackbar} = useSnackbar();
-    const {trigger} = useRequestMutation(null, "/MP/header");
+
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {direction} = useAppSelector(configSelector);
 
     const componentRef = useRef<HTMLDivElement>(null);
@@ -105,14 +105,16 @@ function DocsConfig() {
     })
     const [queryState, setQueryState] = useState<any>({type: []});
     const uuid = router.query.uuid;
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
+    const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const selectedAll = queryState.type.length === types?.length;
 
+    const {trigger} = useRequestMutation(null, "/MP/header");
+
     const {data: httpDocumentHeader, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -148,6 +150,120 @@ function DocsConfig() {
         }
     })
     let {values, getFieldProps, setFieldValue} = formik;
+
+    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                data.background.content = (ev.target?.result as string)
+                data.background.show = true;
+                setData({...data})
+            }
+            reader.readAsDataURL(acceptedFiles[0]);
+            setFile(acceptedFiles[0]);
+            setFiles([...files, ...acceptedFiles]);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [files]
+    );
+
+    const handleInsuranceChange = (gTypes: any[]) => {
+        setQueryState({
+            type: gTypes
+        });
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+    })
+
+    const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
+        data.date.textAlign = newAlignment;
+        setData({...data});
+    };
+
+    const printNow = () => {
+        handlePrint()
+    }
+
+    const handleRemove = (file: any) => {
+        setFiles(files.filter((_file: any) => _file !== file));
+        data.background.content = ''
+        setFile(null)
+        setData({...data})
+    };
+
+    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+        data[from].x = location.x
+        data[from].y = location.y
+        setData({...data})
+    }
+
+    const save = () => {
+        let typeUuids = ""
+        queryState.type.map((type: { uuid: string; }) => {
+            typeUuids += type.uuid + ','
+        });
+        typeUuids = typeUuids.slice(0, -1);
+
+        const form = new FormData();
+        data.background.content = "";
+        form.append('document_header', JSON.stringify({header: values, data}));
+        form.append('title', title);
+        form.append('isDefault', JSON.stringify(isDefault));
+        if (file)
+            form.append('file', file);
+        if (typeUuids.length > 0)
+            form.append('types', typeUuids);
+
+        const url = uuid === 'new' ? `${urlMedicalProfessionalSuffix}/header/${router.locale}` : `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
+        trigger({
+            method: uuid === 'new' ? "POST" : "PUT",
+            url,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(() => {
+            mutate().then(() => {
+                router.back();
+            });
+        })
+        enqueueSnackbar(t("updated"), {variant: 'success'})
+    }
+
+    const openDialog = () => {
+        setOpen(true);
+        setSelected({
+            title: t('askRemove'),
+            subtitle: t('subtitleRemove'),
+            icon: "/static/icons/setting/ic-edit-file.svg",
+            name1: title,
+            name2: "",
+            // data: props,
+            request: {
+                method: "DELETE",
+                url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }
+        })
+    }
+
+    const remove = () => {
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(() => {
+                router.back();
+                enqueueSnackbar(t("removed"), {variant: 'error'})
+            });
+        });
+    }
+
+    const handleSelectAll = (insurances: any): void => {
+        setQueryState(insurances);
+        handleInsuranceChange(insurances.type);
+    }
+
 
     useEffect(() => {
         if (uuid === 'new') {
@@ -207,110 +323,6 @@ function DocsConfig() {
         if (httpTypeResponse)
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
-
-    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                data.background.content = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})
-            }
-            reader.readAsDataURL(acceptedFiles[0]);
-            setFile(acceptedFiles[0]);
-            setFiles([...files, ...acceptedFiles]);
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [files]
-    );
-    const handleInsuranceChange = (gTypes: any[]) => {
-        setQueryState({
-            type: gTypes
-        });
-    }
-
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-    })
-    const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
-        data.date.textAlign = newAlignment;
-        setData({...data});
-    };
-    const printNow = () => {
-        handlePrint()
-    }
-    const handleRemove = (file: any) => {
-        setFiles(files.filter((_file: any) => _file !== file));
-        data.background.content = ''
-        setFile(null)
-        setData({...data})
-    };
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
-        data[from].x = location.x
-        data[from].y = location.y
-        setData({...data})
-    }
-    const save = () => {
-        let typeUuids = ""
-        queryState.type.map((type: { uuid: string; }) => {
-            typeUuids += type.uuid + ','
-        });
-        typeUuids = typeUuids.slice(0, -1);
-
-        const form = new FormData();
-        data.background.content = "";
-        form.append('document_header', JSON.stringify({header: values, data}));
-        form.append('title', title);
-        form.append('isDefault', JSON.stringify(isDefault));
-        if (file)
-            form.append('file', file);
-        if (typeUuids.length > 0)
-            form.append('types', typeUuids);
-
-        const url = uuid === 'new' ? `/api/medical-professional/${medical_professional.uuid}/header/${router.locale}` : `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`
-        trigger({
-            method: uuid === 'new' ? "POST" : "PUT",
-            url,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then(() => {
-            mutate().then(() => {
-                router.back();
-            });
-        })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-    }
-    const openDialog = () => {
-        setOpen(true);
-        setSelected({
-            title: t('askRemove'),
-            subtitle: t('subtitleRemove'),
-            icon: "/static/icons/setting/ic-edit-file.svg",
-            name1: title,
-            name2: "",
-            // data: props,
-            request: {
-                method: "DELETE",
-                url: `/api/medical-professional/${medical_professional.uuid}/header/${uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }
-        })
-    }
-    const remove = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(() => {
-                router.back();
-                enqueueSnackbar(t("removed"), {variant: 'error'})
-            });
-        });
-    }
-    const handleSelectAll = (insurances: any): void => {
-        setQueryState(insurances);
-        handleInsuranceChange(insurances.type);
-    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 

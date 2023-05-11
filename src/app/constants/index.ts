@@ -66,4 +66,6 @@ export const SubMotifCard = [
     },
 ];
 
-export const UrlMedicalEntitySuffix = '/api/medical-entity';
+export const UrlMedicalEntitySuffix: string = '/api/medical-entity';
+
+export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';

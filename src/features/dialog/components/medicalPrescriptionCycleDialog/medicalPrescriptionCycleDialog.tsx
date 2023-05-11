@@ -56,8 +56,7 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {Session} from "next-auth";
-import {a11yProps, useUrlSuffix} from "@app/hooks";
+import {a11yProps, useMedicalProfessionalSuffix} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {useTranslation} from "next-i18next";
@@ -70,7 +69,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
@@ -268,16 +267,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/prescriptions/modals/parents/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -356,7 +352,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         form.append('drugs', JSON.stringify(drugs));
         triggerPrescriptionModel({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/prescriptions/modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateParentModel().then(() => {
@@ -372,7 +368,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         form.append("name", parentModelName);
         triggerPrescriptionParent({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/prescriptions/modals/parents/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {

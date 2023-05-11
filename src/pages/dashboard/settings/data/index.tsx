@@ -35,7 +35,7 @@ import {resetDuplicated} from "@features/duplicateDetected";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 import {useSession} from "next-auth/react";
 
 const PatientDetail = dynamic(
@@ -93,7 +93,7 @@ function Data() {
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);

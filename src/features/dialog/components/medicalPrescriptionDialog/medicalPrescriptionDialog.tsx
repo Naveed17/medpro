@@ -40,7 +40,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
@@ -49,7 +49,7 @@ function MedicalPrescriptionDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {appointement} = useAppSelector(consultationSelector);
@@ -73,7 +73,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/prescriptions/modals/parents/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -84,7 +84,7 @@ function MedicalPrescriptionDialog({...props}) {
         form.append('drugs', JSON.stringify(drugs));
         trigger({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/prescriptions/modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((cnx) => {
@@ -104,7 +104,7 @@ function MedicalPrescriptionDialog({...props}) {
 
             trigger({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((cnx) => {
@@ -122,7 +122,7 @@ function MedicalPrescriptionDialog({...props}) {
         if (selectedModel) {
             trigger({
                 method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((cnx) => {
                 mutate().then(() => {

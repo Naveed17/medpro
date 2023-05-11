@@ -36,7 +36,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {getBirthdayFormat, useUrlSuffix} from "@app/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@app/hooks";
 import UrlIcon from "@themes/urlIcon";
 import {dashLayoutSelector} from "@features/base";
 
@@ -64,7 +64,7 @@ function PatientDetailsCard({...props}) {
             console.log("ok", values);
         },
     });
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
@@ -111,7 +111,7 @@ function PatientDetailsCard({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },

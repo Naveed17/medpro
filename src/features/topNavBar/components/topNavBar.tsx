@@ -46,7 +46,7 @@ import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -63,7 +63,7 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -328,7 +328,8 @@ function TopNavBar({...props}) {
                                 <WarningTooltip
                                     title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
                                     <Avatar
-                                        className={"Custom-MuiAvatar-root"}
+                                        sx={{mr: 3}}
+                                        className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>

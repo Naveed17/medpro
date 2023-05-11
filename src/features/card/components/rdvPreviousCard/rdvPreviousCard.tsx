@@ -31,7 +31,7 @@ import {Session} from "next-auth";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useSWRConfig} from "swr";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;
@@ -40,7 +40,7 @@ function RdvCard({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {mutate} = useSWRConfig();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {direction} = useAppSelector(configSelector);
@@ -101,7 +101,7 @@ function RdvCard({...props}) {
             setLoadingReq(false);
             localStorage.removeItem(`Modeldata${inner?.uuid}`);
             setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/consultation-sheet/${router.locale}`);
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/consultation-sheet/${router.locale}`);
         });
     }
 

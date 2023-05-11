@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Document as DocumentPDF, Page, pdfjs} from "react-pdf";
 import jsPDF from "jspdf";
@@ -18,22 +17,24 @@ import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib'
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 
 function ConsultationType() {
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const [file, setFile] = useState('');
     const [pos, setPos] = useState(0);
     const [docFile, setDocFile] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const {trigger} = useRequestMutation(null, "/MP/header");
-    const {enqueueSnackbar} = useSnackbar();
 
+    const {trigger} = useRequestMutation(null, "/MP/header");
 
     const formik = useFormik({
         children: undefined,
@@ -66,7 +67,7 @@ function ConsultationType() {
 
     const {data: httpData} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
@@ -258,10 +259,6 @@ function ConsultationType() {
         setNumPages(numPages);
     }
 
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "documents.config",
-    });
-
     const eventHandler = (e: { type: any; }, data: any) => {
         console.log(data.x, data.y);
     }
@@ -354,7 +351,7 @@ function ConsultationType() {
                                         form.append('document_header', JSON.stringify(values));
                                         trigger({
                                             method: "PATCH",
-                                            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+                                            url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
                                             data: form,
                                             headers: {
                                                 Authorization: `Bearer ${session?.accessToken}`
