@@ -14,13 +14,13 @@ import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -29,7 +29,7 @@ function PatientAppointmentCard({...props}) {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 

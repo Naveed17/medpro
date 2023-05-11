@@ -35,7 +35,7 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
 import {toggleSideBar} from "@features/menu";
-import {useIsMountedRef, useUrlSuffix} from "@app/hooks";
+import {useIsMountedRef, useMedicalEntitySuffix} from "@app/hooks";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
@@ -139,7 +139,7 @@ function WaitingRoom() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {mutate} = useSWRConfig();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
@@ -415,7 +415,7 @@ function WaitingRoom() {
             //setLoadingReq(false);
             localStorage.removeItem(`Modeldata${row?.uuid}`);
             setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 

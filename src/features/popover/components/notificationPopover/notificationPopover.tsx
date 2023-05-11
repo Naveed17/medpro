@@ -25,7 +25,7 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -52,7 +52,7 @@ function NotificationPopover({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);

@@ -13,13 +13,13 @@ import {DefaultCountry} from "@app/constants";
 import {LinearProgress, Stack} from "@mui/material";
 import React from "react";
 import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function PaymentFeesPopover({...props}) {
     const {uuid} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {config: agenda} = useAppSelector(agendaSelector);
 

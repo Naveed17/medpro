@@ -61,7 +61,7 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useUrlSuffix} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -87,7 +87,7 @@ function Agenda() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
     const {direction} = useAppSelector(configSelector);

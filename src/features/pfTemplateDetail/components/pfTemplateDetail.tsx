@@ -22,7 +22,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -74,7 +74,8 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
@@ -180,7 +181,7 @@ function PfTemplateDetail({...props}) {
             const editAction = props.action === "edit" && !props.data.hasData;
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
-                url: `/api/medical-professional/${medical_professional_uuid}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => {

@@ -1,24 +1,22 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { DashLayout } from "@features/base";
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { configSelector } from "@features/base";
-import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/toolbar";
-import { Box, Button, Stack, Drawer,useMediaQuery,Theme } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { Otable, resetUser } from "@features/table";
-import { useRouter } from "next/router";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { tableActionSelector } from "@features/table";
-import { NoDataCard } from "@features/card";
-import { useRequest } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { LoadingScreen } from "@features/loadingScreen";
+import React, {ReactElement, useState} from "react";
+import {DashLayout} from "@features/base";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {configSelector} from "@features/base";
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
+import {Box, Button, Stack, Drawer} from "@mui/material";
+import {useTranslation} from "next-i18next";
+import {Otable, resetUser} from "@features/table";
+import {useRouter} from "next/router";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {NoDataCard} from "@features/card";
+import {useRequest} from "@app/axios";
+import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
+import {useSession} from "next-auth/react";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -82,37 +80,38 @@ const headCells = [
 
 function Users() {
     const router = useRouter();
-  const { data: session } = useSession();
-  const [users,setUsers] = useState<UserModel[]>([]);
-  const dispatch = useAppDispatch();
-  const isMobile = useMediaQuery((theme:Theme)=>theme.breakpoints.down('md'));
-  const { data: user } = session as Session;
-  const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-  const { data: httpUsersResponse}= useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}${!isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`: `?sort=true`}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
+    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
-useEffect(() => {
-        if (httpUsersResponse)
-            setUsers((httpUsersResponse as HttpResponse)?.data as UserModel[])
-    }, [httpUsersResponse])
-  const { direction } = useAppSelector(configSelector);
-  const [open, setOpen] = useState(false);
-  const handleChange = (props: any) => {};
-  const closeDraw = () => {
-    setOpen(false);
-  };
-  const onDelete = (props: any) => {
-    console.log(props);
-  };
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "users.config",
-  });
-  if (!ready)
+    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
+
+    const {data: httpUsersResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+
+    const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
+
+    const [edit, setEdit] = useState(false);
+    const [selected, setSelected] = useState<any>("");
+    const {direction} = useAppSelector(configSelector);
+    const [open, setOpen] = useState(false);
+    const handleChange = (props: any) => {
+    };
+    const closeDraw = () => {
+        setOpen(false);
+    }
+
+    const onDelete = (props: any) => {
+        console.log(props);
+    }
+
+
+    if (!ready)
         return (
             <LoadingScreen
                 error
@@ -120,7 +119,7 @@ useEffect(() => {
                 text={"loading-error"}
             />
         );
-    
+
     return (
         <>
             <SubHeader>

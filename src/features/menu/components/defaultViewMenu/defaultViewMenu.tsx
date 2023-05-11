@@ -14,7 +14,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {useAppDispatch} from "@app/redux/hooks";
 import {setView} from "@features/calendar";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
@@ -31,7 +31,7 @@ function DefaultViewMenu() {
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

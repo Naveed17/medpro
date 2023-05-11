@@ -50,7 +50,7 @@ import {DefaultCountry} from "@app/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -122,7 +122,7 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation("settings");
     const {config: agendaConfig} = useAppSelector(agendaSelector);

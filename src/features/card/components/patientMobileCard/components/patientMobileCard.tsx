@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import {Popover} from "@features/popover";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const menuList = [
     {
@@ -76,7 +76,7 @@ const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -85,7 +85,7 @@ const CardSection = ({...props}) => {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.hasPhoto ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${data?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         }

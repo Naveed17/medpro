@@ -14,7 +14,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@app/axios";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function HistoryPanel({...props}) {
     const {
@@ -29,7 +29,7 @@ function HistoryPanel({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);

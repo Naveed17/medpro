@@ -42,7 +42,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -55,7 +55,7 @@ function TimeSchedule({...props}) {
     const moreDateRef = useRef(false);
     const changeDateRef = useRef(false);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
@@ -98,7 +98,7 @@ function TimeSchedule({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -232,7 +232,7 @@ function TimeSchedule({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {

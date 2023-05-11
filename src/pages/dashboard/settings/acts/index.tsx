@@ -16,12 +16,12 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {getDifference, useUrlSuffix} from "@app/hooks";
+import {getDifference, useMedicalEntitySuffix} from "@app/hooks";
 
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
 

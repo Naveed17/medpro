@@ -24,7 +24,7 @@ import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const PaperStyled = styled(Form)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
@@ -80,7 +80,7 @@ function EditMotifDialog({...props}) {
     const {data: user} = session as Session;
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -154,7 +154,7 @@ function EditMotifDialog({...props}) {
             if (props.data) {
                 medicalEntityHasUser && trigger({
                     method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.data.uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.data.uuid}/${router.locale}`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
@@ -164,7 +164,7 @@ function EditMotifDialog({...props}) {
             } else {
                 medicalEntityHasUser && trigger({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {

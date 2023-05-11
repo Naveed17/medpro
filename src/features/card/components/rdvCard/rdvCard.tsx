@@ -31,7 +31,7 @@ import {configSelector} from "@features/base";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;
@@ -39,7 +39,7 @@ function RdvCard({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {direction} = useAppSelector(configSelector);

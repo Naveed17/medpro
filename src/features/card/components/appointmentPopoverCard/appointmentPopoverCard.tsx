@@ -18,14 +18,14 @@ import {DefaultCountry} from "@app/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
 
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -35,7 +35,7 @@ function AppointmentPopoverCard({...props}) {
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.patient?.hasPhoto ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },

@@ -18,7 +18,7 @@ import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function CIPPatientHistoryCard({...props}) {
     const {
@@ -35,7 +35,7 @@ function CIPPatientHistoryCard({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {exam, listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -55,7 +55,7 @@ function CIPPatientHistoryCard({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -127,7 +127,7 @@ function CIPPatientHistoryCard({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {

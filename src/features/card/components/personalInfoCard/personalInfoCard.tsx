@@ -38,7 +38,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -58,7 +58,7 @@ function PersonalInfo({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
@@ -141,7 +141,7 @@ function PersonalInfo({...props}) {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
