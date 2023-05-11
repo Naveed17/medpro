@@ -37,7 +37,7 @@ jobs:
       environments: ${{ steps.export.outputs.environments }}
     steps:
       - name: github-slug-action
-        uses: rlespinasse/github-slug-action@v4
+        uses: rlespinasse/github-slug-action@v4.4.1
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
       - uses: kanga333/variable-mapper@master
