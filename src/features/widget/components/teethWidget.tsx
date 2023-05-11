@@ -1,9 +1,9 @@
 import {
     Box,
     Button,
-    Card,
     Checkbox,
     Chip,
+    CssBaseline,
     Dialog,
     DialogContent,
     DialogContentText,
@@ -24,9 +24,9 @@ import {GithubPicker} from "react-color";
 import Add from "@mui/icons-material/Add";
 import React, {useEffect, useState} from "react";
 import Draggable from "react-draggable";
-import {useTranslation} from "next-i18next";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
+import {GlobleStyles} from "@themes/globalStyle";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -41,7 +41,7 @@ const MenuProps = {
 
 function getStyles(name: any, personName: readonly string[], theme: Theme) {
     return {
-        fontSize:10,
+        fontSize: 10,
         fontWeight:
             personName.indexOf(name) === -1
                 ? theme.typography.fontWeightRegular
@@ -61,8 +61,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function TeethWidget({...props}) {
-    let {acts,setActs,of,setSelectedAct,selectedAct,appuuid} = props
-    const {t} = useTranslation("consultation", {keyPrefix: "widget"});
+    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid} = props
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -74,17 +73,21 @@ export default function TeethWidget({...props}) {
     }]);
     const [open, setOpen] = useState("");
     const [absent, setAbsent] = useState<string[]>([]);
-    const teeth = of === 'adult' ?adultTeeth: childTeeth;
+    const teeth = of === 'adult' ? adultTeeth : childTeeth;
 
-    useEffect(()=>{
-        const data = localStorage.getItem(`Teeth${of}` + appuuid);
-        if (data){
-            const res = JSON.parse(data)
-            console.log(res.traitements);
-            setTraitements([...res.traitements]);
-            setAbsent(res.absent);
+    useEffect(() => {
+        const data = localStorage.getItem(`Modeldata${appuuid}`)
+        console.log(data);
+        if (data) {
+            const res = JSON.parse(data)[`${of}Teeth`]
+            console.log(res);
+            if (res){
+                console.log(res);
+                setTraitements([...res.traitements]);
+                setAbsent(res.absent);
+            }
         }
-    },[appuuid])
+    }, [appuuid, of])
     const between = (val: number, min: number, max: number) => {
         return val >= min && val <= max;
     }
@@ -150,13 +153,13 @@ export default function TeethWidget({...props}) {
         const {target: {value}} = event;
         traitements[traitement].teeth = typeof value === 'string' ? value.split(',') : value;
         setTraitements([...traitements])
-        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+        editStorage(traitements)
     };
     const handleChangeAct = (event: SelectChangeEvent<string[]>, traitement: number) => {
         const {target: {value}} = event;
         traitements[traitement].acts = typeof value === 'string' ? value.split(',') : value;
 
-        let teethActs:any[] = [];
+        let teethActs: any[] = [];
         Array.isArray(value) && value.map(act => {
             const index = selectedAct.findIndex((sa: { uuid: string; }) => sa.uuid === act)
             if (index === -1) {
@@ -165,25 +168,36 @@ export default function TeethWidget({...props}) {
                     act: {name: acts[indexAct].act.name},
                     act_uuid: acts[indexAct].uuid,
                     fees: acts[indexAct].fees,
-                    name:  acts[indexAct].act.name,
+                    name: acts[indexAct].act.name,
                     price: acts[indexAct].fees,
                     qte: 1,
                     uuid: acts[indexAct].uuid
                 }]
                 acts[indexAct].qte = 1
                 setActs([...acts]);
-                setSelectedAct([...selectedAct,...teethActs])
+                setSelectedAct([...selectedAct, ...teethActs])
             }
         })
         setTraitements([...traitements])
-        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+        editStorage(traitements)
     };
     const handleClose = () => {
         setOpen("");
     };
+    const editStorage = (trait: TraitementTeeth[]) => {
+        const data =  localStorage.getItem(`Modeldata${appuuid}`)
+        const res =  data? JSON.parse(data) : {};
+        console.log(res)
+        res[`${of}Teeth`] = {
+            absent,
+            traitements: [...trait]
+        }
+        localStorage.setItem("Modeldata" + appuuid, JSON.stringify(res));
+    }
 
     return (
-        <Card style={{margin: 10, marginBottom: 0, display: "flex"}}>
+        <GlobleStyles>
+            <CssBaseline/>
             <div style={{position: "relative"}}>
                 {traitements.map(traitement =>
                     traitement.teeth.map(st => (
@@ -203,7 +217,7 @@ export default function TeethWidget({...props}) {
                     ))
                 )}
 
-               {/* <div onClick={(ev) => {
+                {/* <div onClick={(ev) => {
 
                 }}  style={{
                     position: "absolute",
@@ -235,7 +249,7 @@ export default function TeethWidget({...props}) {
                         }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/static/img/${of === 'adult' ?'adultTeeth':'childTeeth'}.svg`}
+                <img src={`/static/img/${of === 'adult' ? 'adultTeeth' : 'childTeeth'}.svg`}
                      id={"tooth"}
                      onClick={GetCoordinates}
                      alt={"patient teeth"}/>
@@ -255,7 +269,7 @@ export default function TeethWidget({...props}) {
                 </Stack>
             </div>
 
-            <Stack spacing={1} p={1} width={"50%"}>
+            <Stack spacing={1} p={1} width={"100%"}>
                 <Typography fontSize={12}>{t('traitements')}</Typography>
                 {
                     traitements.map((traitement, index) => (
@@ -265,16 +279,17 @@ export default function TeethWidget({...props}) {
                                    justifyContent={"space-between"}
                                    spacing={1}
                                    alignItems={"center"}>
-                                <input style={{width: 90, border: 0,fontSize:10,color:"#737780"}} value={traitement.name}
+                                <input style={{width: 90, border: 0, fontSize: 10, color: "#737780"}}
+                                       value={traitement.name}
                                        onChange={(ev) => {
                                            traitements[index].name = ev.target.value;
                                            setTraitements([...traitements])
-                                           localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+                                           editStorage(traitements)
                                        }}></input>
                                 <div onClick={() => {
                                     traitements[index].showPicker = !traitements[index].showPicker;
                                     setTraitements([...traitements]);
-                                    localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+                                    editStorage(traitements)
                                 }}
                                      style={{
                                          background: traitement.color,
@@ -289,17 +304,18 @@ export default function TeethWidget({...props}) {
                                                                         traitements[index].color = ev.hex;
                                                                         traitements[index].showPicker = false;
                                                                         setTraitements([...traitements])
-                                                                        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+                                                                        editStorage(traitements)
                                                                     }}/>}
 
 
                             <Typography fontSize={9}>{t('selectTeeth')}</Typography>
                             <Select
                                 labelId="demo-multiple-chip-label"
-                                id="demo-multiple-chip"
+                                id="teeth-multiple-chip"
                                 sx={{
                                     "& .MuiOutlinedInput-input": {
-                                        padding: "0 5px 5px"
+                                        padding: "5px",
+                                        border: "1px solid rgb(224, 224, 224)"
                                     }
                                 }}
                                 multiple
@@ -307,7 +323,7 @@ export default function TeethWidget({...props}) {
                                 onChange={(res) => {
                                     handleChange(res, index)
                                 }}
-                                input={<OutlinedInput placeholder={'11'} id="select-multiple-chip"
+                                input={<OutlinedInput placeholder={'11'}
                                                       label="Chip"/>}
                                 renderValue={(selected) => (
                                     <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
@@ -331,44 +347,46 @@ export default function TeethWidget({...props}) {
 
                             <Typography fontSize={9}>{t('selectActs')}</Typography>
 
-                           <Select
+                            <Select
                                 labelId="demo-multiple-chip-label"
                                 id="demo-multiple-chip"
                                 multiple
                                 sx={{
                                     "& .MuiOutlinedInput-input": {
-                                        padding: "0 5px 5px"
+                                        padding: "5px",
+                                        border: "1px solid rgb(224, 224, 224)"
                                     }
                                 }}
                                 value={traitement.acts}
                                 onChange={(res) => {
                                     handleChangeAct(res, index)
                                 }}
-                                input={<OutlinedInput placeholder={'11'} id="select-multiple-chip" label="Chip"/>}
+                                input={<OutlinedInput placeholder={'11'} label="Chip"/>}
                                 renderValue={(selected) => (
                                     <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                                         {
 
                                             selected.map((value) => {
-                                                const role = acts?.find((a:any) => a.uuid === value);
-                                                return (<Chip key={value} label={role.act.name} style={{fontSize: 9}}/>)
+                                                const role = acts?.find((a: any) => a.uuid === value);
+                                                return (
+                                                    <Chip key={value} label={role.act.name} style={{fontSize: 9}}/>)
                                             })
                                         }
                                     </Box>
                                 )}
                                 MenuProps={MenuProps}>
-                               {acts && acts.map((act:any) => <MenuItem key={act.uuid}
-                                                          style={getStyles(act.uuid, traitement.acts, theme)}
-                                                          value={act.uuid}>{act.act.name}</MenuItem>)}
+                                {acts && acts.map((act: any) => <MenuItem key={act.uuid}
+                                                                          style={getStyles(act.uuid, traitement.acts, theme)}
+                                                                          value={act.uuid}>{act.act.name}</MenuItem>)}
 
-                           </Select>
+                            </Select>
 
                         </Stack>))
                 }
 
                 <Button
                     onClick={() => {
-                        const max = traitements.reduce((acc, shot) =>  acc > shot.id ? acc : shot.id, 0);
+                        const max = traitements.reduce((acc, shot) => acc > shot.id ? acc : shot.id, 0);
                         traitements = [...traitements, {
                             id: max + 1,
                             name: `${t('traitement')} ${max + 1}`,
@@ -378,11 +396,11 @@ export default function TeethWidget({...props}) {
                             acts: []
                         }]
                         setTraitements([...traitements])
-                        localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+                        editStorage(traitements)
                     }
                     }
                     size="small"
-                    style={{width: "fit-content"}}
+                    style={{width: "fit-content",fontSize:10}}
                     startIcon={<Add/>}>
                     {t("add")}
                 </Button>
@@ -394,31 +412,33 @@ export default function TeethWidget({...props}) {
                 PaperComponent={PaperComponent}
                 aria-labelledby="draggable-dialog-title"
             >
-                <DialogTitle style={{cursor: 'move', color: theme.palette.primary.main}} id="draggable-dialog-title">
+                <DialogTitle style={{cursor: 'move', color: theme.palette.primary.main}}
+                             id="draggable-dialog-title">
                     {t('teeth')} {open}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <Stack direction={"row"}>
-                            <FormControlLabel control={<Checkbox checked={absent.find(a => a === open) !== undefined}
-                                                                 onChange={(ev) => {
-                                                                     if (ev.target.checked)
-                                                                         absent.push(open)
-                                                                     else absent.splice(absent.findIndex(a => a === open), 1);
-                                                                     setAbsent([...absent]);
-                                                                     localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
-                                                                     setOpen("")
-                                                                 }}/>} label={t('absente')}/>
+                            <FormControlLabel
+                                control={<Checkbox checked={absent.find(a => a === open) !== undefined}
+                                                   onChange={(ev) => {
+                                                       if (ev.target.checked)
+                                                           absent.push(open)
+                                                       else absent.splice(absent.findIndex(a => a === open), 1);
+                                                       setAbsent([...absent]);
+                                                       editStorage(traitements)
+                                                       setOpen("")
+                                                   }}/>} label={t('absente')}/>
                             {traitements.map((traitement, index) => (
                                 <FormControlLabel key={traitement.id} control={<Checkbox
                                     checked={traitement.teeth.find(t => t === open) !== undefined} onChange={() => {
-                                    const teeth:string[] = traitement.teeth;
+                                    const teeth: string[] = traitement.teeth;
                                     const st = traitement.teeth.findIndex(t => t === open)
                                     if (st >= 0) teeth.splice(st, 1)
                                     else teeth.push(open)
                                     traitements[index].teeth = teeth;
                                     setTraitements([...traitements])
-                                    localStorage.setItem(`Teeth${of}` + appuuid,JSON.stringify({absent,traitements:[...traitements]}))
+                                    editStorage(traitements)
                                     setOpen("")
                                 }}/>} label={traitement.name}/>
                             ))}
@@ -426,6 +446,6 @@ export default function TeethWidget({...props}) {
                     </DialogContentText>
                 </DialogContent>
             </Dialog>
-        </Card>
+        </GlobleStyles>
     )
 }

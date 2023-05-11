@@ -23,6 +23,7 @@ import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useUrlSuffix} from "@app/hooks";
+import ReactDOM from "react-dom/client";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -133,6 +134,25 @@ function PfTemplateDetail({...props}) {
                     wdg.push({...compnent});
                 });
                 setWidget([...wdg]);
+                setTimeout(() => {
+                    const adultTeeth = document.getElementById('adultTeeth');
+                    const childTeeth = document.getElementById('childTeeth');
+                    if (adultTeeth) {
+                        const root = ReactDOM.createRoot(adultTeeth);
+                        root.render(
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"}/>
+                        );
+
+                    }
+                    if (childTeeth) {
+                        const root = ReactDOM.createRoot(childTeeth);
+                        root.render(
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={'/static/img/childTeeth.svg'} alt={"child teeth"}/>
+                        );
+                    }
+                }, 2000)
             }
         }
     }, [data, httpProfessionalsResponse, props.data]);

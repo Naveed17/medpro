@@ -24,7 +24,8 @@ import {motion} from "framer-motion";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TeethWidget from "@features/widget/components/teethWidget";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
+import {useTranslation} from "next-i18next";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -41,8 +42,6 @@ const variants = {
 };
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
-
-
     let cmp: any[] = [];
     const {
         modal,
@@ -50,13 +49,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         data,
         changes,
         setChanges,
-        acts,
-        setActs,
-        setSelectedAct,
-        selectedAct,
-        setSelectedUuid,
     } = props;
-    let teethWidget = "";
 
     if (modal) {
         cmp = [...modal];
@@ -71,28 +64,31 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
        })
        console.log(cmp)*/
 
-    setTimeout(() => {
-        if (document.getElementById('adultTeeth')) {
-            const teethDiv = document.getElementById('teeth');
-            const reactDiv = document.createElement('div');
-            ReactDOM.render(<TeethWidget {...{
-                acts,
-                setActs,
-                of: teethWidget,
-                setSelectedAct,
-                selectedAct,
-                setSelectedUuid,
-                appuuid
-            }}/>, reactDiv);
-            if (teethDiv)
-                teethDiv.appendChild(reactDiv);
+    /*
+        setTimeout(() => {
+            if (document.getElementById('adultTeeth')) {
+                const teethDiv = document.getElementById('teeth');
+                const reactDiv = document.createElement('div');
+                ReactDOM.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    of: teethWidget,
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>, reactDiv);
+                if (teethDiv)
+                    teethDiv.appendChild(reactDiv);
 
-        }
+            }
 
-    }, 6000)
+        }, 1000)
+    */
+
     return (
         <>
-            <div id={"teeth"}></div>
+
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -133,8 +129,12 @@ function Widget({...props}) {
         handleClosePanel,
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
+
+    const {t,ready} = useTranslation("consultation", {keyPrefix: "widget"});
+
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
+    const [teethWidget, setTeethWidget] = useState("");
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -146,16 +146,45 @@ function Widget({...props}) {
         uuid: "",
     });
 
+    useEffect(()=>{
+        setTimeout(()=>{
+            const adultTeeth = document.getElementById('adultTeeth');
+            const childTeeth = document.getElementById('childTeeth');
+            console.log("adultTeeth",adultTeeth);
+            console.log("childTeeth",childTeeth);
+
+            const reactDiv = document.createElement('div');
+            ReactDOM.render(<TeethWidget {...{
+                acts,
+                setActs,
+                t,
+                of: childTeeth ? 'child':'adult',
+                setSelectedAct,
+                selectedAct,
+                setSelectedUuid,
+                appuuid
+            }}/>, reactDiv);
+           if (childTeeth) childTeeth.appendChild(reactDiv);
+           if (adultTeeth) adultTeeth.appendChild(reactDiv);
+
+
+            /*if (adultTeeth)
+                setTeethWidget("adult")
+            else if (childTeeth)
+                setTeethWidget("child")
+            else setTeethWidget("")*/
+
+        },3000)
+        // checkTeethWidget()
+    },[acts, appuuid, ready, selectedAct, setActs, setSelectedAct, setSelectedUuid, t])
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
         }
     }, [modal]);
-
     const handleClickAway = () => {
         setOpen(!open);
     };
-
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop;
         setModal(modal);
@@ -167,6 +196,7 @@ function Widget({...props}) {
                 default_modal: prop,
             })
         );
+        //checkTeethWidget();
         setOpen(false);
     };
 
@@ -302,6 +332,15 @@ function Widget({...props}) {
                                 </Box>
                             ))}
 
+                        {teethWidget !== "" && <TeethWidget {...{
+                            acts,
+                            setActs,
+                            of: teethWidget,
+                            setSelectedAct,
+                            selectedAct,
+                            setSelectedUuid,
+                            appuuid
+                        }}/>}
                         {models?.map(
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
@@ -315,7 +354,8 @@ function Widget({...props}) {
                                             setActs,
                                             setSelectedAct,
                                             selectedAct,
-                                            setSelectedUuid
+                                            setSelectedUuid,
+                                            teethWidget
                                         }}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
