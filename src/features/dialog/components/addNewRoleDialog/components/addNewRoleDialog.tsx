@@ -48,7 +48,6 @@ function AddNewRoleDialog({ ...props }) {
     },
   });
   useEffect(() => {
-        
         if (httpPermissionsResponse){
            const response = (httpPermissionsResponse as HttpResponse)?.data
            const permissions = response.map((item: any) => {
@@ -63,10 +62,32 @@ function AddNewRoleDialog({ ...props }) {
               })
             };
           });
-          setPermissions(permissions);
+          const updatePermissions =  handleUpdatedPermissions(permissions);
+          setPermissions(updatePermissions);
         }
       
     }, [httpPermissionsResponse]);
+
+    const handleUpdatedPermissions = (permissions: any) => {
+      if (selected) {
+        const permissionsArray = [...permissions]
+        selected.permissions.forEach((permission: any) => {
+         permissionsArray.forEach((item: any) => {
+           if (item.uuid === permission.parent) {
+             item.value = true;
+             item.children.forEach((child: any) => {
+               if (child.uuid === permission.uuid) {
+                 child.value = true;
+               }
+             })
+           }
+         })
+       });
+       return permissionsArray
+      }else{
+        return permissions
+      }
+    };
 const RoleSchema = Yup.object().shape({
         role_name: Yup.string().required(),
     });
@@ -375,8 +396,10 @@ const RoleSchema = Yup.object().shape({
                           }
                           label={t("permissions." + item.slug,{ns:'common'})}
                         />
+                      
                         <IconButton
                           sx={{
+                            display: item.children.length > 0 ? "block" : "none",
                             ".react-svg": {
                               transform: item.value ? "scale(-1)" : "none",
                             },

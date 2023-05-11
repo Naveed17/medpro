@@ -33,11 +33,12 @@ import {useRequestMutation,useRequest} from "@app/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DatePicker } from "@features/datepicker";
-import dayjs from 'dayjs';
+import { LoadingButton } from "@mui/lab";
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
+    const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
     const[profiles,setProfiles] = useState<any[]>([]);
     const { data: session } = useSession();
@@ -109,6 +110,7 @@ const { data: httpProfilesResponse, } = useRequest({
         },
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
+            setLoading(true);
             const form = new FormData();
             form.append('username', values.name);
             form.append('email', values.email);
@@ -131,8 +133,12 @@ const { data: httpProfilesResponse, } = useRequest({
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
+            setLoading(false)
             dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
+        }).catch((error) => {
+            setLoading(false);
+            console.log(error.response);
         })
            
         },
@@ -635,9 +641,9 @@ const { data: httpProfilesResponse, } = useRequest({
                             <Button onClick={() => router.back()}>
                                 {t("motif.dialog.cancel")}
                             </Button>
-                            <Button type="submit" variant="contained" color="primary">
+                            <LoadingButton loading={loading} type="submit" variant="contained" color="primary">
                                 {t("motif.dialog.save")}
-                            </Button>
+                            </LoadingButton>
                         </Stack>
                     </FormStyled>
                 </FormikProvider>
