@@ -20,7 +20,7 @@ import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
 import {useAppSelector} from "@app/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function Antecedent({...props}) {
 
@@ -38,7 +38,7 @@ function Antecedent({...props}) {
         index,
         router
     } = props
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -128,7 +128,7 @@ function Antecedent({...props}) {
                                             name2: "",
                                             request: {
                                                 method: "DELETE",
-                                                url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
+                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
                                                 headers: {
                                                     ContentType: "multipart/form-data",
                                                     Authorization: `Bearer ${session?.accessToken}`,

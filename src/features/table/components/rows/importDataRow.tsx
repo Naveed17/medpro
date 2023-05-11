@@ -33,7 +33,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -46,7 +46,7 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']

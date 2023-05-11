@@ -29,12 +29,14 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
 import CloseIcon from "@mui/icons-material/Close";
 import {useRouter} from "next/router";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery("(max-width:669px)");
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -77,7 +79,7 @@ function PatientFileTemplates() {
 
     const {data: modalsHttpResponse, mutate} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}${
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -106,7 +108,7 @@ function PatientFileTemplates() {
         form.append("enabled", props.isEnabled.toString());
         trigger({
             method: "PATCH",
-            url: `/api/medical-professional/${medical_professional?.uuid}/modals/${props.uuid}/activity`,
+            url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });

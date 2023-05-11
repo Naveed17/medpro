@@ -11,14 +11,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 import {useSession} from "next-auth/react";
 
 function BoxsesFilter({...props}) {
     const {cashboxes, setCashboxes} = props;
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const router = useRouter();
 

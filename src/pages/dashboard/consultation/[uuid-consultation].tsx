@@ -48,7 +48,7 @@ import {DefaultCountry} from "@app/constants";
 import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -57,7 +57,8 @@ function ConsultationInProgress() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     useLeavePageConfirm(() => {
         setLoading(true);
@@ -200,7 +201,7 @@ function ConsultationInProgress() {
 
     const {data: httpModelResponse} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/modals/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -221,7 +222,7 @@ function ConsultationInProgress() {
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`,},
     } : null);
 
@@ -478,7 +479,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         medicalEntityHasUser && trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((r: any) => {
             const res = r?.data.data;

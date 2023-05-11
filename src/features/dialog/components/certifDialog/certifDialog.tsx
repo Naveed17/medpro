@@ -43,7 +43,7 @@ import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -51,7 +51,7 @@ const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
 
 function CertifDialog({...props}) {
     const {data} = props
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
     const {data: session} = useSession();
     const router = useRouter();
     const {
@@ -98,7 +98,7 @@ function CertifDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/certificate-modals/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -117,7 +117,7 @@ function CertifDialog({...props}) {
         form.append('title', title);
         trigger({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/certificate-modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
@@ -348,7 +348,7 @@ function CertifDialog({...props}) {
                                                         name2: t('consultationIP.model'),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/certificate-modals/${item.uuid}`,
+                                                            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
                                                             headers: {
                                                                 ContentType: 'application/x-www-form-urlencoded',
                                                                 Authorization: `Bearer ${session?.accessToken}`

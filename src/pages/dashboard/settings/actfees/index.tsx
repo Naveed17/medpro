@@ -42,7 +42,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -87,7 +87,7 @@ function ActFees() {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
 

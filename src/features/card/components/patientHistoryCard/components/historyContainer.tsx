@@ -21,7 +21,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function HistoryContainer({...props}) {
     const {
@@ -44,7 +44,7 @@ function HistoryContainer({...props}) {
         medical_entity,
     } = props;
     const router = useRouter();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')

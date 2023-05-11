@@ -8,11 +8,11 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const [images] = useState<any>(data.state);
     const [files, setFiles] = useState<any[]>([]);

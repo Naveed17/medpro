@@ -43,7 +43,7 @@ import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {DefaultCountry} from "@app/constants";
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const RootStyled = styled(Box)(({theme}: { theme: Theme }) => ({
     ".tab-item": {
@@ -84,7 +84,7 @@ function ImportData() {
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {

@@ -36,7 +36,7 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useUrlSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function ConsultationType() {
     const theme: Theme = useTheme();
@@ -45,7 +45,7 @@ function ConsultationType() {
     const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useUrlSuffix();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);
@@ -107,7 +107,7 @@ function ConsultationType() {
 
     const {data, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -119,7 +119,7 @@ function ConsultationType() {
         setLoading(true)
         medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
