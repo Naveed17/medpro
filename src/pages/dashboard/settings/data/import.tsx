@@ -19,7 +19,6 @@ import {
     Stack,
     Typography,
     useTheme,
-    useMediaQuery,
     Theme,
     styled,
 } from "@mui/material";
@@ -30,8 +29,7 @@ import {SettingsTabs} from "@features/tabPanel";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
-import {read, utils} from "xlsx";
-import {useSnackbar} from "notistack";
+import readXlsxFile from "read-excel-file";
 import {useAppSelector} from "@app/redux/hooks";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
@@ -78,11 +76,7 @@ const FileUploadProgress = dynamic(
 
 function ImportData() {
     const router = useRouter();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
     const {data: session} = useSession();
-    const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const formik = useFormik({
@@ -182,17 +176,9 @@ function ImportData() {
         } else {
             // XLSX file
             const f = acceptedFiles[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = e?.target?.result;
-                let readedData = read(data, {type: "binary"});
-                const wsname = readedData.SheetNames[0];
-                const ws = readedData.Sheets[wsname];
-                /* Convert array to json*/
-                const dataParse = utils.sheet_to_json(ws, {header: 1});
-                setFileLength(dataParse.length);
-            };
-            reader.readAsBinaryString(f);
+            readXlsxFile(f).then(rows => {
+                setFileLength(rows.length);
+            }).catch(error => console.log(error));
         }
         setFiles([...files, ...acceptedFiles]);
     };
