@@ -10,7 +10,6 @@ import {RootStyled} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
