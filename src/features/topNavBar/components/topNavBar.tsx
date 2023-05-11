@@ -328,7 +328,8 @@ function TopNavBar({...props}) {
                                 <WarningTooltip
                                     title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
                                     <Avatar
-                                        className={"Custom-MuiAvatar-root"}
+                                        sx={{mr: 3}}
+                                        className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
