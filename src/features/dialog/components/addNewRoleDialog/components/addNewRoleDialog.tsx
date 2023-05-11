@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from "react";
 import { Form, FormikProvider, useFormik } from "formik";
+import * as Yup from "yup";
 import RootStyled from "./overrides/rootStyle";
 import {
   Box,
@@ -66,7 +67,9 @@ function AddNewRoleDialog({ ...props }) {
         }
       
     }, [httpPermissionsResponse]);
-
+const RoleSchema = Yup.object().shape({
+        role_name: Yup.string().required(),
+    });
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -122,9 +125,10 @@ function AddNewRoleDialog({ ...props }) {
       }
      
     },
+    validationSchema: RoleSchema,
   });
 
-  const { getFieldProps, values, setFieldValue } = formik;
+  const { getFieldProps, values, setFieldValue,touched,errors } = formik;
 
   function checkAllValuesTrue(obj: any) {
     if (obj.hasOwnProperty("value") && obj.value === false) {
@@ -320,6 +324,7 @@ function AddNewRoleDialog({ ...props }) {
               <TextField
                 {...getFieldProps("role_name")}
                 placeholder={t("users.dialog.role_name")}
+                error={Boolean(touched.role_name && errors.role_name)}
               />
                <Typography gutterBottom textTransform="uppercase">
                 {t("users.dialog.description")}
