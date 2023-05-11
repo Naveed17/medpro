@@ -92,3 +92,9 @@ jobs:
         SKAFFOLD_CACHE_ARTIFACTS=false
         WORKSPACE=${{ matrix.envs.name }}
 
+  sonar:
+    if: ${{ github.ref == 'refs/heads/develop' }}
+    uses: SmartMedSA/github-workflows/.github/workflows/sonar.yml@develop
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
