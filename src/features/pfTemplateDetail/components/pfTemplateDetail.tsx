@@ -24,6 +24,7 @@ import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
 import ReactDOM from "react-dom/client";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -96,43 +97,29 @@ function PfTemplateDetail({...props}) {
     const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
     const [open, setOpen] = useState<string[]>([]);
     const [components, setComponents] = useState<any[]>([]);
-    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
     const initalData = Array.from(new Array(4));
-
-    const {data} = useRequest({
-        method: "GET",
-        url: "/api/private/json-widgets/specialities/fr",
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
 
     const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
 
-    const {data: httpProfessionalsResponse} = useRequest({
+    const {data: jsonWidgetsResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+        url: "/api/private/json-widgets/specialities/fr",
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    }, SWRNoValidateConfig);
 
     useEffect(() => {
-        if (data) {
-            setSections((data as HttpResponse).data);
-        }
-        if (httpProfessionalsResponse !== undefined) {
-            setMedicalProfessionalUuid(
-                (httpProfessionalsResponse as HttpResponse).data[0].medical_professional
-                    .uuid
-            );
-        }
+        if (jsonWidgetsResponse) {
+            const widgets = (jsonWidgetsResponse as HttpResponse).data;
+            setSections(widgets);
 
-        if (props.data) {
-            setComponents(props.data.structure);
-            if (data) {
+            if (props.data) {
+                setComponents(props.data.structure);
                 let wdg: any[] = [];
                 props.data.structure.map((comp: any) => {
-                    const compnent = (data as HttpResponse).data.find(
+                    const component = widgets.find(
                         (elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key
                     );
-                    wdg.push({...compnent});
+                    wdg.push({...component});
                 });
                 setWidget([...wdg]);
                 setTimeout(() => {
@@ -144,7 +131,6 @@ function PfTemplateDetail({...props}) {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"}/>
                         );
-
                     }
                     if (childTeeth) {
                         const root = ReactDOM.createRoot(childTeeth);
@@ -156,7 +142,9 @@ function PfTemplateDetail({...props}) {
                 }, 2000)
             }
         }
-    }, [data, httpProfessionalsResponse, props.data]);
+
+    }, [jsonWidgetsResponse, props.data]);
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("ntc"))
@@ -196,7 +184,6 @@ function PfTemplateDetail({...props}) {
             const form = new FormData();
             form.append("label", values.name);
             form.append("color", modelColor);
-            form.append("medicalProfessionalUuid", medical_professional_uuid);
             form.append("structure", JSON.stringify(struct));
             const editAction = props.action === "edit" && !props.data.hasData;
             triggerModalRequest({
@@ -211,6 +198,7 @@ function PfTemplateDetail({...props}) {
             });
         },
     });
+
     const {
         values,
         errors,
@@ -284,6 +272,8 @@ function PfTemplateDetail({...props}) {
     };
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+
+    console.log("props", props);
 
     return (
         <Box style={{background: "black"}}>
@@ -446,17 +436,13 @@ function PfTemplateDetail({...props}) {
                                                                     (jw: JsonWidgetModel) => (
                                                                         <ItemCheckboxPF
                                                                             key={jw.uuid}
-                                                                            checked={
-                                                                                widget
-                                                                                    .find(
-                                                                                        (i: { uuid: string }) =>
-                                                                                            i.uuid == section.uuid
-                                                                                    )
-                                                                                    ?.jsonWidgets.find(
-                                                                                    (j: { uuid: string }) =>
-                                                                                        j.uuid == jw.uuid
-                                                                                ) !== undefined
-                                                                            }
+                                                                            checked={widget.find((i: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                i.uuid == section.uuid)?.jsonWidgets.find((j: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                j.uuid == jw.uuid) !== undefined}
                                                                             onChange={(v: any) =>
                                                                                 handleWidgetCheck(v, section, jw)
                                                                             }

@@ -28,9 +28,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
+import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
+import {useSnackbar} from "notistack";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
@@ -38,6 +42,7 @@ function PatientFileTemplates() {
     const router = useRouter();
     const isMobile = useMediaQuery("(max-width:669px)");
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -74,6 +79,8 @@ function PatientFileTemplates() {
     ];
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
@@ -86,7 +93,7 @@ function PatientFileTemplates() {
                 : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
 
@@ -116,7 +123,8 @@ function PatientFileTemplates() {
             let promise = new Promise(function (resolve, reject) {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
-                    resolve(window.addEventListener("scroll", handleScroll));
+                    window.addEventListener("scroll", handleScroll);
+                    resolve(true);
                 }, 2000);
             });
             promise.then(() => {
@@ -139,186 +147,177 @@ function PatientFileTemplates() {
         });
     }
 
-  const handleEdit = (props: ModalModel, event: string, value: string) => {
-    switch (event) {
-      case "see":
-        setOpen(true);
-        setAction(event);
-        setData(props);
-        break;
-      case "edit":
-        setOpen(true);
-        setAction(event);
-        setData(props);
-        break;
-      case "delete":
-        setData(props);
-        setOpenDialog(true);
-        break;
-      default:
-        break;
-    }
-  };
+    const handleEdit = (props: ModalModel, event: string, value: string) => {
+        switch (event) {
+            case "see":
+                setOpen(true);
+                setAction(event);
+                setData(props);
+                break;
+            case "edit":
+                setOpen(true);
+                setAction(event);
+                setData(props);
+                break;
+            case "delete":
+                setData(props);
+                setOpenDialog(true);
+                break;
+            default:
+                break;
+        }
+    };
 
-  const closeDraw = () => {
-    setOpen(false);
-  };
-  const removeModal = (uuid: string) => {
-    setLoading(true);
-    trigger({
-      method: "DELETE",
-      url: `/api/medical-entity/${medical_entity.uuid}/modals/${uuid}`,
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    })
-      .then(() => {
-        enqueueSnackbar(t("alert.modal-deleted"), { variant: "success" });
-        setLoading(false);
-        setOpenDialog(false);
-        mutate();
-      })
-      .catch((error) => {
-        const {
-          response: { data },
-        } = error;
-        setLoading(false);
-        enqueueSnackbar(t("alert." +data.message.replace(/\s/g, '-').toLowerCase()), { variant: "error" });
-         setOpenDialog(false);
-      });
-  };
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "templates.config",
-  });
-  if (!ready)
-    return (
-      <LoadingScreen
-        error
-        button={"loading-error-404-reset"}
-        text={"loading-error"}
-      />
-    );
-
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-        </RootStyled>
-
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={() => {
-            setOpen(true);
-            setData(null);
-            setAction("add");
-          }}
-          color="success">
-          {!isMobile ? t("add") : <AddIcon />}
-        </Button>
-      </SubHeader>
-      <Box
-        bgcolor={theme.palette.background.default}
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
-        <DesktopContainer>
-          <Otable
-            headers={headCells}
-            rows={rows}
-            state={state}
-            from={"template"}
-            t={t}
-            edit={handleEdit}
-            handleConfig={null}
-            handleChange={handleChange}
-            total={(modalsHttpResponse as HttpResponse)?.data?.total}
-            totalPages={(modalsHttpResponse as HttpResponse)?.data?.totalPages}
-            pagination
-          />
-        </DesktopContainer>
-        <MobileContainer>
-          <Stack spacing={1}>
-            {rows?.slice(0, displayedItems).map((row, idx) => (
-              <React.Fragment key={idx}>
-                <FileTemplateMobileCard
-                  data={row}
-                  edit={handleEdit}
-                  handleConfig={null}
-                  handleChange={handleChange}
-                />
-              </React.Fragment>
-            ))}
-          </Stack>
-        </MobileContainer>
-        <Drawer
-          anchor={"right"}
-          open={open}
-          dir={direction}
-          onClose={closeDraw}>
-          {data && (
-            <Toolbar sx={{ bgcolor: theme.palette.common.white }}>
-              <Stack alignItems="flex-end" width={1}>
-                <IconButton onClick={closeDraw} disableRipple>
-                  <CloseIcon />
-                </IconButton>
-              </Stack>
-            </Toolbar>
-          )}
-
-          <PfTemplateDetail
-            action={action}
-            mutate={mutate}
-            closeDraw={closeDraw}
-            data={data}></PfTemplateDetail>
-        </Drawer>
-      </Box>
-      <Dialog
-        action="delete-modal"
-        title={t("delete-dialog-title")}
-        open={openDialog}
-        size="sm"
-        data={{ t }}
-        color={theme.palette.error.main}
-        actionDialog={
-          <Stack direction="row" spacing={1}>
-            <Button
-              onClick={() => {
+    const closeDraw = () => {
+        setOpen(false);
+    };
+    const removeModal = (uuid: string) => {
+        setLoading(true);
+        trigger({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        })
+            .then(() => {
+                enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
                 setLoading(false);
                 setOpenDialog(false);
-              }}
-              startIcon={<CloseIcon />}>
-              {t("cancel")}
-            </Button>
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              color="error"
-              onClick={() => removeModal(data?.uuid as string)}
-              startIcon={<Icon path="setting/icdelete" color="white" />}>
-              {t("delete")}
-            </LoadingButton>
-          </Stack>
-        }
-      />
-    </>
-  );
+                mutate();
+            })
+            .catch((error) => {
+                const {
+                    response: {data},
+                } = error;
+                setLoading(false);
+                enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+                setOpenDialog(false);
+            });
+    };
+
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+
+    return (
+        <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t("path")}</p>
+                </RootStyled>
+
+                <Button
+                    type="submit"
+                    variant="contained"
+                    onClick={() => {
+                        setOpen(true);
+                        setData(null);
+                        setAction("add");
+                    }}
+                    color="success">
+                    {!isMobile ? t("add") : <AddIcon/>}
+                </Button>
+            </SubHeader>
+            <Box
+                bgcolor={theme.palette.background.default}
+                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <DesktopContainer>
+                    <Otable
+                        headers={headCells}
+                        rows={rows}
+                        state={state}
+                        from={"template"}
+                        t={t}
+                        edit={handleEdit}
+                        handleConfig={null}
+                        handleChange={handleChange}
+                        total={(modalsHttpResponse as HttpResponse)?.data?.total}
+                        totalPages={(modalsHttpResponse as HttpResponse)?.data?.totalPages}
+                        pagination
+                    />
+                </DesktopContainer>
+                <MobileContainer>
+                    <Stack spacing={1}>
+                        {rows?.slice(0, displayedItems).map((row, idx) => (
+                            <React.Fragment key={idx}>
+                                <FileTemplateMobileCard
+                                    data={row}
+                                    edit={handleEdit}
+                                    handleConfig={null}
+                                    handleChange={handleChange}
+                                />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
+                </MobileContainer>
+                <Drawer
+                    anchor={"right"}
+                    open={open}
+                    dir={direction}
+                    onClose={closeDraw}>
+                    {data && (
+                        <Toolbar sx={{bgcolor: theme.palette.common.white}}>
+                            <Stack alignItems="flex-end" width={1}>
+                                <IconButton onClick={closeDraw} disableRipple>
+                                    <CloseIcon/>
+                                </IconButton>
+                            </Stack>
+                        </Toolbar>
+                    )}
+
+                    <PfTemplateDetail
+                        action={action}
+                        mutate={mutate}
+                        closeDraw={closeDraw}
+                        data={data}></PfTemplateDetail>
+                </Drawer>
+            </Box>
+            <Dialog
+                action="delete-modal"
+                title={t("delete-dialog-title")}
+                open={openDialog}
+                size="sm"
+                data={{t}}
+                color={theme.palette.error.main}
+                actionDialog={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoading(false);
+                                setOpenDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            color="error"
+                            onClick={() => removeModal(data?.uuid as string)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
+        </>
+    );
 }
 
 export const getStaticProps: GetStaticProps = async (context) => ({
-  props: {
-    fallback: false,
-    ...(await serverSideTranslations(context.locale as string, [
-      "common",
-      "menu",
-      "patient",
-      "settings",
-    ])),
-  },
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, [
+            "common",
+            "menu",
+            "patient",
+            "settings",
+        ])),
+    },
 });
 export default PatientFileTemplates;
 
 PatientFileTemplates.auth = true;
 
 PatientFileTemplates.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
+    return <DashLayout>{page}</DashLayout>;
 };
