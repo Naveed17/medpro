@@ -47,9 +47,9 @@ function NewUser() {
     const {agendas} = useAppSelector(agendaSelector);
 
     const [profiles, setProfiles] = useState<any[]>([]);
-    const [agendaRoles, setAgendaRoles] = useState(agendas);
+    const [agendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
-    const [roles, setRoles] = useState([
+    const [roles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
