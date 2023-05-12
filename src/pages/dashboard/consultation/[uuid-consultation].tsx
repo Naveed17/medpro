@@ -834,7 +834,7 @@ function ConsultationInProgress() {
                 )}
             </SubHeader>
             {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
-                <Box className="container container-scroll">
+                <Box style={{backgroundColor:!isHistory ?theme.palette.info.main:""}} className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
                             {Array.from({length: 3}).map((_, idx) => (
