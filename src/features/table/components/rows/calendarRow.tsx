@@ -12,7 +12,7 @@ import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
-import {sideBarSelector} from "@features/sideBarMenu";
+import {sideBarSelector} from "@features/menu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";

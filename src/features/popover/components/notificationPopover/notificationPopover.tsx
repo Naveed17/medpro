@@ -25,6 +25,7 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -51,6 +52,7 @@ function NotificationPopover({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
@@ -107,7 +109,7 @@ function NotificationPopover({...props}) {
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${config?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -133,7 +135,7 @@ function NotificationPopover({...props}) {
         form.append('status', "1");
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${config?.uuid}/appointments/${appUuid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${appUuid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {

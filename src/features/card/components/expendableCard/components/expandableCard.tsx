@@ -71,8 +71,11 @@ function ExpandableCard({...props}) {
                     <IconUrl path="setting/icdelete"/>
                     <Typography ml={1}>{t("del")}</Typography>
                 </Button>*/}
-                <RecButton onClick={() => {
+                <RecButton 
+                small
+                onClick={() => {
                     startStopRec();
+                    
                 }}/>
                 {/* <Button variant="outlined" className="btn-action btn-save">
                     <SaveIcon/>

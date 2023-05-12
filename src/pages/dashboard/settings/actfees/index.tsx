@@ -17,6 +17,10 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -35,7 +39,10 @@ import {DefaultCountry} from "@app/constants";
 import {ActFeesMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-
+import { LoadingButton } from "@mui/lab";
+import Icon from "@themes/urlIcon";
+import CloseIcon from '@mui/icons-material/Close';
+import {useMedicalEntitySuffix} from "@app/hooks";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -80,11 +87,14 @@ function ActFees() {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
 
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [open,setOpen]=useState<boolean>(false)
+    const [selected,setSelected] = useState<any>("")
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
@@ -100,10 +110,7 @@ function ActFees() {
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "/settings/acts");
-    const {trigger: triggerAddAct} = useRequestMutation(
-        null,
-        "/settings/acts/add"
-    );
+    const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
 
     const {data: httpActSpeciality} = useRequest(medical_professional ? {
         method: "GET",
@@ -117,17 +124,17 @@ function ActFees() {
 
     const {data: httpProfessionalsActs, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}${
             !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
-                : ""
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+                : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
     const {data: httpMPResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
@@ -140,16 +147,15 @@ function ActFees() {
 
     useEffect(() => {
         setLoading(true);
-
         if (httpProfessionalsActs !== undefined) {
             if (isMobile) {
-                const response = (httpProfessionalsActs as HttpResponse).data.reverse();
+                const response = (httpProfessionalsActs as HttpResponse).data;
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             } else {
                 const response = (
                     httpProfessionalsActs as HttpResponse
-                ).data?.list.reverse();
+                ).data?.list;
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             }
@@ -171,21 +177,22 @@ function ActFees() {
         trigger(
             {
                 method: "PATCH",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             },
             TriggerWithoutValidation
-        ).then(() => enqueueSnackbar(t("feesupdated"), {variant: "success"}));
+        ).then(() => enqueueSnackbar(t("alert.updated"), {variant: "success"}));
     };
 
     const removeFees = (uuid: string) => {
+        setLoading(true)
         trigger(
             {
                 method: "DELETE",
-                url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
@@ -193,9 +200,18 @@ function ActFees() {
             TriggerWithoutValidation
         ).then(() => {
             mutate().then(() => {
-                enqueueSnackbar(t("removed"), {variant: "success"});
+                setOpen(false);
+                setLoading(false)
+                enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
             });
-        });
+        }).catch((error) => {
+        const {
+          response: { data },
+        } = error;
+        setLoading(false);
+        setOpen(false);
+        enqueueSnackbar(t("alert."+data.message.replace( /\s/g, '-').toLowerCase()), { variant: "error" });
+      });
     };
 
     const saveFees = () => {
@@ -212,7 +228,7 @@ function ActFees() {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -223,7 +239,7 @@ function ActFees() {
                 mutate().then(() => {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});
-                    enqueueSnackbar(t("addedfees"), {variant: "success"});
+                    enqueueSnackbar(t("alert.add"), {variant: "success"});
                 });
             });
         }
@@ -238,7 +254,7 @@ function ActFees() {
             form.append("act", (actFees.act as ActModel)?.uuid);
             triggerAddAct({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
@@ -260,14 +276,14 @@ function ActFees() {
         name && form.append("name", name);
         trigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then(() => {
             mutate().then(() => {
-                enqueueSnackbar(t("updated"), {variant: "success"});
+                enqueueSnackbar(t("alert.updated"), {variant: "success"});
                 if (typeof newFees.act !== "string") {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});
@@ -275,7 +291,10 @@ function ActFees() {
             });
         });
     }
-
+const handleSelected = (prop:string)=>{
+    setOpen(true);
+    setSelected(prop)
+}
     const handleScroll = () => {
         const total = (httpProfessionalsActs as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -534,8 +553,7 @@ function ActFees() {
                         rows={mainActes}
                         from={"actfees"}
                         edit={handleEdit}
-                        remove={removeFees}
-                        {...{t, loading}}
+                        {...{t, loading,handleSelected}}
                         total={(httpProfessionalsActs as HttpResponse)?.data?.total}
                         totalPages={(httpProfessionalsActs as HttpResponse)?.data?.totalPages}
                         pagination
@@ -548,14 +566,50 @@ function ActFees() {
                                 <ActFeesMobileCard
                                     data={act}
                                     editMotif={handleEdit}
-                                    remove={removeFees}
-                                    {...{t}}
+                                    {...{t,handleSelected}}
                                 />
                             </React.Fragment>
                         ))}
                     </Stack>
                 </MobileContainer>
             </Box>
+            <Dialog PaperProps={{sx:{
+        width: "100%"
+      }}} maxWidth="sm" open={open}>
+        <DialogTitle sx={{
+          bgcolor: (theme:Theme) => theme.palette.error.main,
+          px:1,
+          py:2,
+
+        }}>
+         {t("dialog.delete-act-title")}
+        </DialogTitle>
+        <DialogContent style={{paddingTop:20}}>
+          <Typography>
+          {t("dialog.delete-act-desc")}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
+            <Stack direction="row" spacing={1}>
+            <Button
+              onClick={() => {
+
+                setOpen(false);
+              }}
+              startIcon={<CloseIcon />}>
+              {t("dialog.cancel")}
+            </Button>
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              color="error"
+              onClick={() => removeFees(selected?.uuid as any)}
+              startIcon={<Icon path="setting/icdelete" color="white" />}>
+              {t("dialog.delete")}
+            </LoadingButton>
+          </Stack>
+        </DialogActions>
+      </Dialog>
         </>
     );
 }

@@ -4,18 +4,19 @@ import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import moment, {Moment} from "moment-timezone";
+import {Moment} from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useIsMountedRef} from "@app/hooks";
+import {useIsMountedRef, useMedicalEntitySuffix} from "@app/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
+import {dashLayoutSelector} from "@features/base";
 
 function MoveAppointmentDialog() {
     const {data: session} = useSession();
@@ -23,11 +24,12 @@ function MoveAppointmentDialog() {
     const isMounted = useIsMountedRef();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation(['agenda', 'common']);
-
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {date: moveDialogDate, time: moveDialogTime, limit: initLimit, action} = useAppSelector(dialogMoveSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState(true);
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
@@ -37,7 +39,7 @@ function MoveAppointmentDialog() {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -47,9 +49,9 @@ function MoveAppointmentDialog() {
 
     const getSlots = useCallback(() => {
         setLoading(true);
-        trigger(agendaConfig ? {
+        trigger(medicalEntityHasUser && agendaConfig ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -59,7 +61,7 @@ function MoveAppointmentDialog() {
             }
             setLoading(false)
         });
-    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]);
+    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && medical_professional?.uuid) {

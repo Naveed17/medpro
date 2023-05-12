@@ -13,13 +13,11 @@ import {
     MenuItem,
     Skeleton,
     Stack,
-    TextField,
-    Typography,
-    useMediaQuery
+    TextField, Theme,
+    Typography, useMediaQuery
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
-import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {useEffect, useState} from 'react';
@@ -32,7 +30,8 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
-import {Theme} from "@mui/material/styles";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useTranslation} from "next-i18next";
 
 export const BalanceSheetCardData = {
     mainIcon: "ic-analyse",
@@ -41,8 +40,14 @@ export const BalanceSheetCardData = {
 };
 
 function BalanceSheetDialog({...props}) {
-
     const {data} = props;
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const router = useRouter();
+    const {data: session} = useSession();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
     const [model, setModel] = useState<string>('');
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -54,13 +59,8 @@ function BalanceSheetDialog({...props}) {
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
-    const router = useRouter();
-    const {data: session} = useSession();
     const {data: user} = session as Session;
     const open = Boolean(anchorEl);
-
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -86,19 +86,15 @@ function BalanceSheetDialog({...props}) {
 
     const initialData = Array.from(new Array(20));
 
-
-
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
         url: `/api/private/analysis/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {data: httpModelResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -133,7 +129,7 @@ function BalanceSheetDialog({...props}) {
         form.append('analyses', JSON.stringify(analysis));
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/requested-analysis-modal/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {

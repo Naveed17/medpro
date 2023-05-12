@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";
@@ -13,6 +13,7 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 type CalendarPickerView = "day" | "month" | "year";
 
@@ -22,26 +23,21 @@ function CalendarPickers({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpAppCountResponse} = useRequest(
-        agendaConfig ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
     const handleDateChange = (date: Date | null) => {
         if (date) {

@@ -6,9 +6,9 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import React, {useEffect, useState} from "react";
-import {setAgendas, setConfig, setPendingAppointments} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -17,10 +17,10 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification} from "@app/hooks";
+import {checkNotification, useMedicalEntitySuffix} from "@app/hooks";
 import {isAppleDevise} from "@app/hooks/isAppleDevise";
 
-const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
+const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 const variants = {
     hidden: {opacity: 0},
@@ -46,36 +46,38 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const general_information = (user as UserDataResponse).general_information;
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
+    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = !isAppleDevise() ? checkNotification(): false;
+    const permission = !isAppleDevise() ? checkNotification() : false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -85,7 +87,7 @@ function DashLayout({children}: LayoutProps) {
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
     const justNumbers = (str: string) => {
-        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        const res = str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
             let numStr = res[0];
             let num = parseInt(numStr);
@@ -145,6 +147,13 @@ function DashLayout({children}: LayoutProps) {
             dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
     }, [dispatch, permission])
+
+    useEffect(() => {
+        if (general_information && general_information?.agendaDefaultFormat) {
+            // Set default calendar view
+            dispatch(setView(general_information.agendaDefaultFormat));
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>

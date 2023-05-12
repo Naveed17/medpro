@@ -37,7 +37,7 @@ jobs:
       environments: ${{ steps.export.outputs.environments }}
     steps:
       - name: github-slug-action
-        uses: rlespinasse/github-slug-action@v4
+        uses: rlespinasse/github-slug-action@v4.4.1
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
       - uses: kanga333/variable-mapper@master
@@ -92,3 +92,9 @@ jobs:
         SKAFFOLD_CACHE_ARTIFACTS=false
         WORKSPACE=${{ matrix.envs.name }}
 
+  sonar:
+    if: ${{ github.ref == 'refs/heads/develop' }}
+    uses: SmartMedSA/github-workflows/.github/workflows/sonar.yml@develop
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

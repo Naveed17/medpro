@@ -50,6 +50,7 @@ import {DefaultCountry} from "@app/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -121,9 +122,9 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation("settings");
-
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
@@ -155,21 +156,18 @@ function PlacesDetail() {
     const uuind = router.query.uuid;
 
     const {trigger} = useRequestMutation(null, "/settings/place");
-    const {data, mutate} = useRequest(
-        uuind !== "new"
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/locations/${uuind}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }
-            : null
-    );
+    const {data, mutate} = useRequest(uuind !== "new" ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const {data: httpStateResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
+
     const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
@@ -251,10 +249,10 @@ function PlacesDetail() {
 
             if (data) {
                 method = "PUT";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
             } else {
                 method = "POST";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
             trigger(

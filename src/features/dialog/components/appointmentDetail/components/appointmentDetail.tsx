@@ -41,8 +41,9 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@app/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
+import {dashLayoutSelector} from "@features/base";
 
 const menuList = [
     {
@@ -116,6 +117,7 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const [openTooltip, setOpenTooltip] = useState(false);
 
@@ -125,18 +127,17 @@ function AppointmentDetail({...props}) {
 
     const {t, ready} = useTranslation("common");
     const {config: agendaConfig, selectedEvent: appointment} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: updateInstructionTrigger} = useRequestMutation(null, "/agenda/update/instruction");
 
     const {
         data: httpPatientPhotoResponse,
         mutate: mutatePatientPhoto
-    } = useRequest(appointment?.extendedProps?.patient?.hasPhoto ? {
+    } = useRequest(medicalEntityHasUser && appointment?.extendedProps?.patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -168,7 +169,7 @@ function AppointmentDetail({...props}) {
         form.append("value", instruction);
         updateInstructionTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appUuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appUuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {

@@ -23,31 +23,35 @@ import Content from "./content";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat} from "@app/hooks";
-import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@app/hooks";
+import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
+import {dashLayoutSelector} from "@features/base";
 
 function Consultation() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
+    const {listen} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [number, setNumber] = useState<any>(null);
@@ -67,62 +71,23 @@ function Consultation() {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
-    const {listen} = useAppSelector(consultationSelector);
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    useEffect(() => {
-        if (isStarted) {
-            setNote(oldNote + " " + transcript);
-        }
-    }, [transcript, isStarted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const {trigger: triggerPatientUpdate} = useRequestMutation(
-        null,
-        "/patient/update"
-    );
-
-    useEffect(() => {
-        const noteContainer = document.getElementById("note-card-content");
-        if (noteContainer) {
-            if (noteContainer.clientHeight >= 153)
-                setIsLong(true);
-            else {
-                setIsLong(false);
-            }
-        }
-    }, [note]);
-
-    const {data: httpPatientPhotoResponse} = useRequest(
-        patient?.hasPhoto
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(
-        patient
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
+        url: `/api/public/insurances/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpAnctecentType} = useRequest({
@@ -131,49 +96,17 @@ function Consultation() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(
-        patient
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientMI, mutate: miMutate} = useRequest(
-        patient
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    useEffect(() => {
-        if (httpPatientAnalyses) {
-            setAnalyses((httpPatientAnalyses as HttpResponse).data)
-        }
-    }, [httpPatientAnalyses])
-
-    useEffect(() => {
-        if (httpPatientMI) {
-            setMi((httpPatientMI as HttpResponse).data)
-        }
-    }, [httpPatientMI])
-
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
-        }
-    }, [httpAnctecentType])
+    const {data: httpPatientMI, mutate: miMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -210,16 +143,50 @@ function Consultation() {
             patient.idCard && params.append("id_card", patient.idCard);
         }
 
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
             data: params,
-        }).then(() => {
         });
     };
+
+    useEffect(() => {
+        if (httpPatientAnalyses) {
+            setAnalyses((httpPatientAnalyses as HttpResponse).data)
+        }
+    }, [httpPatientAnalyses])
+
+    useEffect(() => {
+        if (httpPatientMI) {
+            setMi((httpPatientMI as HttpResponse).data)
+        }
+    }, [httpPatientMI])
+
+    useEffect(() => {
+        if (httpAnctecentType) {
+            setallAntecedents((httpAnctecentType as HttpResponse).data)
+        }
+    }, [httpAnctecentType])
+
+    useEffect(() => {
+        const noteContainer = document.getElementById("note-card-content");
+        if (noteContainer) {
+            if (noteContainer.clientHeight >= 153)
+                setIsLong(true);
+            else {
+                setIsLong(false);
+            }
+        }
+    }, [note]);
+
+    useEffect(() => {
+        if (isStarted) {
+            setNote(oldNote + " " + transcript);
+        }
+    }, [transcript, isStarted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (patient && !lock) {
@@ -309,14 +276,7 @@ function Consultation() {
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <ConsultationStyled>
@@ -357,7 +317,7 @@ function Consultation() {
                                                     src="static/icons/Med-logo.png"
                                                     width={20}
                                                     height={20}
-                                                    loader={({src, width, quality}) => {
+                                                    loader={() => {
                                                         return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
                                                     }}
                                                 />
@@ -565,7 +525,14 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} {...{patient,antecedentsMutate,patientAntecedents,allAntecedents,analyses,mi}} patient={patient}/>
+                                        <Content id={col.id} {...{
+                                            patient,
+                                            antecedentsMutate,
+                                            patientAntecedents,
+                                            allAntecedents,
+                                            analyses,
+                                            mi
+                                        }} patient={patient}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>

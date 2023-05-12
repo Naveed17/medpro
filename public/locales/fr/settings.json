@@ -63,7 +63,6 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
-      "updated": "Motif modifé",
       "dialog": {
         "title": "Supprimer le motif",
         "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
@@ -72,7 +71,9 @@
       },
       "alert": {
         "delete-reason": "le motif a été supprimé",
-        "cannot-delete-resource": "Impossible de supprimer la ressource"
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "add": "Le motif a été ajouté",
+        "updated": "Motif modifé"
       },
       "table": {
         "name": "Nom",
@@ -356,7 +357,14 @@
       "ntc": "Nom est trop court",
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
-      "mailReq": "Adresse mail est obligatoire"
+      "mailReq": "Adresse mail est obligatoire",
+      "consultation_fees": "Frais de consultation",
+      "birthdate": "Date de naissance",
+      "firstname": "Prénom",
+      "lastname": "Nom de famille",
+      "phone": "Téléphone",
+      "password": "Mot de passe",
+      "profile": "Profil"
     },
     "config": {
       "add": "Ajouter",
@@ -366,32 +374,44 @@
       "access_management": "Gestion des accès",
       "add_new_role": "Ajouter nouveau rôle",
       "add_a_new_role": "Ajouter un nouveau rôle",
-      "role_name": "Nom du rôle",
-      "select_permissions": "Choisissez les permissions",
-      "select_all": "Sélectionner tout",
       "agenda_management": "Gestion Agenda",
       "add_appointment": "Ajouter RDV",
-      "cancel": "Annuler",
-      "save": "Enregistrer",
+      "profile_created": "Profil créé",
       "visitor_added": "Visiteur ajoute",
+      "dialog": {
+        "delete-profile-title": "Suppression du profil",
+        "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "delete": "Supprimer",
+        "cancel": "Annuler"
+      },
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
         }
-      },
-      "table": {
-        "accessSetting": "Paramètre",
-        "name": "Nom",
-        "agenda": "Agenda",
-        "fonction": "Fonction",
-        "request": "Demande",
-        "access": "accès",
-        "action": "Action",
-        "remove": "Supprimer",
-        "update": "Editer"
       }
+    },
+    "dialog": {
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "description": "Description",
+      "description_placeholder": "Description de l'profile",
+      "is_standard": "Est le Standrad",
+      "select_permissions": "Choisissez les permissions",
+      "role_name": "Nom du rôle",
+      "select_all": "Sélectionner tout"
+    },
+    "table": {
+      "accessSetting": "Paramètre",
+      "name": "Nom",
+      "agenda": "Agenda",
+      "fonction": "Fonction",
+      "request": "Demande",
+      "access": "accès",
+      "action": "Action",
+      "remove": "Supprimer",
+      "update": "Editer"
     }
   },
   "instructions": {
@@ -417,7 +437,6 @@
     "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
-    "removed": "Acte est supprimé",
     "addedfees": "Acte est ajouté",
     "updated": "Acte est modifé",
     "price_of_act": "Prix",
@@ -437,7 +456,17 @@
       "editAct": "Modifier acte",
       "info": "Information d'acte",
       "name": "Nom d'acte",
-      "price": "Prix"
+      "price": "Prix",
+      "delete-act-title": "Acte supprimer",
+      "delete-act-desc": "Voulez-vous supprimer l'acte",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "alert": {
+      "add": "Acte est ajouté",
+      "updated": "Acte est modifé",
+      "delete-act": "Acte est supprimé",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "import-data": {

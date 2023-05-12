@@ -28,8 +28,6 @@ import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import * as Yup from "yup";
-import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
@@ -41,36 +39,43 @@ import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
+import {SwitchPrescriptionUI} from "@features/buttons";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
+    const {data} = props;
+    const {handleSwitchUI = null} = data;
+    const {data: session} = useSession();
+    const {enqueueSnackbar} = useSnackbar();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const router = useRouter();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const {data} = props
     const {appointement} = useAppSelector(consultationSelector);
+
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [drugs, setDrugs] = useState<any[]>([...data.state]);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
     const [update, setUpdate] = useState<number>(-1);
     const [model, setModel] = useState<string>('');
+    const [parentModels, setParentModels] = useState<any[]>([]);
     const [models, setModels] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const {enqueueSnackbar} = useSnackbar();
 
-    const validationSchema = Yup.object().shape({
-        /*dosage: Yup.string().required(),
-        duration: Yup.string().required(),
-        durationType: Yup.string().required()*/
+    const open = Boolean(anchorEl);
+
+    const {trigger} = useRequestMutation(null, "/drugs");
+
+    const {data: httpModelResponse, mutate} = useRequest({
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
-
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
 
     const handleSaveDialog = () => {
         const form = new FormData();
@@ -79,12 +84,9 @@ function MedicalPrescriptionDialog({...props}) {
         form.append('drugs', JSON.stringify(drugs));
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
         }).then((cnx) => {
             mutate().then(() => {
                 setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -98,15 +100,13 @@ function MedicalPrescriptionDialog({...props}) {
             const form = new FormData();
             form.append('drugs', JSON.stringify(drugs));
             form.append('name', selectedModel.name);
+            form.append('parent', parentModels.find(parent => parent.prescriptionModels.some((drug: any) => drug.uuid === selectedModel?.uuid))?.uuid);
 
             trigger({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -122,11 +122,8 @@ function MedicalPrescriptionDialog({...props}) {
         if (selectedModel) {
             trigger({
                 method: "DELETE",
-                url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -151,23 +148,65 @@ function MedicalPrescriptionDialog({...props}) {
         setAnchorEl(null);
     };
 
-    const {trigger} = useRequestMutation(null, "/drugs");
+    const remove = (ev: PrespectionDrugModel) => {
+
+        const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
+        drugs.splice(selected, 1);
+        setDrugs([...drugs])
+        data.setState([...drugs]);
+    }
+
+    const importLast = () => {
+        const last: any[] = [];
+        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
+            last.push({
+                drugUuid: drug.standard_drug.uuid,
+                name: drug.standard_drug.commercial_name,
+                dosage: drug.cycles[0].dosage,
+                duration: drug.cycles[0].duration,
+                durationType: drug.cycles[0].durationType,
+                note: drug.cycles[0].note
+            });
+        })
+        setDrugs([...last])
+        data.setState([...last])
+        setAnchorEl(null);
+    }
+
+    const edit = (ev: PrespectionDrugModel) => {
+        const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
+        setUpdate(selected);
+        setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
+        setFieldValue('cycles[0].dosage', drugs[selected].cycles[0].dosage)
+        setFieldValue('cycles[0].duration', drugs[selected].cycles[0].duration)
+        setFieldValue('cycles[0].durationType', drugs[selected].cycles[0].durationType)
+        setFieldValue('cycles[0].note', drugs[selected].cycles[0].note)
+    }
+
+    const handleInputChange = (value: string) => {
+        touchedFileds.name = true;
+        setTouchedFileds({...touchedFileds});
+        const drg = drugsList.find(drug => drug.commercial_name === value)
+        if (drg !== undefined) {
+            setDrug(drg);
+        } else setDrug({uuid: '', commercial_name: value, isVerified: false});
+    }
 
     const formik = useFormik({
         initialValues: {
             drugUuid: '',
             name: '',
-            dosage: '',
-            duration: '',
-            durationType: 'day',
-            note: ''
+            cycles: [{
+                dosage: '',
+                duration: '',
+                durationType: 'day',
+                note: '',
+                isOtherDosage: true
+            }]
         },
-        validationSchema,
-
         onSubmit: async (values) => {
             if (drug) {
                 drugs.push({...values, drugUuid: drug.uuid, name: drug.commercial_name})
-                console.log(drugs)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
@@ -194,30 +233,18 @@ function MedicalPrescriptionDialog({...props}) {
         resetForm
     } = formik;
 
-    const router = useRouter();
-
-    const {data: httpDrugsResponse} = useRequest({
-        method: "GET",
-        url: `/api/drugs/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpModelResponse, mutate} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
 
     useEffect(() => {
-        if (httpModelResponse)
-            setModels((httpModelResponse as HttpResponse).data)
+        if (httpModelResponse) {
+            const parentModelsData = (httpModelResponse as HttpResponse).data;
+            setParentModels(parentModelsData);
+            let models: any[] = []
+            parentModelsData.map((parent: any) => {
+                models = [...models, ...parent.prescriptionModels];
+            });
+            setModels(models);
+        }
     }, [httpModelResponse])
-
-    /*useEffect(() => {
-        setDrugsList((httpDrugsResponse as HttpResponse)?.data)
-    }, [httpDrugsResponse])*/
 
     useEffect(() => {
         let lastPrescription: any[] = []
@@ -235,57 +262,13 @@ function MedicalPrescriptionDialog({...props}) {
             setTouchedFileds({name: true, duration: true})
     }, [errors]);
 
-    const remove = (ev: PrespectionDrugModel) => {
-
-        const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
-        drugs.splice(selected, 1);
-        setDrugs([...drugs])
-        data.setState([...drugs]);
-    }
-
-    const importLast = () => {
-        const last: any[] = [];
-        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
-            last.push({
-                drugUuid: drug.standard_drug.uuid,
-                name: drug.standard_drug.commercial_name,
-                dosage: drug.dosage,
-                duration: drug.duration,
-                durationType: drug.duration_type,
-                note: drug.note
-            });
-        })
-        setDrugs([...last])
-        data.setState([...last])
-        setAnchorEl(null);
-    }
-
-    const edit = (ev: PrespectionDrugModel) => {
-        const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
-        setUpdate(selected)
-
-        setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
-        setFieldValue('dosage', drugs[selected].dosage)
-        setFieldValue('duration', drugs[selected].duration)
-        setFieldValue('durationType', drugs[selected].durationType)
-        setFieldValue('note', drugs[selected].note)
-    }
-
-    function handleInputChange(value: string) {
-        touchedFileds.name = true;
-        setTouchedFileds({...touchedFileds});
-        const drg = drugsList.find(drug => drug.commercial_name === value)
-        if (drg !== undefined) {
-            setDrug(drg);
-        } else setDrug({uuid: '', commercial_name: value, isVerified: false});
-    }
-
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <MedicalPrescriptionDialogStyled>
+            <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
             <Grid container spacing={5}>
-                <Grid item xs={12} md={7}>
+                <Grid className={"grid-container"} item xs={12} md={7}>
                     <FormikProvider value={formik}>
                         <Stack
                             spacing={2}
@@ -343,9 +326,9 @@ function MedicalPrescriptionDialog({...props}) {
                                             models.map((item, idx) =>
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
                                                           onClick={() => {
-                                                              setSelectedModel(item)
-                                                              setDrugs(item.prescription_modal_has_drugs)
-                                                              data.setState(item.prescription_modal_has_drugs)
+                                                              setSelectedModel(item);
+                                                              setDrugs(item.prescriptionModalHasDrugs);
+                                                              data.setState(item.prescriptionModalHasDrugs);
                                                               setAnchorEl(null);
                                                           }}>{item.name}</MenuItem>
                                             )
@@ -368,9 +351,6 @@ function MedicalPrescriptionDialog({...props}) {
                                                                                     method: "GET",
                                                                                     url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
                                                                                     headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }, {
-                                                                                    revalidate: true,
-                                                                                    populateCache: true
                                                                                 }).then((cnx) => {
                                                                                     if (cnx?.data as HttpResponse)
                                                                                         setDrugsList((cnx?.data as HttpResponse).data)
@@ -391,8 +371,8 @@ function MedicalPrescriptionDialog({...props}) {
                                     fullWidth
                                     placeholder={t("enter_your_dosage")}
                                     //helperText={touched.dosage && errors.dosage}
-                                    error={Boolean(touched.dosage && errors.dosage)}
-                                    {...getFieldProps("dosage")} />
+                                    error={Boolean(touched.cycles && touched.cycles[0].dosage && errors.cycles && (errors.cycles[0] as any).dosage)}
+                                    {...getFieldProps("cycles[0].dosage")} />
 
                             </Stack>
 
@@ -404,9 +384,9 @@ function MedicalPrescriptionDialog({...props}) {
                                             id={"duration"}
                                             size="small"
                                             type={"number"}
-                                            error={touchedFileds.duration && values.duration === ''}
-                                            {...getFieldProps("duration")}
-                                            value={values.duration}
+                                            error={touchedFileds.duration && values.cycles[0].duration === ''}
+                                            {...getFieldProps("cycles[0].duration")}
+                                            value={values.cycles[0].duration}
                                             InputProps={{inputProps: {min: 1}}}
                                             onBlur={() => {
                                                 touchedFileds.duration = true;
@@ -420,7 +400,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             <RadioGroup
                                                 row
                                                 aria-label="date"
-                                                {...getFieldProps("durationType")}
+                                                {...getFieldProps("cycles[0].durationType")}
                                             >
                                                 <FormControlLabel
                                                     value="day"
@@ -447,7 +427,7 @@ function MedicalPrescriptionDialog({...props}) {
                                 <TextField
                                     fullWidth
                                     placeholder={t("cautionary_note")}
-                                    {...getFieldProps("note")}
+                                    {...getFieldProps("cycles[0].note")}
                                 />
                             </Stack>
                             <Grid container justifyContent={"flex-end"}>
@@ -464,7 +444,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                                   resetForm()
 
                                                                   setTimeout(() => {
-                                                                      setFieldTouched("dosage", false, true)
+                                                                      setFieldTouched("cycles[0].dosage", false, true)
                                                                       setTouchedFileds({name: false, duration: false})
                                                                   }, 0)
 

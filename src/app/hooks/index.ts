@@ -1,10 +1,11 @@
 import moment from "moment-timezone";
 import {AppointmentStatus} from "@features/calendar";
-
 require('moment-precise-range-plugin');
 export {default as useIsMountedRef} from "./useIsMountedRef";
 export {default as useDateConverture} from "./useDateConverture";
 export {default as unsubscribeTopic} from "./unsubscribeTopic";
+export {default as useMedicalEntitySuffix} from "./useMedicalEntitySuffix";
+export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalSuffix";
 export * from "./prepareSearchKeys";
 export * from "./capitalizeFirst";
 export * from "./checkNotification";

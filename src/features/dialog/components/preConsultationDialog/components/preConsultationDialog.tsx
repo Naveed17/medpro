@@ -3,7 +3,7 @@ import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useState} from "react";
 import Zoom from "react-medium-image-zoom";
 import Image from "next/image";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {Session} from "next-auth";
@@ -15,6 +15,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
+import {dashLayoutSelector} from "@features/base";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -22,9 +23,12 @@ function PreConsultationDialog({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
     const [changes, setChanges] = useState([
@@ -50,7 +54,6 @@ function PreConsultationDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpInsuranceResponse} = useRequest({
@@ -58,32 +61,23 @@ function PreConsultationDialog({...props}) {
         url: `/api/public/insurances/${router.locale}`,
     }, SWRNoValidateConfig);
 
-    const {data: httpPatientPhotoResponse} = useRequest(
-        patient?.hasPhoto
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    const {data: httpSheetResponse} = useRequest(
-        medical_professional && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            } : null);
-
-    const {data: httpModelResponse} = useRequest({
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/modals`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
+
+    const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+    const {data: httpModelResponse} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -143,7 +137,7 @@ function PreConsultationDialog({...props}) {
                                             src="static/icons/Med-logo.png"
                                             width={20}
                                             height={20}
-                                            loader={({src, width, quality}) => {
+                                            loader={() => {
                                                 return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
                                             }}
                                         />

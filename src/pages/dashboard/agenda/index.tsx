@@ -60,8 +60,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
-import {sideBarSelector} from "@features/sideBarMenu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys} from "@app/hooks";
+import {sideBarSelector} from "@features/menu";
+import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -87,9 +87,9 @@ function Agenda() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
-
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -185,7 +185,7 @@ function Agenda() {
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
             let hasError: boolean[] = [];
-            hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
+            hasDayWorkHours[1].map(() => {
                     hasError.push(!moment(date).isBetween(
                         moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMinSlot.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
                         moment(`${moment(date).format("DD-MM-YYYY")} ${interval.localMaxSlot}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
@@ -203,11 +203,9 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then((result) => {
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
@@ -307,7 +305,7 @@ function Agenda() {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
             getAppointments(queryPath, view, view !== 'listWeek');
-        } else if (localFilter) {
+        } else if (localFilter.length > 0) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
@@ -324,7 +322,7 @@ function Agenda() {
         }
     }
 
-    const handleOnToday = (event: React.MouseEventHandler) => {
+    const handleOnToday = () => {
         const calendarApi = (calendarEl as FullCalendar).getApi();
         calendarApi.today();
         dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
@@ -542,7 +540,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-               dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
+                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
                 // update pending notifications status
                 config?.mutate[1]();
             });
@@ -646,7 +644,7 @@ function Agenda() {
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -672,7 +670,7 @@ function Agenda() {
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -691,13 +689,13 @@ function Agenda() {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
         return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
@@ -787,7 +785,7 @@ function Agenda() {
     }
 
     const submitStepper = (index: number) => {
-        const steps: any = eventStepper.map((stepper, index) => ({...stepper}));
+        const steps: any = eventStepper.map((stepper) => ({...stepper}));
         if (eventStepper.length !== index) {
             steps[index].disabled = false;
             setEventStepper(steps);
@@ -851,7 +849,7 @@ function Agenda() {
 
         addAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {

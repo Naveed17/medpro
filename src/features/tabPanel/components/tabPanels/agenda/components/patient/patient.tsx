@@ -16,7 +16,8 @@ import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {formatPhoneNumber} from "react-phone-number-input";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -25,9 +26,11 @@ function Patient({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {currentStepper} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
@@ -36,16 +39,11 @@ function Patient({...props}) {
         keyPrefix: "steppers",
     });
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpPatientResponse, isValidating, mutate} = useRequest({
+    const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
 
@@ -130,16 +128,14 @@ function Patient({...props}) {
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
 
-        trigger(
-            {
-                method: selectedPatient ? "PUT" : "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-                data: form
-            }, TriggerWithoutValidation
-        ).then((res: any) => {
+        medicalEntityHasUser && trigger({
+            method: selectedPatient ? "PUT" : "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+            data: form
+        }).then((res: any) => {
             const {data: patient} = res;
             const {status} = patient;
             if (status === "success") {

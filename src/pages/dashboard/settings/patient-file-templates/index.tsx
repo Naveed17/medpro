@@ -1,168 +1,143 @@
-import { GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useEffect, useState } from "react";
-import { DashLayout } from "@features/base";
+import {GetStaticProps} from "next";
+import {useTranslation} from "next-i18next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useEffect, useState} from "react";
+import {DashLayout} from "@features/base";
 import {
-  Button,
-  Box,
-  Drawer,
-  useMediaQuery,
-  Stack,
-  Toolbar,
-  useTheme,
-  Theme,
-  IconButton,
+    Button,
+    Box,
+    Drawer,
+    Stack,
+    Toolbar,
+    useTheme,
+    Theme,
+    IconButton, useMediaQuery,
 } from "@mui/material";
-import { RootStyled } from "@features/toolbar";
-import { useRouter } from "next/router";
-import { configSelector } from "@features/base";
-import { SubHeader } from "@features/subHeader";
-import { useAppSelector } from "@app/redux/hooks";
-import { Otable } from "@features/table";
-import { PfTemplateDetail } from "@features/pfTemplateDetail";
-import { useRequest, useRequestMutation } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
+import {RootStyled} from "@features/toolbar";
+import {useRouter} from "next/router";
+import {configSelector} from "@features/base";
+import {SubHeader} from "@features/subHeader";
+import {useAppSelector} from "@app/redux/hooks";
+import {Otable} from "@features/table";
+import {PfTemplateDetail} from "@features/pfTemplateDetail";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
-import { LoadingScreen } from "@features/loadingScreen";
-import { MobileContainer } from "@themes/mobileContainer";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { FileTemplateMobileCard } from "@features/card";
-import { useSnackbar } from "notistack";
+import {LoadingScreen} from "@features/loadingScreen";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {FileTemplateMobileCard} from "@features/card";
 import CloseIcon from "@mui/icons-material/Close";
-import { Dialog } from "@features/dialog";
-import Icon from "@themes/urlIcon";
-import { LoadingButton } from "@mui/lab";
+import {useRouter} from "next/router";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function PatientFileTemplates() {
-  const { data: session } = useSession();
-  const theme: Theme = useTheme();
+    const {data: session} = useSession();
+    const theme: Theme = useTheme();
+    const router = useRouter();
+    const isMobile = useMediaQuery("(max-width:669px)");
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { data: user } = session as Session;
-  const isMobile = useMediaQuery("(max-width:669px)");
-  const [displayedItems, setDisplayedItems] = useState(10);
-  const { direction } = useAppSelector(configSelector);
-  const router = useRouter();
-  const [state, setState] = useState({
-    active: true,
-  });
-  const [action, setAction] = useState("");
-  const [data, setData] = useState<ModalModel | null>(null);
-  const headCells = [
-    {
-      id: "name",
-      numeric: false,
-      disablePadding: true,
-      label: "name",
-      align: "left",
-      sortable: true,
-    },
-    {
-      id: "active",
-      numeric: false,
-      disablePadding: false,
-      label: "active",
-      align: "center",
-      sortable: false,
-    },
-    {
-      id: "action",
-      numeric: false,
-      disablePadding: false,
-      label: "action",
-      align: "right",
-      sortable: false,
-    },
-  ];
-  const [rows, setRows] = useState<ModalModel[]>([]);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
+    const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
+    const {direction} = useAppSelector(configSelector);
 
-  const {
-    data: modalsHttpResponse,
-    error,
-    mutate,
-  } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/modals${
-      !isMobile
-        ? `?page=${router.query.page || 1}&limit=10&withPagination=true`
-        : ""
-    }`,
-    headers: { Authorization: `Bearer ${session?.accessToken}` },
-  });
-
-  const { trigger } = useRequestMutation(
-    null,
-    "/settings/patient-file-template"
-  );
-
-  useEffect(() => {
-    if (modalsHttpResponse !== undefined) {
-      if (isMobile) {
-        setRows((modalsHttpResponse as HttpResponse).data);
-      } else {
-        setRows((modalsHttpResponse as HttpResponse).data?.list);
-      }
-    }
-  }, [modalsHttpResponse]); // eslint-disable-line react-hooks/exhaustive-deps
-  const handleScroll = () => {
-    const total = (modalsHttpResponse as HttpResponse)?.data.length;
-    if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
-      if (total > displayedItems) {
-        setDisplayedItems(displayedItems + 10);
-      }
-      if (total - displayedItems < 10) {
-        setDisplayedItems(total);
-      }
-    }
-  };
-  useEffect(() => {
-    // Add scroll listener
-    if (isMobile) {
-      let promise = new Promise(function (resolve, reject) {
-        document.body.style.overflow = "hidden";
-        setTimeout(() => {
-          resolve(window.addEventListener("scroll", handleScroll));
-        }, 2000);
-      });
-      promise.then(() => {
-        return (document.body.style.overflow = "visible");
-      });
-    }
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
-  const handleChange = (props: ModalModel, event: string, value: string) => {
-    props.isEnabled = !props.isEnabled;
-    setState({ ...state });
-    const form = new FormData();
-    form.append("enabled", props.isEnabled.toString());
-    trigger(
-      {
-        method: "PATCH",
-        url:
-          "/api/medical-entity/" +
-          medical_entity.uuid +
-          "/modals/" +
-          props.uuid +
-          "/activity",
-        data: form,
-        headers: {
-          ContentType: "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${session?.accessToken}`,
+    const [displayedItems, setDisplayedItems] = useState(10);
+    const [state, setState] = useState({active: true,});
+    const [action, setAction] = useState("");
+    const [data, setData] = useState<ModalModel | null>(null);
+    const headCells = [
+        {
+            id: "name",
+            numeric: false,
+            disablePadding: true,
+            label: "name",
+            align: "left",
+            sortable: true,
         },
-      },
-      { revalidate: true, populateCache: true }
-    )
-      .then((r) => enqueueSnackbar("updated", { variant: "success" }))
-      .finally(() => closeSnackbar());
-  };
+        {
+            id: "active",
+            numeric: false,
+            disablePadding: false,
+            label: "active",
+            align: "center",
+            sortable: false,
+        },
+        {
+            id: "action",
+            numeric: false,
+            disablePadding: false,
+            label: "action",
+            align: "right",
+            sortable: false,
+        },
+    ];
+    const [rows, setRows] = useState<ModalModel[]>([]);
+    const [open, setOpen] = useState(false);
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
+    const {data: modalsHttpResponse, mutate} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${
+            !isMobile
+                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+                : "?sort=true"
+        }`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+    const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
+
+    useEffect(() => {
+        if (modalsHttpResponse !== undefined) {
+            if (isMobile) {
+                setRows((modalsHttpResponse as HttpResponse).data);
+            } else {
+                setRows((modalsHttpResponse as HttpResponse).data?.list);
+            }
+        }
+    }, [modalsHttpResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+    const handleScroll = () => {
+        const total = (modalsHttpResponse as HttpResponse)?.data.length;
+        if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
+            if (total > displayedItems) {
+                setDisplayedItems(displayedItems + 10);
+            }
+            if (total - displayedItems < 10) {
+                setDisplayedItems(total);
+            }
+        }
+    };
+    useEffect(() => {
+        // Add scroll listener
+        if (isMobile) {
+            let promise = new Promise(function (resolve, reject) {
+                document.body.style.overflow = "hidden";
+                setTimeout(() => {
+                    resolve(window.addEventListener("scroll", handleScroll));
+                }, 2000);
+            });
+            promise.then(() => {
+                return (document.body.style.overflow = "visible");
+            });
+        }
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handleChange = (props: ModalModel) => {
+        props.isEnabled = !props.isEnabled;
+        setState({...state});
+        const form = new FormData();
+        form.append("enabled", props.isEnabled.toString());
+        trigger({
+            method: "PATCH",
+            url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
 
   const handleEdit = (props: ModalModel, event: string, value: string) => {
     switch (event) {

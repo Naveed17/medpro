@@ -10,7 +10,7 @@ import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
@@ -23,8 +23,9 @@ import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
-import {ConditionalWrapper} from "@app/hooks";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@app/hooks";
 import Image from "next/image";
+import {dashLayoutSelector} from "@features/base";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -39,16 +40,17 @@ function PatientRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpPatientPhotoResponse} = useRequest(row?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && row?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;

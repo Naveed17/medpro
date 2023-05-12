@@ -43,15 +43,26 @@ import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
 });
 
 function CertifDialog({...props}) {
+    const {data} = props
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {
+        transcript,
+        listening,
+        resetTranscript
+    } = useSpeechRecognition();
+
+    const {direction} = useAppSelector(configSelector);
 
     const colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
-    const {data} = props
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
@@ -59,21 +70,11 @@ function CertifDialog({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
     const [openRemove, setOpenRemove] = useState(false);
-    const {direction} = useAppSelector(configSelector);
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const router = useRouter();
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [selected, setSelected] = useState<any>();
     let [oldNote, setOldNote] = useState('');
 
-    const {
-        transcript,
-        listening,
-        resetTranscript
-    } = useSpeechRecognition();
-
-
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const intervalref = useRef<number | null>(null);
 
     useEffect(() => {
@@ -97,7 +98,7 @@ function CertifDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -116,7 +117,7 @@ function CertifDialog({...props}) {
         form.append('title', title);
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
@@ -347,7 +348,7 @@ function CertifDialog({...props}) {
                                                         name2: t('consultationIP.model'),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${item.uuid}`,
+                                                            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
                                                             headers: {
                                                                 ContentType: 'application/x-www-form-urlencoded',
                                                                 Authorization: `Bearer ${session?.accessToken}`

@@ -16,20 +16,26 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {DefaultCountry} from "@app/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
 
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
-    const {data: httpPatientPhotoResponse} = useRequest(data?.patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
@@ -70,7 +76,7 @@ function AppointmentPopoverCard({...props}) {
                        direction="row">
                     <Alert
                         sx={{
-                            backgroundColor: (theme)=> theme.palette.error.lighter,
+                            backgroundColor: (theme) => theme.palette.error.lighter,
                             p: "0 .4rem",
                             m: "0 .4rem 0 0",
                             "& .MuiAlert-icon": {
@@ -192,10 +198,11 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
             </Stack>
 
-            {data.motif.length > 0 && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
-                <Typography sx={{fontSize: 12}} color={"back"}>
-                    {" Motif: "}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
-            </Stack>}
+            {data.motif.length > 0 &&
+                <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
+                    <Typography sx={{fontSize: 12}} color={"back"}>
+                        {" Motif: "}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
+                </Stack>}
 
         </RootStyled>
     );

@@ -15,22 +15,19 @@ import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
 import {useRequestMutation} from "@app/axios";
-import {setParentModel} from "@features/dialog";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
-import {Session} from "next-auth";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function ModelPrescriptionList({...props}) {
-    const {models, t, switchPrescriptionModel} = props;
+    const {models, t, initialOpenData, switchPrescriptionModel} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const [treeData, setTreeData] = useState<any[]>([]);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerPrescriptionEdit} = useRequestMutation(null, "/prescription/model/edit");
 
@@ -39,11 +36,11 @@ function ModelPrescriptionList({...props}) {
         form.append("parent", dropTargetId);
         triggerPrescriptionEdit({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {
-            mutate(`/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/parents/${router.locale}`);
+            mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`);
         });
         setTreeData(newTree);
     }
@@ -70,7 +67,7 @@ function ModelPrescriptionList({...props}) {
                     }))
                 ]);
             });
-            parentModels.sort(model => model.isDefault ? 1 : -1);
+            parentModels.sort(model => model.isDefault ? -1 : 1);
             setTreeData(parentModels);
         }
     }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -87,7 +84,9 @@ function ModelPrescriptionList({...props}) {
                                 {...{node, t, depth, isOpen, onToggle, switchPrescriptionModel}}
                             />
                         )}
+                        sort={false}
                         enableAnimateExpand={true}
+                        initialOpen={initialOpenData}
                         dragPreviewRender={(monitorProps) => (
                             <CustomDragPreview monitorProps={monitorProps}/>
                         )}

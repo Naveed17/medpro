@@ -36,8 +36,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@app/hooks";
 import UrlIcon from "@themes/urlIcon";
+import {dashLayoutSelector} from "@features/base";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -63,14 +64,11 @@ function PatientDetailsCard({...props}) {
             console.log("ok", values);
         },
     });
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "patient-details",
-    });
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
 
@@ -111,9 +109,9 @@ function PatientDetailsCard({...props}) {
                 fr: patient?.address[0]?.street
             }));
 
-            triggerPatientUpdate({
+            medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },

@@ -42,7 +42,8 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import { Editor } from '@tinymce/tinymce-react';
+import {Editor} from '@tinymce/tinymce-react';
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -55,6 +56,8 @@ function DocsConfig() {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const componentRef = useRef<HTMLDivElement>(null);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const [files, setFiles] = useState<any[]>([]);
     const [title, setTitle] = useState("");
@@ -86,7 +89,7 @@ function DocsConfig() {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -94,7 +97,7 @@ function DocsConfig() {
 
     const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         }
@@ -175,7 +178,7 @@ function DocsConfig() {
         form.append('document_header', JSON.stringify({header: values, data}));
         trigger({
             method: "PATCH",
-            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -276,7 +279,7 @@ function DocsConfig() {
                                 placeholder={t('titleholder')}
                                 required
                                 type={"number"}
-                                style={{marginBottom:15}}
+                                style={{marginBottom: 15}}
                                 value={title}
                                 onChange={(ev) => {
                                     setTitle(ev.target.value)
@@ -466,13 +469,11 @@ function DocsConfig() {
                                     <Editor
                                         value={data.footer.content}
                                         apiKey='5z2ufor849kkaz900ye60ztlyfbx8jr7d6uubg6hbgjs5b2j'
-                                        onEditorChange={(res)=>{
+                                        onEditorChange={(res) => {
                                             data.footer.content = res;
                                             setData({...data});
                                         }}
-                                        init={{
-
-                                        }}
+                                        init={{}}
                                     />
                                 </Collapse>}
                             </Box>}

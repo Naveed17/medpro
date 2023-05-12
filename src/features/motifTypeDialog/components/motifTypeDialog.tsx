@@ -17,7 +17,7 @@ import {
     FormControlLabel, InputAdornment,
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
-import React, {useState} from "react";
+import React from "react";
 import {useTranslation} from "next-i18next";
 import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
@@ -28,6 +28,9 @@ import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@app/constants";
+import {useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 const icons = [
     "ic-consultation",
@@ -95,14 +98,14 @@ function EditMotifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {trigger} = useRequestMutation(null, "/settings/type");
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-    const initalData = Array.from(new Array(20));
-    const [submit, setSubmit] = useState(false);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -128,8 +131,7 @@ function EditMotifDialog({...props}) {
                 : 0,
         },
         validationSchema,
-
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             props.closeDraw();
             const form = new FormData();
             form.append("color", values.color);
@@ -146,55 +148,30 @@ function EditMotifDialog({...props}) {
             );
             form.append("price", values.isFree ? null : values.consultation_fees);
             if (props.data) {
-                trigger(
-                    {
+                medicalEntityHasUser && trigger({
                         method: "PUT",
-                        url:
-                            "/api/medical-entity/" +
-                            medical_entity.uuid +
-                            "/appointments/types/" +
-                            props.data.uuid +
-                            "/" +
-                            router.locale,
+                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                         data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    },
-                    {revalidate: true, populateCache: true}
-                )
-                    .then((r: any) => {
-                        enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
-                        mutateEvent();
-                    })
-                    .catch((error) => {
-                        enqueueSnackbar(error, {variant: "error"});
-                    });
+                        headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    }).then(() => {
+                    enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
+                    mutateEvent();
+                }).catch((error) => {
+                    enqueueSnackbar(error, {variant: "error"});
+                });
             } else {
-                trigger(
+                medicalEntityHasUser && trigger(
                     {
                         method: "POST",
-                        url:
-                            "/api/medical-entity/" +
-                            medical_entity.uuid +
-                            "/appointments/types/" +
-                            router.locale,
+                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
                         data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    },
-                    {revalidate: true, populateCache: true}
-                )
-                    .then((r: any) => {
-                        enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
-                        mutateEvent();
-                    })
-                    .catch((error) => {
-                        enqueueSnackbar(error, {variant: "error"});
-                    });
+                        headers: {Authorization: `Bearer ${session?.accessToken}`},
+                    }).then(() => {
+                    enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
+                    mutateEvent();
+                }).catch((error) => {
+                    enqueueSnackbar(error, {variant: "error"});
+                });
             }
         },
     });
@@ -218,14 +195,7 @@ function EditMotifDialog({...props}) {
         }
     };
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

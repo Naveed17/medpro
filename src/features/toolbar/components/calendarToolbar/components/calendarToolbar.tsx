@@ -31,7 +31,11 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@app/hooks";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {DefaultViewMenu} from "@features/menu";
 
 function CalendarToolbar({...props}) {
     const {
@@ -52,15 +56,13 @@ function CalendarToolbar({...props}) {
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
     const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
-
+    const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
         {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
         {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
-
-    const [pendingDialog, setPendingDialog] = useState(false);
 
     const handleViewChange = (view: string) => {
         dispatch(setView(view));
@@ -82,11 +84,12 @@ function CalendarToolbar({...props}) {
                 OnMoveEvent(eventData);
                 break;
         }
-    };
+    }
+
     useEffect(() => {
         pendingEvents.current = [];
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
-    }, [pendingAppointments]);
+    }, [pendingAppointments])
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -224,6 +227,7 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
+                    <DefaultViewMenu/>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
                                  TransitionComponent={Zoom}

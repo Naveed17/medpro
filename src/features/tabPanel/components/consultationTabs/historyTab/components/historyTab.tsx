@@ -11,6 +11,8 @@ import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@app/hooks";
 
 function HistoryTab({...props}) {
 
@@ -32,16 +34,18 @@ function HistoryTab({...props}) {
         dates, keys, modelData,
         router
     } = props;
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
     const [photos, setPhotos] = useState<any[]>([]);
 
-    const {data: httpPatientDocumentsResponse} = useRequest(patient ? {
+    const {data: httpPatientDocumentsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
@@ -128,21 +132,23 @@ function HistoryTab({...props}) {
 
             {Object.keys(modelData).length > 0 &&
                 <HistoryStyled>
-                    <tbody>
-                    <tr>
-                        <td className={'col'}></td>
-                        {dates.map((date: string) => (<td key={date} className={'col'}><Typography
-                            className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
-                    </tr>
-                    </tbody>
-                    {keys.map((key: string) => (
-                        <tr key={key}>
-                            <td><Typography className={"keys col"}>{key}</Typography></td>
-                            {dates.map((date: string) => (<td key={date}><Typography
-                                className={"data col"}>{modelData[key][date] ? modelData[key][date] : '-'}</Typography>
-                            </td>))}
+                    <thead>
+                        <tr>
+                            <td className={'col'}></td>
+                            {dates.map((date: string) => (<td key={date} className={'col'}><Typography
+                                className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
                         </tr>
-                    ))}
+                    </thead>
+                    <tbody>
+                        {keys.map((key: string) => (
+                            <tr key={key}>
+                                <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                {dates.map((date: string) => (<td key={date}><Typography
+                                    className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
+                                </td>))}
+                            </tr>
+                        ))}
+                    </tbody>
                 </HistoryStyled>}
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (

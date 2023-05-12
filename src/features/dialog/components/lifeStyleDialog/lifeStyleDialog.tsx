@@ -53,8 +53,8 @@ function LifeStyleDialog({...props}) {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
             items.map((item: any) => {
-                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    item.response = item.response[0].uuid
+                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && item.response && typeof item.response !== "string") {
+                    item.response = item.response[0]?.uuid
                 }
             })
             setState(items)
@@ -81,6 +81,7 @@ function LifeStyleDialog({...props}) {
         }
     };
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <LifeStyleDialogStyled display='block'>
 

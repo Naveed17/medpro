@@ -10,49 +10,30 @@ import {RootStyled} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 
 function TemplatesConfig() {
-
+    const router = useRouter();
+    const {data: session} = useSession();
     const isMobile = useMediaQuery("(max-width:669px)");
-
-    const [loading, setLoading] = useState(true);
-    const [docs, setDocs] = useState<DocTemplateModel[]>([]);
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
+    const [loading, setLoading] = useState(true);
+    const [docs, setDocs] = useState<DocTemplateModel[]>([]);
     const [isHovering, setIsHovering] = useState("");
-
-    const {data: session} = useSession();
-    const router = useRouter();
-
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpDocumentHeader} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional?.uuid}/header/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    useEffect(()=>{
-        if (httpDocumentHeader){
-            const dcs = (httpDocumentHeader as HttpResponse).data;
-            dcs.map((dc:DocTemplateModel) => {
-                if (dc.file) {
-                    dc.header.data.background.content = dc.file
-                }
-            });
-            setDocs(dcs)
-            setTimeout(()=>{
-                setLoading(false)
-            },500)
-        }
-    },[httpDocumentHeader])
-    const handleMouseOver = (id:string) => {
+    const handleMouseOver = (id: string) => {
         setIsHovering(id);
     };
 
@@ -60,9 +41,24 @@ function TemplatesConfig() {
         setIsHovering("");
     };
 
-    const edit = (id:string) =>{
+    const edit = (id: string) => {
         router.push(`/dashboard/settings/templates/${id}`);
     }
+
+    useEffect(() => {
+        if (httpDocumentHeader) {
+            const dcs = (httpDocumentHeader as HttpResponse).data;
+            dcs.map((dc: DocTemplateModel) => {
+                if (dc.file) {
+                    dc.header.data.background.content = dc.file
+                }
+            });
+            setDocs(dcs)
+            setTimeout(() => {
+                setLoading(false)
+            }, 500)
+        }
+    }, [httpDocumentHeader])
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -71,7 +67,7 @@ function TemplatesConfig() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{ margin: 0 }}>{t("path")}</p>
+                    <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
 
                 <Button
@@ -81,7 +77,7 @@ function TemplatesConfig() {
                         router.push(`/dashboard/settings/templates/new`);
                     }}
                     color="success">
-                    {!isMobile ? t("add") : <AddIcon />}
+                    {!isMobile ? t("add") : <AddIcon/>}
                 </Button>
             </SubHeader>
 
@@ -91,17 +87,29 @@ function TemplatesConfig() {
                 <TemplateStyled>
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
-                            <div onMouseOver={()=>{handleMouseOver(res.uuid)}}
+                            <div onMouseOver={() => {
+                                handleMouseOver(res.uuid)
+                            }}
                                  onMouseOut={handleMouseOut}>
-                                <PreviewA4  {...{eventHandler:null, data:res.header.data, values:res.header.header,state:null, loading}} />
+                                <PreviewA4  {...{
+                                    eventHandler: null,
+                                    data: res.header.data,
+                                    values: res.header.header,
+                                    state: null,
+                                    loading
+                                }} />
                             </div>
                             {isHovering === res.uuid &&
-                                <Button variant={"contained"} onMouseOver={()=>{handleMouseOver(res.uuid)}} className={"edit-btn"} onClick={()=>{edit(res.uuid)}}>Modifier</Button>}
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={2}>
+                                <Button variant={"contained"} onMouseOver={() => {
+                                    handleMouseOver(res.uuid)
+                                }} className={"edit-btn"} onClick={() => {
+                                    edit(res.uuid)
+                                }}>Modifier</Button>}
+                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
                                 <Typography className={"doc-title"}>{res.title}</Typography>
-                                {res.isDefault && <div className={"heading"}>
-                                    Par défault
-                                </div>}
+                                <div className={"heading"}>
+                                    {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
+                                </div>
                             </Stack>
                         </Box>
                     ))}
