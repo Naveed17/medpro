@@ -130,7 +130,7 @@ function Widget({...props}) {
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
 
-    const {t,ready} = useTranslation("consultation", {keyPrefix: "widget"});
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
 
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
@@ -149,32 +149,48 @@ function Widget({...props}) {
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
-            console.log(modal)
         }
     }, [modal]);
-    useEffect(()=>{
-        console.log(ready);
-        if (ready){
-            setTimeout(()=>{
-                const adultTeeth = document.getElementById('adultTeeth');
-                const childTeeth = document.getElementById('childTeeth');
-                console.log("adultTeeth",adultTeeth)
-                if (adultTeeth){
-                    const root = ReactDOM.createRoot(adultTeeth);
-                    root.render(<TeethWidget {...{
-                        acts,
-                        setActs,
-                        t,
-                        of: 'adult',
-                        setSelectedAct,
-                        selectedAct,
-                        setSelectedUuid,
-                        appuuid
-                    }}/>)
-                }
-            },2000)
+    useEffect(() => {
+        if (ready) {
+            checkTeethWidget()
         }
-    },[ready])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ready])
+
+    const checkTeethWidget = () => {
+        setTimeout(() => {
+            const adultTeeth = document.getElementById('adultTeeth');
+            const childTeeth = document.getElementById('childTeeth');
+            if (adultTeeth) {
+                const root = ReactDOM.createRoot(adultTeeth);
+                root.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'adult',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>)
+            }
+            if (childTeeth) {
+                const root = ReactDOM.createRoot(childTeeth);
+                root.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'child',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>)
+            }
+        }, 1000)
+
+    }
     const handleClickAway = () => {
         setOpen(!open);
     };
@@ -189,8 +205,8 @@ function Widget({...props}) {
                 default_modal: prop,
             })
         );
-        //checkTeethWidget();
         setOpen(false);
+        checkTeethWidget()
     };
 
     return (

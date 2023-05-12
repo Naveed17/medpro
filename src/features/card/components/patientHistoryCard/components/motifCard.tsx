@@ -8,6 +8,7 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
+    console.log(models);
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
             const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
@@ -15,8 +16,10 @@ function MotifCard({...props}) {
         } else {
             const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
             return label ? label : key;
-
         }
+    }
+    const checkKey = (key: string) => {
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
     }
     return (
         <RootStled>
@@ -30,14 +33,13 @@ function MotifCard({...props}) {
                                     <Typography variant="body2" fontWeight={700} marginBottom={1}>
                                         {t('tracking_data')}
                                     </Typography>
-                                    {/*
-                                <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
-*/}
+
                                 </Stack>
 
                                 <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
                                     {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
-                                        ml !== "submit" && <ListItem key={'modelData' + idx}>
+                                        checkKey(ml) && <ListItem key={'modelData' + idx}>
+
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
@@ -57,8 +59,12 @@ function MotifCard({...props}) {
                 {notmodels && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
-                            {data.appointment.appointmentData.map((data: { name: string, value: string }, idx: number) => (
-                                data.name !== 'treatments' && data.name !== 'models' && <Box key={'data-appointement' + idx}>
+                            {data.appointment.appointmentData.map((data: {
+                                name: string,
+                                value: string
+                            }, idx: number) => (
+                                data.name !== 'treatments' && data.name !== 'models' &&
+                                <Box key={'data-appointement' + idx}>
                                     <Typography variant="body2" fontWeight={700}
                                                 textTransform={"capitalize"}>
                                         {t(data.name)}
