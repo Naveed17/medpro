@@ -120,7 +120,7 @@ function PatientFileTemplates() {
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise(function (resolve) {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
                     window.addEventListener("scroll", handleScroll);

@@ -22,7 +22,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
@@ -76,7 +76,6 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
@@ -200,12 +199,10 @@ function PfTemplateDetail({...props}) {
     });
 
     const {
-        values,
         errors,
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
     } = formik;
 
     const handleWidgetCheck = (
