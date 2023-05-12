@@ -8,7 +8,6 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
-    console.log(models);
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
             const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
