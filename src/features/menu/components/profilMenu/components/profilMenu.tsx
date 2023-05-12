@@ -35,6 +35,7 @@ import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@app/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -47,6 +48,7 @@ function ProfilMenu() {
     const {t, ready} = useTranslation('menu');
     const {opened} = useAppSelector(profileMenuSelector);
     const {agendas, config} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
     const [loading, setLoading] = useState<boolean>(false);
@@ -64,9 +66,9 @@ function ProfilMenu() {
     };
 
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/switch/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setLoading(true);
