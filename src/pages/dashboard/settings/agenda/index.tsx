@@ -5,7 +5,7 @@ import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions} from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -36,16 +36,17 @@ function Agenda() {
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "agenda.config"});
     const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [selected, setSelected] = useState<any>();
     const [open, setOpen] = useState(false);
     const [rows, setRows] = useState<any>([]);
 
-    const {data: httpAgendasResponse} = useRequest({
+    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : undefined;
 

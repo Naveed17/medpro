@@ -1,6 +1,7 @@
 import { Stack, styled } from "@mui/material";
 const RootStyled = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(0, 7),
+  paddingTop: theme.spacing(2),
   [theme.breakpoints.down("md")]: {
     padding: 0,
   },
@@ -16,10 +17,12 @@ const RootStyled = styled(Stack)(({ theme }) => ({
       ".MuiFormControlLabel-label": {
         fontWeight: 700,
         fontSize: 14,
+        
       },
     },
     ".MuiFormControlLabel-label": {
       fontSize: 14,
+      textTransform: "capitalize",
     },
     ".inside-list": {
       padding: 0,

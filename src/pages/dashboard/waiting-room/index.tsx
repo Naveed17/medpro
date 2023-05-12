@@ -212,13 +212,13 @@ function WaitingRoom() {
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
 
-    const {data: httpAgendasResponse} = useRequest({
+    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
         method: "GET",

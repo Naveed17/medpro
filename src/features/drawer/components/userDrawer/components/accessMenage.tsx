@@ -1,4 +1,4 @@
-import { IconButton } from "@mui/material";
+import { DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Theme } from "@mui/material";
 import {
   Toolbar,
   Stack,
@@ -8,127 +8,85 @@ import {
   ListItem,
   Dialog,
 } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import AccessMenageStyled from "./overrides/accessMenageStyle";
 import { useAppSelector } from "@app/redux/hooks";
 import { Dialog as CustomDialog } from "@features/dialog";
 import { configSelector } from "@features/base";
 import { AddVisitorDialog } from "@features/dialog";
+import { useRequest,useRequestMutation } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { LoadingButton } from "@mui/lab";
+import CloseIcon from '@mui/icons-material/Close';
 function AccessMenage({ ...props }) {
   const { direction } = useAppSelector(configSelector);
+  const router = useRouter();
   const { t } = props;
   const [info, setInfo] = useState("");
+  const [profiles,setProfiles] = useState<any>([]);
+  const [loading,setLoading] =useState(false);
+  const [mainLoading,setMainLoading] =useState(false);
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState([
-    {
-      id: 1,
-      role_name: "xyz",
-      permissions: [
-        {
-          id: 1,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 2,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "agenda_management",
-          value: false,
-          insideList: [
-            {
-              id: "01",
-              label: "add_appointment",
-              value: false,
-            },
-            {
-              id: "02",
-              label: "add_appointment",
-              value: false,
-              insideList: [
-                {
-                  id: "001",
-                  label: "add_appointment",
-                  value: false,
-                },
-              ],
-            },
-          ],
-        },
-      ],
+   const { data: session } = useSession();
+  const { data: user } = session as Session;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+  const { data: httpProfilesResponse,mutate, } = useRequest({
+    method: "GET",
+    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
     },
-  ]);
+  });
+  
+   useEffect(() => {
+    setMainLoading(true)
+    new Promise(function (resolve, reject) {
+   if (httpProfilesResponse){
+    resolve(
+      setProfiles((httpProfilesResponse as HttpResponse)?.data)
+     )
+    }
+    }).finally(() => setMainLoading(false))
+    }, [httpProfilesResponse])
+    
   const [openVisitorDialog, setVisitorDialog] = useState(false);
-  const [selected, setSelected] = useState(null) as any;
-  const [values, setValues] = useState(null) as any;
+  const [openDeleteDialog, setDeleteDialog] = useState(false);
+  
+  const [selected, setSelected] = useState<any>(null);
+  const {trigger} = useRequestMutation(null, "/profile");
   const onDelete = (props: any) => {
-    const filtered = data.filter((item) => item.id !== props.id);
-    setData(filtered);
+    setSelected(props);
+    setDeleteDialog(true);
   };
-  const handleNewRole = () => {
-    setData([...data, values]);
-  };
-  const handleUpdate = () => {
-    const newArray = [...data];
-    const upd_obj = newArray.findIndex((obj) => obj.id === selected.id);
-    newArray[upd_obj].role_name = values.role_name;
-    newArray[upd_obj].permissions = values.permissions;
-    setData(newArray);
-  };
+  const deleteProfile = ()=>{
+    setLoading(true);
+    trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+          setLoading(false);
+          setDeleteDialog(false);
+          mutate();
+        })
+  }
+       
   const handleClose = () =>
     setTimeout(() => {
       setVisitorDialog(false);
       setOpen(false);
+      setSelected(null);
     }, 2000);
   useEffect(() => {
     handleClose();
   }, [openVisitorDialog]);
-  console.log(data);
+  console.log(profiles)
   return (
-    <AccessMenageStyled spacing={2}>
+    <AccessMenageStyled spacing={2} height={1}>
       <Toolbar>
         <Stack
           width={1}
@@ -149,11 +107,15 @@ function AccessMenage({ ...props }) {
         </Stack>
       </Toolbar>
       <List>
-        {data?.map((item: any, i: number) => (
-          <ListItem key={item.id}>
-            <Typography>{item.role_name}</Typography>
+        {(mainLoading ? Array.from({length:5}): profiles)?.map((item: any, i: number) => (
+          <ListItem key={item ? item.uuid:i}>
+            {
+              !item ? <Skeleton width={100} />: <Typography>{item.name}</Typography>
+            }
             <Stack spacing={0.5} ml="auto" direction="row" alignItems="center">
-              <IconButton
+              {
+                !item ? <Skeleton width={25} height={40} />:  (
+                <IconButton
                 onClick={() => {
                   setSelected(item);
                   setInfo("add-new-role");
@@ -163,12 +125,18 @@ function AccessMenage({ ...props }) {
                 disableRipple>
                 <IconUrl path="setting/edit" />
               </IconButton>
-              <IconButton
+              )}
+              
+             {
+              !item ? <Skeleton width={25} height={40} />:  
+              (<IconButton
                 onClick={() => onDelete(item)}
                 size="small"
                 disableRipple>
                 <IconUrl path="setting/icdelete" />
               </IconButton>
+              )
+              }
             </Stack>
           </ListItem>
         ))}
@@ -177,38 +145,14 @@ function AccessMenage({ ...props }) {
         action={info}
         open={open}
         direction={direction}
-        data={{ t, selected, setValues }}
+        data={{ t, selected,handleMutate:mutate,
+          handleVisitor:setVisitorDialog,
+          handleClose:() =>{setOpen(false) ;setSelected(null)}}}
         {...(info === "add-new-role" && {
           title: t("add_a_new_role"),
           size: "md",
+          sx:{py:0},
           dialogClose: () => setOpen(false),
-          actionDialog: (
-            <Stack
-              width={1}
-              direction="row"
-              spacing={2}
-              justifyContent="flex-end">
-              <Button
-                onClick={() => setOpen(false)}
-                variant="text-black"
-                startIcon={<IconClose />}>
-                {t("cancel")}
-              </Button>
-              <Button
-                onClick={() => {
-                  if (selected) {
-                    handleUpdate();
-                  } else {
-                    handleNewRole();
-                  }
-                  setVisitorDialog(true);
-                }}
-                variant="contained"
-                startIcon={<IconUrl path="ic-dowlaodfile" />}>
-                {t("save")}
-              </Button>
-            </Stack>
-          ),
         })}
         {...(info === "add-visitor" && {
           size: "xs",
@@ -217,6 +161,42 @@ function AccessMenage({ ...props }) {
       />
       <Dialog maxWidth="xs" open={openVisitorDialog}>
         <AddVisitorDialog t={t} />
+      </Dialog>
+        <Dialog PaperProps={{sx:{
+        width: "100%"
+      }}} maxWidth="sm" open={openDeleteDialog}>
+        <DialogTitle sx={{
+          bgcolor: (theme:Theme) => theme.palette.error.main,
+          px:1,
+          py:2,
+
+        }}>
+         {t("dialog.delete-profile-title")}
+        </DialogTitle>
+        <DialogContent style={{paddingTop:20}}>
+          <Typography>
+          {t("dialog.delete-profile-desc")}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
+            <Stack direction="row" spacing={1}>
+            <Button
+              onClick={() => {
+                setDeleteDialog(false);
+              }}
+              startIcon={<CloseIcon />}>
+              {t("dialog.cancel")}
+            </Button>
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              color="error"
+              onClick={() => deleteProfile()}
+              startIcon={<IconUrl path="setting/icdelete" color="white" />}>
+              {t("dialog.delete")}
+            </LoadingButton>
+          </Stack>
+        </DialogActions>
       </Dialog>
     </AccessMenageStyled>
   );

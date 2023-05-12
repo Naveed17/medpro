@@ -132,21 +132,23 @@ function HistoryTab({...props}) {
 
             {Object.keys(modelData).length > 0 &&
                 <HistoryStyled>
-                    <tbody>
-                    <tr>
-                        <td className={'col'}></td>
-                        {dates.map((date: string) => (<td key={date} className={'col'}><Typography
-                            className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
-                    </tr>
-                    </tbody>
-                    {keys.map((key: string) => (
-                        <tr key={key}>
-                            <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
-                            {dates.map((date: string) => (<td key={date}><Typography
-                                className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
-                            </td>))}
+                    <thead>
+                        <tr>
+                            <td className={'col'}></td>
+                            {dates.map((date: string) => (<td key={date} className={'col'}><Typography
+                                className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
                         </tr>
-                    ))}
+                    </thead>
+                    <tbody>
+                        {keys.map((key: string) => (
+                            <tr key={key}>
+                                <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                {dates.map((date: string) => (<td key={date}><Typography
+                                    className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
+                                </td>))}
+                            </tr>
+                        ))}
+                    </tbody>
                 </HistoryStyled>}
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (

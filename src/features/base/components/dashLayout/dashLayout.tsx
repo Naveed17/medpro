@@ -7,8 +7,8 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {dashLayoutSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -49,19 +49,20 @@ function DashLayout({children}: LayoutProps) {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
+    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
