@@ -4,6 +4,10 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import WeekDayPickerStyled from './overrides/weekDayPickerStyled';
 import moment, {Moment} from "moment-timezone";
+import {DayPicker} from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
+import {fr} from 'date-fns/locale';
+import {WeekCalendar} from "@features/weekDayPicker/components/weekCalendar";
 
 const months: String[] = [];
 
@@ -47,6 +51,8 @@ function WeekDayPicker({...props}) {
         setDaysOfYear(daysOfYear);
     }, [action]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log(initDate.startOf('week').toDate());
+    console.log(initDate.endOf('week').toDate());
     return (
         <WeekDayPickerStyled>
             <Container>
@@ -75,6 +81,11 @@ function WeekDayPicker({...props}) {
                     </div>
                 </Box>
                 <Divider/>
+                {/*<WeekCalendar
+                    currentDate={initDate.toDate()}
+                    onWeekClick={handleOnWeekPick}
+                    daysInMonth={1}
+                    display={true}/>*/}
                 <Box className="week-days">
                     {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v, i) => (
                         <Box

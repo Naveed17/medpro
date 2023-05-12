@@ -114,9 +114,9 @@ function TimeSchedule({...props}) {
 
     const getSlots = useCallback((date: Date, duration: string, timeSlot: string) => {
         setLoading(true);
-        trigger(medical_professional ? {
+        trigger(medicalEntityHasUser && medical_professional ? {
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];

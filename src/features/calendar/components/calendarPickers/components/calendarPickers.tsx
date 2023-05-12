@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";
@@ -27,14 +27,15 @@ function CalendarPickers({...props}) {
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: httpAppCountResponse} = useRequest(agendaConfig ? {
+    const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null, SWRNoValidateConfig);
 

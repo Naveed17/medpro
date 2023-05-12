@@ -1,4 +1,4 @@
-import {Box, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
+import {Box, Button, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
 import React from 'react'
 
 import RootStled from './overrides/rootStyle';
@@ -8,6 +8,7 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
+
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
             const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
@@ -18,6 +19,7 @@ function MotifCard({...props}) {
 
         }
     }
+
     return (
         <RootStled>
             <Grid container spacing={2}>
@@ -30,9 +32,9 @@ function MotifCard({...props}) {
                                     <Typography variant="body2" fontWeight={700} marginBottom={1}>
                                         {t('tracking_data')}
                                     </Typography>
-                                    {/*
-                                <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
-*/}
+
+                                    <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
+
                                 </Stack>
 
                                 <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
@@ -41,10 +43,12 @@ function MotifCard({...props}) {
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
-                                            {getLabel(ml, 'label')} : <span style={{
-                                            fontWeight: "bold",
-                                            margin: '0 2px'
-                                        }}>{models.data[ml] ? typeof models.data[ml] ==="boolean" ? "✓": models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
+                                            {getLabel(ml, 'label')}
+                                            :
+                                            <span style={{
+                                                fontWeight: "bold",
+                                                margin: '0 2px'
+                                            }}>{models.data[ml] ? typeof models.data[ml] === "boolean" ? "✓" : models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
                                         </ListItem>
                                     ))}
                                 </List>
@@ -57,8 +61,12 @@ function MotifCard({...props}) {
                 {notmodels && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
-                            {data.appointment.appointmentData.map((data: { name: string, value: string }, idx: number) => (
-                                data.name !== 'treatments' && data.name !== 'models' && <Box key={'data-appointement' + idx}>
+                            {data.appointment.appointmentData.map((data: {
+                                name: string,
+                                value: string
+                            }, idx: number) => (
+                                data.name !== 'treatments' && data.name !== 'models' &&
+                                <Box key={'data-appointement' + idx}>
                                     <Typography variant="body2" fontWeight={700}
                                                 textTransform={"capitalize"}>
                                         {t(data.name)}

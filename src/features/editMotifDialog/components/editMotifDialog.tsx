@@ -85,7 +85,6 @@ function EditMotifDialog({...props}) {
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const initalData = Array.from(new Array(20));
     const [submit, setSubmit] = useState(false);
 
@@ -98,13 +97,13 @@ function EditMotifDialog({...props}) {
             .required(t("users.new.nameReq")),
     });
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null);
 
     const agendas = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : [];
     //const types = typesHttpResponse ? (typesHttpResponse as HttpResponse).data : [];
