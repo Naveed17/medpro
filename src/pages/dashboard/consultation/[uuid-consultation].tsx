@@ -211,6 +211,12 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
+    const {data: httpPreviousResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
@@ -269,6 +275,9 @@ function ConsultationInProgress() {
             setLoading(false);
         }
     }, [httpAppResponse]);
+    useEffect(() => {
+        console.log(httpPreviousResponse)
+    }, [httpPreviousResponse]);
 
     useEffect(() => {
         setInfo(null);
