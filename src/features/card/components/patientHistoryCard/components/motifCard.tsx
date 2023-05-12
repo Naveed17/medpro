@@ -1,4 +1,4 @@
-import {Box, Button, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
+import {Box, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
 import React from 'react'
 
 import RootStled from './overrides/rootStyle';
@@ -8,7 +8,6 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
-
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
             const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
@@ -16,10 +15,11 @@ function MotifCard({...props}) {
         } else {
             const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
             return label ? label : key;
-
         }
     }
-
+    const checkKey = (key: string) => {
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+    }
     return (
         <RootStled>
             <Grid container spacing={2}>
@@ -33,22 +33,19 @@ function MotifCard({...props}) {
                                         {t('tracking_data')}
                                     </Typography>
 
-                                    <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
-
                                 </Stack>
 
                                 <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
                                     {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
-                                        ml !== "submit" && <ListItem key={'modelData' + idx}>
+                                        checkKey(ml) && <ListItem key={'modelData' + idx}>
+
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
-                                            {getLabel(ml, 'label')}
-                                            :
-                                            <span style={{
-                                                fontWeight: "bold",
-                                                margin: '0 2px'
-                                            }}>{models.data[ml] ? typeof models.data[ml] === "boolean" ? "✓" : models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
+                                            {getLabel(ml, 'label')} : <span style={{
+                                            fontWeight: "bold",
+                                            margin: '0 2px'
+                                        }}>{models.data[ml] ? typeof models.data[ml] ==="boolean" ? "✓": models.data[ml] : '--'}</span> {getLabel(ml, 'description')}
                                         </ListItem>
                                     ))}
                                 </List>

@@ -1,5 +1,6 @@
 import {pxToRem} from "@themes/formatFontSize";
 import {
+    Box,
     Button,
     CardContent,
     IconButton,
@@ -87,7 +88,7 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                <HtmlTooltip
+                                {/*<HtmlTooltip
                                     title={
                                         <React.Fragment>
                                             <Typography color="gray" fontWeight={"bold"}
@@ -107,16 +108,15 @@ function Antecedent({...props}) {
                                                             key={rep}>{rep} : {item.response[rep]}</Typography>
                                             ))}
                                         </React.Fragment>
-                                    }
-                                >
-                                    <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
-                                        {item.name}{" "}
-                                        {item.startDate ? " / " + item.startDate : ""}{" "}
-                                        {item.endDate ? " - " + item.endDate : ""}
-                                        {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                        {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
-                                    </Typography>
-                                </HtmlTooltip>
+                                    }>
+                                </HtmlTooltip>*/}
+                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
+                                    {item.name}{" "}
+                                    {item.startDate ? " / " + item.startDate : ""}{" "}
+                                    {item.endDate ? " - " + item.endDate : ""}
+                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
+                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
+                                </Typography>
                                 <IconButton
                                     size="small"
                                     onClick={() => {

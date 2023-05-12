@@ -3,6 +3,6 @@ interface TraitementTeeth {
   name: string,
   color: string,
   showPicker: boolean,
-  tooths: string[],
+  teeth: string[],
   acts: string[]
 }
