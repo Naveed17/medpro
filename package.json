@@ -109,6 +109,7 @@
     "react-text-mask": "^5.5.0",
     "react-to-print": "^2.14.7",
     "react-use": "^17.4.0",
+    "read-excel-file": "^5.6.1",
     "recorder-js": "^1.0.7",
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.5.1",
@@ -118,7 +119,6 @@
     "stylis": "^4.1.1",
     "stylis-plugin-rtl": "^2.1.1",
     "swr": "^2.0.0",
-    "xlsx": "^0.18.5",
     "yup": "^0.32.11"
   },
   "devDependencies": {
