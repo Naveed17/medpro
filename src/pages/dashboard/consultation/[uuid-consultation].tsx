@@ -834,7 +834,7 @@ function ConsultationInProgress() {
                 )}
             </SubHeader>
             {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
-                <Box className="container container-scroll">
+                <Box style={{backgroundColor:!isHistory ?theme.palette.info.main:""}} className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
                             {Array.from({length: 3}).map((_, idx) => (
@@ -892,12 +892,9 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
-                                {/*
-                                <ToothsWidget {...{acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}/>
-*/}
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose}}
+                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}

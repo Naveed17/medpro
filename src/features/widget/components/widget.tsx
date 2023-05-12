@@ -4,6 +4,7 @@ import {
     Box,
     Card,
     CardContent,
+    IconButton,
     List,
     ListItem,
     ListItemIcon,
@@ -20,9 +21,11 @@ import {ModelDot} from "@features/modelDot";
 import ConsultationModalStyled from "./overrides/modalConsultationStyle";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import {IconButton} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import TeethWidget from "@features/widget/components/teethWidget";
+import ReactDOM from "react-dom/client";
+import {useTranslation} from "next-i18next";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -40,7 +43,14 @@ const variants = {
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
     let cmp: any[] = [];
-    const {modal, appuuid, data, changes, setChanges} = props;
+    const {
+        modal,
+        appuuid,
+        data,
+        changes,
+        setChanges,
+    } = props;
+
     if (modal) {
         cmp = [...modal];
     }
@@ -54,8 +64,31 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
        })
        console.log(cmp)*/
 
+    /*
+        setTimeout(() => {
+            if (document.getElementById('adultTeeth')) {
+                const teethDiv = document.getElementById('teeth');
+                const reactDiv = document.createElement('div');
+                ReactDOM.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    of: teethWidget,
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>, reactDiv);
+                if (teethDiv)
+                    teethDiv.appendChild(reactDiv);
+
+            }
+
+        }, 1000)
+    */
+
     return (
         <>
+
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -94,11 +127,14 @@ function Widget({...props}) {
         setChanges,
         isClose,
         handleClosePanel,
+        acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
+
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
-    const [change, setChange] = useState(false);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [teethWidget, setTeethWidget] = useState("");
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -115,11 +151,49 @@ function Widget({...props}) {
             setDefaultModal(modal.default_modal);
         }
     }, [modal]);
+    useEffect(() => {
+        if (ready) {
+            checkTeethWidget()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ready])
 
+    const checkTeethWidget = () => {
+        setTimeout(() => {
+            const adultTeeth = document.getElementById('adultTeeth');
+            const childTeeth = document.getElementById('childTeeth');
+            if (adultTeeth) {
+                const root = ReactDOM.createRoot(adultTeeth);
+                root.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'adult',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>)
+            }
+            if (childTeeth) {
+                const root = ReactDOM.createRoot(childTeeth);
+                root.render(<TeethWidget {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'child',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    appuuid
+                }}/>)
+            }
+        }, 1000)
+
+    }
     const handleClickAway = () => {
         setOpen(!open);
     };
-
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop;
         setModal(modal);
@@ -132,22 +206,14 @@ function Widget({...props}) {
             })
         );
         setOpen(false);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setChange(false);
-    };
-
-    const handleChange = () => {
-        setChange(true);
+        checkTeethWidget()
     };
 
     return (
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ?"50px":"30vh", md: "44.5rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "44.5rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
@@ -249,18 +315,9 @@ function Widget({...props}) {
                         </Paper>
                     </motion.div>
                     <Box>
-                        {models?.map(
-                            (m: any) =>
-                                m.uuid === modal.default_modal.uuid && (
-                                    <WidgetForm
-                                        {...{appuuid, changes, setChanges, data}}
-                                        key={m.uuid}
-                                        modal={m.structure}></WidgetForm>
-                                )
-                        )}
                         {pageLoading &&
                             Array.from({length: 3}).map((_, idx) => (
-                                <Box key={`loading-box-${idx}`}>
+                                <Box key={`loading-box-${idx}`} padding={"0 16px"}>
                                     <Typography alignSelf="center" marginBottom={2} marginTop={2}>
                                         <Skeleton width={130} variant="text"/>
                                     </Typography>
@@ -275,8 +332,7 @@ function Widget({...props}) {
                                                         <Skeleton
                                                             sx={{ml: 1}}
                                                             width={"50%"}
-                                                            variant="text"
-                                                        />
+                                                            variant="text"/>
                                                     </ListItem>
                                                 ))}
                                             </List>
@@ -284,6 +340,26 @@ function Widget({...props}) {
                                     </Card>
                                 </Box>
                             ))}
+                        {models?.map(
+                            (m: any) =>
+                                m.uuid === modal.default_modal.uuid && (
+                                    <WidgetForm
+                                        {...{
+                                            appuuid,
+                                            changes,
+                                            setChanges,
+                                            data,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid,
+                                            teethWidget
+                                        }}
+                                        key={m.uuid}
+                                        modal={m.structure}></WidgetForm>
+                                )
+                        )}
                     </Box>
                 </CardContent>
             </ConsultationModalStyled>
