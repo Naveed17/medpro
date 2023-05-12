@@ -187,7 +187,7 @@ const RoleSchema = Yup.object().shape({
         }
         return permission;
       });
-      setPermissions(newPermissions);
+      setFieldValue("permissions",newPermissions);
     } else {
       const newPermissions = values.permissions.map((permission: any) => {
         permission.value = false;
@@ -195,16 +195,6 @@ const RoleSchema = Yup.object().shape({
           permission.children = permission.children.map(
             (insidePermission: any) => {
               insidePermission.value = false;
-
-              if (insidePermission.children) {
-                insidePermission.children = insidePermission.children.map(
-                  (nestedPermission: any) => {
-                    nestedPermission.value = false;
-                    return nestedPermission;
-                  }
-                );
-              }
-
               return insidePermission;
             }
           );
@@ -213,126 +203,127 @@ const RoleSchema = Yup.object().shape({
         return permission;
       });
 
-      setPermissions(newPermissions);
+      setFieldValue("permissions",newPermissions);
     }
   };
-  const handleCheckBox = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    if (e.target.checked) {
-      const newPermissions = values.permissions.map(
-        (permission: any, idx: number) => {
-          if (index === idx) {
-            permission.value = true;
-            permission.children = permission.children.map(
-              (insidePermission: any) => {
-                insidePermission.value = true;
-                if (insidePermission.children) {
-                  insidePermission.children = insidePermission.children.map(
-                    (nestedPermission: any) => {
-                      insidePermission.value = false;
-                      return nestedPermission;
-                    }
-                  );
-                }
+  // const handleCheckBox = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   index: number
+  // ) => {
+  //   if (e.target.checked) {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, idx: number) => {
+  //         if (index === idx) {
+  //           permission.value = true;
+  //           permission.children = permission.children.map(
+  //             (insidePermission: any) => {
+  //               insidePermission.value = true;
+  //               if (insidePermission.children) {
+  //                 insidePermission.children = insidePermission.children.map(
+  //                   (nestedPermission: any) => {
+  //                     insidePermission.value = false;
+  //                     return nestedPermission;
+  //                   }
+  //                 );
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setPermissions(newPermissions);
-    } else {
-      const newPermissions = values.permissions.map(
-        (permission: any, idx: any) => {
-          if (index === idx) {
-            permission.value = false;
-            permission.children = permission.children.map(
-              (insidePermission: any) => {
-                insidePermission.value = false;
-                if (insidePermission.children) {
-                  insidePermission.children = insidePermission.children.map(
-                    (nestedPermission: any) => {
-                      return nestedPermission;
-                    }
-                  );
-                }
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setPermissions(newPermissions);
+  //   } else {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, idx: any) => {
+  //         if (index === idx) {
+  //           permission.value = false;
+  //           permission.children = permission.children.map(
+  //             (insidePermission: any) => {
+  //               insidePermission.value = false;
+  //               if (insidePermission.children) {
+  //                 insidePermission.children = insidePermission.children.map(
+  //                   (nestedPermission: any) => {
+  //                     return nestedPermission;
+  //                   }
+  //                 );
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
 
-          return permission;
-        }
-      );
-      setPermissions(newPermissions);
-    }
-  };
-  const handleCheckBoxInside = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    mainIndex: number
-  ) => {
-    if (e.target.checked) {
-      const newPermissions = values.permissions.map(
-        (permission: any, i: number) => {
-          if (i === mainIndex) {
-            permission.children = permission.children.map(
-              (insidePermission: any, idx: number) => {
-                if (idx === index) {
-                  insidePermission.value = true;
-                  if (insidePermission.children) {
-                    insidePermission.children =
-                      insidePermission.children.map(
-                        (nestedPermission: any) => {
-                          nestedPermission.value = true;
-                          return nestedPermission;
-                        }
-                      );
-                  }
-                }
+  //         return permission;
+  //       }
+  //     );
+  //     setPermissions(newPermissions);
+  //   }
+  // };
+  // const handleCheckBoxInside = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   index: number,
+  //   mainIndex: number
+  // ) => {
+  //   if (e.target.checked) {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, i: number) => {
+  //         if (i === mainIndex) {
+  //           permission.children = permission.children.map(
+  //             (insidePermission: any, idx: number) => {
+  //               if (idx === index) {
+  //                 insidePermission.value = true;
+  //                 if (insidePermission.children) {
+  //                   insidePermission.children =
+  //                     insidePermission.children.map(
+  //                       (nestedPermission: any) => {
+  //                         nestedPermission.value = true;
+  //                         return nestedPermission;
+  //                       }
+  //                     );
+  //                 }
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setPermissions(newPermissions);
-    } else {
-      const newPermissions = values.permissions.map(
-        (permission: any, i: number) => {
-          if (i === mainIndex) {
-            permission.children = permission.children.map(
-              (insidePermission: any, idx: number) => {
-                if (idx === index) {
-                  insidePermission.value = false;
-                  if (insidePermission.children) {
-                    insidePermission.children =
-                      insidePermission.children.map(
-                        (nestedPermission: any) => {
-                          nestedPermission.value = false;
-                          return nestedPermission;
-                        }
-                      );
-                  }
-                }
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setPermissions(newPermissions);
+  //   } else {
+  //     const newPermissions = values.permissions.map(
+  //       (permission: any, i: number) => {
+  //         if (i === mainIndex) {
+  //           permission.children = permission.children.map(
+  //             (insidePermission: any, idx: number) => {
+  //               if (idx === index) {
+  //                 insidePermission.value = false;
+  //                 if (insidePermission.children) {
+  //                   insidePermission.children =
+  //                     insidePermission.children.map(
+  //                       (nestedPermission: any) => {
+  //                         nestedPermission.value = false;
+  //                         return nestedPermission;
+  //                       }
+  //                     );
+  //                 }
+  //               }
 
-                return insidePermission;
-              }
-            );
-          }
-          return permission;
-        }
-      );
-      setPermissions(newPermissions);
-    }
-  };
+  //               return insidePermission;
+  //             }
+  //           );
+  //         }
+  //         return permission;
+  //       }
+  //     );
+  //     setPermissions(newPermissions);
+  //   }
+  // };
+  
   return (
     <>
       <FormikProvider value={formik}>
@@ -390,7 +381,7 @@ const RoleSchema = Yup.object().shape({
                           
                           control={
                             <Checkbox
-                              onChange={(e) => handleCheckBox(e, idx)}
+                              {...getFieldProps(`permissions[${idx}].value`)}
                               checked={item.value}
                             />
                           }
@@ -428,18 +419,12 @@ const RoleSchema = Yup.object().shape({
                               
                                       control={
                                         <Checkbox
-                                          {...(!insideItem.children
-                                            ? getFieldProps(
+                                          {...
+                                             getFieldProps(
                                                 `permissions[${idx}].children[${i}].value`
                                               )
-                                            : {
-                                                onChange: (e) =>
-                                                 handleCheckBoxInside(
-                                                    e,
-                                                    i,
-                                                    idx
-                                                  ),
-                                              })}
+                                            }
+                                           
                                           checked={insideItem.value}
                                         />
                                       }
