@@ -60,7 +60,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function TeethWidget({...props}) {
-    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid} = props
+    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid,previousData} = props
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -76,14 +76,21 @@ export default function TeethWidget({...props}) {
 
     useEffect(() => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
+        console.log(previousData);
         if (data) {
             const res = JSON.parse(data)[`${of}Teeth`]
             if (res) {
                 setTraitements([...res.traitements]);
                 setAbsent(res.absent);
+            } else {
+                const previous = previousData[`${of}Teeth`];
+                if (previous){
+                    setTraitements([...previous.traitements]);
+                    setAbsent(previous.absent);
+                }
             }
         }
-    }, [appuuid, of])
+    }, [appuuid, of, previousData])
     const between = (val: number, min: number, max: number) => {
         return val >= min && val <= max;
     }

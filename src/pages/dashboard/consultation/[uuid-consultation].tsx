@@ -123,6 +123,7 @@ function ConsultationInProgress() {
     const [isHistory, setIsHistory] = useState(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
+    const [previousData, setPreviousData] = useState(null);
     const [end, setEnd] = useState(false);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
@@ -276,7 +277,12 @@ function ConsultationInProgress() {
         }
     }, [httpAppResponse]);
     useEffect(() => {
-        console.log(httpPreviousResponse)
+        if (httpPreviousResponse){
+            const data = (httpPreviousResponse as HttpResponse).data.data;
+            if (data){
+                setPreviousData(data);
+            }
+        }
     }, [httpPreviousResponse]);
 
     useEffect(() => {
@@ -903,7 +909,7 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
+                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
