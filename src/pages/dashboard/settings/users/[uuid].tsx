@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState,useEffect} from "react";
+import React, {ReactElement, useState, useEffect} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import {useFormik, FormikProvider} from "formik";
@@ -29,42 +29,45 @@ import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation,useRequest} from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { DatePicker } from "@features/datepicker";
-import { LoadingButton } from "@mui/lab";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {DatePicker} from "@features/datepicker";
+import {LoadingButton} from "@mui/lab";
+import {useMedicalEntitySuffix} from "@app/hooks";
+
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: session} = useSession();
+
+    const {t, ready} = useTranslation("settings");
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
-    const[profiles,setProfiles] = useState<any[]>([]);
-    const { data: session } = useSession();
-    const { data: userSession } = session as Session;
-  const medical_entity = (userSession as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
-    const [agendaRoles, setAgendaRoles] = useState(agendas);
+
+    const [profiles, setProfiles] = useState<any[]>([]);
+    const [agendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
-    const {trigger} = useRequestMutation(null, "/users");
-    const [roles, setRoles] = useState([
+    const [roles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-const { data: httpProfilesResponse, } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
-  useEffect(() => {
-   if (httpProfilesResponse){
-      setProfiles((httpProfilesResponse as HttpResponse)?.data)
-   }
+
+    const {trigger} = useRequestMutation(null, "/users");
+
+    const {data: httpProfilesResponse,} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/profile`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+    useEffect(() => {
+        if (httpProfilesResponse) {
+            setProfiles((httpProfilesResponse as HttpResponse)?.data)
+        }
     }, [httpProfilesResponse])
-    const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -75,9 +78,9 @@ const { data: httpProfilesResponse, } = useRequest({
             .email(t("users.new.mailInvalid"))
             .required(t("users.new.mailReq")),
         consultation_fees: Yup.string()
-            .required(),   
+            .required(),
         birthdate: Yup.string()
-            .required(), 
+            .required(),
         firstname: Yup.string()
             .required(),
         lastname: Yup.string()
@@ -85,11 +88,11 @@ const { data: httpProfilesResponse, } = useRequest({
         phone: Yup.string()
             .required(),
         password: Yup.string()
-            .required(), 
+            .required(),
         profile: Yup.string()
-            .required(),       
+            .required(),
     });
-    
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -100,16 +103,16 @@ const { data: httpProfilesResponse, } = useRequest({
             name: user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : "",
             message: user.message || "",
             admin: user.admin || false,
-            consultation_fees:"",
-            birthdate:'',
-            firstname :"",
-            lastname:"",
-            phone:"",
-            password:"", 
-            profile:""
+            consultation_fees: "",
+            birthdate: '',
+            firstname: "",
+            lastname: "",
+            phone: "",
+            password: "",
+            profile: ""
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             const form = new FormData();
             form.append('username', values.name);
@@ -126,21 +129,21 @@ const { data: httpProfilesResponse, } = useRequest({
             form.append('lastname', values.lastname);
             form.append('phone', values.phone);
             form.append('password', values.password);
-            form.append('profile', values.profile); 
+            form.append('profile', values.profile);
             trigger({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            setLoading(false)
-            dispatch(addUser({...values}));
-            router.push("/dashboard/settings/users");
-        }).catch((error) => {
-            setLoading(false);
-            console.log(error.response);
-        })
-           
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => {
+                setLoading(false)
+                dispatch(addUser({...values}));
+                router.push("/dashboard/settings/users");
+            }).catch((error: any) => {
+                setLoading(false);
+                console.log(error.response);
+            })
+
         },
     });
 
@@ -152,8 +155,9 @@ const { data: httpProfilesResponse, } = useRequest({
         getFieldProps,
         setFieldValue,
     } = formik;
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-    console.log(values)
+
     return (
         <>
             <SubHeader>
@@ -268,7 +272,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -315,11 +319,11 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <DatePicker
-                                            value={values.birthdate}
-                                           onChange={(newValue: any) => {
-                                           setFieldValue("birthdate", newValue);
-                                           }}
+                                            <DatePicker
+                                                value={values.birthdate}
+                                                onChange={(newValue: any) => {
+                                                    setFieldValue("birthdate", newValue);
+                                                }}
                                             />
                                         </Grid>
                                     </Grid>
@@ -342,7 +346,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
+                                            <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.new.firstname")}
                                                 fullWidth
@@ -353,7 +357,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -371,7 +375,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
+                                            <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.new.lastname")}
                                                 fullWidth
@@ -382,7 +386,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -400,8 +404,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
-                                               type="tel"
+                                            <TextField
+                                                type="tel"
                                                 variant="outlined"
                                                 placeholder={t("users.new.phone")}
                                                 fullWidth
@@ -412,7 +416,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -430,8 +434,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
-                                               type="tel"
+                                            <TextField
+                                                type="tel"
                                                 variant="outlined"
                                                 placeholder={t("users.new.password")}
                                                 fullWidth
@@ -454,28 +458,29 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("users.new.profile")}{" "}
-                                               
+
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <FormControl size="small" fullWidth>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id={"role"}
-                                                {...getFieldProps("profile")}
-                                                renderValue={selected => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("users.new.profile")}</em>;
-                                                    }
-                                                    const profile = profiles?.find(profile => profile.uuid === selected);
-                                                    return <Typography>{profile?.name}</Typography>
-                                                }}
-                                                displayEmpty
-                                                sx={{color: "text.secondary"}}>
-                                                {profiles.map(profile =>
-                                                    <MenuItem key={profile.uuid} value={profile.uuid}>{profile.name}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id={"role"}
+                                                    {...getFieldProps("profile")}
+                                                    renderValue={selected => {
+                                                        if (selected.length === 0) {
+                                                            return <em>{t("users.new.profile")}</em>;
+                                                        }
+                                                        const profile = profiles?.find(profile => profile.uuid === selected);
+                                                        return <Typography>{profile?.name}</Typography>
+                                                    }}
+                                                    displayEmpty
+                                                    sx={{color: "text.secondary"}}>
+                                                    {profiles.map(profile =>
+                                                        <MenuItem key={profile.uuid}
+                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
+                                                </Select>
+                                            </FormControl>
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -571,7 +576,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             <FormControlLabel
                                                 control={<Checkbox/>}
                                                 label={agenda.name}
-                                                
+
                                             />
                                         </Grid>
                                         <Grid item xs={12} lg={7}>

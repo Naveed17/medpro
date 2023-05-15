@@ -4,18 +4,14 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import WeekDayPickerStyled from './overrides/weekDayPickerStyled';
 import moment, {Moment} from "moment-timezone";
-import {DayPicker} from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import {fr} from 'date-fns/locale';
-import {WeekCalendar} from "@features/weekDayPicker/components/weekCalendar";
 
 const months: String[] = [];
 
 function WeekDayPicker({...props}) {
     const {date: initDate, action, onChange} = props;
 
-    const [offsetYearWeekStart, setOffsetYearWeekStart] = useState(action === "reschedule" ? 0 : initDate?.week() - moment().week());
-    const [offsetYearWeekEnd, setOffsetYearWeekEnd] = useState(offsetYearWeekStart + 1);
+    const [offsetYearWeekStart] = useState(action === "reschedule" ? 0 : initDate?.week() - moment().week());
+    const [offsetYearWeekEnd] = useState(offsetYearWeekStart + 1);
     const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
     const clonedDate = action === "reschedule" ? new Date() : initDate?.toDate();
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
@@ -37,9 +33,7 @@ function WeekDayPicker({...props}) {
 
     useEffect(() => {
         getMonths();
-        const now = action === "reschedule" ? moment().toDate() :
-            moment().diff(moment().startOf('week'), 'days') > 0 ?
-                moment().toDate() : moment().startOf('week').toDate();
+        const now = moment().startOf('week').toDate();
         let daysOfYear = [];
         for (
             let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -51,8 +45,6 @@ function WeekDayPicker({...props}) {
         setDaysOfYear(daysOfYear);
     }, [action]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log(initDate.startOf('week').toDate());
-    console.log(initDate.endOf('week').toDate());
     return (
         <WeekDayPickerStyled>
             <Container>
@@ -81,13 +73,8 @@ function WeekDayPicker({...props}) {
                     </div>
                 </Box>
                 <Divider/>
-                {/*<WeekCalendar
-                    currentDate={initDate.toDate()}
-                    onWeekClick={handleOnWeekPick}
-                    daysInMonth={1}
-                    display={true}/>*/}
                 <Box className="week-days">
-                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v, i) => (
+                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v) => (
                         <Box
                             key={Math.random()}
                             sx={{
@@ -100,7 +87,7 @@ function WeekDayPicker({...props}) {
                                 },
                             }}
                             className="day"
-                            onClick={(event) => handleDateChange(v)}
+                            onClick={() => handleDateChange(v)}
                         >
                             <Typography
                                 sx={{textTransform: "capitalize"}}
