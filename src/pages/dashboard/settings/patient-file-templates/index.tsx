@@ -141,7 +141,7 @@ function PatientFileTemplates() {
         form.append("enabled", props.isEnabled.toString());
         trigger({
             method: "PATCH",
-            url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity`,
+            url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
