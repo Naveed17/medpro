@@ -4,7 +4,7 @@ import { TextField, InputAdornment } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import {useTranslation} from "next-i18next";
-import {SearchField} from "@features/textFieldSearch";
+import {SearchField} from "@features/input/components/textFieldSearch";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function TextFieldSearch(props : any) {

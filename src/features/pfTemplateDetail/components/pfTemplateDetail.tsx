@@ -6,13 +6,13 @@ import {
     Card,
     CardContent,
     Checkbox,
-    FormControl,
+    FormControl, InputBase,
     Skeleton,
     Stack,
     TextField,
     Typography,
 } from "@mui/material";
-import {styled} from "@mui/material/styles";
+import {alpha, styled} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
@@ -25,6 +25,9 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalProfessionalSuffix} from "@app/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import SearchIcon from "@mui/icons-material/Search";
+import TextFieldSearch from "@features/input/components/textFieldSearch/components/textFieldSearch";
+import {SearchInput} from "@features/input";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -106,19 +109,19 @@ function PfTemplateDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
-    useEffect(() => {
-        if (jsonWidgetsResponse) {
-            const widgets = (jsonWidgetsResponse as HttpResponse).data;
-            setSections(widgets);
+    const widgets = (jsonWidgetsResponse as HttpResponse)?.data;
 
+    useEffect(() => {
+        if (widgets) {
+            setSections(widgets);
             if (props.data) {
                 setComponents(props.data.structure);
                 let wdg: any[] = [];
                 props.data.structure.map((comp: any) => {
-                    const component = widgets.find(
-                        (elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key
-                    );
-                    wdg.push({...component});
+                    const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key);
+                    const filteredData = component?.jsonWidgets.filter((widget: any) =>
+                        comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
+                    wdg.push({...component, jsonWidgets: filteredData});
                 });
                 setWidget([...wdg]);
                 setTimeout(() => {
@@ -141,8 +144,7 @@ function PfTemplateDetail({...props}) {
                 }, 2000)
             }
         }
-
-    }, [jsonWidgetsResponse, props.data]);
+    }, [widgets, props.data]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -159,26 +161,12 @@ function PfTemplateDetail({...props}) {
         validationSchema,
         onSubmit: async (values) => {
             setLoading(true);
-            const struct: any[] = [];
+            let struct: any[] = [];
             widget.map((w) => {
-                w.jsonWidgets.map((jw) => {
-                    w.fieldSet.components = [...w.fieldSet.components, ...jw.structure];
-                });
-                struct.push(w.fieldSet);
+                let jsonWidgets: JsonWidgetModel[] = []
+                w.jsonWidgets.map((jw) => jsonWidgets.push(jw.structure[0] as any));
+                struct.push({...w.fieldSet, components: jsonWidgets});
             });
-
-            /*if (struct.length > 0)
-                            struct[0].components.push({
-                                key: "submit",
-                                type: "button",
-                                input: true,
-                                label: "Submit",
-                                tableView: false,
-                                customClass: "sub-btn",
-                                disableOnInvalid: true,
-                                saveOnEnter: false,
-                                showValidations: false,
-                            })*/
 
             const form = new FormData();
             form.append("label", values.name);
@@ -268,9 +256,20 @@ function PfTemplateDetail({...props}) {
         }
     };
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    const handleSearchInput = (event: any) => {
+        let sectionUpdated = widgets;
+        if (event.target.value?.length > 2) {
+            let filtered: SpecialtyJsonWidgetModel[] = [];
+            sections.map(section => {
+                const searchedData = section.jsonWidgets.filter(widget => widget.label.toLowerCase().includes(event.target.value.toLowerCase()));
+                searchedData.length > 0 && filtered.push({...section, jsonWidgets: searchedData});
+            })
+            sectionUpdated = filtered;
+        }
+        setSections(sectionUpdated);
+    };
 
-    console.log("props", props);
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <Box style={{background: "black"}}>
@@ -362,6 +361,7 @@ function PfTemplateDetail({...props}) {
                             </CardContent>
                         </Card>
 
+
                         <Typography
                             variant="body1"
                             fontWeight={400}
@@ -372,6 +372,7 @@ function PfTemplateDetail({...props}) {
 
                         <Card>
                             <CardContent>
+                                <SearchInput onChange={handleSearchInput}/>
                                 <Stack spacing={2}>
                                     <FormControl size="small" fullWidth>
                                         <Typography

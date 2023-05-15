@@ -171,29 +171,28 @@ function PatientFileTemplates() {
     const closeDraw = () => {
         setOpen(false);
     };
+
     const removeModal = (uuid: string) => {
         setLoading(true);
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}`,
+            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        })
-            .then(() => {
-                enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
-                setLoading(false);
-                setOpenDialog(false);
-                mutate();
-            })
-            .catch((error) => {
-                const {
-                    response: {data},
-                } = error;
-                setLoading(false);
-                enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
-                setOpenDialog(false);
-            });
+        }).then(() => {
+            enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
+            setLoading(false);
+            setOpenDialog(false);
+            mutate();
+        }).catch((error) => {
+            const {
+                response: {data},
+            } = error;
+            setLoading(false);
+            // enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+            setOpenDialog(false);
+        });
     };
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
