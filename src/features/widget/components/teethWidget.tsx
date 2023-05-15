@@ -76,7 +76,6 @@ export default function TeethWidget({...props}) {
 
     useEffect(() => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
-        console.log(previousData);
         if (data) {
             const res = JSON.parse(data)[`${of}Teeth`]
             if (res) {

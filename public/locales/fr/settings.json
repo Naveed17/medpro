@@ -381,6 +381,7 @@
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "ntc": "Nom est trop court",
         "delete": "Supprimer",
         "cancel": "Annuler"
       },
