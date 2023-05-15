@@ -5,7 +5,6 @@ import {IconButton, Typography, Skeleton, Box} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
-import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 
 function MotifRow({...props}) {
