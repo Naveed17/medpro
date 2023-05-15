@@ -14,6 +14,7 @@ import {
     IconButton, useMediaQuery,
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
+import {useRouter} from "next/router";
 import {configSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
@@ -27,9 +28,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
+import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
+import {useSnackbar} from "notistack";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
@@ -37,6 +42,7 @@ function PatientFileTemplates() {
     const router = useRouter();
     const isMobile = useMediaQuery("(max-width:669px)");
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -73,6 +79,8 @@ function PatientFileTemplates() {
     ];
     const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
@@ -85,10 +93,19 @@ function PatientFileTemplates() {
                 : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
 
+    useEffect(() => {
+        if (modalsHttpResponse !== undefined) {
+            if (isMobile) {
+                setRows((modalsHttpResponse as HttpResponse).data);
+            } else {
+                setRows((modalsHttpResponse as HttpResponse).data?.list);
+            }
+        }
+    }, [modalsHttpResponse]);// eslint-disable-line react-hooks/exhaustive-deps
     const handleScroll = () => {
         const total = (modalsHttpResponse as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -99,7 +116,23 @@ function PatientFileTemplates() {
                 setDisplayedItems(total);
             }
         }
-    }
+    };
+    useEffect(() => {
+        // Add scroll listener
+        if (isMobile) {
+            let promise = new Promise(function (resolve) {
+                document.body.style.overflow = "hidden";
+                setTimeout(() => {
+                    window.addEventListener("scroll", handleScroll);
+                    resolve(true);
+                }, 2000);
+            });
+            promise.then(() => {
+                return (document.body.style.overflow = "visible");
+            });
+        }
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = (props: ModalModel) => {
         props.isEnabled = !props.isEnabled;
@@ -114,44 +147,53 @@ function PatientFileTemplates() {
         });
     }
 
-    const handleEdit = (props: ModalModel, event: string) => {
-        setOpen(true);
-        setAction(event);
-        setData(props);
+    const handleEdit = (props: ModalModel, event: string, value: string) => {
+        switch (event) {
+            case "see":
+                setOpen(true);
+                setAction(event);
+                setData(props);
+                break;
+            case "edit":
+                setOpen(true);
+                setAction(event);
+                setData(props);
+                break;
+            case "delete":
+                setData(props);
+                setOpenDialog(true);
+                break;
+            default:
+                break;
+        }
     };
 
     const closeDraw = () => {
         setOpen(false);
     };
 
-    useEffect(() => {
-        if (modalsHttpResponse !== undefined) {
-            if (isMobile) {
-                setRows((modalsHttpResponse as HttpResponse).data);
-            } else {
-                setRows((modalsHttpResponse as HttpResponse).data?.list);
-            }
-        }
-    }, [modalsHttpResponse]);// eslint-disable-line react-hooks/exhaustive-deps
-
-
-    useEffect(() => {
-        // Add scroll listener
-        if (isMobile) {
-            let promise = new Promise((resolve) => {
-                document.body.style.overflow = "hidden";
-                setTimeout(() => {
-                    window.addEventListener("scroll", handleScroll);
-                    resolve(true);
-                }, 2000);
-            });
-            promise.then(() => {
-                return (document.body.style.overflow = "visible");
-            });
-        }
-
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+    const removeModal = (uuid: string) => {
+        setLoading(true);
+        trigger({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
+            setLoading(false);
+            setOpenDialog(false);
+            mutate();
+        }).catch((error) => {
+            const {
+                response: {data},
+            } = error;
+            setLoading(false);
+            // enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+            setOpenDialog(false);
+        });
+    };
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
@@ -228,6 +270,34 @@ function PatientFileTemplates() {
                         data={data}></PfTemplateDetail>
                 </Drawer>
             </Box>
+            <Dialog
+                action="delete-modal"
+                title={t("delete-dialog-title")}
+                open={openDialog}
+                size="sm"
+                data={{t}}
+                color={theme.palette.error.main}
+                actionDialog={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoading(false);
+                                setOpenDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            color="error"
+                            onClick={() => removeModal(data?.uuid as string)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
         </>
     );
 }

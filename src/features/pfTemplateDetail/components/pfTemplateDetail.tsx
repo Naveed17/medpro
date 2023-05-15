@@ -22,8 +22,10 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@app/hooks";
 import ReactDOM from "react-dom/client";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SearchInput} from "@features/input";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -75,7 +77,6 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
@@ -96,43 +97,29 @@ function PfTemplateDetail({...props}) {
     const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
     const [open, setOpen] = useState<string[]>([]);
     const [components, setComponents] = useState<any[]>([]);
-    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
     const initalData = Array.from(new Array(4));
-
-    const {data} = useRequest({
-        method: "GET",
-        url: "/api/private/json-widgets/specialities/fr",
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
 
     const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
 
-    const {data: httpProfessionalsResponse} = useRequest({
+    const {data: jsonWidgetsResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+        url: "/api/private/json-widgets/specialities/fr",
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    }, SWRNoValidateConfig);
+
+    const widgets = (jsonWidgetsResponse as HttpResponse)?.data;
 
     useEffect(() => {
-        if (data) {
-            setSections((data as HttpResponse).data);
-        }
-        if (httpProfessionalsResponse !== undefined) {
-            setMedicalProfessionalUuid(
-                (httpProfessionalsResponse as HttpResponse).data[0].medical_professional
-                    .uuid
-            );
-        }
-
-        if (props.data) {
-            setComponents(props.data.structure);
-            if (data) {
+        if (widgets) {
+            setSections(widgets);
+            if (props.data) {
+                setComponents(props.data.structure);
                 let wdg: any[] = [];
                 props.data.structure.map((comp: any) => {
-                    const compnent = (data as HttpResponse).data.find(
-                        (elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key
-                    );
-                    wdg.push({...compnent});
+                    const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key);
+                    const filteredData = component?.jsonWidgets.filter((widget: any) =>
+                        comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
+                    wdg.push({...component, jsonWidgets: filteredData});
                 });
                 setWidget([...wdg]);
                 setTimeout(() => {
@@ -144,7 +131,6 @@ function PfTemplateDetail({...props}) {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"}/>
                         );
-
                     }
                     if (childTeeth) {
                         const root = ReactDOM.createRoot(childTeeth);
@@ -156,7 +142,8 @@ function PfTemplateDetail({...props}) {
                 }, 2000)
             }
         }
-    }, [data, httpProfessionalsResponse, props.data]);
+    }, [widgets, props.data]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("ntc"))
@@ -172,31 +159,16 @@ function PfTemplateDetail({...props}) {
         validationSchema,
         onSubmit: async (values) => {
             setLoading(true);
-            const struct: any[] = [];
+            let struct: any[] = [];
             widget.map((w) => {
-                w.jsonWidgets.map((jw) => {
-                    w.fieldSet.components = [...w.fieldSet.components, ...jw.structure];
-                });
-                struct.push(w.fieldSet);
+                let jsonWidgets: JsonWidgetModel[] = []
+                w.jsonWidgets.map((jw) => jsonWidgets.push(jw.structure[0] as any));
+                struct.push({...w.fieldSet, components: jsonWidgets});
             });
-
-            /*if (struct.length > 0)
-                            struct[0].components.push({
-                                key: "submit",
-                                type: "button",
-                                input: true,
-                                label: "Submit",
-                                tableView: false,
-                                customClass: "sub-btn",
-                                disableOnInvalid: true,
-                                saveOnEnter: false,
-                                showValidations: false,
-                            })*/
 
             const form = new FormData();
             form.append("label", values.name);
             form.append("color", modelColor);
-            form.append("medicalProfessionalUuid", medical_professional_uuid);
             form.append("structure", JSON.stringify(struct));
             const editAction = props.action === "edit" && !props.data.hasData;
             triggerModalRequest({
@@ -211,13 +183,12 @@ function PfTemplateDetail({...props}) {
             });
         },
     });
+
     const {
-        values,
         errors,
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
     } = formik;
 
     const handleWidgetCheck = (
@@ -281,6 +252,19 @@ function PfTemplateDetail({...props}) {
                     ...open.slice(index + 1, open.length),
                 ]);
         }
+    };
+
+    const handleSearchInput = (event: any) => {
+        let sectionUpdated = widgets;
+        if (event.target.value?.length > 2) {
+            let filtered: SpecialtyJsonWidgetModel[] = [];
+            sections.map(section => {
+                const searchedData = section.jsonWidgets.filter(widget => widget.label.toLowerCase().includes(event.target.value.toLowerCase()));
+                searchedData.length > 0 && filtered.push({...section, jsonWidgets: searchedData});
+            })
+            sectionUpdated = filtered;
+        }
+        setSections(sectionUpdated);
     };
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
@@ -375,6 +359,7 @@ function PfTemplateDetail({...props}) {
                             </CardContent>
                         </Card>
 
+
                         <Typography
                             variant="body1"
                             fontWeight={400}
@@ -385,6 +370,7 @@ function PfTemplateDetail({...props}) {
 
                         <Card>
                             <CardContent>
+                                <SearchInput onChange={handleSearchInput}/>
                                 <Stack spacing={2}>
                                     <FormControl size="small" fullWidth>
                                         <Typography
@@ -446,17 +432,13 @@ function PfTemplateDetail({...props}) {
                                                                     (jw: JsonWidgetModel) => (
                                                                         <ItemCheckboxPF
                                                                             key={jw.uuid}
-                                                                            checked={
-                                                                                widget
-                                                                                    .find(
-                                                                                        (i: { uuid: string }) =>
-                                                                                            i.uuid == section.uuid
-                                                                                    )
-                                                                                    ?.jsonWidgets.find(
-                                                                                    (j: { uuid: string }) =>
-                                                                                        j.uuid == jw.uuid
-                                                                                ) !== undefined
-                                                                            }
+                                                                            checked={widget.find((i: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                i.uuid == section.uuid)?.jsonWidgets.find((j: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                j.uuid == jw.uuid) !== undefined}
                                                                             onChange={(v: any) =>
                                                                                 handleWidgetCheck(v, section, jw)
                                                                             }

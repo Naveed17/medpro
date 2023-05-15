@@ -578,6 +578,14 @@
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
       "add": "Ajouter un modèle",
+      "delete-dialog-title": "Supprimer modale",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "delete-dialog-desc": "Êtes-vous sûr de vouloir supprimer cette fenêtre modale ?",
+      "alert": {
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "modal-deleted": "Modal a été supprimé"
+      },
       "table": {
         "name": "Nom",
         "active": "Active",
