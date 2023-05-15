@@ -189,12 +189,12 @@ function PlacesDetail() {
             isVisible: false,
             openingHours: {
                 MON: [],
-                THU: [],
-                WED: [],
                 TUE: [],
+                WED: [],
+                THU: [],
                 FRI: [],
                 SAT: [],
-                SUN: [],
+                SUN: []
             },
         },
     ]);
@@ -386,12 +386,12 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ]);
@@ -446,12 +446,12 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ];

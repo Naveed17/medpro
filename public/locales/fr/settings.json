@@ -567,9 +567,9 @@
   },
   "days": {
     "MON": "Lundi",
-    "THU": "Mardi",
+    "TUE": "Mardi",
     "WED": "Mercredi",
-    "TUE": "Jeudi",
+    "THU": "Jeudi",
     "FRI": "Vendredi",
     "SUN": "Dimanche",
     "SAT": "Samedi"
