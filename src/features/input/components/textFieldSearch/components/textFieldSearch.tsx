@@ -1,14 +1,13 @@
 import React from 'react'
 // material-ui components
-import { TextField, InputAdornment } from '@mui/material'
-import { styled } from '@mui/material/styles';
+import {InputAdornment} from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import {useTranslation} from "next-i18next";
 import {SearchField} from "@features/input/components/textFieldSearch";
 import {LoadingScreen} from "@features/loadingScreen";
 
-function TextFieldSearch(props : any) {
-    const { t, ready } = useTranslation('common');
+function TextFieldSearch(props: any) {
+    const {t, ready} = useTranslation('common');
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -17,11 +16,12 @@ function TextFieldSearch(props : any) {
                          className={`textfield-search ${props.className}`}
                          InputProps={{
                              startAdornment: <InputAdornment position="start">
-                                 <SearchIcon />
+                                 <SearchIcon/>
                              </InputAdornment>,
                          }}
             />
         </>
     )
 }
+
 export default TextFieldSearch

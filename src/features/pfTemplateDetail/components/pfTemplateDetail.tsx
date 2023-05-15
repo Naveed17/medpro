@@ -6,13 +6,13 @@ import {
     Card,
     CardContent,
     Checkbox,
-    FormControl, InputBase,
+    FormControl,
     Skeleton,
     Stack,
     TextField,
     Typography,
 } from "@mui/material";
-import {alpha, styled} from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
@@ -25,8 +25,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalProfessionalSuffix} from "@app/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import SearchIcon from "@mui/icons-material/Search";
-import TextFieldSearch from "@features/input/components/textFieldSearch/components/textFieldSearch";
 import {SearchInput} from "@features/input";
 
 const FormBuilder: any = dynamic(

@@ -26,7 +26,7 @@ function FileTemplateMobileCard({...props}) {
                         justifyContent="flex-end">
                         <Switch
                             name="active"
-                            onChange={(e) => handleChange(data, "active", "")}
+                            onChange={() => handleChange(data, "active", "")}
                             checked={data.isEnabled}
                         />
                         <IconButton

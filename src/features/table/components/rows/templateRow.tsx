@@ -9,10 +9,8 @@ import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 
 function MotifRow({...props}) {
-    const {row, tableHeadData, active, handleChange, editMotif, ids, data} =
-        props;
+    const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
 
-    const {t, ready} = useTranslation("common");
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -39,7 +37,7 @@ function MotifRow({...props}) {
             <TableCell align="center">
                 <Switch
                     name="active"
-                    onChange={(e) => handleChange(row, "active", "")}
+                    onChange={() => handleChange(row, "active", "")}
                     checked={row.isEnabled}
                 />
             </TableCell>
