@@ -31,16 +31,12 @@ import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestMutation,useRequest} from "@app/axios";
-import axios from "axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DatePicker } from "@features/datepicker";
 import { LoadingButton } from "@mui/lab";
-import {useMedicalEntitySuffix} from "@app/hooks";
-function ModifyUser() {
+function NewUser() {
     const router = useRouter();
-    const {uuid} = router.query
-     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
@@ -52,7 +48,6 @@ function ModifyUser() {
     .medical_entity as MedicalEntityModel;
     const [agendaRoles, setAgendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
-    const [getUser,setGetUser] = useState(null);
     const {trigger} = useRequestMutation(null, "/users");
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
@@ -65,23 +60,11 @@ const { data: httpProfilesResponse, } = useRequest({
       Authorization: `Bearer ${session?.accessToken}`,
     },
   });
-  const { data: httpUserResponse, } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/user/${uuid}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
   useEffect(() => {
    if (httpProfilesResponse){
       setProfiles((httpProfilesResponse as HttpResponse)?.data)
    }
     }, [httpProfilesResponse])
-    useEffect(() => {
-   if (httpUserResponse){
-      setGetUser((httpUserResponse as HttpResponse)?.data)
-   } 
-    }, [httpUserResponse])
     const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
@@ -119,7 +102,7 @@ const { data: httpProfilesResponse, } = useRequest({
             message: user.message || "",
             admin: user.admin || false,
             consultation_fees:"",
-            birthdate:'',
+            birthdate: null,
             firstname :"",
             lastname:"",
             phone:"",
@@ -146,8 +129,8 @@ const { data: httpProfilesResponse, } = useRequest({
             form.append('password', values.password);
             form.append('profile', values.profile); 
             trigger({
-            method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/users`,
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
@@ -176,7 +159,7 @@ const { data: httpProfilesResponse, } = useRequest({
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t("users.update.path")}</p>
+                    <p style={{margin: 0}}>{t("users.new.path")}</p>
                 </RootStyled>
             </SubHeader>
 
@@ -306,6 +289,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
+                                                type="number"
                                                 placeholder={t("users.new.consultation_fees")}
                                                 fullWidth
                                                 required
@@ -315,7 +299,9 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
+                                <Box mb={2} 
+                               
+                                >
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -338,6 +324,13 @@ const { data: httpProfilesResponse, } = useRequest({
                                            onChange={(newValue: any) => {
                                            setFieldValue("birthdate", newValue);
                                            }}
+                                           InputProps={{
+                                            sx:{
+                                           button:{
+                                            p:0
+                                           }
+                                                }
+                                             }}
                                             />
                                         </Grid>
                                     </Grid>
@@ -670,29 +663,21 @@ const { data: httpProfilesResponse, } = useRequest({
     );
 }
 
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async ({...props}) => {
-    return {
-        paths: [], //indicates that no page needs be created at build time
-        fallback: "blocking", //indicates the type of fallback
-    };
-};
-export const getStaticProps: GetStaticProps = async ({locale, params}) => {
-
-    return {
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, [
+        ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
             "patient",
             "settings",
         ])),
     },
-}};
-export default ModifyUser;
+});
+export default NewUser;
 
-ModifyUser.auth = true;
+NewUser.auth = true;
 
-ModifyUser.getLayout = function getLayout(page: ReactElement) {
+NewUser.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };
