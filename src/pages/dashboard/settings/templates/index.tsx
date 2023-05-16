@@ -3,7 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {Box, Button, Stack, Typography, useMediaQuery} from "@mui/material";
+import {Box, Button, LinearProgress, Stack, Typography, useMediaQuery} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled} from "@features/toolbar";
@@ -80,11 +80,15 @@ function TemplatesConfig() {
                     {!isMobile ? t("add") : <AddIcon/>}
                 </Button>
             </SubHeader>
+            <LinearProgress
+                sx={{visibility: loading ? "visible" : "hidden"}}
+                color="warning"
+            />
 
             <Box
                 bgcolor={(theme) => theme.palette.background.default}
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                <TemplateStyled>
+                 <TemplateStyled>
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
@@ -105,12 +109,12 @@ function TemplatesConfig() {
                                 }} className={"edit-btn"} onClick={() => {
                                     edit(res.uuid)
                                 }}>Modifier</Button>}
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
+                            {!loading && <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
                                 <Typography className={"doc-title"}>{res.title}</Typography>
                                 <div className={"heading"}>
                                     {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
                                 </div>
-                            </Stack>
+                            </Stack>}
                         </Box>
                     ))}
                 </TemplateStyled>
