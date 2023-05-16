@@ -6,7 +6,7 @@ import Tab from '@mui/material/Tab';
 import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
@@ -20,12 +20,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {configSelector} from "@features/base";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {useRequestMutation} from "@app/axios";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const humanizeDuration = require("humanize-duration");
 

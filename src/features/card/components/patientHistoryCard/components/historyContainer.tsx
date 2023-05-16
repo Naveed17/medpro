@@ -15,13 +15,13 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {MotifCard, PatientHistoryCard, PatientHistoryStaticCard} from "@features/card";
 import Image from "next/image";
-import {useRequestMutation} from "@app/axios";
-import {DefaultCountry} from "@app/constants";
-import {useAppSelector} from "@app/redux/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {DefaultCountry} from "@lib/constants";
+import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function HistoryContainer({...props}) {
     const {

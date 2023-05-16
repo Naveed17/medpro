@@ -3,12 +3,12 @@ import {useTranslation} from 'next-i18next'
 import React, {useEffect, useState} from 'react';
 import {Badge, Card, CircularProgress, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;

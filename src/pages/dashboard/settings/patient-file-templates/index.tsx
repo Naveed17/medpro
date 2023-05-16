@@ -17,10 +17,10 @@ import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {configSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -30,11 +30,11 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();

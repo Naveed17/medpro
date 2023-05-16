@@ -11,13 +11,13 @@ import {
     SetMutationDoc,
     SetPatient,
 } from "@features/toolbar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {
@@ -44,11 +44,11 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {appLockSelector} from "@features/appLock";
 import moment from "moment";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
-import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
+import {DefaultCountry} from "@lib/constants";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 

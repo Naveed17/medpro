@@ -9,13 +9,13 @@ import {Box, Button, Stack, Drawer} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useSession} from "next-auth/react";
 
 const CardData = {

@@ -19,11 +19,11 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
@@ -36,9 +36,9 @@ import RecondingBoxStyle from '@features/card/components/consultationDetailCard/
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({

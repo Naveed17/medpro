@@ -10,13 +10,13 @@ import {Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {getDifference, useMedicalEntitySuffix} from "@app/hooks";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {getDifference, useMedicalEntitySuffix} from "@lib/hooks";
 
 function Acts() {
     const {data: session} = useSession();

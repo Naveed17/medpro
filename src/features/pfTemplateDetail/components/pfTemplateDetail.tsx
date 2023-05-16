@@ -17,14 +17,14 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {SearchInput} from "@features/input";
 
 const FormBuilder: any = dynamic(

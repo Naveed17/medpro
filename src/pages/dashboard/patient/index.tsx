@@ -20,7 +20,7 @@ import {
     Fab
 } from "@mui/material";
 // redux
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     onOpenPatientDrawer,
     Otable,
@@ -32,7 +32,7 @@ import {PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -42,7 +42,7 @@ import {
     onResetPatient, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail,
     Dialog,
@@ -50,7 +50,7 @@ import {
     PatientDetail,
 } from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@app/hooks";
+import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";

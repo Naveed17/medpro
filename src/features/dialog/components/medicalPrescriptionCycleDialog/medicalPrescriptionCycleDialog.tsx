@@ -45,18 +45,18 @@ import {
     setModelName,
     setParentModel
 } from "@features/dialog";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {motion, AnimatePresence} from "framer-motion";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {a11yProps, useMedicalProfessionalSuffix} from "@app/hooks";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {a11yProps, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {useTranslation} from "next-i18next";

@@ -23,14 +23,14 @@ import Icon from '@themes/urlIcon'
 import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 
 export const BalanceSheetCardData = {

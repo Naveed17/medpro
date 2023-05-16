@@ -29,7 +29,7 @@ import AddIcon from "@mui/icons-material/Add";
 import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 

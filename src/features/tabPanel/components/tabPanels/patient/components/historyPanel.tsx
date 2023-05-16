@@ -2,7 +2,7 @@ import {Box, Button, DialogActions, Stack, Typography, useTheme} from '@mui/mate
 import {HistoryContainer} from '@features/card'
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,8 +13,8 @@ import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@app/axios";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function HistoryPanel({...props}) {
     const {

@@ -19,7 +19,7 @@ import RootStyled from "./overrides/rootStyled";
 import {ModelDot} from '@features/modelDot'
 import {useRouter} from "next/router";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment/moment";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
@@ -28,10 +28,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import {configSelector} from "@features/base";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;

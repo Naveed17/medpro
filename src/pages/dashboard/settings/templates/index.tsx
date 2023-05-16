@@ -11,9 +11,9 @@ import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
 import {useSession} from "next-auth/react";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function TemplatesConfig() {
     const router = useRouter();

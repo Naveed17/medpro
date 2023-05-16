@@ -13,7 +13,7 @@ import React, {useEffect, useState} from "react";
 import MedicalPrescriptionModelDialogStyled from "./overrides/medicalPrescriptionModelDialogStyled";
 import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {prescriptionSelector, setModelName, setParentModel} from "@features/dialog";
 
 function MedicalPrescriptionModelDialog({...props}) {

@@ -10,7 +10,7 @@ import {
 } from '@thaddeusjiang/react-sortable-list';
 import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {SetQualifications} from "@features/checkList";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 
 

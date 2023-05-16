@@ -8,18 +8,18 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
-import {DefaultCountry} from "@app/constants";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {DefaultCountry} from "@lib/constants";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,

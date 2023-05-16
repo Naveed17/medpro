@@ -8,7 +8,7 @@ import {
     leftActionBarSelector,
     setFilter
 } from "@features/leftActionBar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {dashLayoutSelector} from "@features/base";
 

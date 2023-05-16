@@ -10,7 +10,7 @@ import {
 } from "./overrides";
 import { ActionBarState, setFilter } from "@features/leftActionBar";
 import React, { useState } from "react";
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { LoadingScreen } from "@features/loadingScreen";
 import { useRouter } from "next/router";
 

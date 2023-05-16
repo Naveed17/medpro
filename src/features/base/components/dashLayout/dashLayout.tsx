@@ -3,11 +3,11 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
@@ -17,8 +17,8 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification, useMedicalEntitySuffix} from "@app/hooks";
-import {isAppleDevise} from "@app/hooks/isAppleDevise";
+import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
+import {isAppleDevise} from "@lib/hooks/isAppleDevise";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 

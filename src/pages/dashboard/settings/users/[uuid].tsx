@@ -24,16 +24,16 @@ import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {DatePicker} from "@features/datepicker";
 import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function NewUser() {
     const router = useRouter();

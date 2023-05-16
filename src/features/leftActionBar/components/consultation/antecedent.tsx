@@ -19,9 +19,9 @@ import ContentStyled from "./overrides/contantStyle";
 import React from "react";
 import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Antecedent({...props}) {
 

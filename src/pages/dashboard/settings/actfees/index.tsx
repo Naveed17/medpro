@@ -23,7 +23,7 @@ import {
     DialogActions,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
@@ -31,18 +31,18 @@ import {Otable} from "@features/table";
 import {
     SWRNoValidateConfig,
     TriggerWithoutValidation,
-} from "@app/swr/swrProvider";
+} from "@lib/swr/swrProvider";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
