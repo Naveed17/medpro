@@ -1,3 +1,11 @@
+## [4.17.8](https://github.com/SmartMedSA/med-pro/compare/v4.17.7...v4.17.8) (2023-05-16)
+
+
+### Bug Fixes
+
+* family his undefined response ([8aa1826](https://github.com/SmartMedSA/med-pro/commit/8aa1826e87820eceb4dc099c96cd9f4405533121))
+* Opening hours bug ([2e4ab9a](https://github.com/SmartMedSA/med-pro/commit/2e4ab9a9d7bce8e0d67c487fc7521761223c7268))
+
 ## [4.17.7](https://github.com/SmartMedSA/med-pro/compare/v4.17.6...v4.17.7) (2023-05-05)
 
 
