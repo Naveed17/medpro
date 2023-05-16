@@ -21,9 +21,6 @@ function NotesPanel({...props}) {
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
     const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");

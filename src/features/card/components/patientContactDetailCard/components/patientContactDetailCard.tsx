@@ -123,7 +123,7 @@ function PatientContactDetailCard({...props}) {
         },
     });
 
-    const {values, touched, errors, getFieldProps, setFieldValue} = formik;
+    const {values, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 

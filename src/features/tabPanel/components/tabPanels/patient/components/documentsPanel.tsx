@@ -62,13 +62,10 @@ function DocumentsPanel({...props}) {
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
-    // query media for mobile
-    const isMobile = useMediaQuery("(max-width:600px)");
     const theme = useTheme();
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     // filter checked array
-    const [checked, setChecked] = useState<PatientDocuments[]>(documents);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
