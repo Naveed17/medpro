@@ -127,6 +127,7 @@ function Widget({...props}) {
         setChanges,
         isClose,
         handleClosePanel,
+        previousData,
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
 
@@ -172,6 +173,7 @@ function Widget({...props}) {
                     setSelectedAct,
                     selectedAct,
                     setSelectedUuid,
+                    previousData,
                     appuuid
                 }}/>)
             }
@@ -185,6 +187,7 @@ function Widget({...props}) {
                     setSelectedAct,
                     selectedAct,
                     setSelectedUuid,
+                    previousData,
                     appuuid
                 }}/>)
             }
