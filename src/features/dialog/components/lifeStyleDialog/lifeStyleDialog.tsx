@@ -13,7 +13,7 @@ import {
     TextField,
     Typography
 } from '@mui/material'
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";

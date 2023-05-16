@@ -21,7 +21,7 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@app/*": ["src/app/*"],
+      "@lib/*": ["src/lib/*"],
       "@features/*": ["src/features/*"],
       "@styles/*": ["src/styles/*"],
       "@types/*": ["src/types/*"],

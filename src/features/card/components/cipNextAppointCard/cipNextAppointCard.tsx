@@ -5,7 +5,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import CipNextAppointCardStyled from './overrides/cipNextAppointCardStyle';
 import Icon from "@themes/urlIcon";
 // redux
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {openDrawer,} from "@features/dialog";
 import {ModelDot} from "@features/modelDot";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";

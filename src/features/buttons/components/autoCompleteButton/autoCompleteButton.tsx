@@ -5,14 +5,14 @@ import AddIcon from '@mui/icons-material/Add';
 import {useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AutoCompleteButton({...props}) {
     const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;

@@ -23,23 +23,23 @@ import {
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',

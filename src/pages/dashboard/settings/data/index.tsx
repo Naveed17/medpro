@@ -15,7 +15,7 @@ import {
 import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {ImportDataMobileCard, NoDataCard} from "@features/card";
 import {
     importDataUpdate,
@@ -27,15 +27,15 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 import IconUrl from "@themes/urlIcon";
 import {resetDuplicated} from "@features/duplicateDetected";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useSession} from "next-auth/react";
 
 const PatientDetail = dynamic(

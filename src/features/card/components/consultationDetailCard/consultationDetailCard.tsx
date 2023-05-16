@@ -4,21 +4,21 @@ import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyl
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function CIPPatientHistoryCard({...props}) {
     const {

@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import IconUrl from "@themes/urlIcon";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import { DefaultCountry } from "@app/constants";
+import { DefaultCountry } from "@lib/constants";
 
 function ActFeesRow({ ...props }) {
   const { row, editMotif, data, t } = props;

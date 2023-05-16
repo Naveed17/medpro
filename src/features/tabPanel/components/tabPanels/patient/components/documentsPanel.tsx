@@ -14,7 +14,6 @@ import {
     Tabs,
     Toolbar,
     Typography,
-    useMediaQuery,
     useTheme,
 } from "@mui/material";
 
@@ -26,7 +25,7 @@ import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
-import {a11yProps} from "@app/hooks";
+import {a11yProps} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment/moment";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
@@ -57,18 +56,15 @@ const AddAppointmentCardData = {
 function DocumentsPanel({...props}) {
     const {
         documents, documentViewIndex, patient,
-        patientId, roles, setOpenUploadDialog,
+        roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
-    // query media for mobile
-    const isMobile = useMediaQuery("(max-width:600px)");
     const theme = useTheme();
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     // filter checked array
-    const [checked, setChecked] = useState<PatientDocuments[]>(documents);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();

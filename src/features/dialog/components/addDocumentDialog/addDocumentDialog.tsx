@@ -4,7 +4,7 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";

@@ -13,7 +13,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import IconUrl from "@themes/urlIcon";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import { DefaultCountry } from "@app/constants";
+import { DefaultCountry } from "@lib/constants";
 function ActfeesMobileCard({ ...props }) {
   const { data, editMotif, t, handleSelected } = props;
   const [fees, setFees] = useState("");

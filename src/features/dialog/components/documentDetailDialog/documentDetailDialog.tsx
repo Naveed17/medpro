@@ -23,10 +23,10 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
@@ -43,7 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 

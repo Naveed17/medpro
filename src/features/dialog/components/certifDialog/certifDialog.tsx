@@ -23,7 +23,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -41,9 +41,9 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,

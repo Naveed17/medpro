@@ -16,27 +16,27 @@ import {
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import Icon from "@themes/urlIcon";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function PersonalInsuranceCard({...props}) {
     const {

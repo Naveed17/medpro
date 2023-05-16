@@ -9,7 +9,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";

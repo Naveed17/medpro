@@ -44,6 +44,7 @@
     "start_the_consultation": "Commencer la consultation",
     "next_consultation": "Prochaine consultation",
     "start": "Commencer",
+    "more": "Plus",
     "next": "Prochain",
     "is_next": "Suivant",
     "see_patient_form": "Voir fiche Patient",
@@ -57,8 +58,8 @@
     "desc": "Selectionner RDV et ajouter le patient dans salle d'attente",
     "table": {
       "Id": "Id",
-      "arrival time": "heure d'arrivée",
-      "appointment time": "Heure du RDV",
+      "arrival time": "Arrivé à",
+      "appointment time": "RDV à",
       "reason": "Motif",
       "status": "Statut",
       "patient": "Patient",

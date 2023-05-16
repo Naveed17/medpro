@@ -12,11 +12,11 @@ import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import IconUrl from "@themes/urlIcon";
 import AccessMenageStyled from "./overrides/accessMenageStyle";
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector } from "@lib/redux/hooks";
 import { Dialog as CustomDialog } from "@features/dialog";
 import { configSelector } from "@features/base";
 import { AddVisitorDialog } from "@features/dialog";
-import { useRequest,useRequestMutation } from "@app/axios";
+import { useRequest,useRequestMutation } from "@lib/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { LoadingButton } from "@mui/lab";
@@ -41,7 +41,7 @@ function AccessMenage({ ...props }) {
       Authorization: `Bearer ${session?.accessToken}`,
     },
   });
-  
+
    useEffect(() => {
     setMainLoading(true)
     new Promise(function (resolve, reject) {
@@ -52,10 +52,10 @@ function AccessMenage({ ...props }) {
     }
     }).finally(() => setMainLoading(false))
     }, [httpProfilesResponse])
-    
+
   const [openVisitorDialog, setVisitorDialog] = useState(false);
   const [openDeleteDialog, setDeleteDialog] = useState(false);
-  
+
   const [selected, setSelected] = useState<any>(null);
   const {trigger} = useRequestMutation(null, "/profile");
   const onDelete = (props: any) => {
@@ -74,7 +74,7 @@ function AccessMenage({ ...props }) {
           mutate();
         })
   }
-       
+
   const handleClose = () =>
     setTimeout(() => {
       setVisitorDialog(false);
@@ -126,9 +126,9 @@ function AccessMenage({ ...props }) {
                 <IconUrl path="setting/edit" />
               </IconButton>
               )}
-              
+
              {
-              !item ? <Skeleton width={25} height={40} />:  
+              !item ? <Skeleton width={25} height={40} />:
               (<IconButton
                 onClick={() => onDelete(item)}
                 size="small"

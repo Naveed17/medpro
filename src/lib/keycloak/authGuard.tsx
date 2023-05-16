@@ -6,7 +6,7 @@ import {useTranslation} from "next-i18next";
 import LockIcon from "@themes/overrides/icons/lockIcon";
 import {setLock} from "@features/appLock";
 import {toggleSideBar} from "@features/menu";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "../redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
     const {data: session, status} = useSession();

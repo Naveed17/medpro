@@ -19,14 +19,14 @@ import {
 import { addBilling, TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 // redux
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { alpha, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import { Label } from "@features/label";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import { DefaultCountry } from "@app/constants";
+import { DefaultCountry } from "@lib/constants";
 import { PaymentFeesPopover } from "@features/popover";
 
 function PaymentRow({ ...props }) {

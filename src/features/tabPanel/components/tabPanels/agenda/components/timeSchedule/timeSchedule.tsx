@@ -10,8 +10,8 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -21,7 +21,7 @@ import {
     appointmentSelector, setAppointmentDate,
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
@@ -42,7 +42,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;

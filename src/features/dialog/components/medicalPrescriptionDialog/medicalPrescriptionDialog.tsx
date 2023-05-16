@@ -25,7 +25,7 @@ import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,13 +34,13 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;

@@ -2,17 +2,17 @@ import React, {useEffect, useState} from "react";
 import {HistoryCard, HistoryContainer,} from "@features/card";
 import {Label} from "@features/label";
 import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {SetSelectedApp} from "@features/toolbar";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import Icon from "@themes/urlIcon";
 import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function HistoryTab({...props}) {
 

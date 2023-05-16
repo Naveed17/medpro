@@ -25,7 +25,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -34,7 +34,7 @@ import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded
 import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
 import PreviewA4 from "@features/files/components/previewA4";
@@ -43,7 +43,7 @@ import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
