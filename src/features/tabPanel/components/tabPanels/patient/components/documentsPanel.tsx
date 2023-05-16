@@ -125,7 +125,7 @@ function DocumentsPanel({...props}) {
                                          borderRadius={2}
                                          style={{background: "white"}}>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={card.uri}
+                                        <img src={card.uri.thumbnails['thumbnail_128']}
                                              className={"image-cover"}
                                              alt={card.title}/>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
@@ -294,7 +294,7 @@ function DocumentsPanel({...props}) {
                                                      borderRadius={2}
                                                      style={{background: "white"}}>
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={card.uri}
+                                                    <img src={card.uri.thumbnails['thumbnail_128']}
                                                          className={"image-cover"}
                                                          alt={card.title}/>
 

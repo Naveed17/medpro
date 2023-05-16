@@ -200,7 +200,7 @@ function PatientRow({...props}) {
                                                 width={20}
                                                 height={20}
                                                 loader={({src, width, quality}) => {
-                                                    return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl
+                                                    return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl.url
                                                 }}
                                             />
                                         </Avatar>

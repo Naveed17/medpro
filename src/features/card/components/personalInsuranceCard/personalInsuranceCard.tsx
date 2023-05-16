@@ -392,7 +392,7 @@ function PersonalInsuranceCard({...props}) {
                                                                             borderRadius: 0.4
                                                                         }}
                                                                         alt="insurance"
-                                                                        src={insur?.logoUrl}
+                                                                        src={insur?.logoUrl.url}
                                                                     />}
                                                                 <Typography
                                                                     ml={1}>{insur?.name}</Typography>
