@@ -75,7 +75,7 @@ function ModelPrescriptionList({...props}) {
     return (
         <>
             <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-                <TreeStyled className={"lib"}>
+                <TreeStyled className={"app"}>
                     <Tree
                         tree={treeData}
                         rootId={0}

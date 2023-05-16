@@ -270,7 +270,7 @@ function DocumentsPanel({...props}) {
                             }}
                         >
                             <CardContent>
-                                <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
+                                <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                     <Toolbar variant="dense">
                                         <Box sx={{flexGrow: 1}}>
                                             <Typography
@@ -330,7 +330,7 @@ function DocumentsPanel({...props}) {
                         }}
                     >
                         <CardContent>
-                            <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
+                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                 <Toolbar variant="dense">
                                     <Box sx={{flexGrow: 1}}>
                                         <Typography

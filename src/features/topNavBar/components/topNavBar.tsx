@@ -379,7 +379,7 @@ function TopNavBar({...props}) {
                                         onClick={handleInstallClick}
                                         startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
                                         variant={"contained"}>
-                                    {"Installer l'lib"}
+                                    {"Installer l'app"}
                                 </Button>
                             }
                             {topBar.map((item, index) => (
@@ -427,8 +427,8 @@ function TopNavBar({...props}) {
                                     if (localStorage.getItem("app_lock")) {
                                         openAppLock()
                                     } else {
-                                        enqueueSnackbar(t("lib-lock.update-pass"), {variant: 'info'})
-                                        router.push('/dashboard/settings/lib-lock');
+                                        enqueueSnackbar(t("app-lock.update-pass"), {variant: 'info'})
+                                        router.push('/dashboard/settings/app-lock');
                                     }
                                 }}
                                 className="custom-badge badge">
