@@ -21,19 +21,19 @@ import {
 import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {Popover} from "@features/popover";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const menuList = [
     {

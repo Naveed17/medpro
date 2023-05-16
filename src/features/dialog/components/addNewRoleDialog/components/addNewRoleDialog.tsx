@@ -23,7 +23,7 @@ import { IconButton } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import { useSession } from "next-auth/react";
-import { useRequestMutation,useRequest } from "@app/axios";
+import { useRequestMutation,useRequest } from "@lib/axios";
 import { Session } from "next-auth";
 import {useRouter} from "next/router";
 import { LoadingButton } from "@mui/lab";
@@ -65,7 +65,7 @@ function AddNewRoleDialog({ ...props }) {
           const updatePermissions =  handleUpdatedPermissions(permissions);
           setPermissions(updatePermissions);
         }
-      
+
     }, [httpPermissionsResponse]);
 
     const handleUpdatedPermissions = (permissions: any) => {
@@ -114,7 +114,7 @@ const RoleSchema = Yup.object().shape({
           }
         }
       }
-      
+
     }
       const form = new FormData();
       form.append("name", values.role_name);
@@ -144,7 +144,7 @@ const RoleSchema = Yup.object().shape({
            setLoading(false)
         })
       }
-     
+
     },
     validationSchema: RoleSchema,
   });
@@ -323,7 +323,7 @@ const RoleSchema = Yup.object().shape({
   //     setPermissions(newPermissions);
   //   }
   // };
-  
+
   return (
     <>
       <FormikProvider value={formik}>
@@ -361,7 +361,7 @@ const RoleSchema = Yup.object().shape({
                       label={t("users.dialog.select_all")}
                       checked={allValuesTrue}
                     />
-                  </ListItem>: 
+                  </ListItem>:
                   <ListItem>
                     <Skeleton width={25} height={40} />
                         <Skeleton width={ 150 } sx={{ml:1}} />
@@ -369,16 +369,16 @@ const RoleSchema = Yup.object().shape({
                    }
                   {(values.permissions.length === 0 ? Array.from({length:5}):values.permissions)?.map((item: any, idx: number) => (
                     <React.Fragment key={item ? item.uuid:idx}>
-                      {item ? 
+                      {item ?
                       <ListItem className="main-list">
-                        
+
                         <FormControlLabel
                         {
                           ...(item.children && {
                             className: item.children.length > 0 ? "bold-label" : "simple-label",
                           })
                         }
-                          
+
                           control={
                             <Checkbox
                               {...getFieldProps(`permissions[${idx}].value`)}
@@ -387,7 +387,7 @@ const RoleSchema = Yup.object().shape({
                           }
                           label={t("permissions." + item.slug,{ns:'common'})}
                         />
-                      
+
                         <IconButton
                           sx={{
                             display: item.children.length > 0 ? "block" : "none",
@@ -416,7 +416,7 @@ const RoleSchema = Yup.object().shape({
                                     {...(insideItem.children && {
                                       className: "bold-label",
                                     })}
-                              
+
                                       control={
                                         <Checkbox
                                           {...
@@ -424,15 +424,15 @@ const RoleSchema = Yup.object().shape({
                                                 `permissions[${idx}].children[${i}].value`
                                               )
                                             }
-                                           
+
                                           checked={insideItem.value}
                                         />
                                       }
                                       label={t("permissions." + insideItem.slug,{ns:'common'})}
                                     />
-                                   
+
                                   </ListItem>
-                                  
+
                                 </React.Fragment>
                               )
                             )}
@@ -445,7 +445,7 @@ const RoleSchema = Yup.object().shape({
               </Card>
             </Box>
           </RootStyled>
-        
+
             <Stack
               p={1}
               direction="row"

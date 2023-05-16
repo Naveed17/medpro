@@ -8,11 +8,11 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpIcon from "@mui/icons-material/Help";
 import IconUrl from "@themes/urlIcon";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 type ChipColors = OverridableStringUnion<
     | "default"

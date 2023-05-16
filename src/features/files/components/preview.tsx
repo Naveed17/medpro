@@ -3,7 +3,7 @@ import Prescription from "./prescription";
 import moment from "moment";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;

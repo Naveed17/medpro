@@ -6,7 +6,7 @@ import { RootStyled } from "@features/customStepper";
 import { TabPanel } from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/core/internal";
 import { setStepperIndex } from "@features/calendar";
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 
 function a11yProps(index: number) {
   return {

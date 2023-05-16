@@ -27,7 +27,7 @@ const {sidebarItems} = siteHeader;
 import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useEffect, useRef, useState} from "react";
 import {
     sideBarSelector,
@@ -44,7 +44,7 @@ import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
-import {unsubscribeTopic} from "@app/hooks";
+import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 

@@ -26,17 +26,17 @@ import {RootStyled} from "@features/toolbar";
 import {configSelector} from "@features/base";
 import {Dialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {checkListSelector} from "@features/checkList";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Profil() {
     const {data: session} = useSession();

@@ -21,7 +21,7 @@ import { ModelDot } from "@features/modelDot";
 import { PaymentFeesPopover } from "@features/popover";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { DefaultCountry } from "@app/constants";
+import { DefaultCountry } from "@lib/constants";
 function PaymentMobileCard({ ...props }) {
   const {
     data,

@@ -8,10 +8,10 @@ import PanelCardStyled from "./overrides/panelCardStyled";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import {useRequestMutation} from "@app/axios";
-import {useAppSelector} from "@app/redux/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
@@ -70,7 +70,7 @@ function NotesPanel({...props}) {
         <PanelCardStyled>
             <CardContent>
                 <Grid container>
-                    <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                    <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
                         <Toolbar variant="dense">
                             <Box sx={{flexGrow: 1}}>
                                 <Typography

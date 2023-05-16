@@ -9,18 +9,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import RootStyled from "./overrides/rootStyled";
 // utils
 import Icon from "@themes/urlIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {styled} from "@mui/system";
 import {TooltipProps} from "@mui/material/Tooltip";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const emptyObject = {
     title: "",

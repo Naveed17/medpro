@@ -30,7 +30,7 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -39,8 +39,8 @@ import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {
     SWRNoValidateConfig
-} from "@app/swr/swrProvider";
-import {useRequest, useRequestMutation} from "@app/axios";
+} from "@lib/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -49,7 +49,7 @@ import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
 import {cashBoxSelector} from "@features/leftActionBar";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
     setInsurances,
@@ -58,7 +58,7 @@ import {
 import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 interface HeadCell {
     disablePadding: boolean;

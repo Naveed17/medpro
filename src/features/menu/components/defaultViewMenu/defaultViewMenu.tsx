@@ -12,12 +12,12 @@ import {Collapse, ListItemButton, SvgIcon, Typography, useTheme} from "@mui/mate
 import {ToggleButtonStyled} from "@features/toolbar";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {setView} from "@features/calendar";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 
 const VIEW_OPTIONS = [

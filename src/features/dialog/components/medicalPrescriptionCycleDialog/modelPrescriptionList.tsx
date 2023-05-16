@@ -14,11 +14,11 @@ import {
 import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, initialOpenData, switchPrescriptionModel} = props;
@@ -75,7 +75,7 @@ function ModelPrescriptionList({...props}) {
     return (
         <>
             <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-                <TreeStyled className={"app"}>
+                <TreeStyled className={"lib"}>
                     <Tree
                         tree={treeData}
                         rootId={0}

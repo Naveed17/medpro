@@ -22,7 +22,7 @@ import IconUrl from "@themes/urlIcon";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 const limit = 255;
 

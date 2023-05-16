@@ -18,7 +18,7 @@ import {
     Typography, useMediaQuery, useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -34,11 +34,11 @@ import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (

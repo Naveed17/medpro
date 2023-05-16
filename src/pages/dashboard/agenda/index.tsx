@@ -21,7 +21,7 @@ import {CalendarToolbar} from "@features/toolbar";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -30,7 +30,7 @@ const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
 import {EventDef} from "@fullcalendar/core/internal";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     DayOfWeek,
@@ -47,7 +47,7 @@ import {
     setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail, QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime
@@ -61,14 +61,14 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 
 const actions = [

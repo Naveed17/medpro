@@ -6,7 +6,7 @@ import HistoryCardStyled from "./overrides/historyCardStyle";
 import moment from "moment/moment";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {openDrawer} from "@features/dialog";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 
 export default function HistoryCard({...props}) {

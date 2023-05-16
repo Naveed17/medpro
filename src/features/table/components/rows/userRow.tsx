@@ -6,7 +6,7 @@ import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table";
 import Switch from "@mui/material/Switch";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {editUser} from "@features/table";
 import {uniqueId} from "lodash";
 

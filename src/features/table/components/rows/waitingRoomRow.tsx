@@ -23,7 +23,7 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 
 function WaitingRoomRow({...props}) {

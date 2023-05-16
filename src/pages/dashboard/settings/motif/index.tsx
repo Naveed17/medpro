@@ -28,13 +28,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {configSelector} from "@features/base";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useDateConverture, useMedicalEntitySuffix} from "@app/hooks";
+import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 
@@ -42,7 +42,7 @@ const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
 );
 import {LoadingScreen} from "@features/loadingScreen";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";

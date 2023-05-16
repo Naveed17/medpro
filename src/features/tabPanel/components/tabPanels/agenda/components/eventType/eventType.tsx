@@ -14,7 +14,7 @@ import {useTranslation} from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";

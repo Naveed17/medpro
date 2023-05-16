@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {LocaleFnsProvider} from "@app/localization";
+import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
@@ -9,11 +9,11 @@ import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {PickersDay, StaticDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 type CalendarPickerView = "day" | "month" | "year";
 

@@ -9,9 +9,9 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
@@ -19,7 +19,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {SettingAgendaMobileCard, NoDataCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Agenda() {
     const CardData = {

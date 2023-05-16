@@ -4,7 +4,7 @@ import RootStyled from "./overrides/rootSyled";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function EndConsultationDialog({...props}) {
     const {data: {t}} = props;

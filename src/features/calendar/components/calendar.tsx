@@ -23,7 +23,7 @@ import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
@@ -37,7 +37,7 @@ import dynamic from "next/dynamic";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
-import {useIsMountedRef} from "@app/hooks";
+import {useIsMountedRef} from "@lib/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";

@@ -26,7 +26,7 @@ import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
-import {a11yProps} from "@app/hooks";
+import {a11yProps} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment/moment";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
@@ -270,7 +270,7 @@ function DocumentsPanel({...props}) {
                             }}
                         >
                             <CardContent>
-                                <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                                <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
                                     <Toolbar variant="dense">
                                         <Box sx={{flexGrow: 1}}>
                                             <Typography
@@ -330,7 +330,7 @@ function DocumentsPanel({...props}) {
                         }}
                     >
                         <CardContent>
-                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                            <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
                                 <Toolbar variant="dense">
                                     <Box sx={{flexGrow: 1}}>
                                         <Typography

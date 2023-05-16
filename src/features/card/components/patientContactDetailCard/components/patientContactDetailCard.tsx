@@ -25,26 +25,26 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
 
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -229,7 +229,7 @@ function PatientContactDetailCard({...props}) {
                 <RootStyled>
                     <CardContent>
                         <Grid container>
-                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                            <AppBar position="static" color={"transparent"} className={"lib-bar-header"}>
                                 <Toolbar variant="dense">
                                     <Box sx={{flexGrow: 1}}>
                                         <Typography

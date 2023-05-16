@@ -1,7 +1,7 @@
 import useSWRMutation, {SWRMutationConfiguration, SWRMutationResponse} from "swr/mutation";
 import {AxiosError, AxiosResponse} from "axios";
-import {GetRequest} from "@app/axios/config";
-import {instanceAxios} from "@app/axios";
+import {GetRequest} from "../axios/config";
+import {instanceAxios} from "../axios";
 
 
 interface ReturnMutation<DataMutation, Error>

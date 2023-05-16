@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import Icon from "@themes/icon";
 import {pxToRem} from "@themes/formatFontSize";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useRef, useState} from "react";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
@@ -30,11 +30,11 @@ import {useSession} from "next-auth/react";
 import axios from "axios";
 import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
-import {unsubscribeTopic, useMedicalEntitySuffix} from "@app/hooks";
+import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 
 function ProfilMenu() {

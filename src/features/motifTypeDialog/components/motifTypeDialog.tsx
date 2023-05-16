@@ -19,7 +19,7 @@ import {
 import {styled} from "@mui/material/styles";
 import React from "react";
 import {useTranslation} from "next-i18next";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -27,10 +27,10 @@ import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useSnackbar} from "notistack";
-import {DefaultCountry} from "@app/constants";
-import {useAppSelector} from "@app/redux/hooks";
+import {DefaultCountry} from "@lib/constants";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const icons = [
     "ic-consultation",
