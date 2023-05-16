@@ -123,6 +123,7 @@ function ConsultationInProgress() {
     const [isHistory, setIsHistory] = useState(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
+    const [previousData, setPreviousData] = useState(null);
     const [end, setEnd] = useState(false);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
@@ -211,6 +212,12 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
+    const {data: httpPreviousResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
@@ -269,6 +276,14 @@ function ConsultationInProgress() {
             setLoading(false);
         }
     }, [httpAppResponse]);
+    useEffect(() => {
+        if (httpPreviousResponse){
+            const data = (httpPreviousResponse as HttpResponse).data.data;
+            if (data){
+                setPreviousData(data);
+            }
+        }
+    }, [httpPreviousResponse]);
 
     useEffect(() => {
         setInfo(null);
@@ -894,7 +909,7 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
+                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
