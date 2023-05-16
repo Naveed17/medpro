@@ -66,7 +66,7 @@ function AddNewRoleDialog({ ...props }) {
           setPermissions(updatePermissions);
         }
 
-    }, [httpPermissionsResponse]);
+    }, [httpPermissionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleUpdatedPermissions = (permissions: any) => {
       if (selected) {
