@@ -7,7 +7,6 @@ import React, {useState} from "react";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
 import {useRequestMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";

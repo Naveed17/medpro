@@ -14,7 +14,6 @@ import {
     Tabs,
     Toolbar,
     Typography,
-    useMediaQuery,
     useTheme,
 } from "@mui/material";
 
@@ -57,7 +56,7 @@ const AddAppointmentCardData = {
 function DocumentsPanel({...props}) {
     const {
         documents, documentViewIndex, patient,
-        patientId, roles, setOpenUploadDialog,
+        roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
