@@ -1,7 +1,7 @@
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import Box from '@mui/material/Box';
@@ -9,11 +9,11 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {LinearProgress, Stack} from "@mui/material";
 import React from "react";
 import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function PaymentFeesPopover({...props}) {
     const {uuid} = props;

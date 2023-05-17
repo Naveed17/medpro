@@ -14,7 +14,7 @@ import {
     Popover, useMediaQuery, Button, Drawer, Avatar
 } from "@mui/material";
 // components
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {siteHeader, sideBarSelector, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
 import {
@@ -38,7 +38,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
@@ -46,7 +46,7 @@ import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -114,7 +114,7 @@ function TopNavBar({...props}) {
     }
 
     const handleInstallClick = () => {
-        // Hide the app provided installation promotion
+        // Hide the lib provided installation promotion
         setInstallable(false);
         // Show the installation prompt
         deferredPrompt.prompt();

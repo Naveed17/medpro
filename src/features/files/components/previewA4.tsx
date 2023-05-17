@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import moment from "moment";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {

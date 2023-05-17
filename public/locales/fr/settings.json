@@ -381,6 +381,7 @@
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "ntc": "Nom est trop court",
         "delete": "Supprimer",
         "cancel": "Annuler"
       },
@@ -567,9 +568,9 @@
   },
   "days": {
     "MON": "Lundi",
-    "THU": "Mardi",
+    "TUE": "Mardi",
     "WED": "Mercredi",
-    "TUE": "Jeudi",
+    "THU": "Jeudi",
     "FRI": "Vendredi",
     "SUN": "Dimanche",
     "SAT": "Samedi"
@@ -578,6 +579,14 @@
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
       "add": "Ajouter un modèle",
+      "delete-dialog-title": "Supprimer modale",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "delete-dialog-desc": "Êtes-vous sûr de vouloir supprimer cette fenêtre modale ?",
+      "alert": {
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "modal-deleted": "Modal a été supprimé"
+      },
       "table": {
         "name": "Nom",
         "active": "Active",

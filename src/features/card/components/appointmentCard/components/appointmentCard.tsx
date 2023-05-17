@@ -14,18 +14,18 @@ import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AppointmentCard({...props}) {
     const {data, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;

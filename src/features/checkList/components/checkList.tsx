@@ -8,7 +8,7 @@ import {
 import CodeIcon from "@mui/icons-material/Code";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { SetAssurance, SetLangues, SetMode } from "@features/checkList";
 
 function CheckList({ ...props }) {

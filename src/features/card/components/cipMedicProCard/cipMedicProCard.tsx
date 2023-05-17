@@ -2,7 +2,7 @@ import {Typography, Button, Grid} from "@mui/material";
 import CipMedicProCardStyled from './overrides/cipMedicProCardStyle';
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function CipMedicProCard({...props}) {
     const {row, t} = props;

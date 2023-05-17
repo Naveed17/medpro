@@ -11,13 +11,13 @@ import {
     SetMutationDoc,
     SetPatient,
 } from "@features/toolbar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {
@@ -44,11 +44,11 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {appLockSelector} from "@features/appLock";
 import moment from "moment";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
-import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
+import {DefaultCountry} from "@lib/constants";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -123,6 +123,7 @@ function ConsultationInProgress() {
     const [isHistory, setIsHistory] = useState(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
+    const [previousData, setPreviousData] = useState(null);
     const [end, setEnd] = useState(false);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
@@ -211,6 +212,12 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
+    const {data: httpPreviousResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
@@ -269,6 +276,14 @@ function ConsultationInProgress() {
             setLoading(false);
         }
     }, [httpAppResponse]);
+    useEffect(() => {
+        if (httpPreviousResponse){
+            const data = (httpPreviousResponse as HttpResponse).data.data;
+            if (data){
+                setPreviousData(data);
+            }
+        }
+    }, [httpPreviousResponse]);
 
     useEffect(() => {
         setInfo(null);
@@ -894,7 +909,7 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid}}
+                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}

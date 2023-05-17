@@ -6,18 +6,18 @@ import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 

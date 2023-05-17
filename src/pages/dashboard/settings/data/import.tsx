@@ -30,18 +30,18 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import readXlsxFile from "read-excel-file";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {DefaultCountry} from "@app/constants";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {DefaultCountry} from "@lib/constants";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const RootStyled = styled(Box)(({theme}: { theme: Theme }) => ({
     ".tab-item": {

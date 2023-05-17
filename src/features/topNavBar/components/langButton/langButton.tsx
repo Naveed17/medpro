@@ -5,7 +5,7 @@ import { Button, Fade, ListItemText, MenuItem } from "@mui/material";
 import { Box } from "@mui/system";
 import Icon from "@themes/urlIcon";
 import GlobeIcon from "@themes/overrides/icons/globeIcon";
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector } from "@lib/redux/hooks";
 import { configSelector } from "@features/base";
 import { useRouter } from "next/router";
 

@@ -21,22 +21,22 @@ import {useTranslation} from "next-i18next";
 import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {SubHeader} from "@features/subHeader";
 import {configSelector} from "@features/base";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {MotifTypeCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function ConsultationType() {
     const theme: Theme = useTheme();

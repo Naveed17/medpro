@@ -8,9 +8,9 @@ import {
 } from "@mui/material";
 import {useRouter} from "next/router";
 import _ from "lodash";
-import {useIsMountedRef} from "@app/hooks";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useIsMountedRef} from "@lib/hooks";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 interface StateProps {
     states: string;

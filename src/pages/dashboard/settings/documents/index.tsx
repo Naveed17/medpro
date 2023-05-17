@@ -11,13 +11,13 @@ import {useFormik} from "formik";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, Card, CardContent, Grid, Stack, TextField, Typography} from "@mui/material";
 import autoTable from "jspdf-autotable";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib'
-import {useMedicalProfessionalSuffix} from "@app/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 
 function ConsultationType() {

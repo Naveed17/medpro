@@ -4,14 +4,14 @@ import IconUrl from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useSession} from "next-auth/react";
 
 function BoxsesFilter({...props}) {

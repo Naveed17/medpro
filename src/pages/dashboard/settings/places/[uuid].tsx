@@ -34,23 +34,23 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -189,12 +189,12 @@ function PlacesDetail() {
             isVisible: false,
             openingHours: {
                 MON: [],
-                THU: [],
-                WED: [],
                 TUE: [],
+                WED: [],
+                THU: [],
                 FRI: [],
                 SAT: [],
-                SUN: [],
+                SUN: []
             },
         },
     ]);
@@ -386,12 +386,12 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ]);
@@ -446,12 +446,12 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ];

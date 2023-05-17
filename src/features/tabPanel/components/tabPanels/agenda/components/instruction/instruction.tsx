@@ -18,14 +18,14 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     appointmentSelector,
     resetAppointment,
     setAppointmentInstruction,
     setAppointmentSubmit
 } from "@features/tabPanel";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import moment from "moment-timezone";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Instruction({...props}) {
     const {onNext, onBack, OnAction, modal} = props;

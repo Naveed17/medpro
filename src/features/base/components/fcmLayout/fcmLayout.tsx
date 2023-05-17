@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {firebaseCloudSdk} from "@app/firebase";
+import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Dialog,
@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -22,7 +22,7 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
@@ -30,12 +30,12 @@ import moment from "moment-timezone";
 import {setTimer} from "@features/card";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
-import {DefaultCountry, EnvPattern} from "@app/constants";
+import {DefaultCountry, EnvPattern} from "@lib/constants";
 import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function PaperComponent(props: PaperProps) {
     return (

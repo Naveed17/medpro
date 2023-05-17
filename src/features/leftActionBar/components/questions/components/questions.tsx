@@ -4,7 +4,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import Icon from '@themes/urlIcon';
 import QuestionStyled from './overrides/questionsStyle';
 import { useTranslation } from 'next-i18next';
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { setQs } from "@features/leftActionBar";
 import { upperFirst } from 'lodash';
 import data from './config';

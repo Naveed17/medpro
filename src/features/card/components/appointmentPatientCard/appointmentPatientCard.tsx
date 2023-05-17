@@ -5,7 +5,7 @@ import moment from "moment-timezone";
 import PaperStyled from "./overrides/paperStyled";
 import React from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function AppointmentPatientCard({...props}) {
     const {data, style} = props;

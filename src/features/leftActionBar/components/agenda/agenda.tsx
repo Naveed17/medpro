@@ -15,7 +15,7 @@ import {
     SidebarCheckboxStyled,
 } from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     AppointmentStatus,

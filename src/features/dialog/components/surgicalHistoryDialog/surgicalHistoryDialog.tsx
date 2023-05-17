@@ -3,7 +3,7 @@ import SurgicalHistoryDialogStyled from './overrides/surgicalHistoryDialogStyle'
 import { useTranslation } from 'next-i18next';
 import { TextField, Box, Stack, Typography } from '@mui/material'
 import {SetSubmit} from "@features/toolbar/components/consultationIPToolbar/actions";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import {LoadingScreen} from "@features/loadingScreen";
 function SurgicalHistoryDialog() {

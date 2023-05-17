@@ -20,8 +20,8 @@ import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -35,7 +35,7 @@ import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {AppointmentDetail, Dialog} from "@features/dialog";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
@@ -43,7 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {PDFViewer} from "@react-pdf/renderer";
-import {useMedicalEntitySuffix} from "@app/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function a11yProps(index: number) {
     return {

@@ -15,7 +15,7 @@ import {
 import {Otable, TableRowStyled} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
 import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment/moment";

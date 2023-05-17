@@ -1,4 +1,4 @@
-import {UrlMedicalEntitySuffix} from "@app/constants";
+import {UrlMedicalEntitySuffix} from "../constants";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 

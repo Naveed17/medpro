@@ -1,4 +1,4 @@
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import TextField from "@mui/material/TextField";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';

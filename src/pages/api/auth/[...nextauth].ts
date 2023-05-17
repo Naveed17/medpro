@@ -1,6 +1,6 @@
 import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
-import requestAxios, {setAxiosToken} from "@app/axios/config";
+import requestAxios, {setAxiosToken} from "@lib/axios/config";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {JWT} from "next-auth/jwt";
 

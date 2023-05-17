@@ -1,7 +1,7 @@
 import useSWR, {SWRConfiguration, SWRResponse} from "swr";
 import {AxiosResponse, AxiosError} from "axios";
-import {instanceAxios} from "@app/axios";
-import {GetRequest} from "@app/axios/config";
+import {instanceAxios} from "../axios";
+import {GetRequest} from "../axios/config";
 
 interface Return<Data, Error>
     extends Pick<

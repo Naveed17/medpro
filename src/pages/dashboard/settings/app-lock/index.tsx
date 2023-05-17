@@ -18,7 +18,7 @@ import {Form, FormikProvider, useFormik} from "formik";
 import {SubFooter} from "@features/subFooter";
 import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {toggleSideBar} from "@features/menu";
 import {LoadingScreen} from "@features/loadingScreen";
 
