@@ -104,11 +104,11 @@ main {
 
   label {
     float: left;
-    width: 6rem;
+    width: 5rem;
     margin-top: 0.4rem;
     margin-right: 1em;
     color: #7C878E;
-    font-size: 12px;
+    font-size: 10px;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
@@ -118,6 +118,7 @@ main {
     background: #F8FAFC;
     border: 1px solid #DDDDDD;
     border-radius: 6px;
+    font-size: 11px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -125,7 +126,7 @@ main {
     padding: 10px;
     gap: 10px;
     text-align: center;
-    width: 7rem;
+    width: 5rem;
     height: 2rem;
     flex: none;
     order: 1;
@@ -151,7 +152,7 @@ main {
 
   .form-text {
     color: #7C878E;
-    font-size: 12px;
+    font-size: 10px;
     margin: 0.4rem;
   }
 }
