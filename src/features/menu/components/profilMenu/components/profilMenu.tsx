@@ -90,8 +90,7 @@ function ProfilMenu() {
                 dispatch(logout({redirect: true, path}));
                 break;
             case 'profile':
-                isMobile ? router.push("/dashboard/settings") :
-                    router.push(`/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
+                router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
                 dispatch(toggleMobileBar(true));
                 break;
             case 'rooting':
