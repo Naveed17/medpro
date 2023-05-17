@@ -1,5 +1,5 @@
-import{useRequestMutation} from "../../axios";
-import {UrlMedicalEntitySuffix} from "../../constants";
+import{useRequestMutation} from "@lib/axios";
+import {UrlMedicalEntitySuffix} from "@lib/constants";
 
 function useAppointment(agenda: AgendaConfigurationModel, medical_entity_uuid: string, accessToken: string, locale: string, start?: string, end?: string) {
 
