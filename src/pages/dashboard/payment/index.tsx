@@ -59,6 +59,7 @@ import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -177,6 +178,7 @@ function Payment() {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
@@ -264,11 +266,6 @@ function Payment() {
 
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 

@@ -46,6 +46,7 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
+import {useInsurances} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -104,6 +105,7 @@ function OnStepPatient({...props}) {
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -296,11 +298,6 @@ function OnStepPatient({...props}) {
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
     }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
