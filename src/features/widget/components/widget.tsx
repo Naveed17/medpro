@@ -56,7 +56,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         if(previousData){
             cmp = [...modal];
             cmp[0].components.map((mc: { key: string; description: string; }) => {
-                const index = Object.keys(previousData).findIndex(pdata =>pdata = mc.key);
+                const index = Object.keys(previousData).findIndex(pdata =>pdata === mc.key);
                 if (index >-1 && !mc.description?.includes('(') && previousData[mc.key]) {
                     const unity = mc.description ? mc.description :"";
                     mc.description = ` (${previousData[mc.key]} ${unity}) `
