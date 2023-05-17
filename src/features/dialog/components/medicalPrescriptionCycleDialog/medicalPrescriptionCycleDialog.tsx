@@ -271,11 +271,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
 
-    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest({
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [

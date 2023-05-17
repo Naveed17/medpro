@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {
@@ -39,10 +39,12 @@ import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -90,11 +92,12 @@ function ActFees() {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [open,setOpen]=useState<boolean>(false)
-    const [selected,setSelected] = useState<any>("")
+    const [open, setOpen] = useState<boolean>(false)
+    const [selected, setSelected] = useState<any>("")
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
@@ -132,18 +135,12 @@ function ActFees() {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
-    const {data: httpMPResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
 
     useEffect(() => {
-        if (httpMPResponse) {
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
+        if (medicalProfessionalData) {
+            setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
         }
-    }, [httpMPResponse]);
+    }, [medicalProfessionalData]);
 
     useEffect(() => {
         setLoading(true);
@@ -205,13 +202,13 @@ function ActFees() {
                 enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
             });
         }).catch((error) => {
-        const {
-          response: { data },
-        } = error;
-        setLoading(false);
-        setOpen(false);
-        enqueueSnackbar(t("alert."+data.message.replace( /\s/g, '-').toLowerCase()), { variant: "error" });
-      });
+            const {
+                response: {data},
+            } = error;
+            setLoading(false);
+            setOpen(false);
+            enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+        });
     };
 
     const saveFees = () => {
@@ -291,10 +288,10 @@ function ActFees() {
             });
         });
     }
-const handleSelected = (prop:string)=>{
-    setOpen(true);
-    setSelected(prop)
-}
+    const handleSelected = (prop: string) => {
+        setOpen(true);
+        setSelected(prop)
+    }
     const handleScroll = () => {
         const total = (httpProfessionalsActs as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -311,10 +308,11 @@ const handleSelected = (prop:string)=>{
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise(function (resolve) {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
-                    resolve(window.addEventListener("scroll", handleScroll));
+                    window.addEventListener("scroll", handleScroll);
+                    resolve(true);
                 }, 2000);
             });
             promise.then(() => {
@@ -553,7 +551,7 @@ const handleSelected = (prop:string)=>{
                         rows={mainActes}
                         from={"actfees"}
                         edit={handleEdit}
-                        {...{t, loading,handleSelected}}
+                        {...{t, loading, handleSelected}}
                         total={(httpProfessionalsActs as HttpResponse)?.data?.total}
                         totalPages={(httpProfessionalsActs as HttpResponse)?.data?.totalPages}
                         pagination
@@ -566,50 +564,52 @@ const handleSelected = (prop:string)=>{
                                 <ActFeesMobileCard
                                     data={act}
                                     editMotif={handleEdit}
-                                    {...{t,handleSelected}}
+                                    {...{t, handleSelected}}
                                 />
                             </React.Fragment>
                         ))}
                     </Stack>
                 </MobileContainer>
             </Box>
-            <Dialog PaperProps={{sx:{
-        width: "100%"
-      }}} maxWidth="sm" open={open}>
-        <DialogTitle sx={{
-          bgcolor: (theme:Theme) => theme.palette.error.main,
-          px:1,
-          py:2,
+            <Dialog PaperProps={{
+                sx: {
+                    width: "100%"
+                }
+            }} maxWidth="sm" open={open}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
 
-        }}>
-         {t("dialog.delete-act-title")}
-        </DialogTitle>
-        <DialogContent style={{paddingTop:20}}>
-          <Typography>
-          {t("dialog.delete-act-desc")}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{borderTop:1,borderColor:"divider",px:1 ,py:2}}>
-            <Stack direction="row" spacing={1}>
-            <Button
-              onClick={() => {
+                }}>
+                    {t("dialog.delete-act-title")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("dialog.delete-act-desc")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
 
-                setOpen(false);
-              }}
-              startIcon={<CloseIcon />}>
-              {t("dialog.cancel")}
-            </Button>
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              color="error"
-              onClick={() => removeFees(selected?.uuid as any)}
-              startIcon={<Icon path="setting/icdelete" color="white" />}>
-              {t("dialog.delete")}
-            </LoadingButton>
-          </Stack>
-        </DialogActions>
-      </Dialog>
+                                setOpen(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            color="error"
+                            onClick={() => removeFees(selected?.uuid as any)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("dialog.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

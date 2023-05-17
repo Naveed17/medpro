@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,13 +17,17 @@ import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {getDifference, useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {useSWRConfig} from "swr";
 
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [mainActs, setMainActs] = useState<ActModel[]>([]);
     const [secondaryActs, setSecondaryActs] = useState<ActModel[]>([]);
@@ -35,18 +39,12 @@ function Acts() {
 
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
-    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
 
     const initialData = Array.from(new Array(8));
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpProfessionalsResponse, mutate} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
     const {trigger: triggerDeleteAct} = useRequestMutation(null, "/settings/acts/delete");
@@ -74,11 +72,11 @@ function Acts() {
         form.append('act', actUuid);
         triggerAddAct({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/acts/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutate());
-    }, [medical_entity.uuid, medical_professional_uuid, mutate, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
+        }).then(() => mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`));
+    }, [medical_entity.uuid, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (data !== undefined) {
@@ -89,15 +87,14 @@ function Acts() {
     }, [data]);
 
     useEffect(() => {
-        if (httpProfessionalsResponse !== undefined) {
+        if (medicalProfessionalData !== undefined) {
             const professionalSpecialities = {};
-            (httpProfessionalsResponse as any).data[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
+            medicalProfessionalData[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
             setSpecialities(professionalSpecialities);
             setIsProfile(true);
-            setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0]?.medical_professional.uuid);
-            const acts = (httpProfessionalsResponse as any).data[0]?.acts;
+            const acts = medicalProfessionalData[0]?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
             acts?.map((act: MedicalProfessionalActModel) => {
@@ -107,7 +104,7 @@ function Acts() {
             setMainActs(main);
             setSecondaryActs(secondary);
         }
-    }, [httpProfessionalsResponse])
+    }, [medicalProfessionalData])
 
     useEffect(() => {
         const selectedActs = [...mainActs, ...secondaryActs];

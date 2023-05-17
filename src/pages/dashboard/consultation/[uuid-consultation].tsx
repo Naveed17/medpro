@@ -78,7 +78,7 @@ function ConsultationInProgress() {
     const {config: agenda} = useAppSelector(agendaSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
@@ -191,16 +191,7 @@ function ConsultationInProgress() {
         });
     };
 
-    const {data: httpMPResponse} = useRequest(medical_entity ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
-    const {data: httpModelResponse} = useRequest(medical_professional ? {
+    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -277,9 +268,9 @@ function ConsultationInProgress() {
         }
     }, [httpAppResponse]);
     useEffect(() => {
-        if (httpPreviousResponse){
+        if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data.data;
-            if (data){
+            if (data) {
                 setPreviousData(data);
             }
         }
@@ -291,9 +282,8 @@ function ConsultationInProgress() {
     }, [selectedDialog, setInfo, setOpenDialog]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+        if (medicalProfessionalData) {
+            const mpRes = medicalProfessionalData[0];
             setMpUuid(mpRes.medical_professional.uuid);
             const acts = [...mpRes.acts];
             const selectedLocal = localStorage.getItem(`consultation-acts-${uuind}`)
@@ -326,7 +316,7 @@ function ConsultationInProgress() {
                     if (appointement.acts && !loadingApp) {
                         let sAct: any[] = [];
                         appointement.acts.map(
-                            (act: { act_uuid: string; price: any; qte: any }) => {
+                            (act: any) => {
                                 sAct.push({
                                     ...act,
                                     fees: act.price,
@@ -334,9 +324,7 @@ function ConsultationInProgress() {
                                     qte: act.qte,
                                     act: {name: (act as any).name}
                                 });
-                                const actDetect = acts.findIndex((a: {
-                                    uuid: string
-                                }) => a.uuid === act.act_uuid) as any;
+                                const actDetect = acts.findIndex((a: any) => a.uuid === act.act_uuid) as any;
                                 if (actDetect === -1) {
                                     acts.push({
                                         ...act,
@@ -358,16 +346,14 @@ function ConsultationInProgress() {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointement, httpMPResponse, uuind, consultationFees]);
+    }, [appointement, medicalProfessionalData, uuind, consultationFees]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            if (!loadingApp)
-                setConsultationFees(Number(mpRes.consultation_fees));
+        if (medicalProfessionalData && !loadingApp) {
+            setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpMPResponse]);
+    }, [medicalProfessionalData]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -849,7 +835,8 @@ function ConsultationInProgress() {
                 )}
             </SubHeader>
             {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
-                <Box style={{backgroundColor:!isHistory ?theme.palette.info.main:""}} className="container container-scroll">
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
                             {Array.from({length: 3}).map((_, idx) => (
@@ -909,7 +896,18 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
+                                        {...{
+                                            models,
+                                            changes,
+                                            setChanges,
+                                            isClose,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid,
+                                            previousData
+                                        }}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
