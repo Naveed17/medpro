@@ -3,7 +3,7 @@ import {configSelector} from "@features/base";
 import TextField from "@mui/material/TextField";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
-import {LocaleFnsProvider} from "@app/localization";
+import {LocaleFnsProvider} from "@lib/localization";
 import dayjs,{ Dayjs } from 'dayjs';
 function BasicDatePicker({...props}) {
     const {onChange, value = dayjs(new Date(), 'DD/MM/YYYY', true) as Dayjs | null} = props;
