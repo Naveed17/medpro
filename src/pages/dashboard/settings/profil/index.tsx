@@ -356,7 +356,7 @@ function Profil() {
                                                         component="img"
                                                         width={35}
                                                         height={35}
-                                                        src={item.logoUrl}
+                                                        src={item.logoUrl.url}
                                                     />
                                                 ))
                                             ) : (

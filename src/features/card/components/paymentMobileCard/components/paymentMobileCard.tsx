@@ -163,7 +163,7 @@ function PaymentMobileCard({ ...props }) {
                                   (insurance: any) =>
                                     insurance.uuid ===
                                     insuranceItem.insurance?.uuid
-                                )?.logoUrl;
+                                )?.logoUrl.url;
                               }}
                             />
                           </Avatar>

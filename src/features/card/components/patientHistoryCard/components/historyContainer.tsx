@@ -305,7 +305,7 @@ function HistoryContainer({...props}) {
                                                                             {data.documentType === 'photo' &&
                                                                                 <Image width={25}
                                                                                        height={25}
-                                                                                       src={data.uri}
+                                                                                       src={data.uri.thumbnails['thumbnail_32']}
                                                                                        style={{borderRadius: 5}}
                                                                                        alt={'photo history'}/>}
                                                                             <Typography variant='subtitle2'

@@ -138,7 +138,7 @@ function PreConsultationDialog({...props}) {
                                             width={20}
                                             height={20}
                                             loader={() => {
-                                                return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
+                                                return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl.url as string
                                             }}
                                         />
                                     </Avatar>

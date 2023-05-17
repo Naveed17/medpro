@@ -121,7 +121,7 @@
         "action": "Action",
         "code": "Code",
         "icon": "Icône",
-        "consultation_fees": "Frais de consultation",
+        "consultation_fees": "Frais",
         "empty": ""
       },
       "dialog": {
@@ -358,7 +358,7 @@
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
       "mailReq": "Adresse mail est obligatoire",
-      "consultation_fees": "Frais de consultation",
+      "consultation_fees": "Frais",
       "birthdate": "Date de naissance",
       "firstname": "Prénom",
       "lastname": "Nom de famille",

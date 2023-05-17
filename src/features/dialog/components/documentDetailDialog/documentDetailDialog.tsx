@@ -167,6 +167,7 @@ function DocumentDetailDialog({...props}) {
         }
     ];
 
+    console.log(state)
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -472,7 +473,7 @@ function DocumentDetailDialog({...props}) {
                                                 </Stack>
                                             </Card>}
 
-                                            {isImg && <Box component={"img"} src={state.uri}
+                                            {isImg && <Box component={"img"} src={state.uri.url}
                                                            sx={{marginLeft: 2, maxWidth: "100%"}}
                                                            alt={"img"}/>}
                                         </Box>
@@ -484,7 +485,7 @@ function DocumentDetailDialog({...props}) {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
                                 {state.type === 'photo' &&
-                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
+                                    <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
                                          alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
