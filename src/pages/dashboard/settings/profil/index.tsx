@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {
     CardContent,
     List,
@@ -29,7 +29,7 @@ import {SubHeader} from "@features/subHeader";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {checkListSelector} from "@features/checkList";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
@@ -49,6 +49,7 @@ function Profil() {
     const {direction} = useAppSelector(configSelector);
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
     const {lock} = useAppSelector(appLockSelector);
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [languages, setLanguages] = useState<LanguageModel[]>([]);
     const [open, setOpen] = useState(false);
@@ -68,18 +69,9 @@ function Profil() {
 
     const {trigger} = useRequestMutation(null, "/settings");
 
-    const {
-        data: httpMedicalProfessionalResponse,
-        error: errorHttpMedicalProfessional,
-    } = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
-
     useEffect(() => {
-        if (httpMedicalProfessionalResponse !== undefined) {
-            const infoData = (httpMedicalProfessionalResponse as any).data[0];
+        if (medicalProfessionalData) {
+            const infoData = medicalProfessionalData[0];
             const medical_professional = infoData.medical_professional as MedicalProfessionalModel;
             setName(medical_professional?.publicName);
             let lngs: LanguageModel[] = [];
@@ -100,7 +92,7 @@ function Profil() {
         if (!lock) {
             dispatch(toggleSideBar(false));
         }
-    }, [dispatch, errorHttpMedicalProfessional, httpMedicalProfessionalResponse, user]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [dispatch, medicalProfessionalData, user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const [dialogContent, setDialogContent] = useState("");
 

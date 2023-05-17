@@ -95,6 +95,7 @@ function FcmLayout({...props}) {
     } : null, SWRNoValidateConfig);
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
@@ -255,6 +256,7 @@ function FcmLayout({...props}) {
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+            dispatch(setOngoing({medicalProfessionalData}));
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {

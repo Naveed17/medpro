@@ -182,7 +182,7 @@ function Payment() {
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
@@ -268,12 +268,6 @@ function Payment() {
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
         url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
-    const {data: httpMedicalProfessionalResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -527,24 +521,16 @@ function Payment() {
     });
 
     useEffect(() => {
-        if (httpMedicalProfessionalResponse) {
-            dispatch(
-                setInsurances(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].insurances
-                )
-            );
-            dispatch(
-                setPaymentTypes(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].payments
-                )
-            );
+        if (medicalProfessionalData) {
+            dispatch(setInsurances(medicalProfessionalData[0].insurances));
+            dispatch(setPaymentTypes(medicalProfessionalData[0].payments));
 
-            if ((httpMedicalProfessionalResponse as HttpResponse).data[0].payments.length > 0) {
-                deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
+            if (medicalProfessionalData[0].payments.length > 0) {
+                deals.selected = medicalProfessionalData[0].payments[0].slug;
                 setDeals({...deals});
             }
         }
-    }, [httpMedicalProfessionalResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [medicalProfessionalData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /*    useEffect(() => {
               if (selectedBox) {

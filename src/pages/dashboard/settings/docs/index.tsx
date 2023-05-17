@@ -36,18 +36,13 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
-import dynamic from "next/dynamic";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
-
-const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
-    ssr: false,
-});
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function DocsConfig() {
     const {data: session} = useSession();
@@ -56,7 +51,6 @@ function DocsConfig() {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const componentRef = useRef<HTMLDivElement>(null);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
 
     const [files, setFiles] = useState<any[]>([]);
@@ -83,17 +77,9 @@ function DocsConfig() {
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {trigger} = useRequestMutation(null, "/MP/header");
-
-    const {data: httpProfessionalsResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
     const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
         method: "GET",
