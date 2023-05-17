@@ -37,6 +37,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -49,13 +50,9 @@ function PersonalInsuranceCard({...props}) {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
-    }, SWRNoValidateConfig);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;

@@ -42,7 +42,6 @@ import {
     onResetPatient, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail,
     Dialog,
@@ -74,6 +73,7 @@ import {
     setFilter,
 } from "@features/leftActionBar";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import {useInsurances} from "@lib/hooks/rest";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -166,6 +166,7 @@ function Patient() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -274,11 +275,6 @@ function Patient() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
 

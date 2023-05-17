@@ -16,6 +16,7 @@ import {agendaSelector} from "@features/calendar";
 import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
 import {dashLayoutSelector} from "@features/base";
+import {useInsurances} from "@lib/hooks/rest";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -25,6 +26,7 @@ function PreConsultationDialog({...props}) {
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -56,11 +58,6 @@ function PreConsultationDialog({...props}) {
     const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
@@ -73,7 +70,7 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medical_professional ? {
+    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}

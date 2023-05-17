@@ -92,11 +92,11 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {data: httpModelResponse} = useRequest({
+    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     const analysisList = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
     const {handleSubmit} = formik;

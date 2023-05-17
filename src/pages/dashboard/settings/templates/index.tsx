@@ -27,11 +27,11 @@ function TemplatesConfig() {
     const [docs, setDocs] = useState<DocTemplateModel[]>([]);
     const [isHovering, setIsHovering] = useState("");
 
-    const {data: httpDocumentHeader} = useRequest({
+    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     const handleMouseOver = (id: string) => {
         setIsHovering(id);
@@ -88,7 +88,7 @@ function TemplatesConfig() {
             <Box
                 bgcolor={(theme) => theme.palette.background.default}
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                 <TemplateStyled>
+                <TemplateStyled>
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
@@ -109,12 +109,13 @@ function TemplatesConfig() {
                                 }} className={"edit-btn"} onClick={() => {
                                     edit(res.uuid)
                                 }}>Modifier</Button>}
-                            {!loading && <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
-                                <Typography className={"doc-title"}>{res.title}</Typography>
-                                <div className={"heading"}>
-                                    {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
-                                </div>
-                            </Stack>}
+                            {!loading &&
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
+                                    <Typography className={"doc-title"}>{res.title}</Typography>
+                                    <div className={"heading"}>
+                                        {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
+                                    </div>
+                                </Stack>}
                         </Box>
                     ))}
                 </TemplateStyled>

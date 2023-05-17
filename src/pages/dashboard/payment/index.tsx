@@ -59,6 +59,7 @@ import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -177,12 +178,13 @@ function Payment() {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
@@ -264,17 +266,6 @@ function Payment() {
 
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
-    const {data: httpMedicalProfessionalResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
@@ -527,24 +518,16 @@ function Payment() {
     });
 
     useEffect(() => {
-        if (httpMedicalProfessionalResponse) {
-            dispatch(
-                setInsurances(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].insurances
-                )
-            );
-            dispatch(
-                setPaymentTypes(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].payments
-                )
-            );
+        if (medicalProfessionalData) {
+            dispatch(setInsurances(medicalProfessionalData[0].insurances));
+            dispatch(setPaymentTypes(medicalProfessionalData[0].payments));
 
-            if ((httpMedicalProfessionalResponse as HttpResponse).data[0].payments.length > 0) {
-                deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
+            if (medicalProfessionalData[0].payments.length > 0) {
+                deals.selected = medicalProfessionalData[0].payments[0].slug;
                 setDeals({...deals});
             }
         }
-    }, [httpMedicalProfessionalResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [medicalProfessionalData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /*    useEffect(() => {
               if (selectedBox) {
