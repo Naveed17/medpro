@@ -172,11 +172,11 @@ function DocumentDetailDialog({...props}) {
 
     const {trigger} = useRequestMutation(null, "/documents");
 
-    const {data: httpDocumentHeader} = useRequest({
+    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);

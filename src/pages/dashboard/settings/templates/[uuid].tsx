@@ -112,11 +112,11 @@ function DocsConfig() {
 
     const {trigger} = useRequestMutation(null, "/MP/header");
 
-    const {data: httpDocumentHeader, mutate} = useRequest({
+    const {data: httpDocumentHeader, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const {data: httpTypeResponse} = useRequest({
         method: "GET",

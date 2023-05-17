@@ -96,11 +96,11 @@ function CertifDialog({...props}) {
 
     const {trigger} = useRequestMutation(null, "/certif-models");
 
-    const {data: httpModelResponse, mutate} = useRequest({
+    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     const selectModel = (model: CertifModel) => {
         setValue(model.content);

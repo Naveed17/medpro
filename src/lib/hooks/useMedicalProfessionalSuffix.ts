@@ -1,13 +1,12 @@
 import {UrlMedicalProfessionalSuffix} from "../constants";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
 
 function useMedicalProfessionalSuffix() {
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const medical_professional = medicalProfessionalData && medicalProfessionalData[0]?.medical_professional as MedicalProfessionalModel;
 
-    return `${UrlMedicalProfessionalSuffix}/${medical_professional.uuid}`;
+    return medical_professional && `${UrlMedicalProfessionalSuffix}/${medical_professional.uuid}`;
 }
 
 export default useMedicalProfessionalSuffix;

@@ -65,13 +65,13 @@ function ConsultationType() {
         format: 'a5'
     });
 
-    const {data: httpData} = useRequest({
+    const {data: httpData} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null);
 
     useEffect(() => {
         if (httpData) {

@@ -81,7 +81,7 @@ function DocsConfig() {
 
     const {trigger} = useRequestMutation(null, "/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional ? {
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
