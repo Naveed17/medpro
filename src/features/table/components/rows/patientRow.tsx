@@ -1,26 +1,31 @@
 import TableCell from "@mui/material/TableCell";
 import {
-    Typography,
+    Avatar,
+    AvatarGroup,
+    Badge,
     Box,
     Button,
+    Chip,
     IconButton,
-    Skeleton, Stack, Chip, Avatar, Tooltip, Badge, styled, AvatarGroup
+    Skeleton,
+    Stack,
+    styled,
+    Tooltip,
+    Typography
 } from "@mui/material";
-import {TableRowStyled} from "@features/table";
+import {onOpenPatientDrawer, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {onOpenPatientDrawer} from "@features/table";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {useRequest} from "@lib/axios";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from 'react-medium-image-zoom'
-import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
@@ -43,9 +48,6 @@ function PatientRow({...props}) {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && row?.hasPhoto ? {
         method: "GET",
