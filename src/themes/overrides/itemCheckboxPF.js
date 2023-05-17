@@ -50,7 +50,7 @@ function ItemCheckboxPF({...props}) {
                 (props.data.icon || props.data.logoUrl) &&
                 <ListItemIcon>
                     {props.data?.icon && <IconUrl path={props.data?.icon}/>}
-                    {props.data?.logoUrl && <Box component="img" src={props.data?.logoUrl} alt={props.data[label]}/>}
+                    {props.data?.logoUrl && <Box component="img" src={props.data?.logoUrl.url} alt={props.data[label]}/>}
                 </ListItemIcon>
             }
             <ListItemText sx={{marginLeft:1}} primary={ props.data[label] } />

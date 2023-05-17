@@ -11,6 +11,7 @@ import {TooltipProps} from "@mui/material/Tooltip";
 function DocumentCard({...props}) {
     //const [openTooltip, setOpenTooltip] = useState<boolean>(false);
     const {data, onClick, t, date, title, time} = props;
+
     const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
         <Tooltip {...props} classes={{popper: className}}/>
     ))(({theme}) => ({
@@ -152,7 +153,7 @@ function DocumentCard({...props}) {
                                className="document-detail"
                                alignItems="center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={data.uri}
+                            <img src={data.uri.thumbnails['thumbnail_32']}
                                  style={{borderRadius: 5, width: title ? 20 : 50, height: title ? 20 : 50}}
                                  alt={'photo history'}/>
                             {title && <Stack direction={"column"}>
