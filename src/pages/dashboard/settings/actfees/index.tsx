@@ -308,10 +308,11 @@ function ActFees() {
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
-            let promise = new Promise(function (resolve, reject) {
+            let promise = new Promise(function (resolve) {
                 document.body.style.overflow = "hidden";
                 setTimeout(() => {
-                    resolve(window.addEventListener("scroll", handleScroll));
+                    window.addEventListener("scroll", handleScroll);
+                    resolve(true);
                 }, 2000);
             });
             promise.then(() => {
