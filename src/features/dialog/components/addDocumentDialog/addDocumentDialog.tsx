@@ -114,7 +114,7 @@ function AddDocumentDialog({...props}) {
                                 (item: any, index) => (
                                     <Grid key={index} item xs={6} md={6}>
                                         <DocumentButton
-                                            icon={item.logo}
+                                            icon={item.logo.url}
                                             active={data.state.type}
                                             t={t}
                                             lable={item.name}

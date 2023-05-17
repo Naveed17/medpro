@@ -229,7 +229,7 @@ function PaymentRow({ ...props }) {
                             return insurances?.find(
                               (insurance: any) =>
                                 insurance.uuid === insuranceItem.insurance?.uuid
-                            )?.logoUrl;
+                            )?.logoUrl.url;
                           }}
                         />
                       </Avatar>
