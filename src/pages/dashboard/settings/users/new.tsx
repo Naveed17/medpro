@@ -139,13 +139,13 @@ const { data: httpProfilesResponse, } = useRequest({
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
-            enqueueSnackbar(t("user.alert.success"), {variant: "error"});
+            enqueueSnackbar(t("users.alert.success"), {variant: "success"});
             setLoading(false)
             dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
         }).catch((error) => {
             setLoading(false);
-            enqueueSnackbar(t("user.alert.went_wrong"), {variant: "error"});
+            enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
         })
            
         },
@@ -700,6 +700,18 @@ const { data: httpProfilesResponse, } = useRequest({
     );
 }
 
+export const getStaticProps: GetStaticProps = async (context) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, [
+            "common",
+            "menu",
+            "patient",
+            "settings",
+        ])),
+    },
+});
+export default NewUser;
 
 NewUser.auth = true;
 
