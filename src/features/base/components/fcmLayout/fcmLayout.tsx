@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -36,6 +36,8 @@ import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -69,10 +71,7 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
@@ -242,17 +241,6 @@ function FcmLayout({...props}) {
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
-        const form = new FormData();
-        form.append('status', status);
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
@@ -394,7 +382,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
-                            updateAppointmentStatus(notificationData?.appointment?.uuid, "1");
+                            updateAppointmentStatus({
+                                method: "PATCH",
+                                data: {
+                                    status: "1"
+                                },
+                                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
+                            } as any);
                         }}
                     />}
             </Dialog>

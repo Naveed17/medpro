@@ -47,6 +47,8 @@ import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -77,7 +79,7 @@ function TopNavBar({...props}) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -147,22 +149,6 @@ function TopNavBar({...props}) {
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const handleStartConsultation = (nextPatient: any) => {
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         const event: any = {
@@ -177,10 +163,15 @@ function TopNavBar({...props}) {
         };
         if (router.asPath !== slugConsultation) {
             router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(nextPatient.uuid, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${nextPatient.uuid}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
