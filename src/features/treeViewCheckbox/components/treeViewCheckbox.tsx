@@ -10,7 +10,7 @@ const {data, onNodeCheck,t} = props;
       onNodeCheck(node.uuid, !node.value);
     };
   return (
-    <React.Fragment key={node.id}>
+    <React.Fragment key={node.uuid}>
     <ListItem className="main-list" >
   <FormControlLabel
       {
@@ -41,7 +41,7 @@ const {data, onNodeCheck,t} = props;
   </IconButton>
 </ListItem>
       {hasChildren &&
-      <Collapse in={node.value} className="inner-collapse">
+      <Collapse in={node.children.some((child:any) => child.value)} className="inner-collapse">
         <List className="inside-list">
             {node.children.map((childNode:any) => renderNode(childNode))} 
         </List>

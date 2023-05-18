@@ -207,15 +207,14 @@ function AddNewRoleDialog({...props}) {
      const handleNodeCheck = (id:string, checked:boolean) => {
     const updatedData = values.permissions.map((node:any) => {
       if (node.uuid === id) {
-        return {
-          ...node,
-          value: checked,
-          children: node.children.map((child:any) => ({
+          node.value = node.children.some((child:any) => child.value === false) ? false:checked
+          node.children = node.children.map((child:any) => ({
             ...child,
             value: checked
           }))
-        };
-      }
+        return node;
+      
+    }
       return {
         ...node,
         children: node.children.map((child:any) =>
@@ -226,6 +225,7 @@ function AddNewRoleDialog({...props}) {
 
     setFieldValue("permissions", updatedData);
   };
+  console.log(values.permissions)
     return (
         <>
             <FormikProvider value={formik}>
