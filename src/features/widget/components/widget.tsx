@@ -62,7 +62,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                     mc.description = ` (${previousData[mc.key]} ${unity}) `
                 }
             })
-        }
+        } else
+            cmp = [...modal];
     }
 
     return (
