@@ -49,6 +49,8 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -169,27 +171,7 @@ function ConsultationInProgress() {
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "consultation/end");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
-
-    const updateAppointmentStatus = (
-        appointmentUUid: string,
-        status: string,
-        params?: any
-    ) => {
-        const form = new FormData();
-        form.append("status", status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        });
-    };
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -648,7 +630,13 @@ function ConsultationInProgress() {
 
     const leave = () => {
         clearData();
-        updateAppointmentStatus(uuind as string, "11").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "11"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/status/${router.locale}`
+        } as any).then(() => {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
                 setActions(false);

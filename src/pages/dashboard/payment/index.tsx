@@ -59,7 +59,8 @@ import {EventDef} from "@fullcalendar/core/internal";
 import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
+import {sendRequest, useInsurances} from "@lib/hooks/rest";
+import useSWRMutation from "swr/mutation";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -222,7 +223,6 @@ function Payment() {
     const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [collapseDate] = useState<any>(null);
-
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
     const [cheques] = useState<ChequeModel[]>([
@@ -264,7 +264,7 @@ function Payment() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -355,26 +355,6 @@ function Payment() {
         }
     };
 
-    const updateAppointmentStatus = (
-        appointmentUUid: string,
-        status: string,
-        params?: any
-    ) => {
-        const form = new FormData();
-        form.append("status", status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        });
-    };
-
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${
             event?.publicId ? event?.publicId : (event as any)?.id
@@ -382,14 +362,15 @@ function Payment() {
         router
             .push(slugConsultation, slugConsultation, {locale: router.locale})
             .then(() => {
-                updateAppointmentStatus(
-                    event?.publicId ? event?.publicId : (event as any)?.id,
-                    "4",
-                    {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
                         start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm"),
-                    }
-                ).then(() => {
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(openDrawer({type: "view", open: false}));
                     dispatch(
                         setTimer({

@@ -2,9 +2,8 @@ import {instanceAxios} from "@lib/axios";
 
 async function sendRequest(params: string, {arg}: any) {
     const form = new FormData();
-
     if (arg.data) {
-        Object.entries(arg.data.params).map((param: any) => {
+        Object.entries(arg.data).map((param: any) => {
             form.append(param[0], param[1]);
         });
     }

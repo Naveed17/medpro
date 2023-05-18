@@ -44,6 +44,8 @@ import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function a11yProps(index: number) {
     return {
@@ -116,10 +118,9 @@ function PatientDetail({...props}) {
     ]);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
     const {
@@ -226,28 +227,18 @@ function PatientDetail({...props}) {
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const onOpenWaitingRoom = (event: EventDef) => {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
-            "3", {is_first_appointment: filteredEvents}).then(
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "3",
+                is_first_appointment: filteredEvents
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(
             () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api

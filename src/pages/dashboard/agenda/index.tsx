@@ -718,22 +718,6 @@ function Agenda() {
         });
     }
 
-    /*    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-            const form = new FormData();
-            form.append('status', status);
-            if (params) {
-                Object.entries(params).map((param: any) => {
-                    form.append(param[0], param[1]);
-                });
-            }
-            return updateStatusTrigger({
-                method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            });
-        }*/
-
     const handleActionDialog = (appointmentUUid: string) => {
         switch (actionDialog) {
             case "cancel":

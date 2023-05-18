@@ -46,6 +46,8 @@ import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {useSWRConfig} from "swr";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 export const headCells = [
     {
@@ -209,7 +211,7 @@ function WaitingRoom() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
@@ -229,22 +231,6 @@ function WaitingRoom() {
     });
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -305,10 +291,15 @@ function WaitingRoom() {
             };
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(event.publicId as string, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event.publicId}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -339,7 +330,13 @@ function WaitingRoom() {
                 nextConsultation(row);
                 break;
             case "onLeaveWaitingRoom":
-                updateAppointmentStatus(row?.uuid as string, "6").then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "6"
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
+                } as any).then(() => {
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
                     mutateWaitingRoom();
