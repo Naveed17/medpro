@@ -7,7 +7,7 @@ import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -20,12 +20,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {configSelector} from "@features/base";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
-import {useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -59,16 +58,10 @@ function NotificationPopover({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {
         date: moveDialogDate,
-        time: moveDialogTime,
-        selected: moveDateChanged,
-        action: moveDialogAction
+        time: moveDialogTime
     } = useAppSelector(dialogMoveSelector);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -101,20 +94,16 @@ function NotificationPopover({...props}) {
 
     const handleMoveAppointment = (event: EventDef) => {
         setLoading(true);
-        const form = new FormData();
-        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
-        form.append('duration', event.extendedProps.duration);
-        updateAppointmentTrigger({
+        updateAppointmentStatus({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            data: {
+                'duration': event.extendedProps.duration,
+                'start_date': event.extendedProps.newDate.format("DD-MM-YYYY"),
+                'start_time': event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm")
             }
-        }, TriggerWithoutValidation).then((result) => {
+        } as any).then((result) => {
             setLoading(false);
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
@@ -131,14 +120,13 @@ function NotificationPopover({...props}) {
     const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
         const appUuid = event?.publicId ? event?.publicId : (event as any)?.id;
-        const form = new FormData();
-        form.append('status', "1");
-        return updateStatusTrigger({
+        updateAppointmentStatus({
             method: "PATCH",
+            data: {
+                status: "1"
+            },
             url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${appUuid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
+        } as any).then(() => {
             setLoading(false);
             enqueueSnackbar(t(`dialogs.alert.confirm-appointment`), {variant: "success"});
             onClose();
