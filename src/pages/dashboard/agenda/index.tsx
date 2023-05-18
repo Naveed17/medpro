@@ -251,8 +251,8 @@ function Agenda() {
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
         let localMaxSlot = 20; //20h
-        Object.entries(openingHours).map((openingHours: any) => {
-            openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+        Object.entries(openingHours).forEach((openingHours: any) => {
+            openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
                 if (min < localMinSlot) {
@@ -284,12 +284,8 @@ function Agenda() {
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (actionSet) {
-            switch (actionSet.action) {
-                case "onConfirm":
-                    onConfirmAppointment(actionSet.event, true);
-                    break;
-            }
+        if (actionSet && actionSet.action === "onConfirm") {
+            onConfirmAppointment(actionSet.event, true);
         }
     }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
