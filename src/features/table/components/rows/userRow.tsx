@@ -39,7 +39,7 @@ function UserRow({...props}) {
                             textAlign={"center"}
                             variant="body1"
                             color="text.primary">
-                            {row.roles[0]}
+                            {t("table."+row.roles[0].toLowerCase())}
                         </Typography>
                     </>
                 ) : (
@@ -67,7 +67,7 @@ function UserRow({...props}) {
                 {row ? (
                     <Switch
                         name="active"
-                        onChange={(e) => handleChange(row)}
+                        onChange={(e) => handleChange(row,e)}
                         checked={row.isProfessional}
                     />
                 ) : (

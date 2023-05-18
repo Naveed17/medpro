@@ -25,18 +25,20 @@ import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation,useRequest} from "@app/axios";
+import {useRequestMutation,useRequest} from "@lib/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DatePicker } from "@features/datepicker";
 import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from "notistack";
 function NewUser() {
     const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar()
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
@@ -69,12 +71,12 @@ const { data: httpProfilesResponse, } = useRequest({
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, t("users.new.ntc"))
-            .max(50, t("users.new.ntl"))
-            .required(t("users.new.nameReq")),
+            .min(3, t("users.ntc"))
+            .max(50, t("users.ntl"))
+            .required(t("users.nameReq")),
         email: Yup.string()
-            .email(t("users.new.mailInvalid"))
-            .required(t("users.new.mailReq")),
+            .email(t("users.mailInvalid"))
+            .required(t("users.mailReq")),
         consultation_fees: Yup.string()
             .required(),   
         birthdate: Yup.string()
@@ -86,7 +88,9 @@ const { data: httpProfilesResponse, } = useRequest({
         phone: Yup.string()
             .required(),
         password: Yup.string()
-            .required(), 
+            .required(),
+        confirmPassword: Yup.string().when('password', (password, field) =>
+        password ? field.required().oneOf([Yup.ref('password')]) : field),
         profile: Yup.string()
             .required(),       
     });
@@ -95,7 +99,7 @@ const { data: httpProfilesResponse, } = useRequest({
         enableReinitialize: true,
         initialValues: {
             role: "",
-            agendas: agendaRoles.map(agenda => ({...agenda, role: ""})),
+            agendas: agendaRoles.map((agenda:any) => ({...agenda, role: ""})),
             professionnel: user.professionnel || false,
             email: user.email || "",
             name: user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : "",
@@ -106,7 +110,8 @@ const { data: httpProfilesResponse, } = useRequest({
             firstname :"",
             lastname:"",
             phone:"",
-            password:"", 
+            password:"",
+            confirmPassword:"", 
             profile:""
         },
         validationSchema,
@@ -134,12 +139,13 @@ const { data: httpProfilesResponse, } = useRequest({
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
+            enqueueSnackbar(t("user.alert.success"), {variant: "error"});
             setLoading(false)
             dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
         }).catch((error) => {
             setLoading(false);
-            console.log(error.response);
+            enqueueSnackbar(t("user.alert.went_wrong"), {variant: "error"});
         })
            
         },
@@ -159,7 +165,7 @@ const { data: httpProfilesResponse, } = useRequest({
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t("users.new.path")}</p>
+                    <p style={{margin: 0}}>{t("users.path_new")}</p>
                 </RootStyled>
             </SubHeader>
 
@@ -167,7 +173,7 @@ const { data: httpProfilesResponse, } = useRequest({
                 <FormikProvider value={formik}>
                     <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
                         <Typography marginBottom={2} gutterBottom>
-                            {t("users.new.user")}
+                            {t("users.user")}
                         </Typography>
                         <Card className="venue-card">
                             <CardContent>
@@ -182,7 +188,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.pro")}
+                                                {t("users.pro")}
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
@@ -195,7 +201,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                         }}
                                                     />
                                                 }
-                                                label={t("users.new.yes")}
+                                                label={t("users.yes")}
                                             />
                                             <FormControlLabel
                                                 control={
@@ -206,7 +212,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                         }}
                                                     />
                                                 }
-                                                label={t("users.new.no")}
+                                                label={t("users.no")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -222,7 +228,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.mail")}{" "}
+                                                {t("users.mail")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -251,7 +257,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.name")}{" "}
+                                                {t("users.name")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -260,7 +266,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
-                                                placeholder={t("users.new.tname")}
+                                                placeholder={t("users.tname")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.name && errors.name)}
@@ -280,7 +286,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.consultation_fees")}{" "}
+                                                {t("users.consultation_fees")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -290,7 +296,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             <TextField
                                                 variant="outlined"
                                                 type="number"
-                                                placeholder={t("users.new.consultation_fees")}
+                                                placeholder={t("users.consultation_fees")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.consultation_fees && errors.consultation_fees)}
@@ -312,7 +318,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.birthdate")}{" "}
+                                                {t("users.birthdate")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -325,6 +331,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                            setFieldValue("birthdate", newValue);
                                            }}
                                            InputProps={{
+                                            error:Boolean(touched.birthdate && errors.birthdate),
                                             sx:{
                                            button:{
                                             p:0
@@ -346,7 +353,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.firstname")}{" "}
+                                                {t("users.firstname")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -355,7 +362,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         <Grid item xs={12} lg={10}>
                                              <TextField
                                                 variant="outlined"
-                                                placeholder={t("users.new.firstname")}
+                                                placeholder={t("users.firstname")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.firstname && errors.firstname)}
@@ -375,7 +382,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.lastname")}{" "}
+                                                {t("users.lastname")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -384,7 +391,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         <Grid item xs={12} lg={10}>
                                              <TextField
                                                 variant="outlined"
-                                                placeholder={t("users.new.lastname")}
+                                                placeholder={t("users.lastname")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.lastname && errors.lastname)}
@@ -404,7 +411,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.phone")}{" "}
+                                                {t("users.phone")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -414,7 +421,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                              <TextField
                                                type="tel"
                                                 variant="outlined"
-                                                placeholder={t("users.new.phone")}
+                                                placeholder={t("users.phone")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.phone && errors.phone)}
@@ -434,7 +441,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.password")}{" "}
+                                                {t("users.password")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
                                                 </Typography>
@@ -442,13 +449,43 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                              <TextField
-                                               type="tel"
+                                               type="password"
                                                 variant="outlined"
-                                                placeholder={t("users.new.password")}
+                                                placeholder={t("users.password")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.password && errors.password)}
                                                 {...getFieldProps("password")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.confirm_password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                               type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.confirm_password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                {...getFieldProps("confirmPassword")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -464,19 +501,19 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.profile")}{" "}
+                                                {t("users.profile")}{" "}
                                                
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <FormControl size="small" fullWidth>
+                                            <FormControl size="small" fullWidth error = {Boolean(touched.profile && errors.profile)}>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id={"role"}
                                                 {...getFieldProps("profile")}
                                                 renderValue={selected => {
                                                     if (selected.length === 0) {
-                                                        return <em>{t("users.new.profile")}</em>;
+                                                        return <em>{t("users.profile")}</em>;
                                                     }
                                                     const profile = profiles?.find(profile => profile.uuid === selected);
                                                     return <Typography>{profile?.name}</Typography>
@@ -506,7 +543,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                                         }}
                                                     />
                                                 }
-                                                label={t("users.new.admin")}
+                                                label={t("users.admin")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -514,7 +551,7 @@ const { data: httpProfilesResponse, } = useRequest({
                             </CardContent>
                         </Card>
                         <Typography marginBottom={2} gutterBottom>
-                            {t("users.new.roles")}
+                            {t("users.roles")}
                         </Typography>
                         <Card>
                             <Box mb={2}>
@@ -531,7 +568,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                     alignItems="center">
                                     <Grid item xs={12} lg={4}>
                                         <Typography variant="body2" fontWeight={400}>
-                                            {t("users.new.all")}
+                                            {t("users.all")}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12} lg={7}>
@@ -609,7 +646,7 @@ const { data: httpProfilesResponse, } = useRequest({
                             ))}
                         </Card>
                         <Typography marginBottom={2} gutterBottom>
-                            {t("users.new.send")}
+                            {t("users.send")}
                         </Typography>
                         <Card>
                             <CardContent>
@@ -624,13 +661,13 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.new.message")}
+                                                {t("users.message")}
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={9}>
                                             <TextField
                                                 variant="outlined"
-                                                placeholder={t("users.new.tmessage")}
+                                                placeholder={t("users.tmessage")}
                                                 multiline
                                                 rows={4}
                                                 fullWidth
@@ -663,18 +700,6 @@ const { data: httpProfilesResponse, } = useRequest({
     );
 }
 
-export const getStaticProps: GetStaticProps = async (context) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(context.locale as string, [
-            "common",
-            "menu",
-            "patient",
-            "settings",
-        ])),
-    },
-});
-export default NewUser;
 
 NewUser.auth = true;
 
