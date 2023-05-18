@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {

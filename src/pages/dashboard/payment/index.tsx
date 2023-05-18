@@ -37,10 +37,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {
-    SWRNoValidateConfig
-} from "@lib/swr/swrProvider";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";

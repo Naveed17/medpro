@@ -118,7 +118,7 @@ function PatientDetail({...props}) {
     ]);
 
     const {data: user} = session as Session;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
