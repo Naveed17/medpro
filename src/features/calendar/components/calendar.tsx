@@ -215,8 +215,8 @@ function Calendar({...props}) {
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
-            Object.entries(openingHours).map((openingHours: any) => {
-                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+            Object.entries(openingHours).forEach((openingHours: any) => {
+                openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                     const min = moment.duration(openingHour?.start_time).asHours();
                     const max = moment.duration(openingHour?.end_time).asHours();
                     if (min < slotMinTime) {
