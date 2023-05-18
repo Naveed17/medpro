@@ -6,20 +6,20 @@ import {motion} from "framer-motion";
 import {Fab} from "@mui/material";
 
 function RecButton({...props}) {
-    const {onClick,small=false} = props;
+    const {onClick, small = false} = props;
     const [expand, setExpand] = useState(false);
     return (
         <Fab
             size={"small"}
             component={motion.div}
             sx={{
-                width: expand ? "auto":small ? 30 :40,
-                height: small ? 30 :40,
-                minHeight: small ? 30 :40,
+                width: expand ? "auto" : small ? 30 : 40,
+                height: small ? 30 : 40,
+                minHeight: small ? 30 : 40,
                 boxShadow: "none",
                 p: 1,
                 svg: {
-                    fontSize:small ? 18 :24,
+                    fontSize: small ? 18 : 24,
                     path: {
                         fill: "white",
                     },

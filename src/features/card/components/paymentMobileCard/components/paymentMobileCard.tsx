@@ -17,7 +17,6 @@ import { Label } from "@features/label";
 import React, { useState } from "react";
 import PaymentMobileCardStyled from "./overrides/paymentMobileCardStyle";
 import Image from "next/image";
-import { ModelDot } from "@features/modelDot";
 import { PaymentFeesPopover } from "@features/popover";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";

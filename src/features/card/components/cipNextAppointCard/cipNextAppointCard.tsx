@@ -1,13 +1,11 @@
 import {Typography, Box, Stack, IconButton, Link, Button} from "@mui/material";
 import NextLink from 'next/link'
 import {Label} from "@features/label";
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import CipNextAppointCardStyled from './overrides/cipNextAppointCardStyle';
 import Icon from "@themes/urlIcon";
 // redux
 import {useAppDispatch} from "@lib/redux/hooks";
 import {openDrawer,} from "@features/dialog";
-import {ModelDot} from "@features/modelDot";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import moment from "moment";
 
