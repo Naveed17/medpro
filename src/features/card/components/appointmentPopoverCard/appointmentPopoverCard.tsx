@@ -8,7 +8,6 @@ import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
-import Icon from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";

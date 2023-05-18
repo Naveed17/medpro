@@ -31,7 +31,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
-import {DefaultCountry, PhoneRegExp} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
