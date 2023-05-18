@@ -69,6 +69,8 @@ import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
 import {DefaultCountry} from "@lib/constants";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 
 const actions = [
@@ -177,7 +179,7 @@ function Agenda() {
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
@@ -445,10 +447,15 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                            start_date: moment().format("DD-MM-YYYY"),
-                            start_time: moment().format("HH:mm")
-                        }).then(() => {
+                        updateAppointmentStatus({
+                            method: "PATCH",
+                            data: {
+                                status: "4",
+                                start_date: moment().format("DD-MM-YYYY"),
+                                start_time: moment().format("HH:mm")
+                            },
+                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+                        } as any).then(() => {
                             dispatch(setTimer({
                                     isActive: true,
                                     isPaused: false,
@@ -478,8 +485,13 @@ function Agenda() {
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
-                updateAppointmentStatus(event?.publicId ? event?.publicId :
-                    (event as any)?.id, "6").then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "6"
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+                } as any).then(() => {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                     // refresh on going api
@@ -535,8 +547,14 @@ function Agenda() {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
-            "3", {is_first_appointment: filteredEvents}).then(
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "3",
+                is_first_appointment: filteredEvents
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
@@ -547,13 +565,17 @@ function Agenda() {
     }
 
     const onPatientNoShow = (event: EventDef) => {
-        updateAppointmentStatus(
-            event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
-            () => {
-                refreshData();
-                enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
-                dispatch(openDrawer({type: "view", open: false}));
-            });
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "10"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(() => {
+            refreshData();
+            enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
+            dispatch(openDrawer({type: "view", open: false}));
+        });
     }
 
     const onConsultationView = (event: EventDef) => {
@@ -565,7 +587,13 @@ function Agenda() {
 
     const onConfirmAppointment = (event: EventDef, refreshBackground?: boolean) => {
         setLoading(true);
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "1").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "1"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(() => {
             setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
@@ -579,10 +607,15 @@ function Agenda() {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(openDrawer({type: "view", open: false}));
                     dispatch(setTimer({
                             isActive: true,
@@ -685,22 +718,6 @@ function Agenda() {
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const handleActionDialog = (appointmentUUid: string) => {
         switch (actionDialog) {
             case "cancel":
@@ -715,7 +732,11 @@ function Agenda() {
 
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
-        updateAppointmentStatus(appointmentUUid, "9").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {status: "9"},
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
+        } as any).then(() => {
             dispatch(openDrawer({type: "view", open: false}));
             setCancelDialog(false);
             setLoading(false);
@@ -726,7 +747,11 @@ function Agenda() {
 
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
-        updateAppointmentStatus(appointmentUUid, "6").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {status: "6"},
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
+        } as any).then(() => {
             const eventUpdated: any = {
                 ...event, extendedProps:
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
