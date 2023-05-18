@@ -49,46 +49,24 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         data,
         changes,
         setChanges,
+        previousData
     } = props;
 
     if (modal) {
-        cmp = [...modal];
+        if(previousData){
+            cmp = [...modal];
+            cmp[0].components.map((mc: { key: string; description: string; }) => {
+                const index = Object.keys(previousData).findIndex(pdata =>pdata === mc.key);
+                if (index >-1 && !mc.description?.includes('(') && previousData[mc.key]) {
+                    const unity = mc.description ? mc.description :"";
+                    mc.description = ` (${previousData[mc.key]} ${unity}) `
+                }
+            })
+        }
     }
-
-    /* Previous data
-      cmp.map(spec => {
-           spec.components.map(composant =>{
-               const old = composant.description? composant.description :''
-               composant.description = `${old} (90${old})`
-           })
-       })
-       console.log(cmp)*/
-
-    /*
-        setTimeout(() => {
-            if (document.getElementById('adultTeeth')) {
-                const teethDiv = document.getElementById('teeth');
-                const reactDiv = document.createElement('div');
-                ReactDOM.render(<TeethWidget {...{
-                    acts,
-                    setActs,
-                    of: teethWidget,
-                    setSelectedAct,
-                    selectedAct,
-                    setSelectedUuid,
-                    appuuid
-                }}/>, reactDiv);
-                if (teethDiv)
-                    teethDiv.appendChild(reactDiv);
-
-            }
-
-        }, 1000)
-    */
 
     return (
         <>
-
             <Form
                 onChange={(ev: any) => {
                     localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
@@ -357,6 +335,7 @@ function Widget({...props}) {
                                             setSelectedAct,
                                             selectedAct,
                                             setSelectedUuid,
+                                            previousData,
                                             teethWidget
                                         }}
                                         key={m.uuid}

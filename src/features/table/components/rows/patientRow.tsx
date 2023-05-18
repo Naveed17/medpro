@@ -195,7 +195,7 @@ function PatientRow({...props}) {
                                 {row.insurances.map((insur: any, index: number) =>
                                     <Tooltip key={index} title={insur.insurance?.name}>
                                         <Avatar variant={"circular"}>
-                                            <Image
+                                            {insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl &&<Image
                                                 style={{borderRadius: 2}}
                                                 alt={insur.insurance?.name}
                                                 src="static/icons/Med-logo.png"
@@ -204,7 +204,7 @@ function PatientRow({...props}) {
                                                 loader={({src, width, quality}) => {
                                                     return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl.url
                                                 }}
-                                            />
+                                            />}
                                         </Avatar>
                                     </Tooltip>
                                 )}
