@@ -90,10 +90,9 @@ const Content = ({...props}) => {
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
-            trigger(
-                {
+            medicalEntityHasUser && trigger({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                         slug: any;
                     }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
