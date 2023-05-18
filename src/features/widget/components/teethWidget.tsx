@@ -114,13 +114,13 @@ export default function TeethWidget({...props}) {
         PosX = PosX - ImgPos[0];
         PosY = PosY - ImgPos[1];
 
-        teeth.map(tooth => {
+        teeth.forEach(tooth => {
             if (tooth.x) {
                 if (between(PosX, tooth.x[0], tooth.x[1]) && between(PosY, tooth.y[0], tooth.y[1])) {
                     setOpen(tooth.id);
                 }
             }
-        })
+        });
     }
     const FindPosition = (oElement: any) => {
         if (typeof (oElement.offsetParent) != "undefined") {
