@@ -21,6 +21,14 @@ function Event({...props}) {
         setAnchorEl(null);
     };
 
+    const isHorizontal = () => {
+        if(view === "timeGridDay")
+            return 'left';
+        else if (moment(appointment.time).weekday() > 4)
+            return -305;
+        else return  'right';
+    }
+
     return (
         <>
             <EventStyled
@@ -81,7 +89,7 @@ function Event({...props}) {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                    horizontal: view === "timeGridDay" ? 'left' : moment(appointment.time).weekday() > 4 ? -305 : 'right'
+                    horizontal: isHorizontal()
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus

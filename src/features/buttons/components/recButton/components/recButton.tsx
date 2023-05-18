@@ -8,12 +8,20 @@ import {Fab} from "@mui/material";
 function RecButton({...props}) {
     const {onClick, small = false} = props;
     const [expand, setExpand] = useState(false);
+    const isExpanded = () => {
+        if(expand)
+            return "auto" ;
+        else if (small)
+            return  30;
+        else return 40;
+    }
+
     return (
         <Fab
             size={"small"}
             component={motion.div}
             sx={{
-                width: expand ? "auto" : small ? 30 : 40,
+                width: isExpanded() ,
                 height: small ? 30 : 40,
                 minHeight: small ? 30 : 40,
                 boxShadow: "none",

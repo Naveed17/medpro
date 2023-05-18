@@ -52,13 +52,9 @@ function PaymentRow({ ...props }) {
     mouseY: number;
   } | null>(null);
   const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
 
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
-  const doctor_country = medical_entity.country
-    ? medical_entity.country
-    : DefaultCountry;
+  const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+  const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
   const devise = doctor_country.currency?.name;
 
   const [selected, setSelected] = useState<any>([]);

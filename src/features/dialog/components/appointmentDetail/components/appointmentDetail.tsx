@@ -1,25 +1,21 @@
-import React, {
-    useEffect,
-    useRef,
-    useState,
-    ChangeEvent,
-} from "react";
+import React, {useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
+    Alert,
     AppBar,
-    Toolbar,
-    Box,
-    IconButton,
-    Stack,
-    CardActions,
-    Typography,
-    Card,
-    CardContent,
     Avatar,
+    Box,
+    Card,
+    CardActions,
+    CardContent,
+    IconButton,
     Link,
     List,
     ListItem,
-    useTheme, Alert,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -33,69 +29,16 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 
 import {Dialog, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
-import {countries as dialCountries} from "@features/countrySelect/countries";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {dashLayoutSelector} from "@features/base";
-
-const menuList = [
-    {
-        title: "waiting",
-        icon: <IconUrl path="ic-salle"/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "event.start",
-        icon: <PlayCircleIcon/>,
-        action: "onStart",
-    },
-    {
-        title: "see_patient_file",
-        icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18}/>,
-        action: "onSeeFile",
-    },
-    {
-        title: "add_profile_photo",
-        icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18}/>,
-        action: "onAddProfilePhoto",
-    },
-    {
-        title: "send_msg",
-        icon: (
-            <IconUrl path="ic-messanger-lite" color="white" width={18} height={18}/>
-        ),
-        action: "onSendMsg",
-    },
-    {
-        title: "import_document",
-        icon: (
-            <IconUrl path="ic-dowlaodfile" color="white" width={18} height={18}/>
-        ),
-        action: "onImportFile",
-    },
-    {
-        title: "appointment_history",
-        icon: <IconUrl path="ic-edit-file" color="white" width={18} height={18}/>,
-        action: "onAppointmentHistory",
-    },
-    {
-        title: "move_appointment",
-        icon: <IconUrl path="ic-refrech" color="white" width={18} height={18}/>,
-        action: "onRefetch",
-    },
-    {
-        title: "delete_appointment",
-        icon: <IconUrl path="icdelete" color="white" width={18} height={18}/>,
-        action: "onDelete",
-    },
-];
 
 function AppointmentDetail({...props}) {
     const {
@@ -118,18 +61,13 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-
-    const [openTooltip, setOpenTooltip] = useState(false);
-
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const {t, ready} = useTranslation("common");
-    const {config: agendaConfig, selectedEvent: appointment} = useAppSelector(agendaSelector);
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: updateInstructionTrigger} = useRequestMutation(null, "/agenda/update/instruction");
 
     const {
         data: httpPatientPhotoResponse,
@@ -145,42 +83,7 @@ function AppointmentDetail({...props}) {
         "/dashboard/patient",
         "/dashboard/waiting-room",
         "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
-    const [avatar, setAvatar] = useState("");
-    const [instruction, setInstruction] = useState(
-        appointment?.extendedProps?.instruction
-            ? appointment?.extendedProps?.instruction
-            : ""
-    );
-    const [edited, setEdited] = useState(false);
     const [loading, setLoading] = useState(false);
-
-    const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const file = e.target.files[0];
-            setAvatar(URL.createObjectURL(file));
-        }
-    };
-
-    const updateInstruction = () => {
-        setLoading(true);
-        const appUuid = appointment?.publicId ? appointment?.publicId : (appointment as any)?.id;
-        const form = new FormData();
-        form.append("attribute", "instruction");
-        form.append("value", instruction);
-        updateInstructionTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appUuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        }).then(() => {
-            setLoading(false);
-            setEdited(false);
-            if (OnDataUpdated) {
-                OnDataUpdated();
-            }
-        });
-    };
-
     const setAppointmentDate = (action: string) => {
         const newDate = moment(appointment?.extendedProps.time);
         dispatch(
@@ -193,21 +96,8 @@ function AppointmentDetail({...props}) {
         );
         SetMoveDialog(true);
     }
-
-    const handleQr = () => {
-        handleClickDialog();
-    };
-
-    const handleClickDialog = () => {
-        setOpenDialog(true);
-    };
-
     const handleCloseDialog = () => {
         setOpenDialog(false);
-    };
-
-    const getCountryByCode = (code: string) => {
-        return dialCountries.find((country) => country.phone === code);
     };
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
@@ -226,29 +116,6 @@ function AppointmentDetail({...props}) {
                 <Toolbar>
                     <Typography variant="h6">{t("appointment_details")}</Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
-                        {/*     <Popover
-                            open={openTooltip}
-                            handleClose={() => setOpenTooltip(false)}
-                            menuList={menuList}
-                            className="agenda-rdv-details"
-                            onClickItem={(itempopver: {
-                                title: string;
-                                icon: string;
-                                action: string;
-                            }) => {
-                                setOpenTooltip(false);
-                            }}
-                            button={
-                                <IconButton
-                                    onClick={() => {
-                                        setOpenTooltip(true);
-                                    }}
-                                    sx={{display: "block", ml: "auto"}}
-                                    size="small">
-                                    <Icon path="more-vert"/>
-                                </IconButton>
-                            }
-                        />*/}
                         <IconButton
                             disableRipple
                             size="medium"
@@ -298,13 +165,11 @@ function AppointmentDetail({...props}) {
                                     <Box position="relative">
                                         <Avatar
                                             src={
-                                                avatar
-                                                    ? avatar
-                                                    : patientPhoto
-                                                        ? patientPhoto
-                                                        : appointment?.extendedProps?.patient?.gender === "M"
-                                                            ? "/static/icons/men-avatar.svg"
-                                                            : "/static/icons/women-avatar.svg"
+                                                patientPhoto
+                                                    ? patientPhoto
+                                                    : appointment?.extendedProps?.patient?.gender === "M"
+                                                        ? "/static/icons/men-avatar.svg"
+                                                        : "/static/icons/women-avatar.svg"
                                             }
                                             sx={{
                                                 "& .injected-svg": {
@@ -458,79 +323,6 @@ function AppointmentDetail({...props}) {
                             type: appointment?.extendedProps.type,
                         }}
                     />
-
-                    {/* {process.env.NODE_ENV === "development" && (
-            <Stack direction="row" spacing={2} alignItems="center" mt={2}>
-              <Button onClick={handleQr} variant="contained" fullWidth>
-                Qr-Code
-              </Button>
-              <Button variant="contained" fullWidth>
-                {t("send_link")}
-              </Button>
-            </Stack>
-          )} */}
-
-                    {/* <Typography sx={{ mt: 2, mb: 1 }} variant="body1" fontWeight={600}>
-            {t("insctruction")}
-          </Typography>
-          <Card>
-            <CardContent>
-              <TextField
-                id="outlined-multiline-static"
-                placeholder={t("insctruction")}
-                multiline
-                rows={4}
-                disabled={!edited}
-                value={instruction}
-                fullWidth
-                onChange={(e) => setInstruction(e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment
-                      onClick={() =>
-                        edited ? updateInstruction() : setEdited(true)
-                      }
-                      position="end">
-                      {edited ? (
-                        loading ? (
-                          <IconButton size="small">
-                            <CircularProgress size={20} />{" "}
-                          </IconButton>
-                        ) : (
-                          <>
-                            <Button
-                              sx={{
-                                marginRight: 1,
-                              }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setEdited(false);
-                              }}
-                              color={"error"}
-                              variant="outlined"
-                              size="small">
-                              {t("event.cancel").split(" ")[0]}
-                            </Button>
-                            <Button
-                              disabled={edited && instruction.length === 0}
-                              variant="outlined"
-                              startIcon={<SaveAsIcon color={"inherit"} />}
-                              size="small">
-                              {t("event.save")}
-                            </Button>
-                          </>
-                        )
-                      ) : (
-                        <IconButton size="small">
-                          <IconUrl path="ic-duotone" />{" "}
-                        </IconButton>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </CardContent>
-          </Card> */}
                 </Box>
                 {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>

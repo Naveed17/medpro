@@ -7,7 +7,7 @@ import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -22,7 +22,6 @@ import Icon from "@themes/urlIcon";
 import {configSelector} from "@features/base";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -63,9 +62,6 @@ function NotificationPopover({...props}) {
         selected: moveDateChanged,
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");

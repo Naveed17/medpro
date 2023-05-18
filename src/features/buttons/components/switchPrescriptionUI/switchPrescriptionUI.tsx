@@ -11,8 +11,7 @@ function SwitchPrescriptionUI({...props}) {
         <Typography>{t(`${switchUI ? "switch_" : ""}ui_classic`)}</Typography>
         <Switch
             checked={switchUI}
-            onChange={event => {
-                localStorage.setItem("prescription-switch-ui", event.target.checked as any);
+            onChange={event => {localStorage.setItem("prescription-switch-ui", event.target.checked as any);
                 setSwitchUI(event.target.checked);
                 handleSwitchUI && handleSwitchUI();
             }}

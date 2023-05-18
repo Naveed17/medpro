@@ -1,17 +1,9 @@
 import React from 'react'
-import {
-    Box,
-    Typography,
-    Card,
-    CardHeader,
-    CardContent,
-    List,
-    ListItem,
-
-} from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {Box, CardContent, CardHeader, List, ListItem, Typography,} from "@mui/material";
+import {useTheme} from "@mui/material/styles";
 import QuestionCardStyled from './overrides/questionStyle';
-function QuestionCard({ patientData, t }: any) {
+
+function QuestionCard({patientData, t}: any) {
     const theme = useTheme();
     return (
         <QuestionCardStyled>
@@ -33,7 +25,7 @@ function QuestionCard({ patientData, t }: any) {
                         component="p"
                         fontWeight="400"
                         color="textSecondary"
-                        sx={{ ml: 1 }}
+                        sx={{ml: 1}}
                     >
                         {patientData?.city}
                     </Typography>
@@ -44,7 +36,7 @@ function QuestionCard({ patientData, t }: any) {
                             <Typography
                                 color={theme.palette.secondary.main}
                                 fontFamily="Poppins-Bold"
-                                sx={{ mr: { lg: 8, xs: 5 } }}
+                                sx={{mr: {lg: 8, xs: 5}}}
                                 textTransform="capitalize"
                             >
                                 {t("height")}
@@ -57,7 +49,7 @@ function QuestionCard({ patientData, t }: any) {
                             <Typography
                                 color={theme.palette.secondary.main}
                                 fontFamily="Poppins-Bold"
-                                sx={{ mr: { lg: 8, xs: 5 } }}
+                                sx={{mr: {lg: 8, xs: 5}}}
                                 textTransform="capitalize"
                             >
                                 {t("weight")}

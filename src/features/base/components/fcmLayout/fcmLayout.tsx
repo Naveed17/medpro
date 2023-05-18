@@ -67,7 +67,7 @@ function FcmLayout({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 

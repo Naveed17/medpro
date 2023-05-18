@@ -15,8 +15,6 @@ import {
     Skeleton,
     Stack,
     TextField,
-    Tooltip,
-    tooltipClasses,
     Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -25,11 +23,8 @@ import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import {TooltipProps} from "@mui/material/Tooltip";
-import {styled} from "@mui/system";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
@@ -44,6 +39,7 @@ import {Dialog as CustomDialog} from "@features/dialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {HtmlTooltip} from "@features/tooltip";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -73,8 +69,6 @@ function CertifDialog({...props}) {
     const [selected, setSelected] = useState<any>();
     let [oldNote, setOldNote] = useState('');
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const intervalref = useRef<number | null>(null);
 
     useEffect(() => {
@@ -82,17 +76,6 @@ function CertifDialog({...props}) {
             setValue(oldNote + ' ' + transcript)
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
-
-    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
-        <Tooltip {...props} classes={{popper: className}}/>
-    ))(({theme}) => ({
-        [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#f5f5f9',
-            color: 'rgba(0, 0, 0, 0.87)',
-            maxWidth: 220,
-            border: '1px solid #dadde9',
-        },
-    }));
 
     const {trigger} = useRequestMutation(null, "/certif-models");
 

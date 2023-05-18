@@ -1,18 +1,20 @@
 // material
 import {
-    Typography,
-    TableCell,
-    Button,
     Box,
-    Skeleton,
-    Stack,
+    Button,
+    DialogActions,
     IconButton,
     Menu,
     MenuItem,
-    DialogActions, useTheme
+    Skeleton,
+    Stack,
+    TableCell,
+    Typography,
+    useTheme
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import Icon from '@themes/urlIcon'
+import IconUrl from '@themes/urlIcon'
 import {useRouter} from "next/router";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -25,9 +27,7 @@ import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import IconUrl from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {Session} from "next-auth";
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useSWRConfig} from "swr";
@@ -49,9 +49,6 @@ function RdvCard({...props}) {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;

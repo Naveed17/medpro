@@ -15,7 +15,8 @@ import {
     Stack,
     TextField,
     Toolbar,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequestMutation} from "@lib/axios";
@@ -26,8 +27,7 @@ import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
-import {DatePicker} from "@mui/x-date-pickers";
+import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
@@ -242,7 +242,7 @@ function PersonalInfo({...props}) {
 
                         <Grid container spacing={1}
                               onClick={() => {
-                                  if (!editable){
+                                  if (!editable) {
                                       setCurrentSection("PersonalInfo");
                                       setEditable(true);
                                   }
