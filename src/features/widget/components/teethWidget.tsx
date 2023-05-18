@@ -82,11 +82,14 @@ export default function TeethWidget({...props}) {
                 setTraitements([...res.traitements]);
                 setAbsent(res.absent);
             } else {
-                const previous = previousData[`${of}Teeth`];
-                if (previous){
-                    setTraitements([...previous.traitements]);
-                    setAbsent(previous.absent);
+                if (previousData){
+                    const previous = previousData[`${of}Teeth`];
+                    if (previous){
+                        setTraitements([...previous.traitements]);
+                        setAbsent(previous.absent);
+                    }
                 }
+
             }
         }
     }, [appuuid, of, previousData])
