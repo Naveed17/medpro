@@ -110,22 +110,20 @@ function FcmLayout({...props}) {
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
                     enqueueSnackbar(message.notification.body, {variant: "info"});
-                } else {
-                    if (data.body.hasOwnProperty('progress')) {
-                        if (data.body.progress === -1 || data.body.progress === 100) {
-                            localStorage.removeItem("import-data");
-                            localStorage.removeItem("import-data-progress");
-                            importData.mutate && importData.mutate();
-                            // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
-                            closeSnackbar();
-                            enqueueSnackbar((data.body.progress === -1 ?
-                                    translationCommon.import_data.failed : translationCommon.import_data.end),
-                                {variant: data.body.progress === -1 ? "error" : "success"});
-                        } else {
-                            localStorage.setItem("import-data-progress", data.body.progress.toString());
-                            dispatch(setProgress(parseFloat(data.body.progress)));
-                        }
+                } else if (data.body.hasOwnProperty('progress')) {
+                    if (data.body.progress === -1 || data.body.progress === 100) {
+                        localStorage.removeItem("import-data");
+                        localStorage.removeItem("import-data-progress");
+                        importData.mutate && importData.mutate();
+                        // refresh on going api
+                        mutateOnGoing && mutateOnGoing();
+                        closeSnackbar();
+                        enqueueSnackbar((data.body.progress === -1 ?
+                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                            {variant: data.body.progress === -1 ? "error" : "success"});
+                    } else {
+                        localStorage.setItem("import-data-progress", data.body.progress.toString());
+                        dispatch(setProgress(parseFloat(data.body.progress)));
                     }
                 }
             } else {

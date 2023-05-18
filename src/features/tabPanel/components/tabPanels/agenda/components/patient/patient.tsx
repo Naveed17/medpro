@@ -9,7 +9,6 @@ import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 

@@ -8,7 +8,6 @@ import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {PickersDay, StaticDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {Session} from "next-auth";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";

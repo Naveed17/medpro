@@ -15,7 +15,7 @@ import {
     Stack,
     TextField,
     Toolbar,
-    Typography, useMediaQuery, useTheme
+    Typography, useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequestMutation} from "@lib/axios";

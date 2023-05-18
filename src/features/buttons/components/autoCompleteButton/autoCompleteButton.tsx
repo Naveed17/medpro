@@ -7,7 +7,7 @@ import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";

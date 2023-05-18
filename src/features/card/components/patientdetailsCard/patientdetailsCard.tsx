@@ -28,7 +28,6 @@ import React, {useRef, useState} from "react";
 import {CropImage} from "@features/cropImage";
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
