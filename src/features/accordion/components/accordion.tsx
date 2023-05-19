@@ -57,7 +57,7 @@ function Accordion({...props}) {
                                     {badge}
                                 </Box>
                             )}
-                            <Icon path={item.expanded ? "arrow-up-table" : "ic-expand-more"}/>
+                            <Icon path={item.expanded ? "arrow-up-table":  "ic-expand-more"}/>
                         </>
                     }
                 >
