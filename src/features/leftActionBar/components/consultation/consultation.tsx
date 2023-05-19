@@ -424,7 +424,8 @@ function Consultation() {
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
-                            <Icon path="ic-expand-more"/>
+                            <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
+
                         </IconButton>
                     </ListItem>
 
@@ -515,7 +516,7 @@ function Consultation() {
                                         color="warning"
                                     />
                                     <IconButton size="small">
-                                        <Icon path="ic-expand-more"/>
+                                        <Icon path={collapse === col.id ? "arrow-up-table" : "ic-expand-more"}/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
