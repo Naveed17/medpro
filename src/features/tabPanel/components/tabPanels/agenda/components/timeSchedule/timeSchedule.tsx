@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
+import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
