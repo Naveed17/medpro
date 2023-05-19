@@ -1,7 +1,7 @@
 import { ListItem,FormControlLabel, Checkbox, IconButton, Collapse, List } from '@mui/material';
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
-
+import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 function TreeViewCheckbox({...props}) {
 const {data, onNodeCheck,t} = props;
    const renderNode = (node:any) => {
@@ -18,11 +18,14 @@ const {data, onNodeCheck,t} = props;
               className: hasChildren ? "bold-label" : "simple-label",
           })
       }
-
+      
       control={
           <Checkbox
               onChange={handleNodeCheck}
               checked={ hasChildren ? node.children.every((child:any) => child.value): node.value}
+              {...(hasChildren && {
+                icon: node.value ? <IconUrl path="ic_check" /> : node.children.some((child:any) => child.value) ? <IndeterminateCheckBoxIcon color="primary" /> : <IconUrl path="ic_uncheck" />,
+              })}
           />
       }
       label={t("permissions." + node.slug, {ns: 'common'})}
