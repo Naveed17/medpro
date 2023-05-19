@@ -19,43 +19,29 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     AppointmentStatus,
-    DayOfWeek,
-    setView,
+    setView
 } from "@features/calendar";
 import moment from "moment-timezone";
 import {Checkbox, Typography} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {dashLayoutSelector} from "@features/base";
+import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 
 const CalendarPickers = dynamic(
     () => import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Agenda() {
     const dispatch = useAppDispatch();
+    const {current: disabledDay} = useHorsWorkDays();
 
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "filter"});
+    const {sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "filter"});
-
-    const locations = agendaConfig?.locations;
-    const openingHours = locations && locations[0].openingHours[0].openingHours;
     const types = appointmentTypes ? [...appointmentTypes] : [];
 
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [accordionData, setAccordionData] = useState<any[]>([]);
-
-    useEffect(() => {
-        const disabledDay: number[] = [];
-        openingHours &&
-        Object.entries(openingHours).filter((openingHours: any) => {
-            if (!(openingHours[1].length > 0)) {
-                disabledDay.push(DayOfWeek(openingHours[0]));
-            }
-        });
-        setDisabledDay(disabledDay);
-    }, [openingHours]);
 
     useEffect(() => {
         if (appointmentTypes) {
