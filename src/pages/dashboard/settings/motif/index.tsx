@@ -1,51 +1,43 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {
-    ReactElement,
-    useState,
-    useEffect,
-    Suspense,
-    lazy,
-} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import React, {lazy, ReactElement, Suspense, useEffect, useState,} from "react";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
     Container,
-    Drawer,
-    Stack,
-    Typography,
-    useMediaQuery,
-    useTheme,
-    Theme,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
+    Drawer,
+    Stack,
+    Theme,
+    Typography,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
 import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
-import {configSelector} from "@features/base";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-
-const MotifListMobile = lazy(
-    (): any => import("@features/card/components/motifListMobile/motifListMobile")
-);
 import {LoadingScreen} from "@features/loadingScreen";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
+
+const MotifListMobile = lazy(
+    (): any => import("@features/card/components/motifListMobile/motifListMobile")
+);
 
 function Motif() {
     const {data: session} = useSession();
@@ -72,9 +64,6 @@ function Motif() {
         isEnabled: true,
     });
     const [selected, setSelected] = useState<null | any>();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/settings/motifs");
 

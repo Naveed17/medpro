@@ -144,7 +144,6 @@ function DashLayout({children}: LayoutProps) {
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        //console.log(navigator.brave);
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
                 callbackUrl: `${router.locale}/dashboard/agenda`,

@@ -18,11 +18,8 @@ function CIPMedicalProceduresRow({...props}) {
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<string>("");

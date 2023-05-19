@@ -70,7 +70,7 @@ function AppointmentPopoverCard({...props}) {
             </Box>
 
             {data?.hasErrors?.map((error: string, index: number) => (
-                <Stack key={`error${index}`}
+                <Stack key={index+error}
                        spacing={2} mt={.5} pl={4}
                        direction="row">
                     <Alert

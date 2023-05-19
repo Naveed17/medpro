@@ -1,13 +1,12 @@
 import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
-import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
@@ -23,9 +22,6 @@ function PatientAppointmentCard({...props}) {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",

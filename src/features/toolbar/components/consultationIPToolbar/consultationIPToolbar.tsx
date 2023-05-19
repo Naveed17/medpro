@@ -71,7 +71,7 @@ function ConsultationIPToolbar({...props}) {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-    const {record, timer} = useAppSelector(consultationSelector);
+    const {record} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger} = useRequestMutation(null, "/drugs");
@@ -86,15 +86,12 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState<string | null>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setActions] = useState<boolean>(false);
-    const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
     const hasLatestAppointments = appointement.latestAppointments.length === 0;
     const [tabsData, setTabsData] = useState<any[]>([]);
-    let [time, setTime] = useState(timer);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const ginfo = (session?.data as UserDataResponse).general_information;
+    const general_information = (user as UserDataResponse).general_information;
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
@@ -104,15 +101,6 @@ function ConsultationIPToolbar({...props}) {
 
     const startRecord = () => {
         recorder.start().then(() => {
-            //console.log(intervalref.current)
-            /*if (intervalref.current !== null) window.clearInterval(intervalref.current);
-            else {
-                intervalref.current = window.setInterval(() => {
-                    time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                    dispatch(SetTimer(time))
-                    console.log(intervalref)
-                }, 1000);
-            }*/
             dispatch(SetRecord(true))
         }).catch((e: any) => {
             console.error(e);
@@ -129,13 +117,6 @@ function ConsultationIPToolbar({...props}) {
             });
             uploadRecord(file)
 
-            /*const player = new Audio(URL.createObjectURL(file));
-            player.play();*/
-
-            /*if (intervalref.current) {
-                window.clearInterval(intervalref.current);
-                intervalref.current = null;
-            }*/
             dispatch(SetRecord(false))
             dispatch(SetTimer('00:00'))
             mutateDoc();
@@ -178,15 +159,15 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
-
+        let method = ""; let url = ""
         switch (info) {
             case "medical_prescription":
             case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
-                let method = "POST"
-                let url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${router.locale}`;
+                method = "POST"
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${router.locale}`;
                 if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
                     method = "PUT"
                     url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
@@ -379,7 +360,6 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
-        setLabel("documents");
         setSelectedTab("documents");
 
         setOpenDialog(false);
@@ -449,7 +429,7 @@ function ConsultationIPToolbar({...props}) {
             case "write_certif":
                 setInfo("write_certif");
                 setState({
-                    name: `${ginfo.firstName} ${ginfo.lastName}`,
+                    name: `${general_information.firstName} ${general_information.lastName}`,
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
@@ -503,10 +483,6 @@ function ConsultationIPToolbar({...props}) {
     }
 
     useEffect(() => {
-        setTime(timer)
-    }, [timer])
-
-    useEffect(() => {
         if (selectedDialog) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
@@ -534,7 +510,7 @@ function ConsultationIPToolbar({...props}) {
                 case "write_certif":
                     setInfo("write_certif");
                     setState({
-                        name: `${ginfo.firstName} ${ginfo.lastName}`,
+                        name: `${general_information.firstName} ${general_information.lastName}`,
                         days: '',
                         uuid: selectedDialog.state.uuid,
                         content: selectedDialog.state.content,
@@ -723,7 +699,6 @@ function ConsultationIPToolbar({...props}) {
                             <Tab
                                 onFocus={() => {
                                     setTabs(index);
-                                    setLabel(tab.label);
                                 }}
                                 className="custom-tab"
                                 key={tab.label}

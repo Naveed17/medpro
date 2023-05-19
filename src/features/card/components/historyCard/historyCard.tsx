@@ -1,7 +1,6 @@
-import {Typography, Box, Stack, IconButton, Button} from "@mui/material";
+import {Box, Button, IconButton, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {ModelDot} from "@features/modelDot";
 import HistoryCardStyled from "./overrides/historyCardStyle";
 import moment from "moment/moment";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
@@ -27,7 +26,7 @@ export default function HistoryCard({...props}) {
                         {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                     </Typography>
                 </Stack>}
-                <Box display={{ md: 'block'}}>
+                <Box display={{md: 'block'}}>
                     <Typography fontWeight={400}>
                         {t("appointment_date")}
                     </Typography>
