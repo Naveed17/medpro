@@ -176,7 +176,7 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPreviousResponse} = useRequest(agenda ? {
+    const {data: httpPreviousResponse} = useRequest(medical_entity && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -242,7 +242,7 @@ function ConsultationInProgress() {
     }, [httpAppResponse]);
     useEffect(() => {
         if (httpPreviousResponse) {
-            const data = (httpPreviousResponse as HttpResponse).data.data;
+            const data = (httpPreviousResponse as HttpResponse).data;
             if (data) {
                 setPreviousData(data);
             }
