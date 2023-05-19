@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setView} from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 import {dashLayoutSelector} from "@features/base";
