@@ -1,4 +1,4 @@
-import {Fragment, KeyboardEvent, useState} from "react";
+import React, {Fragment, KeyboardEvent, useState} from "react";
 import {
     Typography,
     Box,
@@ -14,11 +14,17 @@ import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {debounce} from "lodash";
 
 interface StateProps {
     name: string;
     birthdate: Date | null;
     gender: string | null;
+}
+
+interface Lab {
+    label: string;
+    placeholder: string;
 }
 
 function PatientFilter({...props}) {
@@ -28,6 +34,29 @@ function PatientFilter({...props}) {
         birthdate: null,
         gender: null
     });
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
+        setQueryState({...queryState, [lab.label]: event.target.value});
+        if (event.target.value.length >= 3) {
+            OnSearch({
+                query: {
+                    ...queryState,
+                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                    [lab.label]: (event.target as HTMLInputElement).value
+                },
+            });
+        } else if (event.target.value.length === 0) {
+            const query = _.omit(queryState, [lab.label]);
+            OnSearch({
+                query: {
+                    ...query,
+                    ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
+                }
+            });
+        }
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 500);
 
     return (
 
@@ -66,21 +95,17 @@ function PatientFilter({...props}) {
                             const query = _.omit(queryState, "gender");
                             setQueryState({...queryState, gender: null});
                             OnSearch({
-                                query: {...query},
+                                query: {
+                                    ...query,
+                                    ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
+                                },
                             });
                         }}>
                             <HighlightOffRoundedIcon color={"error"}/>
                         </IconButton>}
                 </RadioGroup>
             </FormControl>
-            {item.textField?.labels.map(
-                (
-                    lab: {
-                        label: string;
-                        placeholder: string;
-                    },
-                    i: number
-                ) => (
+            {item.textField?.labels.map((lab: Lab, i: number) => (
                     <Fragment key={`patient-filter-label-${i}`}>
                         {lab.label === "name" ? (
                             <>
@@ -89,27 +114,8 @@ function PatientFilter({...props}) {
                                 </InputLabel>
                                 <FormControl component="form" fullWidth>
                                     <TextField
-                                        onChange={(e) => {
-                                            setQueryState({...queryState, [lab.label]: e.target.value});
-                                            if (e.target.value.length >= 3) {
-                                                OnSearch({
-                                                    query: {
-                                                        ...queryState,
-                                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                        [lab.label]: (e.target as HTMLInputElement).value
-                                                    },
-                                                });
-                                            } else if (e.target.value.length === 0) {
-                                                const query = _.omit(queryState, [lab.label]);
-                                                OnSearch({
-                                                    query: {
-                                                        ...query,
-                                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
-                                                    }
-                                                });
-                                            }
-                                        }}
-                                        value={queryState[lab.label]}
+                                        onChange={(e) => debouncedOnChange(e, lab)}
+                                        defaultValue={""}
                                         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                                             if (e.key === "Enter") {
                                                 if ((e.target as HTMLInputElement).value) {
