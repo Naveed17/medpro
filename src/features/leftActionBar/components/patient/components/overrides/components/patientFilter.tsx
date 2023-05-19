@@ -7,11 +7,13 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton,
+    InputLabel, IconButton, Stack,
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import MaleRoundedIcon from '@mui/icons-material/MaleRounded';
+import FemaleRoundedIcon from '@mui/icons-material/FemaleRounded';
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import {debounce} from "lodash";
@@ -59,7 +61,6 @@ function PatientFilter({...props}) {
     const debouncedOnChange = debounce(handleOnChange, 500);
 
     return (
-
         <Box component="figure" sx={{m: 0}}>
             <Typography variant="body2" color="text.secondary">
                 {t(`${keyPrefix}${item.gender?.heading}`)}
@@ -80,14 +81,23 @@ function PatientFilter({...props}) {
                     }}
                     value={queryState.gender}
                     name="row-radio-buttons-group"
+                    sx={{
+                        ml: .5,
+                        "& .MuiRadio-root": {
+                            width: 36, height: 36
+                        }
+                    }}
                 >
-                    {item.gender?.genders.map((g: string, i: number) => (
+                    {item.gender?.genders.map((gender: string, i: number) => (
                         <FormControlLabel
-                            sx={{ml: i === 1 ? "5px" : 0}}
                             key={`gender-${i}`}
                             value={++i}
                             control={<Radio/>}
-                            label={t(`${keyPrefix}${g}`)}
+                            label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
+                                    <FemaleRoundedIcon sx={{width: 16}}/>}
+                                {t(`${keyPrefix}${gender}`)}
+                            </Stack>}
                         />
                     ))}
                     {queryState.gender &&

@@ -4,25 +4,17 @@ import {
     ActionBarState,
     BoxStyled,
     FilterRootStyled,
-    leftActionBarSelector,
     PatientFilter,
     setFilter,
+    AppointmentStatusFilter,
+    AppointmentTypesFilter
 } from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
-import {
-    SidebarCheckbox,
-    SidebarCheckboxStyled,
-} from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {
-    agendaSelector,
-    AppointmentStatus,
-    setView
-} from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
-import {Checkbox, Typography} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
@@ -36,10 +28,7 @@ function Agenda() {
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "filter"});
     const {sortedData: notes} = useAppSelector(agendaSelector);
-    const {query} = useAppSelector(leftActionBarSelector);
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
-
-    const types = appointmentTypes ? [...appointmentTypes] : [];
 
     const [accordionData, setAccordionData] = useState<any[]>([]);
 
@@ -57,7 +46,6 @@ function Agenda() {
                         <FilterRootStyled>
                             <PatientFilter
                                 OnSearch={(data: { query: ActionBarState }) => {
-                                    dispatch(setView("listWeek"));
                                     dispatch(setFilter({patient: data.query}));
                                 }}
                                 item={{
@@ -88,38 +76,7 @@ function Agenda() {
                         title: "meetingType",
                     },
                     expanded: false,
-                    children: types.map((item, index) => (
-                        <React.Fragment key={index}>
-                            <SidebarCheckbox
-                                label={"name"}
-                                checkState={item.checked}
-                                translate={{
-                                    t: t,
-                                    ready: ready,
-                                }}
-                                data={item}
-                                onChange={(selected: boolean) => {
-                                    if (selected && !query?.type?.includes(item.uuid)) {
-                                        dispatch(
-                                            setFilter({
-                                                type: item.uuid + (query?.type ? `,${query.type}` : ""),
-                                            })
-                                        );
-                                    } else {
-                                        const sp = query?.type?.split(",") as string[];
-                                        dispatch(
-                                            setFilter({
-                                                type:
-                                                    sp?.length > 1
-                                                        ? query?.type?.replace(`${item.uuid},`, "")
-                                                        : undefined,
-                                            })
-                                        );
-                                    }
-                                }}
-                            />
-                        </React.Fragment>
-                    )),
+                    children: (<AppointmentTypesFilter {...{t, ready}} />)
                 },
                 {
                     heading: {
@@ -128,80 +85,13 @@ function Agenda() {
                         title: "meetingStatus",
                     },
                     expanded: false,
-                    children: Object.values(AppointmentStatus).map(
-                        (status) =>
-                            status.icon && (
-                                <React.Fragment key={status.key}>
-                                    <SidebarCheckboxStyled
-                                        component="label"
-                                        htmlFor={status.key}
-                                        sx={{
-                                            "& .MuiSvgIcon-root": {
-                                                width: 16,
-                                                height: 16,
-                                            },
-                                        }}
-                                        styleprops={""}>
-                                        <Checkbox
-                                            size="small"
-                                            id={status.key}
-                                            onChange={(event) => {
-                                                const selected = event.target.checked;
-                                                const statusKey = Object.entries(AppointmentStatus).find((value) => value[1].key === status.key);
-
-                                                if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
-                                                    const type = (statusKey && statusKey[1]) as AppointmentStatusModel;
-                                                    const key = type?.key === "ONLINE" ? "isOnline" : "status";
-                                                    const value = type?.key === "ONLINE" ? selected : (statusKey && statusKey[0]) as string;
-                                                    dispatch(
-                                                        setFilter({
-                                                            [key]: `${value}${(query?.status && type?.key !== "ONLINE" ? `,${query.status}` : "")}`
-                                                        })
-                                                    );
-                                                } else {
-                                                    const sp = query?.status?.split(",") as string[];
-                                                    dispatch(
-                                                        setFilter({
-                                                            status:
-                                                                sp?.length > 1
-                                                                    ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "")
-                                                                    : undefined,
-                                                        })
-                                                    );
-                                                }
-                                            }}
-                                            name={status.key}
-                                        />
-                                        {status.icon}
-                                        <Typography ml={1}>{status.value}</Typography>
-                                    </SidebarCheckboxStyled>
-                                </React.Fragment>
-                            )
-                    ),
+                    children: (<AppointmentStatusFilter/>)
                 },
             ]);
         }
     }, [appointmentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        types?.map((type) => {
-            Object.assign({...type}, {
-                checked:
-                    query?.type
-                        ?.split(",")
-                        .find((typeObject) => type.uuid === typeObject) !== undefined,
-            });
-        });
-    });
-
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <BoxStyled className="container-filter">

@@ -17,6 +17,7 @@ const RootStyled = styled(MuiAccordion)(({ theme }) => ({
   },
   "& .MuiAccordionDetails-root": {
     paddingTop: theme.spacing(1),
+    paddingRight: theme.spacing(1.5),
   },
 }));
 export default RootStyled;
