@@ -46,7 +46,6 @@ function Agenda() {
                         <FilterRootStyled>
                             <PatientFilter
                                 OnSearch={(data: { query: ActionBarState }) => {
-                                    dispatch(setView("listWeek"));
                                     dispatch(setFilter({patient: data.query}));
                                 }}
                                 item={{
