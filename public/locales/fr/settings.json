@@ -390,6 +390,10 @@
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
+        },
+        "role": {
+          "title": "Ajoutez votre premier rôle",
+          "description": "Gérer votre accès et créer votre première secrétaire"
         }
       }
     },

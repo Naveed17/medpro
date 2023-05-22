@@ -129,7 +129,11 @@ function AddNewRoleDialog({...props}) {
                     handleMutate();
                     handleClose();
                     setLoading(false)
-                })
+                }).catch((err) => {
+                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    setLoading(false)
+                
+            })
             } else {
                 trigger({
                     method: "POST",
@@ -141,8 +145,12 @@ function AddNewRoleDialog({...props}) {
                     handleMutate();
                     handleClose();
                     setLoading(false)
-                })
-            }
+                }).catch((err) => {
+                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    setLoading(false)
+                
+            })
+        };
 
         },
         validationSchema: RoleSchema,
