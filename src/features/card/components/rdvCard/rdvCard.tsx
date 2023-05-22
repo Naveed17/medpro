@@ -52,7 +52,6 @@ function RdvCard({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
@@ -62,7 +61,6 @@ function RdvCard({...props}) {
 
     const handleContextMenu = (event: any) => {
         event.stopPropagation();
-        setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
