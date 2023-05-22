@@ -35,6 +35,7 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useSWRConfig} from "swr";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
@@ -43,6 +44,7 @@ function PatientFileTemplates() {
     const isMobile = useMediaQuery("(max-width:669px)");
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
+    const {mutate: mutateSwrConfig} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -181,14 +183,12 @@ function PatientFileTemplates() {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then(() => {
+            mutateSwrConfig(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
             enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
             setLoading(false);
             setOpenDialog(false);
             mutate();
-        }).catch((error) => {
-            const {
-                response: {data},
-            } = error;
+        }).catch(() => {
             setLoading(false);
             // enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
             setOpenDialog(false);
