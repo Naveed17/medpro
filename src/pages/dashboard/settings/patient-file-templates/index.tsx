@@ -188,10 +188,7 @@ function PatientFileTemplates() {
             setLoading(false);
             setOpenDialog(false);
             mutate();
-        }).catch((error) => {
-            const {
-                response: {data},
-            } = error;
+        }).catch(() => {
             setLoading(false);
             // enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
             setOpenDialog(false);
