@@ -157,8 +157,7 @@ function CertifDialog({...props}) {
     }
 
     const addVal = (val: string) => {
-        // @ts-ignore
-        window.tinymce.execCommand('mceInsertContent', false ,val);
+        (window as any).tinymce.execCommand('mceInsertContent', false ,val);
     }
 
     const {t, ready} = useTranslation("consultation");
