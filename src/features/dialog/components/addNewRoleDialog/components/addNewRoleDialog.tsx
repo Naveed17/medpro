@@ -5,19 +5,15 @@ import RootStyled from "./overrides/rootStyle";
 import {
     Box,
     Card,
-    List,
-    ListItem,
     Stack,
     TextField,
     Typography,
     FormControlLabel,
     Checkbox,
-    Collapse,
     Switch,
     Button,
     Skeleton
 } from "@mui/material";
-import {IconButton} from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
