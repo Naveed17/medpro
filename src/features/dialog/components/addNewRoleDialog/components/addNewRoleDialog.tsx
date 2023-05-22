@@ -6,16 +6,12 @@ import {
     Box,
     Button,
     Card,
-    Checkbox,
-    Collapse,
-    FormControlLabel,
-    IconButton,
-    List,
-    ListItem,
-    Skeleton,
     Stack,
-    Switch,
     TextField,
+    FormControlLabel,
+    Checkbox,
+    Switch,
+    Skeleton,
     Typography
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
@@ -25,11 +21,14 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
-
+import { TreeCheckbox } from "@features/treeViewCheckbox";
+import { useSnackbar } from "notistack";
 function AddNewRoleDialog({...props}) {
-    const {data: {selected, handleMutate, handleVisitor, handleClose}} = props;
+    const {data: {selected, handleMutate, handleClose}} = props;
     const {t} = useTranslation(["settings", "common"]);
+    
     const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse)
@@ -45,6 +44,7 @@ function AddNewRoleDialog({...props}) {
         },
     });
     useEffect(() => {
+       
         if (httpPermissionsResponse) {
             const response = (httpPermissionsResponse as HttpResponse)?.data
             const permissions = response.map((item: any) => {
@@ -62,7 +62,7 @@ function AddNewRoleDialog({...props}) {
             const updatePermissions = handleUpdatedPermissions(permissions);
             setPermissions(updatePermissions);
         }
-
+      
     }, [httpPermissionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleUpdatedPermissions = (permissions: any) => {
@@ -125,10 +125,15 @@ function AddNewRoleDialog({...props}) {
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
+                    enqueueSnackbar(t("users.alert.updated-role"),{variant: "success"})
                     handleMutate();
-                    handleVisitor((prev: boolean) => !prev);
+                    handleClose();
                     setLoading(false)
-                })
+                }).catch((err) => {
+                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    setLoading(false)
+                
+            })
             } else {
                 trigger({
                     method: "POST",
@@ -136,11 +141,16 @@ function AddNewRoleDialog({...props}) {
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
+                    enqueueSnackbar(t("users.alert.added-role"),{variant: "success"})
                     handleMutate();
-                    handleVisitor((prev: boolean) => !prev);
+                    handleClose();
                     setLoading(false)
-                })
-            }
+                }).catch((err) => {
+                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    setLoading(false)
+                
+            })
+        };
 
         },
         validationSchema: RoleSchema,
@@ -204,124 +214,34 @@ function AddNewRoleDialog({...props}) {
             setFieldValue("permissions", newPermissions);
         }
     };
-    // const handleCheckBox = (
-    //   e: React.ChangeEvent<HTMLInputElement>,
-    //   index: number
-    // ) => {
-    //   if (e.target.checked) {
-    //     const newPermissions = values.permissions.map(
-    //       (permission: any, idx: number) => {
-    //         if (index === idx) {
-    //           permission.value = true;
-    //           permission.children = permission.children.map(
-    //             (insidePermission: any) => {
-    //               insidePermission.value = true;
-    //               if (insidePermission.children) {
-    //                 insidePermission.children = insidePermission.children.map(
-    //                   (nestedPermission: any) => {
-    //                     insidePermission.value = false;
-    //                     return nestedPermission;
-    //                   }
-    //                 );
-    //               }
-
-    //               return insidePermission;
-    //             }
-    //           );
-    //         }
-    //         return permission;
-    //       }
-    //     );
-    //     setPermissions(newPermissions);
-    //   } else {
-    //     const newPermissions = values.permissions.map(
-    //       (permission: any, idx: any) => {
-    //         if (index === idx) {
-    //           permission.value = false;
-    //           permission.children = permission.children.map(
-    //             (insidePermission: any) => {
-    //               insidePermission.value = false;
-    //               if (insidePermission.children) {
-    //                 insidePermission.children = insidePermission.children.map(
-    //                   (nestedPermission: any) => {
-    //                     return nestedPermission;
-    //                   }
-    //                 );
-    //               }
-
-    //               return insidePermission;
-    //             }
-    //           );
-    //         }
-
-    //         return permission;
-    //       }
-    //     );
-    //     setPermissions(newPermissions);
-    //   }
-    // };
-    // const handleCheckBoxInside = (
-    //   e: React.ChangeEvent<HTMLInputElement>,
-    //   index: number,
-    //   mainIndex: number
-    // ) => {
-    //   if (e.target.checked) {
-    //     const newPermissions = values.permissions.map(
-    //       (permission: any, i: number) => {
-    //         if (i === mainIndex) {
-    //           permission.children = permission.children.map(
-    //             (insidePermission: any, idx: number) => {
-    //               if (idx === index) {
-    //                 insidePermission.value = true;
-    //                 if (insidePermission.children) {
-    //                   insidePermission.children =
-    //                     insidePermission.children.map(
-    //                       (nestedPermission: any) => {
-    //                         nestedPermission.value = true;
-    //                         return nestedPermission;
-    //                       }
-    //                     );
-    //                 }
-    //               }
-
-    //               return insidePermission;
-    //             }
-    //           );
-    //         }
-    //         return permission;
-    //       }
-    //     );
-    //     setPermissions(newPermissions);
-    //   } else {
-    //     const newPermissions = values.permissions.map(
-    //       (permission: any, i: number) => {
-    //         if (i === mainIndex) {
-    //           permission.children = permission.children.map(
-    //             (insidePermission: any, idx: number) => {
-    //               if (idx === index) {
-    //                 insidePermission.value = false;
-    //                 if (insidePermission.children) {
-    //                   insidePermission.children =
-    //                     insidePermission.children.map(
-    //                       (nestedPermission: any) => {
-    //                         nestedPermission.value = false;
-    //                         return nestedPermission;
-    //                       }
-    //                     );
-    //                 }
-    //               }
-
-    //               return insidePermission;
-    //             }
-    //           );
-    //         }
-    //         return permission;
-    //       }
-    //     );
-    //     setPermissions(newPermissions);
-    //   }
-    // };
-
+     const handleNodeCheck = (id:string, checked:boolean) => {
+    const updatedData = values.permissions.map((node:any) => {
+      if (node.uuid === id) {
+        return {
+            ...node,
+            value: checked,
+            children: node.children.map((child:any) =>({
+                ...child,
+                value: checked
+            }))
+        }
+          
+    }
+      return {
+        ...node,
+        children: node.children.map((child:any) =>
+          child.uuid === id ? { ...child, value: checked } : { ...child }
+        )
+      };
+    });
+    const checkedData =  updatedData.map((item:any) => {
+        if (item.children.length > 0) {
+            item.value = item.children.every((child:any) => child.value === true) ? true : false
+        }
+        return item;
+    });
+    setFieldValue("permissions", checkedData);
+  };
     return (
         <>
             <FormikProvider value={formik}>
@@ -352,96 +272,23 @@ function AddNewRoleDialog({...props}) {
                         <Box className="permissions-wrapper">
                             <Typography gutterBottom>{t("users.dialog.select_permissions")}</Typography>
                             <Card>
-                                <List sx={{p: 0}}>
-                                    {values.permissions.length > 0 ?
-                                        <ListItem>
-                                            <FormControlLabel
+                            <Box py={1} px={2}>
+                               {
+                                httpPermissionsResponse ? 
+                                 <FormControlLabel
                                                 className="bold-label"
                                                 control={<Checkbox onChange={handleToggleAllSelect}/>}
                                                 label={t("users.dialog.select_all")}
                                                 checked={allValuesTrue}
                                             />
-                                        </ListItem> :
-                                        <ListItem>
-                                            <Skeleton width={25} height={40}/>
-                                            <Skeleton width={150} sx={{ml: 1}}/>
-                                        </ListItem>
-                                    }
-                                    {(values.permissions.length === 0 ? Array.from({length: 5}) : values.permissions)?.map((item: any, idx: number) => (
-                                        <React.Fragment key={item ? item.uuid : idx}>
-                                            {item ?
-                                                <ListItem className="main-list">
-
-                                                    <FormControlLabel
-                                                        {
-                                                            ...(item.children && {
-                                                                className: item.children.length > 0 ? "bold-label" : "simple-label",
-                                                            })
-                                                        }
-
-                                                        control={
-                                                            <Checkbox
-                                                                {...getFieldProps(`permissions[${idx}].value`)}
-                                                                checked={item.value}
-                                                            />
-                                                        }
-                                                        label={t("permissions." + item.slug, {ns: 'common'})}
-                                                    />
-
-                                                    <IconButton
-                                                        sx={{
-                                                            display: item.children.length > 0 ? "block" : "none",
-                                                            ".react-svg": {
-                                                                transform: item.value ? "scale(-1)" : "none",
-                                                            },
-                                                        }}
-                                                        disableRipple
-                                                        className="collapse-icon">
-                                                        <IconUrl path="setting/ic-down-arrow" width={12} height={12}/>
-                                                    </IconButton>
-                                                </ListItem>
-                                                : <ListItem className="main-list">
-                                                    <Skeleton width={25} height={40}/>
-                                                    <Skeleton width={250} sx={{ml: 1}}/>
-                                                </ListItem>
-                                            }
-                                            {item && item.children && (
-                                                <Collapse in={item.value} className="inner-collapse">
-                                                    <List className="inside-list">
-                                                        {item.children.map(
-                                                            (insideItem: any, i: number) => (
-                                                                <React.Fragment key={insideItem.uuid}>
-                                                                    <ListItem>
-                                                                        <FormControlLabel
-                                                                            {...(insideItem.children && {
-                                                                                className: "bold-label",
-                                                                            })}
-
-                                                                            control={
-                                                                                <Checkbox
-                                                                                    {...
-                                                                                        getFieldProps(
-                                                                                            `permissions[${idx}].children[${i}].value`
-                                                                                        )
-                                                                                    }
-
-                                                                                    checked={insideItem.value}
-                                                                                />
-                                                                            }
-                                                                            label={t("permissions." + insideItem.slug, {ns: 'common'})}
-                                                                        />
-
-                                                                    </ListItem>
-
-                                                                </React.Fragment>
-                                                            )
-                                                        )}
-                                                    </List>
-                                                </Collapse>
-                                            )}
-                                        </React.Fragment>
-                                    ))}
-                                </List>
+                                            :<Stack direction="row" spacing={2} alignItems="center">
+                                                <Skeleton width={22} height={35}/>
+                                                <Skeleton width={120}/>
+                                            </Stack>
+                               }
+                                
+                                            </Box>
+                                <TreeCheckbox data={values.permissions} onNodeCheck={handleNodeCheck} t={t} />
                             </Card>
                         </Box>
                     </RootStyled>
