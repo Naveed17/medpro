@@ -19,18 +19,19 @@ import {useTranslation} from "next-i18next";
 import RootStyled from "./overrides/rootStyled";
 import {ModelDot} from '@features/modelDot'
 import {useRouter} from "next/router";
-import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import moment from "moment/moment";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import {configSelector} from "@features/base";
-import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import {onAppointmentView} from "@lib/hooks/onAppointmentView";
 
 function RdvCard({...props}) {
     const {inner, patient, loading} = props;
@@ -45,7 +46,7 @@ function RdvCard({...props}) {
     const {model} = useAppSelector(preConsultationSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
 
-    const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -82,43 +83,18 @@ function RdvCard({...props}) {
 
     const submitPreConsultationData = () => {
         setLoadingReq(true);
-        const form = new FormData();
-        form.append("modal_uuid", model);
-        form.append(
-            "modal_data",
-            localStorage.getItem(`Modeldata${inner?.uuid}`) as string
-        );
-
-        updatePreConsultationTrigger({
+        handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/data/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
+            data: {
+                "modal_uuid": model,
+                "modal_data": localStorage.getItem(`Modeldata${inner?.uuid}`) as string
+            }
+        } as any).then(() => {
             setLoadingReq(false);
             localStorage.removeItem(`Modeldata${inner?.uuid}`);
             setOpenPreConsultationDialog(false)
         });
-    }
-
-    const onAppointmentView = () => {
-        const event: any = {
-            title: `${patient.firstName}  ${patient.lastName}`,
-            publicId: inner.uuid,
-            extendedProps: {
-                time: moment(`${inner.dayDate} ${inner.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
-                patient: patient,
-                motif: inner.consultationReasons,
-                instruction: inner.instruction,
-                description: "",
-                meeting: false,
-                status: AppointmentStatus[inner.status]
-            }
-        }
-        dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -243,7 +219,11 @@ function RdvCard({...props}) {
             >
                 <MenuItem
                     className="popover-item"
-                    onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
+                    onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView({
+                        dispatch,
+                        patient,
+                        inner
+                    })}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Typography>

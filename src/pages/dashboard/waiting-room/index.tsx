@@ -212,7 +212,7 @@ function WaitingRoom() {
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -393,23 +393,14 @@ function WaitingRoom() {
     }
 
     const submitPreConsultationData = () => {
-        //setLoadingReq(true);
-        const form = new FormData();
-        form.append("modal_uuid", model);
-        form.append(
-            "modal_data",
-            localStorage.getItem(`Modeldata${row?.uuid}`) as string
-        );
-
-        updatePreConsultationTrigger({
+        handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            //setLoadingReq(false);
+            data: {
+                "modal_uuid": model,
+                "modal_data": localStorage.getItem(`Modeldata${row?.uuid}`) as string
+            }
+        } as any).then(() => {
             localStorage.removeItem(`Modeldata${row?.uuid}`);
             setOpenPreConsultationDialog(false);
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
