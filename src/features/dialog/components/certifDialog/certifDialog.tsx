@@ -23,7 +23,6 @@ import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";

@@ -7,7 +7,7 @@ import {
     Alert, Backdrop,
     Box,
     Button,
-    Container,
+    Container, DialogActions,
     Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
     Theme,
@@ -50,7 +50,7 @@ import {
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail, QuickAddAppointment,
-    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime
+    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
 } from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -63,7 +63,6 @@ import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
 import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
-
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -71,7 +70,8 @@ import {alpha} from "@mui/material/styles";
 import {DefaultCountry} from "@lib/constants";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
-
+import IconUrl from "@themes/urlIcon";
+import {useSWRConfig} from "swr";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
@@ -90,6 +90,7 @@ function Agenda() {
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
     const {direction} = useAppSelector(configSelector);
@@ -103,7 +104,8 @@ function Agenda() {
         recurringDates
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {model} = useAppSelector(preConsultationSelector);
+    const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
         selectedEvent, actionSet, openMoveDrawer,
@@ -130,6 +132,7 @@ function Agenda() {
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
+    const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
     const [eventStepper, setEventStepper] = useState([
@@ -170,16 +173,11 @@ function Agenda() {
     };
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
-    const {
-        data: httpAppointmentResponse,
-        trigger
-    } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
-
+    const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
-
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
@@ -536,6 +534,10 @@ function Agenda() {
             case "onConfirmAppointment":
                 onConfirmAppointment(event);
                 break;
+            case "onPreConsultation":
+                setEvent(event);
+                setOpenPreConsultationDialog(true);
+                break;
         }
     }
 
@@ -805,6 +807,7 @@ function Agenda() {
         }
     }
 
+
     const submitStepper = (index: number) => {
         const steps: any = eventStepper.map((stepper) => ({...stepper}));
         if (eventStepper.length !== index) {
@@ -823,6 +826,21 @@ function Agenda() {
                 setEvent(undefined);
             }, 300);
         }
+    }
+
+    const submitPreConsultationData = () => {
+        handlePreConsultationData({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
+            data: {
+                "modal_uuid": model,
+                "modal_data": localStorage.getItem(`Modeldata${event?.publicId}`) as string
+            }
+        } as any).then(() => {
+            localStorage.removeItem(`Modeldata${event?.publicId}`);
+            setOpenPreConsultationDialog(false);
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
+        });
     }
 
     const refreshData = () => {
@@ -1284,6 +1302,39 @@ function Agenda() {
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
+                    }
+                />
+
+                <Dialog
+                    action={"pre_consultation_data"}
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 380
+                        }
+                    }}
+                    open={openPreConsultationDialog}
+                    data={{
+                        patient: event?.extendedProps.patient,
+                        uuid: event?.publicId
+                    }}
+                    size={"md"}
+                    title={t("pre_consultation_dialog_title", {ns: "common"})}
+                    {...(!loading && {dialogClose: () => setOpenPreConsultationDialog(false)})}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <LoadingButton
+                                {...{loading}}
+                                loadingPosition="start"
+                                variant="contained"
+                                onClick={() => submitPreConsultationData()}
+                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
                     }
                 />
 
