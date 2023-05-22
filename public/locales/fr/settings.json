@@ -405,7 +405,10 @@
         "action": "Action",
         "remove": "Supprimer",
         "update": "Editer",
-        "role_professional": "Rôle professionnel"
+        "role_professional": "Rôle professionnel",
+        "secretary": "Secretaire",
+        "active": "Actif",
+        "inactive": "Inactif"
       }
     },
     "dialog": {

@@ -9,19 +9,21 @@ import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {editUser} from "@features/table";
 import {uniqueId} from "lodash";
+import { useState } from "react";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {pathname, locale} = router;
     const {row, handleChange, t, editMotif} = props;
+    const [isActive,setIsActive] = useState(row.isActive);
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ? (
                     <>
                         <Typography variant="body1" color="text.primary">
-                            {row.firstName} {row.lastName}
+                            {row.FirstName} {row.lastName}
                         </Typography>
                         {row.email}
                     </>
@@ -39,7 +41,7 @@ function UserRow({...props}) {
                             textAlign={"center"}
                             variant="body1"
                             color="text.primary">
-                            {t("table."+row.roles[0].toLowerCase())}
+                            {row.isProfessional ? t("table.role_professional") : t("table.secretary")}
                         </Typography>
                     </>
                 ) : (
@@ -51,8 +53,8 @@ function UserRow({...props}) {
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Lable variant="filled" color={"success"} sx={{px: 1.5}}>
-                        Activé
+                    <Lable variant="filled" color={row.isActive ?"success":"error"} sx={{px: 1.5}}>
+                        {row.isActive ? t("table.active") : t("table.inactive")} 
                     </Lable>
                 ) : (
                     <Skeleton
@@ -67,14 +69,17 @@ function UserRow({...props}) {
                 {row ? (
                     <Switch
                         name="active"
-                        onChange={(e) => handleChange(row,e)}
-                        checked={row.isProfessional}
+                        onChange={(e) => {
+                        setIsActive(e.target.checked);
+                        handleChange(row,e)}
+                    }
+                        checked={isActive}
                     />
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
-            <TableCell align="center">
+            {/* <TableCell align="center">
                 {row ? (
                     <Typography className="name" variant="body1" color="text.primary">
                         {row.isIntern} {t("table.agenda")}
@@ -82,7 +87,7 @@ function UserRow({...props}) {
                 ) : (
                     <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
                 )}
-            </TableCell>
+            </TableCell> */}
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">

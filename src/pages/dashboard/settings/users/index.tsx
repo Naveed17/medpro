@@ -63,14 +63,14 @@ const headCells = [
         align: "center",
         sortable: true,
     },
-    {
-        id: "access",
-        numeric: true,
-        disablePadding: false,
-        label: "access",
-        align: "center",
-        sortable: true,
-    },
+    // {
+    //     id: "access",
+    //     numeric: true,
+    //     disablePadding: false,
+    //     label: "access",
+    //     align: "center",
+    //     sortable: true,
+    // },
     {
         id: "action",
         numeric: false,
@@ -91,14 +91,13 @@ function Users() {
 
     const {data: httpUsersResponse,mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     });
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
-    const [edit, setEdit] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const {trigger} = useRequestMutation(null, "/users");
     const [loading, setLoading] = useState(false);
@@ -106,7 +105,18 @@ function Users() {
     const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
     const handleChange = (props: any,event:any) => {
-        console.log(props,event.target.checked);
+        const form = new FormData();
+               form.append("attribute", "isActive");
+               form.append("value", JSON.stringify(event.target.checked));
+        trigger({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/edit/user/${props.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }).then(() => {
+            mutate();
+            enqueueSnackbar(t("updated"), {variant: "success"});
+        })
     };
     const closeDraw = () => {
         setOpen(false);

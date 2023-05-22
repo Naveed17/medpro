@@ -12,6 +12,7 @@
   "loading": "Veuillez patienter un instant le temps de chargement",
   "loading-error": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
   "loading-error-404": "404 - La page n'a pas été trouvée",
+  "loading-error-data-404": "Données non trouvées",
   "loading-error-404-reset": "Retourner à la agenda",
   "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",

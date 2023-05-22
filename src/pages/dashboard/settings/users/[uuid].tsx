@@ -48,11 +48,9 @@ function ModifyUser() {
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
-
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState(agendas);
-    const [editUser] = useState(tableState.editUser);
-    const [user, setUser] = useState<any>({})
+    const [user, setUser] = useState<any>(null)
     const [roles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
@@ -80,7 +78,9 @@ function ModifyUser() {
     }, [httpProfilesResponse])
      useEffect(() => {
    if (httpUserResponse){
-      setUser((httpUserResponse as HttpResponse)?.data[0])
+      setUser((httpUserResponse as HttpResponse)?.data)
+   }else{
+    setUser(null)
    } 
     }, [httpUserResponse])
 
@@ -112,18 +112,17 @@ function ModifyUser() {
         initialValues: {
             role: "",
             agendas: agendaRoles.map(agenda => ({...agenda, role: ""})),
-            professionnel: editUser.professionnel || false,
-            email: editUser.email || "",
-            name: user?.name,
-            message: editUser.message || "",
-            admin: editUser.admin || false,
-            consultation_fees: "",
-            birthdate: null,
-            firstname: user?.firstName,
+            isProfessional: user?.isProfessional || false,
+            email: user?.email || "",
+            name: user?.userName || "" ,
+            message: user?.message || "",
+            admin: user?.admin || false,
+            consultation_fees: user?.ConsultationFees || "",
+            birthdate: user?.birthDate || null,
+            firstname: user?.FirstName,
             lastname: user?.lastName,
             phone: "",
-            password: "",
-            profile: ""
+            profile: user?.profile?.uuid || ""
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -133,7 +132,7 @@ function ModifyUser() {
             form.append('email', values.email);
             form.append('is_owner', values.admin);
             form.append('is_active', 'true');
-            form.append('is_professional', values.professionnel);
+            form.append('is_professional', values.isProfessional);
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
@@ -142,7 +141,6 @@ function ModifyUser() {
             form.append('firstname', values.firstname);
             form.append('lastname', values.lastname);
             form.append('phone', values.phone);
-            form.append('password', values.password);
             form.append('profile', values.profile);
             trigger({
                 method: "PUT",
@@ -170,8 +168,8 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready ) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
     return (
         <>
             <SubHeader>
@@ -206,9 +204,9 @@ function ModifyUser() {
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
-                                                        checked={values.professionnel}
+                                                        checked={values.isProfessional}
                                                         onChange={() => {
-                                                            setFieldValue("professionnel", true);
+                                                            setFieldValue("isProfessional", true);
                                                         }}
                                                     />
                                                 }
@@ -217,9 +215,9 @@ function ModifyUser() {
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
-                                                        checked={!values.professionnel}
+                                                        checked={!values.isProfessional}
                                                         onChange={() => {
-                                                            setFieldValue("professionnel", false);
+                                                            setFieldValue("isProfessional", false);
                                                         }}
                                                     />
                                                 }
