@@ -26,10 +26,13 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import { TreeCheckbox } from "@features/treeViewCheckbox";
+import { useSnackbar } from "notistack";
 function AddNewRoleDialog({...props}) {
-    const {data: {selected, handleMutate, handleVisitor, handleClose}} = props;
+    const {data: {selected, handleMutate, handleClose}} = props;
     const {t} = useTranslation(["settings", "common"]);
+    
     const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse)
@@ -45,6 +48,7 @@ function AddNewRoleDialog({...props}) {
         },
     });
     useEffect(() => {
+       
         if (httpPermissionsResponse) {
             const response = (httpPermissionsResponse as HttpResponse)?.data
             const permissions = response.map((item: any) => {
@@ -62,7 +66,7 @@ function AddNewRoleDialog({...props}) {
             const updatePermissions = handleUpdatedPermissions(permissions);
             setPermissions(updatePermissions);
         }
-
+      
     }, [httpPermissionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleUpdatedPermissions = (permissions: any) => {
@@ -125,8 +129,9 @@ function AddNewRoleDialog({...props}) {
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
+                    enqueueSnackbar(t("users.alert.updated-role"),{variant: "success"})
                     handleMutate();
-                    handleVisitor((prev: boolean) => !prev);
+                    handleClose();
                     setLoading(false)
                 })
             } else {
@@ -136,8 +141,9 @@ function AddNewRoleDialog({...props}) {
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
+                    enqueueSnackbar(t("users.alert.added-role"),{variant: "success"})
                     handleMutate();
-                    handleVisitor((prev: boolean) => !prev);
+                    handleClose();
                     setLoading(false)
                 })
             }
@@ -263,12 +269,20 @@ function AddNewRoleDialog({...props}) {
                             <Typography gutterBottom>{t("users.dialog.select_permissions")}</Typography>
                             <Card>
                             <Box py={1} px={2}>
+                               {
+                                httpPermissionsResponse ? 
                                  <FormControlLabel
                                                 className="bold-label"
                                                 control={<Checkbox onChange={handleToggleAllSelect}/>}
                                                 label={t("users.dialog.select_all")}
                                                 checked={allValuesTrue}
                                             />
+                                            :<Stack direction="row" spacing={2} alignItems="center">
+                                                <Skeleton width={22} height={35}/>
+                                                <Skeleton width={120}/>
+                                            </Stack>
+                               }
+                                
                                             </Box>
                                 <TreeCheckbox data={values.permissions} onNodeCheck={handleNodeCheck} t={t} />
                             </Card>

@@ -8,14 +8,12 @@ import {
   ListItem,
   Dialog,
 } from "@mui/material";
-import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import IconUrl from "@themes/urlIcon";
 import AccessMenageStyled from "./overrides/accessMenageStyle";
 import { useAppSelector } from "@lib/redux/hooks";
 import { Dialog as CustomDialog } from "@features/dialog";
 import { configSelector } from "@features/base";
-import { AddVisitorDialog } from "@features/dialog";
 import { useRequest,useRequestMutation } from "@lib/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
@@ -23,7 +21,6 @@ import { LoadingButton } from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 function AccessMenage({ ...props }) {
   const { direction } = useAppSelector(configSelector);
-  const router = useRouter();
   const { t } = props;
   const [info, setInfo] = useState("");
   const [profiles,setProfiles] = useState<any>([]);
@@ -53,7 +50,6 @@ function AccessMenage({ ...props }) {
     }).finally(() => setMainLoading(false))
     }, [httpProfilesResponse])
 
-  const [openVisitorDialog, setVisitorDialog] = useState(false);
   const [openDeleteDialog, setDeleteDialog] = useState(false);
 
   const [selected, setSelected] = useState<any>(null);
@@ -74,17 +70,6 @@ function AccessMenage({ ...props }) {
           mutate();
         })
   }
-
-  const handleClose = () =>
-    setTimeout(() => {
-      setVisitorDialog(false);
-      setOpen(false);
-      setSelected(null);
-    }, 2000);
-  useEffect(() => {
-    handleClose();
-  }, [openVisitorDialog]);
-  console.log(profiles)
   return (
     <AccessMenageStyled spacing={2} height={1}>
       <Toolbar>
@@ -146,7 +131,6 @@ function AccessMenage({ ...props }) {
         open={open}
         direction={direction}
         data={{ t, selected,handleMutate:mutate,
-          handleVisitor:setVisitorDialog,
           handleClose:() =>{setOpen(false) ;setSelected(null)}}}
         {...(info === "add-new-role" && {
           title: t("add_a_new_role"),
@@ -154,14 +138,8 @@ function AccessMenage({ ...props }) {
           sx:{py:0},
           dialogClose: () => setOpen(false),
         })}
-        {...(info === "add-visitor" && {
-          size: "xs",
-          dialogClose: () => setOpen(false),
-        })}
+        
       />
-      <Dialog maxWidth="xs" open={openVisitorDialog}>
-        <AddVisitorDialog t={t} />
-      </Dialog>
         <Dialog PaperProps={{sx:{
         width: "100%"
       }}} maxWidth="sm" open={openDeleteDialog}>

@@ -413,6 +413,10 @@
       "action": "Action",
       "remove": "Supprimer",
       "update": "Editer"
+    },
+    "alert": {
+      "added-role": "Un nouveau rôle a été ajouté",
+      "updated-role": "Le rôle a été mis à jour"
     }
   },
   "instructions": {
