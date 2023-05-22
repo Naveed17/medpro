@@ -14,11 +14,10 @@ import {
     ListItemText,
     Skeleton,
     Stack,
-    TextField,
+    TextField, Tooltip,
     Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
-import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -40,10 +39,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
-
-const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
-    ssr: false,
-});
+import {Editor} from "@tinymce/tinymce-react";
 
 function CertifDialog({...props}) {
     const {data} = props
@@ -68,6 +64,11 @@ function CertifDialog({...props}) {
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
     let [oldNote, setOldNote] = useState('');
+    const contentBtns=[
+        {name: '{patient}', title:'Patient', desc: "Nom du patient"},
+        {name: '{doctor}', title:'Doctor', desc: "Nom du doctor"},
+        {name: '{aujourd\'hui}',title:'Aujourd\'hui', desc: "Date aujourd'hui"},
+    ];
 
     const intervalref = useRef<number | null>(null);
 
@@ -156,15 +157,8 @@ function CertifDialog({...props}) {
     }
 
     const addVal = (val: string) => {
-        const doc = new DOMParser().parseFromString(value, 'text/html')
-        const collection = doc.body.lastElementChild as HTMLElement
-        if (collection)
-            collection.innerText += ' ' + val;
-
-        doc.body.removeChild(doc.body.lastElementChild as HTMLElement)
-        doc.body.append(collection)
-        setValue(doc.body.innerHTML.toString());
-
+        // @ts-ignore
+        window.tinymce.execCommand('mceInsertContent', false ,val);
     }
 
     const {t, ready} = useTranslation("consultation");
@@ -202,29 +196,14 @@ function CertifDialog({...props}) {
                             </Stack>
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
-                                <Stack direction={"row"} alignItems={"center"}>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                 mb={1}>{t('consultationIP.contenu')}</Typography>
-                                    <HtmlTooltip
-                                        title={
-                                            <React.Fragment>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{patient}')
-                                                }}
-                                                            fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{doctor}')
-                                                }}
-                                                            fontSize={12}>{"{doctor} : nom du médecin"}</Typography>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{aujourd\'hui}')
-                                                }}
-                                                            fontSize={12}>{"{aujourd'hui} :date d'aujourd'hui"}</Typography>
-                                            </React.Fragment>
-                                        }
-                                    >
-                                        <InfoRoundedIcon style={{color: '#ccc', width: '0.7em', margin: '0 5px'}}/>
-                                    </HtmlTooltip>
+                                    {contentBtns.map(cb =>(<Tooltip key={cb.name} title={cb.desc}>
+                                        <Button onClick={() => {
+                                            addVal(cb.name)
+                                        }} size={"small"}> <AddIcon/> {cb.title}</Button>
+                                    </Tooltip>))}
                                 </Stack>
                                 {
                                     listening && isStarted ? <RecondingBoxStyle onClick={() => {
@@ -266,15 +245,31 @@ function CertifDialog({...props}) {
                                 }
                             </Stack>
 
-                            <CKeditor
-                                name="description"
+                            <Editor
                                 value={value}
-                                onChange={(res: React.SetStateAction<string>) => {
+                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                onEditorChange={(res) => {
                                     data.state.content = res;
                                     data.setState(data.state)
                                     setValue(res)
                                 }}
-                                editorLoaded={true}/>
+                                init={{
+                                    branding: false,
+                                    statusbar: false,
+                                    menubar: false,
+                                    plugins: [
+                                        'advlist autolink lists link image charmap print preview anchor',
+                                        'searchreplace visualblocks code fullscreen textcolor',
+                                        'insertdatetime media table paste code help wordcount'
+                                    ],
+                                    toolbar: 'undo redo | formatselect | ' +
+                                        'bold italic backcolor forecolor | alignleft aligncenter ' +
+                                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                                        'removeformat | help',
+                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+
+                                }}
+                            />
                         </Box>
                     </Box>
                 </Grid>
