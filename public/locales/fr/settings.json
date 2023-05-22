@@ -390,6 +390,10 @@
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
+        },
+        "role": {
+          "title": "Ajoutez votre premier rôle",
+          "description": "Gérer votre accès et créer votre première secrétaire"
         }
       }
     },
@@ -413,6 +417,10 @@
       "action": "Action",
       "remove": "Supprimer",
       "update": "Editer"
+    },
+    "alert": {
+      "added-role": "Un nouveau rôle a été ajouté",
+      "updated-role": "Le rôle a été mis à jour"
     }
   },
   "instructions": {
