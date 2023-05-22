@@ -60,7 +60,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
     } = props;
 
     if (modal) {
-        if (previousData) {
+        if (previousData && modal.length > 0) {
             cmp = [...modal];
             cmp[0].components.map((mc: { key: string; description: string; }) => {
                 const index = Object.keys(previousData).findIndex(pdata => pdata === mc.key);

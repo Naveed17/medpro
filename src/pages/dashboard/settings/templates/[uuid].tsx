@@ -106,8 +106,6 @@ function DocsConfig() {
     const [queryState, setQueryState] = useState<any>({type: []});
     const uuid = router.query.uuid;
 
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const selectedAll = queryState.type.length === types?.length;
 
     const {trigger} = useRequestMutation(null, "/MP/header");
@@ -641,7 +639,7 @@ function DocsConfig() {
                                 {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
                                     <Editor
                                         value={data.footer.content}
-                                        apiKey='5z2ufor849kkaz900ye60ztlyfbx8jr7d6uubg6hbgjs5b2j'
+                                        apiKey={process.env.EDITOR_KEY}
                                         onEditorChange={(res) => {
                                             data.footer.content = res;
                                             setData({...data});
