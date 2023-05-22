@@ -8,7 +8,6 @@ import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
-import Icon from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -71,7 +70,7 @@ function AppointmentPopoverCard({...props}) {
             </Box>
 
             {data?.hasErrors?.map((error: string, index: number) => (
-                <Stack key={`error${index}`}
+                <Stack key={index+error}
                        spacing={2} mt={.5} pl={4}
                        direction="row">
                     <Alert

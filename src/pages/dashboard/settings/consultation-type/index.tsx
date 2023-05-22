@@ -1,37 +1,34 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
     Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Drawer,
     Stack,
     Theme,
     Typography,
     useMediaQuery,
-    useTheme,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions
+    useTheme
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {SubHeader} from "@features/subHeader";
-import {configSelector} from "@features/base";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {MotifTypeCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
@@ -58,8 +55,6 @@ function ConsultationType() {
     const [selected, setSelected] = useState<any>();
     const [open, setOpen] = useState(false);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const headCells = [
         {
             id: "name",

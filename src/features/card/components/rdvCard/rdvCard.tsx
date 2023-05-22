@@ -1,18 +1,19 @@
 // material
 import {
-    Typography,
-    TableCell,
     Button,
-    Skeleton,
-    Stack,
+    DialogActions,
     IconButton,
     Menu,
-    useTheme,
     MenuItem,
-    DialogActions
+    Skeleton,
+    Stack,
+    TableCell,
+    Typography,
+    useTheme
 } from "@mui/material";
 // urils
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 // style
 import RootStyled from "./overrides/rootStyled";
@@ -25,11 +26,9 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import IconUrl from "@themes/urlIcon";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -89,9 +88,6 @@ function RdvCard({...props}) {
             "modal_data",
             localStorage.getItem(`Modeldata${inner?.uuid}`) as string
         );
-
-        const {data: user} = session as Session;
-        const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
         updatePreConsultationTrigger({
             method: "PUT",

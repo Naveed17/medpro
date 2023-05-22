@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
+import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
@@ -43,6 +43,7 @@ import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -56,6 +57,7 @@ function TimeSchedule({...props}) {
     const changeDateRef = useRef(false);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {current: disabledDay} = useHorsWorkDays();
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
@@ -73,7 +75,6 @@ function TimeSchedule({...props}) {
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [recurringDates, setRecurringDates] = useState<RecurringDateModel[]>(initRecurringDates);
     const [date, setDate] = useState<Date | null>(selectedDate);
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingReq, setLoadingReq] = useState(false);
     const [moreDate, setMoreDate] = useState(moreDateRef.current);
@@ -86,6 +87,7 @@ function TimeSchedule({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const locations = agendaConfig?.locations;
 
     const {
         data: httpConsultReasonResponse,
@@ -239,18 +241,6 @@ function TimeSchedule({...props}) {
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const locations = agendaConfig?.locations;
-    const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
-
-    useEffect(() => {
-        const disabledDay: number[] = []
-        openingHours && Object.entries(openingHours).filter((openingHours: any) => {
-            if (!(openingHours[1].length > 0)) {
-                disabledDay.push(DayOfWeek(openingHours[0]));
-            }
-        });
-        setDisabledDay(disabledDay);
-    }, [openingHours]);
 
     useEffect(() => {
         if (date && medical_professional?.uuid) {

@@ -65,25 +65,16 @@ function ConsultationInProgress() {
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
-        if (!leaveDialog.current) {
-            /*if (!window.confirm(`message: ${uuind}`)) {
-                      throw "Route Canceled";
-                  } else {
-                      // localStorage.removeItem(`consultation-data-${uuind}`);
-                  }*/
-        }
     });
 
     const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
-    const {exam} = useAppSelector(consultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {mutate: mutateOnGoing, medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedDialog, exam} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
 
     const leaveDialog = useRef(false);
@@ -185,7 +176,7 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPreviousResponse} = useRequest(medical_entity ? {
+    const {data: httpPreviousResponse} = useRequest(medical_entity && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -251,7 +242,7 @@ function ConsultationInProgress() {
     }, [httpAppResponse]);
     useEffect(() => {
         if (httpPreviousResponse) {
-            const data = (httpPreviousResponse as HttpResponse).data.data;
+            const data = (httpPreviousResponse as HttpResponse).data;
             if (data) {
                 setPreviousData(data);
             }

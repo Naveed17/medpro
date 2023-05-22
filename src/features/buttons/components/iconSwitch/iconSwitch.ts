@@ -1,5 +1,5 @@
 import {styled} from "@mui/material";
-import Switch, { SwitchProps } from '@mui/material/Switch';
+import Switch from '@mui/material/Switch';
 
 const IconSwitch = styled(Switch)(({ theme }) => ({
     padding: 8,

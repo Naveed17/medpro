@@ -24,12 +24,12 @@ const initialState: ActionBarState = {
 
 export const leftActionBarReducer = createReducer(initialState, (builder) => {
     builder.addCase(setFilter, (state, action) => {
-        state.query = action.payload;
+        return {...state, query: {...state.query, ...action.payload}}
     }).addCase(setFilterPayment, (state, action) => {
         return {...state, query: {...state.query, payment: {...state.query?.payment, ...action.payload}}}
-    }).addCase(resetFilterPatient, (state, action) => {
+    }).addCase(resetFilterPatient, (state) => {
         return {...state, query: {...state.query, patient: undefined}}
-    }).addCase(resetFilterPayment, (state, action) => {
+    }).addCase(resetFilterPayment, (state) => {
         return {...state, query: {...state.query, payment: undefined}}
     });
 });

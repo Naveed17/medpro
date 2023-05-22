@@ -467,7 +467,10 @@
     "teeth": "Dent",
     "add": "Ajouter",
     "traitement": "Traitement",
-    "absente": "Absente"
+    "absente": "Absente",
+    "save": "Enregistrer",
+    "title": "Traitement des dents",
+    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
   }
 }
 

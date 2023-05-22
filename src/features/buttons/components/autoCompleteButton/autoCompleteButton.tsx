@@ -7,9 +7,8 @@ import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -24,9 +23,6 @@ function AutoCompleteButton({...props}) {
 
     const {patient: initData} = useAppSelector(appointmentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: PatientDetailsTrigger} = useRequestMutation(null, "patient/data");
 

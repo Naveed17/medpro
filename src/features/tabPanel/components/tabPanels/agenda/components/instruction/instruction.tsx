@@ -2,15 +2,18 @@ import React, {useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import {
-    Box, Button,
+    Box,
+    Button,
     Checkbox,
     FormControlLabel,
-    FormGroup, Grid,
+    FormGroup,
+    Grid,
     InputAdornment,
     Paper,
     Stack,
     TextField,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -64,17 +67,12 @@ function Instruction({...props}) {
     const [timeRappel, setTimeRappel] = useState<Date>(instruction.timeRappel);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger} = useRequestMutation(null, "/calendar/addPatient");
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
-    };
-
-    const handleRappelTypeChange = (event: SelectChangeEvent) => {
-        setRappelType(event.target.value as string);
     };
 
     const handleRappelChange = (event: SelectChangeEvent) => {

@@ -6,7 +6,6 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -30,9 +29,6 @@ function MedicalImagingDialog({...props}) {
     const {trigger} = useRequestMutation(null, "/medicalImaging");
     const {data: session} = useSession();
     const router = useRouter();
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const handleChange = (ev: any, uuid: string) => {
         const filesUploaded = ev.target.files;
 

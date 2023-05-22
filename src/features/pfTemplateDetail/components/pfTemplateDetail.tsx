@@ -26,6 +26,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {SearchInput} from "@features/input";
+import {useSWRConfig} from "swr";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -78,6 +79,7 @@ function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
@@ -177,6 +179,7 @@ function PfTemplateDetail({...props}) {
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => {
+                mutate(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
                 props.mutate();
                 props.closeDraw();
                 setLoading(false);

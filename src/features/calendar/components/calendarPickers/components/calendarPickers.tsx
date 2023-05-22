@@ -7,18 +7,16 @@ import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {PickersDay, StaticDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {Session} from "next-auth";
+import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
-type CalendarPickerView = "day" | "month" | "year";
 
 function CalendarPickers({...props}) {
-    const {notes, disabled} = props;
+    const {disabled} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {data: session} = useSession();
@@ -29,7 +27,6 @@ function CalendarPickers({...props}) {
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
@@ -44,10 +41,6 @@ function CalendarPickers({...props}) {
             dispatch(setCurrentDate({date, fallback: true}));
         }
     }
-
-    const onYearChange = (year: any) => {
-        setDefaultView("day");
-    };
 
     const appointmentDayCount = (httpAppCountResponse as HttpResponse)?.data;
 
@@ -99,8 +92,6 @@ function CalendarPickers({...props}) {
                         setStartOfMonth(moment(date).startOf('month').format('DD-MM-YYYY'));
                         setEndOfMonth(moment(date).endOf('month').format('DD-MM-YYYY'));
                     }}
-                    onViewChange={(view: CalendarPickerView) => setDefaultView(view)}
-                    onYearChange={onYearChange}
                 />
             </LocalizationProvider>
         </CalendarPickerStyled>

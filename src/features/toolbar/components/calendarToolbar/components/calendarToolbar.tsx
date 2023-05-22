@@ -31,10 +31,7 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
+import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
 import {DefaultViewMenu} from "@features/menu";
 
 function CalendarToolbar({...props}) {

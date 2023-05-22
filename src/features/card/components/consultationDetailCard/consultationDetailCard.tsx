@@ -14,7 +14,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
@@ -44,9 +43,6 @@ function CIPPatientHistoryCard({...props}) {
     const [loadingReq, setLoadingReq] = useState(false);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
 

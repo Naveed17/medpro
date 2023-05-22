@@ -10,5 +10,4 @@ const HtmlTooltip = styled(Tooltip)<TooltipProps>(({theme, className, ...props})
         border: '1px solid #dadde9',
     },
 }));
-
 export default HtmlTooltip;

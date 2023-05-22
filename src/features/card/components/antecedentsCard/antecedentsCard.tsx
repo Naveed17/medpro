@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
-import {Button, DialogActions, Grid, Paper, Skeleton, Tooltip, tooltipClasses, Typography,} from "@mui/material";
+import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
 // ____________________________________
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,14 +13,12 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
-import {styled} from "@mui/system";
-import {TooltipProps} from "@mui/material/Tooltip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {HtmlTooltip} from "@features/tooltip";
 
 const emptyObject = {
     title: "",
@@ -44,9 +42,6 @@ function AntecedentsCard({...props}) {
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger} = useRequestMutation(null, "/antecedent");
 
     const {data: httpAntecedentsTypeResponse} = useRequest({
@@ -55,16 +50,6 @@ function AntecedentsCard({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
-    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
-        <Tooltip {...props} classes={{popper: className}}/>
-    ))(({theme}) => ({
-        [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#f5f5f9',
-            color: 'rgba(0, 0, 0, 0.87)',
-            maxWidth: 220,
-            border: '1px solid #dadde9',
-        },
-    }));
 
     const isObject = (val: any) => {
         if (val === null) {
@@ -134,6 +119,23 @@ function AntecedentsCard({...props}) {
 
     const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
+    const getAntecedents = (antecedent: any) => {
+        if (!antecedentsData)
+            return Array.from(new Array(3));
+        else if (antecedentsData[antecedent.slug])
+            return antecedentsData[antecedent.slug];
+        else return [];
+
+    }
+    const getNote = (item: { response: string | any[]; }) => {
+        if (item?.response)
+            if (typeof item?.response === "string")
+                return item?.response;
+            else if (item?.response.length > 0)
+                return item?.response[0]?.value;
+            else return '-';
+        else return '-';
+    }
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -171,12 +173,9 @@ function AntecedentsCard({...props}) {
                                                 <Typography className={"ant-title"}> {antecedent.name}</Typography>
                                             )}
                                         </Typography>
-                                        {(!antecedentsData
-                                                ? Array.from(new Array(3))
-                                                : antecedentsData[antecedent.slug] ? antecedentsData[antecedent.slug] : []
-                                        ).map((item: any) => (
+                                        {getAntecedents(antecedent).map((item: any, index: number) => (
                                             <HtmlTooltip
-                                                key={Math.random()}
+                                                key={`antecedent-${index}`}
                                                 title={
                                                     <React.Fragment>
                                                         <Typography color="gray" fontWeight={"bold"}
@@ -187,8 +186,7 @@ function AntecedentsCard({...props}) {
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
                                                         {item?.ascendantOf && <Typography color="gray"
                                                                                           fontSize={12}>{item?.ascendantOf}</Typography>}
-                                                        <Typography color="gray" fontSize={12}>Note
-                                                            : {item?.response ? typeof item?.response === "string" ? item?.response : item?.response.length > 0 ? item?.response[0]?.value : '-' : '-'}</Typography>
+                                                        <Typography color="gray" fontSize={12}>Note : {getNote(item)}</Typography>
                                                         {item?.note && <Typography color="gray" fontSize={12}>RQ
                                                             : {item?.note}</Typography>}
                                                         {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (

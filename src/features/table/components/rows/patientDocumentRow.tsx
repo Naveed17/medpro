@@ -16,7 +16,6 @@ import {
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 // components
-import {Popover} from "@features/popover";
 import Icon from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import IconUrl from "@themes/urlIcon";

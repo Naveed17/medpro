@@ -86,6 +86,16 @@ function DashLayout({children}: LayoutProps) {
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
+    const renderNoDataCard = <NoDataCard
+        {...{t}}
+        ns={'common'}
+        onHandleClick={() => {
+            router.push('/dashboard/settings/data').then(() => {
+                setImportDataDialog(false);
+            });
+        }}
+        data={ImportCardData}/>
+
     const justNumbers = (str: string) => {
         const res = str.match(/\d(?!.*\d)/); // Find the last numeric digit
         if (str && res) {
@@ -134,7 +144,6 @@ function DashLayout({children}: LayoutProps) {
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        //console.log(navigator.brave);
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
                 callbackUrl: `${router.locale}/dashboard/agenda`,
@@ -176,23 +185,12 @@ function DashLayout({children}: LayoutProps) {
                 }}
                 color={theme.palette.expire.main}
                 contrastText={theme.palette.expire.contrastText}
+                open={importDataDialog}
+                title={t(`import_data.title`)}
                 dialogClose={() => {
                     setImportDataDialog(false);
                 }}
-                action={() => {
-                    return (<NoDataCard
-                        {...{t}}
-                        ns={'common'}
-                        onHandleClick={() => {
-                            router.push('/dashboard/settings/data').then(() => {
-                                setImportDataDialog(false);
-                            });
-                        }}
-                        data={ImportCardData}/>)
-                }}
-                open={importDataDialog}
-                title={t(`import_data.title`)}
-            />
+                action={() => renderNoDataCard} />
         </SideBarMenu>
     );
 }
