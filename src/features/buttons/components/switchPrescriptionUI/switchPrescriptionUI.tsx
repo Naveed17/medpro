@@ -10,7 +10,7 @@ function SwitchPrescriptionUI({...props}) {
     const [switchUI, setSwitchUI] = useState(localStorageSwitchUI !== null ? JSON.parse(localStorageSwitchUI) : true);
 
     return (<Stack direction="row" spacing={1} alignItems="center">
-        <Typography>{t(`${keyPrefix ? `${keyPrefix}.` : ""}${switchUI ? "switch_" : ""}ui_classic`)}</Typography>
+        <Typography>{t(`${keyPrefix ? `${keyPrefix}.` : ""}ui_classic`)}</Typography>
         <Switch
             sx={{
                 '& .MuiSwitch-thumb': {
@@ -25,7 +25,7 @@ function SwitchPrescriptionUI({...props}) {
                 handleSwitchUI && handleSwitchUI();
             }}
             inputProps={{'aria-label': 'controlled'}}/>
-        <Typography>{t(`${keyPrefix ? `${keyPrefix}.` : ""}${!switchUI ? "switch_" : ""}ui_new`)}</Typography>
+        <Typography>{t(`${keyPrefix ? `${keyPrefix}.` : ""}ui_new`)}</Typography>
     </Stack>)
 }
 

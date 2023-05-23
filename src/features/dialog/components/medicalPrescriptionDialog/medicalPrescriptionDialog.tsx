@@ -246,7 +246,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     useEffect(() => {
         let lastPrescription: any[] = []
-        if (appointement) {
+        if (appointement !== null) {
             appointement.latestAppointments.map((la: { documents: any[]; }) => {
                 const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
                 if (prescriptions.length > 0) {
