@@ -157,14 +157,13 @@ function ConsultationInProgress() {
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "consultation/end");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}

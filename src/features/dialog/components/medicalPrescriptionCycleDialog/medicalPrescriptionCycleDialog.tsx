@@ -453,7 +453,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     return (
         <MedicalPrescriptionCycleStyled>
-            <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
             <Container fixed>
                 <Grid
                     container

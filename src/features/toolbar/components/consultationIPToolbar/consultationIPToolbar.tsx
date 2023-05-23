@@ -39,6 +39,9 @@ import Zoom from "react-medium-image-zoom";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import DialogTitle from "@mui/material/DialogTitle";
+import {SwitchPrescriptionUI} from "@features/buttons";
+import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -159,7 +162,8 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
-        let method = ""; let url = ""
+        let method = "";
+        let url = ""
         switch (info) {
             case "medical_prescription":
             case "medical_prescription_cycle":
@@ -415,7 +419,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setPrescriptionUI();
+                setInfo(setPrescriptionUI());
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -465,18 +469,12 @@ function ConsultationIPToolbar({...props}) {
         dispatch(openDrawer({type: "add", open: true}));
     };
 
-    const setPrescriptionUI = () => {
-        const localStorageSwitchUI = localStorage.getItem("prescription-switch-ui");
-        const defaultPrescriptionUI = localStorageSwitchUI !== null ? JSON.parse(localStorageSwitchUI) : true
-        setInfo(`medical_prescription${defaultPrescriptionUI ? "_cycle" : ""}`);
-    }
-
     const handleSwitchUI = () => {
         //close the current dialog
         setOpenDialog(false);
         setInfo(null);
         // switch UI and open dialog
-        setPrescriptionUI();
+        setInfo(setPrescriptionUI());
         setAnchorEl(null);
         setOpenDialog(true);
         setActions(true);
@@ -487,7 +485,7 @@ function ConsultationIPToolbar({...props}) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setPrescriptionUI();
+                    setInfo(setPrescriptionUI());
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
@@ -528,7 +526,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setPrescriptionUI();
+                setInfo(setPrescriptionUI());
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -773,7 +771,7 @@ function ConsultationIPToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid, state, setState, t, setOpenDialog, handleSwitchUI}}
+                    data={{appuuid, state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -785,6 +783,20 @@ function ConsultationIPToolbar({...props}) {
                         onClose: handleCloseDialog,
                     })}
                     dialogClose={handleCloseDialog}
+                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                        headerDialog: (<DialogTitle
+                                sx={{
+                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                    position: "relative",
+                                }}
+                                id="scroll-dialog-title">
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                    {t(info)}
+                                    <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
+                                </Stack>
+                            </DialogTitle>
+                        )
+                    })}
                     actionDialog={
                         action ? (
                             <DialogActions>
