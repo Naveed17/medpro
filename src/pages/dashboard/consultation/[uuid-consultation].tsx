@@ -307,7 +307,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect].fees = act.price;
+                                    acts[actDetect] ={...acts[actDetect],fees:act.price};
                                 }
                             }
                         );
