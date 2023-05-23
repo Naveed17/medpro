@@ -143,6 +143,11 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
         "& .MuiListItemText-primary": {
             fontWeight: "bold"
         }
+    },
+    "& .custom-button": {
+        px: {xs: 0.5, md: 1},
+        fontSize: {xs: 12, md: 14},
+        alignSelf: "flex-start"
     }
 }));
 export default MedicalPrescriptionCycleStyled;

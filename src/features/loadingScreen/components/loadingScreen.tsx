@@ -13,8 +13,8 @@ function LoadingScreen({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const {t, ready} = useTranslation('common');
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
+    const {t} = useTranslation('common');
 
     const container = {
         hidden: {opacity: 1, scale: 0, repeat: "Infinity", repeatDelay: 0.5},

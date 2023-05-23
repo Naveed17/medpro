@@ -373,7 +373,7 @@ function AddPatientStep2({...props}) {
                                         setFieldValue("nationality", v.uuid);
                                     }}
                                     sx={{color: "text.secondary"}}
-                                    options={countriesData.filter(country => country.hasState)}
+                                    options={countriesData}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
@@ -455,7 +455,7 @@ function AddPatientStep2({...props}) {
                                         setFieldValue("country", v.uuid);
                                     }}
                                     sx={{color: "text.secondary"}}
-                                    options={countriesData}
+                                    options={countriesData.filter(country => country.hasState)}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
@@ -639,7 +639,6 @@ function AddPatientStep2({...props}) {
                                                                 </li>)
                                                         }}
                                                         renderInput={(params) => {
-                                                            const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                             return (<TextField {...params}
                                                                                placeholder={t("add-patient.patient-placeholder")}/>)
                                                         }}
