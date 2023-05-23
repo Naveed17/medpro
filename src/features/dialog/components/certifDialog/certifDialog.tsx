@@ -1,5 +1,5 @@
 import {useTranslation} from "next-i18next";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Box,
@@ -14,7 +14,8 @@ import {
     ListItemText,
     Skeleton,
     Stack,
-    TextField, Tooltip,
+    TextField,
+    Tooltip,
     Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -24,11 +25,6 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
-import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
-import moment from "moment-timezone";
-import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
-import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import IconUrl from "@themes/urlIcon";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -37,8 +33,9 @@ import {Dialog as CustomDialog} from "@features/dialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {HtmlTooltip} from "@features/tooltip";
 import {Editor} from "@tinymce/tinymce-react";
+import {RecButton} from "@features/buttons";
+import {useSnackbar} from "notistack";
 
 function CertifDialog({...props}) {
     const {data} = props
@@ -53,29 +50,23 @@ function CertifDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
 
-    const colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
+    let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
     const [models, setModels] = useState<CertifModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
-    let [time, setTime] = useState('00:00');
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
+    const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
-    const contentBtns=[
-        {name: '{patient}', title:'Patient', desc: "Nom du patient"},
-        {name: '{doctor}', title:'Doctor', desc: "Nom du doctor"},
-        {name: '{aujourd\'hui}',title:'Aujourd\'hui', desc: "Date aujourd'hui"},
+    const {enqueueSnackbar} = useSnackbar();
+
+    const contentBtns = [
+        {name: '{patient}', title: 'Patient', desc: "Nom du patient"},
+        {name: '{doctor}', title: 'Doctor', desc: "Nom du doctor"},
+        {name: '{aujourd\'hui}', title: 'Aujourd\'hui', desc: "Date aujourd'hui"},
     ];
-
-    const intervalref = useRef<number | null>(null);
-
-    useEffect(() => {
-        if (isStarted) {
-            setValue(oldNote + ' ' + transcript)
-        }
-    }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const {trigger} = useRequestMutation(null, "/certif-models");
 
@@ -84,7 +75,6 @@ function CertifDialog({...props}) {
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
-
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
@@ -92,6 +82,7 @@ function CertifDialog({...props}) {
         data.setState(data.state)
         setTitle(model.title)
         setSelectedColor([model.color])
+        setSelectedModel(model);
     }
     const saveModel = () => {
         const form = new FormData();
@@ -121,6 +112,53 @@ function CertifDialog({...props}) {
         })
 
     }
+    const startStopRec = () => {
+        if (listening && isStarted) {
+            SpeechRecognition.stopListening();
+            resetTranscript();
+            setIsStarted(false)
+
+        } else {
+            startListening();
+        }
+    }
+    const startListening = () => {
+        resetTranscript();
+        SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
+            setIsStarted(true);
+            setOldNote(value)
+        })
+    }
+    const dialogSave = () => {
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(r => {
+                setOpenRemove(false);
+                console.log('place removed successfully', r);
+            });
+        });
+    }
+    const addVal = (val: string) => {
+        (window as any).tinymce.execCommand('mceInsertContent', false, val);
+    }
+    const saveChanges = () => {
+        const form = new FormData();
+        form.append('content', value);
+        form.append('color', selectedColor[0]);
+        form.append('title', title);
+        trigger({
+            method: "PUT",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${selectedModel.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then(() => {
+            mutate().then(() => {
+                enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
+            });
+        })
+    }
 
     useEffect(() => {
         if (httpModelResponse) {
@@ -146,18 +184,11 @@ function CertifDialog({...props}) {
             setTitle(data.state.title)
     }, [data])
 
-    const dialogSave = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(r => {
-                setOpenRemove(false);
-                console.log('place removed successfully', r);
-            });
-        });
-    }
-
-    const addVal = (val: string) => {
-        (window as any).tinymce.execCommand('mceInsertContent', false ,val);
-    }
+    useEffect(() => {
+        if (isStarted) {
+            setValue(oldNote + ' ' + transcript)
+        }
+    }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const {t, ready} = useTranslation("consultation");
 
@@ -166,11 +197,16 @@ function CertifDialog({...props}) {
     return (
         <Box>
             <Grid container>
-                <Grid item xs={12} md={9} className={'container-scroll'}>
-                    <Box style={{height: 200}} color={'primary.main'}>
-                        <Box style={{paddingRight: 20}}>
-                            <Typography style={{color: "gray"}} fontSize={12}
-                                        mb={1}>{t('consultationIP.title')}</Typography>
+                <Grid item xs={12} md={9}>
+                    <List sx={{
+                        width: '100%',
+                        bgcolor: 'background.paper',
+                        overflowX: "scroll",
+                        height: '24rem',
+                        paddingRight: 2
+                    }}>
+                        <Stack spacing={1}>
+                            <Typography style={{color: "gray"}} fontSize={12}>{t('consultationIP.title')}</Typography>
                             <Stack alignItems={"center"} spacing={1} direction={"row"}>
                                 <TextField
                                     style={{width: "100%"}}
@@ -187,60 +223,30 @@ function CertifDialog({...props}) {
                                         onClick={() => {
                                             if (selectedColor.length === 1)
                                                 setSelectedColor([...colors])
-                                            else setSelectedColor([color])
+                                            else {
+                                                setSelectedColor([color])
+                                                colors.splice(colors.findIndex(c => c === color), 1)
+                                                setColors([...colors, color])
+                                            }
                                         }}>
                                     </ModelDot>
                                 ))}
                             </Stack>
-
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                 mb={1}>{t('consultationIP.contenu')}</Typography>
-                                    {contentBtns.map(cb =>(<Tooltip key={cb.name} title={cb.desc}>
+                                    {contentBtns.map(cb => (<Tooltip key={cb.name} title={cb.desc}>
                                         <Button onClick={() => {
                                             addVal(cb.name)
                                         }} size={"small"}> <AddIcon/> {cb.title}</Button>
                                     </Tooltip>))}
                                 </Stack>
-                                {
-                                    listening && isStarted ? <RecondingBoxStyle onClick={() => {
-
-                                        if (intervalref.current) {
-                                            window.clearInterval(intervalref.current);
-                                            intervalref.current = null;
-                                        }
-                                        SpeechRecognition.stopListening();
-                                        resetTranscript();
-                                        setOldNote(value)
-                                        setIsStarted(false)
-
-                                        setTime('00:00');
-                                    }}>
-                                        <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                        <div className={"recording-text"}>{time}</div>
-                                        <div className="recording-circle"></div>
-
-                                    </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
-                                        resetTranscript();
-                                        setIsStarted(true)
-                                        SpeechRecognition.startListening({
-                                            continuous: true,
-                                            language: 'fr-FR'
-                                        }).then(() => {
-
-                                        })
-                                        if (intervalref.current !== null) return;
-                                        intervalref.current = window.setInterval(() => {
-                                            time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                                            setTime(time);
-                                        }, 1000);
-                                    }}>
-                                        <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
-                                        <div className="recording-text">{t('consultationIP.listen')}</div>
-                                        <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                    </RecondingBoxStyle>
-                                }
+                                <RecButton
+                                    small
+                                    onClick={() => {
+                                        startStopRec();
+                                    }}/>
                             </Stack>
 
                             <Editor
@@ -268,19 +274,16 @@ function CertifDialog({...props}) {
 
                                 }}
                             />
-                        </Box>
-                    </Box>
+                        </Stack>
+                    </List>
                 </Grid>
                 <Grid item xs={12} md={3} style={{borderLeft: '1px solid #DDDDDD'}}>
-
                     <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                         <Typography variant={'h6'} marginLeft={2} marginTop={1}>{t('Models')}</Typography>
                         <Button sx={{ml: 'auto', height: 1}}
                                 size='small'
                                 disabled={title.length === 0 || value.length === 0}
-                                onClick={() => {
-                                    saveModel();
-                                }}
+                                onClick={saveModel}
                                 startIcon={<AddIcon/>}>
                             {t('consultationIP.createAsModel')}
                         </Button>
@@ -293,7 +296,7 @@ function CertifDialog({...props}) {
                         height: '21rem'
                     }}>
                         {models.map((item, index) => (
-                            <Box key={`models-${index}`}>
+                            <Box key={`models-${index}`} style={{opacity : selectedModel ? selectedModel.uuid === item.uuid ? 1:.7:1}}>
                                 <ListItem alignItems="flex-start">
                                     <ListItemAvatar>
                                         <Avatar sx={{
@@ -314,27 +317,38 @@ function CertifDialog({...props}) {
                                             </React.Fragment>
                                         }
                                     />
-                                    <IconButton size="small"
-                                                onClick={() => {
-                                                    setSelected({
-                                                        title: t('consultationIP.askRemovemodel'),
-                                                        subtitle: t('consultationIP.subtitleRemovemodel'),
-                                                        icon: "/static/icons/ic-text.svg",
-                                                        name1: item.title,
-                                                        name2: t('consultationIP.model'),
-                                                        request: {
-                                                            method: "DELETE",
-                                                            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
-                                                            headers: {
-                                                                ContentType: 'application/x-www-form-urlencoded',
-                                                                Authorization: `Bearer ${session?.accessToken}`
-                                                            },
-                                                        }
-                                                    })
-                                                    setOpenRemove(true);
-                                                }}>
-                                        <IconUrl path="setting/icdelete"/>
-                                    </IconButton>
+
+                                    <Stack>
+                                        {selectedModel && selectedModel.uuid === item.uuid &&
+                                            <Tooltip title={t("consultationIP.edit_template")}>
+                                                <IconButton size="small" onClick={saveChanges}>
+                                                    <IconUrl path="setting/edit"/>
+                                                </IconButton>
+                                            </Tooltip>}
+                                        <Tooltip title={t("consultationIP.delete_template")}>
+                                            <IconButton size="small"
+                                                        onClick={() => {
+                                                            setSelected({
+                                                                title: t('consultationIP.askRemovemodel'),
+                                                                subtitle: t('consultationIP.subtitleRemovemodel'),
+                                                                icon: "/static/icons/ic-text.svg",
+                                                                name1: item.title,
+                                                                name2: t('consultationIP.model'),
+                                                                request: {
+                                                                    method: "DELETE",
+                                                                    url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
+                                                                    headers: {
+                                                                        ContentType: 'application/x-www-form-urlencoded',
+                                                                        Authorization: `Bearer ${session?.accessToken}`
+                                                                    },
+                                                                }
+                                                            })
+                                                            setOpenRemove(true);
+                                                        }}>
+                                                <IconUrl path="setting/icdelete"/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Stack>
                                 </ListItem>
                                 <Divider variant="inset" component="li"/>
                             </Box>
