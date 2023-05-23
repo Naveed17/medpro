@@ -13,8 +13,11 @@ import {
     MenuItem,
     Skeleton,
     Stack,
-    TextField, Theme,
-    Typography, useMediaQuery
+    TextField,
+    Theme,
+    Tooltip,
+    Typography,
+    useMediaQuery
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
@@ -25,14 +28,16 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
-
+import {useSnackbar} from "notistack";
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 export const BalanceSheetCardData = {
     mainIcon: "ic-analyse",
     title: "noRequest",
@@ -56,11 +61,13 @@ function BalanceSheetDialog({...props}) {
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
-    const {trigger} = useRequestMutation(null, "/balanceSheet");
+    const [selectedModel, setSelectedModel] = useState<any>(null);
     const [name, setName] = useState('');
 
-    const {data: user} = session as Session;
     const open = Boolean(anchorEl);
+
+    const {trigger} = useRequestMutation(null, "/balanceSheet");
+    const {enqueueSnackbar} = useSnackbar();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -68,6 +75,7 @@ function BalanceSheetDialog({...props}) {
     const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
         setAnalysis(item.analyses)
         data.setState(item.analyses)
+        setSelectedModel(item)
         setAnchorEl(null);
     };
     const handleCloseDialog = () => {
@@ -92,7 +100,7 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -100,17 +108,6 @@ function BalanceSheetDialog({...props}) {
 
     const analysisList = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
     const {handleSubmit} = formik;
-
-    /*
-        const sortAnalysis = useCallback(() => {
-            const recents = localStorage.getItem("balance-Sheet-recent") ?
-                JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-            if (recents.length > 0 && analysisList) {
-                setSearchAnalysis(analysisList.sort(x => recents.find((r: AnalysisModel) => r.uuid === x.uuid) ? 1 : -1));
-            }
-        }, [analysisList])
-    */
-
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
         let copy = [...analysis]
@@ -121,7 +118,6 @@ function BalanceSheetDialog({...props}) {
         localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...copy.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
         data.setState([...copy]);
     }
-
     const saveModel = () => {
         const form = new FormData();
         form.append('globalNote', "");
@@ -134,9 +130,12 @@ function BalanceSheetDialog({...props}) {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setOpenDialog(false);
+            setModel("")
+            mutate().then(() =>
+                enqueueSnackbar(t("created"), {variant: 'success'})
+            );
         })
     }
-
     const searchInAnalysis = (analysisName: string) => {
         setName(analysisName);
         if (analysisName.length >= 2) {
@@ -151,6 +150,36 @@ function BalanceSheetDialog({...props}) {
         } else {
             setSearchAnalysis(analysisList);
         }
+    }
+
+    const deleteModel = () =>{
+        trigger({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            mutate().then(() => {
+                setSelectedModel(null)
+                setAnalysis([]);
+                enqueueSnackbar(t("removed"), {variant: 'success'})
+            });
+        })
+    }
+    const editModel = () =>{
+        const form = new FormData();
+        form.append('globalNote', "");
+        form.append('name', selectedModel.name);
+        form.append('analyses', JSON.stringify(analysis));
+        trigger({
+            method: "PUT",
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            mutate().then(() => {
+                enqueueSnackbar(t("updated"), {variant: 'success'})
+            });
+        })
     }
 
     useEffect(() => {
@@ -315,17 +344,39 @@ function BalanceSheetDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Stack direction="row" alignItems="center">
-                        <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
-                        {analysis.length > 0 && <Button className='btn-add'
-                                                        sx={{ml: 'auto'}}
-                                                        onClick={() => {
-                                                            setOpenDialog(true)
-                                                        }}
-                                                        startIcon={
-                                                            <AddIcon/>
-                                                        }>
+                        {selectedModel === null &&<Typography gutterBottom>{t('balance_sheet_list')}</Typography>}
+                        {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev)=>{
+                            selectedModel.name = ev.target.value;
+                            setSelectedModel({...selectedModel})
+                        }} value={selectedModel.name}></TextField>}
+                        {analysis.length > 0 && <Button
+                            size={"small"}
+                            sx={{ml: 'auto'}}
+                            onClick={() => {
+                                setOpenDialog(true)
+                            }}
+                            startIcon={
+                                <AddIcon/>
+                            }>
                             {t('save_template')}
                         </Button>}
+                        {selectedModel && <Stack direction={"row"}>
+                            <Tooltip title={t('edit_template')}>
+                                <IconButton
+                                    onClick={editModel}><EditRoundedIcon/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t('delete_template')}>
+                                <IconButton
+                                    color={"error"}
+                                    onClick={deleteModel}><DeleteOutlineRoundedIcon/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t('close_template')}>
+                                <IconButton onClick={()=>{setAnalysis([]);setSelectedModel(null)}}><CloseRoundedIcon/>
+                                </IconButton>
+                            </Tooltip>
+                        </Stack>}
                     </Stack>
                     <Box className="list-container">
                         {analysis.length > 0 ?
