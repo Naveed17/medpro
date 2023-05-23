@@ -41,11 +41,13 @@ import {DefaultCountry} from "@lib/constants";
 import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import { useContactType } from "@lib/hooks/rest";
  const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
 function NewUser() {
+    const contacts = useContactType();
     const router = useRouter();
     const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
@@ -165,6 +167,7 @@ const { data: httpProfilesResponse, } = useRequest({
             code: phoneData.dial?.phone,
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
+            contact_type: contacts[0].uuid,
             is_public: false,
             is_support: false
         }))));

@@ -10,6 +10,7 @@ export * from "./prepareSearchKeys";
 export * from "./capitalizeFirst";
 export * from "./checkNotification";
 export * from "./rest/useAppointment";
+export * from  './rest/useContactType'
 
 export function getDifference<T>(a: T[], b: T[]): T[] {
     return a.filter((element) => {

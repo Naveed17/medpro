@@ -40,8 +40,7 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
-
+import {useContactType, useInsurances} from "@lib/hooks/rest";
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
     top: '-8px',
@@ -188,11 +187,6 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
@@ -200,7 +194,7 @@ function AddPatientStep2({...props}) {
 
     const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
 
-    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
+    const contacts = useContactType();
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);

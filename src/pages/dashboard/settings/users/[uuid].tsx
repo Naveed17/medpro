@@ -54,17 +54,18 @@ function ModifyUser() {
     const router = useRouter();
     const phoneInputRef = useRef(null);
      const {enqueueSnackbar} = useSnackbar()
-    const {uuid} = router.query
+    const {uuid} = router.query;
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("settings");
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
+    const [userLoading, setUserLoading] = useState(true);
     const {agendas} = useAppSelector(agendaSelector);
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState(agendas);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<any>({});
     const {data: userData} = session as Session;
     const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -94,13 +95,19 @@ function ModifyUser() {
    }
     }, [httpProfilesResponse])
      useEffect(() => {
-   if (httpUserResponse){
-      setUser((httpUserResponse as HttpResponse)?.data)
+        new Promise((resolve,reject) => {
+   if (httpUserResponse || userLoading){
+    resolve(setUser((httpUserResponse as HttpResponse)?.data ?? {}))
    }else{
-    setUser(null)
-   } 
+    reject()
+   }
+    }).then(() => {
+    setUserLoading(false);
+    console.log(httpUserResponse)
+    }).catch(e => setUser(null))
+      
+   
     }, [httpUserResponse])
-
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("users.ntc"))
@@ -209,8 +216,14 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-    console.log(user)
-    if (!ready ) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen 
+        {...(uuid && {
+            error:true,
+            button: 'loading-error-404-reset',
+            text: 'loading-error'
+        })}
+       />);
+       //console.log(user)
     if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
     return (
         <>
@@ -709,7 +722,6 @@ function ModifyUser() {
         </>
     );
 }
-
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async ({...props}) => {
     return {
         paths: [], //indicates that no page needs be created at build time
@@ -729,6 +741,7 @@ export const getStaticProps: GetStaticProps = async ({locale, params}) => {
         ])),
     },
 }};
+
 export default ModifyUser;
 
 ModifyUser.auth = true;
