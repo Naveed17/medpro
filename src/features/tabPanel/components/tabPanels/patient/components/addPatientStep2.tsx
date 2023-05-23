@@ -639,7 +639,6 @@ function AddPatientStep2({...props}) {
                                                                 </li>)
                                                         }}
                                                         renderInput={(params) => {
-                                                            const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                             return (<TextField {...params}
                                                                                placeholder={t("add-patient.patient-placeholder")}/>)
                                                         }}
