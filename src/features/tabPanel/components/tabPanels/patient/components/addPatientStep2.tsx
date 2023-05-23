@@ -23,22 +23,24 @@ import {
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -65,11 +67,15 @@ function AddPatientStep2({...props}) {
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
     const {stepsData} = useAppSelector(addPatientSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
         insurance: Yup.array().of(
@@ -192,11 +198,6 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
     }, SWRNoValidateConfig);
 
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
-    }, SWRNoValidateConfig);
-
     const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
 
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
@@ -275,9 +276,9 @@ function AddPatientStep2({...props}) {
         form.append('profession', values.profession);
         form.append('note', values.note ? values.note : "");
 
-        triggerAddPatient({
+        medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
@@ -677,7 +678,7 @@ function AddPatientStep2({...props}) {
                                                                             borderRadius: 0.4
                                                                         }}
                                                                         alt={"insurance"}
-                                                                        src={option.logoUrl}
+                                                                        src={option.logoUrl.url}
                                                                     />
                                                                     <Typography
                                                                         sx={{ml: 1}}>{option.name}</Typography>
@@ -694,7 +695,7 @@ function AddPatientStep2({...props}) {
                                                                                     borderRadius: 0.4
                                                                                 }}
                                                                                 alt="insurance"
-                                                                                src={insurance?.logoUrl}
+                                                                                src={insurance?.logoUrl.url}
                                                                             />}
                                                                     </InputAdornment>
                                                                 );

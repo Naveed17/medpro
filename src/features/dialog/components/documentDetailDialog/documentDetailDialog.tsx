@@ -2,9 +2,10 @@ import {
     Box,
     Button,
     Card,
+    Checkbox,
     DialogActions,
     DialogContent,
-    DialogContentText,
+    FormControlLabel,
     Grid,
     List,
     ListItem,
@@ -22,10 +23,10 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
@@ -38,11 +39,11 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
-import {configSelector} from "@features/base";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -61,7 +62,11 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [name, setName] = useState(state.name);
     const [note, setNote] = useState(state.description ? state.description : "");
@@ -75,26 +80,29 @@ function DocumentDetailDialog({...props}) {
     const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
+    const [docs, setDocs] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "center"},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
-        size: 'portraitA5',
+        size: 'portraitA4',
         content: {
             show: true,
-            maxHeight: 500,
+            maxHeight: 600,
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 70
+            y: 150
         }
     })
     const {direction} = useAppSelector(configSelector);
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
+    const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
@@ -140,7 +148,7 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: 'settings',
-            icon: "ic-setting",
+            icon: "template",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
@@ -161,23 +169,14 @@ function DocumentDetailDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const {trigger} = useRequestMutation(null, "/documents");
 
-    const {data: httpProfessionalsResponse} = useRequest({
+    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-
-    const {data: httpHeaderData} = useRequest(medical_professional ? {
-        method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -188,9 +187,19 @@ function DocumentDetailDialog({...props}) {
     };
 
     const handleYes = () => {
-        router.push("/dashboard/settings/docs").then(() => {
+        const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
+        if (selected) {
+            setLoading(true);
+            setData({
+                ...selected.header.data,
+                background: {show: selected.file !== null, content: selected.file ? selected.file : ''}
+            })
+            setHeader(selected.header.header)
             setOpenAlert(false);
-        })
+            setTimeout(() => {
+                setLoading(false)
+            }, 1000)
+        }
     };
 
     const handlePrint = () => {
@@ -225,20 +234,13 @@ function DocumentDetailDialog({...props}) {
             case "edit":
                 switch (state.type) {
                     case "prescription":
-                        const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
-                        state.info.map((drug: { dosage: any; standard_drug: { uuid: any; commercial_name: any; }; duration: any; duration_type: any; note: any; }) => {
-                            prescriptions.push({
-                                dosage: drug.dosage,
-                                drugUuid: drug.standard_drug.uuid,
-                                duration: drug.duration,
-                                durationType: drug.duration_type,
-                                name: drug.standard_drug.commercial_name,
-                                note: drug.note
-                            })
-                        })
                         dispatch(SetSelectedDialog({
-                            action: 'medical_prescription',
-                            state: prescriptions,
+                            action: 'medical_prescription_cycle',
+                            state: state.info.map((drug: any) => ({
+                                cycles: drug.cycles,
+                                drugUuid: drug.standard_drug.uuid,
+                                name: drug.standard_drug.commercial_name,
+                            })),
                             uuid: state.uuidDoc
                         }))
                         break;
@@ -300,8 +302,7 @@ function DocumentDetailDialog({...props}) {
                 }
                 break;
             case "settings":
-                router.push("/dashboard/settings/docs").then(() => {
-                })
+                setOpenAlert(true)
                 break;
             default:
                 break;
@@ -314,7 +315,7 @@ function DocumentDetailDialog({...props}) {
         form.append('value', value);
         trigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/documents/${state.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/documents/${state.uuid}/${router.locale}`,
             data: form,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
@@ -336,29 +337,63 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
-        if (httpHeaderData) {
-            const docInfo = (httpHeaderData as HttpResponse).data
-            if (!docInfo.header) {
-                //handleClickOpen();
+        if (httpDocumentHeader) {
+            const docInfo = (httpDocumentHeader as HttpResponse).data
+            setDocs(docInfo);
+            if (docInfo.length === 0) {
                 console.log("no header");
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-                setData(docInfo.data)
-                setHeader(docInfo.header)
+                const templates: any[] = [];
+                const slug = slugs[generatedDocs.findIndex(gd => gd === state.type)];
+                docInfo.map((di: { types: any[]; }) => {
+                    if (di.types.find(type => type.slug === slug))
+                        templates.push(di)
+                })
+                if (templates.length > 0) {
+                    setSelectedTemplate(templates[0].uuid)
+                    setData({
+                        ...templates[0].header.data,
+                        background: {
+                            show: templates[0].file !== null,
+                            content: templates[0].file ? templates[0].file : ''
+                        }
+                    })
+                    setHeader(templates[0].header.header)
+                } else {
+                    const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                    if (defaultdoc) {
+                        setSelectedTemplate(defaultdoc.uuid)
+                        setData({
+                            ...defaultdoc.header.data,
+                            background: {
+                                show: defaultdoc.file !== null,
+                                content: defaultdoc.file ? defaultdoc.file : ''
+                            }
+                        })
+                        setHeader(defaultdoc.header.header)
+                    } else {
+                        setSelectedTemplate(docInfo[0].uuid)
+                        setData({
+                            ...docInfo[0].header.data,
+                            background: {show: docInfo.file !== null, content: docInfo.file ? docInfo.file : ''}
+                        })
+                        setHeader(docInfo[0].header.header)
+                    }
+                }
                 setLoading(false)
             }
         }
-    }, [httpHeaderData])
-
+    }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
-        trigger({
+        medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(() => {
+        }).then(() => {
             state.mutate && state.mutate();
             state.mutateDetails && state.mutateDetails()
             setOpenRemove(false);
@@ -437,7 +472,7 @@ function DocumentDetailDialog({...props}) {
                                                 </Stack>
                                             </Card>}
 
-                                            {isImg && <Box component={"img"} src={state.uri}
+                                            {isImg && <Box component={"img"} src={state.uri.url}
                                                            sx={{marginLeft: 2, maxWidth: "100%"}}
                                                            alt={"img"}/>}
                                         </Box>
@@ -449,7 +484,7 @@ function DocumentDetailDialog({...props}) {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
                                 {state.type === 'photo' &&
-                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
+                                    <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
                                          alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
@@ -603,31 +638,30 @@ function DocumentDetailDialog({...props}) {
                                     </ListItem>
                                 )
                             }
-
-
                         </List>
                     </>}
                 </Grid>
             </Grid>
 
-            <CustomDialog action={"remove"}
-                          direction={direction}
-                          open={openRemove}
-                          data={selected}
-                          color={(theme: Theme) => theme.palette.error.main}
-                          title={t('removedoc')}
-                          t={t}
-                          actionDialog={
-                              <DialogActions>
-                                  <Button onClick={() => {
-                                      setOpenRemove(false);
-                                  }}
-                                          startIcon={<CloseIcon/>}>{t('cancel')}</Button>
-                                  <LoadingButton variant="contained"
-                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                                 onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
-                              </DialogActions>
-                          }
+            <CustomDialog
+                action={"remove"}
+                direction={direction}
+                open={openRemove}
+                data={selected}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemove(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
             />
 
             <Dialog
@@ -637,9 +671,16 @@ function DocumentDetailDialog({...props}) {
                 aria-describedby="alert-dialog-description">
                 <DialogContent>
                     <Typography variant={"h6"} mb={2}>{t('alertTitle')}</Typography>
-                    <DialogContentText id="alert-dialog-description">
-                        {t('alertDesc')}
-                    </DialogContentText>
+                    {docs.map((doc: any) => (<FormControlLabel
+                        key={doc.uuid}
+                        control={
+                            <Checkbox checked={selectedTemplate === doc.uuid}
+                                      onChange={() => {
+                                          setSelectedTemplate(doc.uuid)
+                                      }} name={doc.uuid}/>
+                        }
+                        label={doc.title}
+                    />))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>{t('notNow')}</Button>

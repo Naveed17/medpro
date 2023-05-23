@@ -15,9 +15,7 @@ import {
 import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {ImportDataMobileCard, NoDataCard} from "@features/card";
 import {
     importDataUpdate,
@@ -29,14 +27,16 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 import IconUrl from "@themes/urlIcon";
 import {resetDuplicated} from "@features/duplicateDetected";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSession} from "next-auth/react";
 
 const PatientDetail = dynamic(
     () =>
@@ -90,35 +90,22 @@ const ImportCardData = {
 function Data() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
+    const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "import-data",
-    });
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const {trigger: triggerDeleteImportData} = useRequestMutation(null, "/import/data/delete");
 
-    const {trigger: triggerDeleteImportData} = useRequestMutation(
-        null,
-        "/import/data/delete"
-    );
-
-    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${router.locale}?page=${router.query.page || 1}&limit=10`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        },
-        SWRNoValidateConfig
-    );
+    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
         currentPage: number;
@@ -129,15 +116,16 @@ function Data() {
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [selectedRow, setSelectedRow] = useState<string | null>(null);
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
-    const [errorsDuplication] = useState<Array<{
-        key: string;
-        row: string;
-        data: Array<PatientImportModel>;
-        fixed: boolean;
-    }>>([]);
+    const [errorsDuplication] = useState<
+        Array<{
+            key: string;
+            row: string;
+            data: Array<PatientImportModel>;
+            fixed: boolean;
+        }>
+    >([]);
     const [duplicatedData, setDuplicatedData] = useState<any>(null);
 
     const handleTableEvent = (action: string, uuid: string) => {
@@ -161,7 +149,7 @@ function Data() {
         setLoading(true);
         triggerDeleteImportData({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then((value) => {
             if ((value?.data as any).status === "success") {
@@ -204,16 +192,21 @@ function Data() {
                     alignItems="center">
                     <Typography>{t("path")}</Typography>
 
-                    {(process.env.NODE_ENV === 'development' || importData &&
-                        (importData.list.length === 0 || (importData.list.length > 0 && importData.list[0].status === 3))) && <Button
-                        type="submit"
-                        variant="contained"
-                        onClick={() => {
-                            router.push("/dashboard/settings/data/import");
-                        }}
-                        color="success">
-                        {t("add")}
-                    </Button>}
+                    {(process.env.NODE_ENV === "development" ||
+                        (importData &&
+                            (importData.list.length === 0 ||
+                                (importData.list.length > 0 &&
+                                    importData.list[0].status === 3)))) && (
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            onClick={() => {
+                                router.push("/dashboard/settings/data/import");
+                            }}
+                            color="success">
+                            {t("add")}
+                        </Button>
+                    )}
                 </Stack>
             </SubHeader>
             <Box className="container">

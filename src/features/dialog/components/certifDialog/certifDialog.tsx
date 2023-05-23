@@ -14,22 +14,15 @@ import {
     ListItemText,
     Skeleton,
     Stack,
-    TextField,
-    Tooltip,
-    tooltipClasses,
+    TextField, Tooltip,
     Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
-import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import {TooltipProps} from "@mui/material/Tooltip";
-import {styled} from "@mui/system";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
@@ -41,38 +34,40 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
-
-const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
-    ssr: false,
-});
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {HtmlTooltip} from "@features/tooltip";
+import {Editor} from "@tinymce/tinymce-react";
 
 function CertifDialog({...props}) {
-
-    const colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
     const {data} = props
-    const [value, setValue] = useState<string>(data.state.content);
-    const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
-    const [title, setTitle] = useState<string>('');
-    const [models, setModels] = useState<DocTemplateModel[]>([]);
-    const [isStarted, setIsStarted] = useState(false);
-    let [time, setTime] = useState('00:00');
-    const [openRemove, setOpenRemove] = useState(false);
-    const {direction} = useAppSelector(configSelector);
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     const router = useRouter();
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const [selected, setSelected] = useState<any>();
-    let [oldNote, setOldNote] = useState('');
-
     const {
         transcript,
         listening,
         resetTranscript
     } = useSpeechRecognition();
 
+    const {direction} = useAppSelector(configSelector);
+
+    const colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
+    const [value, setValue] = useState<string>(data.state.content);
+    const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
+    const [title, setTitle] = useState<string>('');
+    const [models, setModels] = useState<CertifModel[]>([]);
+    const [isStarted, setIsStarted] = useState(false);
+    let [time, setTime] = useState('00:00');
+    const [openRemove, setOpenRemove] = useState(false);
+    const [selected, setSelected] = useState<any>();
+    let [oldNote, setOldNote] = useState('');
+    const contentBtns=[
+        {name: '{patient}', title:'Patient', desc: "Nom du patient"},
+        {name: '{doctor}', title:'Doctor', desc: "Nom du doctor"},
+        {name: '{aujourd\'hui}',title:'Aujourd\'hui', desc: "Date aujourd'hui"},
+    ];
 
     const intervalref = useRef<number | null>(null);
 
@@ -82,26 +77,15 @@ function CertifDialog({...props}) {
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
-        <Tooltip {...props} classes={{popper: className}}/>
-    ))(({theme}) => ({
-        [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#f5f5f9',
-            color: 'rgba(0, 0, 0, 0.87)',
-            maxWidth: 220,
-            border: '1px solid #dadde9',
-        },
-    }));
-
     const {trigger} = useRequestMutation(null, "/certif-models");
 
-    const {data: httpModelResponse, mutate} = useRequest({
+    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
-    const selectModel = (model: DocTemplateModel) => {
+    const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
         data.state.title = model.title;
@@ -116,7 +100,7 @@ function CertifDialog({...props}) {
         form.append('title', title);
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
@@ -140,7 +124,7 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (httpModelResponse) {
-            const template: DocTemplateModel[] = [];
+            const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
             modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
@@ -172,15 +156,7 @@ function CertifDialog({...props}) {
     }
 
     const addVal = (val: string) => {
-        const doc = new DOMParser().parseFromString(value, 'text/html')
-        const collection = doc.body.lastElementChild as HTMLElement
-        if (collection)
-            collection.innerText += ' ' + val;
-
-        doc.body.removeChild(doc.body.lastElementChild as HTMLElement)
-        doc.body.append(collection)
-        setValue(doc.body.innerHTML.toString());
-
+        (window as any).tinymce.execCommand('mceInsertContent', false ,val);
     }
 
     const {t, ready} = useTranslation("consultation");
@@ -218,29 +194,14 @@ function CertifDialog({...props}) {
                             </Stack>
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
-                                <Stack direction={"row"} alignItems={"center"}>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                 mb={1}>{t('consultationIP.contenu')}</Typography>
-                                    <HtmlTooltip
-                                        title={
-                                            <React.Fragment>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{patient}')
-                                                }}
-                                                            fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{doctor}')
-                                                }}
-                                                            fontSize={12}>{"{doctor} : nom du médecin"}</Typography>
-                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
-                                                    addVal('{aujourd\'hui}')
-                                                }}
-                                                            fontSize={12}>{"{aujourd'hui} :date d'aujourd'hui"}</Typography>
-                                            </React.Fragment>
-                                        }
-                                    >
-                                        <InfoRoundedIcon style={{color: '#ccc', width: '0.7em', margin: '0 5px'}}/>
-                                    </HtmlTooltip>
+                                    {contentBtns.map(cb =>(<Tooltip key={cb.name} title={cb.desc}>
+                                        <Button onClick={() => {
+                                            addVal(cb.name)
+                                        }} size={"small"}> <AddIcon/> {cb.title}</Button>
+                                    </Tooltip>))}
                                 </Stack>
                                 {
                                     listening && isStarted ? <RecondingBoxStyle onClick={() => {
@@ -282,15 +243,31 @@ function CertifDialog({...props}) {
                                 }
                             </Stack>
 
-                            <CKeditor
-                                name="description"
+                            <Editor
                                 value={value}
-                                onChange={(res: React.SetStateAction<string>) => {
+                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                onEditorChange={(res) => {
                                     data.state.content = res;
                                     data.setState(data.state)
                                     setValue(res)
                                 }}
-                                editorLoaded={true}/>
+                                init={{
+                                    branding: false,
+                                    statusbar: false,
+                                    menubar: false,
+                                    plugins: [
+                                        'advlist autolink lists link image charmap print preview anchor',
+                                        'searchreplace visualblocks code fullscreen textcolor',
+                                        'insertdatetime media table paste code help wordcount'
+                                    ],
+                                    toolbar: 'undo redo | formatselect | ' +
+                                        'bold italic backcolor forecolor | alignleft aligncenter ' +
+                                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                                        'removeformat | help',
+                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+
+                                }}
+                            />
                         </Box>
                     </Box>
                 </Grid>
@@ -347,7 +324,7 @@ function CertifDialog({...props}) {
                                                         name2: t('consultationIP.model'),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${item.uuid}`,
+                                                            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
                                                             headers: {
                                                                 ContentType: 'application/x-www-form-urlencoded',
                                                                 Authorization: `Bearer ${session?.accessToken}`

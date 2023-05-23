@@ -4,7 +4,7 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -114,7 +114,7 @@ function AddDocumentDialog({...props}) {
                                 (item: any, index) => (
                                     <Grid key={index} item xs={6} md={6}>
                                         <DocumentButton
-                                            icon={item.logo}
+                                            icon={item.logo.url}
                                             active={data.state.type}
                                             t={t}
                                             lable={item.name}

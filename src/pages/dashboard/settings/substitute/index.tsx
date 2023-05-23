@@ -7,7 +7,7 @@ import {RootStyled} from "@features/toolbar";
 import {Box, Button, Drawer} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {SubstituteDetails} from "@features/substituteDetails";
 import {LoadingScreen} from "@features/loadingScreen";

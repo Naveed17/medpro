@@ -3,18 +3,20 @@ import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useState} from "react";
 import Zoom from "react-medium-image-zoom";
 import Image from "next/image";
-import {getBirthdayFormat} from "@app/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
+import {dashLayoutSelector} from "@features/base";
+import {useInsurances} from "@lib/hooks/rest";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -22,11 +24,15 @@ function PreConsultationDialog({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
+    const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
@@ -50,40 +56,25 @@ function PreConsultationDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
-    const {data: httpInsuranceResponse} = useRequest({
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
-    const {data: httpPatientPhotoResponse} = useRequest(
-        patient?.hasPhoto
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
-        medical_professional && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/consultation-sheet/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            } : null);
-
-    const {data: httpModelResponse} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/modals`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
+
+    const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -98,8 +89,9 @@ function PreConsultationDialog({...props}) {
 
     useEffect(() => {
         if (sheetModal) {
+            const storageWidget = localStorage.getItem(`Modeldata${uuid}`);
+            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             setSelectedModel(sheetModal);
-            localStorage.setItem(`Modeldata${uuid}`, JSON.stringify(sheetModal?.data));
             dispatch(setModelPreConsultation(sheetModal.default_modal.uuid));
             setLoading(false);
         }
@@ -132,21 +124,22 @@ function PreConsultationDialog({...props}) {
                 {insurances && insurances.length > 0 &&
                     <Stack direction='row' alignItems="center" spacing={1}>
                         <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                            {insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
-                                <Tooltip key={insuranceItem.insurance?.uuid}
-                                         title={insuranceItem.insurance?.name}>
-                                    <Avatar variant={"circular"}>
-                                        <Image
-                                            style={{borderRadius: 2}}
-                                            alt={insuranceItem.insurance?.name}
-                                            src="static/icons/Med-logo.png"
-                                            width={20}
-                                            height={20}
-                                            loader={({src, width, quality}) => {
-                                                return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
-                                            }}
-                                        />
-                                    </Avatar>
+                            {insurances.map((insuranceItem: InsuranceModel) =>
+                                <Tooltip key={insuranceItem.uuid}
+                                         title={insuranceItem.name}>
+                                    {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?
+                                        <Avatar variant={"circular"}>
+                                            <Image
+                                                style={{borderRadius: 2}}
+                                                alt={insuranceItem.name}
+                                                src="static/icons/Med-logo.png"
+                                                width={20}
+                                                height={20}
+                                                loader={() => {
+                                                    return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string
+                                                }}
+                                            />
+                                        </Avatar> : <></>}
                                 </Tooltip>
                             )}
                         </AvatarGroup>
@@ -201,7 +194,7 @@ function PreConsultationDialog({...props}) {
             {...{models, changes, setChanges, isClose}}
             expandButton={false}
             modal={selectedModel}
-            data={selectedModel.data}
+            data={sheetModal.data}
             appuuid={uuid}
             setSM={setSelectedModel}
             handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}

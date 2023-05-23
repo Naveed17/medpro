@@ -5,12 +5,13 @@ import AddIcon from '@mui/icons-material/Add';
 import {useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AutoCompleteButton({...props}) {
     const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
@@ -18,10 +19,10 @@ function AutoCompleteButton({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
-    const {patient: initData} = useAppSelector(appointmentSelector);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {patient: initData} = useAppSelector(appointmentSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: PatientDetailsTrigger} = useRequestMutation(null, "patient/data");
 
@@ -33,9 +34,9 @@ function AutoCompleteButton({...props}) {
     }
 
     const onEditPatient = () => {
-        PatientDetailsTrigger({
+        medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             }

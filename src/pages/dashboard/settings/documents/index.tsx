@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Document as DocumentPDF, Page, pdfjs} from "react-pdf";
 import jsPDF from "jspdf";
@@ -12,28 +11,30 @@ import {useFormik} from "formik";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, Card, CardContent, Grid, Stack, TextField, Typography} from "@mui/material";
 import autoTable from "jspdf-autotable";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib'
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 
 function ConsultationType() {
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar();
+    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const [file, setFile] = useState('');
     const [pos, setPos] = useState(0);
     const [docFile, setDocFile] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const {trigger} = useRequestMutation(null, "/MP/header");
-    const {enqueueSnackbar} = useSnackbar();
 
+    const {trigger} = useRequestMutation(null, "/MP/header");
 
     const formik = useFormik({
         children: undefined,
@@ -64,13 +65,13 @@ function ConsultationType() {
         format: 'a5'
     });
 
-    const {data: httpData} = useRequest({
+    const {data: httpData} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null);
 
     useEffect(() => {
         if (httpData) {
@@ -258,10 +259,6 @@ function ConsultationType() {
         setNumPages(numPages);
     }
 
-    const {t, ready} = useTranslation(["settings", "common"], {
-        keyPrefix: "documents.config",
-    });
-
     const eventHandler = (e: { type: any; }, data: any) => {
         console.log(data.x, data.y);
     }
@@ -354,7 +351,7 @@ function ConsultationType() {
                                         form.append('document_header', JSON.stringify(values));
                                         trigger({
                                             method: "PATCH",
-                                            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+                                            url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
                                             data: form,
                                             headers: {
                                                 Authorization: `Bearer ${session?.accessToken}`

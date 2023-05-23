@@ -4,27 +4,27 @@ import IconUrl from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSession} from "next-auth/react";
 
-function BoxsesFilter ({...props}){
-    const {t} = useTranslation('payment', {keyPrefix: 'filter'});
-    const {selectedBox, query} = useAppSelector(cashBoxSelector);
-
+function BoxsesFilter({...props}) {
     const {cashboxes, setCashboxes} = props;
     const theme = useTheme();
     const {data: session} = useSession();
-    const {data: user} = session as Session;
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {t} = useTranslation('payment', {keyPrefix: 'filter'});
+    const {selectedBox} = useAppSelector(cashBoxSelector);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [cashName, setCashName] = useState("");
 
@@ -32,7 +32,7 @@ function BoxsesFilter ({...props}){
 
     const {data: httpBoxesResponse, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/cash-boxes/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
         headers: {
             ContentType: "multipart/form-data",
             Authorization: `Bearer ${session?.accessToken}`,
@@ -48,7 +48,7 @@ function BoxsesFilter ({...props}){
     const removeCash = (uuid: string) => {
         trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
@@ -67,7 +67,7 @@ function BoxsesFilter ({...props}){
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -80,9 +80,9 @@ function BoxsesFilter ({...props}){
     }
 
 
-    return(
+    return (
         <Box>
-            {cashboxes.map((cb:any, id:number) => (
+            {cashboxes.map((cb: any, id: number) => (
                 <Stack direction={"row"} justifyContent={"space-between"} key={`cash-box-${id}`}>
                     <FormControlLabel
                         label={`${cb.name}`}
@@ -141,4 +141,5 @@ function BoxsesFilter ({...props}){
         </Box>
     )
 }
+
 export default BoxsesFilter

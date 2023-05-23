@@ -11,14 +11,11 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
+    Popover, useMediaQuery, Button, Drawer, Avatar
 } from "@mui/material";
-// config
-import {siteHeader} from "@features/sideBarMenu";
 // components
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {siteHeader, sideBarSelector, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
 import {
     NavbarStepperStyled,
@@ -41,16 +38,20 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
+import {WarningTooltip} from "./warningTooltip";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 const ProfilMenuIcon = dynamic(
-    () => import("@features/profilMenu/components/profilMenu")
+    () => import("@features/menu/components/profilMenu/components/profilMenu")
 );
 
 let deferredPrompt: any;
@@ -64,7 +65,7 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const theme = useTheme();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -75,11 +76,10 @@ function TopNavBar({...props}) {
     const {progress} = useAppSelector(progressUISelector);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -115,10 +115,10 @@ function TopNavBar({...props}) {
         dispatch(toggleSideBar(true));
     }
 
-    const handleInstallClick = (e: any) => {
-        // Hide the app provided install promotion
+    const handleInstallClick = () => {
+        // Hide the lib provided installation promotion
         setInstallable(false);
-        // Show the install prompt
+        // Show the installation prompt
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult: any) => {
@@ -137,31 +137,15 @@ function TopNavBar({...props}) {
         form.append('value', 'false');
         updateTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             // refresh on going api
             mutateOnGoing && mutateOnGoing();
             // refresh waiting room api
-            mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
+            mutate(`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`)
                 .then(() => setLoading(false));
-        });
-    }
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
     }
 
@@ -179,10 +163,15 @@ function TopNavBar({...props}) {
         };
         if (router.asPath !== slugConsultation) {
             router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(nextPatient.uuid, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${nextPatient.uuid}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -198,7 +187,7 @@ function TopNavBar({...props}) {
     }
 
     const requestNotificationPermission = () => {
-        Notification.requestPermission().then((permission) => {
+        Notification?.requestPermission().then((permission) => {
             console.log("requestPermission", permission);
             // If the user accepts, let's create a notification
             if (permission === "granted") {
@@ -236,6 +225,7 @@ function TopNavBar({...props}) {
     }, [pendingAppointments]);
 
     useEffect(() => {
+        const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
@@ -247,8 +237,18 @@ function TopNavBar({...props}) {
 
         window.addEventListener('appinstalled', () => {
             // Log install to analytics
-            console.log('INSTALL: Success');
+            localStorage.setItem('Medlink-install', "true");
         });
+
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
+            if (matches) {
+                setInstallable(false);
+            }
+        });
+
+        if (appInstall) {
+            setInstallable(false);
+        }
     }, []);
 
     return (
@@ -315,24 +315,16 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {!allowNotification && (isMobile ?
-                                <Tooltip
+                            {!allowNotification &&
+                                <WarningTooltip
                                     title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
                                     <Avatar
-                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        sx={{mr: 3}}
+                                        className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
-                                </Tooltip>
-                                :
-                                <Button variant="contained"
-                                        onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3, margin: "0 24px 8px"}}
-                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
-                                        color={"warning"}>
-                                    <Typography
-                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
-                                </Button>)}
+                                </WarningTooltip>}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}
@@ -373,21 +365,14 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            {!installable && (isMobile ?
-                                    <Tooltip title={"Installer l'app"}>
-                                        <Avatar
-                                            sx={{mr: 2, bgcolor: theme.palette.primary.main}}
-                                            onClick={handleInstallClick}>
-                                            <IconUrl width={20} height={20} path={"Med-logo_white"}/>
-                                        </Avatar>
-                                    </Tooltip>
-                                    : <Button sx={{mr: 2, p: "6px 12px"}}
-                                              onClick={handleInstallClick}
-                                              startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
-                                              variant={"contained"}>
-                                        {"Installer l'app"}
-                                    </Button>
-                            )}
+                            {(installable && !isMobile) &&
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
+                                    {"Installer l'app"}
+                                </Button>
+                            }
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notifications}

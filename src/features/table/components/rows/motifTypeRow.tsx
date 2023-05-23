@@ -4,16 +4,15 @@ import {IconButton, Typography, Skeleton, Box, Stack} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
-import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {IconsTypes} from "@features/calendar";
 
 function MotifRow({...props}) {
-    const {row, editMotif, data} = props;
-    const {t, ready} = useTranslation("common");
+    const {row, editMotif} = props;
+
     return (
         <TableRowStyled key={uniqueId}>
-            <TableCell>
+            <TableCell colSpan={3}>
                 {row ? (
                     <Box
                         sx={{
@@ -37,14 +36,40 @@ function MotifRow({...props}) {
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
+            <TableCell align="center">
+                {row ? (
+                    row.isFree || row.price === null || row.price === 0 ? (
+                        <Typography>--</Typography>
+                    ) : (
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            justifyContent="center">
+                            <IconUrl path="ic-argent"/>
+                            <Typography>{row.price}</Typography>
+                        </Stack>
+                    )
+                ) : (
+                    <Skeleton width={30} height={40} sx={{mx: "auto"}}/>
+                )}
+            </TableCell>
             <TableCell align="right">
                 {row ? (
-                    <IconButton
-                        size="small"
-                        sx={{mr: {md: 1}}}
-                        onClick={() => editMotif(row)}>
-                        <IconUrl path="setting/edit"/>
-                    </IconButton>
+                    <Stack direction='row' alignItems='center' justifyContent='flex-end'>
+                        <IconButton
+                            size="small"
+                            sx={{mr: {md: 1}}}
+                            onClick={() => editMotif(row, "edit")}>
+                            <IconUrl path="setting/edit"/>
+                        </IconButton>
+                        <IconButton
+                            size="small"
+                            sx={{mr: {md: 1}}}
+                            onClick={() => editMotif(row, "delete")}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>
+                    </Stack>
                 ) : (
                     <Skeleton width={30} height={40} sx={{m: "auto"}}/>
                 )}

@@ -1,5 +1,5 @@
 // hooks
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
 import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
@@ -9,28 +9,16 @@ import CloseIcon from "@mui/icons-material/Close";
 import RootStyled from "./overrides/rootStyled";
 // utils
 import Icon from "@themes/urlIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {configSelector} from "@features/base";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
-
-// selected dumy data
-/*const cardItems: PatientDetailsList[] = [
-    {
-        id: 0,
-        title: "title",
-        icon: "ic-doc",
-        items: [
-            {id: 0, name: "Diabète / Hypoglycémie"},
-            {id: 1, name: "Problèmes cardiaques / Hypertension"},
-        ],
-    },
-];*/
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {HtmlTooltip} from "@features/tooltip";
 
 const emptyObject = {
     title: "",
@@ -38,26 +26,24 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient,antecedentsData, mutateAntecedents} = props;
+    const {loading, patient, antecedentsData, mutateAntecedents} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    //const [data, setdata] = useState([...cardItems]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
+    const [infoDynamic, setInfoDynamic] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const [allAntecedents, setallAntecedents] = useState<any>([]);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger} = useRequestMutation(null, "/antecedent");
+
     const {data: httpAntecedentsTypeResponse} = useRequest({
         method: "GET",
         url: `/api/private/antecedent-types/${router.locale}`,
@@ -65,18 +51,12 @@ function AntecedentsCard({...props}) {
     }, SWRNoValidateConfig);
 
 
-    const {data: httpAnctecentType} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
+    const isObject = (val: any) => {
+        if (val === null) {
+            return false;
         }
-    }, [httpAnctecentType])
-
+        return typeof val === 'object' && !Array.isArray(val)
+    }
 
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -86,18 +66,19 @@ function AntecedentsCard({...props}) {
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
-        trigger(
-            {
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === info).uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }, TriggerWithoutValidation
-        ).then(() => {
+        medicalEntityHasUser && trigger({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+                slug: any;
+            }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
             setOpenDialog(false);
             setInfo("");
+            setInfoDynamic("");
             mutateAntecedents();
         });
     };
@@ -108,27 +89,53 @@ function AntecedentsCard({...props}) {
             return;
         }
         if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
-            console.log(antecedentsData[action]);
             setState(antecedentsData[action]);
         } else setState([])
 
-        setInfo(action);
+        setInfo("dynamicAnt");
+        setInfoDynamic(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
     };
 
-/*    const onChangeList = (prop: PatientDetailsList) => {
-        const newState = data.map((obj) => {
-            if (obj.id === prop.id) {
-                return {...prop};
-            }
-            return obj;
-        });
-        setdata(newState);
-    }*/
+    /*    const onChangeList = (prop: PatientDetailsList) => {
+            const newState = data.map((obj) => {
+                if (obj.id === prop.id) {
+                    return {...prop};
+                }
+                return obj;
+            });
+            setdata(newState);
+        }*/
+
+    const getTitle = () => {
+        const info = antecedentsType?.find((ant: { slug: any; }) => ant.slug === infoDynamic);
+
+        if (info) {
+            return info.name;
+        }
+        return t(infoDynamic)
+    }
 
     const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
+    const getAntecedents = (antecedent: any) => {
+        if (!antecedentsData)
+            return Array.from(new Array(3));
+        else if (antecedentsData[antecedent.slug])
+            return antecedentsData[antecedent.slug];
+        else return [];
+
+    }
+    const getNote = (item: { response: string | any[]; }) => {
+        if (item?.response)
+            if (typeof item?.response === "string")
+                return item?.response;
+            else if (item?.response.length > 0)
+                return item?.response[0]?.value;
+            else return '-';
+        else return '-';
+    }
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -147,55 +154,82 @@ function AntecedentsCard({...props}) {
                 {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
                     (antecedent, idx: number) => (
                         <React.Fragment key={idx}>
-                            {antecedent.slug &&antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && <Grid item md={6} sm={12} xs={12}>
-                                <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
-                                    <Typography
-                                        variant="body1"
-                                        color="text.primary"
-                                        className="item"
-                                        component="span"
-                                    >
-                                        {/*<Icon path={antecedent.icon}/>*/}
-                                        {loading ? (
-                                            <Skeleton
-                                                variant="text"
-                                                sx={{maxWidth: 150, width: "100%"}}
-                                            />
-                                        ) : (
-                                            t(antecedent.slug)
-                                        )}
-                                    </Typography>
-                                    {(!antecedentsData
-                                            ? Array.from(new Array(3))
-                                            : antecedentsData[antecedent.slug] ? antecedentsData[antecedent.slug] : []
-                                    ).map((antecedentData: any) => (
+                            {antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" &&
+                                <Grid item md={6} sm={12} xs={12}>
+                                    <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
                                         <Typography
-                                            key={Math.random()}
-                                            mt={0.5}
-                                            color="text.secondary"
-                                            fontSize={11}
+                                            variant="body1"
+                                            color="text.primary"
+                                            className="item"
+                                            component="span"
                                         >
-                                            {loading ? <Skeleton variant="text"/> : antecedentData?.name}
+                                            {/*<Icon path={antecedent.icon}/>*/}
+                                            {loading ? (
+                                                <Skeleton
+                                                    variant="text"
+                                                    sx={{maxWidth: 150, width: "100%"}}
+                                                />
+                                            ) : (
+                                                <Typography className={"ant-title"}> {antecedent.name}</Typography>
+                                            )}
                                         </Typography>
-                                    ))}
-                                    {loading ? (
-                                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                    ) : (
-                                        <Button
-                                            variant="text"
-                                            color="primary"
-                                            size="small"
-                                            onClick={() => antecedent.slug && handleOpen(antecedent.slug)}
-                                            sx={{
-                                                mt: 1,
-                                                svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
-                                            }}
-                                        >
-                                            <Icon path="ic-plus"/> {t("add-background")}
-                                        </Button>
-                                    )}
-                                </Paper>
-                            </Grid>}
+                                        {getAntecedents(antecedent).map((item: any, index: number) => (
+                                            <HtmlTooltip
+                                                key={`antecedent-${index}`}
+                                                title={
+                                                    <React.Fragment>
+                                                        <Typography color="gray" fontWeight={"bold"}
+                                                                    fontSize={12}>{item?.name}</Typography>
+                                                        <Typography color="gray" fontSize={12}>Date début
+                                                            : {item?.startDate ? item?.startDate : "-"}</Typography>
+                                                        <Typography color="gray" fontSize={12}>Date fin
+                                                            : {item?.endDate ? item?.endDate : "-"}</Typography>
+                                                        {item?.ascendantOf && <Typography color="gray"
+                                                                                          fontSize={12}>{item?.ascendantOf}</Typography>}
+                                                        <Typography color="gray" fontSize={12}>Note : {getNote(item)}</Typography>
+                                                        {item?.note && <Typography color="gray" fontSize={12}>RQ
+                                                            : {item?.note}</Typography>}
+                                                        {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (
+                                                            <Typography color="gray" fontSize={12}
+                                                                        key={rep}>{rep} : {item?.response[rep]}</Typography>
+                                                        ))}
+                                                    </React.Fragment>
+                                                }
+                                            >
+                                                <Typography
+                                                    mt={0.5}
+                                                    color="text.secondary"
+                                                    fontSize={11}
+                                                >
+                                                    {loading ? <Skeleton variant="text"/> : item &&
+                                                        <Typography style={{cursor: 'pointer'}} fontSize={11}>
+                                                            {item.name}{" "}
+                                                            {item.startDate ? " / " + item.startDate : ""}{" "}
+                                                            {item.endDate ? " - " + item.endDate : ""}
+                                                            {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
+                                                            {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
+                                                        </Typography>}
+                                                </Typography>
+                                            </HtmlTooltip>
+                                        ))}
+                                        {loading ? (
+                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                        ) : (
+                                            <Button
+                                                variant="text"
+                                                color="primary"
+                                                size="small"
+                                                onClick={() => antecedent.slug && handleOpen(antecedent.slug)}
+                                                sx={{
+                                                    mt: 1,
+                                                    svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
+                                                }}
+                                            >
+                                                <Icon path="ic-plus"/> {t("add-background")}
+                                            </Button>
+                                        )}
+                                    </Paper>
+                                </Grid>}
                         </React.Fragment>
                     )
                 )}
@@ -215,13 +249,14 @@ function AntecedentsCard({...props}) {
                         state,
                         setState,
                         patient_uuid: patient.uuid,
-                        action: info,
-                        antecedents: allAntecedents
+                        action: infoDynamic,
+                        antecedents: antecedentsType ? antecedentsType : []
                     }}
-                    title={t(info)}
+                    title={getTitle()}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");
+                        setInfoDynamic("");
                     }}
                     actionDialog={
                         <DialogActions>
@@ -229,6 +264,7 @@ function AntecedentsCard({...props}) {
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
+                                    setInfoDynamic("");
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}

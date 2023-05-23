@@ -6,4 +6,5 @@ interface AntecedentsModel {
     uuid: string
     response:any
     value_type:number
+    ascendantOf?:string
 }

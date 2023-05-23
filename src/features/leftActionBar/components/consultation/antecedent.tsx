@@ -1,10 +1,27 @@
 import {pxToRem} from "@themes/formatFontSize";
-import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
+import {
+    Box,
+    Button,
+    CardContent,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    Stack,
+    Tooltip,
+    tooltipClasses,
+    Typography
+} from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
 import React from "react";
+import {styled} from "@mui/system";
+import {TooltipProps} from "@mui/material/Tooltip";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Antecedent({...props}) {
 
@@ -22,6 +39,26 @@ function Antecedent({...props}) {
         index,
         router
     } = props
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
+        <Tooltip {...props} classes={{popper: className}}/>
+    ))(({theme}) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: '#f5f5f9',
+            color: 'rgba(0, 0, 0, 0.87)',
+            maxWidth: 220,
+            border: '1px solid #dadde9',
+        },
+    }));
+    const isObject = (val: any) => {
+        if (val === null) {
+            return false;
+        }
+        return typeof val === 'object' && !Array.isArray(val)
+    }
 
     return (
         <ContentStyled
@@ -30,7 +67,9 @@ function Antecedent({...props}) {
             <CardContent
                 style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
                 {antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Typography fontWeight={600}>{allAntecedents.find((ant: { slug: any; }) => ant.slug === antecedent).type ?t(antecedent):antecedent}</Typography>}
+                    <Typography className={"title"}>{allAntecedents.find((ant: {
+                        slug: any;
+                    }) => ant.slug === antecedent).name}</Typography>}
                 <List dense>
                     {patientAntecedents && Array.isArray(patientAntecedents[antecedent]) && patientAntecedents[antecedent] && patientAntecedents[antecedent]?.map(
                         (
@@ -39,6 +78,8 @@ function Antecedent({...props}) {
                                 name: string;
                                 startDate: string;
                                 endDate: string;
+                                note: string;
+                                ascendantOf: string;
                                 response: string | any[]
                             },
                             index: number
@@ -47,7 +88,29 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                <Typography variant="body2" color="text.secondary">
+                                {/*<HtmlTooltip
+                                    title={
+                                        <React.Fragment>
+                                            <Typography color="gray" fontWeight={"bold"}
+                                                        fontSize={12}>{item.name}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date début
+                                                : {item.startDate ? item.startDate : "-"}</Typography>
+                                            <Typography color="gray" fontSize={12}>Date fin
+                                                : {item.endDate ? item.endDate : "-"}</Typography>
+                                            {item.ascendantOf &&
+                                                <Typography color="gray" fontSize={12}>{item.ascendantOf}</Typography>}
+                                            <Typography color="gray" fontSize={12}>Note
+                                                : {item.response ? typeof item.response === "string" ? item.response : item.response.length > 0 ? item.response[0]?.value : '-' : '-'}</Typography>
+                                            {item.note &&
+                                                <Typography color="gray" fontSize={12}>RQ : {item.note}</Typography>}
+                                            {isObject(item.response) && Object.keys(item.response).map((rep: any) => (
+                                                <Typography color="gray" fontSize={12}
+                                                            key={rep}>{rep} : {item.response[rep]}</Typography>
+                                            ))}
+                                        </React.Fragment>
+                                    }>
+                                </HtmlTooltip>*/}
+                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
                                     {item.name}{" "}
                                     {item.startDate ? " / " + item.startDate : ""}{" "}
                                     {item.endDate ? " - " + item.endDate : ""}
@@ -57,7 +120,7 @@ function Antecedent({...props}) {
                                 <IconButton
                                     size="small"
                                     onClick={() => {
-                                        setSelected({
+                                        medicalEntityHasUser && setSelected({
                                             title: t('askRemove'),
                                             subtitle: t(antecedent),
                                             icon: "/static/icons/ic-recherche.svg",
@@ -65,7 +128,7 @@ function Antecedent({...props}) {
                                             name2: "",
                                             request: {
                                                 method: "DELETE",
-                                                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
+                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
                                                 headers: {
                                                     ContentType: "multipart/form-data",
                                                     Authorization: `Bearer ${session?.accessToken}`,

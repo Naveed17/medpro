@@ -1,5 +1,6 @@
 interface MedicalProfessionalActModel {
-  uuid: string;
-  isTopAct: boolean;
-  act: ActModel;
+    uuid: string;
+    fees: number;
+    isTopAct: boolean;
+    act: ActModel;
 }

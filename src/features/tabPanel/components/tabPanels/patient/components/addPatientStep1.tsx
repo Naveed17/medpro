@@ -21,7 +21,7 @@ import {
     InputStyled,
     onAddPatient,
 } from "@features/tabPanel";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -31,7 +31,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
-import {DefaultCountry, PhoneRegExp} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";

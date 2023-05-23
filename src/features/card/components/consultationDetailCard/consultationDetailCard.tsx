@@ -4,52 +4,56 @@ import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyl
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam,
+    const {
+        exam: defaultExam,
         changes,
         setChanges,
         uuind,
         notes,
         diagnostics,
         seeHistory,
-        seeHistoryDiagnostic} = props;
+        seeHistoryDiagnostic
+    } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {exam, listen} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [loadingReq, setLoadingReq] = useState(false);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
@@ -117,9 +121,9 @@ function CIPPatientHistoryCard({...props}) {
             fr: name
         }));
 
-        triggerAddReason({
+        medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {
@@ -276,13 +280,16 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                            seeHistory()
-                                        }}>{t('seeHistory')}</Typography>}
+                                        {notes?.length > 0 &&
+                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                                seeHistory()
+                                            }}>{t('seeHistory')}</Typography>}
                                     </>}
-                                    <RecButton onClick={() => {
-                                        startStopRec();
-                                    }}/>
+                                    <RecButton
+                                        small
+                                        onClick={() => {
+                                            startStopRec();
+                                        }}/>
                                 </Stack>
                             </Stack>
                             <TextField
@@ -312,9 +319,10 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {diagnostics.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                    seeHistoryDiagnostic()
-                                }}>{t('seeHistory')}</Typography>}
+                                {diagnostics.length > 0 &&
+                                    <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        seeHistoryDiagnostic()
+                                    }}>{t('seeHistory')}</Typography>}
                             </Stack>
 
                             <TextField

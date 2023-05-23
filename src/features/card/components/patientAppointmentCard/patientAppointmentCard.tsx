@@ -1,33 +1,32 @@
 import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
-import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
-
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;

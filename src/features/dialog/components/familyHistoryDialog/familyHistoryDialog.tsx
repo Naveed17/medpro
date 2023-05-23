@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";

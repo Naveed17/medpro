@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Stack, Tab, Tabs} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
@@ -20,8 +20,8 @@ import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -34,15 +34,18 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {Dialog} from "@features/dialog";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {AppointmentDetail, Dialog} from "@features/dialog";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import ReactPDF, {PDFViewer} from "@react-pdf/renderer";
+import {PDFViewer} from "@react-pdf/renderer";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function a11yProps(index: number) {
     return {
@@ -70,8 +73,6 @@ function PatientDetail({...props}) {
         isAddAppointment = false,
         currentStepper = 0,
         onCloseDialog,
-        onChangeStepper,
-        onAddAppointment,
         onConsultation = null,
         onConsultationStart = null,
         mutate: mutatePatientList,
@@ -82,8 +83,13 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
+    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {config: agenda, sortedData: groupSortedData, openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -91,8 +97,6 @@ function PatientDetail({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    const {openUploadDialog} = useAppSelector(addPatientSelector);
-    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
@@ -114,55 +118,53 @@ function PatientDetail({...props}) {
     ]);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
+    const {
+        data: httpPatientDetailsResponse,
+        mutate: mutatePatientDetails
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
+    const {
+        data: httpPatientHistoryResponse,
+        mutate: mutatePatientHis
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
+    const {
+        data: httpPatientDocumentsResponse,
+        mutate: mutatePatientDocuments
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
-        patient ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -186,10 +188,6 @@ function PatientDetail({...props}) {
         dispatch(onOpenPatientDrawer({patientId: ""}));
         onCloseDialog(false);
     }
-    const download = () => {
-        console.log(patient);
-        console.log(antecedentsData);
-    }
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -199,7 +197,7 @@ function PatientDetail({...props}) {
     };
 
     const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
+        const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
             steps[index].disabled = false;
             setStepperData(steps);
@@ -218,32 +216,14 @@ function PatientDetail({...props}) {
         documentConfig.files.map((file: any) => {
             params.append(`document[${file.type}][]`, file.file, file.name);
         });
-        triggerUploadDocuments({
+        medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             mutatePatientDocuments();
             setLoadingRequest(false);
-        });
-    }
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
     }
 
@@ -251,8 +231,14 @@ function PatientDetail({...props}) {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
-            "3", {is_first_appointment: filteredEvents}).then(
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "3",
+                is_first_appointment: filteredEvents
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(
             () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api
@@ -297,6 +283,7 @@ function PatientDetail({...props}) {
                         previousAppointmentsData,
                         patient,
                         mutate: mutatePatientDocuments,
+                        mutatePatientHis,
                         closePatientDialog
                     }} />
                 ) : (
@@ -348,7 +335,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData,t}} />
+                <PatientFile {...{patient, antecedentsData, t}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
@@ -362,7 +349,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog} download={download}/>
+                    <PatientDetailsToolbar onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}
@@ -544,6 +531,16 @@ function PatientDetail({...props}) {
                         onClickCancel={() => setIsAdd(false)}
                     />
                 )}
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}>
+                <AppointmentDetail/>
+            </Drawer>
         </>
     );
 }

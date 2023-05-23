@@ -29,7 +29,7 @@ import AddIcon from "@mui/icons-material/Add";
 import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 
@@ -246,7 +246,7 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {paymentTypes && paymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
+                    {paymentTypes && paymentTypes.map((method: { slug: any; name: string; logoUrl: { url: string | undefined; }; }) =>
                         <FormControlLabel
                             className={method.slug === deals.selected ? "selected" : ''}
                             onClick={() => {
@@ -261,7 +261,7 @@ function PaymentDialog({...props}) {
                             label={
                                 <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img style={{width: 16}} src={method.logoUrl} alt={'payment means'}/>
+                                    <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
                                     {
                                         !isMobile && paymentTypes.length !== 6 &&
                                         <Typography>{t(method.name)}</Typography>

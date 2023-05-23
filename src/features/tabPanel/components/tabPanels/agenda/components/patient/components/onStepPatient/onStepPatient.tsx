@@ -24,14 +24,14 @@ import {
 } from "@mui/material";
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef, useState} from "react";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {addPatientSelector, appointmentSelector, CustomInput} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -39,13 +39,14 @@ import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
+import {useInsurances} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -104,6 +105,7 @@ function OnStepPatient({...props}) {
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -296,11 +298,6 @@ function OnStepPatient({...props}) {
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
     }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
@@ -990,7 +987,7 @@ function OnStepPatient({...props}) {
                                                                                     borderRadius: 0.4
                                                                                 }}
                                                                                 alt={"insurance"}
-                                                                                src={option.logoUrl}
+                                                                                src={option.logoUrl.url}
                                                                             />
                                                                             <Typography
                                                                                 sx={{ml: 1}}>{option.name}</Typography>
@@ -1007,7 +1004,7 @@ function OnStepPatient({...props}) {
                                                                                             borderRadius: 0.4
                                                                                         }}
                                                                                         alt="insurance"
-                                                                                        src={insurance?.logoUrl}
+                                                                                        src={insurance?.logoUrl.url}
                                                                                     />}
                                                                             </InputAdornment>
                                                                         );

@@ -16,24 +16,27 @@ import {
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import Icon from "@themes/urlIcon";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -45,11 +48,10 @@ function PersonalInsuranceCard({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
-    }, SWRNoValidateConfig);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -294,9 +296,9 @@ function PersonalInsuranceCard({...props}) {
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -386,7 +388,7 @@ function PersonalInsuranceCard({...props}) {
                                                                             borderRadius: 0.4
                                                                         }}
                                                                         alt="insurance"
-                                                                        src={insur?.logoUrl}
+                                                                        src={insur?.logoUrl.url}
                                                                     />}
                                                                 <Typography
                                                                     ml={1}>{insur?.name}</Typography>

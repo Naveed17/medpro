@@ -2,8 +2,14 @@ import React, {memo, useEffect, useState} from "react";
 import dynamic from "next/dynamic";
 import {
     Box,
+    Button,
     Card,
     CardContent,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
     List,
     ListItem,
     ListItemIcon,
@@ -14,15 +20,19 @@ import {
     Skeleton,
     Stack,
     Typography,
+    useTheme,
 } from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {ModelDot} from "@features/modelDot";
 import ConsultationModalStyled from "./overrides/modalConsultationStyle";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import {IconButton} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import TeethWidget from "@features/widget/components/teethWidget";
+import {useTranslation} from "next-i18next";
+import TeethPreview from "@features/widget/components/teethPreview";
+import ReactDOM from "react-dom/client";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -40,19 +50,28 @@ const variants = {
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
     let cmp: any[] = [];
-    const {modal, appuuid, data, changes, setChanges} = props;
-    if (modal) {
-        cmp = [...modal];
-    }
+    const {
+        modal,
+        appuuid,
+        data,
+        changes,
+        setChanges,
+        previousData
+    } = props;
 
-    /* Previous data
-      cmp.map(spec => {
-           spec.components.map(composant =>{
-               const old = composant.description? composant.description :''
-               composant.description = `${old} (90${old})`
-           })
-       })
-       console.log(cmp)*/
+    if (modal) {
+        if (previousData && modal.length > 0) {
+            cmp = [...modal];
+            cmp[0].components.map((mc: { key: string; description: string; }) => {
+                const index = Object.keys(previousData).findIndex(pdata => pdata === mc.key);
+                if (index > -1 && !mc.description?.includes('(') && previousData[mc.key]) {
+                    const unity = mc.description ? mc.description : "";
+                    mc.description = ` (${previousData[mc.key]} ${unity}) `
+                }
+            })
+        } else
+            cmp = [...modal];
+    }
 
     return (
         <>
@@ -94,11 +113,17 @@ function Widget({...props}) {
         setChanges,
         isClose,
         handleClosePanel,
+        previousData,
+        acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
+
     const [open, setOpen] = useState(false);
+    const [openTeeth, setOpenTeeth] = useState("");
+    const [updated, setUpdated] = useState(false);
+
     const [pageLoading, setPageLoading] = useState(false);
-    const [change, setChange] = useState(false);
-    const [openDialog, setOpenDialog] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -110,16 +135,61 @@ function Widget({...props}) {
         uuid: "",
     });
 
+    const theme = useTheme();
+
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
         }
     }, [modal]);
+    useEffect(() => {
+        if (ready) {
+            checkTeethWidget()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ready])
 
+    const checkTeethWidget = () => {
+        setTimeout(() => {
+            const adultTeeth = document.getElementById('adultTeeth');
+            const childTeeth = document.getElementById('childTeeth');
+            if (adultTeeth) {
+                const root = ReactDOM.createRoot(adultTeeth);
+                root.render(<TeethPreview {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'adult',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    previousData,
+                    setOpenTeeth,
+                    updated,
+                    appuuid
+                }}/>)
+            }
+            if (childTeeth) {
+                const root = ReactDOM.createRoot(childTeeth);
+                root.render(<TeethPreview {...{
+                    acts,
+                    setActs,
+                    t,
+                    of: 'child',
+                    setSelectedAct,
+                    selectedAct,
+                    setSelectedUuid,
+                    previousData,
+                    updated,
+                    appuuid
+                }}/>)
+            }
+        }, 1000)
+
+    }
     const handleClickAway = () => {
         setOpen(!open);
     };
-
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop;
         setModal(modal);
@@ -132,22 +202,22 @@ function Widget({...props}) {
             })
         );
         setOpen(false);
+        checkTeethWidget()
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setChange(false);
+    const handleClose = () => {
+        setOpenTeeth("");
     };
 
-    const handleChange = () => {
-        setChange(true);
-    };
+    useEffect(() => {
+        checkTeethWidget()
+    }, [updated])
 
     return (
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ?"50px":"30vh", md: "44.5rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "44.5rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
@@ -249,18 +319,9 @@ function Widget({...props}) {
                         </Paper>
                     </motion.div>
                     <Box>
-                        {models?.map(
-                            (m: any) =>
-                                m.uuid === modal.default_modal.uuid && (
-                                    <WidgetForm
-                                        {...{appuuid, changes, setChanges, data}}
-                                        key={m.uuid}
-                                        modal={m.structure}></WidgetForm>
-                                )
-                        )}
                         {pageLoading &&
                             Array.from({length: 3}).map((_, idx) => (
-                                <Box key={`loading-box-${idx}`}>
+                                <Box key={`loading-box-${idx}`} padding={"0 16px"}>
                                     <Typography alignSelf="center" marginBottom={2} marginTop={2}>
                                         <Skeleton width={130} variant="text"/>
                                     </Typography>
@@ -275,8 +336,7 @@ function Widget({...props}) {
                                                         <Skeleton
                                                             sx={{ml: 1}}
                                                             width={"50%"}
-                                                            variant="text"
-                                                        />
+                                                            variant="text"/>
                                                     </ListItem>
                                                 ))}
                                             </List>
@@ -284,34 +344,66 @@ function Widget({...props}) {
                                     </Card>
                                 </Box>
                             ))}
+                        {models?.map(
+                            (m: any) =>
+                                m.uuid === modal.default_modal.uuid && (
+                                    <WidgetForm
+                                        {...{
+                                            appuuid,
+                                            changes,
+                                            setChanges,
+                                            data,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid,
+                                            previousData,
+                                        }}
+                                        key={m.uuid}
+                                        modal={m.structure}></WidgetForm>
+                                )
+                        )}
                     </Box>
                 </CardContent>
             </ConsultationModalStyled>
-            {/* <Dialog action={'consultation-modal'}
-                    open={openDialog}
-                    data={{data: modalConfig, change}}
-                    change={change}
-                    max
-                    size={"lg"}
-                    direction={'ltr'}
-                    title={'Personaliser les données de suivi'}
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                    startIcon={<CloseIcon/>}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                    {...(!change ? {onClick: handleChange} : {onClick: handleCloseDialog})}
-                                    startIcon={<IconUrl
-                                        path='ic-dowlaodfile'></IconUrl>}>
-                                {change ? t('save') : t('apply')}
-                            </Button>
-                        </DialogActions>
-                    }/>*/}
+            <Dialog
+                open={openTeeth !== ""}
+                onClose={handleClose}
+                scroll={"paper"}
+                maxWidth={"lg"}>
+                <DialogTitle style={{
+                    marginBottom: 15,
+                    borderBottom: "1px solid #eeeff1",
+                    color: theme.palette.primary.main
+                }}
+                             id="draggable-dialog-title">
+                    {t('title')}
+                    <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{t('subtitle')}</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <TeethWidget {...{
+                        acts,
+                        setActs,
+                        t,
+                        of: openTeeth,
+                        setSelectedAct,
+                        selectedAct,
+                        setSelectedUuid,
+                        previousData,
+                        appuuid
+                    }}/>
+                </DialogContent>
+                <DialogActions style={{borderTop: "1px solid #eeeff1"}}>
+                    <Button onClick={() => {
+                        setOpenTeeth("")
+                        setUpdated(!updated)
+                    }
+                    }>{t('save')}</Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
 
-export default React.memo(Widget);
+export default Widget;

@@ -9,15 +9,15 @@ import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
 import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
-import {sideBarSelector} from "@features/sideBarMenu";
+import {sideBarSelector} from "@features/menu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;

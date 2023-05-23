@@ -19,11 +19,11 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
@@ -36,7 +36,9 @@ import RecondingBoxStyle from '@features/card/components/consultationDetailCard/
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -63,16 +65,16 @@ function ConsultationIPToolbar({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-    const {t, ready} = useTranslation("consultation", {
-        keyPrefix: "consultationIP",
-    });
-    const {trigger} = useRequestMutation(null, "/drugs");
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
     const {data: session} = useSession();
-    //const intervalref = useRef<number | null>(null);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
+    const {record} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {trigger} = useRequestMutation(null, "/drugs");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -83,34 +85,22 @@ function ConsultationIPToolbar({...props}) {
     const [tabs, setTabs] = useState(0);
     const [lastTabs, setLastTabs] = useState<string | null>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [action, setactions] = useState<boolean>(false);
-    const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+    const [action, setActions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const hasLatestAppointments = appointement.latestAppointments.length === 0;
-
     const [tabsData, setTabsData] = useState<any[]>([]);
-    const {record, timer} = useAppSelector(consultationSelector);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const ginfo = (session?.data as UserDataResponse).general_information;
-    let [time, setTime] = useState(timer);
+    const general_information = (user as UserDataResponse).general_information;
 
-    useEffect(() => {
-        setTime(timer)
-    }, [timer])
+    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const startRecord = () => {
         recorder.start().then(() => {
-            //console.log(intervalref.current)
-            /*if (intervalref.current !== null) window.clearInterval(intervalref.current);
-            else {
-                intervalref.current = window.setInterval(() => {
-                    time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                    dispatch(SetTimer(time))
-                    console.log(intervalref)
-                }, 1000);
-            }*/
             dispatch(SetRecord(true))
         }).catch((e: any) => {
             console.error(e);
@@ -127,13 +117,6 @@ function ConsultationIPToolbar({...props}) {
             });
             uploadRecord(file)
 
-            /*const player = new Audio(URL.createObjectURL(file));
-            player.play();*/
-
-            /*if (intervalref.current) {
-                window.clearInterval(intervalref.current);
-                intervalref.current = null;
-            }*/
             dispatch(SetRecord(false))
             dispatch(SetTimer('00:00'))
             mutateDoc();
@@ -158,7 +141,7 @@ function ConsultationIPToolbar({...props}) {
                 form.append(`files[${audios[0].uuid}][]`, file, file.name);
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -176,17 +159,18 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
-
+        let method = ""; let url = ""
         switch (info) {
             case "medical_prescription":
+            case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
-                let method = "POST"
-                let url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "medical_prescription") {
+                method = "POST"
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${router.locale}`;
+                if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
 
                 trigger({
@@ -218,7 +202,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
-                    setactions(false);
+                    setActions(false);
                     setPrescription([]);
 
                     let pdoc = [...pendingDocuments];
@@ -229,15 +213,15 @@ function ConsultationIPToolbar({...props}) {
             case "balance_sheet_request":
                 form.append("analyses", JSON.stringify(state));
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "balance_sheet_request") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
-                    method:method,
-                    url:url,
+                    method: method,
+                    url: url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -264,7 +248,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                     });
                     setOpenDialog(true);
-                    setactions(false);
+                    setActions(false);
 
                     let pdoc = [...pendingDocuments];
                     pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -275,10 +259,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("medical-imaging", JSON.stringify(state));
 
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointment/${appuuid}/medical-imaging/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointment/${appuuid}/medical-imaging/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "medical_imagery") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
@@ -310,7 +294,7 @@ function ConsultationIPToolbar({...props}) {
                         mutate: mutateDoc
                     });
                     setOpenDialog(true);
-                    setactions(false);
+                    setActions(false);
 
                     let pdoc = [...pendingDocuments];
                     pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -326,7 +310,7 @@ function ConsultationIPToolbar({...props}) {
 
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -335,17 +319,17 @@ function ConsultationIPToolbar({...props}) {
                     mutateDoc();
                 });
                 setOpenDialog(true);
-                setactions(true);
+                setActions(true);
                 break;
             case "write_certif":
                 form.append("content", state.content);
                 form.append("title", state.title);
 
                 method = "POST"
-                url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "write_certif") {
                     method = "PUT"
-                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
                 }
 
                 trigger({
@@ -370,13 +354,12 @@ function ConsultationIPToolbar({...props}) {
                         type: "write_certif",
                     });
                     setOpenDialog(true);
-                    setactions(false);
+                    setActions(false);
                 });
 
                 break;
         }
 
-        setLabel("documents");
         setSelectedTab("documents");
 
         setOpenDialog(false);
@@ -388,6 +371,7 @@ function ConsultationIPToolbar({...props}) {
         let pdoc = [...pendingDocuments];
         switch (info) {
             case "medical_prescription":
+            case "medical_prescription_cycle":
                 if (state.length > 0) {
                     setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
@@ -431,7 +415,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setPrescriptionUI();
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -445,7 +429,7 @@ function ConsultationIPToolbar({...props}) {
             case "write_certif":
                 setInfo("write_certif");
                 setState({
-                    name: `${ginfo.firstName} ${ginfo.lastName}`,
+                    name: `${general_information.firstName} ${general_information.lastName}`,
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
@@ -468,50 +452,74 @@ function ConsultationIPToolbar({...props}) {
         }
         setAnchorEl(null);
         setOpenDialog(true);
-        setactions(true);
+        setActions(true);
     };
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
     };
 
+    const handleOpen = () => {
+        dispatch(resetAppointment());
+        dispatch(setAppointmentPatient(appointement?.patient));
+        dispatch(openDrawer({type: "add", open: true}));
+    };
+
+    const setPrescriptionUI = () => {
+        const localStorageSwitchUI = localStorage.getItem("prescription-switch-ui");
+        const defaultPrescriptionUI = localStorageSwitchUI !== null ? JSON.parse(localStorageSwitchUI) : true
+        setInfo(`medical_prescription${defaultPrescriptionUI ? "_cycle" : ""}`);
+    }
+
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        // switch UI and open dialog
+        setPrescriptionUI();
+        setAnchorEl(null);
+        setOpenDialog(true);
+        setActions(true);
+    }
+
     useEffect(() => {
         if (selectedDialog) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
-                    setInfo("medical_prescription");
+                case "medical_prescription_cycle":
+                    setPrescriptionUI();
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setactions(true);
+                    setActions(true);
                     break;
                 case "balance_sheet_request":
                     setInfo("balance_sheet_request");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setactions(true);
+                    setActions(true);
                     break;
                 case "medical_imagery":
                     setInfo("medical_imagery");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setactions(true);
+                    setActions(true);
                     break;
                 case "write_certif":
                     setInfo("write_certif");
                     setState({
-                        name: `${ginfo.firstName} ${ginfo.lastName}`,
+                        name: `${general_information.firstName} ${general_information.lastName}`,
                         days: '',
-                        uuid:selectedDialog.state.uuid,
+                        uuid: selectedDialog.state.uuid,
                         content: selectedDialog.state.content,
                         title: selectedDialog.state.title,
                         patient: `${selectedDialog.state.patient}`
                     });
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setactions(true);
+                    setActions(true);
                     break;
             }
         }
@@ -520,7 +528,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setInfo("medical_prescription");
+                setPrescriptionUI();
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -530,7 +538,7 @@ function ConsultationIPToolbar({...props}) {
         }
         setDialog("");
         setOpenDialog(true);
-        setactions(true);
+        setActions(true);
     }, [checkUp, dialog, prescription, setDialog]);
 
     useEffect(() => {
@@ -579,21 +587,6 @@ function ConsultationIPToolbar({...props}) {
             },
         ]);
     }, [tabs, appointement]); // eslint-disable-line react-hooks/exhaustive-deps
-
-
-    const handleOpen = () => {
-        dispatch(resetAppointment());
-        dispatch(setAppointmentPatient(appointement?.patient));
-        dispatch(openDrawer({type: "add", open: true}));
-    };
-
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
@@ -671,7 +664,9 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
-                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: {
+                                            index: number;
+                                        }) => ch.index === index).checked &&
                                         <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
                                 </MenuItem>
                             ))}
@@ -704,7 +699,6 @@ function ConsultationIPToolbar({...props}) {
                             <Tab
                                 onFocus={() => {
                                     setTabs(index);
-                                    setLabel(tab.label);
                                 }}
                                 className="custom-tab"
                                 key={tab.label}
@@ -764,7 +758,9 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
-                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: {
+                                            index: number;
+                                        }) => ch.index === index).checked &&
                                         <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
                                 </MenuItem>
                             ))}
@@ -777,7 +773,7 @@ function ConsultationIPToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t, setOpenDialog}}
+                    data={{appuuid, state, setState, t, setOpenDialog, handleSwitchUI}}
                     size={info === "add_vaccin" ? "sm" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -798,7 +794,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
-                                    disabled={info === "medical_prescription" && state.length === 0}
+                                    disabled={info.includes("medical_prescription") && state.length === 0}
                                     startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>

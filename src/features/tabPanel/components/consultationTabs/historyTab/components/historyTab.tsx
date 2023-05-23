@@ -1,14 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {HistoryCard, HistoryContainer, PatientHistoryStaticCard,} from "@features/card";
+import {HistoryCard, HistoryContainer,} from "@features/card";
 import {Label} from "@features/label";
 import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {SetSelectedApp} from "@features/toolbar";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import Icon from "@themes/urlIcon";
 import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
+import HistoryStyled
+    from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function HistoryTab({...props}) {
 
@@ -27,18 +31,21 @@ function HistoryTab({...props}) {
         setSelectedTab,
         session,
         mutate,
+        dates, keys, modelData,
         router
     } = props;
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
     const [photos, setPhotos] = useState<any[]>([]);
 
-    const {data: httpPatientDocumentsResponse} = useRequest(patient ? {
+    const {data: httpPatientDocumentsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
@@ -96,7 +103,7 @@ function HistoryTab({...props}) {
                                      style={{background: "white"}}>
                                     <Zoom>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={photo.uri}
+                                        <img src={photo.uri.thumbnails['thumbnail_128']}
                                              alt={'img'}
                                              style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                         />
@@ -116,6 +123,33 @@ function HistoryTab({...props}) {
                     </Box>
                 </Box>
             }
+
+            {Object.keys(modelData).length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+                <Label variant="filled" color="warning">
+                    {t("history")}
+                </Label>
+            </Stack>}
+
+            {Object.keys(modelData).length > 0 &&
+                <HistoryStyled>
+                    <thead>
+                        <tr>
+                            <td className={'col'}></td>
+                            {dates.map((date: string) => (<td key={date} className={'col'}><Typography
+                                className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {keys.map((key: string) => (
+                            <tr key={key}>
+                                <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                {dates.map((date: string) => (<td key={date}><Typography
+                                    className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
+                                </td>))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </HistoryStyled>}
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>

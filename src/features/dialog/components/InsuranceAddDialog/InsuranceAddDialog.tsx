@@ -9,7 +9,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
@@ -155,7 +155,7 @@ function InsuranceAddDialog({...props}) {
                                                                 borderRadius: 0.4
                                                             }}
                                                             alt={"insurance"}
-                                                            src={option.logoUrl}
+                                                            src={option.logoUrl.url}
                                                         />
                                                         <Typography
                                                             sx={{ml: 1}}>{option.name}</Typography>
@@ -172,7 +172,7 @@ function InsuranceAddDialog({...props}) {
                                                                         borderRadius: 0.4
                                                                     }}
                                                                     alt="insurance"
-                                                                    src={insurance?.logoUrl}
+                                                                    src={insurance?.logoUrl.url}
                                                                 />}
                                                         </InputAdornment>
                                                     );

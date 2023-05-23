@@ -18,11 +18,11 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import React, {useState} from "react";
 import Add from "@mui/icons-material/Add";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -34,14 +34,23 @@ import Antecedent from "@features/leftActionBar/components/consultation/antecede
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
-import {configSelector} from "@features/base";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
 
 const Content = ({...props}) => {
-    const {id, patient,patientAntecedents,allAntecedents,antecedentsMutate} = props;
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate, analyses, mi} = props;
     const dispatch = useAppDispatch();
+    const {data: session, status} = useSession();
+    const router = useRouter();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [info, setInfo] = useState<string>("");
@@ -49,36 +58,43 @@ const Content = ({...props}) => {
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
-    const {trigger} = useRequestMutation(null, "/antecedent");
-    const router = useRouter();
     const [selected, setSelected] = useState<any>();
-    const [treatementFilter, setTreatementFilter] = useState("");
     const [openRemove, setOpenRemove] = useState(false);
-    const {data: session, status} = useSession();
-    const {direction} = useAppSelector(configSelector);
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger} = useRequestMutation(null, "/antecedent");
+
+    const getTitle = () => {
+        const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
+
+        if (info) {
+            return info.name;
+        }
+        return t(infoDynamic)
+    }
+
     const handleClickDialog = () => {
         setOpenDialog(true);
-    };
+    }
 
     const handleCloseDialogDoc = () => {
         setOpenDialogDoc(false);
-    };
+    }
+
     const handleCloseDialog = () => {
         const form = new FormData();
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
-            trigger(
-                {
+            medicalEntityHasUser && trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                        slug: any;
+                    }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -98,7 +114,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -117,7 +133,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${
+                    url: `${urlMedicalEntitySuffix}/appointments/${
                         router.query["uuid-consultation"]
                     }/requested-analysis/${(state as any).uuid}/${router.locale}`,
                     data: form,
@@ -176,7 +192,6 @@ const Content = ({...props}) => {
         bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
         handleClickDialog();
     }
-
 
     const showDoc = (card: any) => {
         let type = "";
@@ -239,27 +254,19 @@ const Content = ({...props}) => {
         }
     };
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} =
-        useRequest(
-            patient
-                ? {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/documents/${router.locale}`,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`},
-                }
-                : null
-        );
+    const {
+        data: httpPatientDocumentsResponse,
+        mutate: mutatePatientDocuments
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
-    if (!ready || status === "loading")
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready || status === "loading") return (
+        <LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
         <React.Fragment>
@@ -269,16 +276,13 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
-                                    {patient?.treatment.filter(
-                                        (tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
-                                    ).length > 0 && (
+                                    {patient?.treatment.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("tip")}
                                         </Typography>
                                     )}
 
                                     {patient?.treatment
-                                        .filter((tr: any) => tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
@@ -298,7 +302,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -314,15 +318,12 @@ const Content = ({...props}) => {
                                             </ListItem>
                                         ))}
 
-                                    {patient?.treatment.filter(
-                                        (tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase())
-                                    ).length > 0 && (
+                                    {patient?.treatment.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("prescription")}
                                         </Typography>
                                     )}
                                     {patient?.treatment
-                                        .filter((tr: any) => !tr.isOtherProfessional && tr.name.toLowerCase().includes(treatementFilter.toLowerCase()))
                                         .map((list: any, index: number) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
@@ -342,7 +343,7 @@ const Content = ({...props}) => {
                                                             name2: `${list.duration} ${t(list.durationType)}`,
                                                             request: {
                                                                 method: "PATCH",
-                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                                 headers: {
                                                                     ContentType:
                                                                         "application/x-www-form-urlencoded",
@@ -519,7 +520,95 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
+                                                            headers: {
+                                                                ContentType:
+                                                                    "application/x-www-form-urlencoded",
+                                                                Authorization: `Bearer ${session?.accessToken}`,
+                                                            },
+                                                        },
+                                                    });
+                                                    setOpenRemove(true);
+                                                }}
+                                                startIcon={<Icon path="setting/icdelete"/>}>
+                                                {t("ignore")}
+                                            </Button>
+                                        )}
+                                    </Stack>
+                                </Stack>
+                            </CardContent>
+                        </ContentStyled>
+                    ))}
+                </>
+            ) : id === 9 ? (
+                <>
+                    {analyses.length === 0 && (
+                        <ContentStyled>
+                            <CardContent
+                                style={{
+                                    paddingBottom: "15px",
+                                    fontSize: "0.75rem",
+                                    color: "#7C878E",
+                                    textAlign: "center",
+                                    paddingTop: "15px",
+                                }}>
+                                {t("emptyBalance")}
+                            </CardContent>
+                        </ContentStyled>
+                    )}
+                    {analyses.map((ra: any, index: number) => (
+                        <ContentStyled key={index}>
+                            <CardContent style={{paddingBottom: 5}}>
+                                <p
+                                    style={{
+                                        textAlign: "right",
+                                        textTransform: "capitalize",
+                                        margin: "5px 15px",
+                                        fontSize: 12,
+                                        color: "#7C878E",
+                                    }}>
+                                    {moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY")}
+                                </p>
+                                <Stack spacing={2} alignItems="flex-start">
+                                    <List dense>
+                                        {ra.hasAnalysis.map((list: any, index: number) => (
+                                            <ListItem key={index}>
+                                                <ListItemIcon>
+                                                    <CircleIcon/>
+                                                </ListItemIcon>
+                                                <Typography variant="body2" color={list.result ? "" : "text.secondary"}>
+                                                    {list.analysis.name}
+                                                    {list.result ? " : " + list.result : ""}
+                                                </Typography>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                    <Stack direction="row" spacing={2}>
+                                        <Button
+                                            onClick={() => {
+                                                setState(ra);
+                                                handleOpen("balance_sheet_pending");
+                                            }}
+                                            size="small"
+                                            startIcon={<Add/>}>
+                                            {t("add_result")}
+                                        </Button>
+                                        {patient?.requestedAnalyses.length > 0 && (
+                                            <Button
+                                                color="error"
+                                                size="small"
+                                                onClick={() => {
+                                                    setSelected({
+                                                        title: t("askRemoveBilan"),
+                                                        subtitle: t("subtitleRemoveBilan"),
+                                                        icon: "/static/icons/ic-analyse.svg",
+                                                        name1: t("balance_sheet_pending"),
+                                                        name2: moment(ra?.appointment, "DD-MM-YYYY").format(
+                                                            "MMM DD/YYYY"
+                                                        ),
+                                                        request: {
+                                                            method: "DELETE",
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -574,7 +663,7 @@ const Content = ({...props}) => {
                 )
             ) : id === 5 ? (
                 <>
-                    {patient?.requestedImaging.length === 0 && (
+                    {mi.length === 0 && (
                         <ContentStyled>
                             <CardContent
                                 style={{
@@ -588,7 +677,7 @@ const Content = ({...props}) => {
                             </CardContent>
                         </ContentStyled>
                     )}
-                    {patient?.requestedImaging.map((ri: any, index: number) => (
+                    {mi.map((ri: any, index: number) => (
                         <ContentStyled key={index}>
                             <CardContent style={{paddingBottom: 5}}>
                                 <p
@@ -611,7 +700,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name}
+                                                    {list["medical-imaging"]?.name} {list?.note ? "(" + list?.note + ")" : ""}
                                                 </Typography>
                                             </ListItem>
                                         ))}
@@ -642,7 +731,7 @@ const Content = ({...props}) => {
                                                         ).format("MMM DD/YYYY"),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
+                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -771,7 +860,7 @@ const Content = ({...props}) => {
                     size={size}
                     direction={direction}
                     actions={true}
-                    title={allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic) ? allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)?.type !== null ? t(infoDynamic):infoDynamic:t(infoDynamic)}
+                    title={getTitle()}
                     dialogClose={() => {
                         setOpenDialog(false);
                         setInfo("");

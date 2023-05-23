@@ -2,7 +2,7 @@ import type {AppProps} from "next/app";
 import {appWithTranslation} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
-import {store} from "@app/redux/store";
+import {store} from "@lib/redux/store";
 import React, {ReactElement, ReactNode} from "react";
 import {NextPage} from "next";
 import {AnimatePresence} from "framer-motion";
@@ -17,16 +17,16 @@ import "moment/locale/ar-tn";
 import "moment/locale/fr";
 // import wrap components
 import AppThemeProvider from "@themes/index";
-import KeycloakSession from "@app/keycloak/keycloakSession";
-import SwrProvider from "@app/swr/swrProvider";
-import AuthGuard from "@app/keycloak/authGuard";
+import KeycloakSession from "@lib/keycloak/keycloakSession";
+import SwrProvider from "@lib/swr/swrProvider";
+import AuthGuard from "@lib/keycloak/authGuard";
 import moment from "moment-timezone";
 import Head from "next/head";
 import {FcmLayout} from "@features/base";
 import ErrorBoundary from "@features/errorBoundary";
 import {IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import {EnvPattern} from "@app/constants";
+import {EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 
 interface MyAppProps extends AppProps {
@@ -38,7 +38,7 @@ type NextPageWithLayout = NextPage & {
 };
 
 const CloseSnackbarAction = ({id}: any) => {
-    const {closeSnackbar} = useSnackbar()
+    const {closeSnackbar} = useSnackbar();
     return (
         <IconButton
             className={"snackbar-notification-action"}
@@ -53,6 +53,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
     moment.locale('fr');
+
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
         // init smartlook client
@@ -64,7 +65,8 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
-                              action={key => <CloseSnackbarAction id={key}/>}
+                              preventDuplicate
+                              action={key => key !== "offline" && <CloseSnackbarAction id={key}/>}
                               maxSnack={3}
                               anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
                 <AppThemeProvider>

@@ -40,6 +40,8 @@ export * from "./settingAgendaMobileCard";
 export * from "./circularProgressbarCard";
 export * from "./personalInsuranceCard";
 export * from "./importDataMobileCard";
-export * from "./expendableCard"
-export * from "./patientHistoryStaticCard"
-export * from "./historyAppointementContainer"
+export * from "./expendableCard";
+export * from "./patientHistoryStaticCard";
+export * from "./historyAppointementContainer";
+export * from "./fileTemplateMobileCard";
+export * from "./actfeesMobileCard";

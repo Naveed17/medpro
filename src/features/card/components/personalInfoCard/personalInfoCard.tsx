@@ -15,28 +15,28 @@ import {
     Stack,
     TextField,
     Toolbar,
-    Typography, useMediaQuery, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
-import {DatePicker} from "@mui/x-date-pickers";
+import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {Theme} from "@mui/material/styles";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -56,15 +56,13 @@ function PersonalInfo({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -139,9 +137,9 @@ function PersonalInfo({...props}) {
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -244,7 +242,7 @@ function PersonalInfo({...props}) {
 
                         <Grid container spacing={1}
                               onClick={() => {
-                                  if (!editable){
+                                  if (!editable) {
                                       setCurrentSection("PersonalInfo");
                                       setEditable(true);
                                   }

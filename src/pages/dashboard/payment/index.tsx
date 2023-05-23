@@ -6,7 +6,9 @@ import {
     Button,
     DialogActions,
     DialogContent,
-    DialogTitle, Drawer, LinearProgress,
+    DialogTitle,
+    Drawer,
+    LinearProgress,
     List,
     ListItem,
     Stack,
@@ -18,38 +20,44 @@ import {
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import {
+    onOpenPatientDrawer,
+    Otable,
+    tableActionSelector,
+} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {Dialog, PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
-import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
-import {DefaultCountry} from "@app/constants";
+import {cashBoxSelector} from "@features/leftActionBar";
+import {DefaultCountry} from "@lib/constants";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-    setCashBox,
     setInsurances,
     setPaymentTypes,
 } from "@features/leftActionBar/components/payment/actions";
 import {EventDef} from "@fullcalendar/core/internal";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {DrawerBottom} from "@features/drawerBottom";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {sendRequest, useInsurances} from "@lib/hooks/rest";
+import useSWRMutation from "swr/mutation";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -144,13 +152,13 @@ const headCells: readonly HeadCell[] = [
         align: "center",
     },
     /*{
-          id: "billing_status",
-          numeric: true,
-          disablePadding: false,
-          label: "billing_status",
-          sortable: true,
-          align: "center",
-      },*/
+            id: "billing_status",
+            numeric: true,
+            disablePadding: false,
+            label: "billing_status",
+            sortable: true,
+            align: "center",
+        },*/
     {
         id: "amount",
         numeric: true,
@@ -167,16 +175,18 @@ function Payment() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {selectedBox, query, paymentTypes} = useAppSelector(cashBoxSelector);
+    const {selectedBox, paymentTypes} = useAppSelector(cashBoxSelector);
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -185,7 +195,7 @@ function Payment() {
     };
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
@@ -209,20 +219,19 @@ function Payment() {
     });
     const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [collapseDate, setCollapseData] = useState<any>(null);
+    const [collapseDate] = useState<any>(null);
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
-    const [rows, setRows] = useState<any[]>([]);
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
-    const [cheques, setCheques] = useState<ChequeModel[]>([
+    const [cheques] = useState<ChequeModel[]>([
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
         {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
     ]);
     const [total, setTotal] = useState(0);
-    let [select, setSelect] = useState<any[]>([]);
-    const [filter, setFilter] = useState("");
+    let [select] = useState<any[]>([]);
+    const [filter, setFilter] = useState(false);
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
+    const [toReceive] = useState(0);
     const [somme, setSomme] = useState(0);
     const [freeTrans, setFreeTrans] = useState(0);
     const [action, setAction] = useState("");
@@ -252,24 +261,12 @@ function Payment() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
-
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
-    const {data: httpMedicalProfessionalResponse} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
-    const handleCollapse = (props: any) => {
+    const handleCollapse = () => {
         //setCollapseData(props);
         setCollapse(true);
     };
@@ -288,9 +285,7 @@ function Payment() {
         setCollected(res + freeTrans);
     };
 
-    const handleSubmit = (data: any) => {
-        console.log(action);
-        console.log(selectedPayment.payments);
+    const handleSubmit = () => {
         const trans_data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
             console.log(sp);
@@ -313,13 +308,11 @@ function Payment() {
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
-        }).then((r: any) => {
-            // console.log(r.data.data);
         });
         setOpenPaymentDialog(false);
     };
@@ -357,66 +350,63 @@ function Payment() {
                 setPatientDetailDrawer(true);
                 break;
         }
-    }
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
+    };
 
     const onConsultationStart = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                start_date: moment().format("DD-MM-YYYY"),
-                start_time: moment().format("HH:mm")
-            }).then(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({
-                        isActive: true,
-                        isPaused: false,
-                        event,
-                        startTime: moment().utc().format("HH:mm")
-                    }
-                ));
-                // refresh on going api
-                mutateOnGoing && mutateOnGoing();
+        const slugConsultation = `/dashboard/consultation/${
+            event?.publicId ? event?.publicId : (event as any)?.id
+        }`;
+        router
+            .push(slugConsultation, slugConsultation, {locale: router.locale})
+            .then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+                } as any).then(() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                    dispatch(
+                        setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().utc().format("HH:mm"),
+                        })
+                    );
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                });
             });
-        })
-    }
+    };
 
-    const getAppointments = useCallback((query: string, filterQuery: any) => {
+    const getAppointments = useCallback(
+        (query: string, filterQuery: any) => {
             setLoading(true);
             if (query.includes("format=list")) {
                 dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             }
-            trigger(
-                {
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+            trigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                 },
-                TriggerWithoutValidation
-            ).then((result) => {
+            }).then((result) => {
                 let amout = 0;
                 const r: any[] = [];
-                const appointments = (result?.data as HttpResponse);
-                const filteredStatus = appointments?.data.filter((app: { status: number, dayDate: string }) => app.status === 5);
-                const filteredData = filterQuery.day ? filteredStatus?.filter((app: { status: number, dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
-                filteredData.map((app: any) => {
+                const appointments = result?.data as HttpResponse;
+                const filteredStatus = appointments?.data.filter((app: {
+                    status: number;
+                    dayDate: string
+                }) => app.status === 5);
+                const filteredData = filterQuery.day ? filteredStatus?.filter(
+                    (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
+
+                filteredData?.map((app: any) => {
                     amout += Number(app.fees);
                     r.push({
                         uuid: app.uuid,
@@ -430,44 +420,52 @@ function Payment() {
                         billing_status: "yes",
                         amount: app.fees,
                         /*collapse: [
-                                    {
-                                        uuid: 61,
-                                        date: "10/10/2022",
-                                        time: "15:30",
-                                        payment_type: [
-                                            {
-                                                name: "123456789",
-                                                icon: "ic-card-pen",
-                                            },
-                                        ],
-                                        billing_status: "yes",
-                                        amount: 10,
-                                    },
-                                    {
-                                        uuid: 62,
-                                        date: "10/10/2022",
-                                        time: "15:30",
-                                        payment_type: [
-                                            {
-                                                name: "credit_card",
-                                                icon: "ic-argent",
-                                            },
-                                        ],
-                                        billing_status: "yes",
-                                        amount: 10,
-                                    },
-                                ],*/
+                                                {
+                                                    uuid: 61,
+                                                    date: "10/10/2022",
+                                                    time: "15:30",
+                                                    payment_type: [
+                                                        {
+                                                            name: "123456789",
+                                                            icon: "ic-card-pen",
+                                                        },
+                                                    ],
+                                                    billing_status: "yes",
+                                                    amount: 10,
+                                                },
+                                                {
+                                                    uuid: 62,
+                                                    date: "10/10/2022",
+                                                    time: "15:30",
+                                                    payment_type: [
+                                                        {
+                                                            name: "credit_card",
+                                                            icon: "ic-argent",
+                                                        },
+                                                    ],
+                                                    billing_status: "yes",
+                                                    amount: 10,
+                                                },
+                                            ],*/
                     });
                 });
-                setRows([...r]);
-                setFiltredRows(filterQuery?.payment && filterQuery?.payment?.insurance ?
-                    [...r].filter(row => {
-                        const updatedData = filterQuery.payment?.insurance?.filter((insur: any) =>
-                            row.patient.insurances.map((insurance: any) => insurance.insurance.uuid).includes(insur));
-                        return row.patient.insurances.length > 0 && updatedData && updatedData.length > 0;
-                    })
-                    :
-                    [...r]);
+                setFiltredRows(
+                    filterQuery?.payment && filterQuery?.payment?.insurance
+                        ? [...r].filter((row) => {
+                            const updatedData = filterQuery.payment?.insurance?.filter(
+                                (insur: any) =>
+                                    row.patient.insurances
+                                        .map((insurance: any) => insurance.insurance.uuid)
+                                        .includes(insur)
+                            );
+                            return (
+                                row.patient.insurances.length > 0 &&
+                                updatedData &&
+                                updatedData.length > 0
+                            );
+                        })
+                        : [...r]
+                );
                 //setTotal(amout);
                 setLoading(false);
             });
@@ -477,11 +475,19 @@ function Payment() {
 
     const getFilteredData = (day: string) => {
         const filterByRange = filterData?.payment && filterData?.payment?.dates;
-        const startDate = filterByRange ? moment(filterData?.payment?.dates[0].startDate).format('DD-MM-YYYY') : day;
-        const endDate = filterByRange ? moment(filterData?.payment?.dates[0].endDate).format('DD-MM-YYYY') : moment(day, "DD-MM-YYYY").add(1, "day").format("DD-MM-YYYY");
+        const startDate = filterByRange
+            ? moment(filterData?.payment?.dates[0].startDate).format("DD-MM-YYYY")
+            : day;
+        const endDate = filterByRange
+            ? moment(filterData?.payment?.dates[0].endDate).format("DD-MM-YYYY")
+            : moment(day, "DD-MM-YYYY").add(1, "day").format("DD-MM-YYYY");
         const queryPath = `format=week&start_date=${startDate}&end_date=${endDate}`;
-        getAppointments(queryPath, {...filterData, ...(!filterByRange && {day})});
-    }
+        agenda &&
+        getAppointments(queryPath, {
+            ...filterData,
+            ...(!filterByRange && {day}),
+        });
+    };
 
     useEffect(() => {
         if (!lock) {
@@ -490,53 +496,40 @@ function Payment() {
     });
 
     useEffect(() => {
-        if (httpMedicalProfessionalResponse) {
-            dispatch(
-                setInsurances(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].insurances
-                )
-            );
-            dispatch(
-                setPaymentTypes(
-                    (httpMedicalProfessionalResponse as HttpResponse).data[0].payments
-                )
-            );
+        if (medicalProfessionalData) {
+            dispatch(setInsurances(medicalProfessionalData[0].insurances));
+            dispatch(setPaymentTypes(medicalProfessionalData[0].payments));
 
-            if (
-                (httpMedicalProfessionalResponse as HttpResponse).data[0].payments
-                    .length > 0
-            ) {
-                deals.selected = (
-                    httpMedicalProfessionalResponse as HttpResponse
-                ).data[0].payments[0].slug;
+            if (medicalProfessionalData[0].payments.length > 0) {
+                deals.selected = medicalProfessionalData[0].payments[0].slug;
                 setDeals({...deals});
             }
         }
-    }, [httpMedicalProfessionalResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [medicalProfessionalData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /*    useEffect(() => {
-            if (selectedBox) {
-                setTotal(selectedBox.total);
-                setToReceive(selectedBox.total_insurance);
-                const filterQuery = generateFilter();
+              if (selectedBox) {
+                  setTotal(selectedBox.total);
+                  setToReceive(selectedBox.total_insurance);
+                  const filterQuery = generateFilter();
 
-                trigger({
-                    method: "GET",
-                    url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then((r: any) => {
-                    // console.log(r.data.data);
-                });
-            }
-        }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
+                  trigger({
+                      method: "GET",
+                      url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
+                      headers: {
+                          Authorization: `Bearer ${session?.accessToken}`,
+                      },
+                  }).then((r: any) => {
+                      // console.log(r.data.data);
+                  });
+              }
+          }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
 
     useEffect(() => {
         const updatedDate = moment(currentDate.date).format("DD-MM-YYYY");
         setDay(updatedDate);
         getFilteredData(updatedDate);
-    }, [currentDate]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         agenda && getFilteredData(day);
@@ -544,9 +537,9 @@ function Payment() {
 
     useEffect(() => {
         let total = 0;
-        filtredRows.map(row => total += parseFloat(row.amount));
+        filtredRows.map((row) => (total += parseFloat(row.amount)));
         setTotal(total);
-    }, [filtredRows])
+    }, [filtredRows]);
 
     return (
         <>
@@ -622,7 +615,7 @@ function Payment() {
                                         sx: {minWidth: 40},
                                     })}
                                     onClick={() => {
-                                        handleCollapse(null);
+                                        handleCollapse();
                                     }}>
                                     <KeyboardArrowDownIcon/> {!isMobile && t("Encaisser")}
                                 </Button>
@@ -632,10 +625,12 @@ function Payment() {
                 </Stack>
             </SubHeader>
 
-            <LinearProgress sx={{visibility: loading ? "visible" : "hidden"}} color="warning"/>
+            <LinearProgress
+                sx={{visibility: loading ? "visible" : "hidden"}}
+                color="warning"
+            />
 
             <Box className="container">
-
                 {filtredRows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
@@ -653,7 +648,8 @@ function Payment() {
                                         <PaymentMobileCard
                                             data={card}
                                             t={t}
-                                            getCollapseData={handleCollapse}
+                                            insurances={insurances}
+                                            handleEvent={handleTableActions}
                                         />
                                     </React.Fragment>
                                 ))}
@@ -674,7 +670,6 @@ function Payment() {
                 )}
             </Box>
 
-
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}
@@ -682,8 +677,7 @@ function Payment() {
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
-                }}
-            >
+                }}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -691,7 +685,8 @@ function Payment() {
                         setPatientDetailDrawer(false);
                     }}
                     onConsultationStart={onConsultationStart}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                />
             </Drawer>
 
             <Dialog
@@ -909,6 +904,26 @@ function Payment() {
                     </Button>
                 </DialogActions>
             </MuiDialog>
+            <Button
+                startIcon={<Icon path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilter(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    display: {xs: "flex", md: "none"},
+                }}>
+                Filtrer (0)
+            </Button>
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title="Filter">
+                <PaymentFilter/>
+            </DrawerBottom>
         </>
     );
 }
@@ -922,7 +937,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
                 "menu",
                 "agenda",
                 "consultation",
-                'patient',
+                "patient",
                 "payment",
             ])),
         },

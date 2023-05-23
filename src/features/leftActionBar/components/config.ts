@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { path, ROOTS } from "@app/routes/routes";
+import { path, ROOTS } from "@lib/routes/routes";
 
 const LeftActionsData = [
   {

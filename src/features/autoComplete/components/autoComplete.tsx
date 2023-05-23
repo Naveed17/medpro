@@ -5,7 +5,6 @@ import MenuList from "@mui/material/MenuList";
 import {Button, Divider, IconButton, InputBase, LinearProgress, Paper, Theme, useMediaQuery} from "@mui/material";
 import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
-import IconUrl from "@themes/urlIcon";
 
 function AutoComplete({...props}) {
     const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;

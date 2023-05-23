@@ -7,16 +7,18 @@ import React, {useState} from "react";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
@@ -46,9 +48,9 @@ function NotesPanel({...props}) {
                 fr: patient?.address[0]?.street
             }));
 
-            triggerPatientUpdate({
+            medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },

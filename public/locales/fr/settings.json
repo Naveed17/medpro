@@ -15,7 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "configdoc": "Configuration document",
+    "configdoc": "Documents",
     "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
@@ -63,6 +63,18 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé",
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "add": "Le motif a été ajouté",
+        "updated": "Motif modifé"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -73,7 +85,10 @@
         "active": "Active",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "minutes": "Minutes",
+        "hours": "Heures",
+        "hour": "Heure"
       }
     },
     "dialog": {
@@ -105,7 +120,18 @@
         "name": "Nom",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "consultation_fees": "Frais",
+        "empty": ""
+      },
+      "dialog": {
+        "title": "Motif type suppression",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "desc": "voulez-vous supprimer le motif type"
+      },
+      "alert": {
+        "delete-reasonType": "le motif type a été supprimé"
       }
     },
     "dialog": {
@@ -117,7 +143,15 @@
       "tapez": "Tapez le nom du type",
       "cancel": "Annuler",
       "color": "couleur",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "type": "Type du motif",
+      "payed": "Payé",
+      "un_payed": "Non payé"
+    },
+    "alert": {
+      "add": "Ajouter motif de consultation",
+      "edit": "Modifier motif de consultation",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "lieux": {
@@ -323,31 +357,70 @@
       "ntc": "Nom est trop court",
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
-      "mailReq": "Adresse mail est obligatoire"
+      "mailReq": "Adresse mail est obligatoire",
+      "consultation_fees": "Frais",
+      "birthdate": "Date de naissance",
+      "firstname": "Prénom",
+      "lastname": "Nom de famille",
+      "phone": "Téléphone",
+      "password": "Mot de passe",
+      "profile": "Profil"
     },
     "config": {
       "add": "Ajouter",
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "access_management": "Gestion des accès",
+      "add_new_role": "Ajouter nouveau rôle",
+      "add_a_new_role": "Ajouter un nouveau rôle",
+      "agenda_management": "Gestion Agenda",
+      "add_appointment": "Ajouter RDV",
+      "profile_created": "Profil créé",
+      "visitor_added": "Visiteur ajoute",
+      "dialog": {
+        "delete-profile-title": "Suppression du profil",
+        "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "ntc": "Nom est trop court",
+        "delete": "Supprimer",
+        "cancel": "Annuler"
+      },
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
+        },
+        "role": {
+          "title": "Ajoutez votre premier rôle",
+          "description": "Gérer votre accès et créer votre première secrétaire"
         }
-      },
-      "table": {
-        "accessSetting": "Paramètre",
-        "name": "Nom",
-        "agenda": "Agenda",
-        "fonction": "Fonction",
-        "request": "Demande",
-        "access": "accès",
-        "action": "Action",
-        "remove": "Supprimer",
-        "update": "Editer"
       }
+    },
+    "dialog": {
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "description": "Description",
+      "description_placeholder": "Description de l'profile",
+      "is_standard": "Est le Standrad",
+      "select_permissions": "Choisissez les permissions",
+      "role_name": "Nom du rôle",
+      "select_all": "Sélectionner tout"
+    },
+    "table": {
+      "accessSetting": "Paramètre",
+      "name": "Nom",
+      "agenda": "Agenda",
+      "fonction": "Fonction",
+      "request": "Demande",
+      "access": "accès",
+      "action": "Action",
+      "remove": "Supprimer",
+      "update": "Editer"
+    },
+    "alert": {
+      "added-role": "Un nouveau rôle a été ajouté",
+      "updated-role": "Le rôle a été mis à jour"
     }
   },
   "instructions": {
@@ -373,7 +446,6 @@
     "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
-    "removed": "Acte est supprimé",
     "addedfees": "Acte est ajouté",
     "updated": "Acte est modifé",
     "price_of_act": "Prix",
@@ -393,7 +465,17 @@
       "editAct": "Modifier acte",
       "info": "Information d'acte",
       "name": "Nom d'acte",
-      "price": "Prix"
+      "price": "Prix",
+      "delete-act-title": "Acte supprimer",
+      "delete-act-desc": "Voulez-vous supprimer l'acte",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "alert": {
+      "add": "Acte est ajouté",
+      "updated": "Acte est modifé",
+      "delete-act": "Acte est supprimé",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "import-data": {
@@ -408,7 +490,8 @@
       "progress": "En cours",
       "success": "Importé",
       "failed": "Échoué",
-      "error": "Échoué"
+      "error": "Échoué",
+      "empty": ""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
@@ -504,6 +587,14 @@
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
       "add": "Ajouter un modèle",
+      "delete-dialog-title": "Supprimer modale",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "delete-dialog-desc": "Êtes-vous sûr de vouloir supprimer cette fenêtre modale ?",
+      "alert": {
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "modal-deleted": "Modal a été supprimé"
+      },
       "table": {
         "name": "Nom",
         "active": "Active",
@@ -525,7 +616,7 @@
   },
   "documents": {
     "config": {
-      "path": "Paramètres > Configuration ",
+      "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
       "case1": "Première case",
@@ -533,7 +624,8 @@
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "Document modèle modifé",
+      "updated": "Document enregistré",
+      "removed": "Document supprimé",
       "background": "Importer le document actuel",
       "title": "Titre du document",
       "date": "Date",
@@ -553,7 +645,16 @@
       "rightSide": "Côté droit",
       "paperSize": "Taille de papier",
       "A5": "A5",
-      "A4": "A4"
+      "A4": "A4",
+      "add": "Ajouter document",
+      "titleModel": "Titre du modèle",
+      "cancel": "Annuler",
+      "askRemove": "Supprimer un modèle",
+      "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
+      "remove": "Supprimer",
+      "titleholder": "Ordonnance...",
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
+      "asDefault": "Sélectionnez-le comme module par défaut"
     }
   }
 }

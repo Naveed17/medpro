@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
 import {Label} from '@features/label';
 import {IconButton, Stack, Typography, Box} from '@mui/material';
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";

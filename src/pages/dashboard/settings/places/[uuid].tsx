@@ -34,22 +34,23 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -121,9 +122,9 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t} = useTranslation("settings");
-
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
@@ -155,21 +156,18 @@ function PlacesDetail() {
     const uuind = router.query.uuid;
 
     const {trigger} = useRequestMutation(null, "/settings/place");
-    const {data, mutate} = useRequest(
-        uuind !== "new"
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/locations/${uuind}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }
-            : null
-    );
+    const {data, mutate} = useRequest(uuind !== "new" ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const {data: httpStateResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
+
     const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
@@ -196,7 +194,7 @@ function PlacesDetail() {
                 THU: [],
                 FRI: [],
                 SAT: [],
-                SUN: [],
+                SUN: []
             },
         },
     ]);
@@ -251,10 +249,10 @@ function PlacesDetail() {
 
             if (data) {
                 method = "PUT";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
             } else {
                 method = "POST";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
             trigger(
@@ -393,7 +391,7 @@ function PlacesDetail() {
                         THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ]);
@@ -453,7 +451,7 @@ function PlacesDetail() {
                         THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ];
@@ -544,7 +542,7 @@ function PlacesDetail() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={6}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writeAdress")}
@@ -555,16 +553,19 @@ function PlacesDetail() {
                                                 {...getFieldProps("address")}
                                             />
                                         </Grid>
-                                        <Grid item xs={12} lg={1}>
+                                        <Grid item xs={12} lg={2}>
                                             <Typography
                                                 textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("lieux.new.postal")}
+                                                {t("lieux.new.postal")} {" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={3}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writePostal")}

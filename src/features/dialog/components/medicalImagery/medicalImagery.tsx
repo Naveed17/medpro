@@ -18,10 +18,10 @@ import Icon from '@themes/urlIcon'
 import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import SearchIcon from "@mui/icons-material/Search";
 export const MedicalPrescriptionCardData = {
     mainIcon: "ic-soura",
@@ -65,7 +65,6 @@ function MedicalImageryDialog({...props}) {
         setName('')
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
         mi.unshift({...value, note: ""})
-        console.log(mi);
         setMi([...mi])
         localStorage.setItem("medical-imagery-recent", JSON.stringify([...mi]));
         data.setState([...mi])

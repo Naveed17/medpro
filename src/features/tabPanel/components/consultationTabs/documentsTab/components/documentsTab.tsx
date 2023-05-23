@@ -36,6 +36,7 @@ function DocumentsTab({...props}) {
         t, trigger
     } = props;
 
+
     const removeDoc = () => {
         trigger({
             method: "DELETE",
@@ -63,7 +64,7 @@ function DocumentsTab({...props}) {
                         }} key={`doc-item-${idx}`} width={150} height={140} borderRadius={2}
                              style={{background: "white"}}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={card.uri}
+                            <img src={card.uri.thumbnails['thumbnail_128']}
                                  style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                  alt={card.title}/>
 

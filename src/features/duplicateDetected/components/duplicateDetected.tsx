@@ -9,7 +9,7 @@ import RootStyled from "./overrides/rootStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
 import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 
 function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;

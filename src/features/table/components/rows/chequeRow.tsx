@@ -9,7 +9,7 @@ import {Label} from '@features/label';
 import React, {useState} from 'react';
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function ChequeRow({...props}) {
     const {row, isItemSelected, t, labelId, loading, editMotif} = props;

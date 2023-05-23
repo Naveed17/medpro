@@ -25,24 +25,26 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
 
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -59,11 +61,12 @@ function PatientContactDetailCard({...props}) {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -120,7 +123,7 @@ function PatientContactDetailCard({...props}) {
         },
     });
 
-    const {values, touched, errors, getFieldProps, setFieldValue} = formik;
+    const {values, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -179,9 +182,9 @@ function PatientContactDetailCard({...props}) {
         patient.note && params.append('note', patient.note);
         patient.idCard && params.append('id_card', patient.idCard);
 
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -290,8 +293,8 @@ function PatientContactDetailCard({...props}) {
                                 </Divider>
 
                                 <Grid item md={12} sm={12} xs={12}
-                                      onClick={()=>{
-                                          if (!editable){
+                                      onClick={() => {
+                                          if (!editable) {
                                               setCurrentSection("PatientContactDetailCard");
                                               setEditable(true)
                                           }
@@ -314,8 +317,8 @@ function PatientContactDetailCard({...props}) {
                                             </Typography>
                                         </Grid>
                                         <Grid
-                                            {...(editable && {className: "grid-border"} )}
-                                            {...(editable  && {style:{height: 120,paddingTop:10}})}
+                                            {...(editable && {className: "grid-border"})}
+                                            {...(editable && {style: {height: 120, paddingTop: 10}})}
                                             item md={10.54} sm={9} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
@@ -324,7 +327,7 @@ function PatientContactDetailCard({...props}) {
                                                     readOnly={!editable}
                                                     sx={{width: "100%"}}
                                                     multiline={editable}
-                                                    rows={editable ?5:1}
+                                                    rows={editable ? 5 : 1}
                                                     placeholder={t("address-placeholder")}
                                                     inputProps={{
                                                         style: {
@@ -730,7 +733,7 @@ function PatientContactDetailCard({...props}) {
                                                                             international
                                                                             disabled={!editable}
                                                                             fullWidth
-                                                                            error={Boolean( errors.phones && (errors.phones as any)[index])}
+                                                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
                                                                             withCountryCallingCode
                                                                             {...((editable && getFieldProps(`phones[${index}].value`)) &&
                                                                                 {

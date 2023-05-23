@@ -6,20 +6,28 @@ import {motion} from "framer-motion";
 import {Fab} from "@mui/material";
 
 function RecButton({...props}) {
-    const {onClick} = props;
+    const {onClick, small = false} = props;
     const [expand, setExpand] = useState(false);
+    const isExpanded = () => {
+        if(expand)
+            return "auto" ;
+        else if (small)
+            return  30;
+        else return 40;
+    }
+
     return (
         <Fab
             size={"small"}
             component={motion.div}
             sx={{
-                "& .MuiFab-root": {
-                    width: 30,
-                    height: 30
-                },
+                width: isExpanded() ,
+                height: small ? 30 : 40,
+                minHeight: small ? 30 : 40,
                 boxShadow: "none",
                 p: 1,
                 svg: {
+                    fontSize: small ? 18 : 24,
                     path: {
                         fill: "white",
                     },
