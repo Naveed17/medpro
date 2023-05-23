@@ -6,6 +6,7 @@ import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
 import React, {useState} from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
+
 function Dialogs({...props}) {
     const {
         action,
@@ -17,6 +18,7 @@ function Dialogs({...props}) {
         color,
         title,
         actionDialog,
+        headerDialog = null,
         onClose,
         icon,
         size = "md",
@@ -24,8 +26,8 @@ function Dialogs({...props}) {
         ...rest
     } = props;
     const selected = DialogData.find((item) => item.action === action);
-    const [fullWidth, setFullWidth] = useState(true);
-    const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
+    const [fullWidth] = useState(true);
+    const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
 
     return (
@@ -39,7 +41,7 @@ function Dialogs({...props}) {
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description"
             >
-                <DialogTitle
+                {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color
                             ? color
@@ -67,7 +69,7 @@ function Dialogs({...props}) {
                             <CloseIcon/>
                         </IconButton>
                     ) : null}
-                </DialogTitle>
+                </DialogTitle> : headerDialog}
                 <DialogContent dividers={true} sx={{...sx}}
                                style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>

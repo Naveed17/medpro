@@ -15,6 +15,10 @@ import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import DialogTitle from "@mui/material/DialogTitle";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
+import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 function HistoryPanel({...props}) {
     const {
@@ -109,9 +113,17 @@ function HistoryPanel({...props}) {
         }
     }
 
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        // switch UI and open dialog
+        setInfo(setPrescriptionUI());
+        setOpenDialog(true);
+    }
+
     const handleSaveDialog = () => {
         const form = new FormData();
-
         switch (info) {
             case "medical_prescription_cycle":
                 form.append("globalNote", "");
@@ -159,8 +171,9 @@ function HistoryPanel({...props}) {
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
             switch (selectedDialog.action) {
+                case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setInfo("medical_prescription_cycle");
+                    setInfo(setPrescriptionUI());
                     setState(selectedDialog.state);
                     setOpenDialog(true);
                     setDialogAction(true);
@@ -227,11 +240,25 @@ function HistoryPanel({...props}) {
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}
-                    title={t(info === "document_detail" ? "doc_detail_title" : `${info === "medical_prescription_cycle" ? "consultationIP." : ""}${info}`)}
+                    title={t(info === "document_detail" ? "doc_detail_title" : "")}
                     {...((info === "document_detail" || info === "end_consultation") && {
                         onClose: handleCloseDialog,
                     })}
                     dialogClose={handleCloseDialog}
+                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                        headerDialog: (<DialogTitle
+                                sx={{
+                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                    position: "relative",
+                                }}
+                                id="scroll-dialog-title">
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                    {t(`consultationIP.${info}`)}
+                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
+                                </Stack>
+                            </DialogTitle>
+                        )
+                    })}
                     {...(dialogAction && {
                         actionDialog: <DialogActions>
                             <Button

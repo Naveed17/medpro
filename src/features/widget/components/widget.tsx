@@ -211,7 +211,7 @@ function Widget({...props}) {
 
     useEffect(() => {
         checkTeethWidget()
-    }, [updated])
+    }, [updated]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>

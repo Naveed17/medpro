@@ -59,7 +59,6 @@ import * as Yup from "yup";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {a11yProps, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
-import {SwitchPrescriptionUI} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
@@ -67,7 +66,7 @@ import {useSnackbar} from "notistack";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs, handleSwitchUI = null} = data;
+    const {setState: setDrugs, state: drugs} = data;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -453,7 +452,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     return (
         <MedicalPrescriptionCycleStyled>
-            <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
             <Container fixed>
                 <Grid
                     container
