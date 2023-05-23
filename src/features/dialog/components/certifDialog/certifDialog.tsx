@@ -98,17 +98,7 @@ function CertifDialog({...props}) {
             revalidate: true,
             populateCache: true
         }).then(() => {
-            mutate().then(() => {
-                const stringToHTML = new DOMParser().parseFromString(value, 'text/html').body.firstChild
-                models.unshift({
-                    color: selectedColor[0],
-                    name: title,
-                    title: title,
-                    preview: (stringToHTML as HTMLElement)?.innerHTML,
-                    content: value
-                });
-                setModels([...models])
-            });
+            mutate();
         })
 
     }
@@ -131,10 +121,9 @@ function CertifDialog({...props}) {
     }
     const dialogSave = () => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(r => {
+            mutate().then(() => {
                 setOpenRemove(false);
-                console.log('place removed successfully', r);
-            });
+            })
         });
     }
     const addVal = (val: string) => {
