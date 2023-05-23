@@ -331,6 +331,24 @@ function DocumentDetailDialog({...props}) {
         setData({...data})
     }
 
+    const dialogSave = (state: any) => {
+        setLoading(true);
+        setLoadingRequest && setLoadingRequest(true);
+        medicalEntityHasUser && trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            state.mutate && state.mutate();
+            state.mutateDetails && state.mutateDetails()
+            setOpenRemove(false);
+            setLoading(false);
+            (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+            setLoadingRequest && setLoadingRequest(false);
+            setOpenDialog && setOpenDialog(false);
+        });
+    }
+
     useEffect(() => {
         setIsImg(state.detectedType?.split('/')[0] === 'image')
         setFile(state.uri)
@@ -386,23 +404,6 @@ function DocumentDetailDialog({...props}) {
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
-    const dialogSave = (state: any) => {
-        setLoading(true);
-        setLoadingRequest && setLoadingRequest(true);
-        medicalEntityHasUser && trigger({
-            method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            state.mutate && state.mutate();
-            state.mutateDetails && state.mutateDetails()
-            setOpenRemove(false);
-            setLoading(false);
-            (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
-            setLoadingRequest && setLoadingRequest(false);
-            setOpenDialog && setOpenDialog(false);
-        });
-    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
