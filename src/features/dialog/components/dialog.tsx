@@ -26,8 +26,8 @@ function Dialogs({...props}) {
         ...rest
     } = props;
     const selected = DialogData.find((item) => item.action === action);
-    const [fullWidth, setFullWidth] = useState(true);
-    const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
+    const [fullWidth] = useState(true);
+    const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
 
     return (
