@@ -1,19 +1,21 @@
 import React, {useState} from "react";
 import {
-    CardContent,
-    Stack,
+    Autocomplete,
     Box,
-    List,
-    ListItem,
-    Typography,
+    Button,
+    CardContent,
     FormControl,
     IconButton,
-    Link, Button, TextField, Autocomplete,
+    Link,
+    List,
+    ListItem,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
@@ -38,9 +40,6 @@ function AppointmentCard({...props}) {
 
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
         method: "GET",

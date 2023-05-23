@@ -42,7 +42,6 @@ import {
     onResetPatient, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail,
     Dialog,
@@ -74,6 +73,8 @@ import {
     setFilter,
 } from "@features/leftActionBar";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import {sendRequest, useInsurances} from "@lib/hooks/rest";
+import useSWRMutation from "swr/mutation";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -166,6 +167,7 @@ function Patient() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -267,18 +269,13 @@ function Patient() {
         },
     ]);
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
 
@@ -352,30 +349,18 @@ function Patient() {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     };
 
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                start_date: moment().format("DD-MM-YYYY"),
-                start_time: moment().format("HH:mm")
-            }).then(() => {
+            updateAppointmentStatus({
+                method: "PATCH",
+                data: {
+                    status: "4",
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                },
+                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+            } as any).then(() => {
                 dispatch(openDrawer({type: "view", open: false}));
                 dispatch(setTimer({
                         isActive: true,

@@ -39,6 +39,7 @@ import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
+import {useInsurances} from "@lib/hooks/rest";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -46,6 +47,7 @@ function Consultation() {
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -84,11 +86,6 @@ function Consultation() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/insurances/${router.locale}`
-    }, SWRNoValidateConfig);
 
     const {data: httpAnctecentType} = useRequest({
         method: "GET",
@@ -427,7 +424,8 @@ function Consultation() {
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
-                            <Icon path="ic-expand-more"/>
+                            <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
+
                         </IconButton>
                     </ListItem>
 
@@ -518,7 +516,7 @@ function Consultation() {
                                         color="warning"
                                     />
                                     <IconButton size="small">
-                                        <Icon path="ic-expand-more"/>
+                                        <Icon path={collapse === col.id ? "arrow-up-table" : "ic-expand-more"}/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>

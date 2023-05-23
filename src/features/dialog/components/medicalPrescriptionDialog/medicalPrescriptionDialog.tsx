@@ -71,11 +71,11 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {trigger} = useRequestMutation(null, "/drugs");
 
-    const {data: httpModelResponse, mutate} = useRequest({
+    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     const handleSaveDialog = () => {
         const form = new FormData();

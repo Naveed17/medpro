@@ -34,6 +34,7 @@ import {
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
 import {LoadingButton} from "@mui/lab";
+import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
@@ -60,6 +61,9 @@ import {a11yProps, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {useTranslation} from "next-i18next";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import {useSnackbar} from "notistack";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -70,6 +74,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
@@ -84,8 +89,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [openDialog, setOpenDialog] = useState(false);
     const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
     const [info, setInfo] = useState("");
-    const [talkStart, setTalk] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
 
     const dosageMeal = [
@@ -270,12 +275,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest({
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [
@@ -287,6 +293,30 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const switchPrescriptionModel = (drugs: DrugModel[]) => {
         setDrugs(drugs);
         setFieldValue("data", setInitData(drugs));
+    }
+
+    const editPrescriptionModel = (props: any) => {
+        setEditModel(props.node);
+    }
+
+    const editPrescriptionAction = () => {
+        setLoading(true);
+        triggerEditPrescriptionModel({
+            method: "PUT",
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${editModel?.id}/${router.locale}`,
+            data: {
+                drugs: JSON.stringify(drugs),
+                name: editModel?.text,
+                parent: editModel?.parent
+            }
+        } as any).then((result) => {
+            mutateParentModel().then(() => {
+                setLoading(false);
+                setDrugsList((result?.data as HttpResponse)?.data);
+                setEditModel(null);
+                enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
+            });
+        })
     }
 
     const handleRemoveCycle = (idx: number, value: any) => {
@@ -574,7 +604,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         endIcon={
                                                                             <IconButton
                                                                                 disabled={innerItem.dosageQty === fractions[fractions.length - 1]}
-                                                                                onClick={(event) => handleDosageQty("plus", index, idx)}
+                                                                                onClick={() => handleDosageQty("plus", index, idx)}
                                                                                 size="small"
                                                                                 disableRipple>
                                                                                 <AddIcon/>
@@ -583,7 +613,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         startIcon={
                                                                             <IconButton
                                                                                 disabled={innerItem.dosageQty === fractions[0]}
-                                                                                onClick={(event) => handleDosageQty("minus", index, idx)}
+                                                                                onClick={() => handleDosageQty("minus", index, idx)}
                                                                                 size="small"
                                                                                 disableRipple>
                                                                                 <RemoveIcon/>
@@ -638,7 +668,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
                                                                             return t(selected, {ns: "consultation"});
                                                                         }}>
-                                                                        {innerItem.dosageMeal.map((subitem: any, i: number) =>
+                                                                        {innerItem.dosageMeal.map((subitem: any) =>
                                                                             <MenuItem
                                                                                 key={subitem.label}
                                                                                 value={subitem.label}>{t(subitem.label, {ns: "consultation"})}</MenuItem>)}
@@ -681,7 +711,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             disabled={
                                                                                 innerItem.dosageDuration === parseInt(fractions[fractions.length - 1])
                                                                             }
-                                                                            onClick={(event) => durationCounter("plus", index, idx)}
+                                                                            onClick={() => durationCounter("plus", index, idx)}
                                                                             size="small"
                                                                             disableRipple>
                                                                             <AddIcon/>
@@ -693,7 +723,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             disabled={
                                                                                 innerItem.dosageDuration === 1
                                                                             }
-                                                                            onClick={(event) => durationCounter("minus", index, idx)}
+                                                                            onClick={() => durationCounter("minus", index, idx)}
                                                                             size="small"
                                                                             disableRipple>
                                                                             <RemoveIcon/>
@@ -703,7 +733,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     disableRipple>
                                                                     {innerItem.dosageDuration}
                                                                 </Button>
-                                                                {innerItem.duration.map((subitem: any, i: number) => (
+                                                                {innerItem.duration.map((subitem: any) => (
                                                                     <Button
                                                                         component="label"
                                                                         variant="white"
@@ -778,24 +808,40 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                spacing={{xs: 1, md: 2}}
                                {...(!isMobile && {sx: {position: "sticky", top: "0"}})}>
                             <Stack direction={"column"} sx={{width: "100%"}}>
-                                <Button
-                                    disabled={drugs?.length === 0}
-                                    {...(isMobile && {
-                                        fullWidth: true,
-                                    })}
-                                    onClick={() => {
-                                        setInfo("medical_prescription_model");
-                                        setOpenDialog(true);
-                                    }}
-                                    sx={{
-                                        px: {xs: 0.5, md: 1},
-                                        fontSize: {xs: 12, md: 14},
-                                        alignSelf: "flex-start",
-                                    }}
-                                    variant="contained"
-                                    startIcon={<AddIcon/>}>
-                                    {t("createAsModel", {ns: "consultation"})}
-                                </Button>
+                                <Stack direction={"row"} spacing={1.2}>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        loadingPosition="start"
+                                        disabled={drugs?.length === 0}
+                                        {...(isMobile && {
+                                            fullWidth: true,
+                                        })}
+                                        {...(editModel && {
+                                            color: "warning",
+                                        })}
+                                        onClick={() => {
+                                            if (editModel) {
+                                                editPrescriptionAction();
+                                            } else {
+                                                setInfo("medical_prescription_model");
+                                                setOpenDialog(true);
+                                            }
+                                        }}
+                                        className='custom-button'
+                                        variant="contained"
+                                        startIcon={editModel ? <EditIcon/> : <AddIcon/>}>
+                                        {t(editModel ? "editModel" : "createAsModel", {ns: "consultation"})} {editModel && `${editModel.text} ${t("model")}`}
+                                    </LoadingButton>
+                                    {editModel &&
+                                        <Button
+                                            disabled={loading}
+                                            onClick={() => setEditModel(null)}
+                                            color={"error"}
+                                            className='custom-button'
+                                            variant="contained">
+                                            {t('cancel')}
+                                        </Button>}
+                                </Stack>
                                 <Divider
                                     sx={{
                                         display: {xs: "block", md: "none"},
@@ -872,7 +918,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             models,
                                             t,
                                             initialOpenData,
-                                            switchPrescriptionModel
+                                            switchPrescriptionModel,
+                                            editPrescriptionModel
                                         }}/>
                                         <Button size={"small"}
                                                 onClick={() => setOpenAddParentDialog(true)}

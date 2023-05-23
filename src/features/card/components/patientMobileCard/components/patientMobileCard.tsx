@@ -1,36 +1,34 @@
-import React, {useState} from "react";
+import React from "react";
 import RootStyled from "./overrides/rootStyled";
 // next-i18next
 import {useTranslation} from "next-i18next";
 
 // material
 import {
-    Grid,
-    Typography,
-    Button,
-    Box,
-    Skeleton,
-    Paper,
-    Tooltip,
     Avatar,
     Badge,
-    styled,
-    Stack,
+    Box,
+    Button,
+    Grid,
     IconButton,
+    Paper,
+    Skeleton,
+    Stack,
+    styled,
+    Tooltip,
+    Typography,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import IconUrl from "@themes/urlIcon";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {Popover} from "@features/popover";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -79,9 +77,6 @@ const CardSection = ({...props}) => {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.hasPhoto ? {
         method: "GET",

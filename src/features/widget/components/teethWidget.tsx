@@ -3,7 +3,6 @@ import {
     Button,
     Checkbox,
     Chip,
-    CssBaseline,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -25,7 +24,6 @@ import React, {useEffect, useState} from "react";
 import Draggable from "react-draggable";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
-import {GlobleStyles} from "@themes/globalStyle";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -60,7 +58,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function TeethWidget({...props}) {
-    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid,previousData} = props
+    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid, previousData} = props
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -82,11 +80,14 @@ export default function TeethWidget({...props}) {
                 setTraitements([...res.traitements]);
                 setAbsent(res.absent);
             } else {
-                const previous = previousData[`${of}Teeth`];
-                if (previous){
-                    setTraitements([...previous.traitements]);
-                    setAbsent(previous.absent);
+                if (previousData) {
+                    const previous = previousData[`${of}Teeth`];
+                    if (previous) {
+                        setTraitements([...previous.traitements]);
+                        setAbsent(previous.absent);
+                    }
                 }
+
             }
         }
     }, [appuuid, of, previousData])
@@ -111,13 +112,13 @@ export default function TeethWidget({...props}) {
         PosX = PosX - ImgPos[0];
         PosY = PosY - ImgPos[1];
 
-        teeth.map(tooth => {
+        teeth.forEach(tooth => {
             if (tooth.x) {
                 if (between(PosX, tooth.x[0], tooth.x[1]) && between(PosY, tooth.y[0], tooth.y[1])) {
                     setOpen(tooth.id);
                 }
             }
-        })
+        });
     }
     const FindPosition = (oElement: any) => {
         if (typeof (oElement.offsetParent) != "undefined") {
@@ -175,8 +176,10 @@ export default function TeethWidget({...props}) {
                     qte: 1,
                     uuid: acts[indexAct].uuid
                 }]
-                acts[indexAct].qte = 1
-                setActs([...acts]);
+                let a = [...acts]
+                const el = a[indexAct]
+                a.splice(indexAct, 1);
+                setActs([{...el, qte: 1}, ...a]);
                 setSelectedAct([...selectedAct, ...teethActs])
             }
         })
@@ -197,8 +200,7 @@ export default function TeethWidget({...props}) {
     }
 
     return (
-        <GlobleStyles>
-            <CssBaseline/>
+        <Stack direction={"row"}>
             <div style={{position: "relative"}}>
                 {traitements.map(traitement =>
                     traitement.teeth.map(st => (
@@ -445,6 +447,6 @@ export default function TeethWidget({...props}) {
                     </Stack>
                 </DialogContent>
             </Dialog>
-        </GlobleStyles>
+        </Stack>
     )
 }

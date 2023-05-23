@@ -314,7 +314,10 @@
     "blood_glucose": "Glycémie",
     "AMH": "AMH",
     "balance_sheet_model": "Modèle du bilan",
-    "save_template": "Enregistrer le modèle",
+    "save_template": "Créer modèle",
+    "edit_template": "Modifier modèle",
+    "delete_template": "Supprimer modèle",
+    "close_template": "Fermer",
     "modelName": "Personaliser les modèles de l'ordonnance médicale",
     "bilanModelName": "Personaliser les modèles du bilan",
     "imgModelName": "Personaliser les modèles de l'imagerie",
@@ -323,6 +326,7 @@
     "editModel": "Modifier",
     "removeModel": "Supprimer",
     "updateDrug": "Modifier",
+    "modeleName": "Nom modèle",
     "model_prescription": "Modèle ordonnance",
     "joint_pain": "Douleur articulaire",
     "otitis": "Otite",
@@ -348,6 +352,9 @@
     "askRemovemodel": "Vous voulez supprimer ce modèle",
     "subtitleRemovemodel": "",
     "model": "modèle",
+    "created": "Modèle créé",
+    "updated": "Modèle modifié",
+    "removed": "Modèle supprimé",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -467,7 +474,10 @@
     "teeth": "Dent",
     "add": "Ajouter",
     "traitement": "Traitement",
-    "absente": "Absente"
+    "absente": "Absente",
+    "save": "Enregistrer",
+    "title": "Traitement des dents",
+    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
   }
 }
 

@@ -1,25 +1,17 @@
 import React, {useEffect, useState} from "react";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useRouter} from "next/router";
 import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-
+import {useInsurances} from "@lib/hooks/rest";
 
 function InsuranceFilter({...props}) {
     const {t, OnSearch} = props;
 
-    const router = useRouter();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const {query: filterData} = useAppSelector(leftActionBarSelector);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
 
     const insurancesData = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 

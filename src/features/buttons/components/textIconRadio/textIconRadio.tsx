@@ -2,9 +2,7 @@ import { Box, Radio, Typography } from "@mui/material";
 import CheckRadioIcon from "@themes/overrides/icons/checkRadioIcon";
 import CheckedRadioIcon from "@themes/overrides/icons/checkedRadioIcon";
 import RadioButtonStyled from "./overrides/radioButtonStyled";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import React from "react";
-import { IconsTypes } from "@features/calendar";
 import { ModelDot } from "@features/modelDot";
 
 function TextIconRadio({ ...props }) {

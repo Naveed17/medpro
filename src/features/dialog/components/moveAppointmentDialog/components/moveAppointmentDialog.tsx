@@ -3,7 +3,7 @@ import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {Moment} from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -13,8 +13,6 @@ import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
 import {dashLayoutSelector} from "@features/base";
 
@@ -22,7 +20,6 @@ function MoveAppointmentDialog() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
-    const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
@@ -36,14 +33,7 @@ function MoveAppointmentDialog() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpProfessionalsResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {trigger} = useRequestMutation(null, "/calendar/slots");
 

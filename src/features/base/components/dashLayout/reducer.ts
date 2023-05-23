@@ -2,12 +2,12 @@ import {createReducer} from '@reduxjs/toolkit';
 import {setOngoing} from './actions';
 import {KeyedMutator} from "swr";
 
-
 export type dashLayoutState = {
     waiting_room?: number;
     allowNotification?: boolean;
     import_data?: string[];
     medicalEntityHasUser?: MedicalEntityHasUsersModel[];
+    medicalProfessionalData?: MedicalProfessionalDataModel[];
     appointmentTypes?: AppointmentTypeModel[];
     mutate?: KeyedMutator<any> | null;
     last_fiche_id?: string;

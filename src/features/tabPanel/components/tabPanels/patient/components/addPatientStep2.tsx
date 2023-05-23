@@ -40,6 +40,7 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -67,6 +68,7 @@ function AddPatientStep2({...props}) {
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {data: httpInsuranceResponse} = useInsurances();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -194,11 +196,6 @@ function AddPatientStep2({...props}) {
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
     }, SWRNoValidateConfig);
 
     const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
@@ -376,7 +373,7 @@ function AddPatientStep2({...props}) {
                                         setFieldValue("nationality", v.uuid);
                                     }}
                                     sx={{color: "text.secondary"}}
-                                    options={countriesData.filter(country => country.hasState)}
+                                    options={countriesData}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
@@ -458,7 +455,7 @@ function AddPatientStep2({...props}) {
                                         setFieldValue("country", v.uuid);
                                     }}
                                     sx={{color: "text.secondary"}}
-                                    options={countriesData}
+                                    options={countriesData.filter(country => country.hasState)}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
@@ -642,7 +639,6 @@ function AddPatientStep2({...props}) {
                                                                 </li>)
                                                         }}
                                                         renderInput={(params) => {
-                                                            const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                             return (<TextField {...params}
                                                                                placeholder={t("add-patient.patient-placeholder")}/>)
                                                         }}

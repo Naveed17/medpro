@@ -10,7 +10,6 @@ import {
     DialogActions, Tooltip,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
-import {Label} from "@features/label";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
 import React, {ReactElement, useState} from "react";
@@ -22,10 +21,10 @@ import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
     const {doctor_country, roles, setLoading} = data;
@@ -149,7 +148,7 @@ function WaitingRoomRow({...props}) {
                                 sx={{
                                     color: theme.palette.success.main,
                                     ml: 0.6,
-                                    fontSize:12
+                                    fontSize: 12
                                 }}>
                                 {moment(row.arrive_time, "HH:mm")
                                     .add(1, "hours")
@@ -168,7 +167,7 @@ function WaitingRoomRow({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    fontSize:12,
+                                    fontSize: 12,
                                     svg: {
                                         width: 11,
                                         mx: 0.5,
@@ -275,17 +274,17 @@ function WaitingRoomRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell>
-                    <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1} >
-                        {!roles.includes("ROLE_SECRETARY") &&<Tooltip title={t("start")}>
+                    <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
+                        {!roles.includes("ROLE_SECRETARY") && <Tooltip title={t("start")}>
                             <IconButton
-                            disabled={loading}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                setLoading(true);
-                                handleEvent({action: "START_CONSULTATION", row, event});
-                            }}
-                            size="small">
-                            <PlayCircleIcon/>
+                                disabled={loading}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setLoading(true);
+                                    handleEvent({action: "START_CONSULTATION", row, event});
+                                }}
+                                size="small">
+                                <PlayCircleIcon/>
                             </IconButton></Tooltip>}
                         <Tooltip title={t(row.is_next ? "is_next" : "next")}>
                             <IconButton

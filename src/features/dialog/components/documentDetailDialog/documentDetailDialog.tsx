@@ -167,17 +167,16 @@ function DocumentDetailDialog({...props}) {
         }
     ];
 
-    console.log(state)
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/documents");
 
-    const {data: httpDocumentHeader} = useRequest({
+    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);

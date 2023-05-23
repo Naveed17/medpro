@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -36,6 +36,8 @@ import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -65,14 +67,11 @@ function FcmLayout({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
@@ -95,6 +94,7 @@ function FcmLayout({...props}) {
     } : null, SWRNoValidateConfig);
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
@@ -110,22 +110,20 @@ function FcmLayout({...props}) {
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
                     enqueueSnackbar(message.notification.body, {variant: "info"});
-                } else {
-                    if (data.body.hasOwnProperty('progress')) {
-                        if (data.body.progress === -1 || data.body.progress === 100) {
-                            localStorage.removeItem("import-data");
-                            localStorage.removeItem("import-data-progress");
-                            importData.mutate && importData.mutate();
-                            // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
-                            closeSnackbar();
-                            enqueueSnackbar((data.body.progress === -1 ?
-                                    translationCommon.import_data.failed : translationCommon.import_data.end),
-                                {variant: data.body.progress === -1 ? "error" : "success"});
-                        } else {
-                            localStorage.setItem("import-data-progress", data.body.progress.toString());
-                            dispatch(setProgress(parseFloat(data.body.progress)));
-                        }
+                } else if (data.body.hasOwnProperty('progress')) {
+                    if (data.body.progress === -1 || data.body.progress === 100) {
+                        localStorage.removeItem("import-data");
+                        localStorage.removeItem("import-data-progress");
+                        importData.mutate && importData.mutate();
+                        // refresh on going api
+                        mutateOnGoing && mutateOnGoing();
+                        closeSnackbar();
+                        enqueueSnackbar((data.body.progress === -1 ?
+                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                            {variant: data.body.progress === -1 ? "error" : "success"});
+                    } else {
+                        localStorage.setItem("import-data-progress", data.body.progress.toString());
+                        dispatch(setProgress(parseFloat(data.body.progress)));
                     }
                 }
             } else {
@@ -241,20 +239,10 @@ function FcmLayout({...props}) {
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
-        const form = new FormData();
-        form.append('status', status);
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+            dispatch(setOngoing({medicalProfessionalData}));
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
@@ -392,7 +380,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
-                            updateAppointmentStatus(notificationData?.appointment?.uuid, "1");
+                            updateAppointmentStatus({
+                                method: "PATCH",
+                                data: {
+                                    status: "1"
+                                },
+                                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
+                            } as any);
                         }}
                     />}
             </Dialog>

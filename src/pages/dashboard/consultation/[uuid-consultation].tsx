@@ -49,6 +49,8 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -63,25 +65,16 @@ function ConsultationInProgress() {
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
-        if (!leaveDialog.current) {
-            /*if (!window.confirm(`message: ${uuind}`)) {
-                      throw "Route Canceled";
-                  } else {
-                      // localStorage.removeItem(`consultation-data-${uuind}`);
-                  }*/
-        }
     });
 
     const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
-    const {exam} = useAppSelector(consultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedDialog, exam} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
 
     const leaveDialog = useRef(false);
@@ -169,38 +162,9 @@ function ConsultationInProgress() {
     const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "consultation/end");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const updateAppointmentStatus = (
-        appointmentUUid: string,
-        status: string,
-        params?: any
-    ) => {
-        const form = new FormData();
-        form.append("status", status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        });
-    };
-
-    const {data: httpMPResponse} = useRequest(medical_entity ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
-    const {data: httpModelResponse} = useRequest(medical_professional ? {
+    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -212,7 +176,7 @@ function ConsultationInProgress() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPreviousResponse} = useRequest(medical_entity ? {
+    const {data: httpPreviousResponse} = useRequest(medical_entity && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -277,9 +241,9 @@ function ConsultationInProgress() {
         }
     }, [httpAppResponse]);
     useEffect(() => {
-        if (httpPreviousResponse){
-            const data = (httpPreviousResponse as HttpResponse).data.data;
-            if (data){
+        if (httpPreviousResponse) {
+            const data = (httpPreviousResponse as HttpResponse).data;
+            if (data) {
                 setPreviousData(data);
             }
         }
@@ -291,9 +255,8 @@ function ConsultationInProgress() {
     }, [selectedDialog, setInfo, setOpenDialog]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+        if (medicalProfessionalData) {
+            const mpRes = medicalProfessionalData[0];
             setMpUuid(mpRes.medical_professional.uuid);
             const acts = [...mpRes.acts];
             const selectedLocal = localStorage.getItem(`consultation-acts-${uuind}`)
@@ -326,7 +289,7 @@ function ConsultationInProgress() {
                     if (appointement.acts && !loadingApp) {
                         let sAct: any[] = [];
                         appointement.acts.map(
-                            (act: { act_uuid: string; price: any; qte: any }) => {
+                            (act: any) => {
                                 sAct.push({
                                     ...act,
                                     fees: act.price,
@@ -334,9 +297,7 @@ function ConsultationInProgress() {
                                     qte: act.qte,
                                     act: {name: (act as any).name}
                                 });
-                                const actDetect = acts.findIndex((a: {
-                                    uuid: string
-                                }) => a.uuid === act.act_uuid) as any;
+                                const actDetect = acts.findIndex((a: any) => a.uuid === act.act_uuid) as any;
                                 if (actDetect === -1) {
                                     acts.push({
                                         ...act,
@@ -346,7 +307,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect].fees = act.price;
+                                    acts[actDetect] ={...acts[actDetect],fees:act.price};
                                 }
                             }
                         );
@@ -358,16 +319,14 @@ function ConsultationInProgress() {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointement, httpMPResponse, uuind, consultationFees]);
+    }, [appointement, medicalProfessionalData, uuind, consultationFees]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            if (!loadingApp)
-                setConsultationFees(Number(mpRes.consultation_fees));
+        if (medicalProfessionalData && !loadingApp) {
+            setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpMPResponse]);
+    }, [medicalProfessionalData]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -662,7 +621,13 @@ function ConsultationInProgress() {
 
     const leave = () => {
         clearData();
-        updateAppointmentStatus(uuind as string, "11").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "11"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/status/${router.locale}`
+        } as any).then(() => {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
                 setActions(false);
@@ -849,7 +814,8 @@ function ConsultationInProgress() {
                 )}
             </SubHeader>
             {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
-                <Box style={{backgroundColor:!isHistory ?theme.palette.info.main:""}} className="container container-scroll">
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
                             {Array.from({length: 3}).map((_, idx) => (
@@ -909,7 +875,18 @@ function ConsultationInProgress() {
                             <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
+                                        {...{
+                                            models,
+                                            changes,
+                                            setChanges,
+                                            isClose,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid,
+                                            previousData
+                                        }}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
