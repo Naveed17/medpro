@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState,useEffect} from "react";
+import React, {ReactElement, useState,useEffect,memo,useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -36,8 +36,18 @@ import { Session } from "next-auth";
 import { DatePicker } from "@features/datepicker";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
+import {CountrySelect} from "@features/countrySelect";
+import {DefaultCountry} from "@lib/constants";
+import PhoneInput from "react-phone-number-input/input";
+import {CustomInput} from "@features/tabPanel";
+import {isValidPhoneNumber} from "libphonenumber-js";
+ const PhoneCountry: any = memo(({...props}) => {
+    return <CountrySelect {...props} />;
+});
+PhoneCountry.displayName = "Phone country";
 function NewUser() {
     const router = useRouter();
+    const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
     const dispatch = useAppDispatch();
     const {tableState} = useAppSelector(tableActionSelector);
@@ -46,10 +56,11 @@ function NewUser() {
     const[profiles,setProfiles] = useState<any[]>([]);
     const { data: session } = useSession();
     const { data: userSession } = session as Session;
-  const medical_entity = (userSession as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
+    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const [agendaRoles, setAgendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
+    const {data: userData} = session as Session;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const {trigger} = useRequestMutation(null, "/users");
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
@@ -85,10 +96,26 @@ const { data: httpProfilesResponse, } = useRequest({
             .required(),
         lastname: Yup.string()
             .required(),
-        phone: Yup.string()
-            .required(),
         password: Yup.string()
             .required(),
+        phones: Yup.array().of(
+            Yup.object().shape({
+                dial: Yup.object().shape({
+                    code: Yup.string(),
+                    label: Yup.string(),
+                    phone: Yup.string(),
+                }),
+                phone: Yup.string()
+                    .test({
+                        name: "is-phone",
+                        message: t("telephone-error"),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : false
+                        }
+                    })
+                    .required(),
+            })
+        ),    
         confirmPassword: Yup.string().when('password', (password, field) =>
         password ? field.required().oneOf([Yup.ref('password')]) : field),
         profile: Yup.string()
@@ -100,16 +127,20 @@ const { data: httpProfilesResponse, } = useRequest({
         initialValues: {
             role: "",
             agendas: agendaRoles.map((agenda:any) => ({...agenda, role: ""})),
-            professionnel: user.professionnel || false,
-            email: user.email || "",
-            name: user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : "",
-            message: user.message || "",
-            admin: user.admin || false,
+            professionnel: false,
+            email:  "",
+            name:  "",
+            message:   "",
+            admin:  false,
             consultation_fees:"",
             birthdate: null,
             firstname :"",
             lastname:"",
-            phone:"",
+            phones:  [
+                {
+                    phone: "",dial: doctor_country
+                }
+                ],
             password:"",
             confirmPassword:"", 
             profile:""
@@ -130,7 +161,13 @@ const { data: httpProfilesResponse, } = useRequest({
             form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
             form.append('firstname', values.firstname);
             form.append('lastname', values.lastname);
-            form.append('phone', values.phone);
+            form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
+            code: phoneData.dial?.phone,
+            value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
+            type: "phone",
+            is_public: false,
+            is_support: false
+        }))));
             form.append('password', values.password);
             form.append('profile', values.profile); 
             trigger({
@@ -160,7 +197,7 @@ const { data: httpProfilesResponse, } = useRequest({
         setFieldValue,
     } = formik;
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-    
+    console.log(values)
     return (
         <>
             <SubHeader>
@@ -400,7 +437,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                 {values.phones.map((phoneObject, index: number) => (
+                                 <Box mb={2} key={index}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -417,19 +455,36 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                             <TextField
-                                               type="tel"
-                                                variant="outlined"
-                                                placeholder={t("users.phone")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.phone && errors.phone)}
-                                                {...getFieldProps("phone")}
-                                            />
+                                        <Grid item xs={12} md={10}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} md={4}>
+                                                    <PhoneCountry
+                                                   initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                    onSelect={(state: any) => {
+                                                   setFieldValue(`phones[${index}].phone`, "");
+                                                   setFieldValue(`phones[${index}].dial`, state);
+                                            }}
+                                        />
+                                                </Grid>
+                                                <Grid item xs={12} md={8}>
+                                                     {phoneObject && <PhoneInput
+                                            ref={phoneInputRef}
+                                            international
+                                            fullWidth
+                                            withCountryCallingCode
+                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                            country={phoneObject.dial?.code.toUpperCase() as any}
+                                            value={getFieldProps(`phones[${index}].phone`) ?
+                                                getFieldProps(`phones[${index}].phone`).value : ""}
+                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                            inputComponent={CustomInput as any}
+                                        />}
+                                                </Grid>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Box>
+                                ))}
                                  <Box mb={2}>
                                     <Grid
                                         container

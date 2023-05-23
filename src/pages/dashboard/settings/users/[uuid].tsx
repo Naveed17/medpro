@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState, useEffect} from "react";
+import React, {ReactElement, useState, useEffect, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -36,9 +36,23 @@ import {DatePicker} from "@features/datepicker";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import { useSnackbar } from "notistack";
+import {CountrySelect} from "@features/countrySelect";
+import {DefaultCountry} from "@lib/constants";
+import { Session } from "next-auth";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import PhoneInput from "react-phone-number-input/input";
+import {
+     CustomInput,
+   
+} from "@features/tabPanel";
+ const PhoneCountry: any = memo(({...props}) => {
+    return <CountrySelect {...props} />;
+});
+PhoneCountry.displayName = "Phone country";
 
 function ModifyUser() {
     const router = useRouter();
+    const phoneInputRef = useRef(null);
      const {enqueueSnackbar} = useSnackbar()
     const {uuid} = router.query
     const dispatch = useAppDispatch();
@@ -50,7 +64,10 @@ function ModifyUser() {
     const {agendas} = useAppSelector(agendaSelector);
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState(agendas);
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<any>(null);
+    const {data: userData} = session as Session;
+    const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const [roles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
@@ -96,14 +113,28 @@ function ModifyUser() {
             .required(),
         birthdate: Yup.string()
             .required(),
-        firstname: Yup.string()
+        FirstName: Yup.string()
             .required(),
-        lastname: Yup.string()
+        lastName: Yup.string()
             .required(),
-        phone: Yup.string()
-            .required(),
-        password: Yup.string()
-            .required(),
+             phones: Yup.array().of(
+            Yup.object().shape({
+                dial: Yup.object().shape({
+                    code: Yup.string(),
+                    label: Yup.string(),
+                    phone: Yup.string(),
+                }),
+                phone: Yup.string()
+                    .test({
+                        name: "is-phone",
+                        message: t("telephone-error"),
+                        test: (value) => {
+                            return value ? isValidPhoneNumber(value) : false
+                        }
+                    })
+                    .required(),
+            })
+        ), 
         profile: Yup.string()
             .required(),
     });
@@ -119,9 +150,13 @@ function ModifyUser() {
             admin: user?.admin || false,
             consultation_fees: user?.ConsultationFees || "",
             birthdate: user?.birthDate || null,
-            firstname: user?.FirstName,
-            lastname: user?.lastName,
-            phone: "",
+            FirstName: user?.FirstName || "",
+            lastName: user?.lastName || "",
+            phones:  [
+                {
+                    phone: "",dial: doctor_country
+                }
+                ],
             profile: user?.profile?.uuid || ""
         },
         validationSchema,
@@ -138,23 +173,29 @@ function ModifyUser() {
             form.append('is_default', "true");
             form.append('consultation_fees', values.consultation_fees);
             form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
-            form.append('firstname', values.firstname);
-            form.append('lastname', values.lastname);
-            form.append('phone', values.phone);
+            form.append('firstname', values.FirstName);
+            form.append('lastname', values.lastName);
+            form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
+            code: phoneData.dial?.phone,
+            value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
+            type: "phone",
+            is_public: false,
+            is_support: false
+            }))));
             form.append('profile', values.profile);
             trigger({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => {
-            enqueueSnackbar(t("user.alert.update"), {variant: "error"});
+            enqueueSnackbar(t("users.alert.update"), {variant: "error"});
             setLoading(false)
             dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
         }).catch((error) => {
             setLoading(false);
-            enqueueSnackbar(t("user.alert.went_wrong"), {variant: "error"});
+            enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
         })
 
         },
@@ -168,6 +209,7 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
+    console.log(user)
     if (!ready ) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
     return (
@@ -303,6 +345,7 @@ function ModifyUser() {
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <TextField
+                                            type="number"
                                                 variant="outlined"
                                                 placeholder={t("users.consultation_fees")}
                                                 fullWidth
@@ -371,8 +414,8 @@ function ModifyUser() {
                                                 placeholder={t("users.firstname")}
                                                 fullWidth
                                                 required
-                                                error={Boolean(touched.firstname && errors.firstname)}
-                                                {...getFieldProps("firstname")}
+                                                error={Boolean(touched.FirstName && errors.FirstName)}
+                                                {...getFieldProps("FirstName")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -396,17 +439,19 @@ function ModifyUser() {
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <TextField
+                                            {...getFieldProps("lastName")}
                                                 variant="outlined"
                                                 placeholder={t("users.lastname")}
                                                 fullWidth
                                                 required
-                                                error={Boolean(touched.lastname && errors.lastname)}
-                                                {...getFieldProps("lastname")}
+                                                error={Boolean(touched.lastName && errors.lastName)}
+                                                
                                             />
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
+                                 {values.phones.map((phoneObject, index: number) => (
+                                 <Box mb={2} key={index}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -423,49 +468,37 @@ function ModifyUser() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <TextField
-                                                type="tel"
-                                                variant="outlined"
-                                                placeholder={t("users.phone")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.phone && errors.phone)}
-                                                {...getFieldProps("phone")}
-                                            />
+                                        <Grid item xs={12} md={10}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} md={4}>
+                                                    <PhoneCountry
+                                                   initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                    onSelect={(state: any) => {
+                                                   setFieldValue(`phones[${index}].phone`, "");
+                                                   setFieldValue(`phones[${index}].dial`, state);
+                                            }}
+                                        />
+                                                </Grid>
+                                                <Grid item xs={12} md={8}>
+                                                     {phoneObject && <PhoneInput
+                                            ref={phoneInputRef}
+                                            international
+                                            fullWidth
+                                            withCountryCallingCode
+                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                            country={phoneObject.dial?.code.toUpperCase() as any}
+                                            value={getFieldProps(`phones[${index}].phone`) ?
+                                                getFieldProps(`phones[${index}].phone`).value : ""}
+                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                            inputComponent={CustomInput as any}
+                                        />}
+                                                </Grid>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {/* <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.password")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <TextField
-                                                type="tel"
-                                                variant="outlined"
-                                                placeholder={t("users.password")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.password && errors.password)}
-                                                {...getFieldProps("password")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box> */}
+                                ))}
+                               
                                 <Box mb={2}>
                                     <Grid
                                         container

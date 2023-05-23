@@ -379,6 +379,7 @@
       "add_appointment": "Ajouter RDV",
       "profile_created": "Profil créé",
       "visitor_added": "Visiteur ajoute",
+      "updated": "Utilisateur mis à jour",
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-user-title": "Suppression du utilisateur",
