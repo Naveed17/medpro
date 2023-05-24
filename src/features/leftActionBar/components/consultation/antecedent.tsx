@@ -31,7 +31,6 @@ function Antecedent({...props}) {
         allAntecedents,
         t,
         patient,
-        medical_entity,
         setSelected,
         session,
         handleOpen,

@@ -141,6 +141,12 @@ function PatientDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    const {data: httpAnctecentType} = useRequest({
+        method: "GET",
+        url: `/api/private/antecedent-types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
     const {
         data: httpPatientDocumentsResponse,
         mutate: mutatePatientDocuments
@@ -165,6 +171,7 @@ function PatientDetail({...props}) {
     } : null, SWRNoValidateConfig);
 
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const allAntecedents = (httpAnctecentType as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -335,7 +342,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t}} />
+                <PatientFile {...{patient, antecedentsData, t,router,session,allAntecedents}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
