@@ -18,7 +18,6 @@ import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {TreeCheckbox} from "@features/treeViewCheckbox";

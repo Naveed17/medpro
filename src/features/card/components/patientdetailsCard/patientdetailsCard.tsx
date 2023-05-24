@@ -1,7 +1,6 @@
 //material-ui
 import {
     Avatar,
-    Badge,
     Box,
     Button,
     IconButton,
@@ -40,11 +39,7 @@ import UrlIcon from "@themes/urlIcon";
 import {dashLayoutSelector} from "@features/base";
 
 function PatientDetailsCard({...props}) {
-    const {
-        patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, antecedentsData,
-        mutateAntecedents, loading
-    } = props;
-
+    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
