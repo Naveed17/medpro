@@ -53,6 +53,7 @@ PhoneCountry.displayName = "Phone country";
 function ModifyUser() {
     const router = useRouter();
     const phoneInputRef = useRef(null);
+    const didMountRef = useRef(false);
      const {enqueueSnackbar} = useSnackbar()
     const {uuid} = router.query;
     const dispatch = useAppDispatch();
@@ -61,7 +62,6 @@ function ModifyUser() {
     const {t, ready} = useTranslation("settings");
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
-    const [userLoading, setUserLoading] = useState(true);
     const {agendas} = useAppSelector(agendaSelector);
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState(agendas);
@@ -82,32 +82,38 @@ function ModifyUser() {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     });
-     const { data: httpUserResponse, } = useRequest({
+     const { data: httpUserResponse, response } = useRequest({
     method: "GET",
     url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
   });
+
   useEffect(() => {
+
    if (httpProfilesResponse){
       setProfiles((httpProfilesResponse as HttpResponse)?.data)
    }
-    }, [httpProfilesResponse])
+    }, [httpProfilesResponse]);
+
+
      useEffect(() => {
-        new Promise((resolve,reject) => {
-   if (httpUserResponse || userLoading){
-    resolve(setUser((httpUserResponse as HttpResponse)?.data ?? {}))
-   }else{
-    reject()
-   }
-    }).then(() => {
-    setUserLoading(false);
-    console.log(httpUserResponse)
-    }).catch(e => setUser(null))
-      
-   
+     let loading = !httpUserResponse
+      const user = (httpUserResponse as HttpResponse)?.data
+   if (loading){
+    return;
+    }else if (user){
+        setUser(user)
+        loading = false
+    }else{
+         alert('not loading')
+    setUser(null)
+    loading = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [httpUserResponse])
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("users.ntc"))
