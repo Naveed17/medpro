@@ -42,7 +42,6 @@ function AddNewRoleDialog({...props}) {
 
     useEffect(() => {
         if (allPermissions) {
-            console.log("allPermissions", allPermissions)
             const permissions = allPermissions.map((item: any) => {
                 return {
                     ...item,
