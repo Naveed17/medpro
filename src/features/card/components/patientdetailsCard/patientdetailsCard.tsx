@@ -25,7 +25,7 @@ import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
-import {CropImage} from "@features/cropImage";
+import {CropImage} from "src/features/image/components/cropImage";
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";

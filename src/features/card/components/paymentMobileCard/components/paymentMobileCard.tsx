@@ -21,6 +21,7 @@ import {PaymentFeesPopover} from "@features/popover";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {DefaultCountry} from "@lib/constants";
+import {ImageHandler} from "@features/image";
 
 function PaymentMobileCard({...props}) {
     const {
@@ -148,19 +149,13 @@ function PaymentMobileCard({...props}) {
                                                     key={insuranceItem.insurance?.uuid}
                                                     title={insuranceItem.insurance?.name}>
                                                     <Avatar variant={"circular"}>
-                                                        <Image
-                                                            style={{borderRadius: 2}}
+                                                        <ImageHandler
                                                             alt={insuranceItem.insurance?.name}
-                                                            src="static/icons/Med-logo.png"
-                                                            width={20}
-                                                            height={20}
-                                                            loader={() => {
-                                                                return insurances?.find(
-                                                                    (insurance: any) =>
-                                                                        insurance.uuid ===
-                                                                        insuranceItem.insurance?.uuid
-                                                                )?.logoUrl.url;
-                                                            }}
+                                                            src={insurances?.find(
+                                                                (insurance: any) =>
+                                                                    insurance.uuid ===
+                                                                    insuranceItem.insurance?.uuid
+                                                            )?.logoUrl.url}
                                                         />
                                                     </Avatar>
                                                 </Tooltip>

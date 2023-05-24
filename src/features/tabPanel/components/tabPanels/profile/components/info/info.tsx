@@ -23,7 +23,7 @@ import IconUrl from "@themes/urlIcon";
 import { MultiSelect } from "@features/multiSelect";
 import React, { useEffect, useState } from "react";
 import LabelStyled from "./overrides/labelStyled";
-import { CropImage } from "@features/cropImage";
+import { CropImage } from "src/features/image/components/cropImage";
 import { InputStyled } from "@features/tabPanel";
 import { useTranslation } from "next-i18next";
 import { useRequest } from "@lib/axios";
