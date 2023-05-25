@@ -92,16 +92,6 @@ function AntecedentsCard({...props}) {
         handleClickDialog();
     };
 
-    /*    const onChangeList = (prop: PatientDetailsList) => {
-            const newState = data.map((obj) => {
-                if (obj.id === prop.id) {
-                    return {...prop};
-                }
-                return obj;
-            });
-            setdata(newState);
-        }*/
-
     const getTitle = () => {
         const info = antecedentsType?.find((ant: { slug: any; }) => ant.slug === infoDynamic);
 
@@ -170,18 +160,15 @@ function AntecedentsCard({...props}) {
                                                 key={`antecedent-${index}`}
                                                 title={
                                                     <React.Fragment>
-                                                        <Typography color="gray" fontWeight={"bold"}
+                                                        <Typography fontWeight={"bold"}
                                                                     fontSize={12}>{item?.name}</Typography>
-                                                        <Typography color="gray" fontSize={12}>Date début
+                                                        <Typography fontSize={12}>Date début
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
-                                                        <Typography color="gray" fontSize={12}>Date fin
+                                                        <Typography fontSize={12}>Date fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
-                                                        {item?.ascendantOf && <Typography color="gray"
-                                                                                          fontSize={12}>{item?.ascendantOf}</Typography>}
-                                                        <Typography color="gray" fontSize={12}>Note
-                                                            : {getNote(item)}</Typography>
-                                                        {item?.note && <Typography color="gray" fontSize={12}>RQ
-                                                            : {item?.note}</Typography>}
+                                                        {item?.ascendantOf && <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}
+                                                        <Typography fontSize={12}>Note : {getNote(item)}</Typography>
+                                                        {item?.note && <Typography fontSize={12}>RQ : {item?.note}</Typography>}
                                                         {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (
                                                             <Typography color="gray" fontSize={12}
                                                                         key={rep}>{rep} : {item?.response[rep]}</Typography>
