@@ -1005,7 +1005,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         value={parentModelName}
                         onChange={(e) => {
                             setParentModelName(e.target.value);
-                            dispatch(setModelName(e.target.value));
                         }}
                         placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
                     />
