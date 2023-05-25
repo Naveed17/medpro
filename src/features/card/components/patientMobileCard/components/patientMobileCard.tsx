@@ -109,7 +109,7 @@ const CardSection = ({...props}) => {
                                         {...(data.hasPhoto && {className: "zoom"})}
                                         src={
                                             patientPhoto
-                                                ? patientPhoto.thumbnails.thumbnail_128
+                                                ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                                 : data?.gender === "M"
                                                     ? "/static/icons/men-avatar.svg"
                                                     : "/static/icons/women-avatar.svg"

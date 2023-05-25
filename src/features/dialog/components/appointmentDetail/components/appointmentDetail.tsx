@@ -156,7 +156,7 @@ function AppointmentDetail({...props}) {
                                         <Avatar
                                             src={
                                                 patientPhoto
-                                                    ? patientPhoto.thumbnails.thumbnail_128
+                                                    ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                                     : appointment?.extendedProps?.patient?.gender === "M"
                                                         ? "/static/icons/men-avatar.svg"
                                                         : "/static/icons/women-avatar.svg"

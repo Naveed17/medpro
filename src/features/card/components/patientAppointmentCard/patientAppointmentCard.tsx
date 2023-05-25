@@ -30,7 +30,7 @@ function PatientAppointmentCard({...props}) {
                     <Avatar
                         className={"zoom-list"}
                         src={patientPhoto
-                            ? patientPhoto.thumbnails.thumbnail_128
+                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                             : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
