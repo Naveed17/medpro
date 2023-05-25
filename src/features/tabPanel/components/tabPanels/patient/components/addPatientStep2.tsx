@@ -68,7 +68,7 @@ function AddPatientStep2({...props}) {
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances} = useInsurances();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -202,7 +202,6 @@ function AddPatientStep2({...props}) {
 
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 

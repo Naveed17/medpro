@@ -40,8 +40,7 @@ import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
-import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
-import {useProfilePhoto} from "@lib/hooks/rest";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -49,8 +48,8 @@ function Consultation() {
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
-    const {data: httpAnctecentType} = useAntecedentTypes();
+    const {insurances: allInsurances} = useInsurances();
+    const {allAntecedents} = useAntecedentTypes();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -73,7 +72,6 @@ function Consultation() {
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
     const [analyses, setAnalyses] = useState<any>([]);
     const [mi, setMi] = useState<any>([]);
-    const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
@@ -154,12 +152,6 @@ function Consultation() {
             setMi((httpPatientMI as HttpResponse).data)
         }
     }, [httpPatientMI])
-
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
-        }
-    }, [httpAnctecentType])
 
     useEffect(() => {
         const noteContainer = document.getElementById("note-card-content");
@@ -262,8 +254,6 @@ function Consultation() {
             miMutate();
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 

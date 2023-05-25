@@ -167,7 +167,7 @@ function Patient() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -278,8 +278,6 @@ function Patient() {
     } : null);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     useEffect(() => {
         if (filter?.type || filter?.patient) {

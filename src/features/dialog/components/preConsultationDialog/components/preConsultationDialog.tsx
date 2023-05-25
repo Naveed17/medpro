@@ -27,7 +27,7 @@ function PreConsultationDialog({...props}) {
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances: allInsurances} = useInsurances();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
@@ -72,7 +72,6 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const models = (httpModelResponse as HttpResponse)?.data as ModalModel[];
     const sheetModal = (httpSheetResponse as HttpResponse)?.data?.modal;
 
