@@ -1,7 +1,5 @@
 // material
 import {
-    Button,
-    DialogActions,
     IconButton,
     Menu,
     MenuItem,
@@ -13,47 +11,31 @@ import {
 } from "@mui/material";
 // urils
 import Icon from "@themes/urlIcon";
-import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 // style
 import RootStyled from "./overrides/rootStyled";
 import {ModelDot} from '@features/modelDot'
 import {useRouter} from "next/router";
-import {agendaSelector, AppointmentStatus} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {AppointmentStatus} from "@features/calendar";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import React, {useState} from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import {Dialog, preConsultationSelector} from "@features/dialog";
-import {configSelector} from "@features/base";
-import {useSession} from "next-auth/react";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
 
 function RdvCard({...props}) {
-    const {inner, patient, loading} = props;
+    const {inner, patient, loading, handlePreConsultationDialog} = props;
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
-    const {direction} = useAppSelector(configSelector);
-    const {model} = useAppSelector(preConsultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
-
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
-    const [loadingReq, setLoadingReq] = useState<boolean>(false);
+
 
     const handleClose = () => {
         setContextMenu(null);
@@ -77,22 +59,6 @@ function RdvCard({...props}) {
     const onConsultationView = (appointmentUuid: string) => {
         const slugConsultation = `/dashboard/consultation/${appointmentUuid}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
-    }
-
-    const submitPreConsultationData = () => {
-        setLoadingReq(true);
-        handlePreConsultationData({
-            method: "PUT",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${inner?.uuid}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${inner?.uuid}`) as string
-            }
-        } as any).then(() => {
-            setLoadingReq(false);
-            localStorage.removeItem(`Modeldata${inner?.uuid}`);
-            setOpenPreConsultationDialog(false)
-        });
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -227,45 +193,16 @@ function RdvCard({...props}) {
                     </Typography>
                 </MenuItem>
                 <MenuItem
-                    onClick={() => setOpenPreConsultationDialog(true)}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        handlePreConsultationDialog(inner);
+                    }}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("pre_consultation_data")}
                     </Typography>
                 </MenuItem>
             </Menu>
-
-            <Dialog
-                action={"pre_consultation_data"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380
-                    }
-                }}
-                open={openPreConsultationDialog}
-                data={{
-                    patient,
-                    uuid: inner?.uuid
-                }}
-                size={"md"}
-                title={t("pre_consultation_dialog_title")}
-                {...(!loadingReq && {dialogClose: () => setOpenPreConsultationDialog(false)})}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
-                            {t("cancel")}
-                        </Button>
-                        <Button
-                            disabled={loadingReq}
-                            variant="contained"
-                            onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="ic-edit"/>}>
-                            {t("register")}
-                        </Button>
-                    </DialogActions>
-                }
-            />
         </>
     );
 }

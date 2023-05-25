@@ -28,12 +28,14 @@ import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSWRConfig} from "swr";
 
 function AppointmentCard({...props}) {
-    const {data, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
+    const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -67,7 +69,11 @@ function AppointmentCard({...props}) {
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {
-            onDataUpdated();
+            if (onDataUpdated) {
+                onDataUpdated();
+            } else {
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
+            }
         });
     };
 
