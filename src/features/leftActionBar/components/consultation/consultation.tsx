@@ -40,6 +40,7 @@ import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
+import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -54,6 +55,8 @@ function Consultation() {
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState<boolean>(true);
     const [number, setNumber] = useState<any>(null);
@@ -74,12 +77,6 @@ function Consultation() {
     let [oldNote, setOldNote] = useState("");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
 
     const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -270,7 +267,6 @@ function Consultation() {
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
@@ -285,7 +281,7 @@ function Consultation() {
                                 <Avatar
                                     src={
                                         patientPhoto
-                                            ? patientPhoto
+                                            ? patientPhoto.thumbnails.thumbnail_128
                                             : patient?.gender === "M"
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"

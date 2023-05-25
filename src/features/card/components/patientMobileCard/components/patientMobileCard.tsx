@@ -25,13 +25,12 @@ import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
 
 const menuList = [
     {
@@ -75,18 +74,9 @@ const CardSection = ({...props}) => {
     const {data: session} = useSession();
     const router = useRouter();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        }
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     return (
         <Paper key={Math.random()} className="card-main">
@@ -119,7 +109,7 @@ const CardSection = ({...props}) => {
                                         {...(data.hasPhoto && {className: "zoom"})}
                                         src={
                                             patientPhoto
-                                                ? patientPhoto
+                                                ? patientPhoto.thumbnails.thumbnail_128
                                                 : data?.gender === "M"
                                                     ? "/static/icons/men-avatar.svg"
                                                     : "/static/icons/women-avatar.svg"

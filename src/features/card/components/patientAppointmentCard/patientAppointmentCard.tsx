@@ -5,31 +5,14 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
 import React, {useState} from "react";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
-    const router = useRouter();
-    const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const [loading, setLoading] = useState(false);
 
     return (
@@ -46,7 +29,9 @@ function PatientAppointmentCard({...props}) {
                 <Zoom>
                     <Avatar
                         className={"zoom-list"}
-                        src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                        src={patientPhoto
+                            ? patientPhoto.thumbnails.thumbnail_128
+                            : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0

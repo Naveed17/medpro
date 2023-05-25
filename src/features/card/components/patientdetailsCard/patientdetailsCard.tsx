@@ -50,7 +50,7 @@ function PatientDetailsCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
-            picture: {url: !loading && patientPhoto ? patientPhoto : "", file: ""},
+            picture: {url: !loading && patientPhoto ? patientPhoto.thumbnails.thumbnail_128 : "", file: ""},
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
