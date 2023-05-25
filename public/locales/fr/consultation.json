@@ -240,6 +240,7 @@
     "group_model_name": "Nom du dossier",
     "group_model_name_placeholder": "Veuillez saisir le nom du dossier",
     "drug_list": "Liste des médicaments",
+    "after": "puis",
     "name_of_drug": "Nom du médicament",
     "switch_ui_classic": "Revenir à l'interface utilisateur classique",
     "ui_classic": "IU classique",

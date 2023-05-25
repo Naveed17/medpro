@@ -881,21 +881,28 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     primary={drug.name}
                                                     secondary={
                                                         <React.Fragment>
-                                                        <span style={{display: "grid"}}>
-                                                            {drug.cycles.map((cycle: PrescriptionCycleModel, index: number) =>
-                                                                <span
-                                                                    key={`cycle-${index}`}>
-                                                                <Typography
-                                                                    sx={{display: 'inline'}}
-                                                                    component="span"
-                                                                    variant="body2"
-                                                                    color="text.primary"
-                                                                >
-                                                                    {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
-                                                                </Typography>
-                                                                    {cycle.note.length > 0 && `(${cycle.note})`}
-                                                            </span>)}
-                                                        </span>
+                                                            <span style={{display: "grid"}}>
+                                                                {drug.cycles.map((cycle: PrescriptionCycleModel, index: number) =>
+                                                                    <span
+                                                                        key={`cycle-${index}`}
+                                                                        style={{display: "grid"}}>
+                                                                        <span>
+                                                                            <Typography
+                                                                                sx={{display: 'inline'}}
+                                                                                component="span"
+                                                                                variant="body2"
+                                                                                color="text.primary"
+                                                                            >
+                                                                                {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
+                                                                            </Typography>
+                                                                            {cycle.note.length > 0 && `(${cycle.note})`}
+                                                                        </span>
+                                                                        {index < (drug.cycles.length - 1) &&
+                                                                            <span
+                                                                                style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>}
+                                                                    </span>
+                                                                )}
+                                                            </span>
                                                         </React.Fragment>
                                                     }
                                                 />
