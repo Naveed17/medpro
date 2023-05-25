@@ -136,7 +136,7 @@ function HistoryTab({...props}) {
                         <tr>
                             <td className={'col'}></td>
                             {dates.map((date: string) => (<td key={date} className={'col'}><Typography
-                                className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
+                                className={"header"}>{date}</Typography></td>))}
                         </tr>
                     </thead>
                     <tbody>
