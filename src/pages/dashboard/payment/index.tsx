@@ -453,7 +453,7 @@ function Payment() {
                             const updatedData = filterQuery.payment?.insurance?.filter(
                                 (insur: any) =>
                                     row.patient.insurances
-                                        .map((insurance: any) => insurance.insurance.uuid)
+                                        .map((insurance: any) => insurance.uuid)
                                         .includes(insur)
                             );
                             return (

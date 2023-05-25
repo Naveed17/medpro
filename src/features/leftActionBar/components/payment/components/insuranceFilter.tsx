@@ -5,6 +5,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function InsuranceFilter({...props}) {
     const {t, OnSearch} = props;
@@ -81,12 +82,7 @@ function InsuranceFilter({...props}) {
                         <MenuItem
                             {...params}>
                             <Checkbox checked={selected}/>
-                            <Avatar
-                                sx={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: 0.4
-                                }}
+                            <ImageHandler
                                 alt={"insurance"}
                                 src={option.logoUrl.url}
                             />
