@@ -46,6 +46,7 @@ import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
 
 function a11yProps(index: number) {
     return {
@@ -141,6 +142,8 @@ function PatientDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    const {data: httpAnctecentType} = useAntecedentTypes()
+
     const {
         data: httpPatientDocumentsResponse,
         mutate: mutatePatientDocuments
@@ -165,6 +168,7 @@ function PatientDetail({...props}) {
     } : null, SWRNoValidateConfig);
 
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const allAntecedents = (httpAnctecentType as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -335,7 +339,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t}} />
+                <PatientFile {...{patient, antecedentsData, t,router,session,allAntecedents}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
