@@ -82,7 +82,7 @@ function ModifyUser() {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     });
-     const { data: httpUserResponse, response } = useRequest({
+     const { data: httpUserResponse,error } = useRequest({
     method: "GET",
     url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
     headers: {
@@ -99,20 +99,15 @@ function ModifyUser() {
 
 
      useEffect(() => {
-     let loading = !httpUserResponse
-      const user = (httpUserResponse as HttpResponse)?.data
-   if (loading){
-    return;
-    }else if (user){
-        setUser(user)
-        loading = false
-    }else{
-         alert('not loading')
+      const response = (httpUserResponse as HttpResponse)
+    if (error){
     setUser(null)
-    loading = false
+    }else if(response?.status ==="success"){
+    const {data} = response
+    setUser(data)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpUserResponse])
+    }, [httpUserResponse,error])
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
