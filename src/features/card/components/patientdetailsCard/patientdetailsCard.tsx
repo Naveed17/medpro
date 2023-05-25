@@ -1,7 +1,6 @@
 //material-ui
 import {
     Avatar,
-    Badge,
     Box,
     Button,
     IconButton,
@@ -25,7 +24,7 @@ import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
-import {CropImage} from "@features/cropImage";
+import {CropImage} from "@features/image";
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -40,11 +39,7 @@ import UrlIcon from "@themes/urlIcon";
 import {dashLayoutSelector} from "@features/base";
 
 function PatientDetailsCard({...props}) {
-    const {
-        patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, antecedentsData,
-        mutateAntecedents, loading
-    } = props;
-
+    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();

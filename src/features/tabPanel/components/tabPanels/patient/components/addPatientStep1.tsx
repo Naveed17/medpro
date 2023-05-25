@@ -30,7 +30,7 @@ import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
-import {CropImage} from "@features/cropImage";
+import {CropImage} from "@features/image";
 import {DefaultCountry} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";

@@ -47,6 +47,7 @@ function AppointmentDetail({...props}) {
         OnEditDetail,
         OnConfirmAppointment,
         OnDataUpdated = null,
+        patientId = null,
         OnPatientNoShow,
         OnWaiting,
         OnLeaveWaiting,
@@ -305,7 +306,7 @@ function AppointmentDetail({...props}) {
                         {t("time_slot")}
                     </Typography>
                     <AppointmentCard
-                        {...{t, roles}}
+                        {...{t, roles, patientId}}
                         onDataUpdated={OnDataUpdated}
                         {...((canManageActions && SetMoveDialog) && {
                             onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
