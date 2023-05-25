@@ -91,20 +91,16 @@ function ModifyUser() {
   });
 
   useEffect(() => {
-
    if (httpProfilesResponse){
       setProfiles((httpProfilesResponse as HttpResponse)?.data)
    }
     }, [httpProfilesResponse]);
-
-
      useEffect(() => {
-      const response = (httpUserResponse as HttpResponse)
+    const user = (httpUserResponse as HttpResponse)?.data
     if (error){
     setUser(null)
-    }else if(response?.status ==="success"){
-    const {data} = response
-    setUser(data)
+    }else if(user){
+    setUser(user)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [httpUserResponse,error])
