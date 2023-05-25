@@ -154,12 +154,7 @@ function PatientFile({...props}) {
                 {patient?.insurances && patient?.insurances.length > 0 &&
                     <Text style={{...styles.header, marginBottom: 10}}>Assurances</Text>}
                 {
-                    patient?.insurances && patient?.insurances?.map((insurance: {
-                            insurance: {
-                                name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
-                            };
-                            insuranceNumber: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
-                        }, index: number) => (
+                    patient?.insurances && patient?.insurances?.map((insurance:any , index: number) => (
                             <Text style={styles.text}
                                   key={`${index}-insurance`}>• {insurance.insurance.name} - {insurance.insuranceNumber}</Text>
                         )
@@ -174,8 +169,8 @@ function PatientFile({...props}) {
                         <View key={`${key}-ant`}>
                             <Text style={styles.antecedent}>{allAntecedents?.find((a:{slug:string}) => a.slug === key).name}</Text>
                             {antecedentsData[key] && Array.isArray(antecedentsData[key]) && antecedentsData[key]?.map((item: {
-                                uuid: React.Key | null | undefined;
-                                name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
+                                uuid: string;
+                                name: string ;
                                 startDate: string;
                                 endDate: string;
                                 response: string | any[];
@@ -192,8 +187,8 @@ function PatientFile({...props}) {
                 {patient?.treatment.length > 0 && <Text style={styles.subtitle}>Traitement en cours</Text>}
                 {
                     patient?.treatment?.map((list: {
-                        uuid: React.Key | null | undefined;
-                        name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
+                        uuid: string;
+                        name: string ;
                         duration: number;
                         durationType: string;
                     }) => (
@@ -210,10 +205,8 @@ function PatientFile({...props}) {
                         uuid: any;
                         appointment: moment.MomentInput;
                         hasAnalysis: {
-                            uuid: React.Key | null | undefined;
-                            analysis: {
-                                name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
-                            };
+                            uuid: string;
+                            analysis: { name: string ; };
                             result: string;
                         }[];
                     }) => (
@@ -221,9 +214,9 @@ function PatientFile({...props}) {
                             <Text
                                 style={styles.antecedent}>{moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY")}</Text>
                             {ra.hasAnalysis?.map((item: {
-                                uuid: React.Key | null | undefined;
+                                uuid: string;
                                 analysis: {
-                                    name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
+                                    name: string;
                                 };
                                 result: string;
                             }) => (
@@ -262,7 +255,7 @@ function PatientFile({...props}) {
                         uuid: any;
                         appointmentData: any[];
                         dayDate: moment.MomentInput;
-                        startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
+                        startTime: string ;
                     }) => (
                         <View key={`${appointment.uuid}-ant`}>
                             {appointment.appointmentData.length > 0 &&
