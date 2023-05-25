@@ -1,24 +1,10 @@
 import {pxToRem} from "@themes/formatFontSize";
-import {
-    Box,
-    Button,
-    CardContent,
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    Stack,
-    Tooltip,
-    tooltipClasses,
-    Typography
-} from "@mui/material";
+import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Tooltip, Typography} from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
 import React from "react";
-import {styled} from "@mui/system";
-import {TooltipProps} from "@mui/material/Tooltip";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -31,7 +17,6 @@ function Antecedent({...props}) {
         allAntecedents,
         t,
         patient,
-        medical_entity,
         setSelected,
         session,
         handleOpen,
@@ -42,23 +27,6 @@ function Antecedent({...props}) {
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
-        <Tooltip {...props} classes={{popper: className}}/>
-    ))(({theme}) => ({
-        [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#f5f5f9',
-            color: 'rgba(0, 0, 0, 0.87)',
-            maxWidth: 220,
-            border: '1px solid #dadde9',
-        },
-    }));
-    const isObject = (val: any) => {
-        if (val === null) {
-            return false;
-        }
-        return typeof val === 'object' && !Array.isArray(val)
-    }
 
     return (
         <ContentStyled
@@ -88,35 +56,15 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                {/*<HtmlTooltip
-                                    title={
-                                        <React.Fragment>
-                                            <Typography color="gray" fontWeight={"bold"}
-                                                        fontSize={12}>{item.name}</Typography>
-                                            <Typography color="gray" fontSize={12}>Date début
-                                                : {item.startDate ? item.startDate : "-"}</Typography>
-                                            <Typography color="gray" fontSize={12}>Date fin
-                                                : {item.endDate ? item.endDate : "-"}</Typography>
-                                            {item.ascendantOf &&
-                                                <Typography color="gray" fontSize={12}>{item.ascendantOf}</Typography>}
-                                            <Typography color="gray" fontSize={12}>Note
-                                                : {item.response ? typeof item.response === "string" ? item.response : item.response.length > 0 ? item.response[0]?.value : '-' : '-'}</Typography>
-                                            {item.note &&
-                                                <Typography color="gray" fontSize={12}>RQ : {item.note}</Typography>}
-                                            {isObject(item.response) && Object.keys(item.response).map((rep: any) => (
-                                                <Typography color="gray" fontSize={12}
-                                                            key={rep}>{rep} : {item.response[rep]}</Typography>
-                                            ))}
-                                        </React.Fragment>
-                                    }>
-                                </HtmlTooltip>*/}
-                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
-                                    {item.name}{" "}
-                                    {item.startDate ? " / " + item.startDate : ""}{" "}
-                                    {item.endDate ? " - " + item.endDate : ""}
-                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
-                                </Typography>
+                                <Tooltip title={item.name}>
+                                    <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
+                                        {item.name}{" "}
+                                        {item.startDate ? " / " + item.startDate : ""}{" "}
+                                        {item.endDate ? " - " + item.endDate : ""}
+                                        {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
+                                        {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
+                                    </Typography>
+                                </Tooltip>
                                 <IconButton
                                     size="small"
                                     onClick={() => {

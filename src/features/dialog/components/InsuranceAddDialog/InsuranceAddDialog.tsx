@@ -1,5 +1,5 @@
 import {
-    Autocomplete, Avatar,
+    Autocomplete,
     CardContent, Collapse, Divider, FormControl, FormHelperText,
     Grid,
     IconButton, InputAdornment,
@@ -21,6 +21,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
+import {ImageHandler} from "@features/image";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -148,29 +149,19 @@ function InsuranceAddDialog({...props}) {
                                                         {...params}
                                                         key={option.uuid}
                                                         value={option.uuid}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 20,
-                                                                height: 20,
-                                                                borderRadius: 0.4
-                                                            }}
+                                                        <ImageHandler
                                                             alt={"insurance"}
                                                             src={option.logoUrl.url}
                                                         />
                                                         <Typography
-                                                            sx={{ml: 1}}>{option.name}</Typography>
+                                                            sx={{ml: 1}}><span>{option.name}</span></Typography>
                                                     </MenuItem>)}
                                                 renderInput={(params) => {
                                                     const insurance = insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value);
                                                     params.InputProps.startAdornment = insurance && (
                                                         <InputAdornment position="start">
                                                             {insurance?.logoUrl &&
-                                                                <Avatar
-                                                                    sx={{
-                                                                        width: 20,
-                                                                        height: 20,
-                                                                        borderRadius: 0.4
-                                                                    }}
+                                                                <ImageHandler
                                                                     alt="insurance"
                                                                     src={insurance?.logoUrl.url}
                                                                 />}

@@ -20,12 +20,17 @@ function PreviewDialog({...props}) {
     let rows: any[] = [];
     const [pages, setPages] = useState<any[]>([]);
     const [title, setTitle] = useState("Titre");
+    const breakStyle = {
+        'font-size': '16px',
+        'margin-top': 0,
+        'margin-bottom': '1px',
+        'margin-left': '18px',
+    };
     const prescriptionRows = [
         {name: 'name', style: {'margin-bottom': 0, 'font-size': '20px', 'font-weight': 'bold'}},
         {name: 'dosage', style: {'font-size': '19px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
         {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
-        {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
-    ];
+        {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}];
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
         if (pageX) {
@@ -74,8 +79,8 @@ function PreviewDialog({...props}) {
                                         });
                                         break;
                                     case "dosage":
-                                        el.cycles.map((cycle: any) => {
-                                            let val = `${cycle.dosage}`
+                                        el.cycles.map((cycle: any, index: number) => {
+                                            let val = `- ${cycle.dosage}`
                                             if (cycle.duration)
                                                 val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                                             if (cycle.note)
@@ -86,6 +91,12 @@ function PreviewDialog({...props}) {
                                                 name: pr.name,
                                                 element: "p",
                                                 style: pr.style
+                                            });
+                                            index < el.cycles.length - 1 && rows.push({
+                                                value: "puis",
+                                                name: "break",
+                                                element: "p",
+                                                style: breakStyle
                                             });
                                         })
                                         break;

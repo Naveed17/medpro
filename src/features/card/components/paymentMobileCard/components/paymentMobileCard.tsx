@@ -16,11 +16,11 @@ import Icon from "@themes/urlIcon";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import PaymentMobileCardStyled from "./overrides/paymentMobileCardStyle";
-import Image from "next/image";
 import {PaymentFeesPopover} from "@features/popover";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {DefaultCountry} from "@lib/constants";
+import {ImageHandler} from "@features/image";
 
 function PaymentMobileCard({...props}) {
     const {
@@ -142,26 +142,20 @@ function PaymentMobileCard({...props}) {
                                         sx={{
                                             "& .MuiAvatarGroup-avatar": {width: 24, height: 24},
                                         }}>
-                                        {data.patient.insurances.map(
-                                            (insuranceItem: { insurance: InsuranceModel }) => (
+                                        {data.patient.insurances.map((insuranceItem: any) => (
                                                 <Tooltip
-                                                    key={insuranceItem.insurance?.uuid}
-                                                    title={insuranceItem.insurance?.name}>
+                                                    key={insuranceItem?.uuid}
+                                                    title={insuranceItem?.name}>
                                                     <Avatar variant={"circular"}>
-                                                        <Image
-                                                            style={{borderRadius: 2}}
-                                                            alt={insuranceItem.insurance?.name}
-                                                            src="static/icons/Med-logo.png"
-                                                            width={20}
-                                                            height={20}
-                                                            loader={() => {
-                                                                return insurances?.find(
+                                                        {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
+                                                            <ImageHandler
+                                                                alt={insuranceItem?.name}
+                                                                src={insurances.find(
                                                                     (insurance: any) =>
                                                                         insurance.uuid ===
-                                                                        insuranceItem.insurance?.uuid
-                                                                )?.logoUrl.url;
-                                                            }}
-                                                        />
+                                                                        insuranceItem?.uuid
+                                                                ).logoUrl.url}
+                                                            />}
                                                     </Avatar>
                                                 </Tooltip>
                                             )

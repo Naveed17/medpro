@@ -8,12 +8,11 @@ import ModalStyled from "./overrides/modalStyled";
 import {InputStyled} from "@features/tabPanel";
 
 function CropImage({...props}) {
-    const {img, setFieldValue, setPicture, setOpen, open, filedName= "file"} = props;
+    const {img, setFieldValue, setPicture, setOpen, open, filedName = "file"} = props;
     const [crop, setCrop] = useState({x: 0, y: 0});
     const [rotation, setRotation] = useState(0);
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-    const [croppedImage, setCroppedImage] = useState(null);
     const onCropComplete = useCallback(
         (croppedArea: any, croppedAreaPixels: any) => {
             setCroppedAreaPixels(croppedAreaPixels);
@@ -28,7 +27,6 @@ function CropImage({...props}) {
                 croppedAreaPixels,
                 rotation
             );
-            setCroppedImage(croppedImage);
             if (setFieldValue)
                 setFieldValue(filedName, croppedImage);
             else

@@ -133,7 +133,7 @@ const dialogData = [
     action: "add_treatment",
     component: dynamic((): any =>
       import(
-        "@features/dialog/components/medicalPrescriptionDialog/medicalPrescriptionDialog"
+        "@features/dialog/components/addTreatmentDialog/addTreatmentDialog"
       ).then((mod) => mod)
     ),
   },

@@ -17,6 +17,7 @@ import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -26,7 +27,8 @@ function PreConsultationDialog({...props}) {
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances: allInsurances} = useInsurances();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -58,12 +60,6 @@ function PreConsultationDialog({...props}) {
     const {data: user} = session as Session;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
@@ -76,8 +72,6 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const models = (httpModelResponse as HttpResponse)?.data as ModalModel[];
     const sheetModal = (httpSheetResponse as HttpResponse)?.data?.modal;
 
@@ -105,7 +99,7 @@ function PreConsultationDialog({...props}) {
                         <Avatar
                             src={
                                 patientPhoto
-                                    ? patientPhoto
+                                    ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                     : patient?.gender === "M"
                                         ? "/static/icons/men-avatar.svg"
                                         : "/static/icons/women-avatar.svg"
@@ -124,7 +118,7 @@ function PreConsultationDialog({...props}) {
                 {insurances && insurances.length > 0 &&
                     <Stack direction='row' alignItems="center" spacing={1}>
                         <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                            {insurances.map((insuranceItem: InsuranceModel) =>
+                            {insurances.map((insuranceItem: any) =>
                                 <Tooltip key={insuranceItem.uuid}
                                          title={insuranceItem.name}>
                                     {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?

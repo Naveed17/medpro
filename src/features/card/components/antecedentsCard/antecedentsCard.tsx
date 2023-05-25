@@ -11,14 +11,14 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
+import {useAntecedentTypes} from "@lib/hooks/rest";
 
 const emptyObject = {
     title: "",
@@ -31,6 +31,7 @@ function AntecedentsCard({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {allAntecedents: antecedentsType} = useAntecedentTypes();
 
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
@@ -43,13 +44,6 @@ function AntecedentsCard({...props}) {
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
     const {trigger} = useRequestMutation(null, "/antecedent");
-
-    const {data: httpAntecedentsTypeResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
-
 
     const isObject = (val: any) => {
         if (val === null) {
@@ -98,16 +92,6 @@ function AntecedentsCard({...props}) {
         handleClickDialog();
     };
 
-    /*    const onChangeList = (prop: PatientDetailsList) => {
-            const newState = data.map((obj) => {
-                if (obj.id === prop.id) {
-                    return {...prop};
-                }
-                return obj;
-            });
-            setdata(newState);
-        }*/
-
     const getTitle = () => {
         const info = antecedentsType?.find((ant: { slug: any; }) => ant.slug === infoDynamic);
 
@@ -116,8 +100,6 @@ function AntecedentsCard({...props}) {
         }
         return t(infoDynamic)
     }
-
-    const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
 
     const getAntecedents = (antecedent: any) => {
         if (!antecedentsData)
@@ -178,17 +160,15 @@ function AntecedentsCard({...props}) {
                                                 key={`antecedent-${index}`}
                                                 title={
                                                     <React.Fragment>
-                                                        <Typography color="gray" fontWeight={"bold"}
+                                                        <Typography fontWeight={"bold"}
                                                                     fontSize={12}>{item?.name}</Typography>
-                                                        <Typography color="gray" fontSize={12}>Date début
+                                                        <Typography fontSize={12}>Date début
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
-                                                        <Typography color="gray" fontSize={12}>Date fin
+                                                        <Typography fontSize={12}>Date fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
-                                                        {item?.ascendantOf && <Typography color="gray"
-                                                                                          fontSize={12}>{item?.ascendantOf}</Typography>}
-                                                        <Typography color="gray" fontSize={12}>Note : {getNote(item)}</Typography>
-                                                        {item?.note && <Typography color="gray" fontSize={12}>RQ
-                                                            : {item?.note}</Typography>}
+                                                        {item?.ascendantOf && <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}
+                                                        <Typography fontSize={12}>Note : {getNote(item)}</Typography>
+                                                        {item?.note && <Typography fontSize={12}>RQ : {item?.note}</Typography>}
                                                         {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (
                                                             <Typography color="gray" fontSize={12}
                                                                         key={rep}>{rep} : {item?.response[rep]}</Typography>

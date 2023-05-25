@@ -111,31 +111,13 @@ function DocumentsPanel({...props}) {
                 <>
 
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
-                        <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
                             {
                                 patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                    <Box className={"document-card-image"}
-                                         onClick={() => {
-                                             showDoc(card)
-                                         }} key={`doc-item-${idx}`} width={152} height={140}
-                                         borderRadius={2}
-                                         style={{background: "white"}}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={card.uri.thumbnails['thumbnail_128']}
-                                             className={"image-cover"}
-                                             alt={card.title}/>
-                                        <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
-                                            <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
-                                            <Typography whiteSpace={'nowrap'}
-                                                        textOverflow={"ellipsis"}
-                                                        overflow={"hidden"}
-                                                        maxWidth={"120px"}
-                                                        color={"gray"}
-                                                        fontSize={12}>
-                                                {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                                            </Typography>
-                                        </Stack>
-                                    </Box>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard onClick={() => { showDoc(card)
+                                        }} {...{t,data:card,date:false,time:true,title:true,resize:true}}/>
+                                    </React.Fragment>
                                 )
                             }
                         </Stack>
@@ -259,8 +241,8 @@ function DocumentsPanel({...props}) {
                                     background: "white"
                                 },
                                 "& .injected-svg": {
-                                    maxWidth: 30,
-                                    maxHeight: 30
+                                    //maxWidth: 30,
+                                    //maxHeight: 30
                                 },
                                 marginBottom: "1rem"
                             }}
@@ -280,32 +262,13 @@ function DocumentsPanel({...props}) {
                                 </AppBar>
 
                                 <Box style={{overflowX: "auto", marginBottom: 10}}>
-                                    <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                                    <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
                                         {
                                             documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                                <Box sx={{border: `1px solid ${theme.palette.grey['A300']}`}}
-                                                     onClick={() => {
-                                                         showDoc(card)
-                                                     }} key={`doc-item-${idx}`} width={152} height={140}
-                                                     borderRadius={2}
-                                                     style={{background: "white"}}>
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={card.uri.thumbnails['thumbnail_128']}
-                                                         className={"image-cover"}
-                                                         alt={card.title}/>
-
-                                                    <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
-                                                        <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
-                                                        <Typography whiteSpace={'nowrap'}
-                                                                    textOverflow={"ellipsis"}
-                                                                    overflow={"hidden"}
-                                                                    maxWidth={"120px"}
-                                                                    color={"gray"}
-                                                                    fontSize={12}>
-                                                            {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                                                        </Typography>
-                                                    </Stack>
-                                                </Box>
+                                                <React.Fragment key={`doc-item-${idx}`}>
+                                                    <DocumentCard onClick={() => {showDoc(card)
+                                                    }} {...{t,data:card,date:false,time:true,title:true,resize:true}}/>
+                                                </React.Fragment>
                                             )
                                         }
                                     </Stack>

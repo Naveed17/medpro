@@ -10,7 +10,7 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
-    FormControlLabel,
+    FormControlLabel, FormHelperText,
     List,
     ListItemButton,
     ListItemText,
@@ -63,6 +63,7 @@ import {useTranslation} from "next-i18next";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
+import FormControl from "@mui/material/FormControl";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -183,7 +184,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 dosageQty: Yup.string(),
                 dosageDuration: Yup.number(),
                 dosageMealValue: Yup.string(),
-                durationValue: Yup.string(),
+                durationValue: Yup.string().min(3).required("durationValue_error"),
                 dosageInput: Yup.boolean(),
                 cautionaryNoteInput: Yup.boolean(),
                 dosageInputText: Yup.string(),
@@ -752,6 +753,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         {t(subitem.label, {ns: "consultation"})}
                                                                     </Button>
                                                                 ))}
+                                                                {errors.data && (errors.data as any)[idx]?.cycles[index]?.durationValue &&
+                                                                    <FormControl sx={{m: 3}} error
+                                                                                 variant="standard">
+                                                                        <FormHelperText>{t("duration-error", {ns: "consultation"})}</FormHelperText>
+                                                                    </FormControl>}
                                                             </Stack>
                                                         </Stack>
                                                         <Stack mt={1}>
@@ -881,21 +887,30 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     primary={drug.name}
                                                     secondary={
                                                         <React.Fragment>
-                                                        <span style={{display: "grid"}}>
-                                                            {drug.cycles.map((cycle: PrescriptionCycleModel, index: number) =>
-                                                                <span
-                                                                    key={`cycle-${index}`}>
-                                                                <Typography
-                                                                    sx={{display: 'inline'}}
-                                                                    component="span"
-                                                                    variant="body2"
-                                                                    color="text.primary"
-                                                                >
-                                                                    {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
-                                                                </Typography>
-                                                                    {cycle.note.length > 0 && `(${cycle.note})`}
-                                                            </span>)}
-                                                        </span>
+                                                            <span style={{display: "grid"}}>
+                                                                {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) =>
+                                                                    <span
+                                                                        key={`cycle-${indexCycle}`}
+                                                                        style={{display: "grid"}}>
+                                                                        <span>
+                                                                            <Typography
+                                                                                sx={{display: 'inline'}}
+                                                                                component="span"
+                                                                                variant="body2"
+                                                                                color="text.primary"
+                                                                            >
+                                                                                {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
+                                                                            </Typography>
+                                                                            {cycle.note.length > 0 && `(${cycle.note})`}
+                                                                        </span>
+                                                                        {(indexCycle < (drug.cycles.length - 1) &&
+                                                                                !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] ||
+                                                                                    (errors.data as any)[index]?.cycles[indexCycle]))) &&
+                                                                            <span
+                                                                                style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>}
+                                                                    </span>
+                                                                )}
+                                                            </span>
                                                         </React.Fragment>
                                                     }
                                                 />
@@ -990,7 +1005,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         value={parentModelName}
                         onChange={(e) => {
                             setParentModelName(e.target.value);
-                            dispatch(setModelName(e.target.value));
                         }}
                         placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
                     />

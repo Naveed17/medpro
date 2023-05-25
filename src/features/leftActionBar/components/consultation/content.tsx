@@ -56,7 +56,6 @@ const Content = ({...props}) => {
     const [info, setInfo] = useState<string>("");
     const [infoDynamic, setInfoDynamic] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
-    const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
     const [selected, setSelected] = useState<any>();
     const [openRemove, setOpenRemove] = useState(false);
@@ -110,7 +109,6 @@ const Content = ({...props}) => {
             form.append("globalNote", "");
             form.append("isOtherProfessional", "true");
             form.append("drugs", JSON.stringify(state));
-
             trigger(
                 {
                     method: "POST",
@@ -180,8 +178,7 @@ const Content = ({...props}) => {
 
         setInfo(action);
         setInfoDynamic(action)
-        bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
-
+        setSize("sm");
         handleClickDialog();
     };
 
@@ -189,7 +186,7 @@ const Content = ({...props}) => {
         if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
         setInfo("dynamicAnt");
         setInfoDynamic(action);
-        bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
+        setSize("sm");
         handleClickDialog();
     }
 
@@ -265,6 +262,9 @@ const Content = ({...props}) => {
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
+    const treatements = patient?.treatment.filter((trait: { isOtherProfessional: boolean; }) => trait.isOtherProfessional)
+    const ordonnaces = patient?.treatment.filter((trait: { isOtherProfessional: boolean; }) => !trait.isOtherProfessional)
+
     if (!ready || status === "loading") return (
         <LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
@@ -276,88 +276,86 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
-                                    {patient?.treatment.length > 0 && (
+                                    {treatements.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("tip")}
                                         </Typography>
                                     )}
 
-                                    {patient?.treatment
-                                        .map((list: any, index: number) => (
-                                            <ListItem key={index}>
-                                                <ListItemIcon>
-                                                    <CircleIcon/>
-                                                </ListItemIcon>
-                                                <Typography variant="body2" color={"text.secondary"}>
-                                                    {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
-                                                </Typography>
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => {
-                                                        setSelected({
-                                                            title: t("askRemoveTrait"),
-                                                            subtitle: t("subtitleRemoveTrait"),
-                                                            icon: "/static/icons/ic-medicament.svg",
-                                                            name1: list.name,
-                                                            name2: `${list.duration} ${t(list.durationType)}`,
-                                                            request: {
-                                                                method: "PATCH",
-                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                                headers: {
-                                                                    ContentType:
-                                                                        "application/x-www-form-urlencoded",
-                                                                    Authorization: `Bearer ${session?.accessToken}`,
-                                                                },
+                                    {treatements.map((list: any, index: number) => (
+                                        <ListItem key={index}>
+                                            <ListItemIcon>
+                                                <CircleIcon/>
+                                            </ListItemIcon>
+                                            <Typography variant="body2" color={"text.secondary"}>
+                                                {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    setSelected({
+                                                        title: t("askRemoveTrait"),
+                                                        subtitle: t("subtitleRemoveTrait"),
+                                                        icon: "/static/icons/ic-medicament.svg",
+                                                        name1: list.name,
+                                                        name2: `${list.duration ?list.duration : ''} ${list.durationType ?t(list.durationType):''}`,
+                                                        request: {
+                                                            method: "PATCH",
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                            headers: {
+                                                                ContentType:
+                                                                    "application/x-www-form-urlencoded",
+                                                                Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        });
-                                                        setOpenRemove(true);
-                                                    }}
-                                                    sx={{ml: "auto"}}>
-                                                    <Icon path="setting/icdelete"/>
-                                                </IconButton>
-                                            </ListItem>
-                                        ))}
+                                                        },
+                                                    });
+                                                    setOpenRemove(true);
+                                                }}
+                                                sx={{ml: "auto"}}>
+                                                <Icon path="setting/icdelete"/>
+                                            </IconButton>
+                                        </ListItem>
+                                    ))}
 
-                                    {patient?.treatment.length > 0 && (
+                                    {ordonnaces.length > 0 && (
                                         <Typography fontSize={11} fontWeight={"bold"} mt={1}>
                                             {t("prescription")}
                                         </Typography>
                                     )}
-                                    {patient?.treatment
-                                        .map((list: any, index: number) => (
-                                            <ListItem key={index}>
-                                                <ListItemIcon>
-                                                    <CircleIcon/>
-                                                </ListItemIcon>
-                                                <Typography variant="body2">
-                                                    {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
-                                                </Typography>
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => {
-                                                        setSelected({
-                                                            title: t("askRemoveTrait"),
-                                                            subtitle: t("subtitleRemoveTrait"),
-                                                            icon: "/static/icons/ic-medicament.svg",
-                                                            name1: list.name,
-                                                            name2: `${list.duration} ${t(list.durationType)}`,
-                                                            request: {
-                                                                method: "PATCH",
-                                                                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                                headers: {
-                                                                    ContentType:
-                                                                        "application/x-www-form-urlencoded",
-                                                                    Authorization: `Bearer ${session?.accessToken}`,
-                                                                },
+                                    {ordonnaces.map((list: any, index: number) => (
+                                        <ListItem key={index}>
+                                            <ListItemIcon>
+                                                <CircleIcon/>
+                                            </ListItemIcon>
+                                            <Typography variant="body2">
+                                                {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    setSelected({
+                                                        title: t("askRemoveTrait"),
+                                                        subtitle: t("subtitleRemoveTrait"),
+                                                        icon: "/static/icons/ic-medicament.svg",
+                                                        name1: list.name,
+                                                        name2: `${list.duration} ${t(list.durationType)}`,
+                                                        request: {
+                                                            method: "PATCH",
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                            headers: {
+                                                                ContentType:
+                                                                    "application/x-www-form-urlencoded",
+                                                                Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        });
-                                                        setOpenRemove(true);
-                                                    }}
-                                                    sx={{ml: "auto"}}>
-                                                    <Icon path="setting/icdelete"/>
-                                                </IconButton>
-                                            </ListItem>
-                                        ))}
+                                                        },
+                                                    });
+                                                    setOpenRemove(true);
+                                                }}
+                                                sx={{ml: "auto"}}>
+                                                <Icon path="setting/icdelete"/>
+                                            </IconButton>
+                                        </ListItem>
+                                    ))}
                                 </List>
                                 <Button
                                     onClick={() => handleOpen("add_treatment")}
@@ -762,7 +760,7 @@ const Content = ({...props}) => {
                                 <Stack key={`${idx}-item-doc-patient`} onClick={() => {
                                     showDoc(pdoc)
                                 }}>
-                                    <DocumentCard {...{t, data: pdoc, date: false, time: false, title: false}}/>
+                                    <DocumentCard {...{t, data: pdoc, date: true, time: false, title: false}}/>
                                     <Typography whiteSpace={"nowrap"} fontSize={9} textAlign={"center"}
                                                 style={{marginTop: 5, color: "grey", cursor: "pointer"}}>
                                         {moment(pdoc.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}

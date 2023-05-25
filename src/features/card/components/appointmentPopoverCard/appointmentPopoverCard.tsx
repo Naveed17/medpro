@@ -8,39 +8,20 @@ import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
-import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
-
-    const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {patientPhoto} = useProfilePhoto({patientId: data.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     const [height, setHeight] = useState(0)
     const componentRef = useRef<null | HTMLDivElement>(null);
@@ -70,7 +51,7 @@ function AppointmentPopoverCard({...props}) {
             </Box>
 
             {data?.hasErrors?.map((error: string, index: number) => (
-                <Stack key={index+error}
+                <Stack key={index + error}
                        spacing={2} mt={.5} pl={4}
                        direction="row">
                     <Alert
@@ -155,7 +136,9 @@ function AppointmentPopoverCard({...props}) {
             >
                 <Box mt={.5}>
                     <Avatar
-                        src={patientPhoto ? patientPhoto : (data?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                        src={patientPhoto
+                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                            : (data?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0
