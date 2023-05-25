@@ -285,7 +285,7 @@ function Consultation() {
                                 <Avatar
                                     src={
                                         patientPhoto
-                                            ? patientPhoto
+                                            ? patientPhoto.url
                                             : patient?.gender === "M"
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"

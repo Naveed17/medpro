@@ -73,7 +73,7 @@ function DocumentDetailDialog({...props}) {
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
-    const [file, setFile] = useState<string>('');
+    const [file, setFile] = useState<any>('');
     const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
     const [menu, setMenu] = useState(true);
@@ -487,8 +487,8 @@ function DocumentDetailDialog({...props}) {
                                 {state.type === 'photo' &&
                                     <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
                                          alt={"img"}/>}
-                                {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
-                                {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
+                                {state.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
+                                {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
                             </Box>
                         }
                     </Stack>
