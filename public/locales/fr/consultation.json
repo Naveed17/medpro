@@ -209,6 +209,7 @@
     "renameWithsuccess": "Document modifié avec succès",
     "dosage": "Posologie ",
     "enter_your_dosage": "Saisissez votre posologie",
+    "duration-error": "Veuillez sélectionner la durée de la posologie.",
     "duration": "pendant",
     "durations": "Durée",
     "day": "jour(s)",
