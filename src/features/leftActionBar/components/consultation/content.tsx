@@ -81,7 +81,6 @@ const Content = ({...props}) => {
     }
 
     const handleCloseDialogDoc = () => {
-        console.log("treatment")
         setOpenDialogDoc(false);
     }
 
