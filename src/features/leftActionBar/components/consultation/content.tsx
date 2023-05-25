@@ -762,7 +762,7 @@ const Content = ({...props}) => {
                                 <Stack key={`${idx}-item-doc-patient`} onClick={() => {
                                     showDoc(pdoc)
                                 }}>
-                                    <DocumentCard {...{t, data: pdoc, date: false, time: false, title: false}}/>
+                                    <DocumentCard {...{t, data: pdoc, date: true, time: false, title: false}}/>
                                     <Typography whiteSpace={"nowrap"} fontSize={9} textAlign={"center"}
                                                 style={{marginTop: 5, color: "grey", cursor: "pointer"}}>
                                         {moment(pdoc.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}

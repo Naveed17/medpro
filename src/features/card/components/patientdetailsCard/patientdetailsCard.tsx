@@ -8,7 +8,8 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 // styled
@@ -16,6 +17,7 @@ import {RootStyled} from "./overrides";
 // utils
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
+import UrlIcon from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 
@@ -35,7 +37,6 @@ import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
-import UrlIcon from "@themes/urlIcon";
 import {dashLayoutSelector} from "@features/base";
 
 function PatientDetailsCard({...props}) {
@@ -460,9 +461,7 @@ function PatientDetailsCard({...props}) {
 
                     {patient && (
                         <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
-                            {/*
-                            <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
-*/}
+                            {/*<QrCodeScanner value={patient?.uuid} width={100} height={100}/>*/}
                         </Box>
                     )}
                 </RootStyled>

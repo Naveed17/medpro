@@ -19,6 +19,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
+import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
 
 const emptyObject = {
     title: "",
@@ -44,13 +45,7 @@ function AntecedentsCard({...props}) {
 
     const {trigger} = useRequestMutation(null, "/antecedent");
 
-    const {data: httpAntecedentsTypeResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
-
-
+    const {data: httpAntecedentsTypeResponse} = useAntecedentTypes()
     const isObject = (val: any) => {
         if (val === null) {
             return false;
