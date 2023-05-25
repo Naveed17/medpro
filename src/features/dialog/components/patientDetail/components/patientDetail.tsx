@@ -46,6 +46,7 @@ import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
 
 function a11yProps(index: number) {
     return {
@@ -141,11 +142,7 @@ function PatientDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpAnctecentType} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    const {data: httpAnctecentType} = useAntecedentTypes()
 
     const {
         data: httpPatientDocumentsResponse,

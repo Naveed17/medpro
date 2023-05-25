@@ -40,6 +40,7 @@ import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
+import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -87,11 +88,7 @@ function Consultation() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpAnctecentType} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    const {data: httpAnctecentType} = useAntecedentTypes()
 
     const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
