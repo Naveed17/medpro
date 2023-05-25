@@ -12,7 +12,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;

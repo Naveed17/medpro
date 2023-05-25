@@ -46,7 +46,7 @@ import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function a11yProps(index: number) {
     return {

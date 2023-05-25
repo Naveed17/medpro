@@ -7,7 +7,7 @@ import moment from "moment-timezone";
 import React, {useState} from "react";
 import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;

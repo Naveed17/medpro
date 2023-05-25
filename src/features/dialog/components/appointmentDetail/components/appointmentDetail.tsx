@@ -36,7 +36,7 @@ import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function AppointmentDetail({...props}) {
     const {

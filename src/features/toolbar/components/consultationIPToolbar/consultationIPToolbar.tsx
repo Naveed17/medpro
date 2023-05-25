@@ -40,7 +40,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import DialogTitle from "@mui/material/DialogTitle";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({

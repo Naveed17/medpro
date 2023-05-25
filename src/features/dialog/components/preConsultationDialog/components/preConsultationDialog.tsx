@@ -17,7 +17,7 @@ import {WidgetForm} from "@features/widget";
 import {setModelPreConsultation} from "@features/dialog";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;

@@ -30,7 +30,7 @@ import {useRouter} from "next/router";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import useProfilePhoto from "@lib/hooks/rest/useProfilePhoto";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 const menuList = [
     {
