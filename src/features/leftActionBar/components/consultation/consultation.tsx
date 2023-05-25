@@ -40,7 +40,7 @@ import {ExpandAbleCard} from "@features/card";
 import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
-import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -48,13 +48,16 @@ function Consultation() {
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances: allInsurances} = useInsurances();
+    const {allAntecedents} = useAntecedentTypes();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState<boolean>(true);
     const [number, setNumber] = useState<any>(null);
@@ -69,26 +72,17 @@ function Consultation() {
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
     const [analyses, setAnalyses] = useState<any>([]);
     const [mi, setMi] = useState<any>([]);
-    const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
     const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
-
-    const {data: httpAnctecentType} = useAntecedentTypes()
 
     const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -158,12 +152,6 @@ function Consultation() {
             setMi((httpPatientMI as HttpResponse).data)
         }
     }, [httpPatientMI])
-
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
-        }
-    }, [httpAnctecentType])
 
     useEffect(() => {
         const noteContainer = document.getElementById("note-card-content");
@@ -267,9 +255,6 @@ function Consultation() {
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
-
     if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
 
     return (
@@ -282,7 +267,7 @@ function Consultation() {
                                 <Avatar
                                     src={
                                         patientPhoto
-                                            ? patientPhoto.url
+                                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                             : patient?.gender === "M"
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"

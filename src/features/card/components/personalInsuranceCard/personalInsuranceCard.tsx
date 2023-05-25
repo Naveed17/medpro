@@ -49,7 +49,7 @@ function PersonalInsuranceCard({...props}) {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances} = useInsurances();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -63,7 +63,6 @@ function PersonalInsuranceCard({...props}) {
         keyPrefix: "config.add-patient",
     });
 
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
     const RegisterPatientSchema = Yup.object().shape({
