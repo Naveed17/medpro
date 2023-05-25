@@ -53,7 +53,6 @@ PhoneCountry.displayName = "Phone country";
 function ModifyUser() {
     const router = useRouter();
     const phoneInputRef = useRef(null);
-    const didMountRef = useRef(false);
      const {enqueueSnackbar} = useSnackbar()
     const {uuid} = router.query;
     const dispatch = useAppDispatch();
