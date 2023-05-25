@@ -11,14 +11,14 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import { useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
-import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
+import {useAntecedentTypes} from "@lib/hooks/rest";
 
 const emptyObject = {
     title: "",
@@ -31,6 +31,7 @@ function AntecedentsCard({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {allAntecedents: antecedentsType} = useAntecedentTypes();
 
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
@@ -44,18 +45,17 @@ function AntecedentsCard({...props}) {
 
     const {trigger} = useRequestMutation(null, "/antecedent");
 
-    const {data: httpAntecedentsTypeResponse} = useAntecedentTypes()
-    const antecedentsType = (httpAntecedentsTypeResponse as HttpResponse)?.data as any[];
-
     const isObject = (val: any) => {
         if (val === null) {
             return false;
         }
         return typeof val === 'object' && !Array.isArray(val)
     }
+
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
+
     const handleCloseDialog = () => {
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
@@ -76,6 +76,7 @@ function AntecedentsCard({...props}) {
             mutateAntecedents();
         });
     };
+
     const handleOpen = (action: string) => {
         if (action === "consultation") {
             dispatch(openDrawer({type: "add", open: true}));
@@ -90,6 +91,7 @@ function AntecedentsCard({...props}) {
         action === "add_treatment" ? setSize("lg") : setSize("sm");
         handleClickDialog();
     };
+
     const getTitle = () => {
         const info = antecedentsType?.find((ant: { slug: any; }) => ant.slug === infoDynamic);
 
@@ -98,6 +100,7 @@ function AntecedentsCard({...props}) {
         }
         return t(infoDynamic)
     }
+
     const getAntecedents = (antecedent: any) => {
         if (!antecedentsData)
             return Array.from(new Array(3));
@@ -115,7 +118,6 @@ function AntecedentsCard({...props}) {
             else return '-';
         else return '-';
     }
-
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (

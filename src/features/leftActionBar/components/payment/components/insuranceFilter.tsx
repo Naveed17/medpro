@@ -9,11 +9,9 @@ import {useInsurances} from "@lib/hooks/rest";
 function InsuranceFilter({...props}) {
     const {t, OnSearch} = props;
 
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances: insurancesData} = useInsurances();
 
     const {query: filterData} = useAppSelector(leftActionBarSelector);
-
-    const insurancesData = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const [queryState, setQueryState] = useState<any>({
         insurance: []

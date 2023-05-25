@@ -5,24 +5,22 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useInsurances} from "@lib/hooks/rest";
 
 function AssuranceDialog(info: any) {
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances} = useInsurances();
 
-    const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        if (httpInsuranceResponse !== undefined) {
-            setItems((httpInsuranceResponse as any).data);
+        if (insurances !== undefined) {
             setLoading(false);
         }
-    }, [httpInsuranceResponse]);
+    }, [insurances]);
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (<>
 
-        <CheckList items={items}
+        <CheckList items={insurances}
                    data={info}
                    action={'assurance'}
                    loading={loading}

@@ -92,7 +92,6 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 function OnStepPatient({...props}) {
     const {
-        onNext,
         onClose,
         handleAddPatient = null,
         OnSubmit = null,
@@ -105,7 +104,7 @@ function OnStepPatient({...props}) {
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {insurances} = useInsurances();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -307,7 +306,6 @@ function OnStepPatient({...props}) {
 
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleExpandClick = () => {

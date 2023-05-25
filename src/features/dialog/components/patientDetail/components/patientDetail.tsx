@@ -46,7 +46,7 @@ import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
-import useAntecedentTypes from "@lib/hooks/rest/useAntecedentTypes";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 
 function a11yProps(index: number) {
     return {
@@ -85,6 +85,7 @@ function PatientDetail({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {allAntecedents} = useAntecedentTypes();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {direction} = useAppSelector(configSelector);
@@ -98,7 +99,6 @@ function PatientDetail({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
@@ -142,8 +142,6 @@ function PatientDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpAnctecentType} = useAntecedentTypes()
-
     const {
         data: httpPatientDocumentsResponse,
         mutate: mutatePatientDocuments
@@ -154,12 +152,7 @@ function PatientDetail({...props}) {
     } : null);
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
     const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -168,7 +161,6 @@ function PatientDetail({...props}) {
     } : null, SWRNoValidateConfig);
 
     const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
-    const allAntecedents = (httpAnctecentType as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -256,7 +248,6 @@ function PatientDetail({...props}) {
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
     const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
     const tabsContent = [
@@ -339,7 +330,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t,router,session,allAntecedents}} />
+                <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
             </PDFViewer>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
