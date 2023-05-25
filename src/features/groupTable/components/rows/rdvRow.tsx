@@ -155,14 +155,11 @@ function RDVRow({...props}) {
                                     {matches ? (
                                         <RDVPreviousCard
                                             inner={inner}
-                                            {...{patient, loading, handlePreConsultationDialog}}
-                                            key={Math.random()}
-                                        />
+                                            {...{patient, loading, handlePreConsultationDialog}}/>
                                     ) : (
                                         <RDVMobileCard
                                             inner={inner}
-                                            {...{loading, handlePreConsultationDialog}}
-                                            key={Math.random()}/>
+                                            {...{loading, handlePreConsultationDialog}}/>
                                     )}
                                 </React.Fragment>
                             )
