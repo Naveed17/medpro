@@ -363,17 +363,19 @@ function BalanceSheetDialog({...props}) {
                         {selectedModel && <Stack direction={"row"}>
                             <Tooltip title={t('edit_template')}>
                                 <IconButton
+                                    size="small"
                                     onClick={editModel}><EditRoundedIcon/>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t('delete_template')}>
                                 <IconButton
+                                    size="small"
                                     color={"error"}
                                     onClick={deleteModel}><DeleteOutlineRoundedIcon/>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t('close_template')}>
-                                <IconButton onClick={()=>{setAnalysis([]);setSelectedModel(null)}}><CloseRoundedIcon/>
+                                <IconButton size="small" onClick={()=>{setAnalysis([]);setSelectedModel(null)}}><CloseRoundedIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Stack>}

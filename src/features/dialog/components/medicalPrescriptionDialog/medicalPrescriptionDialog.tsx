@@ -39,12 +39,10 @@ import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
-import {SwitchPrescriptionUI} from "@features/buttons";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
-    const {handleSwitchUI = null} = data;
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -248,13 +246,15 @@ function MedicalPrescriptionDialog({...props}) {
 
     useEffect(() => {
         let lastPrescription: any[] = []
-        appointement.latestAppointments.map((la: { documents: any[]; }) => {
-            const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
-            if (prescriptions.length > 0) {
-                lastPrescription = [...lastPrescription, ...prescriptions]
-            }
-        })
-        setLastPrescriptions(lastPrescription)
+        if (appointement !== null) {
+            appointement.latestAppointments.map((la: { documents: any[]; }) => {
+                const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
+                if (prescriptions.length > 0) {
+                    lastPrescription = [...lastPrescription, ...prescriptions]
+                }
+            })
+            setLastPrescriptions(lastPrescription)
+        }
     }, [appointement])
 
     useEffect(() => {
@@ -266,7 +266,6 @@ function MedicalPrescriptionDialog({...props}) {
 
     return (
         <MedicalPrescriptionDialogStyled>
-            <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
             <Grid container spacing={5}>
                 <Grid className={"grid-container"} item xs={12} md={7}>
                     <FormikProvider value={formik}>

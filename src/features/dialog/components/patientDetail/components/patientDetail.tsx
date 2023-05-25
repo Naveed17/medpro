@@ -130,7 +130,7 @@ function PatientDetail({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     const {
         data: httpPatientHistoryResponse,
@@ -539,7 +539,7 @@ function PatientDetail({...props}) {
                 onClose={() => {
                     dispatch(openDrawer({type: "view", open: false}));
                 }}>
-                <AppointmentDetail/>
+                <AppointmentDetail {...{patientId}}/>
             </Drawer>
         </>
     );

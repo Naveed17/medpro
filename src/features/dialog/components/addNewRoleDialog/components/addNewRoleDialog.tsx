@@ -17,37 +17,32 @@ import {
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {Session} from "next-auth";
+import {useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
-import { TreeCheckbox } from "@features/treeViewCheckbox";
-import { useSnackbar } from "notistack";
+import {TreeCheckbox} from "@features/treeViewCheckbox";
+import {useSnackbar} from "notistack";
+import {usePermissions} from "@lib/hooks/rest";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+
 function AddNewRoleDialog({...props}) {
     const {data: {selected, handleMutate, handleClose}} = props;
-    const {t} = useTranslation(["settings", "common"]);
-    
-    const [loading, setLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
-    const {data: userSession} = session as Session;
-    const medical_entity = (userSession as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const {permissions: allPermissions} = usePermissions();
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+
+    const {t} = useTranslation(["settings", "common"]);
+
+    const [loading, setLoading] = useState(false);
+    const [permissions, setPermissions] = useState<any>([]);
+
     const {trigger} = useRequestMutation(null, "/profile");
 
-    const [permissions, setPermissions] = useState<any>([]);
-    const {data: httpPermissionsResponse} = useRequest({
-        method: "GET",
-        url: "/api/medical-entity/permissions",
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
+
     useEffect(() => {
-       
-        if (httpPermissionsResponse) {
-            const response = (httpPermissionsResponse as HttpResponse)?.data
-            const permissions = response.map((item: any) => {
+        if (allPermissions) {
+            const permissions = allPermissions.map((item: any) => {
                 return {
                     ...item,
                     value: false,
@@ -62,8 +57,7 @@ function AddNewRoleDialog({...props}) {
             const updatePermissions = handleUpdatedPermissions(permissions);
             setPermissions(updatePermissions);
         }
-      
-    }, [httpPermissionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [allPermissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleUpdatedPermissions = (permissions: any) => {
         if (selected) {
@@ -85,9 +79,11 @@ function AddNewRoleDialog({...props}) {
             return permissions
         }
     };
+
     const RoleSchema = Yup.object().shape({
         role_name: Yup.string().required(),
     });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -121,37 +117,36 @@ function AddNewRoleDialog({...props}) {
             if (selected) {
                 trigger({
                     method: "PUT",
-                    url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`,
+                    url: `${urlMedicalEntitySuffix}/profile/${selected.uuid}`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
-                    enqueueSnackbar(t("users.alert.updated-role"),{variant: "success"})
+                    enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
                     handleMutate();
                     handleClose();
                     setLoading(false)
                 }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
                     setLoading(false)
-                
-            })
+
+                })
             } else {
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+                    url: `${urlMedicalEntitySuffix}/profile`,
                     data: form,
                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }).then(() => {
-                    enqueueSnackbar(t("users.alert.added-role"),{variant: "success"})
+                    enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
                     handleMutate();
                     handleClose();
                     setLoading(false)
                 }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message,{variant: "error"})
+                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
                     setLoading(false)
-                
-            })
-        };
 
+                })
+            }
         },
         validationSchema: RoleSchema,
     });
@@ -173,7 +168,7 @@ function AddNewRoleDialog({...props}) {
     }
 
     let allValuesTrue = true;
-    if (httpPermissionsResponse) {
+    if (allPermissions) {
         for (let i = 0; i < values.permissions?.length; i++) {
             if (!checkAllValuesTrue(values.permissions[i])) {
                 allValuesTrue = false;
@@ -181,6 +176,7 @@ function AddNewRoleDialog({...props}) {
             }
         }
     }
+
     const handleToggleAllSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
             const newPermissions = values.permissions.map((permission: any) => {
@@ -214,34 +210,34 @@ function AddNewRoleDialog({...props}) {
             setFieldValue("permissions", newPermissions);
         }
     };
-     const handleNodeCheck = (id:string, checked:boolean) => {
-    const updatedData = values.permissions.map((node:any) => {
-      if (node.uuid === id) {
-        return {
-            ...node,
-            value: checked,
-            children: node.children.map((child:any) =>({
-                ...child,
-                value: checked
-            }))
-        }
-          
-    }
-      return {
-        ...node,
-        children: node.children.map((child:any) =>
-          child.uuid === id ? { ...child, value: checked } : { ...child }
-        )
-      };
-    });
-    const checkedData =  updatedData.map((item:any) => {
-        if (item.children.length > 0) {
-            item.value = item.children.every((child:any) => child.value === true) ? true : false
-        }
-        return item;
-    });
-    setFieldValue("permissions", checkedData);
-  };
+    const handleNodeCheck = (id: string, checked: boolean) => {
+        const updatedData = values.permissions.map((node: any) => {
+            if (node.uuid === id) {
+                return {
+                    ...node,
+                    value: checked,
+                    children: node.children.map((child: any) => ({
+                        ...child,
+                        value: checked
+                    }))
+                }
+
+            }
+            return {
+                ...node,
+                children: node.children.map((child: any) =>
+                    child.uuid === id ? {...child, value: checked} : {...child}
+                )
+            };
+        });
+        const checkedData = updatedData.map((item: any) => {
+            if (item.children.length > 0) {
+                item.value = item.children.every((child: any) => child.value === true) ? true : false
+            }
+            return item;
+        });
+        setFieldValue("permissions", checkedData);
+    };
     return (
         <>
             <FormikProvider value={formik}>
@@ -272,23 +268,21 @@ function AddNewRoleDialog({...props}) {
                         <Box className="permissions-wrapper">
                             <Typography gutterBottom>{t("users.dialog.select_permissions")}</Typography>
                             <Card>
-                            <Box py={1} px={2}>
-                               {
-                                httpPermissionsResponse ? 
-                                 <FormControlLabel
-                                                className="bold-label"
-                                                control={<Checkbox onChange={handleToggleAllSelect}/>}
-                                                label={t("users.dialog.select_all")}
-                                                checked={allValuesTrue}
-                                            />
-                                            :<Stack direction="row" spacing={2} alignItems="center">
-                                                <Skeleton width={22} height={35}/>
-                                                <Skeleton width={120}/>
-                                            </Stack>
-                               }
-                                
-                                            </Box>
-                                <TreeCheckbox data={values.permissions} onNodeCheck={handleNodeCheck} t={t} />
+                                <Box py={1} px={2}>
+                                    {allPermissions ?
+                                        <FormControlLabel
+                                            className="bold-label"
+                                            control={<Checkbox onChange={handleToggleAllSelect}/>}
+                                            label={t("users.dialog.select_all")}
+                                            checked={allValuesTrue}
+                                        />
+                                        : <Stack direction="row" spacing={2} alignItems="center">
+                                            <Skeleton width={22} height={35}/>
+                                            <Skeleton width={120}/>
+                                        </Stack>
+                                    }
+                                </Box>
+                                <TreeCheckbox data={values.permissions} onNodeCheck={handleNodeCheck} t={t}/>
                             </Card>
                         </Box>
                     </RootStyled>
