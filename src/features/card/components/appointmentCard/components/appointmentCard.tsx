@@ -72,7 +72,7 @@ function AppointmentCard({...props}) {
             if (onDataUpdated) {
                 onDataUpdated();
             } else {
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
             }
         });
     };
