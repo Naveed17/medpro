@@ -268,7 +268,7 @@ function Consultation() {
                                     src={
                                         patientPhoto
                                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                            : patient?.gender === "M"
+                                            : patient?.gender === 1
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"
                                     }
