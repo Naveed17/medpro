@@ -112,7 +112,7 @@ function PatientRow({...props}) {
                                                     {...(row.hasPhoto && {className: "zoom"})}
                                                     src={patientPhoto
                                                         ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                                        : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                                        : (row?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                                     sx={{
                                                         "& .injected-svg": {
                                                             margin: 0

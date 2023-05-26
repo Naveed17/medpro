@@ -76,6 +76,7 @@ function AppointmentDetail({...props}) {
         "/dashboard/waiting-room",
         "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [loading, setLoading] = useState(false);
+
     const setAppointmentDate = (action: string) => {
         const newDate = moment(appointment?.extendedProps.time);
         dispatch(
@@ -157,7 +158,7 @@ function AppointmentDetail({...props}) {
                                             src={
                                                 patientPhoto
                                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                                    : appointment?.extendedProps?.patient?.gender === "M"
+                                                    : appointment?.extendedProps?.patient?.gender === 1
                                                         ? "/static/icons/men-avatar.svg"
                                                         : "/static/icons/women-avatar.svg"
                                             }
