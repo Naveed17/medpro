@@ -29,7 +29,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSWRConfig} from "swr";
-import Zoom from "react-medium-image-zoom";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
