@@ -27,8 +27,9 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSWRConfig} from "swr";
+import Zoom from "react-medium-image-zoom";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -159,7 +160,10 @@ function AppointmentCard({...props}) {
                                     <Typography fontWeight={400}>
                                         {t("appintment_date")} :
                                     </Typography>
-                                    <Button sx={{p: .5}}>
+                                    <ConditionalWrapper
+                                        condition={onMoveAppointment}
+                                        wrapper={(children: any) => <Button sx={{p: .5}}>{children}</Button>}
+                                    >
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
                                                 <IconUrl className="callander" path="ic-agenda-jour"/>
@@ -172,7 +176,7 @@ function AppointmentCard({...props}) {
                                                 <Typography className="date">{data?.time}</Typography>
                                             </Stack>
                                         </Stack>
-                                    </Button>
+                                    </ConditionalWrapper>
                                 </Stack>
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
