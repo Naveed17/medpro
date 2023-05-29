@@ -58,7 +58,6 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
-
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -241,7 +240,8 @@ function DocumentDetailDialog({...props}) {
                                 drugUuid: drug.standard_drug.uuid,
                                 name: drug.standard_drug.commercial_name,
                             })),
-                            uuid: state.uuidDoc
+                            uuid: state.uuidDoc,
+                            appUuid: state.appUuid
                         }))
                         break;
                     case "requested-analysis":
@@ -488,7 +488,8 @@ function DocumentDetailDialog({...props}) {
                                     <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
                                          alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
-                                {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
+                                {state.type === 'audio' &&
+                                    <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
                             </Box>
                         }
                     </Stack>

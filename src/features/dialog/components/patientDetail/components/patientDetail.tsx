@@ -10,7 +10,7 @@ import {
     Tab,
     Tabs
 } from "@mui/material";
-import {PatientDetailsToolbar} from "@features/toolbar";
+import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
 import {
@@ -39,7 +39,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import React, {SyntheticEvent, useState} from "react";
+import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -58,6 +58,10 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import DialogTitle from "@mui/material/DialogTitle";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
 
 function a11yProps(index: number) {
     return {
@@ -99,6 +103,8 @@ function PatientDetail({...props}) {
     const {allAntecedents} = useAntecedentTypes();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {t: translate} = useTranslation("consultation");
+
     const {direction} = useAppSelector(configSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
@@ -107,6 +113,7 @@ function PatientDetail({...props}) {
         sortedData: groupSortedData,
         openViewDrawer
     } = useAppSelector(agendaSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -132,12 +139,16 @@ function PatientDetail({...props}) {
             disabled: true,
         }
     ]);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [state, setState] = useState<any>();
+    const [info, setInfo] = useState<null | string>("");
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
+    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     // mutate for patient details
     const {
         data: httpPatientDetailsResponse,
@@ -207,6 +218,11 @@ function PatientDetail({...props}) {
         setIndex(newValue);
     };
 
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        dispatch(SetSelectedDialog(null));
+    }
+
     const submitStepper = (index: number) => {
         const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
@@ -238,6 +254,49 @@ function PatientDetail({...props}) {
         });
     }
 
+    const handleSaveDialog = () => {
+        const form = new FormData();
+        switch (info) {
+            case "medical_prescription_cycle":
+                form.append("globalNote", "");
+                form.append("isOtherProfessional", "false");
+                form.append("drugs", JSON.stringify(state));
+
+                triggerUpdate({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/appointments/${selectedDialog.appUuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
+                }).then((result: any) => {
+                    mutatePatientHis();
+                    mutatePatientDocuments();
+                    setOpenDialog(false);
+                    setInfo("document_detail");
+                    const res = result.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
+                    setState({
+                        uri: res[1],
+                        name: "prescription",
+                        type: "prescription",
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        uuidDoc: res[0].uuid,
+                        appUuid: selectedDialog.appUuid,
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                    });
+                    setOpenDialog(true);
+                });
+                break;
+        }
+    }
+
     const onOpenWaitingRoom = (event: EventDef) => {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
@@ -258,6 +317,15 @@ function PatientDetail({...props}) {
                 agenda?.mutate[1]();
                 closePatientDialog();
             });
+    }
+
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        // switch UI and open dialog
+        setInfo(setPrescriptionUI());
+        setOpenDialog(true);
     }
 
     const nextAppointments = patient ? patient.nextAppointments : [];
@@ -333,7 +401,10 @@ function PatientDetail({...props}) {
                 },
                 mutatePatientDetails,
                 mutatePatientDocuments,
-                patientDocuments, loadingRequest, setLoadingRequest
+                previousAppointmentsData,
+                patientDocuments,
+                loadingRequest,
+                setLoadingRequest
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -350,6 +421,19 @@ function PatientDetail({...props}) {
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
+
+    useEffect(() => {
+        if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                case "medical_prescription_cycle":
+                    setInfo(setPrescriptionUI());
+                    setState(selectedDialog.state);
+                    setOpenDialog(true);
+                    break;
+            }
+        }
+    }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -458,6 +542,64 @@ function PatientDetail({...props}) {
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>
+
+                    <Dialog
+                        {...{
+                            direction,
+                            sx: {
+                                minHeight: 300
+                            }
+                        }}
+                        action={info}
+                        open={openDialog}
+                        data={{
+                            state,
+                            setState,
+                            setOpenDialog: setOpenDialog,
+                            t: translate
+                        }}
+                        size={"lg"}
+                        dialogClose={handleCloseDialog}
+                        {...(info === "document_detail" && {
+                            sx: {p: 0},
+                        })}
+                        title={t(info === "document_detail" ? "doc_detail_title" : "")}
+                        {...((info === "document_detail" || info === "end_consultation") && {
+                            onClose: handleCloseDialog,
+                        })}
+                        {...((info && ["medical_prescription", "medical_prescription_cycle"].includes(info)) && {
+                            headerDialog: (<DialogTitle
+                                    sx={{
+                                        backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                        position: "relative",
+                                    }}
+                                    id="scroll-dialog-title">
+                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                        {translate(`consultationIP.${info}`)}
+                                        <SwitchPrescriptionUI {...{
+                                            t: translate,
+                                            keyPrefix: "consultationIP",
+                                            handleSwitchUI
+                                        }} />
+                                    </Stack>
+                                </DialogTitle>
+                            ),
+                            actionDialog: <DialogActions>
+                                <Button
+                                    onClick={handleCloseDialog}
+                                    startIcon={<CloseIcon/>}>
+                                    {translate("cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSaveDialog}
+                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {translate("consultationIP.save")}
+                                </Button>
+                            </DialogActions>,
+                        })}
+                    />
 
                     <Dialog
                         action={"add_a_document"}
