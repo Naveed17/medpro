@@ -103,7 +103,7 @@ function HistoryTab({...props}) {
                                      style={{background: "white"}}>
                                     <Zoom>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={photo.uri.thumbnails['thumbnail_128']}
+                                        <img src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
                                              alt={'img'}
                                              style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                         />

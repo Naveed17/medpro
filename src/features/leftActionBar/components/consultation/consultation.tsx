@@ -287,16 +287,16 @@ function Consultation() {
                             <Stack direction='row' alignItems="center" spacing={1}>
                                 <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
                                     {insurances.map((insuranceItem: any) =>
-                                        <Tooltip key={insuranceItem?.uuid}
-                                                 title={insuranceItem?.name}>
+                                        <Tooltip key={insuranceItem?.insurance.uuid}
+                                                 title={insuranceItem?.insurance.name}>
                                             <Avatar variant={"circular"}>
-                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
                                                     <ImageHandler
-                                                        alt={insuranceItem?.name}
+                                                        alt={insuranceItem?.insurance.name}
                                                         src={allInsurances.find(
                                                             (insurance: any) =>
                                                                 insurance.uuid ===
-                                                                insuranceItem?.uuid
+                                                                insuranceItem?.insurance.uuid
                                                         )?.logoUrl?.url}
                                                     />}
                                             </Avatar>

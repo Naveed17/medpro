@@ -306,7 +306,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect] ={...acts[actDetect],fees:act.price};
+                                    acts[actDetect] ={...acts[actDetect],fees:act.price,qte:act.qte};
                                 }
                             }
                         );
@@ -526,7 +526,10 @@ function ConsultationInProgress() {
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
-            selectedAct[index] = row;
+            selectedAct[index] = {...row,qte:row.qte};
+            const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+            acts[indexAct] = {...acts[indexAct],qte:row.qte}
+            setActs([...acts])
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
                 `consultation-acts-${uuind}`,
@@ -556,15 +559,17 @@ function ConsultationInProgress() {
                     ])
                 );
             } else {
-                row.qte = 1;
-                setSelectedAct([...selectedAct, row]);
+                setSelectedAct([...selectedAct, {...row,qte:1}]);
+                const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+                acts[indexAct] = {...acts[indexAct],qte:1}
+                setActs([...acts])
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
-                    JSON.stringify([...selectedAct, row])
+                    JSON.stringify([...selectedAct, {...row,qte:1}])
                 );
             }
         }
-    };
+    }
 
     const seeHistory = () => {
         setOpenActDialog(true);

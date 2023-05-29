@@ -1,6 +1,5 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-
 // material
 import {
     AppBar,
@@ -13,10 +12,8 @@ import {
     Tab,
     Tabs,
     Toolbar,
-    Typography,
-    useTheme,
+    Typography
 } from "@mui/material";
-
 //components
 import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
@@ -27,11 +24,12 @@ import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import {a11yProps} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
-import moment from "moment/moment";
-import EventRoundedIcon from "@mui/icons-material/EventRounded";
+import {useAppSelector} from "@lib/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
+import {useRouter} from "next/router";
 
 const typeofDocs = [
-    "requested-medical-imaging","medical-imaging",
+    "requested-medical-imaging", "medical-imaging",
     "analyse", "requested-analysis",
     "prescription", "rapport", "medical-certificate", "audio", "video"];
 
@@ -55,20 +53,29 @@ const AddAppointmentCardData = {
 
 function DocumentsPanel({...props}) {
     const {
-        documents, documentViewIndex, patient,
+        previousAppointmentsData, documentViewIndex, patient,
         roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
-    const theme = useTheme();
+    const router = useRouter();
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+    const [documents] = useState<any[]>(previousAppointmentsData?.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+        const documents = currentValue.documents.map((doc: any) => ({
+            ...doc,
+            appUuid: currentValue.appointment.uuid
+        }))
+        accumulator = [...(!accumulator[currentIndex] ? [] : accumulator), ...documents];
+        return accumulator;
+    }, {}));
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
 
     const tabsContent = [
@@ -94,7 +101,7 @@ function DocumentsPanel({...props}) {
                                     onClick={() => {
                                         showDoc(card)
                                     }}
-                                    {...{t,data:card,date:true,time:true,title:true}}/>
+                                    {...{t, data: card, date: true, time: true, title: true}}/>
                             </React.Fragment>
                         )
                     :
@@ -115,8 +122,9 @@ function DocumentsPanel({...props}) {
                             {
                                 patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
                                     <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard onClick={() => { showDoc(card)
-                                        }} {...{t,data:card,date:false,time:true,title:true,resize:true}}/>
+                                        <DocumentCard onClick={() => {
+                                            showDoc(card)
+                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
                                     </React.Fragment>
                                 )
                             }
@@ -142,7 +150,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
-                                        {...{t,data:card,date:true,time:true,title:true}}/>
+                                        {...{t, data: card, date: true, time: true, title: true}}/>
                                 </React.Fragment>
                             )
                             :
@@ -178,7 +186,7 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
             setDocument({
                 uuid: card.uuid,
-                certifUuid : card.certificate[0].uuid,
+                certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,
@@ -217,6 +225,7 @@ function DocumentsPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 uuidDoc: uuidDoc,
+                appUuid: card.appUuid,
                 description: card.description,
                 createdAt: card.createdAt,
                 detectedType: card.type,
@@ -227,6 +236,18 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
         }
     }
+
+    useEffect(() => {
+        if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                case "medical_prescription_cycle":
+                    //close document dialog
+                    setOpenDialog(false);
+                    break;
+            }
+        }
+    }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -266,8 +287,16 @@ function DocumentsPanel({...props}) {
                                         {
                                             documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
                                                 <React.Fragment key={`doc-item-${idx}`}>
-                                                    <DocumentCard onClick={() => {showDoc(card)
-                                                    }} {...{t,data:card,date:false,time:true,title:true,resize:true}}/>
+                                                    <DocumentCard onClick={() => {
+                                                        showDoc(card)
+                                                    }} {...{
+                                                        t,
+                                                        data: card,
+                                                        date: false,
+                                                        time: true,
+                                                        title: true,
+                                                        resize: true
+                                                    }}/>
                                                 </React.Fragment>
                                             )
                                         }

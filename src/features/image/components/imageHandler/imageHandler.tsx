@@ -15,7 +15,7 @@ function ImageHandler({...props}) {
         width={20}
         height={20}
         loader={() => {
-            return error ? "/static/icons/Med-logo.png" : src;
+            return error ? "/static/icons/ic-failed-u.svg" : src;
         }}
         {...props}
     />)

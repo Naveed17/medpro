@@ -181,8 +181,10 @@ function Calendar({...props}) {
                 ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu.status.key)) ||
             action === "onConsultationView" &&
             (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            ["onConsultationDetail", "onPreConsultation"].includes(action) &&
+            action === "onConsultationDetail" &&
             (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            action === "onPreConsultation" &&
+            ["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) ||
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&

@@ -4,7 +4,7 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar, Avatar,
+    AppBar,
     Box,
     Button, DialogActions,
     Divider,
@@ -37,6 +37,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -377,20 +378,15 @@ function PersonalInsuranceCard({...props}) {
                                                 <Grid container spacing={1.2}>
                                                     <Grid item xs={6} md={3}>
                                                         {(() => {
-                                                            const insur = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
+                                                            const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
                                                             return (<Stack direction={"row"}>
-                                                                {insur?.logoUrl &&
-                                                                    <Avatar
-                                                                        sx={{
-                                                                            width: 20,
-                                                                            height: 20,
-                                                                            borderRadius: 0.4
-                                                                        }}
-                                                                        alt="insurance"
-                                                                        src={insur?.logoUrl.url}
+                                                                {insuranceItem?.logoUrl &&
+                                                                    <ImageHandler
+                                                                        alt={insuranceItem?.name}
+                                                                        src={insuranceItem?.logoUrl.url}
                                                                     />}
                                                                 <Typography
-                                                                    ml={1}>{insur?.name}</Typography>
+                                                                    ml={1}>{insuranceItem?.name}</Typography>
                                                             </Stack>)
                                                         })()}
                                                     </Grid>

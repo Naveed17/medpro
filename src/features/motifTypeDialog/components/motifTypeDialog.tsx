@@ -322,7 +322,7 @@ function EditMotifDialog({...props}) {
                                         />
                                     </RadioGroup>
                                 </FormControl>
-                                {+values.consultation_fees !== 0 && (
+                                {values.consultation_fees !== 0 && (
                                     <TextField
                                         InputProps={{
                                             endAdornment: (
