@@ -5,7 +5,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import {Box, Button, Stack, Drawer, DialogContent, Typography, DialogActions, DialogTitle, Dialog, Theme} from "@mui/material";
+import {Box, Button, Stack, Drawer, DialogContent, Typography, DialogActions, DialogTitle, Dialog, Theme,} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
@@ -20,6 +20,9 @@ import {useSession} from "next-auth/react";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from "notistack";
+import {UserMobileCard} from '@features/card';
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -86,7 +89,7 @@ function Users() {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {enqueueSnackbar} = useSnackbar()
+    const {enqueueSnackbar} = useSnackbar();
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
 
     const {data: httpUsersResponse,mutate} = useRequest({
@@ -159,6 +162,9 @@ const deleteUser = ()=>{
                 </RootStyled>
                 <Stack direction="row" alignItems="center" spacing={2}>
                     <Button
+                    sx={{
+                        display: {xs: "none", md: "flex"},
+                    }}
                         onClick={() => setOpen(true)}
                         startIcon={<IconUrl path="ic-setting"/>}
                         variant="contained">
@@ -178,6 +184,8 @@ const deleteUser = ()=>{
             </SubHeader>
             <Box className="container">
                 {users && users.length > 0 ? (
+                    <>
+                    <DesktopContainer>
                     <Otable
                         headers={headCells}
                         rows={users}
@@ -185,6 +193,17 @@ const deleteUser = ()=>{
                         {...{t, handleChange}}
                         edit={onDelete}
                     />
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <Stack spacing={1}>
+                        {users.map((user) => (
+                            <React.Fragment key={user.uuid}>
+                            <UserMobileCard data= {user} t={t}/>
+                            </React.Fragment>
+                        ))}
+                        </Stack>
+                    </MobileContainer>
+                    </>
                 ) : (
                     <NoDataCard t={t} ns={"settings"} data={CardData}/>
                 )}
