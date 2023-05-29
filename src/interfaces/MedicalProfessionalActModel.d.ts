@@ -3,4 +3,5 @@ interface MedicalProfessionalActModel {
     fees: number;
     isTopAct: boolean;
     act: ActModel;
+    qte?:number;
 }
