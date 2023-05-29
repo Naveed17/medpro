@@ -34,7 +34,7 @@ const Prescription = ({...props}) => {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={"portraitA4"}
                              style={{position: "absolute", height: '100%', width: '100%'}}
-                             src={data.background.content} alt={'background'}/>}
+                             src={data.background.content.url} alt={'background'}/>}
 
                     {data.header.show && id === 0 && <Draggable
                         onStop={(ev, data) => {
