@@ -50,7 +50,7 @@
     "description": ""
   },
   "config": {
-    "reason_for_consultation": "Motif de consultation",
+    "reason_for_consultation": "Motif de consultation",/**/
     "keyword": "Mot clé",
     "patient": "Patient",
     "place": "Lieu",
@@ -139,6 +139,7 @@
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
+      "duplicatedFileID": "Numéro de dossier déjà utilisé",
       "last-assure-placeholder": "Tapez le nom de famille de l'assuré",
       "first-assure-placeholder": "Tapez le prénom de l'assuré",
       "group-placeholder": "Sélectionner un groupe",

@@ -38,6 +38,9 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from "react-phone-number-input/input";
+import {useRequestMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -55,9 +58,12 @@ function AddPatientStep1({...props}) {
         translationPrefix = "config.add-patient",
     } = props;
 
+    const {trigger} = useRequestMutation(null, "/detect");
+
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const phoneInputRef = useRef(null);
+    const router = useRouter();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -67,7 +73,11 @@ function AddPatientStep1({...props}) {
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+
+    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
@@ -177,6 +187,16 @@ function AddPatientStep1({...props}) {
         setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
     };
+
+    const checkFicheID = () => {
+        trigger(medicalEntityHasUser ?{
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }:null).then((res:any) => {
+            setDuplicatedFiche(res.data.data.length > 0)
+        })
+    }
 
     const {
         handleSubmit,
@@ -361,14 +381,20 @@ function AddPatientStep1({...props}) {
                                         size="small"
                                         fullWidth
                                         {...getFieldProps("fiche_id")}
-                                        error={Boolean(touched.fiche_id && errors.fiche_id)}
+                                        error={Boolean(duplicatedFiche)}
                                         helperText={
                                             Boolean(touched.fiche_id && errors.fiche_id)
                                                 ? String(errors.fiche_id)
                                                 : undefined
                                         }
+                                        onBlur={checkFicheID}
                                     />
                                 </Box>
+                                {(duplicatedFiche && (
+                                <FormHelperText error sx={{px: 2, mx: 0}}>
+                                    {t('duplicatedFileID')}
+                                </FormHelperText>
+                                ))}
                             </Box>
                         </>
                     )}
