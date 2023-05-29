@@ -10,14 +10,9 @@ import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import DialogTitle from "@mui/material/DialogTitle";
-import {Theme} from "@mui/material/styles";
-import {SwitchPrescriptionUI} from "@features/buttons";
 import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 function HistoryPanel({...props}) {
@@ -33,7 +28,6 @@ function HistoryPanel({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
@@ -41,8 +35,6 @@ function HistoryPanel({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [dialog, setDialog] = useState<string>("");
@@ -59,7 +51,7 @@ function HistoryPanel({...props}) {
         dispatch(SetSelectedDialog(null));
     }
 
-    const showDoc = (card: any) => {
+    const showDoc = (card: any, app?: any) => {
         if (card.documentType === 'medical-certificate') {
             setInfo('document_detail');
             setState({
@@ -105,6 +97,7 @@ function HistoryPanel({...props}) {
                 createdAt: card.createdAt,
                 description: card.description,
                 uuidDoc: uuidDoc,
+                appUuid: app?.appointment.uuid,
                 detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate
@@ -122,65 +115,21 @@ function HistoryPanel({...props}) {
         setOpenDialog(true);
     }
 
-    const handleSaveDialog = () => {
-        const form = new FormData();
-        switch (info) {
-            case "medical_prescription_cycle":
-                form.append("globalNote", "");
-                form.append("isOtherProfessional", "false");
-                form.append("drugs", JSON.stringify(state));
-
-                triggerUpdate({
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/appointments/${selectedAppointment}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`
-                    },
-                }).then((r: any) => {
-                    mutatePatientHis();
-                    mutate();
-                    setInfo("document_detail");
-                    const res = r.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-
-                    setState({
-                        uri: res[1],
-                        name: "prescription",
-                        type: "prescription",
-                        info: res[0].prescription_has_drugs,
-                        uuid: res[0].uuid,
-                        uuidDoc: res[0].uuid,
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                    });
-                    setOpenDialog(true);
-                    setDialogAction(false);
-                });
-                break;
-        }
-    }
-
-    useEffect(() => {
-        setApps(previousAppointments ? [...previousAppointments] : []);
-    }, [previousAppointments, dispatch]);
-
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setInfo(setPrescriptionUI());
-                    setState(selectedDialog.state);
-                    setOpenDialog(true);
-                    setDialogAction(true);
+                    //close document dialog
+                    setOpenDialog(false);
                     break;
             }
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        setApps(previousAppointments ? [...previousAppointments] : []);
+    }, [previousAppointments, dispatch]);
 
     return (
         <PanelStyled>
@@ -205,7 +154,7 @@ function HistoryPanel({...props}) {
                                 setOpenDialog,
                                 showDoc: ((data: any) => {
                                     setSelectedAppointment(app.appointment.uuid);
-                                    showDoc(data);
+                                    showDoc(data, app);
                                 }),
                                 mutate,
                                 patient,
@@ -245,36 +194,6 @@ function HistoryPanel({...props}) {
                         onClose: handleCloseDialog,
                     })}
                     dialogClose={handleCloseDialog}
-                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
-                        headerDialog: (<DialogTitle
-                                sx={{
-                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                    position: "relative",
-                                }}
-                                id="scroll-dialog-title">
-                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-                                    {t(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
-                                </Stack>
-                            </DialogTitle>
-                        )
-                    })}
-                    {...(dialogAction && {
-                        actionDialog: <DialogActions>
-                            <Button
-                                onClick={handleCloseDialog}
-                                startIcon={<CloseIcon/>}>
-                                {t("cancel")}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                onClick={handleSaveDialog}
-                                disabled={info === "medical_prescription_cycle" && state.length === 0}
-                                startIcon={<SaveRoundedIcon/>}>
-                                {t("consultationIP.save")}
-                            </Button>
-                        </DialogActions>,
-                    })}
                 />
             )}
         </PanelStyled>

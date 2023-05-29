@@ -8,6 +8,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "cabinet",
+            icon: "ic-setting",
+            href: "/dashboard/settings/places/",
+            disable: false
+        },
+        {
             name: "acts",
             icon: "ic-generaliste",
             href: "/dashboard/settings/acts",
@@ -35,7 +41,7 @@ const settingsData = {
             name: "lieu",
             icon: "setting/ic-pin",
             href: "/dashboard/settings/places",
-            disable: false
+            disable: true
         },
         {
             name: "configdoc",

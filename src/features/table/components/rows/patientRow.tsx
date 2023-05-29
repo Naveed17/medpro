@@ -27,6 +27,7 @@ import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import Image from "next/image";
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -177,19 +178,17 @@ function PatientRow({...props}) {
                     <Stack direction={"row"} alignItems={"center"}>
                         {row.insurances.length > 0 ?
                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
-                                {row.insurances.map((insur: any, index: number) =>
-                                    <Tooltip key={index} title={insur.insurance?.name}>
+                                {row.insurances.map((insuranceItem: any, index: number) =>
+                                    <Tooltip key={index} title={insuranceItem?.insurance.name}>
                                         <Avatar variant={"circular"}>
-                                            {insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl &&
-                                                <Image
-                                                    style={{borderRadius: 2}}
-                                                    alt={insur.insurance?.name}
-                                                    src="static/icons/Med-logo.png"
-                                                    width={20}
-                                                    height={20}
-                                                    loader={({src, width, quality}) => {
-                                                        return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl.url
-                                                    }}
+                                            {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                <ImageHandler
+                                                    alt={insuranceItem?.name}
+                                                    src={insurances.find(
+                                                        (insurance: any) =>
+                                                            insurance.uuid ===
+                                                            insuranceItem?.insurance.uuid
+                                                    ).logoUrl.url}
                                                 />}
                                         </Avatar>
                                     </Tooltip>
