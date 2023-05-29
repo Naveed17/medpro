@@ -1,4 +1,15 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
+import {
+    Backdrop,
+    Box,
+    Button,
+    DialogActions,
+    Divider,
+    Drawer,
+    Paper,
+    Stack,
+    Tab,
+    Tabs
+} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
@@ -91,7 +102,11 @@ function PatientDetail({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
-    const {config: agenda, sortedData: groupSortedData, openViewDrawer} = useAppSelector(agendaSelector);
+    const {
+        config: agenda,
+        sortedData: groupSortedData,
+        openViewDrawer
+    } = useAppSelector(agendaSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -447,7 +462,6 @@ function PatientDetail({...props}) {
                     <Dialog
                         action={"add_a_document"}
                         open={openUploadDialog}
-
                         data={{
                             t,
                             state: documentConfig,
@@ -536,6 +550,7 @@ function PatientDetail({...props}) {
                 }}>
                 <AppointmentDetail {...{patientId}}/>
             </Drawer>
+
         </>
     );
 }

@@ -142,20 +142,20 @@ function PaymentMobileCard({...props}) {
                                         sx={{
                                             "& .MuiAvatarGroup-avatar": {width: 24, height: 24},
                                         }}>
-                                        {data.patient.insurances.map(
-                                            (insuranceItem: { insurance: InsuranceModel }) => (
+                                        {data.patient.insurances.map((insuranceItem: any) => (
                                                 <Tooltip
-                                                    key={insuranceItem.insurance?.uuid}
-                                                    title={insuranceItem.insurance?.name}>
+                                                    key={insuranceItem?.uuid}
+                                                    title={insuranceItem?.name}>
                                                     <Avatar variant={"circular"}>
-                                                        <ImageHandler
-                                                            alt={insuranceItem.insurance?.name}
-                                                            src={insurances?.find(
-                                                                (insurance: any) =>
-                                                                    insurance.uuid ===
-                                                                    insuranceItem.insurance?.uuid
-                                                            )?.logoUrl.url}
-                                                        />
+                                                        {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
+                                                            <ImageHandler
+                                                                alt={insuranceItem?.name}
+                                                                src={insurances.find(
+                                                                    (insurance: any) =>
+                                                                        insurance.uuid ===
+                                                                        insuranceItem?.uuid
+                                                                ).logoUrl.url}
+                                                            />}
                                                     </Avatar>
                                                 </Tooltip>
                                             )

@@ -39,7 +39,7 @@ function AgendaPopupAction({...props}) {
                                 <Box
                                     component="img"
                                     src={
-                                        data?.gender === "M"
+                                        data?.gender === 1
                                             ? "/static/icons/men-avatar.svg"
                                             : "/static/icons/women-avatar.svg"
                                     }

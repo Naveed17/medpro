@@ -100,7 +100,7 @@ function PreConsultationDialog({...props}) {
                             src={
                                 patientPhoto
                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                    : patient?.gender === "M"
+                                    : patient?.gender === 1
                                         ? "/static/icons/men-avatar.svg"
                                         : "/static/icons/women-avatar.svg"
                             }
@@ -118,7 +118,7 @@ function PreConsultationDialog({...props}) {
                 {insurances && insurances.length > 0 &&
                     <Stack direction='row' alignItems="center" spacing={1}>
                         <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                            {insurances.map((insuranceItem: InsuranceModel) =>
+                            {insurances.map((insuranceItem: any) =>
                                 <Tooltip key={insuranceItem.uuid}
                                          title={insuranceItem.name}>
                                     {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?

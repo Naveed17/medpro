@@ -37,10 +37,10 @@ import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
-import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -63,7 +63,7 @@ function Consultation() {
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
-    const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
+    const [insurances, setInsurances] = useState<any[]>([]);
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
@@ -268,7 +268,7 @@ function Consultation() {
                                     src={
                                         patientPhoto
                                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                            : patient?.gender === "M"
+                                            : patient?.gender === 1
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"
                                     }
@@ -286,20 +286,19 @@ function Consultation() {
                         {insurances && insurances.length > 0 &&
                             <Stack direction='row' alignItems="center" spacing={1}>
                                 <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                                    {insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
-                                        <Tooltip key={insuranceItem.insurance?.uuid}
-                                                 title={insuranceItem.insurance?.name}>
+                                    {insurances.map((insuranceItem: any) =>
+                                        <Tooltip key={insuranceItem?.uuid}
+                                                 title={insuranceItem?.name}>
                                             <Avatar variant={"circular"}>
-                                                <Image
-                                                    style={{borderRadius: 2}}
-                                                    alt={insuranceItem.insurance?.name}
-                                                    src="static/icons/Med-logo.png"
-                                                    width={20}
-                                                    height={20}
-                                                    loader={() => {
-                                                        return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl.url as string
-                                                    }}
-                                                />
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
+                                                    <ImageHandler
+                                                        alt={insuranceItem?.name}
+                                                        src={allInsurances.find(
+                                                            (insurance: any) =>
+                                                                insurance.uuid ===
+                                                                insuranceItem?.uuid
+                                                        )?.logoUrl?.url}
+                                                    />}
                                             </Avatar>
                                         </Tooltip>
                                     )}
