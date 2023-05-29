@@ -180,6 +180,7 @@ function Widget({...props}) {
                     selectedAct,
                     setSelectedUuid,
                     previousData,
+                    setOpenTeeth,
                     updated,
                     appuuid
                 }}/>)

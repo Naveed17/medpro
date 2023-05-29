@@ -2,9 +2,11 @@ import {Chip, Stack, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
+import CircleIcon from "@mui/icons-material/Circle";
 
 export default function TeethPreview({...props}) {
     let {t, of, appuuid, acts, previousData, setOpenTeeth} = props
+
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
         name: 'Traitement 1',
@@ -121,9 +123,8 @@ export default function TeethPreview({...props}) {
             </div>
             <div>
                 {traitements.map(traitement => (
-                    <div key={traitement.name} style={{fontSize: 10, color: "gray"}}>
-                        <span
-                            style={{color: traitement.color}}>•</span> {traitement.acts.map((act, index) => (`${acts.find((a: {
+                    <div key={traitement.name} style={{fontSize: 10, color: "gray", marginBottom:4}}>
+                        {(traitement.acts.length !==0 || traitement.teeth.length !==0) &&<CircleIcon style={{width: 10, height: 10, color: traitement.color}}/>} {traitement.acts.map((act, index) => (`${acts.find((a: {
                         uuid: string;
                     }) => a.uuid === act).act.name}${index === traitement.acts.length - 1 ? '' : ','}`))}
                         {traitement.teeth.length > 0 && ` (`}
