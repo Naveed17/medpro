@@ -50,7 +50,7 @@
     "description": ""
   },
   "config": {
-    "reason_for_consultation": "Motif de consultation",/**/
+    "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
     "patient": "Patient",
     "place": "Lieu",
