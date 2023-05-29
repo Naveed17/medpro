@@ -76,8 +76,7 @@ function CIPMedicalProceduresRow({...props}) {
                             onChange={(e) => {
                                 // @ts-ignore
                                 if (!isNaN(e.currentTarget.value)) {
-                                    row.qte = Number(e.currentTarget.value);
-                                    editMotif(row, "change");
+                                    editMotif({...row,qte:Number(e.currentTarget.value)}, "change");
                                 }
                             }}
                         />

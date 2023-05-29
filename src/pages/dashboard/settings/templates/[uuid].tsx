@@ -87,7 +87,7 @@ function DocsConfig() {
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: ''},
+        background: {show: false, content: {url:''}},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
@@ -152,7 +152,7 @@ function DocsConfig() {
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
-                data.background.content = (ev.target?.result as string)
+                data.background.content.url = (ev.target?.result as string)
                 data.background.show = true;
                 setData({...data})
             }
@@ -295,12 +295,12 @@ function DocsConfig() {
                     setData({
                         ...data,
                         footer: {show: true, x: 0, y: 140, content: ''},
-                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
                     })
                 else
                     setData({
                         ...data,
-                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
                     })
             }
 
