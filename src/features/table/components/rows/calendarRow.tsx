@@ -21,7 +21,7 @@ import {DefaultCountry} from "@lib/constants";
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
-    const {spinner} = data;
+    const {spinner, pendingData = null} = data;
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
@@ -152,7 +152,7 @@ function CalendarRow({...props}) {
                             </Box>
                         </Box>
                     </TableCell>
-                    <TableCell
+                    {!pendingData && <TableCell
                         sx={{
                             p: "10px 12px",
                             color: "primary.main",
@@ -174,7 +174,7 @@ function CalendarRow({...props}) {
                             {" "}
                             {data.motif?.map(reason => reason.name).join(", ")}
                         </Typography>
-                    </TableCell>
+                    </TableCell>}
                     <TableCell
                         align="right"
                         sx={{

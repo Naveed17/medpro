@@ -255,8 +255,7 @@ function PlacesDetail() {
                 url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger(
-                {
+            trigger({
                     method,
                     data: form,
                     url,
