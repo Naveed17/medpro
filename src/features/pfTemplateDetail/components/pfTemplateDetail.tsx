@@ -78,7 +78,7 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});

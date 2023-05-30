@@ -29,7 +29,7 @@ function ImportDataMobileCard({...props}) {
     const theme = useTheme();
     const [loadingAction, setLoadingAction] = useState<boolean>(false);
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
 
     const [expanded, setExpanded] = useState(false);

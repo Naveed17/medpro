@@ -19,7 +19,7 @@ function AutoCompleteButton({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {patient: initData} = useAppSelector(appointmentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

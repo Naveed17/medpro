@@ -30,7 +30,7 @@ function AntecedentsCard({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents: antecedentsType} = useAntecedentTypes();
 
     const {direction} = useAppSelector(configSelector);

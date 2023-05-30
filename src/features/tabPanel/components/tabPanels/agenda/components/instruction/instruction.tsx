@@ -44,7 +44,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {
         motif,

@@ -49,7 +49,7 @@ function PersonalInsuranceCard({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

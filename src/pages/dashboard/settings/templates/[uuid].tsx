@@ -68,7 +68,7 @@ function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 

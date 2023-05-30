@@ -39,7 +39,7 @@ import {useSnackbar} from "notistack";
 
 function CertifDialog({...props}) {
     const {data} = props
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {data: session} = useSession();
     const router = useRouter();
     const {

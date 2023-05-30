@@ -31,7 +31,7 @@ function Agenda() {
     };
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "agenda.config"});
     const {direction} = useAppSelector(configSelector);

@@ -50,7 +50,7 @@ function DocsConfig() {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const componentRef = useRef<HTMLDivElement>(null);
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const [files, setFiles] = useState<any[]>([]);
     const [title, setTitle] = useState("");

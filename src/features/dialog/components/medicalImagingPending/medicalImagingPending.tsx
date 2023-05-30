@@ -11,7 +11,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const [images] = useState<any>(data.state);
     const [files, setFiles] = useState<any[]>([]);

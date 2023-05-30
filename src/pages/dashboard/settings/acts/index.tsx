@@ -16,14 +16,15 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
-import {getDifference, useMedicalEntitySuffix} from "@lib/hooks";
+import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSWRConfig} from "swr";
 
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
     const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
@@ -44,7 +45,6 @@ function Acts() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
     const {trigger: triggerDeleteAct} = useRequestMutation(null, "/settings/acts/delete");

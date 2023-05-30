@@ -30,7 +30,7 @@ function AddNewRoleDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
     const {permissions: allPermissions} = usePermissions();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation(["settings", "common"]);
 

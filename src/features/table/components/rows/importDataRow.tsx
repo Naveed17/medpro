@@ -45,7 +45,7 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']

@@ -45,7 +45,7 @@ function Profil() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {mutate} = useSWRConfig();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {t, ready} = useTranslation("settings");

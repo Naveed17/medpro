@@ -29,7 +29,7 @@ function RDVRow({...props}) {
     const {data: patient, loading} = props;
     const {data: session} = useSession();
     const matches = useMediaQuery("(min-width:900px)");
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
     const {model} = useAppSelector(preConsultationSelector);

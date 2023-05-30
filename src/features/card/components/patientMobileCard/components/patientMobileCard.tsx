@@ -73,7 +73,7 @@ const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

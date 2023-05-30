@@ -80,7 +80,7 @@ function EditMotifDialog({...props}) {
     const {data: user} = session as Session;
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

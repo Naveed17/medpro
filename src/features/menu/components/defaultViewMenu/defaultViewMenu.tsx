@@ -31,7 +31,7 @@ function DefaultViewMenu() {
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
