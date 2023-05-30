@@ -87,7 +87,6 @@ function PreConsultationDialog({...props}) {
         }
     }, [dispatch, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log(models, sheetModal, loading)
     return (<Stack direction={"column"} spacing={1.2}>
         <Stack direction={"row"} alignItems={"flex-start"}>
             <Stack direction={"column"} alignItems={"center"} spacing={.4}>
