@@ -332,9 +332,7 @@ function WaitingRoom() {
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "6"
-                    },
+                    data: {status: "1"},
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
                 } as any).then(() => {
                     // refresh on going api
