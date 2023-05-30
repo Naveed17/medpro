@@ -267,7 +267,6 @@ function ConsultationInProgress() {
 
             selectedLocal.map((act: any) => {
                 const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.uuid) as any;
-                console.log(act)
                 if (actDetect === -1) {
                     acts.push(act);
                 } else acts[actDetect] = act
