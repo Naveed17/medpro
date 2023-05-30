@@ -30,7 +30,6 @@ function ConsultationType() {
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const [file, setFile] = useState('');
-    const [pos, setPos] = useState(0);
     const [docFile, setDocFile] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
 
@@ -44,7 +43,7 @@ function ConsultationType() {
         innerRef: undefined,
         isInitialValid: undefined,
 
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             return values;
         },
 
@@ -257,10 +256,6 @@ function ConsultationType() {
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
-    }
-
-    const eventHandler = (e: { type: any; }, data: any) => {
-        console.log(data.x, data.y);
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);

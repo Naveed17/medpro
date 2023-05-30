@@ -96,8 +96,6 @@ function Users() {
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
 
-    const [edit, setEdit] = useState(false);
-    const [selected, setSelected] = useState<any>("");
     const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
     const handleChange = (props: any) => {

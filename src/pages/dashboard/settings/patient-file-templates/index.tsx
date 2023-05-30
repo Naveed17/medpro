@@ -22,7 +22,6 @@ import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -146,7 +145,7 @@ function PatientFileTemplates() {
         });
     }
 
-    const handleEdit = (props: ModalModel, event: string, value: string) => {
+    const handleEdit = (props: ModalModel, event: string, value?: string) => {
         switch (event) {
             case "see":
                 setOpen(true);

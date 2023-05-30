@@ -69,9 +69,7 @@ function DefaultViewMenu() {
 
     const handleMenuItemClick = (
         event: React.MouseEvent<HTMLElement>,
-        option: any,
-        index: number,
-    ) => {
+        option: any) => {
         handleDefaultView(option.value);
         setAnchorEl(null);
     };

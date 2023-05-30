@@ -43,7 +43,6 @@ import {
     Dialog as CustomDialog,
     ModelPrescriptionList,
     prescriptionSelector,
-    setModelName,
     setParentModel
 } from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
