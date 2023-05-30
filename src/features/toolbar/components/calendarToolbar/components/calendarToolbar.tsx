@@ -263,9 +263,9 @@ function CalendarToolbar({...props}) {
                     setPendingDialog(false);
                 }}
                 action={() => <Otable
-                    {...{t}}
+                    {...{t, pendingData: true}}
                     maxHeight={`calc(100vh - 180px)`}
-                    headers={TableHead}
+                    headers={TableHead.filter((head: any) => head.id !== "motif")}
                     handleEvent={handleTableEvent}
                     rows={appointmentGroupByDate(pendingEvents.current)}
                     from={"calendar"}
