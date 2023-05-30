@@ -36,7 +36,6 @@ function ImportDataMobileCard({...props}) {
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
     const getDetailImportData = (uuid: string, type: string) => {
-        setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
