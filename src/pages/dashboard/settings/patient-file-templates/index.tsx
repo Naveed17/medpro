@@ -84,9 +84,6 @@ function PatientFileTemplates() {
     const [loading, setLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
 
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
     const {data: modalsHttpResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${

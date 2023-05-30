@@ -2,11 +2,9 @@ import {Avatar, AvatarGroup, Box, Stack, Tooltip, Typography} from "@mui/materia
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useState} from "react";
 import Zoom from "react-medium-image-zoom";
-import Image from "next/image";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
@@ -57,9 +55,6 @@ function PreConsultationDialog({...props}) {
     const [isClose, setIsClose] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
-
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",

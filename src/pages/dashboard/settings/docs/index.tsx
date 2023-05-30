@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -75,9 +74,6 @@ function DocsConfig() {
     })
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
-
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {trigger} = useRequestMutation(null, "/MP/header");
 
