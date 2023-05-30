@@ -30,7 +30,7 @@ const Prescription = ({...props}) => {
                     fontSize: data.size === 'portraitA4' ? '15px' : ''
                 }}>
 
-                    {data.background.show && data.background.content !== '' &&
+                    {data.background.show && data.background.content !== '' && id === 0 &&
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={"portraitA4"}
                              style={{position: "absolute", height: '100%', width: '100%'}}
