@@ -18,6 +18,7 @@ import {setModelPreConsultation} from "@features/dialog";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -66,7 +67,7 @@ function PreConsultationDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -91,6 +92,7 @@ function PreConsultationDialog({...props}) {
         }
     }, [dispatch, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log(models, sheetModal, loading)
     return (<Stack direction={"column"} spacing={1.2}>
         <Stack direction={"row"} alignItems={"flex-start"}>
             <Stack direction={"column"} alignItems={"center"} spacing={.4}>
@@ -123,15 +125,9 @@ function PreConsultationDialog({...props}) {
                                          title={insuranceItem.name}>
                                     {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?
                                         <Avatar variant={"circular"}>
-                                            <Image
-                                                style={{borderRadius: 2}}
-                                                alt={insuranceItem.name}
-                                                src="static/icons/Med-logo.png"
-                                                width={20}
-                                                height={20}
-                                                loader={() => {
-                                                    return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string
-                                                }}
+                                            <ImageHandler
+                                                alt={insuranceItem?.name}
+                                                src={allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string}
                                             />
                                         </Avatar> : <></>}
                                 </Tooltip>
