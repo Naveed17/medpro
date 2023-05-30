@@ -68,14 +68,7 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [documents] = useState<any[]>(previousAppointmentsData?.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
-        const documents = currentValue.documents.map((doc: any) => ({
-            ...doc,
-            appUuid: currentValue.appointment.uuid
-        }))
-        accumulator = [...(!accumulator[currentIndex] ? [] : accumulator), ...documents];
-        return accumulator;
-    }, {}));
+    const [documents, setDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
 
     const tabsContent = [
@@ -248,6 +241,19 @@ function DocumentsPanel({...props}) {
             }
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (previousAppointmentsData) {
+            setDocuments(previousAppointmentsData?.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+                const documents = currentValue.documents.map((doc: any) => ({
+                    ...doc,
+                    appUuid: currentValue.appointment.uuid
+                }))
+                accumulator = [...(!accumulator[currentIndex] ? [] : accumulator), ...documents];
+                return accumulator;
+            }, {}));
+        }
+    }, [previousAppointmentsData]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
