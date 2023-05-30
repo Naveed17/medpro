@@ -32,6 +32,7 @@ function ImportDataMobileCard({...props}) {
     const {data: session} = useSession();
 
     const [expanded, setExpanded] = useState(false);
+    const [expandData, setExpandData] = useState([]);
 
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
