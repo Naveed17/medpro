@@ -127,7 +127,7 @@ function ActFees() {
 
     const {data: httpProfessionalsActs, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -174,7 +174,7 @@ function ActFees() {
         trigger(
             {
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -225,7 +225,7 @@ function ActFees() {
             trigger(
                 {
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/new-acts/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -251,7 +251,7 @@ function ActFees() {
             form.append("act", (actFees.act as ActModel)?.uuid);
             triggerAddAct({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
@@ -259,7 +259,7 @@ function ActFees() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             medical_entity.uuid,
-            medical_professional.uuid,
+            medical_professional?.uuid,
             mutate,
             router.locale,
             session?.accessToken,
@@ -273,7 +273,7 @@ function ActFees() {
         name && form.append("name", name);
         trigger({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${v.act?.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,

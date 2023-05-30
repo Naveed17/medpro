@@ -72,7 +72,7 @@ function Acts() {
         form.append('act', actUuid);
         triggerAddAct({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`));
