@@ -87,7 +87,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
-    const fractions = ["1/4", "1/2", ...Array.from({length: 10}, (v, k) => (k + 1).toString())];
+    const fractions = ["1/4", "1/2", ...Array.from({length: 30}, (v, k) => (k + 1).toString())];
     const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
     const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
