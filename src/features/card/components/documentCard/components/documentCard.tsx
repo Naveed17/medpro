@@ -2,7 +2,6 @@ import {CardContent, Stack, Tooltip} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
-import {ImageHandler} from "@features/image";
 import {DocumentContent} from "@features/card";
 
 function DocumentCard({...props}) {
