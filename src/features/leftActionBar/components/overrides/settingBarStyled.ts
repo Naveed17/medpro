@@ -30,7 +30,7 @@ const SettingBarStyled = styled("div")(({theme}) => ({
                 minWidth: "30px",
             },
             "& .MuiListItemIcon-root svg": {
-                height: "36px",
+                height: "28",
                 width: "23px"
             },
             "& .MuiListItemText-root": {
