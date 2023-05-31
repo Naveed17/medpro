@@ -31,7 +31,7 @@ function AutoComplete({...props}) {
             >
                 <InputBase
                     sx={{ml: 1, flex: 1}}
-                    placeholder="Chercher un patient"
+                    placeholder={t("stepper-2.search_placeholder")}
                     autoFocus
                     onFocus={() => setFocus(true)}
                     onKeyDown={onKeyDown}
@@ -48,13 +48,13 @@ function AutoComplete({...props}) {
                     </IconButton>
                     :
                     <Button
-                    onClick={onAddPatient}
-                    size={"small"}
-                    color="primary"
-                    sx={{m: .5}} aria-label="directions">
-                    <AddIcon/>
-                    {t('stepper-2.add_button')}
-                </Button>}
+                        onClick={onAddPatient}
+                        size={"small"}
+                        color="primary"
+                        sx={{m: .5}} aria-label="directions">
+                        <AddIcon/>
+                        {t('stepper-2.add_button')}
+                    </Button>}
             </Paper>
             <Box className="scroll-main">
                 <MenuList

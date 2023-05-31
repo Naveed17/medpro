@@ -33,7 +33,7 @@ function ThemeConfig({children}: LayoutProps) {
 
     useEffect(() => {
         const lang = locale.substring(0, 2);
-        // moment.locale(lang === 'ar' ? 'ar-tn' : lang);
+        moment.locale(lang === 'ar' ? 'ar-tn' : lang);
         dispatch(setDirection(dir));
         dispatch(setLocalization(locale));
     }, [locale, dir, dispatch]);
