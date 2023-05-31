@@ -17,7 +17,6 @@ import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import _ from "lodash";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -35,9 +34,7 @@ function Patient({...props}) {
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
 
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
     const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -59,6 +56,7 @@ function Patient({...props}) {
             onPatientSearch(true);
         }
     }
+
     const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         const search = event.target.value;
         if (search.length >= 3) {
@@ -100,7 +98,7 @@ function Patient({...props}) {
                 delete insurance['insurance_social'];
             }
 
-            if (insurance.insurance_social) {
+            if (insurance.insurance_social?.phone) {
                 const localPhone = insurance.insurance_social.phone;
                 phone = localPhone.value.replace(localPhone.code, "");
             }

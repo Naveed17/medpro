@@ -38,7 +38,6 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import _ from "lodash";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -110,23 +109,15 @@ function PersonalInsuranceCard({...props}) {
                             message: t("last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("birthday-error"))
-                        .max(50, t("birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
+                    birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
                         value: Yup.string().test({
                             name: 'phone-value-test',
                             message: t("telephone-error"),
                             test: (value, ctx: any) => {
-                                const isValidPhone = value ? isValidPhoneNumber(value) : false;
-                                return ctx.from[2].value.insurance_type === "0" || isValidPhone;
+                                const isValidPhone = value ? (value.length > 0 ? isValidPhoneNumber(value) : true) : true;
+                                return (ctx.from[2].value.insurance_type === "0" || isValidPhone);
                             }
                         }),
                         type: Yup.string(),
@@ -167,7 +158,7 @@ function PersonalInsuranceCard({...props}) {
                     birthday: insurance.insuredPerson.birthday,
                     phone: {
                         code: insurance.insuredPerson.contact.code,
-                        value: `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}`,
+                        value: insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: patient.contact[0].uuid,
                         is_public: false,
@@ -182,7 +173,7 @@ function PersonalInsuranceCard({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
             handleUpdatePatient();
-        },
+        }
     });
 
     const handleResetDialogInsurance = () => {
@@ -270,14 +261,9 @@ function PersonalInsuranceCard({...props}) {
                 delete insurance['insurance_social'];
             }
 
-            if (insurance.insurance_social) {
+            if (insurance.insurance_social?.phone) {
                 const localPhone = insurance.insurance_social.phone;
                 phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            if (!insurance.insurance_social?.birthday) {
-                const insuranceSocial = _.omit(insurance['insurance_social'], "birthday")
-                insurance = {...insurance, insurance_social: insuranceSocial};
             }
 
             updatedInsurances.push({
@@ -323,7 +309,7 @@ function PersonalInsuranceCard({...props}) {
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-
+    console.log("errors", errors, values);
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
