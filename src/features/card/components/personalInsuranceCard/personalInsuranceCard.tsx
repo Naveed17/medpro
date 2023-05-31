@@ -274,7 +274,7 @@ function PersonalInsuranceCard({...props}) {
                     ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
-                            contact_type: patient.contact.uuid,
+                            contact_type: patient.contact[0].uuid,
                             value: phone as string
                         }
                     })
