@@ -34,7 +34,7 @@ function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);

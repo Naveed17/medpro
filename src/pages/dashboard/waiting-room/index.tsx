@@ -141,7 +141,7 @@ function WaitingRoom() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {mutate} = useSWRConfig();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);

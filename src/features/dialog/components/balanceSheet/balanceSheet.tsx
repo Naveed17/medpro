@@ -46,7 +46,7 @@ export const BalanceSheetCardData = {
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
     const {data: session} = useSession();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));

@@ -43,7 +43,7 @@ function ProfilMenu() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation('menu');
     const {opened} = useAppSelector(profileMenuSelector);

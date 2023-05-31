@@ -67,7 +67,7 @@ function AddPatientStep2({...props}) {
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");

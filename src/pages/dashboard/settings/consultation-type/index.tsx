@@ -42,7 +42,7 @@ function ConsultationType() {
     const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);

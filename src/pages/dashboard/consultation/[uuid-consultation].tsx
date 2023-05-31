@@ -59,8 +59,8 @@ function ConsultationInProgress() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     useLeavePageConfirm(() => {
         setLoading(true);

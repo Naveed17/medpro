@@ -16,7 +16,7 @@ function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 

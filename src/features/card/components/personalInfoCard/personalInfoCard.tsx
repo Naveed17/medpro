@@ -56,7 +56,7 @@ function PersonalInfo({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 

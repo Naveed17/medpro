@@ -166,7 +166,7 @@ function Patient() {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);

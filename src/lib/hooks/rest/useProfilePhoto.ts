@@ -11,7 +11,7 @@ function useProfilePhoto({...props}) {
     const {patientId, hasPhoto} = props;
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 

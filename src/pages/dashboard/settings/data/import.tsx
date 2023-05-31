@@ -78,7 +78,7 @@ function ImportData() {
     const router = useRouter();
     const {data: session} = useSession();
     const theme = useTheme();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {

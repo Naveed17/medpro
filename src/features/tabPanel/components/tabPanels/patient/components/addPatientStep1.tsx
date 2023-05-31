@@ -76,7 +76,7 @@ function AddPatientStep1({...props}) {
     const [duplicatedFiche, setDuplicatedFiche] = useState(false);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const RegisterSchema = Yup.object().shape({

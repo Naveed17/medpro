@@ -21,7 +21,7 @@ function CalendarPickers({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);

@@ -51,7 +51,7 @@ function NotificationPopover({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);

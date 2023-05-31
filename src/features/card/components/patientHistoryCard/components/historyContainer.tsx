@@ -44,7 +44,7 @@ function HistoryContainer({...props}) {
         medical_entity,
     } = props;
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
