@@ -175,7 +175,7 @@ function Payment() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);

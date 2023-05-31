@@ -19,7 +19,7 @@ function TemplatesConfig() {
     const router = useRouter();
     const {data: session} = useSession();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 

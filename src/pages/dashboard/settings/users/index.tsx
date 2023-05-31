@@ -82,7 +82,7 @@ function Users() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
 
@@ -96,8 +96,6 @@ function Users() {
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
 
-    const [edit, setEdit] = useState(false);
-    const [selected, setSelected] = useState<any>("");
     const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
     const handleChange = (props: any) => {

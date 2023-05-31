@@ -44,7 +44,7 @@ const Content = ({...props}) => {
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);

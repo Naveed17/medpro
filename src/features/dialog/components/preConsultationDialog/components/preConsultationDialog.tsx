@@ -2,11 +2,9 @@ import {Avatar, AvatarGroup, Box, Stack, Tooltip, Typography} from "@mui/materia
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useState} from "react";
 import Zoom from "react-medium-image-zoom";
-import Image from "next/image";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
@@ -18,6 +16,7 @@ import {setModelPreConsultation} from "@features/dialog";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -25,8 +24,8 @@ function PreConsultationDialog({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {insurances: allInsurances} = useInsurances();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
@@ -57,16 +56,13 @@ function PreConsultationDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -123,15 +119,9 @@ function PreConsultationDialog({...props}) {
                                          title={insuranceItem.name}>
                                     {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?
                                         <Avatar variant={"circular"}>
-                                            <Image
-                                                style={{borderRadius: 2}}
-                                                alt={insuranceItem.name}
-                                                src="static/icons/Med-logo.png"
-                                                width={20}
-                                                height={20}
-                                                loader={() => {
-                                                    return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string
-                                                }}
+                                            <ImageHandler
+                                                alt={insuranceItem?.name}
+                                                src={allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string}
                                             />
                                         </Avatar> : <></>}
                                 </Tooltip>

@@ -7,7 +7,9 @@ function useMedicalEntitySuffix() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
 
-    return `${UrlMedicalEntitySuffix}/${medical_entity.uuid}`;
+    return {
+        urlMedicalEntitySuffix: `${UrlMedicalEntitySuffix}/${medical_entity.uuid}`
+    };
 }
 
 export default useMedicalEntitySuffix;

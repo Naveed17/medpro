@@ -61,8 +61,8 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -68,7 +67,7 @@ function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 
@@ -484,7 +483,7 @@ function DocsConfig() {
                                 <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
                                         checked={data.size === 'portraitA5'}
-                                        onChange={(ev) => {
+                                        onChange={() => {
                                             data.size = 'portraitA5';
                                             setData({...data})
                                         }}
@@ -494,7 +493,7 @@ function DocsConfig() {
                                 <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
                                         checked={data.size === 'portraitA4'}
-                                        onChange={(ev) => {
+                                        onChange={() => {
                                             data.size = 'portraitA4';
                                             setData({...data})
                                         }}

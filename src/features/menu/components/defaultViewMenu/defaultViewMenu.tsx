@@ -31,7 +31,7 @@ function DefaultViewMenu() {
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -69,9 +69,7 @@ function DefaultViewMenu() {
 
     const handleMenuItemClick = (
         event: React.MouseEvent<HTMLElement>,
-        option: any,
-        index: number,
-    ) => {
+        option: any) => {
         handleDefaultView(option.value);
         setAnchorEl(null);
     };
@@ -149,7 +147,7 @@ function DefaultViewMenu() {
                                     sx={{pl: 3}}
                                     key={option.value}
                                     selected={index === VIEW_OPTIONS.findIndex(view => view.value === general_information?.agendaDefaultFormat)}
-                                    onClick={(event) => handleMenuItemClick(event, option, index)}
+                                    onClick={(event) => handleMenuItemClick(event, option)}
                                 >
                                     <SvgIcon component={option.icon} width={20} height={20}/>
                                     <Typography ml={1}>{option.text}</Typography>

@@ -44,7 +44,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {
         motif,
@@ -61,7 +61,7 @@ function Instruction({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
     const [smsLang, setLang] = useState(instruction.smsLang);
-    const [rappelType, setRappelType] = useState(instruction.rappelType);
+    const [rappelType] = useState(instruction.rappelType);
     const [smsRappel, setSmsRappel] = useState(instruction.smsRappel);
     const [rappel, setRappel] = useState(instruction.rappel);
     const [timeRappel, setTimeRappel] = useState<Date>(instruction.timeRappel);

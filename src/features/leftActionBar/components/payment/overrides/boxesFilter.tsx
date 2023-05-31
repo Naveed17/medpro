@@ -18,7 +18,7 @@ function BoxsesFilter({...props}) {
     const {cashboxes, setCashboxes} = props;
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const router = useRouter();
 

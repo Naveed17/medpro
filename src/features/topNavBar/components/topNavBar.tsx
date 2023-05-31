@@ -63,7 +63,7 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);

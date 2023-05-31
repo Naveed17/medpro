@@ -12,19 +12,19 @@ import {DefaultCountry} from "@lib/constants";
 import {LinearProgress, Stack} from "@mui/material";
 import React from "react";
 import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function PaymentFeesPopover({...props}) {
     const {uuid} = props;
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
 
     const {config: agenda} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 

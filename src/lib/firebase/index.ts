@@ -47,6 +47,9 @@ const firebaseCloudSdk = {
                     localStorage.setItem("fcm_token", fcm_token);
                     return {token: fcm_token, analytics};
                 }
+            } else {
+                console.error("requestPermission", status);
+                return {token: null, analytics: null};
             }
         } catch (error) {
             console.error("firebaseCloudMessaging", error);

@@ -25,21 +25,18 @@ type ChipColors = OverridableStringUnion<
 >;
 
 function ImportDataMobileCard({...props}) {
-    const {t, data, handleEvent} = props;
+    const {t, data} = props;
     const theme = useTheme();
-    const [loadingAction, setLoadingAction] = useState<boolean>(false);
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
 
     const [expanded, setExpanded] = useState(false);
-    const [expandType, setExpandType] = useState("");
     const [expandData, setExpandData] = useState([]);
 
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
     const getDetailImportData = (uuid: string, type: string) => {
-        setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,

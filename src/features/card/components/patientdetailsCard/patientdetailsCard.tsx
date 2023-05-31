@@ -59,7 +59,7 @@ function PatientDetailsCard({...props}) {
             console.log("ok", values);
         },
     });
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
