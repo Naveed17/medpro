@@ -51,7 +51,7 @@ function Consultation() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate} = useSWRConfig();
+    const {cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -141,7 +141,7 @@ function Consultation() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
                 data: params,
-            }).then(() => mutate(url));
+            }).then(() => cache.delete(url));
         }
     };
 
