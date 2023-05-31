@@ -105,6 +105,8 @@
   "docs": "Les documents de la consultation",
   "history": "Fiche historique",
   "reason_for_consultation": "Motif de consultation",
+  "requestedAnalyses": "Demande bilan",
+  "requestedPrescription": "Ordonnance médicale",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -401,6 +403,7 @@
     "see_details": "Voir détails"
   },
   "tracking_data": "Données de suivi",
+  "exempleFees": "Exemple: Suivi ...",
   "consultation_reason": "Motif de consultation",
   "diagnostics": "Diagnostique",
   "treatments": "Traitements",

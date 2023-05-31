@@ -374,7 +374,7 @@ function ConsultationIPToolbar({...props}) {
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
                         pdoc.push({
                             id: 2,
-                            name: "Ordonnance médicale",
+                            name: "requestedPrescription",
                             status: "in_progress",
                             icon: "ic-traitement",
                             state
@@ -389,7 +389,7 @@ function ConsultationIPToolbar({...props}) {
                     if (pdoc.findIndex((pdc) => pdc.id === 1) === -1)
                         pdoc.push({
                             id: 1,
-                            name: "Demande bilan",
+                            name: "requestedAnalyses",
                             status: "in_progress",
                             icon: "ic-analyse",
                             state

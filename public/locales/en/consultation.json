@@ -401,6 +401,7 @@
     "see_details": "See details"
   },
   "tracking_data": "Tracking data",
+  "exempleFees": "Exemple: homeopathy ...",
   "consultation_reason": "Consultation reason",
   "diagnostics": "Diagnostics",
   "treatments": "Treatments",
@@ -449,6 +450,8 @@
   "edit_of_consultation": "Save changes",
   "plan_a_meeting": "Schedule a follow-up",
   "day": "Day",
+  "requestedAnalyses": "Requested analyse",
+  "requestedPrescription": "Prescription",
   "steppers": {
     "tabs": {
       "tab-1": "Type",

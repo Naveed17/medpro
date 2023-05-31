@@ -108,7 +108,7 @@ function TemplatesConfig() {
                                     handleMouseOver(res.uuid)
                                 }} className={"edit-btn"} onClick={() => {
                                     edit(res.uuid)
-                                }}>Modifier</Button>}
+                                }}>{t("modifier")}</Button>}
                             {!loading &&
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
                                     <Typography className={"doc-title"}>{res.title}</Typography>

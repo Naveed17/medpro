@@ -655,7 +655,8 @@
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
-      "asDefault": "Sélectionnez-le comme module par défaut"
+      "asDefault": "Sélectionnez-le comme module par défaut",
+      "modifier": "Modifier"
     }
   }
 }
