@@ -90,7 +90,7 @@ function LifeStyleDialog({...props}) {
                     id="standard-basic"
                     variant="outlined"
                     sx={{marginBottom: 3}}
-                    placeholder={'recherche par mots-clés'}
+                    placeholder={t('search')}
                     onChange={(e) => {
                         handleChangeSearch(e);
                     }}

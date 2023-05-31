@@ -1,55 +1,1 @@
-{
-  "pending": "Appointment pending",
-  "add": "Add",
-  "side-bar" : {
-    "all" : "All",
-    "motif" : "Reason of consultation",
-    "status" : "Status",
-    "type" : "Appointment type"
-  },
-  "filter": {
-    "reasons": "Reason for the consultation",
-    "status" : "Status",
-    "meetingType": "Meeting type",
-    "meeting":{
-      "cabinet": "Clinic",
-      "home": "Home",
-      "teleconsultation": "Teleconsultation"
-    },
-    "all": "All",
-    "done": "Checked",
-    "confirm": "Confirmed",
-    "pending": "Pending",
-    "cancel": "Canceled",
-    "expired": "Expired",
-    "no_show": "Patient No-Show",
-    "cancel_patient": "Canceled by patient",
-    "note": "Notes"
-  },
-  "table": {
-    "header": {
-      "heure": "Time",
-      "motif": "Reason",
-      "duree": "Duration",
-      "status": "Statut",
-      "patient": "Patient",
-      "agenda": "Calendar",
-      "action": "Action"
-    },
-    "body": {
-      "add-appointment": "Add appointment",
-      "edit": "Edit",
-      "see-card": "See card"
-    },
-    "pagination": {
-      "of": "of"
-    },
-    "no-data": {
-      "event": {
-        "title": "Add your first appointment",
-        "description": "",
-        "button-text": "Add an appointment"
-      }
-    }
-  }
-}
+{	"pending": "Pending appointment",	"enter-waiting-room": "Add to waiting room",	"leave-waiting-room": "Leave waiting room",	"add": "Add appointment",	"view": "View details",	"manage": "Manage",	"confirm": "Confirm appointment",	"in-consultation-error": "You have an ongoing consultation, please click here to finalize it.",	"timer-status": "In consultation",	"side-bar": {		"all": "All",		"motif": "Reason for consultation",		"status": "Status",		"type": "Appointment type"	},	"filter": {		"title": "Filter",		"patient": "Patient",		"birthdate": "Date of birth",		"gender": "Gender",		"male": "Male",		"female": "Female",		"name": "Search",		"phone": "Phone number",		"place": "Place",		"city": "City",		"search": "Name & surname/Phone/Record number",		"appointment": "Appointment",		"type": "Type",		"fiche_id": "Patient record",		"fiche": "Record number",		"next-appointment": "Next appointment",		"last-appointment": "Last appointment",		"reasons": "Reason for consultation",		"status": "Status",		"meetingType": "Appointment type",		"meetingStatus": "Appointment status",		"meeting": {			"cabinet": "Office",			"home": "Home",			"teleconsultation": "Teleconsultation"		},		"all": "All",		"done": "Done",		"confirm": "Confirmed",		"pending": "Pending",		"cancel": "Cancelled",		"expired": "Expired",		"no_show": "Patient did not show up",		"cancel_patient": "Cancelled by the patient",		"note": "Notes"	},	"table": {		"header": {			"heure": "Time",			"motif": "Reason",			"duree": "Duration",			"status": "Status",			"patient": "Patient",			"agenda": "Agenda",			"fees": "Fees",			"action": "Action"		},		"body": {			"add-appointment": "Add appointment",			"edit": "Edit",			"see-card": "See card"		},		"pagination": {			"of": "of"		},		"no-data": {			"event": {				"title": "Add your first appointment",				"description": "",				"button-text": "Add an appointment"			}		}	},	"steppers": {		"tabs": {			"tab-1": "Type",			"tab-2": "Time Slot",			"tab-3": "Patient",			"tab-4": "Instructions"		},		"stepper-0": {			"title": "Time Slot Type",			"sub-title": "Type",			"type-placeholder": "Select the type of time slot",			"types": {				"consultation": "Consultation",				"clinic": "Clinic",				"teleconsultation": "Teleconsultation",				"at-home": "At Home",				"medical-representative": "Medical Representative",				"personal": "Personal",				"staff-meeting": "Staff Meeting",				"absence": "Absence",				"control": "Control"			}		},		"stepper-1": {			"title": "Book a Time Slot",			"sub-title": "Time Slot",			"reason-consultation": "Reason for Consultation",			"reason-consultation-placeholder": "Choose your reason for consultation",			"practitioner": "Practitioner",			"affect-des": "Choose the practitioner assigning this consultation",			"time-slot": "Time Slot",			"selected-appointment": "Selected Appointment",			"date-message": "Please choose the appointment dates",			"time-message": "Please choose the appointment time",			"see-more": "See more time slots",			"add-more-date": "Add another appointment",			"add_reason": "Add a new reason",			"change-time": "Change time",			"confirm-time": "Confirm",			"cancel-time": "Cancel",			"duration": {				"title": "Consultation Duration",				"hours": "hours",				"minutes": "minutes",				"placeholder": "Choose the consultation duration"			}		},		"stepper-2": {			"title": "Choose the patient",			"sub-title": "You need to add a patient",			"add_button": "Add a new patient",			"patient": {				"personal-info": "Personal Information",				"additional-information": "Additional Information",				"more-detail": "Show more details",				"less-detail": "Show less details",				"fin": "End",				"group": "Group",				"gender": "Gender",				"nationality": "Nationality",				"nationality-placeholder": "Select patient nationality",				"gender-error": "Please choose the gender.",				"group-placeholder": "Select a group",				"civility": "Civility",				"mr": "Mr.",				"mrs": "Mrs.",				"last-name": "Last Name",				"last-name-placeholder": "Enter patient's last name",				"last-name-error": "Last name must be at least 3 characters long, without special characters.",				"first-name": "First Name",				"first-name-error": "First name must be at least 3 characters long, without special characters.",				"first-name-placeholder": "Enter patient's first name",				"date-of-birth": "Date of Birth",				"family_doctor": "Family Doctor",				"family_doctor-placeholder": "Family Doctor",				"day": "Day",				"month": "Month",				"year": "Year",				"date-error": "This field is required",				"telephone": "Telephone Number",				"telephone-error": "Telephone number is required",				"cancel": "Cancel",				"next": "Next",				"region": "City",				"region-error": "City is required",				"country": "Country",				"country-placeholder": "Country",				"region-placeholder": "City",				"zip": "Postal Code",				"address": "Address",				"address-group": "Patient's Address",				"address-placeholder": "Enter patient's address",				"assurance": "Insurances",				"assurance-social": "Social Assurance",				"assurance-placeholder": "Assurance",				"assurance-phone-error": "Assurance number",				"assurance-num-error": "Assurance number is required",				"assurance-type-error": "Please select the assurance",				"email": "Email",				"email-placeholder": "Enter patient's email address",				"cin": "ID Card",				"cin-placeholder": "Enter patient's ID card",				"profession": "Profession",				"profession-placeholder": "Enter patient's profession",				"birthday": "Date of Birth",				"fiche": "Patient's Medical File Number",				"fiche-placeholder": "Patient's medical file number",				"from": "From",				"patient-placeholder": "The patient",				"from-placeholder": "Enter patient's date of birth",				"added": "Patient added",				"description": "",				"add-new": "Add another patient",				"add-appo": "Add Appointment",				"register": "Register",				"return": "Return to",				"dialog": {					"title": "Duplicates Detected",					"later": "Do it later",					"no-duplicates": "These patients are not duplicates",					"selected": "Selected patient"				}			}		},		"stepper-3": {			"title": "Instruction / Advice",			"sub-title": "Instruction for the patient",			"instruction-placeholder": "Type instruction for the patient",			"reminder": "Reminder",			"sms-reminder": "Reminder text in",			"sms-type": "Reminder type",			"schedule": "Schedule a reminder SMS for the patient",			"to": "to",			"day": "Day",			"added": "Appointment added",			"description": ""		},		"next": "Next",		"back": "Back",		"added": "Appointment added",		"waiting": "Add the patient to the waiting room",		"start_the_consultation": "Start the consultation",		"added-description": "Appointment added successfully",		"show-patient": "View Patient record",		"finish": "Close"	},	"dialogs": {		"move-dialog": {			"title": "Move Appointment",			"title-duration": "Change Appointment Duration",			"sub-title": "Do you really want to move the appointment?",			"sub-title-duration": "Do you really want to change the appointment duration?",			"description": "You will not lose the history and documents related to this appointment",			"garde-date": "Keep the date",			"time-message": "Please choose the appointment time",			"week-day-slot": "Choose a new time slot",			"see-more": "See more times",			"alert-msg": "Appointment moved successfully",			"alert-msg-duration": "Appointment duration changed successfully",			"cancel": "Cancel",			"confirm": "Confirm"		},		"reschedule-dialog": {			"title": "Reschedule Appointment",			"sub-title": "Do you really want to reschedule the appointment?",			"description": "You will not lose the history and documents related to this appointment",			"garde-date": "Cancel",			"time-message": "Please choose the appointment time",			"week-day-slot": "Choose a new time slot",			"see-more": "See more times",			"alert-msg": "Appointment rescheduled successfully",			"cancel": "Cancel",			"confirm": "Reschedule"		},		"cancel-dialog": {			"title": "Cancel Appointment",			"sub-title": "Do you really want to cancel the appointment?",			"description": "You will permanently lose the history and documents related to this patient",			"cancel": "Cancel",			"confirm": "Confirm"		},		"delete-dialog": {			"title": "Delete Appointment",			"sub-title": "Do you really want to delete the appointment?",			"description": "You will permanently lose the history and documents related to this patient",			"cancel": "Cancel",			"confirm": "Delete"		},		"quick_add_appointment-dialog": {			"title": "Quickly Add an Appointment",			"cancel": "Cancel",			"confirm": "Save"		},		"pending-dialog": {			"title": "Pending Appointment"		}	},	"alert": {		"cancel-appointment": "Appointment canceled successfully",		"delete-appointment": "Appointment deleted successfully",		"leave-waiting-room": "Patient has left the waiting room",		"on-waiting-room": "Patient has been successfully added to the waiting room",		"patient-no-show": "Appointment changed successfully",		"confirm-appointment": "Appointment confirmed successfully"	}}

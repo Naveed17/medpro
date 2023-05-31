@@ -860,8 +860,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                         <Tabs value={prescriptionTabIndex} onChange={handlePrescriptionTabChange}
                                               aria-label="prescription tabs">
-                                            <Tab disableFocusRipple label="Aperçu" {...a11yProps(0)} />
-                                            <Tab disableFocusRipple label="Modeles" {...a11yProps(1)}/>
+                                            <Tab disableFocusRipple label={t("preview")} {...a11yProps(0)} />
+                                            <Tab disableFocusRipple label={t("modeles")} {...a11yProps(1)}/>
                                         </Tabs>
                                     </Box>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
