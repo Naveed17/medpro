@@ -41,6 +41,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import {useSWRConfig} from "swr";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -50,6 +51,7 @@ function Consultation() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
     const {allAntecedents} = useAntecedentTypes();
+    const {cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -130,15 +132,17 @@ function Consultation() {
             );
             patient.idCard && params.append("id_card", patient.idCard);
         }
-
-        medicalEntityHasUser && triggerPatientUpdate({
-            method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-            data: params,
-        });
+        if (medicalEntityHasUser) {
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+            triggerPatientUpdate({
+                method: "PUT",
+                url,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+                data: params,
+            }).then(() => cache.delete(url));
+        }
     };
 
     useEffect(() => {

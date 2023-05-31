@@ -1,7 +1,7 @@
 interface InsuranceSocialModel {
     firstName: string;
     lastName: string;
-    birthday: string;
+    birthday?: string;
     phone: {
         code: string;
         value: string;

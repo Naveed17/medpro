@@ -183,7 +183,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 dosageQty: Yup.string(),
                 dosageDuration: Yup.number(),
                 dosageMealValue: Yup.string(),
-                durationValue: Yup.string().min(3).required("durationValue_error"),
+                durationValue: Yup.string(),
                 dosageInput: Yup.boolean(),
                 cautionaryNoteInput: Yup.boolean(),
                 dosageInputText: Yup.string(),
@@ -191,7 +191,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 dosageTime: Yup.array().of(Yup.object().shape({
                     label: Yup.string(),
                     value: Yup.boolean()
-                })),
+                })).compact((v) => !v.value).min(1, "dosageTime_error"),
                 dosageMeal: Yup.array().of(Yup.object().shape({
                     label: Yup.string(),
                     value: Yup.string()
@@ -413,7 +413,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value) ?
-            `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")}, ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? t(cycle.dosageMealValue) : ""}` : ""
+            `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : ""
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -432,7 +432,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     const drug = data.drug as DrugModel;
                     const cycles = data.cycles.map((cycle: any) => ({
                         dosage: cycle.dosageInput ? cycle.dosageInputText : generateDosageText(cycle, data.unit),
-                        duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : "",
+                        duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : null,
                         durationType: cycle.durationValue.length > 0 ? cycle.durationValue : "",
                         note: cycle.cautionaryNote.length > 0 ? cycle.cautionaryNote : "",
                         isOtherDosage: cycle.dosageInput
@@ -441,7 +441,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         cycles,
                         drugUuid: drug?.uuid,
                         name: drug?.commercial_name
-                    })
+                    });
                 }
             });
             if (drugs.length > 0 || values.data && values.data.length === 0) {
@@ -859,8 +859,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                         <Tabs value={prescriptionTabIndex} onChange={handlePrescriptionTabChange}
                                               aria-label="prescription tabs">
-                                            <Tab disableFocusRipple label="Aperçu" {...a11yProps(0)} />
-                                            <Tab disableFocusRipple label="Modeles" {...a11yProps(1)}/>
+                                            <Tab disableFocusRipple label={t("preview")} {...a11yProps(0)} />
+                                            <Tab disableFocusRipple label={t("models")} {...a11yProps(1)}/>
                                         </Tabs>
                                     </Box>
                                     <TabPanel value={prescriptionTabIndex} index={0}>

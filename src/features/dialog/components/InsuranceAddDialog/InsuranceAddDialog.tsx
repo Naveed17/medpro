@@ -266,6 +266,7 @@ function InsuranceAddDialog({...props}) {
                                                 </Grid>
                                             </Grid>
                                             <Stack
+                                                spacing={1.2}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root button": {
                                                         padding: "5px",
