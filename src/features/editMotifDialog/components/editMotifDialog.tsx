@@ -14,12 +14,11 @@ import {
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import {useSnackbar} from "notistack";
-import React, {useState} from "react";
+import React from "react";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -77,16 +76,12 @@ const colors = [
 function EditMotifDialog({...props}) {
     const {mutateEvent} = props;
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const initalData = Array.from(new Array(20));
-    const [submit, setSubmit] = useState(false);
 
     const {trigger} = useRequestMutation(null, "/settings/motif");
 
@@ -105,13 +100,6 @@ function EditMotifDialog({...props}) {
         },
     } : null);
 
-    const agendas = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : [];
-    //const types = typesHttpResponse ? (typesHttpResponse as HttpResponse).data : [];
-
-    /*    let typesUiids: string[] = [];
-          if (props.data) {
-              props.data.types.map((type: ConsultationReasonTypeModel) => typesUiids.push(type.uuid))
-          }*/
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -125,8 +113,7 @@ function EditMotifDialog({...props}) {
         },
         validationSchema,
 
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
-            setSubmit(true);
+        onSubmit: async (values) => {
             //if (values.typeOfMotif.length > 0) {
             props.closeDraw();
             const form = new FormData();

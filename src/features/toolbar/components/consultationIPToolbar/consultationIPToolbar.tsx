@@ -70,7 +70,7 @@ function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});

@@ -45,7 +45,7 @@ function Motif() {
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

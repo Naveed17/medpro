@@ -34,7 +34,7 @@ function HistoryTab({...props}) {
         dates, keys, modelData,
         router
     } = props;
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

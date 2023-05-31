@@ -39,7 +39,7 @@ function PatientFilter({...props}) {
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
         setQueryState({...queryState, [lab.label]: event.target.value});
-        if (event.target.value.length >= 3) {
+        if (event.target.value.length >= 1) {
             OnSearch({
                 query: {
                     ...queryState,

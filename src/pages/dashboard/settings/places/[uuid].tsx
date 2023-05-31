@@ -122,7 +122,7 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation("settings");
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -255,8 +255,7 @@ function PlacesDetail() {
                 url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger(
-                {
+            trigger({
                     method,
                     data: form,
                     url,

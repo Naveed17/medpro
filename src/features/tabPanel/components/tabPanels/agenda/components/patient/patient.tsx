@@ -25,7 +25,7 @@ function Patient({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {currentStepper} = useAppSelector(agendaSelector);
@@ -34,9 +34,7 @@ function Patient({...props}) {
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
 
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
     const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -58,6 +56,7 @@ function Patient({...props}) {
             onPatientSearch(true);
         }
     }
+
     const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         const search = event.target.value;
         if (search.length >= 3) {
@@ -99,25 +98,27 @@ function Patient({...props}) {
                 delete insurance['insurance_social'];
             }
 
-            if (insurance.insurance_social) {
+            if (insurance.insurance_social?.phone) {
                 const localPhone = insurance.insurance_social.phone;
                 phone = localPhone.value.replace(localPhone.code, "");
             }
 
             insurances.push({
                 ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
+                insurance_social: {
+                    ...insurance.insurance_social,
+                    birthday: insurance.insurance_social?.birthday ? insurance.insurance_social.birthday : "",
+                    ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
                             contact_type: patient.contact.uuid,
                             value: phone as string
                         }
-                    }
-                })
-            })
+                    })
+                }
+            });
         });
+
         form.append('insurance', JSON.stringify(insurances));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);

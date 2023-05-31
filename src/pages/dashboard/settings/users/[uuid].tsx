@@ -38,7 +38,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 function NewUser() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
 
     const {t, ready} = useTranslation("settings");

@@ -9,7 +9,7 @@ const settingsData = {
         },
         {
             name: "cabinet",
-            icon: "ic-setting",
+            icon: "setting/ic-cabinet",
             href: "/dashboard/settings/places/",
             disable: false
         },
@@ -21,19 +21,19 @@ const settingsData = {
         },
         {
             name: "actfees",
-            icon: "ic-argent",
+            icon: "setting/fees",
             href: "/dashboard/settings/actfees",
             disable: false
         },
         {
             name: "motif",
-            icon: "ic-door",
+            icon: "setting/ic-patient-file",
             href: "/dashboard/settings/motif",
             disable: false
         },
         {
             name: "consultation",
-            icon: "setting/ic-patient-file",
+            icon: "setting/medical-history",
             href: "/dashboard/settings/patient-file-templates",
             disable: false
         },
@@ -45,13 +45,13 @@ const settingsData = {
         },
         {
             name: "configdoc",
-            icon: "setting/ic-edit-file",
+            icon: "setting/ic-doc",
             href: "/dashboard/settings/templates",
             disable: false
         },
         {
             name: "type",
-            icon: "setting/ic-doc",
+            icon: "setting/c-type",
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
@@ -100,7 +100,7 @@ const settingsData = {
         },
         {
             name: "import-data",
-            icon: "ic-upload-3",
+            icon: "setting/ic-dowlaodfile",
             fill: "default",
             href: "/dashboard/settings/data",
             disable: false

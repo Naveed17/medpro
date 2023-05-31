@@ -99,7 +99,7 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -257,6 +257,7 @@ function PatientDetail({...props}) {
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
+            case "medical_prescription":
             case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");

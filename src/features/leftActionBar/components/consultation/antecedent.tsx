@@ -24,7 +24,7 @@ function Antecedent({...props}) {
         index,
         router
     } = props
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 

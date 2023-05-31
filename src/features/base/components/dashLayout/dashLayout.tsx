@@ -46,7 +46,7 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

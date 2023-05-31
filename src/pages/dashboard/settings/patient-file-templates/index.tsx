@@ -22,7 +22,6 @@ import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -42,7 +41,7 @@ function PatientFileTemplates() {
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {mutate: mutateSwrConfig} = useSWRConfig();
 
@@ -84,10 +83,7 @@ function PatientFileTemplates() {
     const [loading, setLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
 
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
-    const {data: modalsHttpResponse, mutate} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+    const {data: modalsHttpResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${
             !isMobile
@@ -149,7 +145,7 @@ function PatientFileTemplates() {
         });
     }
 
-    const handleEdit = (props: ModalModel, event: string, value: string) => {
+    const handleEdit = (props: ModalModel, event: string, value?: string) => {
         switch (event) {
             case "see":
                 setOpen(true);

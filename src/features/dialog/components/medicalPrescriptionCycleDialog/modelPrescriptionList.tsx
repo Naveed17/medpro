@@ -32,7 +32,7 @@ function ModelPrescriptionList({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const theme = useTheme();
 
     const {direction} = useAppSelector(configSelector);

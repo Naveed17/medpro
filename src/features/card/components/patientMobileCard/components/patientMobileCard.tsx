@@ -2,7 +2,6 @@ import React from "react";
 import RootStyled from "./overrides/rootStyled";
 // next-i18next
 import {useTranslation} from "next-i18next";
-
 // material
 import {
     Avatar,
@@ -22,17 +21,13 @@ import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
 
-const menuList = [
+/*const menuList = [
     {
         title: "add_appointment",
         icon: <IconUrl path="ic-plus" color="white" width={18} height={18}/>,
@@ -61,7 +56,7 @@ const menuList = [
         icon: <IconUrl path="icdelete" color="white" width={18} height={18}/>,
         action: "onDelete",
     },
-];
+];*/
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
     height: 20,
@@ -71,12 +66,7 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading} = props;
-    const {data: session} = useSession();
-    const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
-
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     return (
         <Paper key={Math.random()} className="card-main">

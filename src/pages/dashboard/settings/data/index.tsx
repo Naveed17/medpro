@@ -93,7 +93,7 @@ function Data() {
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
