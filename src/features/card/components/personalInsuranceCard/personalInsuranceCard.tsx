@@ -309,7 +309,7 @@ function PersonalInsuranceCard({...props}) {
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-    console.log("errors", errors, values);
+
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
