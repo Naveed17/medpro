@@ -147,7 +147,7 @@ function DefaultViewMenu() {
                                     sx={{pl: 3}}
                                     key={option.value}
                                     selected={index === VIEW_OPTIONS.findIndex(view => view.value === general_information?.agendaDefaultFormat)}
-                                    onClick={(event) => handleMenuItemClick(event, option, index)}
+                                    onClick={(event) => handleMenuItemClick(event, option)}
                                 >
                                     <SvgIcon component={option.icon} width={20} height={20}/>
                                     <Typography ml={1}>{option.text}</Typography>
