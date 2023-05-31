@@ -47,6 +47,7 @@ import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -178,15 +179,7 @@ function OnStepPatient({...props}) {
                             message: t("last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("birthday-error"))
-                        .max(50, t("birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
+                    birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
                         value: Yup.string()
@@ -194,8 +187,8 @@ function OnStepPatient({...props}) {
                                 name: 'phone-value-test',
                                 message: t("telephone-error"),
                                 test: (value, ctx: any) => {
-                                    const isValidPhone = value ? isValidPhoneNumber(value) : false;
-                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhone)
+                                    const isValidPhone = value ? (value.length > 0 ? isValidPhoneNumber(value) : true) : true;
+                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhone);
                                 }
                             }),
                         type: Yup.string(),
@@ -276,7 +269,7 @@ function OnStepPatient({...props}) {
             }[]
         },
         validationSchema: RegisterPatientSchema,
-        onSubmit: async (values, formikHelpers) => {
+        onSubmit: async (values) => {
             if (OnSubmit) {
                 OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
@@ -287,7 +280,6 @@ function OnStepPatient({...props}) {
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
-    const [value, setValue] = useState("");
 
     const {data: httpContactResponse} = useRequest({
         method: "GET",
@@ -946,7 +938,6 @@ function OnStepPatient({...props}) {
                                                                         </li>)
                                                                 }}
                                                                 renderInput={(params) => {
-                                                                    const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                                     return (<TextField {...params}
                                                                                        placeholder={t("patient-placeholder")}/>)
                                                                 }}
@@ -973,35 +964,26 @@ function OnStepPatient({...props}) {
                                                                     options={insurances ? insurances : []}
                                                                     getOptionLabel={option => option?.name ? option.name : ""}
                                                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                                                                    renderOption={(params, option) => (
+                                                                    renderOption={(params, insuranceItem) => (
                                                                         <MenuItem
                                                                             {...params}
-                                                                            key={option.uuid}
-                                                                            value={option.uuid}>
-                                                                            <Avatar
-                                                                                sx={{
-                                                                                    width: 20,
-                                                                                    height: 20,
-                                                                                    borderRadius: 0.4
-                                                                                }}
-                                                                                alt={"insurance"}
-                                                                                src={option.logoUrl.url}
-                                                                            />
+                                                                            key={insuranceItem.uuid}
+                                                                            value={insuranceItem.uuid}>
+                                                                            {insuranceItem?.logoUrl &&
+                                                                                <ImageHandler
+                                                                                    alt={insuranceItem?.name}
+                                                                                    src={insuranceItem?.logoUrl.url}
+                                                                                />}
                                                                             <Typography
-                                                                                sx={{ml: 1}}>{option.name}</Typography>
+                                                                                sx={{ml: 1}}>{insuranceItem.name}</Typography>
                                                                         </MenuItem>)}
                                                                     renderInput={(params) => {
                                                                         const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
                                                                         params.InputProps.startAdornment = insurance && (
                                                                             <InputAdornment position="start">
                                                                                 {insurance?.logoUrl &&
-                                                                                    <Avatar
-                                                                                        sx={{
-                                                                                            width: 20,
-                                                                                            height: 20,
-                                                                                            borderRadius: 0.4
-                                                                                        }}
-                                                                                        alt="insurance"
+                                                                                    <ImageHandler
+                                                                                        alt={insurance?.name}
                                                                                         src={insurance?.logoUrl.url}
                                                                                     />}
                                                                             </InputAdornment>

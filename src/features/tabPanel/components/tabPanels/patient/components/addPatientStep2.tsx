@@ -252,19 +252,25 @@ function AddPatientStep2({...props}) {
                 phone = localPhone.value.replace(localPhone.code, "");
             }
 
+            /*            if (!insurance.insurance_social?.birthday) {
+                            const insuranceSocial = _.omit(insurance['insurance_social'], "birthday")
+                            insurance = {...insurance, insurance_social: insuranceSocial};
+                        }*/
+
             updatedInsurances.push({
                 ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
+                insurance_social: {
+                    ...insurance.insurance_social,
+                    birthday: insurance.insurance_social?.birthday ? insurance.insurance_social.birthday : "",
+                    ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
                             contact_type: contacts[0].uuid,
                             value: phone as string
                         }
-                    }
-                })
-            })
+                    })
+                }
+            });
         });
         form.append('insurance', JSON.stringify(updatedInsurances));
         form.append('email', values.email);

@@ -175,10 +175,12 @@ function MedicalPrescriptionDialog({...props}) {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         setUpdate(selected);
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
-        setFieldValue('cycles[0].dosage', drugs[selected].cycles[0].dosage)
-        setFieldValue('cycles[0].duration', drugs[selected].cycles[0].duration)
-        setFieldValue('cycles[0].durationType', drugs[selected].cycles[0].durationType)
-        setFieldValue('cycles[0].note', drugs[selected].cycles[0].note)
+        if (drugs[selected].cycles[0]) {
+            setFieldValue('cycles[0].dosage', drugs[selected].cycles[0].dosage)
+            setFieldValue('cycles[0].duration', drugs[selected].cycles[0].duration)
+            setFieldValue('cycles[0].durationType', drugs[selected].cycles[0].durationType)
+            setFieldValue('cycles[0].note', drugs[selected].cycles[0].note)
+        }
     }
 
     const handleInputChange = (value: string) => {
@@ -196,7 +198,7 @@ function MedicalPrescriptionDialog({...props}) {
             name: '',
             cycles: [{
                 dosage: '',
-                duration: '',
+                duration: null,
                 durationType: 'day',
                 note: '',
                 isOtherDosage: true
@@ -385,7 +387,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             type={"number"}
                                             error={touchedFileds.duration && values.cycles[0].duration === ''}
                                             {...getFieldProps("cycles[0].duration")}
-                                            value={values.cycles[0].duration}
+                                            value={values.cycles[0].duration ? values.cycles[0].duration : ""}
                                             InputProps={{inputProps: {min: 1}}}
                                             onBlur={() => {
                                                 touchedFileds.duration = true;

@@ -38,6 +38,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import _ from "lodash";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -274,19 +275,25 @@ function PersonalInsuranceCard({...props}) {
                 phone = localPhone.value.replace(localPhone.code, "");
             }
 
+            if (!insurance.insurance_social?.birthday) {
+                const insuranceSocial = _.omit(insurance['insurance_social'], "birthday")
+                insurance = {...insurance, insurance_social: insuranceSocial};
+            }
+
             updatedInsurances.push({
                 ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
+                insurance_social: {
+                    ...insurance.insurance_social,
+                    birthday: insurance.insurance_social?.birthday ? insurance.insurance_social.birthday : "",
+                    ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
-                            contact_type: patient.contact[0].uuid,
+                            contact_type: patient.contact.uuid,
                             value: phone as string
                         }
-                    }
-                })
-            })
+                    })
+                }
+            });
         });
         params.append('insurance', JSON.stringify(updatedInsurances));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
@@ -296,6 +303,7 @@ function PersonalInsuranceCard({...props}) {
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
+
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,

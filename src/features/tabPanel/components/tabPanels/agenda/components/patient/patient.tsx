@@ -17,6 +17,7 @@ import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import _ from "lodash";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -106,18 +107,20 @@ function Patient({...props}) {
 
             insurances.push({
                 ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
+                insurance_social: {
+                    ...insurance.insurance_social,
+                    birthday: insurance.insurance_social?.birthday ? insurance.insurance_social.birthday : "",
+                    ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
                             contact_type: patient.contact.uuid,
                             value: phone as string
                         }
-                    }
-                })
-            })
+                    })
+                }
+            });
         });
+
         form.append('insurance', JSON.stringify(insurances));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);

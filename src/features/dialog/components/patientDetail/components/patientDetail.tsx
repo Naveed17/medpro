@@ -257,6 +257,7 @@ function PatientDetail({...props}) {
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
+            case "medical_prescription":
             case "medical_prescription_cycle":
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
