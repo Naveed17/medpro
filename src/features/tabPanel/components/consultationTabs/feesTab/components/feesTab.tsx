@@ -113,7 +113,7 @@ function FeesTab({...props}) {
             <Box>
                 <Stack alignItems={"flex-end"} mb={2}>
                     <TextField
-                        placeholder={"Exemple: Suivi ..."}
+                        placeholder={t("exempleFees")}
                         value={search}
                         onChange={(ev) => {
                             setSearch(ev.target.value);

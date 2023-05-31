@@ -269,7 +269,7 @@ function Widget({...props}) {
                         sx={{cursor: "pointer"}}>
                         <ModelDot color={defaultModal?.color} selected={false}/>
                         <Typography fontWeight={600}>
-                            Données de suivi : {defaultModal?.label}
+                            {t('tracking_data')} : {defaultModal?.label}
                         </Typography>
                         {!closePanel && <IconUrl path="ic-flesh-bas-y"/>}
                     </Stack>

@@ -120,7 +120,7 @@ function RdvCard({...props}) {
                                                 ? 0.5
                                                 : 0,
                                         }}>
-                                        {AppointmentStatus[inner?.status]?.value}
+                                        {t(AppointmentStatus[inner?.status]?.key)}
                                     </Typography>
                                 </Label>}
                             </Stack>

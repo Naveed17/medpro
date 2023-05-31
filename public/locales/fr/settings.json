@@ -224,7 +224,7 @@
         "type": "Type",
         "speciality": "Spécialité",
         "autoConfirm": "Confirmation auto",
-        "default": "Par defaut",
+        "default": "Par défaut",
         "actif": "actif",
         "public": "public",
         "action": "action",
@@ -655,7 +655,8 @@
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
-      "asDefault": "Sélectionnez-le comme module par défaut"
+      "asDefault": "Sélectionnez-le comme module par défaut",
+      "modifier": "Modifier"
     }
   }
 }

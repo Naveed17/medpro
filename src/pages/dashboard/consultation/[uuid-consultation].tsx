@@ -1219,11 +1219,11 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(context.locale as string, [
+            ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common",

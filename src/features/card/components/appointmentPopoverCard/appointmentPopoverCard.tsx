@@ -124,7 +124,7 @@ function AppointmentPopoverCard({...props}) {
                             fontSize: 10,
                             ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
                         }}
-                    >{data?.status?.value}</Typography>
+                    >{t(data?.status?.key)}</Typography>
                 </Label>
             </Stack>
 
