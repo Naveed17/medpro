@@ -28,6 +28,7 @@ import {IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
+import {useRouter} from "next/router";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -50,9 +51,10 @@ const CloseSnackbarAction = ({id}: any) => {
 }
 
 function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
+    const router = useRouter();
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
-    moment.locale('fr');
+    moment.locale(router.locale);
 
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));

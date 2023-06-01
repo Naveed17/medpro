@@ -27,13 +27,13 @@ function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
     const router = useRouter();
     const lang: string | undefined = router.locale;
-    const [locale, setLocale] = useState<SupportedLocales>(Localization(lang));
+    const [locale] = useState<SupportedLocales>(Localization(lang));
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         const lang = locale.substring(0, 2);
-        // moment.locale(lang === 'ar' ? 'ar-tn' : lang);
+        moment.locale(lang === 'ar' ? 'ar-tn' : lang);
         dispatch(setDirection(dir));
         dispatch(setLocalization(locale));
     }, [locale, dir, dispatch]);

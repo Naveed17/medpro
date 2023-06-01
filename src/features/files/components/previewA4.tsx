@@ -4,13 +4,14 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
+import {useTranslation} from "next-i18next";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
 
     const {data: session} = useSession();
-    const {data: user} = session as Session;
 
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const general_information = (user as UserDataResponse).general_information;
@@ -93,7 +94,7 @@ function PreviewDialog({...props}) {
                                                 style: pr.style
                                             });
                                             index < el.cycles.length - 1 && rows.push({
-                                                value: "puis",
+                                                value: t("after"),
                                                 name: "break",
                                                 element: "p",
                                                 style: breakStyle

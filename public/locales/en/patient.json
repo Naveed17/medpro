@@ -25,16 +25,7 @@
     "reason": "Reason for Consultation",
     "date": "Appointment Date",
     "register": "Register",
-    "cancel": "Cancel",
-    "PENDING": "Pending",
-    "CONFIRMED": "Confirmed",
-    "REFUSED": "Refused",
-    "WAITING_ROOM": "Waiting room",
-    "ON_GOING": "On going",
-    "FINISHED": "Finished",
-    "CANCELED": "Canceled",
-    "EXPIRED": "Expired",
-    "PAUSED": "Paused"
+    "cancel": "Cancel"
   },
   "add-appointment": {
     "book-a-slot": "Book a Slot",

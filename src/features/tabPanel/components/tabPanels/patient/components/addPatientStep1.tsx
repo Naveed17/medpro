@@ -71,6 +71,7 @@ function AddPatientStep1({...props}) {
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {t: commonTranslation} = useTranslation("common");
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [duplicatedFiche, setDuplicatedFiche] = useState(false);
@@ -469,7 +470,7 @@ function AddPatientStep1({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}

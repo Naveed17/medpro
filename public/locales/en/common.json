@@ -20,6 +20,7 @@
   "prescription_of_medication": "Medication prescription",
   "orders": "Orders",
   "report": "Report",
+  "phone_format": "International format",
   "analysis": "Analysis",
   "medical_imaging": "Medical imaging",
   "mail_addressing": "Mail addressing",
@@ -497,5 +498,31 @@
     "medical_entity__requested_analyses_modal_create": "medical entity requested analyses modal create",
     "medical_entity__requested_analyses_modal_update": "medical entity requested analyses modal update",
     "medical_entity__requested_analyses_modal_delete": "medical entity requested analyses modal delete"
+  },
+  "appointment-status": {
+    "PENDING": "Pending",
+    "CONFIRMED": "Confirmed",
+    "REFUSED": "Refused",
+    "WAITING_ROOM": "Waiting room",
+    "ON_GOING": "On going",
+    "FINISHED": "Finished",
+    "CANCELED": "Canceled",
+    "EXPIRED": "Expired",
+    "PAUSED": "Paused",
+    "NOSHOW": "Patient did not show up",
+    "ONLINE": "Appointment from the website"
+  },
+  "social_insured": {
+    "socialInsured": "Social insurance",
+    "himself": "Himself",
+    "partner": "The spouse",
+    "ascendant": "The ascendant",
+    "father": "The Father",
+    "mother": "The Mother",
+    "child": "Child",
+    "1_child": "1st child",
+    "2_child": "2nd child",
+    "3_child": "3rd child",
+    "other_child": "Other"
   }
 }

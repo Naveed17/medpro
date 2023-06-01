@@ -39,8 +39,9 @@ import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
+import {useTranslation} from "next-i18next";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -73,6 +74,7 @@ function AddPatientStep2({...props}) {
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
+    const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -232,34 +234,10 @@ function AddPatientStep2({...props}) {
         form.append('address', JSON.stringify({
             fr: values.address
         }));
-        const updatedInsurances: any[] = [];
-        values.insurance.map((insurance: InsurancesModel) => {
-            let phone = null;
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-
-            if (insurance.insurance_social?.phone) {
-                const localPhone = insurance.insurance_social.phone;
-                phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            updatedInsurances.push({
-                ...insurance,
-                insurance_social: {
-                    ...insurance.insurance_social,
-                    birthday: insurance.insurance_social?.birthday ? insurance.insurance_social.birthday : "",
-                    ...(phone && {
-                        phone: {
-                            ...insurance.insurance_social?.phone,
-                            contact_type: contacts[0].uuid,
-                            value: phone as string
-                        }
-                    })
-                }
-            });
-        });
-        form.append('insurance', JSON.stringify(updatedInsurances));
+        form.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: values.insurance,
+            contact: contacts[0].uuid
+        })));
         form.append('email', values.email);
         form.append('family_doctor', values.family_doctor);
         form.append('region', values.region);
@@ -808,7 +786,7 @@ function AddPatientStep2({...props}) {
                                                                 withCountryCallingCode
                                                                 {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
                                                                     {
-                                                                        helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
                                                                             getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
                                                                     })}
                                                                 country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
