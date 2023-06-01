@@ -9,7 +9,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-// urils
+// utils
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 // style
@@ -29,7 +29,8 @@ function RdvCard({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {t, ready} = useTranslation(["patient", "common"], {keyPrefix: "patient-details"});
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t: commonTranslation} = useTranslation("common");
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -102,7 +103,7 @@ function RdvCard({...props}) {
                                             ? 0.5
                                             : 0,
                                     }}>
-                                    {t(AppointmentStatus[inner?.status]?.key, {ns: "common"})}
+                                    {commonTranslation(AppointmentStatus[inner?.status]?.key)}
                                 </Typography>
                             </Label>}
                         </Stack>
