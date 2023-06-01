@@ -4,33 +4,31 @@ import Icon from "@themes/icon";
 import Link from "@themes/Link";
 // material-ui
 import {
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Drawer,
     Hidden,
+    IconButton,
     MenuItem,
     MenuList,
-    Badge,
+    Popover,
     Toolbar,
-    IconButton,
-    Box,
-    Popover, useMediaQuery, Button, Drawer, Avatar
+    useMediaQuery
 } from "@mui/material";
 // components
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {siteHeader, sideBarSelector, toggleMobileBar, toggleSideBar} from "@features/menu";
+import {sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
-import {
-    NavbarStepperStyled,
-    NavbarStyled
-} from "@features/topNavBar";
+import {LangButton, NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, setTimer, timerSelector} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {
-    AppointmentStatsPopover,
-    NotificationPopover,
-} from "@features/popover";
+import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
-import {appLockSelector, setLock} from "@features/appLock";
+import {appLockSelector} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
@@ -109,11 +107,11 @@ function TopNavBar({...props}) {
         setAnchorEl(null);
     };
 
-    const openAppLock = () => {
-        localStorage.setItem('lock-on', "true");
-        dispatch(setLock(true));
-        dispatch(toggleSideBar(true));
-    }
+    /*    const openAppLock = () => {
+            localStorage.setItem('lock-on', "true");
+            dispatch(setLock(true));
+            dispatch(toggleSideBar(true));
+        }*/
 
     const handleInstallClick = () => {
         // Hide the lib provided installation promotion
@@ -428,7 +426,7 @@ function TopNavBar({...props}) {
                                 </IconButton>
                             </Badge>*/}
                         </MenuList>
-                        {/*<LangButton/>*/}
+                        <LangButton/>
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenuIcon/>
@@ -469,9 +467,9 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-                        {/*                        <MenuList className="topbar-nav">
+                        <MenuList className="topbar-nav">
                             <LangButton/>
-                        </MenuList>*/}
+                        </MenuList>
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>

@@ -105,6 +105,8 @@
   "docs": "Les documents de la consultation",
   "history": "Fiche historique",
   "reason_for_consultation": "Motif de consultation",
+  "requestedAnalyses": "Demande bilan",
+  "requestedPrescription": "Ordonnance médicale",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -116,6 +118,8 @@
     "add_reason": "Ajouter un nouveau motif",
     "close": "Réduire menu",
     "config": "Configurer",
+    "modeles": "Modeles",
+    "search": "Recherche par mots-clés",
     "ureadbleFile": "Fichier fourni n'est pas compatible avec MedLINK",
     "downloadnow": "Télécharger maintenant",
     "wait": "Vérification du fichier...",
@@ -400,6 +404,7 @@
     "see_details": "Voir détails"
   },
   "tracking_data": "Données de suivi",
+  "exempleFees": "Exemple: Suivi ...",
   "consultation_reason": "Motif de consultation",
   "diagnostics": "Diagnostique",
   "treatments": "Traitements",
@@ -473,6 +478,7 @@
   "widget": {
     "hiddenTeeth": "Dents manquantes",
     "traitements": "Traitements",
+    "tracking_data": "Données de suivi",
     "selectTeeth": "Sélectionner les dents",
     "selectActs": "Sélectionner les acts",
     "teeth": "Dent",
@@ -484,4 +490,3 @@
     "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
   }
 }
-

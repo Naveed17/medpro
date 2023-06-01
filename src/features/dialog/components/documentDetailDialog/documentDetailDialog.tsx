@@ -176,22 +176,19 @@ function DocumentDetailDialog({...props}) {
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
-
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
-
     const handleClose = () => {
         setOpenAlert(false);
     };
-
     const handleYes = () => {
         const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
             setLoading(true);
             setData({
                 ...selected.header.data,
-                background: {show: selected.file !== null, content: selected.file ? selected.file : ''}
+                background: {show: selected.header.data.background.show, content: selected.file ? selected.file : ''}
             })
             setHeader(selected.header.header)
             setOpenAlert(false);
@@ -200,7 +197,6 @@ function DocumentDetailDialog({...props}) {
             }, 1000)
         }
     };
-
     const handlePrint = () => {
         printNow()
     }
@@ -209,7 +205,6 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
         documentTitle: `${t(state.type)} ${state.patient}`
     })
-
     const downloadF = () => {
         fetch(file).then(response => {
             response.blob().then(blob => {
@@ -308,7 +303,6 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-
     const editDoc = (attribute: string, value: string) => {
         const form = new FormData();
         form.append('attribute', attribute);
@@ -324,13 +318,11 @@ function DocumentDetailDialog({...props}) {
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
-
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
     }
-
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
@@ -374,7 +366,7 @@ function DocumentDetailDialog({...props}) {
                     setData({
                         ...templates[0].header.data,
                         background: {
-                            show: templates[0].file !== null,
+                            show: templates[0].header.data.background.show,
                             content: templates[0].file ? templates[0].file : ''
                         }
                     })
@@ -386,7 +378,7 @@ function DocumentDetailDialog({...props}) {
                         setData({
                             ...defaultdoc.header.data,
                             background: {
-                                show: defaultdoc.file !== null,
+                                show: defaultdoc.header.background.show,
                                 content: defaultdoc.file ? defaultdoc.file : ''
                             }
                         })
@@ -395,7 +387,7 @@ function DocumentDetailDialog({...props}) {
                         setSelectedTemplate(docInfo[0].uuid)
                         setData({
                             ...docInfo[0].header.data,
-                            background: {show: docInfo.file !== null, content: docInfo.file ? docInfo.file : ''}
+                            background: {show: docInfo.header.background.show, content: docInfo.file ? docInfo.file : ''}
                         })
                         setHeader(docInfo[0].header.header)
                     }

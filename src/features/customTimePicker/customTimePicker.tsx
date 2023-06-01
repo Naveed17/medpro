@@ -17,7 +17,7 @@ function CustomTimePicker({...props}) {
     const {locale} = useAppSelector(configSelector);
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns} locale={LocaleFnsProvider(locale)}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={LocaleFnsProvider(locale)}>
             {stepper ? <Stack spacing={3}>
                 <TimePicker
                     ampm={false}

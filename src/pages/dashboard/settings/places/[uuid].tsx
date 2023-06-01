@@ -124,7 +124,7 @@ function PlacesDetail() {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t} = useTranslation("settings");
+    const {t} = useTranslation(["settings", "common"]);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
@@ -749,7 +749,7 @@ function PlacesDetail() {
                                                             }}
                                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                                 {
-                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                    helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
                                                             error={Boolean(errors.phones && (errors.phones as any)[index])}

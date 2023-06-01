@@ -3,6 +3,8 @@
   "enter-waiting-room": "Ajouter à la salle d’attente",
   "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
+  "add-quick": "Ajout rapide",
+  "add-complete": "Ajout complet",
   "view": "Voir détails",
   "manage": "Gérer",
   "confirm": "Confirmer RDV",
@@ -129,6 +131,7 @@
       "title": "Choisissez le patient",
       "sub-title": "vous devez ajouter un patient",
       "add_button": "Ajouter un nouveau patient",
+      "search_placeholder": "Chercher un patient",
       "patient": {
         "personal-info": "Informations personnelles",
         "additional-information": "Informations supplémentaires",

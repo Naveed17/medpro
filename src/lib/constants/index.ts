@@ -1,14 +1,14 @@
 import {countries} from "@features/countrySelect/countries";
 
 export const SocialInsured = [
-    {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "Lui-même"},
-    {grouped: "Le conjoint", key: "partner", value: "1", label: "Le conjoint"},
-    {grouped: "L'ascendant", key: "father", value: "2", label: "Le Pére"},
-    {grouped: "L'ascendant", key: "mother", value: "3", label: "La Mére"},
-    {grouped: "L'enfant", key: "child", value: "4", label: "1er Enfant"},
-    {grouped: "L'enfant", key: "child", value: "5", label: "2ème Enfant"},
-    {grouped: "L'enfant", key: "child", value: "6", label: "3ème Enfant"},
-    {grouped: "L'enfant", key: "child", value: "7", label: "Autre"},
+    {grouped: "socialInsured", key: "socialInsured", value: "0", label: "himself"},
+    {grouped: "partner", key: "partner", value: "1", label: "partner"},
+    {grouped: "ascendant", key: "father", value: "2", label: "father"},
+    {grouped: "ascendant", key: "mother", value: "3", label: "mother"},
+    {grouped: "child", key: "child", value: "4", label: "1_child"},
+    {grouped: "child", key: "child", value: "5", label: "2_child"},
+    {grouped: "child", key: "child", value: "6", label: "3_child"},
+    {grouped: "child", key: "child", value: "7", label: "other_child"},
 ];
 
 export const PhoneRegExp =
@@ -65,6 +65,90 @@ export const SubMotifCard = [
         type: "act-fees",
     },
 ];
+
+export const WaitingHeadCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "arrivaltime",
+        numeric: false,
+        disablePadding: true,
+        label: "arrival time",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "appointmentTime",
+        numeric: false,
+        disablePadding: true,
+        label: "appointment time",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "waiting",
+        numeric: false,
+        disablePadding: true,
+        label: "waiting",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "motif",
+        numeric: false,
+        disablePadding: true,
+        label: "reason",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "fees",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    },
+    {
+        id: "action",
+        numeric: false,
+        disablePadding: true,
+        label: "action",
+        align: "right",
+        sortable: false,
+    }
+];
+
+export const AddWaitingRoomCardData = {
+    mainIcon: "ic-salle",
+    title: "empty",
+    description: "desc",
+    buttonText: "table.no-data.event.title",
+    buttonIcon: "ic-salle",
+    buttonVariant: "primary",
+};
 
 export const UrlMedicalEntitySuffix: string = '/api/medical-entity';
 

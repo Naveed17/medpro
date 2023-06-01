@@ -16,7 +16,7 @@ import moment from "moment/moment";
 import {MotifCard, PatientHistoryCard, PatientHistoryStaticCard} from "@features/card";
 import Image from "next/image";
 import {useRequestMutation} from "@lib/axios";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, SubMotifCard} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
@@ -54,54 +54,6 @@ function HistoryContainer({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const {selectedApp} = useAppSelector(consultationSelector);
-
-    const subMotifCard = [
-        {
-            id: 1,
-            title: "treatment_medication",
-            icon: "ic-traitement",
-            type: "treatment",
-            drugs: [
-                {
-                    id: 1,
-                    name: "Doliprane 1000",
-                    dosage: "dosage_unit",
-                    duration: 10,
-                },
-                {
-                    id: 2,
-                    name: "Doliprane 1000",
-                    dosage: "dosage_unit",
-                    duration: 10,
-                },
-            ],
-        },
-        {
-            id: 2,
-            title: "documents",
-            icon: "ic-document",
-            type: "document",
-            documents: ["document_1", "document_2"],
-        },
-        {
-            id: 3,
-            title: "bal_sheet_req",
-            icon: "ic-document",
-            type: "req-sheet",
-        },
-        {
-            id: 4,
-            title: "medical_sheet_req",
-            icon: "ic-soura",
-            type: "req-medical-imaging",
-        },
-        {
-            id: 5,
-            title: "actfees",
-            icon: "ic-text",
-            type: "act-fees",
-        },
-    ];
 
     const printFees = (app: any) => {
 
@@ -194,7 +146,7 @@ function HistoryContainer({...props}) {
                     <Stack spacing={2}>
                         <MotifCard data={app} t={t}/>
                         <List dense>
-                            {subMotifCard.map((col: any, indx: number) => (
+                            {SubMotifCard.map((col: any, indx: number) => (
                                 <React.Fragment key={`list-item-${indx}`}>
                                     <>
                                         <ListItemStyled

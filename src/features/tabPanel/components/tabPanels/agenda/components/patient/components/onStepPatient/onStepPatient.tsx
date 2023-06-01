@@ -112,6 +112,8 @@ function OnStepPatient({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {t: commonTranslation} = useTranslation("common");
+
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
@@ -524,7 +526,7 @@ function OnStepPatient({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
@@ -1123,7 +1125,7 @@ function OnStepPatient({...props}) {
                                                                         withCountryCallingCode
                                                                         {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
                                                                             {
-                                                                                helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                                helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
                                                                                     getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
                                                                             })}
                                                                         country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?

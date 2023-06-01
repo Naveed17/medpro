@@ -36,7 +36,7 @@ const CalendarPickers = dynamic(() =>
 function Payment() {
     const dispatch = useAppDispatch();
 
-    const {selectedBox, insurances, paymentTypes, query} = useAppSelector(cashBoxSelector);
+    const {insurances, paymentTypes} = useAppSelector(cashBoxSelector);
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query: queryData} = useAppSelector(leftActionBarSelector);

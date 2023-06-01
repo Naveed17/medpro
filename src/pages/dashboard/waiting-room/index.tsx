@@ -41,97 +41,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {DefaultCountry} from "@lib/constants";
+import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
-
-export const headCells = [
-    {
-        id: "id",
-        numeric: true,
-        disablePadding: true,
-        label: "Id",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "patient",
-        numeric: false,
-        disablePadding: true,
-        label: "patient",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "arrivaltime",
-        numeric: false,
-        disablePadding: true,
-        label: "arrival time",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "appointmentTime",
-        numeric: false,
-        disablePadding: true,
-        label: "appointment time",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "waiting",
-        numeric: false,
-        disablePadding: true,
-        label: "waiting",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "type",
-        numeric: false,
-        disablePadding: true,
-        label: "type",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "motif",
-        numeric: false,
-        disablePadding: true,
-        label: "reason",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "fees",
-        numeric: false,
-        disablePadding: true,
-        label: "empty",
-        align: "right",
-        sortable: false,
-    },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: true,
-        label: "action",
-        align: "right",
-        sortable: false,
-    }
-];
-
-const AddWaitingRoomCardData = {
-    mainIcon: "ic-salle",
-    title: "empty",
-    description: "desc",
-    buttonText: "table.no-data.event.title",
-    buttonIcon: "ic-salle",
-    buttonVariant: "primary",
-};
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -482,7 +398,7 @@ function WaitingRoom() {
                                                 loading: loadingRequest,
                                                 setLoading: setLoadingRequest
                                             }}
-                                            headers={headCells}
+                                            headers={WaitingHeadCells}
                                             rows={waitingRooms}
                                             from={"waitingRoom"}
                                             t={t}
@@ -657,7 +573,6 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "menu",
             "common",
-            "agenda",
             "patient",
             "consultation",
             "payment",
