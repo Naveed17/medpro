@@ -20,6 +20,7 @@
   "prescription_of_medication": "Ordonnance de médicaments",
   "orders": "Ordonnances",
   "report": "Rapport",
+  "phone_format": "Format international",
   "analysis": "Analyse",
   "medical_imaging": "Imagerie médicale",
   "mail_addressing": "Courrier adressé",
@@ -497,5 +498,31 @@
     "medical_entity__requested_analyses_modal_create": "entité médicale demandée analyses modales créer",
     "medical_entity__requested_analyses_modal_update": "entité médicale a demandé des analyses mise à jour modale",
     "medical_entity__requested_analyses_modal_delete": "entité médicale demandée analyses suppression modale"
+  },
+  "appointment-status": {
+    "PENDING": "En attende",
+    "CONFIRMED": "Confirmé",
+    "REFUSED": "Refusé",
+    "WAITING_ROOM": "Salle d'attende",
+    "ON_GOING": "En consultation",
+    "FINISHED": "Effectué",
+    "CANCELED": "Annulé",
+    "EXPIRED": "Expiré",
+    "PAUSED": "Pausé",
+    "NOSHOW": "Patient ne s'est pas présenté",
+    "ONLINE": "Rendez-vous depuis le site"
+  },
+  "social_insured": {
+    "socialInsured": "L'assuré social",
+    "himself": "Lui-même",
+    "partner": "Le conjoint",
+    "ascendant": "L'ascendant",
+    "father": "Le Pére",
+    "mother": "Le Mére",
+    "child": "L'enfant",
+    "1_child": "1er Enfant",
+    "2_child": "2ème Enfant",
+    "3_child": "3ème Enfant",
+    "other_child": "Autre"
   }
 }

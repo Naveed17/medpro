@@ -134,7 +134,7 @@ function AppointmentCard({...props}) {
                                     ? 0.5
                                     : 0,
                             }}>
-                            {data?.status?.value}
+                            {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
                     {!roles.includes("ROLE_SECRETARY") && <IconButton

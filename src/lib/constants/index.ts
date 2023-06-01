@@ -1,14 +1,14 @@
 import {countries} from "@features/countrySelect/countries";
 
 export const SocialInsured = [
-    {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "Lui-même"},
-    {grouped: "Le conjoint", key: "partner", value: "1", label: "Le conjoint"},
-    {grouped: "L'ascendant", key: "father", value: "2", label: "Le Pére"},
-    {grouped: "L'ascendant", key: "mother", value: "3", label: "La Mére"},
-    {grouped: "L'enfant", key: "child", value: "4", label: "1er Enfant"},
-    {grouped: "L'enfant", key: "child", value: "5", label: "2ème Enfant"},
-    {grouped: "L'enfant", key: "child", value: "6", label: "3ème Enfant"},
-    {grouped: "L'enfant", key: "child", value: "7", label: "Autre"},
+    {grouped: "socialInsured", key: "socialInsured", value: "0", label: "himself"},
+    {grouped: "partner", key: "partner", value: "1", label: "partner"},
+    {grouped: "ascendant", key: "father", value: "2", label: "father"},
+    {grouped: "ascendant", key: "mother", value: "3", label: "mother"},
+    {grouped: "child", key: "child", value: "4", label: "1_child"},
+    {grouped: "child", key: "child", value: "5", label: "2_child"},
+    {grouped: "child", key: "child", value: "6", label: "3_child"},
+    {grouped: "child", key: "child", value: "7", label: "other_child"},
 ];
 
 export const PhoneRegExp =

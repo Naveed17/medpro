@@ -29,7 +29,7 @@ function RdvCard({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t, ready} = useTranslation(["patient", "common"], {keyPrefix: "patient-details"});
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -102,7 +102,7 @@ function RdvCard({...props}) {
                                             ? 0.5
                                             : 0,
                                     }}>
-                                    {t(AppointmentStatus[inner?.status]?.key)}
+                                    {t(AppointmentStatus[inner?.status]?.key, {ns: "common"})}
                                 </Typography>
                             </Label>}
                         </Stack>

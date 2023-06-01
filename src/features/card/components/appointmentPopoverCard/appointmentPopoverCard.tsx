@@ -124,7 +124,7 @@ function AppointmentPopoverCard({...props}) {
                             fontSize: 10,
                             ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
                         }}
-                    >{t(data?.status?.key)}</Typography>
+                    >{t(`appointment-status.${data?.status?.key}`, {ns: "common"})}</Typography>
                 </Label>
             </Stack>
 
@@ -183,7 +183,7 @@ function AppointmentPopoverCard({...props}) {
             {data.motif.length > 0 &&
                 <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
                     <Typography sx={{fontSize: 12}} color={"back"}>
-                        {" Motif: "}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
+                        {`${t("table.header.motif")}: `}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
 
         </RootStyled>

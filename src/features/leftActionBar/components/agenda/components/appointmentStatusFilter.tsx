@@ -4,10 +4,12 @@ import {SidebarCheckboxStyled} from "@features/sidebarCheckbox";
 import {Checkbox, Typography} from "@mui/material";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useTranslation} from "next-i18next";
 
 function AppointmentStatusFilter() {
     const dispatch = useAppDispatch();
 
+    const {t} = useTranslation("common");
     const {query} = useAppSelector(leftActionBarSelector);
 
     return (<>{Object.values(AppointmentStatus).map((status) =>
@@ -43,7 +45,7 @@ function AppointmentStatusFilter() {
                             name={status.key}
                         />
                         {status.icon}
-                        <Typography ml={1}>{status.value}</Typography>
+                        <Typography ml={1}>{t(`appointment-status.${status.key}`)}</Typography>
                     </SidebarCheckboxStyled>
                 </React.Fragment>
             )

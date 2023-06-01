@@ -105,7 +105,7 @@ function DateRangeFilter({...props}) {
                         size={"small"}
                         color={"primary"}
                         variant={"text"}
-                        onClick={() => handleClose()}>Confirmer</Button>
+                        onClick={() => handleClose()}>{t("save")}</Button>
                     <Button
                         size={"small"}
                         color={"error"}
@@ -113,7 +113,7 @@ function DateRangeFilter({...props}) {
                         onClick={() => {
                             resetDateRange();
                             handleClose();
-                        }}>Annuler</Button>
+                        }}>{t("cancel")}</Button>
                 </Stack>
 
             </Popover>

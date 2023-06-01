@@ -419,7 +419,7 @@ function PatientDetail({...props}) {
             children: <PDFViewer height={470}>
                 <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
             </PDFViewer>,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+            permission: ["ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 

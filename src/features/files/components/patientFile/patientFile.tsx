@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
 });
 
 function PatientFile({...props}) {
-    const {patient, antecedentsData, t, session, router, allAntecedents} = props
+    const {patient, antecedentsData, t, allAntecedents} = props
 
     const checkKey = (key: string) => {
         return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
@@ -122,7 +122,7 @@ function PatientFile({...props}) {
                         {patient?.address && patient?.address?.map((adr: any, index: number) => (
                                 <Text style={styles.text}
                                       key={`${index}-adr`}>
-                                    {adr.postalCode} {adr.street} {adr.city.name}, {adr.city.country.name}
+                                    {adr.postalCode} {adr.street} {adr.city?.name}, {adr.city?.country.name}
                                 </Text>
                             )
                         )}

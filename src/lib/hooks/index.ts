@@ -7,6 +7,7 @@ export {default as unsubscribeTopic} from "./unsubscribeTopic";
 export {default as useMedicalEntitySuffix} from "./useMedicalEntitySuffix";
 export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalSuffix";
 export * from "./prepareSearchKeys";
+export * from "./prepareInsurancesData";
 export * from "./capitalizeFirst";
 export * from "./checkNotification";
 export * from "./rest/useAppointment";
