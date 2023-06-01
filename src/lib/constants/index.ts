@@ -66,6 +66,90 @@ export const SubMotifCard = [
     },
 ];
 
+export const WaitingHeadCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "arrivaltime",
+        numeric: false,
+        disablePadding: true,
+        label: "arrival time",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "appointmentTime",
+        numeric: false,
+        disablePadding: true,
+        label: "appointment time",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "waiting",
+        numeric: false,
+        disablePadding: true,
+        label: "waiting",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "motif",
+        numeric: false,
+        disablePadding: true,
+        label: "reason",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "fees",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    },
+    {
+        id: "action",
+        numeric: false,
+        disablePadding: true,
+        label: "action",
+        align: "right",
+        sortable: false,
+    }
+];
+
+export const AddWaitingRoomCardData = {
+    mainIcon: "ic-salle",
+    title: "empty",
+    description: "desc",
+    buttonText: "table.no-data.event.title",
+    buttonIcon: "ic-salle",
+    buttonVariant: "primary",
+};
+
 export const UrlMedicalEntitySuffix: string = '/api/medical-entity';
 
 export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
