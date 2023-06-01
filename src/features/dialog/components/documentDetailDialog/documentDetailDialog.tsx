@@ -378,7 +378,7 @@ function DocumentDetailDialog({...props}) {
                         setData({
                             ...defaultdoc.header.data,
                             background: {
-                                show: defaultdoc.header.background.show,
+                                show: defaultdoc.header.data.background.show,
                                 content: defaultdoc.file ? defaultdoc.file : ''
                             }
                         })
@@ -387,7 +387,7 @@ function DocumentDetailDialog({...props}) {
                         setSelectedTemplate(docInfo[0].uuid)
                         setData({
                             ...docInfo[0].header.data,
-                            background: {show: docInfo.header.background.show, content: docInfo.file ? docInfo.file : ''}
+                            background: {show: docInfo.header.data.background.show, content: docInfo.file ? docInfo.file : ''}
                         })
                         setHeader(docInfo[0].header.header)
                     }
