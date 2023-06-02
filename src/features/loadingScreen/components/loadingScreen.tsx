@@ -8,7 +8,7 @@ import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 
 function LoadingScreen({...props}) {
-    const {text = "loading", iconNote = null, button = null, error = false, OnClick = null} = props
+    const {text = "loading", button = null, error = false, OnClick = null} = props
 
     const router = useRouter();
     const theme = useTheme();
@@ -92,7 +92,12 @@ function LoadingScreen({...props}) {
                         </motion.li>
                     </motion.ul>
                 </Box>
-                <Typography variant="body1" mt={3} mb={2} px={2} color="text.primary">
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 300,
+                        fontSize: 16
+                    }} mt={3} mb={2} px={2} color="text.primary">
                     {t(text)}
                 </Typography>
                 {button &&

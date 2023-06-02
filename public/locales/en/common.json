@@ -11,6 +11,7 @@
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
   "loading-error": "An error occurred during initialization. Click the button to retry",
+  "maintenance-error": "We’ll be back. we’re busy updating the Medlink for you. Please check back soon.",
   "loading-error-404": "404 - Page not found",
   "loading-error-404-reset": "Return to the agenda",
   "loading-switch": "Please wait a moment for the agenda to load",
