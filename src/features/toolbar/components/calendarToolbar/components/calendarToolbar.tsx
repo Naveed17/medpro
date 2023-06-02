@@ -198,7 +198,7 @@ function CalendarToolbar({...props}) {
             <Hidden smUp>
                 <Stack direction="row" spacing={1.5} justifyContent={"flex-end"} sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
-                        {...{view}}
+                        {...{view, t}}
                         sx={{
                             "& .MuiButton-startIcon>*:nth-of-type(1)": {
                                 fontSize: 20

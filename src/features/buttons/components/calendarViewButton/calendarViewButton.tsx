@@ -11,7 +11,7 @@ import {MouseEvent, useEffect, useRef, useState} from "react";
 import {SvgIcon, useTheme} from "@mui/material";
 
 function CalendarViewButton({...props}) {
-    const {views, onSelect = null, view, ...rest} = props;
+    const {views, onSelect = null, view, t, ...rest} = props;
     const theme = useTheme();
     const ref = useRef<HTMLButtonElement>(null);
 
@@ -60,7 +60,7 @@ function CalendarViewButton({...props}) {
                 aria-haspopup="true"
                 onClick={handleClick}
                 onMouseOver={handleClick}>
-                {selected.text}
+                {t(`agenda-view.${selected.value}`)}
             </Button>
             <Menu
                 id="simple-menu"
@@ -99,7 +99,7 @@ function CalendarViewButton({...props}) {
                             <SvgIcon component={item.icon} width={20} height={20}
                                      htmlColor={theme.palette.text.primary}/>
                         </ListItemIcon>}
-                        <ListItemText sx={{fontSize: 12}}>{item.text}</ListItemText>
+                        <ListItemText sx={{fontSize: 12}}>{t(`agenda-view.${item.value}`)} </ListItemText>
                     </MenuItem>
                 ))}
             </Menu>
