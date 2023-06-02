@@ -916,7 +916,7 @@ function Agenda() {
         }
     }
 
-    if (!ready) return (<LoadingScreen button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <div>
