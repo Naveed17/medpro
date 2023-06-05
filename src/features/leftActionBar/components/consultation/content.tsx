@@ -266,7 +266,7 @@ const Content = ({...props}) => {
     const ordonnaces = patient?.treatment.filter((trait: { isOtherProfessional: boolean; }) => !trait.isOtherProfessional)
 
     if (!ready || status === "loading") return (
-        <LoadingScreen error button text={"loading-error"}/>);
+        <LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <React.Fragment>

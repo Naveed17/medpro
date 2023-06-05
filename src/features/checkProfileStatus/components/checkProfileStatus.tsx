@@ -17,7 +17,7 @@ function CheckProfileStatus({ ...props }) {
     const theme = useTheme();
     const { doctor } = props;
     const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers.check-status' });
-    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <Box p={2} sx={{ textAlign: "center", pt: 4 }}>

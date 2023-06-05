@@ -259,7 +259,7 @@ function Consultation() {
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <ConsultationStyled>

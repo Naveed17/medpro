@@ -63,7 +63,7 @@ function DuplicateDetected({...props}) {
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: "config"});
 
-    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <RootStyled>

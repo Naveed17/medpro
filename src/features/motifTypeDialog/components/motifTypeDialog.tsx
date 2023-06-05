@@ -195,7 +195,7 @@ function EditMotifDialog({...props}) {
         }
     };
 
-    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
