@@ -128,7 +128,7 @@ function Consultation() {
             patient?.address[0].street &&
             params.append(
                 "address",
-                JSON.stringify({fr: patient?.address[0]?.street})
+                JSON.stringify({[router.locale]: patient?.address[0]?.street})
             );
             patient.idCard && params.append("id_card", patient.idCard);
         }
