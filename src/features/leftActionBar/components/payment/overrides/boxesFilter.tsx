@@ -53,7 +53,6 @@ function BoxsesFilter({...props}) {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then((r: any) => {
-            console.log(r)
             setOpenDialog(false);
             mutate().then(() => setCashName(''));
         });
@@ -73,7 +72,6 @@ function BoxsesFilter({...props}) {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then((r: any) => {
-            console.log(r)
             setOpenDialog(false);
             mutate().then(() => setCashName(''));
         });
