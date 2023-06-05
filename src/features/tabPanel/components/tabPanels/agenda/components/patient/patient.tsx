@@ -89,7 +89,7 @@ function Patient({...props}) {
                 `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
         }
         form.append('address', JSON.stringify({
-            fr: patient.address
+            [router.locale as string]: patient.address
         }));
         form.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: patient.insurance,

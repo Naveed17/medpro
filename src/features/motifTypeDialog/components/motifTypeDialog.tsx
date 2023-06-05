@@ -135,12 +135,7 @@ function EditMotifDialog({...props}) {
             props.closeDraw();
             const form = new FormData();
             form.append("color", values.color);
-            form.append(
-                "name",
-                JSON.stringify({
-                    fr: values.name,
-                })
-            );
+            form.append("name", JSON.stringify({[router.locale as string]: values.name}));
             form.append("icon", values.icon);
             form.append(
                 "isFree",
@@ -149,11 +144,11 @@ function EditMotifDialog({...props}) {
             form.append("price", values.isFree ? null : values.consultation_fees);
             if (props.data) {
                 medicalEntityHasUser && trigger({
-                        method: "PUT",
-                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
-                        data: form,
-                        headers: {Authorization: `Bearer ${session?.accessToken}`}
-                    }).then(() => {
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                    data: form,
+                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                }).then(() => {
                     enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
                     mutateEvent();
                 }).catch((error) => {

@@ -129,7 +129,7 @@ function PersonalInfo({...props}) {
         params.append('family_doctor', values.familyDoctor);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient.note && params.append('note', patient.note);
         patient.nationality && params.append('nationality', patient.nationality.uuid);

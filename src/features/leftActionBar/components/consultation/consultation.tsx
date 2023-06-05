@@ -123,13 +123,11 @@ function Consultation() {
             patient?.address.length > 0 &&
             patient?.address[0].city &&
             params.append("zip_code", patient?.address[0]?.postalCode);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].street &&
-            params.append(
-                "address",
-                JSON.stringify({[router.locale]: patient?.address[0]?.street})
-            );
+            if (patient?.address &&
+                patient?.address.length > 0 &&
+                patient?.address[0].street) {
+                params.append("address", JSON.stringify({[router.locale as string]: patient?.address[0]?.street}));
+            }
             patient.idCard && params.append("id_card", patient.idCard);
         }
         if (medicalEntityHasUser) {

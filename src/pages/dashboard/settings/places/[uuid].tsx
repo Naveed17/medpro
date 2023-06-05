@@ -228,8 +228,8 @@ function PlacesDetail() {
             form.append("access_data", JSON.stringify({}));
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
-            form.append("name", JSON.stringify({[router.locale]: values.name}));
-            form.append("address", JSON.stringify({[router.locale]: values.address}));
+            form.append("name", JSON.stringify({[router.locale as string]: values.name} as DynamicParam));
+            form.append("address", JSON.stringify({[router.locale as string]: values.address}));
             const updatedPhones: any[] = [];
             values.phones.map((phone: any) => {
                 updatedPhones.push({

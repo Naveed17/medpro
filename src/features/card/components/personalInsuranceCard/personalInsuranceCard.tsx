@@ -258,7 +258,7 @@ function PersonalInsuranceCard({...props}) {
         })));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
