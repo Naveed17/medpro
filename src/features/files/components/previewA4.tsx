@@ -278,7 +278,7 @@ function PreviewDialog({...props}) {
 
                 if (rows.length > 0) {
                     const header = document.createElement("tr");
-                    header.innerHTML = `<td style="text-align: left !important;">Act</td><td">QTE</td><td>PU</td><td>TOTAL</td>`
+                    header.innerHTML = `<td style="text-align: left !important;">Act</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
                     header.style.fontSize = "20px"
                     header.style.fontWeight = "bold"
                     header.style.textAlign = "center"
