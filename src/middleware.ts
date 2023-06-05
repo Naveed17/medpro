@@ -6,6 +6,16 @@ import {withAuth} from "next-auth/middleware"
 export default withAuth(
     // @ts-ignore
     async function middleware(req: NextRequest & { nextauth: { token: JWT } }) {
+
+        // Check Edge Config to see if the maintenance page should be shown
+        const {MAINTENANCE_MODE} = process.env;
+        // If in maintenance mode, point the url pathname to the maintenance page
+        if (MAINTENANCE_MODE !== "0") {
+            req.nextUrl.pathname = `/maintenance`
+            // Rewrite to the url
+            return NextResponse.rewrite(req.nextUrl)
+        }
+
         if (req.nextUrl.pathname.startsWith('/dashboard')) {
             const {data: user} = req.nextauth.token as any;
             const medical_professional: MedicalProfessionalModel = user.medical_professional;

@@ -10,9 +10,21 @@
   "stats": "Statistics",
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
-  "loading-error": "An error occurred during initialization. Click the button to retry",
-  "loading-error-404": "404 - Page not found",
-  "loading-error-404-reset": "Return to the agenda",
+  "loading-error": {
+    "title": "Oops!",
+    "description": "An error occurred during initialization. Click the button to retry.",
+    "button": "Try again"
+  },
+  "maintenance-error": {
+    "title": "We’ll be back",
+    "description": "We’re busy updating the Medlink for you. Please check back soon.",
+    "button": "Try again"
+  },
+  "loading-error-404": {
+    "title": "Page not found",
+    "description": "The page you are looking for might have been removed or it's temporarily unavailable.",
+    "button": "Return to the agenda"
+  },
   "loading-switch": "Please wait a moment for the agenda to load",
   "logout": "Log out",
   "of": "of",

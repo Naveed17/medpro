@@ -21,12 +21,12 @@ function CalendarAddButton({...props}) {
 
     const handleAddFullAppointment = () => {
         handleClose();
-        onClickEvent("full-add");
+        onClickEvent("add-complete");
     }
 
     const handleAddQuickAppointment = () => {
         handleClose();
-        onClickEvent("quick-add");
+        onClickEvent("add-quick");
     }
 
     return (

@@ -458,7 +458,7 @@ function Calendar({...props}) {
                             >
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
-                                    OnAddAppointment("quick-add");
+                                    OnAddAppointment("add-quick");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
                                     <FastForwardOutlinedIcon/>
@@ -466,7 +466,7 @@ function Calendar({...props}) {
                                 </MenuItem>
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
-                                    OnAddAppointment("full-add");
+                                    OnAddAppointment("add-complete");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
                                     <AddOutlinedIcon/>
