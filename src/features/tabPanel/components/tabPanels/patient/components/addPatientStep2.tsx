@@ -232,7 +232,7 @@ function AddPatientStep2({...props}) {
             form.append('birthdate', `${birthdate.day}-${birthdate.month}-${birthdate.year}`);
         }
         form.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         form.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: values.insurance,

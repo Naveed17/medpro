@@ -208,6 +208,7 @@
     "removeWithsuccess": "Successfully removed template",
     "renameWithsuccess": "Successfully modified document",
     "dosage": "Dosage",
+    "condition": "Pick-up condition",
     "enter_your_dosage": "Enter your dosage",
     "duration-error": "Please select the duration of the dosage.",
     "duration": "for",

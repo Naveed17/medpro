@@ -36,7 +36,7 @@ function Holidays() {
     ]);
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "holidays.config"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     const headCells = [
         {
             id: 'name',

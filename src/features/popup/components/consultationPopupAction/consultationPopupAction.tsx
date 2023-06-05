@@ -24,7 +24,7 @@ function ConsultationPopupAction({...props}) {
     const {t, ready} = useTranslation("common");
     const [instruction] = useState(`${data.control ? `Contrôle médical apres ${data.nextAppointment} jours \r\n`: ""} ${data.instruction}`);
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <ConsultationPopupActionStyled>

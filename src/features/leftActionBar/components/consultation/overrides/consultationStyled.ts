@@ -1,7 +1,7 @@
-import { styled } from "@mui/material/styles";
-import { Box } from "@mui/material";
+import {styled} from "@mui/material/styles";
+import {Box} from "@mui/material";
 
-const ConsultationStyled = styled(Box)(({ theme }) => ({
+const ConsultationStyled = styled(Box)(({theme}) => ({
     overflowX: "hidden",
     paddingTop: theme.typography.pxToRem(10),
     marginLeft: theme.typography.pxToRem(-18),
@@ -35,6 +35,15 @@ const ConsultationStyled = styled(Box)(({ theme }) => ({
     ".more-details-btn": {
         WebkitTextFillColor: theme.palette.primary.main,
         fontSize: 12
+    },
+    "& .MuiAvatarGroup-avatar": {
+        width: 24,
+        height: 24
+    },
+    "& .MuiAvatarGroup-avatar:not([type])": {
+        color: "black",
+        fontSize: 12,
+        marginLeft: -6
     }
 }));
 

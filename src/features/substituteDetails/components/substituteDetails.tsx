@@ -67,7 +67,7 @@ function SubstituteDetails({ ...props }) {
       alert(JSON.stringify(values, null, 2));
     },
   });
-  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+  if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
   const types = [
     { id: 1, text: t('motif.dialog.enligne'), name: 'teleconsult' },

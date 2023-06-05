@@ -101,7 +101,7 @@ function PatientDetailsCard({...props}) {
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
             patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({
-                fr: patient?.address[0]?.street
+                [router.locale as string]: patient?.address[0]?.street
             }));
 
             medicalEntityHasUser && triggerPatientUpdate({
@@ -130,7 +130,7 @@ function PatientDetailsCard({...props}) {
         }
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

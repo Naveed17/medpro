@@ -99,7 +99,7 @@ function Profil() {
 
     const [dialogContent, setDialogContent] = useState("");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     const dialogClose = () => {
         setOpen(false);

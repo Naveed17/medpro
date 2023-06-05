@@ -244,7 +244,7 @@ function DocumentsPanel({...props}) {
 
     useEffect(() => {
         if (previousAppointmentsData) {
-            setDocuments(previousAppointmentsData?.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
                 const documents = currentValue.documents.map((doc: any) => ({
                     ...doc,
                     appUuid: currentValue.appointment.uuid
@@ -255,7 +255,7 @@ function DocumentsPanel({...props}) {
         }
     }, [previousAppointmentsData]);
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

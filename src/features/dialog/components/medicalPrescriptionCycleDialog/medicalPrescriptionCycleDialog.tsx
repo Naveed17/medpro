@@ -660,7 +660,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             if (!selected || selected && selected.length === 0) {
                                                                                 return <Typography
                                                                                     color={"gray"}>
-                                                                                    Condition de prise
+                                                                                    {t("condition", {ns: "consultation"})}
                                                                                 </Typography>;
                                                                             }
 
@@ -752,7 +752,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         {t(subitem.label, {ns: "consultation"})}
                                                                     </Button>
                                                                 ))}
-                                                                {errors.data && (errors.data as any)[idx]?.cycles[index]?.durationValue &&
+                                                                {errors.data && (errors.data as any)[idx]?.cycles && (errors.data as any)[idx]?.cycles[index]?.durationValue &&
                                                                     <FormControl sx={{m: 3}} error
                                                                                  variant="standard">
                                                                         <FormHelperText>{t("duration-error", {ns: "consultation"})}</FormHelperText>
