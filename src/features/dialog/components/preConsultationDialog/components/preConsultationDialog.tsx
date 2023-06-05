@@ -17,6 +17,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import PreConsultationDialogStyled from "./overrides/preConsultationDialogStyled";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
@@ -87,102 +88,103 @@ function PreConsultationDialog({...props}) {
         }
     }, [dispatch, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return (<Stack direction={"column"} spacing={1.2}>
-        <Stack direction={"row"} alignItems={"flex-start"}>
-            <Stack direction={"column"} alignItems={"center"} spacing={.4}>
-                <label htmlFor="contained-button-file">
-                    <Zoom>
-                        <Avatar
-                            src={
-                                patientPhoto
-                                    ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                    : patient?.gender === 1
-                                        ? "/static/icons/men-avatar.svg"
-                                        : "/static/icons/women-avatar.svg"
-                            }
+    return (
+        <PreConsultationDialogStyled direction={"column"} spacing={1.2}>
+            <Stack direction={"row"} alignItems={"flex-start"}>
+                <Stack direction={"column"} alignItems={"center"} spacing={.4}>
+                    <label htmlFor="contained-button-file">
+                        <Zoom>
+                            <Avatar
+                                src={
+                                    patientPhoto
+                                        ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                        : patient?.gender === 1
+                                            ? "/static/icons/men-avatar.svg"
+                                            : "/static/icons/women-avatar.svg"
+                                }
+                                sx={{
+                                    width: 59,
+                                    height: 59,
+                                    marginLeft: 2,
+                                    marginRight: 2,
+                                    borderRadius: 2,
+                                }}>
+                                <IconUrl width={"59"} height={"59"} path="men-avatar"/>
+                            </Avatar>
+                        </Zoom>
+                    </label>
+                    {insurances && insurances.length > 0 &&
+                        <Stack direction='row' alignItems="center" spacing={1}>
+                            <AvatarGroup max={3}>
+                                {insurances.map((insuranceItem: any) =>
+                                    <Tooltip key={insuranceItem.uuid}
+                                             title={insuranceItem.name}>
+                                        {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?
+                                            <Avatar variant={"circular"}>
+                                                <ImageHandler
+                                                    alt={insuranceItem?.name}
+                                                    src={allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string}
+                                                />
+                                            </Avatar> : <></>}
+                                    </Tooltip>
+                                )}
+                            </AvatarGroup>
+                        </Stack>}
+                </Stack>
+
+                <Box style={{cursor: "pointer"}}>
+                    <Typography
+                        variant="body1"
+                        color="primary.main"
+                        sx={{fontFamily: "Poppins"}}>
+                        {patient.firstName} {patient.lastName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
+                    </Typography>
+
+                    {patient.contact.length > 0 && (
+                        <Typography
+                            component="div"
                             sx={{
-                                width: 59,
-                                height: 59,
-                                marginLeft: 2,
-                                marginRight: 2,
-                                borderRadius: 2,
-                            }}>
-                            <IconUrl width={"59"} height={"59"} path="men-avatar"/>
-                        </Avatar>
-                    </Zoom>
-                </label>
-                {insurances && insurances.length > 0 &&
-                    <Stack direction='row' alignItems="center" spacing={1}>
-                        <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                            {insurances.map((insuranceItem: any) =>
-                                <Tooltip key={insuranceItem.uuid}
-                                         title={insuranceItem.name}>
-                                    {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid) ?
-                                        <Avatar variant={"circular"}>
-                                            <ImageHandler
-                                                alt={insuranceItem?.name}
-                                                src={allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.uuid)?.logoUrl.url as string}
-                                            />
-                                        </Avatar> : <></>}
-                                </Tooltip>
-                            )}
-                        </AvatarGroup>
-                    </Stack>}
+                                display: "flex",
+                                alignItems: "center",
+                                "& .react-svg": {mr: 0.8},
+                                mb: 0.3,
+                            }}
+                            variant="body2"
+                            color="text.secondary">
+                            <Icon path="ic-phone"/>
+                            {patient.contact[0]?.code ? patient.contact[0].code : ""} {patient.contact[0].value}
+                        </Typography>
+                    )}
+
+                    {patient?.email && (
+                        <Typography
+                            component="div"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                "& .react-svg": {mr: 0.8},
+                            }}
+                            variant="body2"
+                            color="text.secondary">
+                            <Icon path="ic-message-contour"/>
+                            {patient.email}
+                        </Typography>
+                    )}
+                </Box>
             </Stack>
 
-            <Box style={{cursor: "pointer"}}>
-                <Typography
-                    variant="body1"
-                    color="primary.main"
-                    sx={{fontFamily: "Poppins"}}>
-                    {patient.firstName} {patient.lastName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
-                </Typography>
-
-                {patient.contact.length > 0 && (
-                    <Typography
-                        component="div"
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            "& .react-svg": {mr: 0.8},
-                            mb: 0.3,
-                        }}
-                        variant="body2"
-                        color="text.secondary">
-                        <Icon path="ic-phone"/>
-                        {patient.contact[0]?.code ? patient.contact[0].code : ""} {patient.contact[0].value}
-                    </Typography>
-                )}
-
-                {patient?.email && (
-                    <Typography
-                        component="div"
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            "& .react-svg": {mr: 0.8},
-                        }}
-                        variant="body2"
-                        color="text.secondary">
-                        <Icon path="ic-message-contour"/>
-                        {patient.email}
-                    </Typography>
-                )}
-            </Box>
-        </Stack>
-
-        {(models && sheetModal && !loading) && <WidgetForm
-            {...{models, changes, setChanges, isClose}}
-            expandButton={false}
-            modal={selectedModel}
-            data={sheetModal.data}
-            appuuid={uuid}
-            setSM={setSelectedModel}
-            handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
-    </Stack>)
+            {(models && sheetModal && !loading) && <WidgetForm
+                {...{models, changes, setChanges, isClose}}
+                expandButton={false}
+                modal={selectedModel}
+                data={sheetModal.data}
+                appuuid={uuid}
+                setSM={setSelectedModel}
+                handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
+        </PreConsultationDialogStyled>)
 }
 
 export default PreConsultationDialog

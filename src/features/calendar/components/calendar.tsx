@@ -192,7 +192,7 @@ function Calendar({...props}) {
             action === "onDelete" &&
             (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onMove" &&
-            (moment().isAfter(eventMenu.time) || eventMenu.status.key === "FINISHED") ||
+            (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
             ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") ||
                 eventMenu.status.key === "FINISHED") ||
