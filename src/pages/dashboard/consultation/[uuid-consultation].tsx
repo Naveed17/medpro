@@ -333,15 +333,20 @@ function ConsultationInProgress() {
         setTimeout(() => {
             if (appointement) {
                 if (!loadingApp) {
+                    let _total = 0;
                     const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
                     setFree(checkFree);
-                    if (!checkFree) setTotal(consultationFees);
-                    if (appointement.fees) setTotal(appointement.fees)
+                    if (!checkFree) _total = consultationFees;
+                    if (appointement.fees) _total = appointement.fees
                     if (appointement.consultation_fees) {
                         setConsultationFees(Number(appointement.consultation_fees));
                     } else if (appointement.type.isFree !== null && !appointement.type.isFree && appointement.type.price) {
                         setConsultationFees(Number(appointement.type.price));
                     }
+                    selectedAct.map(sa => {
+                        _total+= sa.fees * sa.qte;
+                    })
+                    setTotal(_total)
                 }
                 setLoadingApp(true);
                 let noteHistories: any[] = []
