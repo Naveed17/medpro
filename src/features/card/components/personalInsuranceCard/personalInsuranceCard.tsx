@@ -253,7 +253,7 @@ function PersonalInsuranceCard({...props}) {
         patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
         params.append('insurance', JSON.stringify(prepareInsurancesData({
-            insurances: values.insurances,
+            insurances: insurances ? insurances : values.insurances,
             contact: patient.contact[0].uuid
         })));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
