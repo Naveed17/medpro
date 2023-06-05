@@ -15,6 +15,7 @@
   "loading-error-404-reset": "Retourner à la agenda",
   "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",
+  "of": "sur",
   "type_of_document": "Sélectionner le type de document",
   "to_upload": "pour télécharger vos documents",
   "prescription_of_medication": "Ordonnance de médicaments",
@@ -164,6 +165,8 @@
   "today": "Aujourd’hui",
   "permission": "Vous n'avez pas la permission d'accéder à cette ressource",
   "back": "Retour",
+  "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
+  "install_app": "Installer l'app",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Avez-vous déjà utilisé med.tn ?",

@@ -30,7 +30,7 @@ function AppointmentStatsPopover() {
             {Object.values(AppointmentStatus).map((info, index) => info.icon &&
                 <ListItem key={index} sx={{display: "inline-flex"}}>
                     {info.icon}
-                    <Typography ml={1}>{info.value}</Typography>
+                    <Typography ml={1}>{t(`appointment-status.${info.key}`)}</Typography>
                 </ListItem>)}
             <ListItem>
                 <Box
