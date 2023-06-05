@@ -10,10 +10,21 @@
   "stats": " Statistiques",
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
-  "loading-error": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
-  "maintenance-error": "Nous reviendrons. nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
-  "loading-error-404": "404 - La page n'a pas été trouvée",
-  "loading-error-404-reset": "Retourner à la agenda",
+  "loading-error": {
+    "title": "Oops!",
+    "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
+    "button": "Réessayer"
+  },
+  "maintenance-error": {
+    "title": "Nous reviendrons",
+    "description": "Nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
+    "button": "Réessayer"
+  },
+  "loading-error-404": {
+    "title": "Page non trouvée",
+    "description": "La page que vous recherchez a peut-être été supprimée ou est temporairement indisponible.",
+    "button": "Retourner à la agenda"
+  },
   "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",
   "type_of_document": "Sélectionner le type de document",

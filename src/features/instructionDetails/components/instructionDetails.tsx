@@ -59,7 +59,7 @@ function InstructionDetails({ ...props }) {
             alert(JSON.stringify(values, null, 2));
         },
     });
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
 
     const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
 

@@ -189,7 +189,7 @@ function SideBarMenu({children}: LayoutProps) {
         ]);
     }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
 
     return (
         <MainMenuStyled>

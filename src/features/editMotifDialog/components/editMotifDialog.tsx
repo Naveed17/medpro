@@ -165,7 +165,7 @@ function EditMotifDialog({...props}) {
         return (
             <LoadingScreen
                 error
-                button={"loading-error-404-reset"}
+                button
                 text={"loading-error"}
             />
         );

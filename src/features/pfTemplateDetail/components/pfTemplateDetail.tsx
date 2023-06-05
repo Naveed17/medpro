@@ -270,7 +270,7 @@ function PfTemplateDetail({...props}) {
         setSections(sectionUpdated);
     };
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
 
     return (
         <Box style={{background: "black"}}>

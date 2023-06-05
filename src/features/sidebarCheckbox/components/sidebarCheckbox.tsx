@@ -24,7 +24,7 @@ export default function SidebarCheckbox({...props}) {
         setChecked(event.target.checked);
         onChange(event.target.checked)
     };
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
 
     return (
         <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}

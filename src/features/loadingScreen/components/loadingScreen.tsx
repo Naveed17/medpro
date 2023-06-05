@@ -1,4 +1,4 @@
-import {Box, Button, Theme, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {Box, Button, Stack, Theme, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {RootStyled} from "@features/loadingScreen";
 import {motion} from "framer-motion";
 import IconUrl from "@themes/urlIcon";
@@ -6,9 +6,10 @@ import {useTranslation} from "next-i18next";
 import React from "react";
 import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
+import {PaletteColor} from "@mui/material/styles";
 
 function LoadingScreen({...props}) {
-    const {text = "loading", button = null, error = false, OnClick = null} = props
+    const {text = "loading", button = false, color = "primary", OnClick = null} = props
 
     const router = useRouter();
     const theme = useTheme();
@@ -41,7 +42,7 @@ function LoadingScreen({...props}) {
 
     return (
         <RootStyled {...props} className="test">
-            <Box textAlign="center" maxWidth={240}>
+            <Stack alignItems={"center"} maxWidth={280}>
                 <Box
                     component={motion.svg}
                     xmlns="http://www.w3.org/2000/svg"
@@ -50,16 +51,15 @@ function LoadingScreen({...props}) {
                     sx={{
                         width: isMobile ? 80 : 120,
                         overflow: "visible",
-                        // stroke: theme.palette.primary.main,
                         strokeWidth: 0.5,
                         strokeLinejoin: "round",
                         strokeLinecap: "round",
                         mb: 3,
                     }}
                 >
-                    <MedProIcon color={error ? theme.palette.error.main : theme.palette.primary.main}/>
+                    <MedProIcon color={(theme.palette[color as keyof typeof theme.palette] as PaletteColor).main}/>
                 </Box>
-                <Box
+                {text === "loading" && <Box
                     display="flex"
                     sx={{
                         ul: {listStyleType: "none", display: "contents", p: 0},
@@ -91,30 +91,39 @@ function LoadingScreen({...props}) {
                             <IconUrl path="color/ic-magazine-gris"/>
                         </motion.li>
                     </motion.ul>
-                </Box>
+                </Box>}
+                {text !== "loading" && <Typography
+                    variant="h6" mb={2} px={2} color="text.primary">
+                    {t(`${text}.title`)}
+                </Typography>}
                 <Typography
                     variant="body2"
                     sx={{
                         fontWeight: 300,
                         fontSize: 16
-                    }} mt={3} mb={2} px={2} color="text.primary">
-                    {t(text)}
+                    }}
+                    {...(text === "loading" && {mt: 3})}
+                    mb={2} px={2} color="text.primary">
+                    {t(text !== "loading" ? `${text}.description` : text)}
                 </Typography>
                 {button &&
-                    <Button onClick={() => {
-                        if (process.env.NODE_ENV !== 'development') {
-                            router.push("/dashboard/agenda");
-                        }
-                        if (OnClick) {
-                            OnClick(error);
-                        }
-                    }}
-                            color={error ? "error" : "primary"} variant="contained">
-                        <Typography>{t(button)}</Typography>
+                    <Button
+                        onClick={() => {
+                            if (process.env.NODE_ENV !== 'development') {
+                                router.replace("/dashboard/agenda");
+                            }
+                            if (OnClick) {
+                                OnClick(color);
+                            }
+                        }}
+                        {...{color}}
+                        variant="contained">
+                        <Typography>{t(`${text}.button`)}</Typography>
                     </Button>}
-            </Box>
+            </Stack>
         </RootStyled>
-    );
+    )
+        ;
 }
 
 export default LoadingScreen;

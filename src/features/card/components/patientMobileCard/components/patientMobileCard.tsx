@@ -231,8 +231,8 @@ function PatientMobileCard({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );

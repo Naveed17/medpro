@@ -84,7 +84,7 @@ function AddRDVStep2({ ...props }) {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "add-appointment",
   });
-  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+  if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
   return (
     <div>

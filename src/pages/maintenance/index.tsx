@@ -4,7 +4,10 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 
 function Maintenance() {
-    return <LoadingScreen error text={"maintenance-error"}/>
+    return <LoadingScreen
+        color={"expire"}
+        text={"maintenance-error"}
+        button/>
 }
 
 export const getStaticProps: GetStaticProps = async (context) => ({

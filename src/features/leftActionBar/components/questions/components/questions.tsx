@@ -24,7 +24,7 @@ function Questions() {
 
 
     const { t, ready } = useTranslation('questions');
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen error button text={"loading-error"}/>);
     return (
         <QuestionStyled>
             <TabContext value={value}>
