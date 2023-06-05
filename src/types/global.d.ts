@@ -1,6 +1,6 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-import {PaletteColor, Palette} from "@mui/material";
+import {PaletteColor} from "@mui/material";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {

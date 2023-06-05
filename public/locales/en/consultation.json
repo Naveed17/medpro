@@ -208,6 +208,7 @@
     "removeWithsuccess": "Successfully removed template",
     "renameWithsuccess": "Successfully modified document",
     "dosage": "Dosage",
+    "condition": "Pick-up condition",
     "enter_your_dosage": "Enter your dosage",
     "duration-error": "Please select the duration of the dosage.",
     "duration": "for",
@@ -307,6 +308,7 @@
     "document_type": "Document type",
     "biology_order": "Biology order",
     "patient": "Patient",
+    "patient_placeholder": "Patient name",
     "created_on": "Created on",
     "created_by": "Created by",
     "you": "you",
@@ -360,6 +362,10 @@
     "created": "Model created",
     "updated": "Model updated",
     "removed": "Model removed",
+    "doctor": "Doctor",
+    "doctor_placeholder": "Doctor name",
+    "today": "Today",
+    "today_placeholder": "Today's date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Delete folder",

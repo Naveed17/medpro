@@ -81,7 +81,7 @@ function FamilyHistoryDialog({...props}) {
         setValue(e.target.value);
     };
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">

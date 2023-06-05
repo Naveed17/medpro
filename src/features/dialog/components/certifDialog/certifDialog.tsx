@@ -63,9 +63,9 @@ function CertifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const contentBtns = [
-        {name: '{patient}', title: 'Patient', desc: "Nom du patient"},
-        {name: '{doctor}', title: 'Doctor', desc: "Nom du doctor"},
-        {name: '{aujourd\'hui}', title: 'Aujourd\'hui', desc: "Date aujourd'hui"},
+        {name: '{patient}', title: 'patient', desc: "Nom du patient"},
+        {name: '{doctor}', title: 'doctor', desc: "Nom du doctor"},
+        {name: '{aujourd\'hui}', title: 'today', desc: "Date aujourd'hui"},
     ];
 
     const {trigger} = useRequestMutation(null, "/certif-models");
@@ -181,7 +181,7 @@ function CertifDialog({...props}) {
 
     const {t, ready} = useTranslation("consultation");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <Box>
@@ -225,10 +225,10 @@ function CertifDialog({...props}) {
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                 mb={1}>{t('consultationIP.contenu')}</Typography>
-                                    {contentBtns.map(cb => (<Tooltip key={cb.name} title={cb.desc}>
+                                    {contentBtns.map(cb => (<Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
                                         <Button onClick={() => {
                                             addVal(cb.name)
-                                        }} size={"small"}> <AddIcon/> {cb.title}</Button>
+                                        }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
                                     </Tooltip>))}
                                 </Stack>
                                 <RecButton

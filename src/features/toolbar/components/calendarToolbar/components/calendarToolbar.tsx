@@ -88,7 +88,7 @@ function CalendarToolbar({...props}) {
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
     }, [pendingAppointments])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <RootStyled {...props}>
@@ -198,7 +198,7 @@ function CalendarToolbar({...props}) {
             <Hidden smUp>
                 <Stack direction="row" spacing={1.5} justifyContent={"flex-end"} sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
-                        {...{view}}
+                        {...{view, t}}
                         sx={{
                             "& .MuiButton-startIcon>*:nth-of-type(1)": {
                                 fontSize: 20

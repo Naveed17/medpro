@@ -16,7 +16,7 @@ import {styled} from "@mui/material/styles";
 import {useSnackbar} from "notistack";
 import React from "react";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {ModelDot} from "@features/modelDot";
@@ -92,14 +92,6 @@ function EditMotifDialog({...props}) {
             .required(t("users.new.nameReq")),
     });
 
-    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -118,12 +110,7 @@ function EditMotifDialog({...props}) {
             props.closeDraw();
             const form = new FormData();
             form.append("color", values.color);
-            form.append(
-                "translations",
-                JSON.stringify({
-                    fr: values.name,
-                })
-            );
+            form.append("translations", JSON.stringify({[router.locale as string]: values.name}));
             form.append("duration", values.duration);
             let selectedTypes = "";
             let selectedAgendas = "";
@@ -164,8 +151,8 @@ function EditMotifDialog({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );

@@ -211,7 +211,8 @@
     "editWithsuccess": "Modèle modifié avec succès",
     "removeWithsuccess": "Modèle supprimé avec succès",
     "renameWithsuccess": "Document modifié avec succès",
-    "dosage": "Posologie ",
+    "dosage": "Posologie",
+    "condition": "Condition de prise",
     "enter_your_dosage": "Saisissez votre posologie",
     "duration-error": "Veuillez sélectionner la durée de la posologie.",
     "duration": "pendant",
@@ -310,6 +311,7 @@
     "document_type": "Type de document",
     "biology_order": "Ordonnance de biologie",
     "patient": "Patient",
+    "patient_placeholder": "Nom du patient",
     "created_on": "créé le",
     "created_by": "créé par",
     "you": "vous",
@@ -363,6 +365,10 @@
     "created": "Modèle créé",
     "updated": "Modèle modifié",
     "removed": "Modèle supprimé",
+    "doctor": "Doctor",
+    "doctor_placeholder": "Nom du doctor",
+    "today": "Aujourd'hui",
+    "today_placeholder": "Date aujourd'hui",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",

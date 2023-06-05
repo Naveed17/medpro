@@ -172,7 +172,7 @@ function PatientContactDetailCard({...props}) {
             "is_support": false
         }))));
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient.fiche_id && params.append('fiche_id', patient.fiche_id);
         patient.email && params.append('email', patient.email);
@@ -221,7 +221,7 @@ function PatientContactDetailCard({...props}) {
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

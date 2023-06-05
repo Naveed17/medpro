@@ -62,7 +62,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -103,7 +103,7 @@ function RdvCard({...props}) {
                                             ? 0.5
                                             : 0,
                                     }}>
-                                    {commonTranslation(AppointmentStatus[inner?.status]?.key)}
+                                    {commonTranslation(`appointment-status.${AppointmentStatus[inner?.status]?.key}`)}
                                 </Typography>
                             </Label>}
                         </Stack>

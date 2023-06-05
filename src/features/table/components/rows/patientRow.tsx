@@ -25,7 +25,6 @@ import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
-import Image from "next/image";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 

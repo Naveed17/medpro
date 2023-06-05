@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
 function PatientFile({...props}) {
     const {patient, antecedentsData, t, allAntecedents} = props
 
+    console.log(allAntecedents);
     const checkKey = (key: string) => {
         return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
     }
@@ -167,7 +168,7 @@ function PatientFile({...props}) {
                 {
                     antecedentsData && Object.keys(antecedentsData)?.map(key => (
                         <View key={`${key}-ant`}>
-                            <Text style={styles.antecedent}>{allAntecedents?.find((a:{slug:string}) => a.slug === key).name}</Text>
+                            <Text style={styles.antecedent}>{allAntecedents?.find((a:{slug:string}) => a.slug === key)?.name}</Text>
                             {antecedentsData[key] && Array.isArray(antecedentsData[key]) && antecedentsData[key]?.map((item: {
                                 uuid: string;
                                 name: string ;

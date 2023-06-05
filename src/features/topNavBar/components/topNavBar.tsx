@@ -47,6 +47,7 @@ import {WarningTooltip} from "./warningTooltip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {useTranslation} from "next-i18next";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -65,6 +66,7 @@ function TopNavBar({...props}) {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
+    const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -315,7 +317,7 @@ function TopNavBar({...props}) {
                         <MenuList className="topbar-nav">
                             {!allowNotification &&
                                 <WarningTooltip
-                                    title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
+                                    title={commonTranslation("notif_alert")}>
                                     <Avatar
                                         sx={{mr: 3}}
                                         className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
@@ -368,7 +370,7 @@ function TopNavBar({...props}) {
                                         onClick={handleInstallClick}
                                         startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
                                         variant={"contained"}>
-                                    {"Installer l'app"}
+                                    {commonTranslation("install_app")}
                                 </Button>
                             }
                             {topBar.map((item, index) => (

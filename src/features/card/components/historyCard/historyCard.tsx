@@ -14,7 +14,7 @@ export default function HistoryCard({...props}) {
     const dispatch = useAppDispatch();
     const status = AppointmentStatus[row.status];
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     return (
         <HistoryCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
