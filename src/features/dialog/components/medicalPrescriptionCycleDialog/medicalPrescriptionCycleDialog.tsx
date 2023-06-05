@@ -660,7 +660,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             if (!selected || selected && selected.length === 0) {
                                                                                 return <Typography
                                                                                     color={"gray"}>
-                                                                                    Condition de prise
+                                                                                    {t("condition", {ns: "consultation"})}
                                                                                 </Typography>;
                                                                             }
 
