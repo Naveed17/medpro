@@ -185,7 +185,7 @@ function ProfilMenu() {
                                                priority
                                         />
                                         <Typography variant="body1" className="item-name">
-                                            {"Espace patient"}
+                                            {t("patientSpace")}
                                         </Typography>
                                     </MenuItem>
 

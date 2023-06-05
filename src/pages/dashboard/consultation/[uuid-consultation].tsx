@@ -19,7 +19,7 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
+import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme,} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
@@ -51,6 +51,8 @@ import HistoryAppointementContainer from "@features/card/components/historyAppoi
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import AppointHistoryContainerStyled
+    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -789,7 +791,32 @@ function ConsultationInProgress() {
 
     return (
         <>
-            <SubHeader>
+            {isHistory &&<AppointHistoryContainerStyled> <Toolbar>
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                       width={"100%"}>
+                    <Stack spacing={1.5} direction="row" alignItems="center">
+                        <IconUrl path={'ic-speaker'}/>
+                        <Typography>{t('consultationIP.updateHistory')} {appointement?.day_date}.</Typography>
+                    </Stack>
+                    <LoadingButton
+                        disabled={loadingReq}
+                        loading={loadingReq}
+                        loadingPosition="start"
+                        onClick={closeHistory}
+                        className="btn-action"
+                        color="warning"
+                        size="small"
+                        startIcon={<IconUrl path="ic-retour"/>}>
+                        {t('consultationIP.back')}
+                    </LoadingButton>
+                </Stack>
+            </Toolbar></AppointHistoryContainerStyled>}
+            <SubHeader sx={isHistory && {
+                backgroundColor: alpha(theme.palette.warning.main, 0.2),
+                borderLeft: `2px solid${theme.palette.warning.main}`,
+                borderRight: `2px solid${theme.palette.warning.main}`,
+                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
+            }}>
                 {appointement && (
                     <ConsultationIPToolbar
                         appuuid={uuind}

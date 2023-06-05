@@ -103,7 +103,7 @@ function RdvCard({...props}) {
                                             ? 0.5
                                             : 0,
                                     }}>
-                                    {commonTranslation(AppointmentStatus[inner?.status]?.key)}
+                                    {commonTranslation(`appointment-status.${AppointmentStatus[inner?.status]?.key}`)}
                                 </Typography>
                             </Label>}
                         </Stack>

@@ -2,6 +2,7 @@ import { Paper, styled, alpha } from "@mui/material";
 const AppointHistoryContainerStyled = styled(Paper)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.warning.main, 0.2),
   border: `2px solid ${theme.palette.warning.main}`,
+  borderTop: 0,
   borderRadius: 0,
   ".MuiToolbar-root": {
     backgroundColor: theme.palette.warning.main,

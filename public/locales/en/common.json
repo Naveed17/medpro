@@ -27,6 +27,7 @@
   },
   "loading-switch": "Please wait a moment for the agenda to load",
   "logout": "Log out",
+  "of": "of",
   "type_of_document": "Select document type",
   "to_upload": "to upload your documents",
   "prescription_of_medication": "Medication prescription",
@@ -176,6 +177,8 @@
   "today": "Today",
   "permission": "You do not have permission to access this resource",
   "back": "Back",
+  "notif_alert": "To enhance the user experience, we recommend enabling notifications.",
+  "install_app": "Install app",
   "login": {
     "sign_in": "Signed in as",
     "sign_title": "Have you used med.tn before?",
