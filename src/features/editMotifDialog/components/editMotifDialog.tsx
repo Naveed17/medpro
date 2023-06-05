@@ -164,7 +164,7 @@ function EditMotifDialog({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                error
+                color={"error"}
                 button
                 text={"loading-error"}
             />
