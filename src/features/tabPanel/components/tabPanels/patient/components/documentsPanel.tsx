@@ -244,7 +244,7 @@ function DocumentsPanel({...props}) {
 
     useEffect(() => {
         if (previousAppointmentsData) {
-            setDocuments(previousAppointmentsData?.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
                 const documents = currentValue.documents.map((doc: any) => ({
                     ...doc,
                     appUuid: currentValue.appointment.uuid
