@@ -217,7 +217,7 @@ function ActFees() {
             form.append(
                 "name",
                 JSON.stringify({
-                    fr: newFees.act,
+                    [router.locale as string]: newFees.act,
                 })
             );
             form.append("price", `${newFees.fees}`);

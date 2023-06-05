@@ -118,7 +118,7 @@ function CIPPatientHistoryCard({...props}) {
         params.append("duration", "15");
         params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
-            fr: name
+            [router.locale as string]: name
         }));
 
         medicalEntityHasUser && triggerAddReason({

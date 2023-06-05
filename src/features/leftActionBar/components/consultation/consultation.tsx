@@ -123,13 +123,11 @@ function Consultation() {
             patient?.address.length > 0 &&
             patient?.address[0].city &&
             params.append("zip_code", patient?.address[0]?.postalCode);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].street &&
-            params.append(
-                "address",
-                JSON.stringify({fr: patient?.address[0]?.street})
-            );
+            if (patient?.address &&
+                patient?.address.length > 0 &&
+                patient?.address[0].street) {
+                params.append("address", JSON.stringify({[router.locale as string]: patient?.address[0]?.street}));
+            }
             patient.idCard && params.append("id_card", patient.idCard);
         }
         if (medicalEntityHasUser) {
@@ -289,7 +287,7 @@ function Consultation() {
                         </label>
                         {insurances && insurances.length > 0 &&
                             <Stack direction='row' alignItems="center" spacing={1}>
-                                <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
+                                <AvatarGroup max={3}>
                                     {insurances.map((insuranceItem: any) =>
                                         <Tooltip key={insuranceItem?.insurance.uuid}
                                                  title={insuranceItem?.insurance.name}>

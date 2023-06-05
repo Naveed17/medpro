@@ -172,7 +172,7 @@ function PatientContactDetailCard({...props}) {
             "is_support": false
         }))));
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient.fiche_id && params.append('fiche_id', patient.fiche_id);
         patient.email && params.append('email', patient.email);
