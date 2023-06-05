@@ -121,8 +121,3 @@ declare module "@fullcalendar/interaction" {
         jsEvent: MouseTouchEvent
     }
 }
-
-
-export interface DynamicParam {
-    [key: string]: string;
-}
