@@ -4,7 +4,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
-import {useTranslation} from "next-i18next";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
@@ -28,10 +27,36 @@ function PreviewDialog({...props}) {
         'margin-left': '18px',
     };
     const prescriptionRows = [
-        {name: 'name', style: {'margin-bottom': 0, 'font-size': data.size === 'portraitA4' ?"15px":'20px', 'font-weight': 'bold'}},
-        {name: 'dosage', style: {'font-size': data.size === 'portraitA4' ?"14px":'19px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
-        {name: 'duration', style: {color: 'gray', 'font-size':data.size === 'portraitA4' ?"9px": '12px', 'margin-top': 0, 'margin-bottom': 0}},
-        {name: 'note', style: {color: 'gray', 'font-size': data.size === 'portraitA4' ?"9px":'12px', 'margin-top': 0}}];
+        {
+            name: 'name',
+            style: {
+                'margin-bottom': 0,
+                'font-size': data.size === 'portraitA4' ? "15px" : '20px',
+                'font-weight': 'bold'
+            }
+        },
+        {
+            name: 'dosage',
+            style: {
+                'font-size': data.size === 'portraitA4' ? "14px" : '19px',
+                'margin-top': 0,
+                'margin-bottom': '1px',
+                'margin-left': '14px'
+            }
+        },
+        {
+            name: 'duration',
+            style: {
+                color: 'gray',
+                'font-size': data.size === 'portraitA4' ? "9px" : '12px',
+                'margin-top': 0,
+                'margin-bottom': 0
+            }
+        },
+        {
+            name: 'note',
+            style: {color: 'gray', 'font-size': data.size === 'portraitA4' ? "9px" : '12px', 'margin-top': 0}
+        }];
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
         if (pageX) {
@@ -124,7 +149,11 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "gray", fontSize: data.size === 'portraitA4' ?"12px":"18px", marginTop: 0}
+                                    style: {
+                                        color: "gray",
+                                        fontSize: data.size === 'portraitA4' ? "12px" : "18px",
+                                        marginTop: 0
+                                    }
                                 })
                             }
                             pageX.appendChild(elx)
@@ -138,7 +167,12 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "black", fontSize: data.size === 'portraitA4' ?"15px":"20px", fontWeight: "bold", marginBottom: 0}
+                                style: {
+                                    color: "black",
+                                    fontSize: data.size === 'portraitA4' ? "15px" : "20px",
+                                    fontWeight: "bold",
+                                    marginBottom: 0
+                                }
                             })
 
                             if (el.note) {
@@ -147,7 +181,11 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "black", fontSize: data.size === 'portraitA4' ?"14px":"19px", marginTop: 0}
+                                    style: {
+                                        color: "black",
+                                        fontSize: data.size === 'portraitA4' ? "14px" : "19px",
+                                        marginTop: 0
+                                    }
                                 })
                             }
 
@@ -283,7 +321,7 @@ function PreviewDialog({...props}) {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
                     elx.style.width = '190mm'
-                    elx.style.fontSize = data.size === 'portraitA4' ? "15px":"20px"
+                    elx.style.fontSize = data.size === 'portraitA4' ? "15px" : "20px"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
