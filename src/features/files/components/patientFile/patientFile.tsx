@@ -89,8 +89,6 @@ const styles = StyleSheet.create({
 
 function PatientFile({...props}) {
     const {patient, antecedentsData, t, allAntecedents} = props
-
-    console.log(allAntecedents);
     const checkKey = (key: string) => {
         return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
     }
