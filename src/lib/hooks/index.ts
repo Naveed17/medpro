@@ -1,5 +1,6 @@
 import moment from "moment-timezone";
 import {AppointmentStatus} from "@features/calendar";
+
 require('moment-precise-range-plugin');
 export {default as useIsMountedRef} from "./useIsMountedRef";
 export {default as useDateConverture} from "./useDateConverture";
@@ -24,6 +25,16 @@ export function a11yProps(index: number) {
         "aria-controls": `simple-tabpanel-${index}`,
     };
 }
+
+Array.prototype.group = (items, fn) => {
+    return items.reduce((prev: any, next: any) => {
+        const prop = fn(next);
+        return {
+            ...prev,
+            [prop]: prev[prop] ? [...prev[prop], next] : [next],
+        };
+    }
+, {})};
 
 export const ConditionalWrapper = ({...props}) => {
     const {condition, wrapper, children} = props;

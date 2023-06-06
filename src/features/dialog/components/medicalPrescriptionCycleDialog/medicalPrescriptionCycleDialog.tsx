@@ -63,6 +63,7 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
+import {MedicalFormUnit} from "@lib/constants";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -204,6 +205,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }))
     });
 
+    const getMedicForm = (drug: any) => {
+        const unit = drug.cycles[0].dosage.split(",")[0]?.split(" ")[1];
+        return drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] ?
+                    MedicalFormUnit.find(item => item.unit === unit)?.forms[0].form ?? unit : null
+    }
+
     const setInitData = (drugs: DrugModel[]) => {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
@@ -220,7 +227,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     form: "",
                     isVerified: true
                 } as any,
-                unit: drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] ? drug.cycles[0].dosage.split(",")[0]?.split(" ")[1] : null,
+                unit: getMedicForm(drug),
                 cycles: drug.cycles.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "" ? [] : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
                     count: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] === fractions[0] ? 0 : cycle.dosage.split(" ")[0] === fractions[1] ? 1 : parseInt(cycle.dosage.split(" ")[0]) + 1 : 2,
                     dosageQty: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] : "1",
@@ -411,9 +418,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
         });
     }
 
+    const getFormUnitMedic: any = (form: string) => {
+        return MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+    }
+
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value) ?
-            `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : ""
+            `${cycle.dosageQty} ${getFormUnitMedic(unit).unit ?? unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : "";
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -535,7 +546,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             if (ev.target.value.length >= 2) {
                                                                                                 triggerDrugList({
                                                                                                     method: "GET",
-                                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
                                                                                                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                                                                                                 }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
                                                                                             }
@@ -547,11 +558,23 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 <Autocomplete
                                                     size='small'
                                                     freeSolo
-                                                    value={values.data[idx].unit ? values.data[idx].unit : ""}
-                                                    onChange={(event, unit) => setFieldValue(`data[${idx}].unit`, unit)}
+                                                    value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
+                                                    onChange={(event, data) => {
+                                                        values.data[idx].cycles.forEach((element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
+                                                        setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : data.forms[0].form) : "");
+                                                    }}
                                                     placeholder={t("unit", {ns: "consultation"})}
                                                     noOptionsText={t('no_unit')}
-                                                    options={["Comprimé"]}
+                                                    options={MedicalFormUnit}
+                                                    getOptionLabel={(option) => {
+                                                        // Value selected with enter, right from the input
+                                                        if (typeof option === 'string') {
+                                                            return option;
+                                                        }
+                                                        // Regular option
+                                                        return option.unit;
+                                                    }}
+                                                    isOptionEqualToValue={(option: any, value) => option?.unit === value?.unit}
                                                     renderInput={(params) => <TextField
                                                         placeholder={t('unit')}
                                                         {...params} />}
@@ -833,7 +856,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         className='custom-button'
                                         variant="contained"
                                         startIcon={editModel ? <EditIcon/> : <AddIcon/>}>
-                                        {t(editModel ? "editModel" : "createAsModel", {ns: "consultation"})} {editModel && `${editModel.text} ${t("model")}`}
+                                        {t(editModel ? "editModel" : "createAsModel", {ns: "consultation"})} {editModel && `${editModel?.text} ${t("model")}`}
                                     </LoadingButton>
                                     {editModel &&
                                         <Button
@@ -1034,8 +1057,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 </DialogActions>
             </Dialog>
         </MedicalPrescriptionCycleStyled>
-    )
-        ;
+    );
 }
 
 export default MedicalPrescriptionCycleDialog;
