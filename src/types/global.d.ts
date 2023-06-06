@@ -121,3 +121,9 @@ declare module "@fullcalendar/interaction" {
         jsEvent: MouseTouchEvent
     }
 }
+
+declare global {
+    interface Array<T> {
+        group(o: T, fn: Function): Array<T>;
+    }
+}
