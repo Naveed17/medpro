@@ -7,6 +7,7 @@ export {default as useDateConverture} from "./useDateConverture";
 export {default as unsubscribeTopic} from "./unsubscribeTopic";
 export {default as useMedicalEntitySuffix} from "./useMedicalEntitySuffix";
 export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalSuffix";
+export {default as useLastPrescription} from "./useLastPrescription";
 export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";
 export * from "./capitalizeFirst";
