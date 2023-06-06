@@ -838,7 +838,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             <Stack direction={"column"} sx={{width: "100%"}}>
                                 <Stack direction={"row"} spacing={1.2}>
                                     {!editModel ? <ModelSwitchButton
-                                            {...{t, editModel, drugs}}
+                                            {...{t, editModel, lastPrescriptions, drugs}}
                                             {...(isMobile && {
                                                 fullWidth: true,
                                             })}

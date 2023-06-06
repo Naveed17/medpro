@@ -6,7 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {StyledMenu} from "@features/buttons";
 
 function ModelSwitchButton({...props}) {
-    const {onClickEvent, t, editModel, drugs, ...rest} = props;
+    const {onClickEvent, t, editModel, lastPrescriptions, drugs, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -28,6 +28,7 @@ function ModelSwitchButton({...props}) {
         onClickEvent("set-prescription");
     }
 
+    console.log(lastPrescriptions)
     return (
         <Box
             sx={{
@@ -83,10 +84,10 @@ function ModelSwitchButton({...props}) {
                 open={open}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleSetLastPrescription} disableRipple>
+                {lastPrescriptions.length > 0 && <MenuItem onClick={handleSetLastPrescription} disableRipple>
                     <FastForwardOutlinedIcon/>
                     {t("last_prescription")}
-                </MenuItem>
+                </MenuItem>}
                 <MenuItem disabled={drugs?.length === 0} onClick={handleSetPrescriptionModel} disableRipple>
                     <AddIcon/>
                     {t("createAsModel", {ns: "consultation"})}
