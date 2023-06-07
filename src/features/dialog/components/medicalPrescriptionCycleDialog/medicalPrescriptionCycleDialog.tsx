@@ -63,10 +63,8 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
-import {MedicalFormUnit} from "@lib/constants";
+import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
-
-const PrescriptionMultiUnits = ["Cuiére S", "Cuiére C", "Par poids", "par ml ( 1-25 )", "Vaporisation", "Application"];
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;

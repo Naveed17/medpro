@@ -26,6 +26,7 @@
   },
   {
     "unit": "Application",
+    "multiple": true,
     "forms": [
       {
         "form": "Créme dermique",
@@ -165,6 +166,10 @@
       },
       {
         "form": "Solution  externe",
+        "unit": "Application"
+      },
+      {
+        "form": "Spray poudre",
         "unit": "Application"
       }
     ]
@@ -316,6 +321,7 @@
   },
   {
     "unit": "Vaporisation",
+    "multiple": true,
     "forms": [
       {
         "form": "Solution  externe",
@@ -325,7 +331,12 @@
   },
   {
     "unit": "Injection",
+    "multiple": true,
     "forms": [
+      {
+        "form": "Solution intra-oculaire",
+        "unit": "Injection"
+      },
       {
         "form": "Pdre  p.prep.injectable",
         "unit": "Injection"
@@ -440,6 +451,7 @@
   },
   {
     "unit": "Cuiére C",
+    "multiple": true,
     "forms": [
       {
         "form": "Sirop",
@@ -453,6 +465,7 @@
   },
   {
     "unit": "Cuiére S",
+    "multiple": true,
     "forms": [
       {
         "form": "Sirop",
@@ -466,6 +479,7 @@
   },
   {
     "unit": "Par poids",
+    "multiple": true,
     "forms": [
       {
         "form": "Sirop",
@@ -479,6 +493,7 @@
   },
   {
     "unit": "par ml ( 1-25 )",
+    "multiple": true,
     "forms": [
       {
         "form": "Sirop",
@@ -492,7 +507,12 @@
   },
   {
     "unit": "Perfusion",
+    "multiple": true,
     "forms": [
+      {
+        "form": "Solution à diluer pour perfusion",
+        "unit": "Perfusion"
+      },
       {
         "form": "Solution injectable pour perfusion",
         "unit": "Perfusion"
@@ -544,7 +564,12 @@
   },
   {
     "unit": "Ampoule",
+    "multiple": true,
     "forms": [
+      {
+        "form": "Solution intra-oculaire",
+        "unit": "Ampoule"
+      },
       {
         "form": "Ampoules buvables",
         "unit": "Ampoule"
@@ -591,6 +616,7 @@
   },
   {
     "unit": "Pulvérisation",
+    "multiple": true,
     "forms": [
       {
         "form": "Spray solution",
@@ -615,15 +641,10 @@
       {
         "form": "Solution nasale",
         "unit": "Pulvérisation"
-      }
-    ]
-  },
-  {
-    "unit": "Ampoule/Injection",
-    "forms": [
+      },
       {
-        "form": "Solution intra-oculaire",
-        "unit": "ampoule/injection"
+        "form": "Spray poudre",
+        "unit": "Pulvérisation"
       }
     ]
   },
@@ -664,6 +685,7 @@
   },
   {
     "unit": "Sachet",
+    "multiple": true,
     "forms": [
       {
         "form": "Solution buvable",
@@ -691,6 +713,10 @@
       },
       {
         "form": "Poudre pour solution à diluer pour perfusion",
+        "unit": "Sachet"
+      },
+      {
+        "form": "Solution à diluer pour perfusion",
         "unit": "Sachet"
       }
     ]
@@ -771,29 +797,11 @@
     ]
   },
   {
-    "unit": "Perfusion/Sachét",
-    "forms": [
-      {
-        "form": "Solution à diluer pour perfusion",
-        "unit": "Perfusion/sachét"
-      }
-    ]
-  },
-  {
     "unit": "Suspention",
     "forms": [
       {
         "form": "Susp. p. instill endotrachéobronchique",
         "unit": "Suspention"
-      }
-    ]
-  },
-  {
-    "unit": "Pulvérisation/Application",
-    "forms": [
-      {
-        "form": "Spray poudre",
-        "unit": "pulvérisation ou application"
       }
     ]
   }
