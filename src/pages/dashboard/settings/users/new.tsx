@@ -153,9 +153,9 @@ const { data: httpProfilesResponse, } = useRequest({
             const form = new FormData();
             form.append('username', values.name);
             form.append('email', values.email);
-            form.append('is_owner', values.admin);
+            form.append('is_owner', JSON.stringify(values.admin));
             form.append('is_active', 'true');
-            form.append('is_professional', values.professionnel);
+            form.append('is_professional', JSON.stringify(values.professionnel));
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
