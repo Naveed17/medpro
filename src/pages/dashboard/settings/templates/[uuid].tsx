@@ -88,10 +88,10 @@ function DocsConfig() {
     const [data, setData] = useState<any>({
         background: {show: false, content: {url:''}},
         header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 234, content: ''},
-        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        footer: {show: false, x: 0, y: 900, content: ''},
+        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
         size: 'portraitA4',
         content: {
             show: true,
@@ -99,7 +99,7 @@ function DocsConfig() {
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 150
+            y: 300
         }
     })
     const [queryState, setQueryState] = useState<any>({type: []});
