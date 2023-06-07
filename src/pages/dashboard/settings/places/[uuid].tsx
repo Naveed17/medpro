@@ -750,7 +750,7 @@ function PlacesDetail() {
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
                                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any})}
+                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any}) as any}
                                                             value={data && values.phones[index] ? values.phones[index]?.value : ""}
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}
                                                             inputComponent={CustomInput as any}
