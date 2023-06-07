@@ -66,6 +66,8 @@ import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 
+const PrescriptionMultiUnits = ["Cuiére S", "Cuiére C", "Par poids", "par ml ( 1-25 )", "Vaporisation", "Application"];
+
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
@@ -208,9 +210,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const unit = drug.cycles[0].dosage.split(",")[0]?.split(" ")[1];
-        return drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] ?
-            MedicalFormUnit.find(item => item.unit === unit)?.forms[0].form ?? unit : null
+        const [first, ...rest] = drug.cycles[0].dosage.split(",")[0]?.split(" ");
+        const unit = rest.join(' ');
+        const hasMultiValues = PrescriptionMultiUnits.includes(unit);
+        const hasMedicalFormUnit = MedicalFormUnit.find(item => item.unit === unit);
+        return drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit ?
+            `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}` : unit;
     }
 
     const setInitData = (drugs: DrugModel[]) => {
@@ -421,7 +426,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
     }
 
     const getFormUnitMedic: any = (form: string) => {
-        return MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+        const hasMultiValues = form.split('_');
+        let formUnitMedic: any;
+        if (hasMultiValues.length > 1) {
+            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
+        } else {
+            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+        }
+        return formUnitMedic;
     }
 
     const generateDosageText = (cycle: any, unit?: string) => {
@@ -562,8 +574,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     freeSolo
                                                     value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
                                                     onChange={(event, data) => {
+                                                        const hasMultiValues = PrescriptionMultiUnits.includes(data.unit);
                                                         values.data[idx].cycles.forEach((element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
-                                                        setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : data.forms[0].form) : "");
+                                                        setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}`) : "");
                                                     }}
                                                     placeholder={t("unit", {ns: "consultation"})}
                                                     noOptionsText={t('no_unit')}

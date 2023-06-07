@@ -162,6 +162,10 @@
       {
         "form": "Gel urétral",
         "unit": "Application"
+      },
+      {
+        "form": "Solution  externe",
+        "unit": "Application"
       }
     ]
   },
@@ -311,11 +315,11 @@
     ]
   },
   {
-    "unit": "Application/Vaporisation",
+    "unit": "Vaporisation",
     "forms": [
       {
         "form": "Solution  externe",
-        "unit": "Application / Vaporisation"
+        "unit": "Vaporisation"
       }
     ]
   },
@@ -435,15 +439,54 @@
     ]
   },
   {
-    "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )",
+    "unit": "Cuiére C",
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )"
+        "unit": "Cuiére C"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )"
+        "unit": "Cuiére C"
+      }
+    ]
+  },
+  {
+    "unit": "Cuiére S",
+    "forms": [
+      {
+        "form": "Sirop",
+        "unit": "Cuiére S"
+      },
+      {
+        "form": "Suspension buvable",
+        "unit": "Cuiére S"
+      }
+    ]
+  },
+  {
+    "unit": "Par poids",
+    "forms": [
+      {
+        "form": "Sirop",
+        "unit": "Par poids"
+      },
+      {
+        "form": "Suspension buvable",
+        "unit": "Par poids"
+      }
+    ]
+  },
+  {
+    "unit": "par ml ( 1-25 )",
+    "forms": [
+      {
+        "form": "Sirop",
+        "unit": "par ml ( 1-25 )"
+      },
+      {
+        "form": "Suspension buvable",
+        "unit": "par ml ( 1-25 )"
       }
     ]
   },
