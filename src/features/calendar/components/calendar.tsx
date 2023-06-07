@@ -18,6 +18,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
@@ -319,7 +320,7 @@ function Calendar({...props}) {
                                 <NoDataCard t={translation} data={AddAppointmentCardData}/>
                             )}
                         </Box>
-                    ) : !loading && (
+                    ) : (!loading && view !== "listWeek") && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
                                 weekends
@@ -406,7 +407,7 @@ function Calendar({...props}) {
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
-                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
                             />
 
                             {slotInfo && <StyledMenu

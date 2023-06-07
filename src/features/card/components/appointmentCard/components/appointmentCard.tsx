@@ -53,6 +53,7 @@ function AppointmentCard({...props}) {
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
+    const [instruction, setInstruction] = useState(data.instruction);
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -281,8 +282,8 @@ function AppointmentCard({...props}) {
                                     )}
                                 </ListItem>
                             )}
-                            {reasons && editConsultation && (
-                                <ListItem>
+                            {editConsultation && <>
+                                {reasons && <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("consultation_reson")}
                                     </Typography>
@@ -362,8 +363,13 @@ function AppointmentCard({...props}) {
                                                                               sx={{paddingLeft: 0}}
                                                                               variant="outlined" fullWidth/>}/>
                                     </FormControl>
+                                </ListItem>}
+                                <ListItem>
+                                    <Typography fontWeight={400}>
+                                        {t("insctruction")}
+                                    </Typography>
                                 </ListItem>
-                            )}
+                            </>}
                         </List>
                     </Box>
                 </Stack>
