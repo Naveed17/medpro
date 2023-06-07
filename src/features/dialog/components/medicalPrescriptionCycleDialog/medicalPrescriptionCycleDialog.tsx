@@ -572,7 +572,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     freeSolo
                                                     value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
                                                     onChange={(event, data) => {
-                                                        const hasMultiValues = PrescriptionMultiUnits.includes(data.unit);
+                                                        const hasMultiValues = data && PrescriptionMultiUnits.includes(data.unit);
                                                         values.data[idx].cycles.forEach((element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
                                                         setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}`) : "");
                                                     }}
