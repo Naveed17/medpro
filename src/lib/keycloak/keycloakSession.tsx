@@ -1,4 +1,4 @@
-import { SessionProvider } from "next-auth/react";
+console.log(lastPrescriptions)import { SessionProvider } from "next-auth/react";
 
 function KeycloakSession({ children, ...pageProps }: LayoutProps) {
     return (
