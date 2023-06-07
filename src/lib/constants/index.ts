@@ -1,4 +1,5 @@
 import {countries} from "@features/countrySelect/countries";
+import data from "public/static/data/medicalFormeUnite.json";
 
 export const SocialInsured = [
     {grouped: "socialInsured", key: "socialInsured", value: "0", label: "himself"},
@@ -153,3 +154,5 @@ export const AddWaitingRoomCardData = {
 export const UrlMedicalEntitySuffix: string = '/api/medical-entity';
 
 export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
+
+export const MedicalFormUnit = data;
