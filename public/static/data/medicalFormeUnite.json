@@ -1,0 +1,757 @@
+[
+  {
+    "unit": "Gélule",
+    "forms": [
+      {
+        "form": "Gélule",
+        "unit": "Gélule"
+      },
+      {
+        "form": "Gélule à libération prolongée",
+        "unit": "Gélule"
+      },
+      {
+        "form": "Gélule gastrorésistante",
+        "unit": "Gélule"
+      },
+      {
+        "form": "Gélule Vaginale",
+        "unit": "Gélule"
+      },
+      {
+        "form": "Gélule à libération modifiée",
+        "unit": "Gélule"
+      }
+    ]
+  },
+  {
+    "unit": "Application",
+    "forms": [
+      {
+        "form": "Créme dermique",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution glycéro-saline d'extrais allergéniques",
+        "unit": "application"
+      },
+      {
+        "form": "Pommade  dermique",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel dermique",
+        "unit": "Application"
+      },
+      {
+        "form": "Pommade ophtalmique",
+        "unit": "Application"
+      },
+      {
+        "form": "Dispositif trans-dermique",
+        "unit": "Application"
+      },
+      {
+        "form": "Poudre pour inhalation buccale",
+        "unit": "Application"
+      },
+      {
+        "form": "Créme rectale",
+        "unit": "Application"
+      },
+      {
+        "form": "Pommade rectale",
+        "unit": "Application"
+      },
+      {
+        "form": "Baume",
+        "unit": "Application"
+      },
+      {
+        "form": "Lait dermique",
+        "unit": "Application"
+      },
+      {
+        "form": "Poudre a usage externe",
+        "unit": "Application"
+      },
+      {
+        "form": "Emulsion",
+        "unit": "Application"
+      },
+      {
+        "form": "Lotion",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel buccal",
+        "unit": "Application"
+      },
+      {
+        "form": "Solute buccal",
+        "unit": "Application"
+      },
+      {
+        "form": "Shampooing",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel gingival",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel ophtalmique",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel oral",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution gynecologique",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel rectal",
+        "unit": "Application"
+      },
+      {
+        "form": "Liniment",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution rectale",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution pour administration endonasale",
+        "unit": "Application"
+      },
+      {
+        "form": "Vernis à ongles médicamenteux",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel vaginal",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel capillaire",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution moussante",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution pour application cutanée",
+        "unit": "Application"
+      },
+      {
+        "form": "Créme gynecologique",
+        "unit": "Application"
+      },
+      {
+        "form": "Pate dentaire",
+        "unit": "Application"
+      },
+      {
+        "form": "Solution pour prick-test cutané",
+        "unit": "Application"
+      },
+      {
+        "form": "Gel urétral",
+        "unit": "Application"
+      }
+    ]
+  },
+  {
+    "unit": "Comprimé",
+    "forms": [
+      {
+        "form": "Comprimé",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé  pelliculé",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pelliculé sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé effervescent",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé  sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé à libération prolongée",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime enrobe secable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime dispersible",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime enrobé",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé orodispersible",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime drageifie",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime gastro-resistant",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé sécable dispersible",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé à sucer",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé à croquer",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pelliculé à libération modifiée",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé sublingual",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé quadrisécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime enrobe secable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pelliculé lp",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime secable l.p",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprime soluble",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé à libération modifiée",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pelliculé sécable à libération modifiée",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Lyophilisat oral",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pelliculé sécable lp",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé gynecologique",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimés à sucer",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé pour inhalation",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé Sécable à Libration Modifieé",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé dispersible sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé dispersible  sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé Effervecent Sécable",
+        "unit": "Comprimé"
+      },
+      {
+        "form": "Comprimé orodispersible sécable",
+        "unit": "Comprimé"
+      }
+    ]
+  },
+  {
+    "unit": "Application/Vaporisation",
+    "forms": [
+      {
+        "form": "Solution  externe",
+        "unit": "Application / Vaporisation"
+      }
+    ]
+  },
+  {
+    "unit": "Injection",
+    "forms": [
+      {
+        "form": "Pdre  p.prep.injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Solution  injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Emulsion injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Solution ophta-orl sterile et injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Suspension injectable",
+        "unit": "Injecton"
+      },
+      {
+        "form": "Solution injectable pour irrigation",
+        "unit": "Injection"
+      },
+      {
+        "form": "Solution injectable I.M et buvable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Solution pour préparation injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Lyophilisat pour solution injectable",
+        "unit": "Injection"
+      },
+      {
+        "form": "Solution Injectable Intravasculaire",
+        "unit": "Injection"
+      }
+    ]
+  },
+  {
+    "unit": "Pastilles",
+    "forms": [
+      {
+        "form": "Pastilles",
+        "unit": "Pastilles"
+      }
+    ]
+  },
+  {
+    "unit": "Capsules",
+    "forms": [
+      {
+        "form": "Capsules  gynecologiques",
+        "unit": "Capsules"
+      },
+      {
+        "form": "Capsule molle",
+        "unit": "Capsules"
+      },
+      {
+        "form": "Capsules Oral",
+        "unit": "Capsules"
+      }
+    ]
+  },
+  {
+    "unit": "Granule",
+    "forms": [
+      {
+        "form": "Doses homeopathiques",
+        "unit": "Granule"
+      }
+    ]
+  },
+  {
+    "unit": "Gélules",
+    "forms": [
+      {
+        "form": "Gélule  gastrorésistante",
+        "unit": "Gélules"
+      }
+    ]
+  },
+  {
+    "unit": "Nettoyant",
+    "forms": [
+      {
+        "form": "Compresse imprégnée stérile",
+        "unit": "Nettoyant"
+      },
+      {
+        "form": "Gel moussant",
+        "unit": "Nettoyant"
+      }
+    ]
+  },
+  {
+    "unit": "Goutte",
+    "forms": [
+      {
+        "form": "Collyre",
+        "unit": "Goutte"
+      },
+      {
+        "form": "Poudre auriculaire",
+        "unit": "Goutte"
+      }
+    ]
+  },
+  {
+    "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )",
+    "forms": [
+      {
+        "form": "Sirop",
+        "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )"
+      },
+      {
+        "form": "Suspension buvable",
+        "unit": "Cuiére C / Cuiére S / Par poids / par ml ( 1-25 )"
+      }
+    ]
+  },
+  {
+    "unit": "Perfusion",
+    "forms": [
+      {
+        "form": "Solution injectable pour perfusion",
+        "unit": "Perfusion"
+      }
+    ]
+  },
+  {
+    "unit": "Suppo",
+    "forms": [
+      {
+        "form": "Suppositoire",
+        "unit": "Suppo"
+      },
+      {
+        "form": "Suppositoire sécable",
+        "unit": "Suppo"
+      }
+    ]
+  },
+  {
+    "unit": "Granules",
+    "forms": [
+      {
+        "form": "Granules pour suspension buvable",
+        "unit": "Granules"
+      },
+      {
+        "form": "Granules a liberation prolongée",
+        "unit": "Granules"
+      },
+      {
+        "form": "Granules effervescents",
+        "unit": "Granules"
+      },
+      {
+        "form": "Granules",
+        "unit": "Granules"
+      }
+    ]
+  },
+  {
+    "unit": "Ovule",
+    "forms": [
+      {
+        "form": "Ovule",
+        "unit": "Ovule"
+      }
+    ]
+  },
+  {
+    "unit": "Ampoule",
+    "forms": [
+      {
+        "form": "Ampoules buvables",
+        "unit": "Ampoule"
+      },
+      {
+        "form": "Poudre pour suspension injectable",
+        "unit": "Ampoule"
+      },
+      {
+        "form": "Poudre pour solution injectable",
+        "unit": "Ampoule"
+      }
+    ]
+  },
+  {
+    "unit": "Gouttes",
+    "forms": [
+      {
+        "form": "Gouttes buvables",
+        "unit": "Gouttes"
+      },
+      {
+        "form": "Gouttes auriculaires",
+        "unit": "Gouttes"
+      },
+      {
+        "form": "Collyre monodose",
+        "unit": "Gouttes"
+      },
+      {
+        "form": "Gouttes nasales",
+        "unit": "Gouttes"
+      }
+    ]
+  },
+  {
+    "unit": "Flacons",
+    "forms": [
+      {
+        "form": "Suspension rectale",
+        "unit": "flacons"
+      }
+    ]
+  },
+  {
+    "unit": "Pulvérisation",
+    "forms": [
+      {
+        "form": "Spray solution",
+        "unit": "pulvérisation"
+      },
+      {
+        "form": "Spray nasal",
+        "unit": "pulvérisation"
+      },
+      {
+        "form": "Solution pour pulvérisation buccale",
+        "unit": "pulvérisation"
+      },
+      {
+        "form": "Collutoire",
+        "unit": "Pulvérisation"
+      },
+      {
+        "form": "Suspension nasale",
+        "unit": "Pulvérisation"
+      },
+      {
+        "form": "Solution nasale",
+        "unit": "Pulvérisation"
+      }
+    ]
+  },
+  {
+    "unit": "Ampoule/Injection",
+    "forms": [
+      {
+        "form": "Solution intra-oculaire",
+        "unit": "ampoule/injection"
+      }
+    ]
+  },
+  {
+    "unit": "Soluté",
+    "forms": [
+      {
+        "form": "Soluté pour dialyse péritonéale",
+        "unit": "Soluté"
+      }
+    ]
+  },
+  {
+    "unit": "Pulvérisateur",
+    "forms": [
+      {
+        "form": "Solution pour pulverisation nasale",
+        "unit": "Pulvérisateur"
+      },
+      {
+        "form": "Suspension buvable ou nasale",
+        "unit": "Pulvérisateur"
+      }
+    ]
+  },
+  {
+    "unit": "Bouffée",
+    "forms": [
+      {
+        "form": "Aérosol",
+        "unit": "Bouffée"
+      },
+      {
+        "form": "Suspension pour inhalation",
+        "unit": "Bouffée"
+      }
+    ]
+  },
+  {
+    "unit": "Sachet",
+    "forms": [
+      {
+        "form": "Solution buvable",
+        "unit": "sachet"
+      },
+      {
+        "form": "Poudre pour solution orale",
+        "unit": "sachet"
+      },
+      {
+        "form": "Poudre orale effervescente",
+        "unit": "Sachet"
+      },
+      {
+        "form": "Poudre pour suspension orale",
+        "unit": "Sachet"
+      },
+      {
+        "form": "Poudre pour solution pour perfusion",
+        "unit": "Sachet"
+      },
+      {
+        "form": "Poudre Orale",
+        "unit": "Sachet"
+      },
+      {
+        "form": "Poudre pour solution à diluer pour perfusion",
+        "unit": "Sachet"
+      }
+    ]
+  },
+  {
+    "unit": "Implant",
+    "forms": [
+      {
+        "form": "Implant",
+        "unit": "Implant"
+      }
+    ]
+  },
+  {
+    "unit": "Globules",
+    "forms": [
+      {
+        "form": "Globules",
+        "unit": "Globules"
+      }
+    ]
+  },
+  {
+    "unit": "Dispositif intra-uterin",
+    "forms": [
+      {
+        "form": "Dispositif intra-uterin",
+        "unit": "Dispositif intra-uterin"
+      }
+    ]
+  },
+  {
+    "unit": "Boite",
+    "forms": [
+      {
+        "form": "Sparadraps",
+        "unit": "boite"
+      }
+    ]
+  },
+  {
+    "unit": "Emplatre",
+    "forms": [
+      {
+        "form": "Emplatre",
+        "unit": "Emplatre"
+      },
+      {
+        "form": "Emplâtre Médicamenteux",
+        "unit": "Emplatre"
+      }
+    ]
+  },
+  {
+    "unit": "Flacon",
+    "forms": [
+      {
+        "form": "Suspension pour administration intravesicale",
+        "unit": "flacon"
+      },
+      {
+        "form": "Liquide volatil pour inhalation",
+        "unit": "flacon"
+      },
+      {
+        "form": "Liquide pour inhalation",
+        "unit": "flacon"
+      }
+    ]
+  },
+  {
+    "unit": "Préparation",
+    "forms": [
+      {
+        "form": "Préparation Viscoélastique",
+        "unit": "Préparation"
+      }
+    ]
+  },
+  {
+    "unit": "Perfusion/Sachét",
+    "forms": [
+      {
+        "form": "Solution à diluer pour perfusion",
+        "unit": "Perfusion/sachét"
+      }
+    ]
+  },
+  {
+    "unit": "Suspention",
+    "forms": [
+      {
+        "form": "Susp. p. instill endotrachéobronchique",
+        "unit": "Suspention"
+      }
+    ]
+  },
+  {
+    "unit": "Pulvérisation/Application",
+    "forms": [
+      {
+        "form": "Spray poudre",
+        "unit": "pulvérisation ou application"
+      }
+    ]
+  }
+]

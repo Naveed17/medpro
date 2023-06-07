@@ -56,13 +56,15 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {a11yProps, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {a11yProps, useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
+import {MedicalFormUnit} from "@lib/constants";
+import ModelSwitchButton from "./modelSwitchButton";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -74,6 +76,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const refs = useRef([]);
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
+    const {lastPrescriptions} = useLastPrescription();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
@@ -204,6 +207,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }))
     });
 
+    const getMedicForm = (drug: any) => {
+        const unit = drug.cycles[0].dosage.split(",")[0]?.split(" ")[1];
+        return drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] ?
+            MedicalFormUnit.find(item => item.unit === unit)?.forms[0].form ?? unit : null
+    }
+
     const setInitData = (drugs: DrugModel[]) => {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
@@ -220,7 +229,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     form: "",
                     isVerified: true
                 } as any,
-                unit: drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] ? drug.cycles[0].dosage.split(",")[0]?.split(" ")[1] : null,
+                unit: getMedicForm(drug),
                 cycles: drug.cycles.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "" ? [] : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
                     count: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] === fractions[0] ? 0 : cycle.dosage.split(" ")[0] === fractions[1] ? 1 : parseInt(cycle.dosage.split(" ")[0]) + 1 : 2,
                     dosageQty: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] : "1",
@@ -411,9 +420,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
         });
     }
 
+    const getFormUnitMedic: any = (form: string) => {
+        return MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+    }
+
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value) ?
-            `${cycle.dosageQty} ${unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : ""
+            `${cycle.dosageQty} ${getFormUnitMedic(unit).unit ?? unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : "";
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -535,7 +548,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             if (ev.target.value.length >= 2) {
                                                                                                 triggerDrugList({
                                                                                                     method: "GET",
-                                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
                                                                                                     headers: {Authorization: `Bearer ${session?.accessToken}`}
                                                                                                 }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
                                                                                             }
@@ -547,11 +560,23 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 <Autocomplete
                                                     size='small'
                                                     freeSolo
-                                                    value={values.data[idx].unit ? values.data[idx].unit : ""}
-                                                    onChange={(event, unit) => setFieldValue(`data[${idx}].unit`, unit)}
+                                                    value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
+                                                    onChange={(event, data) => {
+                                                        values.data[idx].cycles.forEach((element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
+                                                        setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : data.forms[0].form) : "");
+                                                    }}
                                                     placeholder={t("unit", {ns: "consultation"})}
                                                     noOptionsText={t('no_unit')}
-                                                    options={["Comprimé"]}
+                                                    options={MedicalFormUnit}
+                                                    getOptionLabel={(option) => {
+                                                        // Value selected with enter, right from the input
+                                                        if (typeof option === 'string') {
+                                                            return option;
+                                                        }
+                                                        // Regular option
+                                                        return option.unit;
+                                                    }}
+                                                    isOptionEqualToValue={(option: any, value) => option?.unit === value?.unit}
                                                     renderInput={(params) => <TextField
                                                         placeholder={t('unit')}
                                                         {...params} />}
@@ -812,29 +837,48 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                {...(!isMobile && {sx: {position: "sticky", top: "0"}})}>
                             <Stack direction={"column"} sx={{width: "100%"}}>
                                 <Stack direction={"row"} spacing={1.2}>
-                                    <LoadingButton
-                                        {...{loading}}
-                                        loadingPosition="start"
-                                        disabled={drugs?.length === 0}
-                                        {...(isMobile && {
-                                            fullWidth: true,
-                                        })}
-                                        {...(editModel && {
-                                            color: "warning",
-                                        })}
-                                        onClick={() => {
-                                            if (editModel) {
+                                    {!editModel ? <ModelSwitchButton
+                                            {...{t, editModel, lastPrescriptions, drugs}}
+                                            {...(isMobile && {
+                                                fullWidth: true,
+                                            })}
+                                            className='custom-button'
+                                            variant="contained"
+                                            onClickEvent={(action: string) => {
+                                                switch (action) {
+                                                    case "last-prescription":
+                                                        const last: any[] = [];
+                                                        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
+                                                            last.push({
+                                                                cycles: drug.cycles,
+                                                                drugUuid: drug.standard_drug.uuid,
+                                                                name: drug.standard_drug.commercial_name
+                                                            });
+                                                        })
+                                                        switchPrescriptionModel([...last]);
+                                                        break;
+                                                    case "set-prescription":
+                                                        setInfo("medical_prescription_model");
+                                                        setOpenDialog(true);
+                                                        break;
+                                                }
+                                            }}></ModelSwitchButton> :
+                                        <LoadingButton
+                                            {...{loading}}
+                                            loadingPosition="start"
+                                            disabled={drugs?.length === 0}
+                                            {...(isMobile && {
+                                                fullWidth: true,
+                                            })}
+                                            color="warning"
+                                            onClick={() => {
                                                 editPrescriptionAction();
-                                            } else {
-                                                setInfo("medical_prescription_model");
-                                                setOpenDialog(true);
-                                            }
-                                        }}
-                                        className='custom-button'
-                                        variant="contained"
-                                        startIcon={editModel ? <EditIcon/> : <AddIcon/>}>
-                                        {t(editModel ? "editModel" : "createAsModel", {ns: "consultation"})} {editModel && `${editModel.text} ${t("model")}`}
-                                    </LoadingButton>
+                                            }}
+                                            className='custom-button'
+                                            variant="contained"
+                                            startIcon={<EditIcon/>}>
+                                            {t("editModel", {ns: "consultation"})} {`${editModel?.text} ${t("model")}`}
+                                        </LoadingButton>}
                                     {editModel &&
                                         <Button
                                             disabled={loading}
@@ -1034,8 +1078,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 </DialogActions>
             </Dialog>
         </MedicalPrescriptionCycleStyled>
-    )
-        ;
+    );
 }
 
 export default MedicalPrescriptionCycleDialog;
