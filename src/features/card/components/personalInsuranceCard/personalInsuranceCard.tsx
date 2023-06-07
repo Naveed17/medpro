@@ -4,7 +4,7 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar, Avatar,
+    AppBar,
     Box,
     Button, DialogActions,
     Divider,
@@ -35,8 +35,9 @@ import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -48,8 +49,8 @@ function PersonalInsuranceCard({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -59,25 +60,22 @@ function PersonalInsuranceCard({...props}) {
 
     const [insuranceDialog, setInsuranceDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation(["patient", "common"]);
 
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
-            .min(3, t("name-error"))
-            .max(50, t("name-error"))
-            .required(t("name-error")),
+            .min(3, t("config.add-patient.name-error"))
+            .max(50, t("config.add-patient.name-error"))
+            .required(t("config.add-patient.name-error")),
         lastName: Yup.string()
-            .min(3, t("name-error"))
-            .max(50, t("name-error"))
-            .required(t("name-error")),
+            .min(3, t("config.add-patient.name-error"))
+            .max(50, t("config.add-patient.name-error"))
+            .required(t("config.add-patient.name-error")),
         address: Yup.string()
-            .min(3, t("name-error"))
-            .max(50, t("name-error")),
+            .min(3, t("config.add-patient.name-error"))
+            .max(50, t("config.add-patient.name-error")),
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
@@ -86,46 +84,38 @@ function PersonalInsuranceCard({...props}) {
             Yup.object().shape({
                 insurance_key: Yup.string(),
                 insurance_number: Yup.string()
-                    .min(3, t("assurance-num-error"))
-                    .max(50, t("assurance-num-error")),
+                    .min(3, t("config.add-patient.assurance-num-error"))
+                    .max(50, t("config.add-patient.assurance-num-error")),
                 insurance_uuid: Yup.string()
-                    .min(3, t("assurance-type-error"))
-                    .max(50, t("assurance-type-error"))
-                    .required(t("assurance-type-error")),
+                    .min(3, t("config.add-patient.assurance-type-error"))
+                    .max(50, t("config.add-patient.assurance-type-error"))
+                    .required(t("config.add-patient.assurance-type-error")),
                 insurance_social: Yup.object().nullable().shape({
                     firstName: Yup.string()
-                        .min(3, t("first-name-error"))
-                        .max(50, t("first-name-error"))
+                        .min(3, t("config.add-patient.first-name-error"))
+                        .max(50, t("config.add-patient.first-name-error"))
                         .test({
                             name: 'insurance-type-test',
-                            message: t("first-name-error"),
+                            message: t("config.add-patient.first-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
                         }),
                     lastName: Yup.string()
-                        .min(3, t("last-name-error"))
-                        .max(50, t("last-name-error"))
+                        .min(3, t("config.add-patient.last-name-error"))
+                        .max(50, t("config.add-patient.last-name-error"))
                         .test({
                             name: 'insurance-type-test',
-                            message: t("last-name-error"),
+                            message: t("config.add-patient.last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("birthday-error"))
-                        .max(50, t("birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
+                    birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
                         value: Yup.string().test({
                             name: 'phone-value-test',
-                            message: t("telephone-error"),
+                            message: t("config.add-patient.telephone-error"),
                             test: (value, ctx: any) => {
-                                const isValidPhone = value ? isValidPhoneNumber(value) : false;
-                                return ctx.from[2].value.insurance_type === "0" || isValidPhone;
+                                const isValidPhone = value ? (value.length > 0 ? isValidPhoneNumber(value) : true) : true;
+                                return (ctx.from[2].value.insurance_type === "0" || isValidPhone);
                             }
                         }),
                         type: Yup.string(),
@@ -166,7 +156,7 @@ function PersonalInsuranceCard({...props}) {
                     birthday: insurance.insuredPerson.birthday,
                     phone: {
                         code: insurance.insuredPerson.contact.code,
-                        value: `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}`,
+                        value: insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: patient.contact[0].uuid,
                         is_public: false,
@@ -181,7 +171,7 @@ function PersonalInsuranceCard({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
             handleUpdatePatient();
-        },
+        }
     });
 
     const handleResetDialogInsurance = () => {
@@ -262,40 +252,18 @@ function PersonalInsuranceCard({...props}) {
         patient.profession && params.append('profession', patient.profession);
         patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
-        const updatedInsurances: any[] = [];
-        (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
-            let phone = null;
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-
-            if (insurance.insurance_social) {
-                const localPhone = insurance.insurance_social.phone;
-                phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            updatedInsurances.push({
-                ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
-                        phone: {
-                            ...insurance.insurance_social?.phone,
-                            contact_type: patient.contact[0].uuid,
-                            value: phone as string
-                        }
-                    }
-                })
-            })
-        });
-        params.append('insurance', JSON.stringify(updatedInsurances));
+        params.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: insurances ? insurances : values.insurances,
+            contact: patient.contact[0].uuid
+        })));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
         patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
+
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
@@ -308,13 +276,13 @@ function PersonalInsuranceCard({...props}) {
             mutatePatientDetails && mutatePatientDetails();
             mutatePatientList && mutatePatientList();
             mutateAgenda && mutateAgenda();
-            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
+            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
         });
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -344,7 +312,7 @@ function PersonalInsuranceCard({...props}) {
                                         {loading ? (
                                             <Skeleton variant="text" sx={{maxWidth: 200}}/>
                                         ) : (
-                                            t("assurance")
+                                            t("config.add-patient.assurance")
                                         )}
                                     </Typography>
                                 </Box>
@@ -358,7 +326,7 @@ function PersonalInsuranceCard({...props}) {
                                     }}
                                     startIcon={<AddIcon/>}
                                     size="small">
-                                    {t("add")}
+                                    {t("config.add-patient.add")}
                                 </LoadingButton>
                             </Toolbar>
                         </AppBar>
@@ -378,20 +346,15 @@ function PersonalInsuranceCard({...props}) {
                                                 <Grid container spacing={1.2}>
                                                     <Grid item xs={6} md={3}>
                                                         {(() => {
-                                                            const insur = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
+                                                            const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
                                                             return (<Stack direction={"row"}>
-                                                                {insur?.logoUrl &&
-                                                                    <Avatar
-                                                                        sx={{
-                                                                            width: 20,
-                                                                            height: 20,
-                                                                            borderRadius: 0.4
-                                                                        }}
-                                                                        alt="insurance"
-                                                                        src={insur?.logoUrl.url}
+                                                                {insuranceItem?.logoUrl &&
+                                                                    <ImageHandler
+                                                                        alt={insuranceItem?.name}
+                                                                        src={insuranceItem?.logoUrl.url}
                                                                     />}
                                                                 <Typography
-                                                                    ml={1}>{insur?.name}</Typography>
+                                                                    ml={1}>{insuranceItem?.name}</Typography>
                                                             </Stack>)
                                                         })()}
                                                     </Grid>
@@ -413,7 +376,7 @@ function PersonalInsuranceCard({...props}) {
                                                             <Typography
                                                                 variant={"body2"}
                                                             >
-                                                                {SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}
+                                                                {t(`social_insured.${SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}`, {ns: "common"})}
                                                             </Typography>
                                                         </Stack>
                                                     </Grid>
@@ -470,7 +433,7 @@ function PersonalInsuranceCard({...props}) {
                     dialogClose={handleResetDialogInsurance}
                     action={"add_insurance"}
                     open={insuranceDialog}
-                    title={t(`add-insurance`)}
+                    title={t(`config.add-patient.add-insurance`)}
                     actionDialog={
                         <DialogActions
                             sx={{
@@ -488,7 +451,7 @@ function PersonalInsuranceCard({...props}) {
                                         handleAddInsurance();
                                     }}
                                     startIcon={<AddIcon/>}>
-                                    {t("add-insurance-more")}
+                                    {t("config.add-patient.add-insurance-more")}
                                 </Button>
                                 <Stack direction={"row"} justifyContent={"center"} alignItems={"center"} spacing={1.2}>
                                     <LoadingButton
@@ -498,7 +461,7 @@ function PersonalInsuranceCard({...props}) {
                                         }}
                                         onClick={handleResetDialogInsurance}
                                         startIcon={<CloseIcon/>}>
-                                        {t("cancel")}
+                                        {t("config.add-patient.cancel")}
                                     </LoadingButton>
                                     <LoadingButton
                                         loading={loadingRequest}
@@ -509,7 +472,7 @@ function PersonalInsuranceCard({...props}) {
                                         disabled={!!errors?.insurances || values.insurances.filter((insur: InsurancesModel) => !insur.online).length === 0}
                                         variant="contained"
                                         startIcon={<Icon path="ic-dowlaodfile"/>}>
-                                        {t("register")}
+                                        {t("config.add-patient.register")}
                                     </LoadingButton>
                                 </Stack>
                             </Stack>

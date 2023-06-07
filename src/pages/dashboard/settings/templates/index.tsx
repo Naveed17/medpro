@@ -19,7 +19,7 @@ function TemplatesConfig() {
     const router = useRouter();
     const {data: session} = useSession();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
@@ -60,7 +60,7 @@ function TemplatesConfig() {
         }
     }, [httpDocumentHeader])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
 
     return (
@@ -108,7 +108,7 @@ function TemplatesConfig() {
                                     handleMouseOver(res.uuid)
                                 }} className={"edit-btn"} onClick={() => {
                                     edit(res.uuid)
-                                }}>Modifier</Button>}
+                                }}>{t("modifier")}</Button>}
                             {!loading &&
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
                                     <Typography className={"doc-title"}>{res.title}</Typography>

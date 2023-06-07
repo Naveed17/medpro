@@ -123,9 +123,9 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t} = useTranslation("settings");
+    const {t} = useTranslation(["settings", "common"]);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
@@ -225,8 +225,8 @@ function PlacesDetail() {
             form.append("access_data", JSON.stringify({}));
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
-            form.append("name", JSON.stringify({fr: values.name}));
-            form.append("address", JSON.stringify({fr: values.address}));
+            form.append("name", JSON.stringify({[router.locale as string]: values.name}));
+            form.append("address", JSON.stringify({[router.locale as string]: values.address}));
             const updatedPhones: any[] = [];
             values.phones.map((phone: any) => {
                 updatedPhones.push({
@@ -252,8 +252,7 @@ function PlacesDetail() {
                 url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger(
-                {
+            trigger({
                     method,
                     data: form,
                     url,
@@ -747,7 +746,7 @@ function PlacesDetail() {
                                                             }}
                                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                                 {
-                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                    helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
                                                             error={Boolean(errors.phones && (errors.phones as any)[index])}

@@ -43,7 +43,7 @@ function ProfilMenu() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation('menu');
     const {opened} = useAppSelector(profileMenuSelector);
@@ -59,7 +59,7 @@ function ProfilMenu() {
 
     const {trigger} = useRequestMutation(null, "/settings");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));
@@ -185,7 +185,7 @@ function ProfilMenu() {
                                                priority
                                         />
                                         <Typography variant="body1" className="item-name">
-                                            {"Espace patient"}
+                                            {t("patientSpace")}
                                         </Typography>
                                     </MenuItem>
 

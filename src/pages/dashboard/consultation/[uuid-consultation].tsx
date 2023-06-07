@@ -19,7 +19,7 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
+import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme,} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
@@ -51,6 +51,8 @@ import HistoryAppointementContainer from "@features/card/components/historyAppoi
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import AppointHistoryContainerStyled
+    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -59,8 +61,8 @@ function ConsultationInProgress() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     useLeavePageConfirm(() => {
         setLoading(true);
@@ -269,7 +271,7 @@ function ConsultationInProgress() {
                 const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.uuid) as any;
                 if (actDetect === -1) {
                     acts.push(act);
-                }
+                } else acts[actDetect] = act
             });
             setActs([...acts]);
 
@@ -306,7 +308,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect] ={...acts[actDetect],fees:act.price};
+                                    acts[actDetect] ={...acts[actDetect],fees:act.price,qte:act.qte};
                                 }
                             }
                         );
@@ -331,15 +333,20 @@ function ConsultationInProgress() {
         setTimeout(() => {
             if (appointement) {
                 if (!loadingApp) {
+                    let _total = 0;
                     const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
                     setFree(checkFree);
-                    if (!checkFree) setTotal(consultationFees);
-                    if (appointement.fees) setTotal(appointement.fees)
+                    if (!checkFree) _total = consultationFees;
+                    if (appointement.fees) _total = appointement.fees
                     if (appointement.consultation_fees) {
                         setConsultationFees(Number(appointement.consultation_fees));
                     } else if (appointement.type.isFree !== null && !appointement.type.isFree && appointement.type.price) {
                         setConsultationFees(Number(appointement.type.price));
                     }
+                    selectedAct.map(sa => {
+                        _total+= sa.fees * sa.qte;
+                    })
+                    setTotal(_total)
                 }
                 setLoadingApp(true);
                 let noteHistories: any[] = []
@@ -526,7 +533,10 @@ function ConsultationInProgress() {
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
-            selectedAct[index] = row;
+            selectedAct[index] = {...row,qte:row.qte};
+            const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+            acts[indexAct] = {...acts[indexAct],qte:row.qte}
+            setActs([...acts])
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
                 `consultation-acts-${uuind}`,
@@ -556,15 +566,17 @@ function ConsultationInProgress() {
                     ])
                 );
             } else {
-                row.qte = 1;
-                setSelectedAct([...selectedAct, row]);
+                setSelectedAct([...selectedAct, {...row,qte:1}]);
+                const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+                acts[indexAct] = {...acts[indexAct],qte:1}
+                setActs([...acts])
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
-                    JSON.stringify([...selectedAct, row])
+                    JSON.stringify([...selectedAct, {...row,qte:1}])
                 );
             }
         }
-    };
+    }
 
     const seeHistory = () => {
         setOpenActDialog(true);
@@ -780,11 +792,36 @@ function ConsultationInProgress() {
 
     }
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
-            <SubHeader>
+            {isHistory &&<AppointHistoryContainerStyled> <Toolbar>
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                       width={"100%"}>
+                    <Stack spacing={1.5} direction="row" alignItems="center">
+                        <IconUrl path={'ic-speaker'}/>
+                        <Typography>{t('consultationIP.updateHistory')} {appointement?.day_date}.</Typography>
+                    </Stack>
+                    <LoadingButton
+                        disabled={loadingReq}
+                        loading={loadingReq}
+                        loadingPosition="start"
+                        onClick={closeHistory}
+                        className="btn-action"
+                        color="warning"
+                        size="small"
+                        startIcon={<IconUrl path="ic-retour"/>}>
+                        {t('consultationIP.back')}
+                    </LoadingButton>
+                </Stack>
+            </Toolbar></AppointHistoryContainerStyled>}
+            <SubHeader sx={isHistory && {
+                backgroundColor: alpha(theme.palette.warning.main, 0.2),
+                borderLeft: `2px solid${theme.palette.warning.main}`,
+                borderRight: `2px solid${theme.palette.warning.main}`,
+                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
+            }}>
                 {appointement && (
                     <ConsultationIPToolbar
                         appuuid={uuind}
@@ -1214,11 +1251,11 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(context.locale as string, [
+            ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common",

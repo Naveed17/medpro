@@ -1,6 +1,5 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-
 // material
 import {
     AppBar,
@@ -13,10 +12,8 @@ import {
     Tab,
     Tabs,
     Toolbar,
-    Typography,
-    useTheme,
+    Typography
 } from "@mui/material";
-
 //components
 import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
@@ -27,11 +24,12 @@ import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import {a11yProps} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
-import moment from "moment/moment";
-import EventRoundedIcon from "@mui/icons-material/EventRounded";
+import {useAppSelector} from "@lib/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
+import {useRouter} from "next/router";
 
 const typeofDocs = [
-    "requested-medical-imaging","medical-imaging",
+    "requested-medical-imaging", "medical-imaging",
     "analyse", "requested-analysis",
     "prescription", "rapport", "medical-certificate", "audio", "video"];
 
@@ -55,20 +53,22 @@ const AddAppointmentCardData = {
 
 function DocumentsPanel({...props}) {
     const {
-        documents, documentViewIndex, patient,
+        previousAppointmentsData, documentViewIndex, patient,
         roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
-    const theme = useTheme();
+    const router = useRouter();
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+    const [documents, setDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
 
     const tabsContent = [
@@ -94,7 +94,7 @@ function DocumentsPanel({...props}) {
                                     onClick={() => {
                                         showDoc(card)
                                     }}
-                                    {...{t,data:card,date:true,time:true,title:true}}/>
+                                    {...{t, data: card, date: true, time: true, title: true}}/>
                             </React.Fragment>
                         )
                     :
@@ -111,31 +111,14 @@ function DocumentsPanel({...props}) {
                 <>
 
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
-                        <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
                             {
                                 patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                    <Box className={"document-card-image"}
-                                         onClick={() => {
-                                             showDoc(card)
-                                         }} key={`doc-item-${idx}`} width={152} height={140}
-                                         borderRadius={2}
-                                         style={{background: "white"}}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={card.uri.thumbnails['thumbnail_128']}
-                                             className={"image-cover"}
-                                             alt={card.title}/>
-                                        <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
-                                            <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
-                                            <Typography whiteSpace={'nowrap'}
-                                                        textOverflow={"ellipsis"}
-                                                        overflow={"hidden"}
-                                                        maxWidth={"120px"}
-                                                        color={"gray"}
-                                                        fontSize={12}>
-                                                {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                                            </Typography>
-                                        </Stack>
-                                    </Box>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard onClick={() => {
+                                            showDoc(card)
+                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                                    </React.Fragment>
                                 )
                             }
                         </Stack>
@@ -160,7 +143,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
-                                        {...{t,data:card,date:true,time:true,title:true}}/>
+                                        {...{t, data: card, date: true, time: true, title: true}}/>
                                 </React.Fragment>
                             )
                             :
@@ -196,7 +179,7 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
             setDocument({
                 uuid: card.uuid,
-                certifUuid : card.certificate[0].uuid,
+                certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,
@@ -235,6 +218,7 @@ function DocumentsPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 uuidDoc: uuidDoc,
+                appUuid: card.appUuid,
                 description: card.description,
                 createdAt: card.createdAt,
                 detectedType: card.type,
@@ -246,7 +230,32 @@ function DocumentsPanel({...props}) {
         }
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    useEffect(() => {
+        if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                case "medical_prescription_cycle":
+                    //close document dialog
+                    setOpenDialog(false);
+                    break;
+            }
+        }
+    }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (previousAppointmentsData) {
+            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+                const documents = currentValue.documents.map((doc: any) => ({
+                    ...doc,
+                    appUuid: currentValue.appointment.uuid
+                }))
+                accumulator = [...(!accumulator[currentIndex] ? [] : accumulator), ...documents];
+                return accumulator;
+            }, {}));
+        }
+    }, [previousAppointmentsData]);
+
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -259,8 +268,8 @@ function DocumentsPanel({...props}) {
                                     background: "white"
                                 },
                                 "& .injected-svg": {
-                                    maxWidth: 30,
-                                    maxHeight: 30
+                                    //maxWidth: 30,
+                                    //maxHeight: 30
                                 },
                                 marginBottom: "1rem"
                             }}
@@ -280,32 +289,21 @@ function DocumentsPanel({...props}) {
                                 </AppBar>
 
                                 <Box style={{overflowX: "auto", marginBottom: 10}}>
-                                    <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                                    <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
                                         {
                                             documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                                <Box sx={{border: `1px solid ${theme.palette.grey['A300']}`}}
-                                                     onClick={() => {
-                                                         showDoc(card)
-                                                     }} key={`doc-item-${idx}`} width={152} height={140}
-                                                     borderRadius={2}
-                                                     style={{background: "white"}}>
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={card.uri.thumbnails['thumbnail_128']}
-                                                         className={"image-cover"}
-                                                         alt={card.title}/>
-
-                                                    <Stack direction={"row"} spacing={1} alignItems={"center"} width={"fit-content"} margin={"auto"}>
-                                                        <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
-                                                        <Typography whiteSpace={'nowrap'}
-                                                                    textOverflow={"ellipsis"}
-                                                                    overflow={"hidden"}
-                                                                    maxWidth={"120px"}
-                                                                    color={"gray"}
-                                                                    fontSize={12}>
-                                                            {moment(card.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                                                        </Typography>
-                                                    </Stack>
-                                                </Box>
+                                                <React.Fragment key={`doc-item-${idx}`}>
+                                                    <DocumentCard onClick={() => {
+                                                        showDoc(card)
+                                                    }} {...{
+                                                        t,
+                                                        data: card,
+                                                        date: false,
+                                                        time: true,
+                                                        title: true,
+                                                        resize: true
+                                                    }}/>
+                                                </React.Fragment>
                                             )
                                         }
                                     </Stack>

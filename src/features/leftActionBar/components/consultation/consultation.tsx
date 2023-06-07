@@ -37,17 +37,21 @@ import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
-import Image from "next/image";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
+import {useSWRConfig} from "swr";
 
 function Consultation() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances: allInsurances} = useInsurances();
+    const {allAntecedents} = useAntecedentTypes();
+    const {cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -55,11 +59,13 @@ function Consultation() {
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
+
     const [loading, setLoading] = useState<boolean>(true);
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
-    const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
+    const [insurances, setInsurances] = useState<any[]>([]);
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
@@ -68,30 +74,17 @@ function Consultation() {
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
     const [analyses, setAnalyses] = useState<any>([]);
     const [mi, setMi] = useState<any>([]);
-    const [allAntecedents, setallAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
     const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
-
-    const {data: httpAnctecentType} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
 
     const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -130,24 +123,24 @@ function Consultation() {
             patient?.address.length > 0 &&
             patient?.address[0].city &&
             params.append("zip_code", patient?.address[0]?.postalCode);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].street &&
-            params.append(
-                "address",
-                JSON.stringify({fr: patient?.address[0]?.street})
-            );
+            if (patient?.address &&
+                patient?.address.length > 0 &&
+                patient?.address[0].street) {
+                params.append("address", JSON.stringify({[router.locale as string]: patient?.address[0]?.street}));
+            }
             patient.idCard && params.append("id_card", patient.idCard);
         }
-
-        medicalEntityHasUser && triggerPatientUpdate({
-            method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-            data: params,
-        });
+        if (medicalEntityHasUser) {
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+            triggerPatientUpdate({
+                method: "PUT",
+                url,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+                data: params,
+            }).then(() => cache.delete(url));
+        }
     };
 
     useEffect(() => {
@@ -161,12 +154,6 @@ function Consultation() {
             setMi((httpPatientMI as HttpResponse).data)
         }
     }, [httpPatientMI])
-
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
-        }
-    }, [httpAnctecentType])
 
     useEffect(() => {
         const noteContainer = document.getElementById("note-card-content");
@@ -270,10 +257,7 @@ function Consultation() {
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
-
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <ConsultationStyled>
@@ -285,8 +269,8 @@ function Consultation() {
                                 <Avatar
                                     src={
                                         patientPhoto
-                                            ? patientPhoto
-                                            : patient?.gender === "M"
+                                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                            : patient?.gender === 1
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"
                                     }
@@ -303,21 +287,20 @@ function Consultation() {
                         </label>
                         {insurances && insurances.length > 0 &&
                             <Stack direction='row' alignItems="center" spacing={1}>
-                                <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                                    {insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
-                                        <Tooltip key={insuranceItem.insurance?.uuid}
-                                                 title={insuranceItem.insurance?.name}>
+                                <AvatarGroup max={3}>
+                                    {insurances.map((insuranceItem: any) =>
+                                        <Tooltip key={insuranceItem?.insurance.uuid}
+                                                 title={insuranceItem?.insurance.name}>
                                             <Avatar variant={"circular"}>
-                                                <Image
-                                                    style={{borderRadius: 2}}
-                                                    alt={insuranceItem.insurance?.name}
-                                                    src="static/icons/Med-logo.png"
-                                                    width={20}
-                                                    height={20}
-                                                    loader={() => {
-                                                        return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl.url as string
-                                                    }}
-                                                />
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                    <ImageHandler
+                                                        alt={insuranceItem?.insurance.name}
+                                                        src={allInsurances.find(
+                                                            (insurance: any) =>
+                                                                insurance.uuid ===
+                                                                insuranceItem?.insurance.uuid
+                                                        )?.logoUrl?.url}
+                                                    />}
                                             </Avatar>
                                         </Tooltip>
                                     )}

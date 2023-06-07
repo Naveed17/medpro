@@ -9,8 +9,8 @@ function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
 
     const {data: session} = useSession();
-    const {data: user} = session as Session;
 
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const general_information = (user as UserDataResponse).general_information;
@@ -20,12 +20,43 @@ function PreviewDialog({...props}) {
     let rows: any[] = [];
     const [pages, setPages] = useState<any[]>([]);
     const [title, setTitle] = useState("Titre");
+    const breakStyle = {
+        'font-size': '16px',
+        'margin-top': 0,
+        'margin-bottom': '1px',
+        'margin-left': '18px',
+    };
     const prescriptionRows = [
-        {name: 'name', style: {'margin-bottom': 0, 'font-size': '20px', 'font-weight': 'bold'}},
-        {name: 'dosage', style: {'font-size': '19px', 'margin-top': 0, 'margin-bottom': '1px', 'margin-left': '14px'}},
-        {name: 'duration', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0, 'margin-bottom': 0}},
-        {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
-    ];
+        {
+            name: 'name',
+            style: {
+                'margin-bottom': 0,
+                'font-size': data.size === 'portraitA4' ? "15px" : '20px',
+                'font-weight': 'bold'
+            }
+        },
+        {
+            name: 'dosage',
+            style: {
+                'font-size': data.size === 'portraitA4' ? "14px" : '19px',
+                'margin-top': 0,
+                'margin-bottom': '1px',
+                'margin-left': '14px'
+            }
+        },
+        {
+            name: 'duration',
+            style: {
+                color: 'gray',
+                'font-size': data.size === 'portraitA4' ? "9px" : '12px',
+                'margin-top': 0,
+                'margin-bottom': 0
+            }
+        },
+        {
+            name: 'note',
+            style: {color: 'gray', 'font-size': data.size === 'portraitA4' ? "9px" : '12px', 'margin-top': 0}
+        }];
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
         if (pageX) {
@@ -74,8 +105,8 @@ function PreviewDialog({...props}) {
                                         });
                                         break;
                                     case "dosage":
-                                        el.cycles.map((cycle: any) => {
-                                            let val = `${cycle.dosage}`
+                                        el.cycles.map((cycle: any, index: number) => {
+                                            let val = `- ${cycle.dosage}`
                                             if (cycle.duration)
                                                 val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                                             if (cycle.note)
@@ -86,6 +117,12 @@ function PreviewDialog({...props}) {
                                                 name: pr.name,
                                                 element: "p",
                                                 style: pr.style
+                                            });
+                                            index < el.cycles.length - 1 && rows.push({
+                                                value: t("after"),
+                                                name: "break",
+                                                element: "p",
+                                                style: breakStyle
                                             });
                                         })
                                         break;
@@ -112,7 +149,11 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "gray", fontSize: "18px", marginTop: 0}
+                                    style: {
+                                        color: "gray",
+                                        fontSize: data.size === 'portraitA4' ? "12px" : "18px",
+                                        marginTop: 0
+                                    }
                                 })
                             }
                             pageX.appendChild(elx)
@@ -126,7 +167,12 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging']?.name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "black", fontSize: "20px", fontWeight: "bold", marginBottom: 0}
+                                style: {
+                                    color: "black",
+                                    fontSize: data.size === 'portraitA4' ? "15px" : "20px",
+                                    fontWeight: "bold",
+                                    marginBottom: 0
+                                }
                             })
 
                             if (el.note) {
@@ -135,7 +181,11 @@ function PreviewDialog({...props}) {
                                     value: `${el.note}`,
                                     name: "note",
                                     element: "p",
-                                    style: {color: "black", fontSize: "19px", marginTop: 0}
+                                    style: {
+                                        color: "black",
+                                        fontSize: data.size === 'portraitA4' ? "14px" : "19px",
+                                        marginTop: 0
+                                    }
                                 })
                             }
 
@@ -223,12 +273,13 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width = '190mm'
+                elx.style.width = '190mm';
+                elx.style.borderCollapse = 'collapse';
 
                 if (rows.length > 0) {
                     const header = document.createElement("tr");
-                    header.innerHTML = `<td style="text-align: left !important;">Titre</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
-                    header.style.fontSize = "12px"
+                    header.innerHTML = `<td style="text-align: left !important;">Act</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
+                    header.style.fontSize = "20px"
                     header.style.fontWeight = "bold"
                     header.style.textAlign = "center"
                     elx.appendChild(header)
@@ -236,15 +287,18 @@ function PreviewDialog({...props}) {
 
                 if (state.consultationFees > 0) {
                     const line = document.createElement("tr");
-                    line.innerHTML = `<td style="text-align: left !important;">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
+                    line.innerHTML = `<td style="text-align: left !important;padding-bottom: 10px;padding-top: 10px">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
+                    line.style.borderBottom = "1px dashed grey";
                     elx.appendChild(line)
                     total += Number(state.consultationFees);
                 }
                 for (let i = lastPos; i < rows.length; i++) {
                     if (!rows[i].value.hiddenData) {
                         const line = document.createElement("tr");
-                        line.innerHTML = `<tr><td style="text-align: left !important;">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
+                        line.innerHTML = `<tr><td style="text-align: left !important;padding-bottom: 10px;padding-top: 10px">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
                         line.style.textAlign = "center"
+                        line.style.borderBottom = "1px dashed grey"
+
                         elx.appendChild(line);
                         total += rows[i].value.total;
                     }
@@ -258,7 +312,7 @@ function PreviewDialog({...props}) {
 
                 const tt = document.createElement("tr");
 
-                tt.innerHTML = `<td style="text-align: left !important;">Total</td><td></td><td></td><td>${total} <span style="font-size: 10px;color: gray">${devise}</span></td>`
+                tt.innerHTML = `<td style="text-align: left !important;padding-top: 10px">Total</td><td></td><td></td><td>${total} <span style="font-size: 10px;color: gray">${devise}</span></td>`
                 tt.style.fontWeight = "bold"
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
@@ -267,7 +321,7 @@ function PreviewDialog({...props}) {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
                     elx.style.width = '190mm'
-                    elx.style.fontSize = "20px"
+                    elx.style.fontSize = data.size === 'portraitA4' ? "15px" : "20px"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)

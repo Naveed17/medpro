@@ -74,8 +74,8 @@ import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
 
 const actions = [
-    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
-    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'full-add'}
+    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
+    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'}
 ];
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
@@ -89,7 +89,7 @@ function Agenda() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
@@ -854,7 +854,7 @@ function Agenda() {
     const handleAddAppointment = (action: string) => {
         dispatch(resetAppointment());
         switch (action) {
-            case "full-add":
+            case "add-complete":
                 if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
                     setEventStepper(
                         [...eventStepper.slice(0, 2),
@@ -867,7 +867,7 @@ function Agenda() {
                 }
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
-            case "quick-add":
+            case "add-quick":
                 setQuickAddAppointment(true);
                 break;
         }
@@ -907,16 +907,16 @@ function Agenda() {
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
-            case "quick-add" :
-                handleAddAppointment("quick-add");
+            case "add-quick" :
+                handleAddAppointment("add-quick");
                 break;
-            case "full-add" :
-                handleAddAppointment("full-add");
+            case "add-complete" :
+                handleAddAppointment("add-complete");
                 break;
         }
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <div>
@@ -1009,8 +1009,8 @@ function Agenda() {
                                         <SpeedDial
                                             ariaLabel="SpeedDial tooltip Add"
                                             sx={{
-                                                position: 'absolute',
-                                                bottom: 16,
+                                                position: 'fixed',
+                                                bottom: 50,
                                                 right: 16
                                             }}
                                             icon={<SpeedDialIcon/>}
@@ -1022,7 +1022,7 @@ function Agenda() {
                                                 <SpeedDialAction
                                                     key={action.name}
                                                     icon={action.icon}
-                                                    tooltipTitle={action.name}
+                                                    tooltipTitle={t(`${action.key}`)}
                                                     tooltipOpen
                                                     onClick={() => handleActionFab(action)}
                                                 />

@@ -45,7 +45,7 @@ function Motif() {
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -87,8 +87,8 @@ function Motif() {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );

@@ -39,8 +39,10 @@ import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useContactType, useInsurances} from "@lib/hooks/rest";
+import {useTranslation} from "next-i18next";
+
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
     top: '-8px',
@@ -66,12 +68,13 @@ function AddPatientStep2({...props}) {
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const phoneInputRef = useRef(null);
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
+    const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -103,23 +106,15 @@ function AddPatientStep2({...props}) {
                             message: t("add-patient.last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("add-patient.birthday-error"))
-                        .max(50, t("add-patient.birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("add-patient.birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
+                    birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
                         value: Yup.string().test({
                             name: 'phone-value-test',
                             message: t("add-patient.telephone-error"),
                             test: (value, ctx: any) => {
-                                const isValidPhone = value ? isValidPhoneNumber(value) : false;
-                                return ctx.from[2].value.insurance_type === "0" || isValidPhone;
+                                const isValidPhone = value ? (value.length > 0 ? isValidPhoneNumber(value) : true) : true;
+                                return (ctx.from[2].value.insurance_type === "0" || isValidPhone);
                             }
                         }),
                         type: Yup.string(),
@@ -159,7 +154,7 @@ function AddPatientStep2({...props}) {
                     birthday: insurance.insuredPerson.birthday,
                     phone: {
                         code: insurance.insuredPerson.contact.code,
-                        value: insurance.insuredPerson.contact.value,
+                        value: insurance.insuredPerson.contact.value.length > 0 ? insurance.insuredPerson.contact.value : "",
                         type: "phone",
                         contact_type: contacts[0].uuid,
                         is_public: false,
@@ -196,7 +191,6 @@ function AddPatientStep2({...props}) {
 
     const contacts = useContactType();
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
@@ -233,35 +227,12 @@ function AddPatientStep2({...props}) {
             form.append('birthdate', `${birthdate.day}-${birthdate.month}-${birthdate.year}`);
         }
         form.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
-        const updatedInsurances: any[] = [];
-        values.insurance.map((insurance: InsurancesModel) => {
-            let phone = null;
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-
-            if (insurance.insurance_social) {
-                const localPhone = insurance.insurance_social.phone;
-                phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            updatedInsurances.push({
-                ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
-                        phone: {
-                            ...insurance.insurance_social?.phone,
-                            contact_type: contacts[0].uuid,
-                            value: phone as string
-                        }
-                    }
-                })
-            })
-        });
-        form.append('insurance', JSON.stringify(updatedInsurances));
+        form.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: values.insurance,
+            contact: contacts[0].uuid
+        })));
         form.append('email', values.email);
         form.append('family_doctor', values.family_doctor);
         form.append('region', values.region);
@@ -810,7 +781,7 @@ function AddPatientStep2({...props}) {
                                                                 withCountryCallingCode
                                                                 {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
                                                                     {
-                                                                        helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
                                                                             getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
                                                                     })}
                                                                 country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?

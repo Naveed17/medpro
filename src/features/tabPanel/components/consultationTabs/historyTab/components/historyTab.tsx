@@ -34,7 +34,7 @@ function HistoryTab({...props}) {
         dates, keys, modelData,
         router
     } = props;
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -103,7 +103,7 @@ function HistoryTab({...props}) {
                                      style={{background: "white"}}>
                                     <Zoom>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={photo.uri.thumbnails['thumbnail_128']}
+                                        <img src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
                                              alt={'img'}
                                              style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                         />
@@ -136,7 +136,7 @@ function HistoryTab({...props}) {
                         <tr>
                             <td className={'col'}></td>
                             {dates.map((date: string) => (<td key={date} className={'col'}><Typography
-                                className={"header"}>{moment(date, 'dd-MM-YYYY').format('ddd DD/MM')}</Typography></td>))}
+                                className={"header"}>{date}</Typography></td>))}
                         </tr>
                     </thead>
                     <tbody>

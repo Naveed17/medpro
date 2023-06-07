@@ -29,16 +29,14 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 
 import {Dialog, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
-import {dashLayoutSelector} from "@features/base";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function AppointmentDetail({...props}) {
     const {
@@ -61,23 +59,16 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const {t, ready} = useTranslation("common");
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-
-    const {
-        data: httpPatientPhotoResponse,
-        mutate: mutatePatientPhoto
-    } = useRequest(medicalEntityHasUser && appointment?.extendedProps?.patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${appointment.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    const {patientPhoto, mutatePatientPhoto} = useProfilePhoto({
+        patientId: appointment?.extendedProps?.patient?.uuid,
+        hasPhoto: appointment?.extendedProps?.patient?.hasPhoto
+    });
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [canManageActions] = useState<boolean>(![
@@ -85,6 +76,7 @@ function AppointmentDetail({...props}) {
         "/dashboard/waiting-room",
         "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [loading, setLoading] = useState(false);
+
     const setAppointmentDate = (action: string) => {
         const newDate = moment(appointment?.extendedProps.time);
         dispatch(
@@ -101,15 +93,13 @@ function AppointmentDetail({...props}) {
         setOpenDialog(false);
     };
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-
     useEffect(() => {
         if (appointment && appointment.extendedProps.photo) {
             mutatePatientPhoto();
         }
     }, [appointment]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -167,8 +157,8 @@ function AppointmentDetail({...props}) {
                                         <Avatar
                                             src={
                                                 patientPhoto
-                                                    ? patientPhoto
-                                                    : appointment?.extendedProps?.patient?.gender === "M"
+                                                    ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                                    : appointment?.extendedProps?.patient?.gender === 1
                                                         ? "/static/icons/men-avatar.svg"
                                                         : "/static/icons/women-avatar.svg"
                                             }

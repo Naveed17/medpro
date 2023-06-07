@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -68,7 +67,7 @@ function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 
@@ -87,12 +86,12 @@ function DocsConfig() {
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: ''},
+        background: {show: false, content: {url:''}},
         header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 234, content: ''},
-        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        footer: {show: false, x: 0, y: 900, content: ''},
+        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
+        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
         size: 'portraitA4',
         content: {
             show: true,
@@ -100,7 +99,7 @@ function DocsConfig() {
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 150
+            y: 300
         }
     })
     const [queryState, setQueryState] = useState<any>({type: []});
@@ -152,7 +151,7 @@ function DocsConfig() {
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
-                data.background.content = (ev.target?.result as string)
+                data.background.content.url = (ev.target?.result as string)
                 data.background.show = true;
                 setData({...data})
             }
@@ -295,12 +294,12 @@ function DocsConfig() {
                     setData({
                         ...data,
                         footer: {show: true, x: 0, y: 140, content: ''},
-                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
                     })
                 else
                     setData({
                         ...data,
-                        background: {show: docHeader.file !== null, content: docHeader.file ? docHeader.file : ''}
+                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
                     })
             }
 
@@ -322,7 +321,7 @@ function DocsConfig() {
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -484,7 +483,7 @@ function DocsConfig() {
                                 <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
                                         checked={data.size === 'portraitA5'}
-                                        onChange={(ev) => {
+                                        onChange={() => {
                                             data.size = 'portraitA5';
                                             setData({...data})
                                         }}
@@ -494,7 +493,7 @@ function DocsConfig() {
                                 <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
                                         checked={data.size === 'portraitA4'}
-                                        onChange={(ev) => {
+                                        onChange={() => {
                                             data.size = 'portraitA4';
                                             setData({...data})
                                         }}

@@ -93,7 +93,7 @@ function Data() {
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
@@ -176,8 +176,8 @@ function Data() {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );

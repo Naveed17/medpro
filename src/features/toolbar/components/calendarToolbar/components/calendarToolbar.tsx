@@ -88,7 +88,7 @@ function CalendarToolbar({...props}) {
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
     }, [pendingAppointments])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <RootStyled {...props}>
@@ -198,28 +198,15 @@ function CalendarToolbar({...props}) {
             <Hidden smUp>
                 <Stack direction="row" spacing={1.5} justifyContent={"flex-end"} sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
-                        {...{view}}
+                        {...{view, t}}
                         sx={{
                             "& .MuiButton-startIcon>*:nth-of-type(1)": {
                                 fontSize: 20
                             }
                         }}
                         views={VIEW_OPTIONS}
-                        onSelect={(viewOption: string) => viewOption !== "listWeek" && handleViewChange(viewOption)}
+                        onSelect={(viewOption: string) => handleViewChange(viewOption)}
                     />
-
-                    {/*<CalendarAddButton
-                        sx={{
-                            padding: "8px",
-                            "& .MuiButton-startIcon": {
-                                margin: 0
-                            },
-                            "& .MuiButton-startIcon>*:nth-of-type(1)": {
-                                fontSize: 16
-                            }
-                        }}
-                        onClickEvent={OnAddAppointment}
-                    />*/}
                 </Stack>
             </Hidden>
             <Hidden smDown>
@@ -263,9 +250,9 @@ function CalendarToolbar({...props}) {
                     setPendingDialog(false);
                 }}
                 action={() => <Otable
-                    {...{t}}
+                    {...{t, pendingData: true}}
                     maxHeight={`calc(100vh - 180px)`}
-                    headers={TableHead}
+                    headers={TableHead.filter((head: any) => head.id !== "motif")}
                     handleEvent={handleTableEvent}
                     rows={appointmentGroupByDate(pendingEvents.current)}
                     from={"calendar"}

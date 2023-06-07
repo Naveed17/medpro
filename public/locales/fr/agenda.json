@@ -3,11 +3,19 @@
   "enter-waiting-room": "Ajouter à la salle d’attente",
   "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
+  "add-quick": "Ajout rapide",
+  "add-complete": "Ajout complet",
   "view": "Voir détails",
   "manage": "Gérer",
   "confirm": "Confirmer RDV",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
+  "agenda-view": {
+    "timeGridDay": "Jour",
+    "timeGridWeek": "Semaine",
+    "dayGridMonth": "Mois",
+    "listWeek": "List"
+  },
   "side-bar": {
     "all": "tous",
     "motif": "Motif de consultation",
@@ -129,6 +137,7 @@
       "title": "Choisissez le patient",
       "sub-title": "vous devez ajouter un patient",
       "add_button": "Ajouter un nouveau patient",
+      "search_placeholder": "Chercher un patient",
       "patient": {
         "personal-info": "Informations personnelles",
         "additional-information": "Informations supplémentaires",

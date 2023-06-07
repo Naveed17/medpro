@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -25,7 +25,7 @@ function Patient({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {currentStepper} = useAppSelector(agendaSelector);
@@ -34,9 +34,7 @@ function Patient({...props}) {
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
 
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
     const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -58,6 +56,7 @@ function Patient({...props}) {
             onPatientSearch(true);
         }
     }
+
     const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         const search = event.target.value;
         if (search.length >= 3) {
@@ -90,35 +89,12 @@ function Patient({...props}) {
                 `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
         }
         form.append('address', JSON.stringify({
-            fr: patient.address
+            [router.locale as string]: patient.address
         }));
-        const insurances: any[] = [];
-        patient.insurance.map((insurance: InsurancesModel) => {
-            let phone = null;
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-
-            if (insurance.insurance_social) {
-                const localPhone = insurance.insurance_social.phone;
-                phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            insurances.push({
-                ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
-                        phone: {
-                            ...insurance.insurance_social?.phone,
-                            contact_type: patient.contact.uuid,
-                            value: phone as string
-                        }
-                    }
-                })
-            })
-        });
-        form.append('insurance', JSON.stringify(insurances));
+        form.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: patient.insurance,
+            contact: patient.contact.uuid
+        })));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);
         form.append('region', patient.region);

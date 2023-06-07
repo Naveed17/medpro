@@ -12,7 +12,8 @@ function BasicDatePicker({...props}) {
     return (
         <LocalizationProvider
             dateAdapter={AdapterDateFns}
-            locale={LocaleFnsProvider(locale)}>
+            adapterLocale={LocaleFnsProvider(locale)}
+        >
             <DatePicker
                 {...props}
                 inputFormat={"dd/MM/yyyy"}

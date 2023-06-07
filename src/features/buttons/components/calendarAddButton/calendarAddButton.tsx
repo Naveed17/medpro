@@ -21,12 +21,12 @@ function CalendarAddButton({...props}) {
 
     const handleAddFullAppointment = () => {
         handleClose();
-        onClickEvent("full-add");
+        onClickEvent("add-complete");
     }
 
     const handleAddQuickAppointment = () => {
         handleClose();
-        onClickEvent("quick-add");
+        onClickEvent("add-quick");
     }
 
     return (
@@ -88,11 +88,11 @@ function CalendarAddButton({...props}) {
             >
                 <MenuItem onClick={handleAddQuickAppointment} disableRipple>
                     <FastForwardOutlinedIcon/>
-                    Ajout rapide
+                    {t("add-quick")}
                 </MenuItem>
                 <MenuItem onClick={handleAddFullAppointment} disableRipple>
                     <AddOutlinedIcon/>
-                    Ajout complet
+                    {t("add-complete")}
                 </MenuItem>
             </StyledMenu>
         </Box>

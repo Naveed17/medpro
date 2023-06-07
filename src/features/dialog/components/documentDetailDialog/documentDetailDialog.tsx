@@ -58,12 +58,11 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
-
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -73,7 +72,7 @@ function DocumentDetailDialog({...props}) {
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
-    const [file, setFile] = useState<string>('');
+    const [file, setFile] = useState<any>('');
     const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
     const [menu, setMenu] = useState(true);
@@ -177,22 +176,19 @@ function DocumentDetailDialog({...props}) {
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
-
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
-
     const handleClose = () => {
         setOpenAlert(false);
     };
-
     const handleYes = () => {
         const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
             setLoading(true);
             setData({
                 ...selected.header.data,
-                background: {show: selected.file !== null, content: selected.file ? selected.file : ''}
+                background: {show: selected.header.data.background.show, content: selected.file ? selected.file : ''}
             })
             setHeader(selected.header.header)
             setOpenAlert(false);
@@ -201,7 +197,6 @@ function DocumentDetailDialog({...props}) {
             }, 1000)
         }
     };
-
     const handlePrint = () => {
         printNow()
     }
@@ -210,7 +205,6 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
         documentTitle: `${t(state.type)} ${state.patient}`
     })
-
     const downloadF = () => {
         fetch(file).then(response => {
             response.blob().then(blob => {
@@ -241,7 +235,8 @@ function DocumentDetailDialog({...props}) {
                                 drugUuid: drug.standard_drug.uuid,
                                 name: drug.standard_drug.commercial_name,
                             })),
-                            uuid: state.uuidDoc
+                            uuid: state.uuidDoc,
+                            appUuid: state.appUuid
                         }))
                         break;
                     case "requested-analysis":
@@ -308,7 +303,6 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-
     const editDoc = (attribute: string, value: string) => {
         const form = new FormData();
         form.append('attribute', attribute);
@@ -324,13 +318,11 @@ function DocumentDetailDialog({...props}) {
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
-
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
     }
-
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
@@ -374,7 +366,7 @@ function DocumentDetailDialog({...props}) {
                     setData({
                         ...templates[0].header.data,
                         background: {
-                            show: templates[0].file !== null,
+                            show: templates[0].header.data.background.show,
                             content: templates[0].file ? templates[0].file : ''
                         }
                     })
@@ -386,7 +378,7 @@ function DocumentDetailDialog({...props}) {
                         setData({
                             ...defaultdoc.header.data,
                             background: {
-                                show: defaultdoc.file !== null,
+                                show: defaultdoc.header.data.background.show,
                                 content: defaultdoc.file ? defaultdoc.file : ''
                             }
                         })
@@ -395,7 +387,7 @@ function DocumentDetailDialog({...props}) {
                         setSelectedTemplate(docInfo[0].uuid)
                         setData({
                             ...docInfo[0].header.data,
-                            background: {show: docInfo.file !== null, content: docInfo.file ? docInfo.file : ''}
+                            background: {show: docInfo.header.data.background.show, content: docInfo.file ? docInfo.file : ''}
                         })
                         setHeader(docInfo[0].header.header)
                     }
@@ -405,7 +397,7 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <DocumentDetailDialogStyled>
@@ -487,8 +479,9 @@ function DocumentDetailDialog({...props}) {
                                 {state.type === 'photo' &&
                                     <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
                                          alt={"img"}/>}
-                                {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
-                                {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
+                                {state.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
+                                {state.type === 'audio' &&
+                                    <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
                             </Box>
                         }
                     </Stack>

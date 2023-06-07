@@ -2,7 +2,7 @@ import Image from "next/image";
 import {useState} from "react";
 
 function ImageHandler({...props}) {
-    const {alt, src} = props;
+    const {alt, src = null} = props;
     const [error, setError] = useState(false);
 
     return (<Image
@@ -15,7 +15,7 @@ function ImageHandler({...props}) {
         width={20}
         height={20}
         loader={() => {
-            return error ? "/static/icons/Med-logo.png" : src;
+            return error ? "/static/icons/ic-failed-u.svg" : src;
         }}
         {...props}
     />)

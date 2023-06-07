@@ -1,6 +1,6 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-import {PaletteColor, Palette} from "@mui/material";
+import {PaletteColor} from "@mui/material";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {
@@ -119,5 +119,11 @@ declare module "@fullcalendar/interaction" {
 
     interface DateClickTouchArg extends DateClickArg {
         jsEvent: MouseTouchEvent
+    }
+}
+
+declare global {
+    interface Array<T> {
+        group(o: T, fn: Function): Array<T>;
     }
 }

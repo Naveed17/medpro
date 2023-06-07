@@ -24,7 +24,7 @@ function AgendaPopupAction({...props}) {
 
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <AgendaPopupActionStyled>
@@ -39,7 +39,7 @@ function AgendaPopupAction({...props}) {
                                 <Box
                                     component="img"
                                     src={
-                                        data?.gender === "M"
+                                        data?.gender === 1
                                             ? "/static/icons/men-avatar.svg"
                                             : "/static/icons/women-avatar.svg"
                                     }

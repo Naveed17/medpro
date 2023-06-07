@@ -7,6 +7,7 @@
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
+    "cabinet": "Cabinet",
     "horaire": "Horaire",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
@@ -27,7 +28,7 @@
     "langues": "Langues parlées",
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
-    "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495",
+    "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 28 916 800",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
@@ -223,7 +224,7 @@
         "type": "Type",
         "speciality": "Spécialité",
         "autoConfirm": "Confirmation auto",
-        "default": "Par defaut",
+        "default": "Par défaut",
         "actif": "actif",
         "public": "public",
         "action": "action",
@@ -659,7 +660,8 @@
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
-      "asDefault": "Sélectionnez-le comme module par défaut"
+      "asDefault": "Sélectionnez-le comme modèle par défaut",
+      "modifier": "Modifier"
     }
   }
 }

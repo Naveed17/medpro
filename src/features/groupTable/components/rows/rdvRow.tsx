@@ -29,7 +29,7 @@ function RDVRow({...props}) {
     const {data: patient, loading} = props;
     const {data: session} = useSession();
     const matches = useMediaQuery("(min-width:900px)");
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
     const {model} = useAppSelector(preConsultationSelector);
@@ -86,7 +86,7 @@ function RDVRow({...props}) {
         keyPrefix: "patient-details",
     });
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <React.Fragment>
@@ -155,14 +155,11 @@ function RDVRow({...props}) {
                                     {matches ? (
                                         <RDVPreviousCard
                                             inner={inner}
-                                            {...{patient, loading, handlePreConsultationDialog}}
-                                            key={Math.random()}
-                                        />
+                                            {...{patient, loading, handlePreConsultationDialog}}/>
                                     ) : (
                                         <RDVMobileCard
                                             inner={inner}
-                                            {...{loading, handlePreConsultationDialog}}
-                                            key={Math.random()}/>
+                                            {...{loading, handlePreConsultationDialog}}/>
                                     )}
                                 </React.Fragment>
                             )

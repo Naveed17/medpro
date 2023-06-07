@@ -42,7 +42,7 @@ function ConsultationType() {
     const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);
@@ -185,7 +185,7 @@ function ConsultationType() {
         }
     }, [data, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

@@ -42,7 +42,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 
 interface HeadCell {
@@ -89,7 +89,8 @@ function ActFees() {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
@@ -108,7 +109,6 @@ function ActFees() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
@@ -127,7 +127,7 @@ function ActFees() {
 
     const {data: httpProfessionalsActs, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}${
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
@@ -174,7 +174,7 @@ function ActFees() {
         trigger(
             {
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -217,7 +217,7 @@ function ActFees() {
             form.append(
                 "name",
                 JSON.stringify({
-                    fr: newFees.act,
+                    [router.locale as string]: newFees.act,
                 })
             );
             form.append("price", `${newFees.fees}`);
@@ -225,7 +225,7 @@ function ActFees() {
             trigger(
                 {
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/new-acts/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -251,7 +251,7 @@ function ActFees() {
             form.append("act", (actFees.act as ActModel)?.uuid);
             triggerAddAct({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
@@ -259,7 +259,7 @@ function ActFees() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             medical_entity.uuid,
-            medical_professional.uuid,
+            medical_professional?.uuid,
             mutate,
             router.locale,
             session?.accessToken,
@@ -273,7 +273,7 @@ function ActFees() {
         name && form.append("name", name);
         trigger({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional.uuid}/acts/${v.act?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${v.act?.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -324,7 +324,7 @@ function ActFees() {
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

@@ -45,7 +45,7 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
@@ -56,7 +56,6 @@ function ImportDataRow({...props}) {
     const [expanded, setExpanded] = useState(false);
     const [expandData, setExpandData] = useState([]);
     const [expandType, setExpandType] = useState("");
-    const [loadingAction, setLoadingAction] = useState<boolean>(false);
 
     const getDetailImportData = (uuid: string, type: string) => {
         setExpandType(type);
@@ -184,7 +183,6 @@ function ImportDataRow({...props}) {
                             {(row.status == 1 || row.status == 3) && <LoadingButton
                                 {...{loading}}
                                 onClick={() => {
-                                    setLoadingAction(true);
                                     handleEvent("delete-import", row.uuid);
                                 }}
                                 variant="text"

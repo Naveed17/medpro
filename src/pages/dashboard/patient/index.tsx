@@ -166,8 +166,8 @@ function Patient() {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -278,8 +278,6 @@ function Patient() {
     } : null);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     useEffect(() => {
         if (filter?.type || filter?.patient) {
@@ -437,7 +435,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

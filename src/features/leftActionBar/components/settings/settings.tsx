@@ -19,15 +19,20 @@ import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function Settings() {
     const {data: session} = useSession();
     const router = useRouter();
 
+    const {t, ready} = useTranslation("settings");
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const locations = agendaConfig?.locations;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
-    const {t, ready} = useTranslation("settings");
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <SettingBarStyled>
@@ -54,7 +59,7 @@ function Settings() {
                                 disablePadding>
                                 <ListItemButton
                                     onClick={() => {
-                                        router.push(`${v.href}`);
+                                        router.push(`${locations && v.name === "cabinet" ? `${v.href}${locations[0]?.uuid}` : v.href}`);
                                     }}
                                     disabled={v.disable}
                                     disableRipple>

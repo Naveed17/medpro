@@ -28,7 +28,7 @@ function RdvCard({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t, ready} = useTranslation(["patient", "common"]);
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -60,7 +60,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -120,14 +120,14 @@ function RdvCard({...props}) {
                                                 ? 0.5
                                                 : 0,
                                         }}>
-                                        {AppointmentStatus[inner?.status]?.value}
+                                        {t(`appointment-status.${AppointmentStatus[inner?.status]?.key}`, {ns: "common"})}
                                     </Typography>
                                 </Label>}
                             </Stack>
 
                             {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
                                 <Typography fontSize={12} fontWeight={400}>
-                                    {t("reason")}
+                                    {t("patient-details.reason")}
                                 </Typography>
                                 <Typography component={Stack} spacing={1} alignItems="center" direction="row">
                                     {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
@@ -191,7 +191,7 @@ function RdvCard({...props}) {
                         inner
                     })}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t(inner?.status === 5 ? "start-consultation" : "see-details")}
+                        {t(`patient-details.${inner?.status === 5 ? "start-consultation" : "see-details"}`)}
                     </Typography>
                 </MenuItem>
                 <MenuItem
@@ -201,7 +201,7 @@ function RdvCard({...props}) {
                     }}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t("pre_consultation_data")}
+                        {t("patient-details.pre_consultation_data")}
                     </Typography>
                 </MenuItem>
             </Menu>

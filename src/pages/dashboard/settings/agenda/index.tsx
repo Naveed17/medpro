@@ -31,7 +31,7 @@ function Agenda() {
     };
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "agenda.config"});
     const {direction} = useAppSelector(configSelector);
@@ -63,7 +63,7 @@ function Agenda() {
         setOpen(false);
     };
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     const headCells = [
         {

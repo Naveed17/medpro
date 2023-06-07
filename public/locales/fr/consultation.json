@@ -105,6 +105,8 @@
   "docs": "Les documents de la consultation",
   "history": "Fiche historique",
   "reason_for_consultation": "Motif de consultation",
+  "requestedAnalyses": "Demande bilan",
+  "requestedPrescription": "Ordonnance médicale",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -116,6 +118,8 @@
     "add_reason": "Ajouter un nouveau motif",
     "close": "Réduire menu",
     "config": "Configurer",
+    "modeles": "Modeles",
+    "search": "Recherche par mots-clés",
     "ureadbleFile": "Fichier fourni n'est pas compatible avec MedLINK",
     "downloadnow": "Télécharger maintenant",
     "wait": "Vérification du fichier...",
@@ -207,8 +211,10 @@
     "editWithsuccess": "Modèle modifié avec succès",
     "removeWithsuccess": "Modèle supprimé avec succès",
     "renameWithsuccess": "Document modifié avec succès",
-    "dosage": "Posologie ",
+    "dosage": "Posologie",
+    "condition": "Condition de prise",
     "enter_your_dosage": "Saisissez votre posologie",
+    "duration-error": "Veuillez sélectionner la durée de la posologie.",
     "duration": "pendant",
     "durations": "Durée",
     "day": "jour(s)",
@@ -240,6 +246,9 @@
     "group_model_name": "Nom du dossier",
     "group_model_name_placeholder": "Veuillez saisir le nom du dossier",
     "drug_list": "Liste des médicaments",
+    "preview": "Aperçu",
+    "models": "Modeles",
+    "after": "puis",
     "name_of_drug": "Nom du médicament",
     "switch_ui_classic": "Revenir à l'interface utilisateur classique",
     "ui_classic": "IU classique",
@@ -302,6 +311,7 @@
     "document_type": "Type de document",
     "biology_order": "Ordonnance de biologie",
     "patient": "Patient",
+    "patient_placeholder": "Nom du patient",
     "created_on": "créé le",
     "created_by": "créé par",
     "you": "vous",
@@ -355,6 +365,10 @@
     "created": "Modèle créé",
     "updated": "Modèle modifié",
     "removed": "Modèle supprimé",
+    "doctor": "Doctor",
+    "doctor_placeholder": "Nom du doctor",
+    "today": "Aujourd'hui",
+    "today_placeholder": "Date aujourd'hui",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -396,6 +410,7 @@
     "see_details": "Voir détails"
   },
   "tracking_data": "Données de suivi",
+  "exempleFees": "Exemple: Suivi ...",
   "consultation_reason": "Motif de consultation",
   "diagnostics": "Diagnostique",
   "treatments": "Traitements",
@@ -469,6 +484,7 @@
   "widget": {
     "hiddenTeeth": "Dents manquantes",
     "traitements": "Traitements",
+    "tracking_data": "Données de suivi",
     "selectTeeth": "Sélectionner les dents",
     "selectActs": "Sélectionner les acts",
     "teeth": "Dent",
@@ -480,4 +496,3 @@
     "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
   }
 }
-

@@ -78,7 +78,7 @@ const PaperStyled = styled(Form)(({theme}) => ({
 function PfTemplateDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
@@ -118,7 +118,7 @@ function PfTemplateDetail({...props}) {
                 setComponents(props.data.structure);
                 let wdg: any[] = [];
                 props.data.structure.map((comp: any) => {
-                    const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key);
+                    const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.uuid === comp.key);
                     const filteredData = component?.jsonWidgets.filter((widget: any) =>
                         comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
                     wdg.push({...component, jsonWidgets: filteredData});
@@ -148,7 +148,7 @@ function PfTemplateDetail({...props}) {
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, t("ntc"))
+            .min(3, t("nameReq"))
             .max(50, t("ntl"))
             .required(t("nameReq")),
     });
@@ -161,17 +161,19 @@ function PfTemplateDetail({...props}) {
         validationSchema,
         onSubmit: async (values) => {
             setLoading(true);
-            let struct: any[] = [];
+            let _uuids = "";
+            // let struct: any[] = [];
             widget.map((w) => {
-                let jsonWidgets: JsonWidgetModel[] = []
-                w.jsonWidgets.map((jw) => jsonWidgets.push(jw.structure[0] as any));
-                struct.push({...w.fieldSet, components: jsonWidgets});
+                //let jsonWidgets: JsonWidgetModel[] = []
+                w.jsonWidgets.map((jw) => _uuids += `${jw.uuid},`);
+                // struct.push({...w.fieldSet, components: jsonWidgets});
             });
+            _uuids = _uuids.slice(0, -1);
 
             const form = new FormData();
             form.append("label", values.name);
             form.append("color", modelColor);
-            form.append("structure", JSON.stringify(struct));
+            form.append("widgets", _uuids);
             const editAction = props.action === "edit" && !props.data.hasData;
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
@@ -270,7 +272,7 @@ function PfTemplateDetail({...props}) {
         setSections(sectionUpdated);
     };
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <Box style={{background: "black"}}>
@@ -371,10 +373,13 @@ function PfTemplateDetail({...props}) {
                             {t("info")}
                         </Typography>
 
+                        <SearchInput onChange={handleSearchInput}/>
+
+
                         <Card>
                             <CardContent>
-                                <SearchInput onChange={handleSearchInput}/>
                                 <Stack spacing={2}>
+
                                     <FormControl size="small" fullWidth>
                                         <Typography
                                             variant="body2"

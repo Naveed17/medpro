@@ -9,7 +9,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-// urils
+// utils
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 // style
@@ -30,6 +30,7 @@ function RdvCard({...props}) {
     const theme = useTheme();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t: commonTranslation} = useTranslation("common");
 
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -61,7 +62,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -102,7 +103,7 @@ function RdvCard({...props}) {
                                             ? 0.5
                                             : 0,
                                     }}>
-                                    {AppointmentStatus[inner?.status]?.value}
+                                    {commonTranslation(`appointment-status.${AppointmentStatus[inner?.status]?.key}`)}
                                 </Typography>
                             </Label>}
                         </Stack>

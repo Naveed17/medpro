@@ -56,7 +56,7 @@ function ModifyUser() {
      const {enqueueSnackbar} = useSnackbar()
     const {uuid} = router.query;
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("settings");
     const {tableState} = useAppSelector(tableActionSelector);

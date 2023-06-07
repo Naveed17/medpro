@@ -28,7 +28,7 @@ function SignIn() {
     return (
         status === "unauthenticated" ?
             <LoadingScreen
-                {...{error, ...(error && {text: "loading-error"})}}
+                {...{color: "error", ...(error && {text: "loading-error"})}}
             /> :
             <Redirect to='/dashboard/agenda'/>)
 }

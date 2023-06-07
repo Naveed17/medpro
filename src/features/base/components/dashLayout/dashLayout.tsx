@@ -46,7 +46,7 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -97,12 +97,12 @@ function DashLayout({children}: LayoutProps) {
         data={ImportCardData}/>
 
     const justNumbers = (str: string) => {
-        const res = str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        const res = str.match(/\d+$/); // Find the last numeric digit
         if (str && res) {
             let numStr = res[0];
             let num = parseInt(numStr);
             num++;
-            str = str.replace(/\d(?!.*\d)/, num.toString());
+            str = str.replace(/\d+$/, num.toString());
         }
         return str;
     }

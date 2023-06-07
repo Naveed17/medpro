@@ -34,12 +34,10 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
-import {useAppSelector} from "@lib/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
@@ -47,10 +45,10 @@ function MedicalPrescriptionDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {lastPrescriptions} = useLastPrescription();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const {appointement} = useAppSelector(consultationSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [drugs, setDrugs] = useState<any[]>([...data.state]);
@@ -62,7 +60,6 @@ function MedicalPrescriptionDialog({...props}) {
     const [models, setModels] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
 
     const open = Boolean(anchorEl);
@@ -158,16 +155,13 @@ function MedicalPrescriptionDialog({...props}) {
         const last: any[] = [];
         lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
             last.push({
+                cycles: drug.cycles,
                 drugUuid: drug.standard_drug.uuid,
-                name: drug.standard_drug.commercial_name,
-                dosage: drug.cycles[0].dosage,
-                duration: drug.cycles[0].duration,
-                durationType: drug.cycles[0].durationType,
-                note: drug.cycles[0].note
+                name: drug.standard_drug.commercial_name
             });
         })
-        setDrugs([...last])
-        data.setState([...last])
+        setDrugs([...last]);
+        data.setState([...last]);
         setAnchorEl(null);
     }
 
@@ -175,10 +169,12 @@ function MedicalPrescriptionDialog({...props}) {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         setUpdate(selected);
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
-        setFieldValue('cycles[0].dosage', drugs[selected].cycles[0].dosage)
-        setFieldValue('cycles[0].duration', drugs[selected].cycles[0].duration)
-        setFieldValue('cycles[0].durationType', drugs[selected].cycles[0].durationType)
-        setFieldValue('cycles[0].note', drugs[selected].cycles[0].note)
+        if (drugs[selected].cycles[0]) {
+            setFieldValue('cycles[0].dosage', drugs[selected].cycles[0].dosage)
+            setFieldValue('cycles[0].duration', drugs[selected].cycles[0].duration)
+            setFieldValue('cycles[0].durationType', drugs[selected].cycles[0].durationType)
+            setFieldValue('cycles[0].note', drugs[selected].cycles[0].note)
+        }
     }
 
     const handleInputChange = (value: string) => {
@@ -196,7 +192,7 @@ function MedicalPrescriptionDialog({...props}) {
             name: '',
             cycles: [{
                 dosage: '',
-                duration: '',
+                duration: null,
                 durationType: 'day',
                 note: '',
                 isOtherDosage: true
@@ -245,24 +241,11 @@ function MedicalPrescriptionDialog({...props}) {
     }, [httpModelResponse])
 
     useEffect(() => {
-        let lastPrescription: any[] = []
-        if (appointement !== null) {
-            appointement.latestAppointments.map((la: { documents: any[]; }) => {
-                const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
-                if (prescriptions.length > 0) {
-                    lastPrescription = [...lastPrescription, ...prescriptions]
-                }
-            })
-            setLastPrescriptions(lastPrescription)
-        }
-    }, [appointement])
-
-    useEffect(() => {
         if (Object.keys(errors).length > 0)
             setTouchedFileds({name: true, duration: true})
     }, [errors]);
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <MedicalPrescriptionDialogStyled>
@@ -385,7 +368,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             type={"number"}
                                             error={touchedFileds.duration && values.cycles[0].duration === ''}
                                             {...getFieldProps("cycles[0].duration")}
-                                            value={values.cycles[0].duration}
+                                            value={values.cycles[0].duration ? values.cycles[0].duration : ""}
                                             InputProps={{inputProps: {min: 1}}}
                                             onBlur={() => {
                                                 touchedFileds.duration = true;

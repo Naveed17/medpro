@@ -34,7 +34,7 @@ function CIPPatientHistoryCard({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {exam, listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -118,7 +118,7 @@ function CIPPatientHistoryCard({...props}) {
         params.append("duration", "15");
         params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
-            fr: name
+            [router.locale as string]: name
         }));
 
         medicalEntityHasUser && triggerAddReason({
@@ -174,7 +174,7 @@ function CIPPatientHistoryCard({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <ConsultationDetailCardStyled>

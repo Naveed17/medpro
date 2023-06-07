@@ -2,7 +2,6 @@ import React from "react";
 import RootStyled from "./overrides/rootStyled";
 // next-i18next
 import {useTranslation} from "next-i18next";
-
 // material
 import {
     Avatar,
@@ -22,18 +21,13 @@ import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
-const menuList = [
+/*const menuList = [
     {
         title: "add_appointment",
         icon: <IconUrl path="ic-plus" color="white" width={18} height={18}/>,
@@ -62,7 +56,7 @@ const menuList = [
         icon: <IconUrl path="icdelete" color="white" width={18} height={18}/>,
         action: "onDelete",
     },
-];
+];*/
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
     height: 20,
@@ -72,21 +66,7 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading} = props;
-    const {data: session} = useSession();
-    const router = useRouter();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && data?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        }
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+    const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
 
     return (
         <Paper key={Math.random()} className="card-main">
@@ -119,8 +99,8 @@ const CardSection = ({...props}) => {
                                         {...(data.hasPhoto && {className: "zoom"})}
                                         src={
                                             patientPhoto
-                                                ? patientPhoto
-                                                : data?.gender === "M"
+                                                ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                                : data?.gender === 1
                                                     ? "/static/icons/men-avatar.svg"
                                                     : "/static/icons/women-avatar.svg"
                                         }
@@ -251,8 +231,8 @@ function PatientMobileCard({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );

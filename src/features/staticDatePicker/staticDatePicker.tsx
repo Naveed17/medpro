@@ -20,7 +20,7 @@ export default function StaticDatePicker({ ...props }) {
     <RootStyled className={loading ? "loading" : ""}>
       <LocalizationProvider
         dateAdapter={AdapterDateFns}
-        locale={LocaleFnsProvider(locale)}
+        adapterLocale={LocaleFnsProvider(locale)}
       >
         <DatePicker
           reduceAnimations

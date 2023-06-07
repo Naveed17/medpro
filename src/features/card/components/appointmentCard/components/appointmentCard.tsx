@@ -27,14 +27,15 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSWRConfig} from "swr";
+import {debounce} from "lodash";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -53,16 +54,17 @@ function AppointmentCard({...props}) {
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
+    const [instruction, setInstruction] = useState(data.instruction);
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    const updateDetails = (input: { reason?: string[]; type?: string }) => {
+    const updateDetails = (input: { attribute: string; value: any }) => {
         const form = new FormData();
-        form.append("attribute", input.reason ? "consultation_reason" : "type");
-        form.append("value", (input.reason ? input.reason : input.type) as string);
+        form.append("attribute", input.attribute);
+        form.append("value", input.value as string);
         updateAppointmentTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
@@ -72,13 +74,13 @@ function AppointmentCard({...props}) {
             if (onDataUpdated) {
                 onDataUpdated();
             } else {
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
             }
         });
     };
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
-        updateDetails({reason: reasons.map(reason => reason.uuid)});
+        updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
         setReason(reasons);
         setSelectedReason(reasons);
     }
@@ -90,7 +92,7 @@ function AppointmentCard({...props}) {
         params.append("duration", "15");
         params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
-            fr: name
+            [router.locale as string]: name
         }));
 
         medicalEntityHasUser && triggerAddReason({
@@ -107,6 +109,12 @@ function AppointmentCard({...props}) {
             setLoadingRequest(false);
         }));
     }
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        updateDetails({attribute: "global_instructions", value: event.target.value});
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 1000);
 
     return (
         <RootStyled>
@@ -134,7 +142,7 @@ function AppointmentCard({...props}) {
                                     ? 0.5
                                     : 0,
                             }}>
-                            {data?.status?.value}
+                            {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
                     {!roles.includes("ROLE_SECRETARY") && <IconButton
@@ -159,7 +167,10 @@ function AppointmentCard({...props}) {
                                     <Typography fontWeight={400}>
                                         {t("appintment_date")} :
                                     </Typography>
-                                    <Button sx={{p: .5}}>
+                                    <ConditionalWrapper
+                                        condition={onMoveAppointment}
+                                        wrapper={(children: any) => <Button sx={{p: .5}}>{children}</Button>}
+                                    >
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
                                                 <IconUrl className="callander" path="ic-agenda-jour"/>
@@ -172,7 +183,7 @@ function AppointmentCard({...props}) {
                                                 <Typography className="date">{data?.time}</Typography>
                                             </Stack>
                                         </Stack>
-                                    </Button>
+                                    </ConditionalWrapper>
                                 </Stack>
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
@@ -193,7 +204,8 @@ function AppointmentCard({...props}) {
                                                     displayEmpty
                                                     onChange={(event) => {
                                                         updateDetails({
-                                                            type: event.target.value as string,
+                                                            attribute: "type",
+                                                            value: event.target.value as string,
                                                         });
                                                         setTypeEvent(event.target.value as string);
                                                     }}
@@ -278,8 +290,8 @@ function AppointmentCard({...props}) {
                                     )}
                                 </ListItem>
                             )}
-                            {reasons && editConsultation && (
-                                <ListItem>
+                            {editConsultation && <>
+                                {reasons && <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("consultation_reson")}
                                     </Typography>
@@ -359,8 +371,18 @@ function AppointmentCard({...props}) {
                                                                               sx={{paddingLeft: 0}}
                                                                               variant="outlined" fullWidth/>}/>
                                     </FormControl>
-                                </ListItem>
-                            )}
+                                </ListItem>}
+                                {/*<ListItem>
+                                    <Typography fontWeight={400}>
+                                        {t("insctruction")}
+                                    </Typography>
+                                    <FormControl fullWidth size="small">
+                                        <textarea rows={6}
+                                                  onChange={debouncedOnChange}
+                                                  defaultValue={instruction}/>
+                                    </FormControl>
+                                </ListItem>*/}
+                            </>}
                         </List>
                     </Box>
                 </Stack>

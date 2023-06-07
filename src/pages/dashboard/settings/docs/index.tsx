@@ -4,7 +4,6 @@ import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -51,7 +50,7 @@ function DocsConfig() {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const componentRef = useRef<HTMLDivElement>(null);
-    const urlMedicalProfessionalSuffix = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const [files, setFiles] = useState<any[]>([]);
     const [title, setTitle] = useState("");
@@ -76,12 +75,9 @@ function DocsConfig() {
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
-    const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
     const {trigger} = useRequestMutation(null, "/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(medical_professional && urlMedicalProfessionalSuffix ? {
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
         headers: {
@@ -208,7 +204,7 @@ function DocsConfig() {
         }
     }, [httpData, setFieldValue])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

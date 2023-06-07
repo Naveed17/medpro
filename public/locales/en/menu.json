@@ -1,7 +1,8 @@
 {
+  "patientSpace": "Patient space",
   "main-menu": {
     "agenda": "Agenda",
-    "room": "Room",
+    "room": "Waiting Room",
     "patient": "Patient",
     "message": "Message",
     "articles": "Articles",
@@ -9,18 +10,19 @@
     "shop": "Shop",
     "wallet": "My Wallet",
     "stats": "Statistics",
-    "settings": "My profile",
-    "logout": "Sign out"
+    "settings": "My Profile",
+    "logout": "Logout",
+    "payment": "Payment"
   },
-  "doctor-dropdown":{
-    "news" : "News Feed",
-    "messages": "My messages",
+  "doctor-dropdown": {
+    "news": "News Feed",
+    "messages": "My Messages",
     "questions": "Medical Questions",
     "articles": "Medical Magazine",
-    "wallet": "My services",
-    "settings": "My profile",
+    "wallet": "My Services",
+    "settings": "Settings",
     "statistics": "Statistics",
-    "switch-agenda": "Switch agenda",
-    "logout": "Sign out"
+    "switch-agenda": "Reset Agenda",
+    "logout": "Logout"
   }
 }

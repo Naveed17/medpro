@@ -175,8 +175,8 @@ function Payment() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
-    const {data: httpInsuranceResponse} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
@@ -263,8 +263,6 @@ function Payment() {
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
-
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const handleCollapse = () => {
         //setCollapseData(props);
@@ -455,7 +453,7 @@ function Payment() {
                             const updatedData = filterQuery.payment?.insurance?.filter(
                                 (insur: any) =>
                                     row.patient.insurances
-                                        .map((insurance: any) => insurance.insurance.uuid)
+                                        .map((insurance: any) => insurance.uuid)
                                         .includes(insur)
                             );
                             return (

@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout, dashLayoutSelector} from "@features/base";
 import {
     CardContent,
@@ -17,7 +17,7 @@ import {
     Skeleton,
     DialogActions,
     useMediaQuery,
-    Theme,
+    Theme, Tooltip,
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -37,12 +37,15 @@ import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ImageHandler} from "@features/image";
+import {useSWRConfig} from "swr";
 
 function Profil() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {t, ready} = useTranslation("settings");
@@ -96,10 +99,14 @@ function Profil() {
 
     const [dialogContent, setDialogContent] = useState("");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     const dialogClose = () => {
         setOpen(false);
+    };
+
+    const mutateMedicalProfessionalData = () => {
+        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`);
     };
 
     const dialogSave = () => {
@@ -171,7 +178,7 @@ function Profil() {
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/qualifications/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() => mutateMedicalProfessionalData());
     };
 
     const editInscurance = (inscurance: string) => {
@@ -182,7 +189,7 @@ function Profil() {
             url: `${urlMedicalEntitySuffix}/professionals/insurance/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() => mutateMedicalProfessionalData());
     };
 
     const editLanguages = (languages: string) => {
@@ -193,7 +200,7 @@ function Profil() {
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/languages/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() => mutateMedicalProfessionalData());
     };
 
     const editPaymentMeans = (paymentMeans: string) => {
@@ -204,7 +211,7 @@ function Profil() {
             url: `${urlMedicalEntitySuffix}/professionals/paymentMeans/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() => mutateMedicalProfessionalData());
     };
 
     return (
@@ -327,10 +334,9 @@ function Profil() {
                                             {t("profil.assurence")}
                                         </Typography>
                                         <Stack
-                                            spacing={2.5}
+                                            spacing={1.2}
                                             direction="row"
-                                            alignItems="flex-start"
-                                            width={1}>
+                                            alignItems="flex-start">
                                             {loading ? (
                                                 initialData.map((item, index) => (
                                                     <Skeleton
@@ -342,14 +348,19 @@ function Profil() {
                                                     />
                                                 ))
                                             ) : insurances.length > 0 ? (
-                                                insurances.map((item: any) => (
-                                                    <Box
-                                                        key={item.uuid}
-                                                        component="img"
-                                                        width={35}
-                                                        height={35}
-                                                        src={item.logoUrl.url}
-                                                    />
+                                                insurances.map((insuranceItem: any) => (
+                                                    <Tooltip
+                                                        key={insuranceItem?.uuid}
+                                                        title={insuranceItem?.name}>
+                                                        <Avatar variant={"square"} color={"white"}>
+                                                            <ImageHandler
+                                                                width={32}
+                                                                height={32}
+                                                                alt={insuranceItem?.name}
+                                                                src={insuranceItem.logoUrl.url}
+                                                            />
+                                                        </Avatar>
+                                                    </Tooltip>
                                                 ))
                                             ) : (
                                                 <Typography color={"gray"} fontWeight={400}>
@@ -599,15 +610,11 @@ function Profil() {
                     </CardContent>
                 </CardStyled>
                 <Dialog
+                    {...{dialogSave, dialogClose, open, direction, t}}
                     action={dialogContent}
-                    open={open}
                     data={info}
-                    direction={direction}
                     title={t("dialogs.titles." + dialogContent)}
-                    t={t}
                     size={"sm"}
-                    dialogSave={dialogSave}
-                    dialogClose={dialogClose}
                     actionDialog={
                         <DialogActions>
                             <Button onClick={dialogClose} startIcon={<CloseIcon/>}>

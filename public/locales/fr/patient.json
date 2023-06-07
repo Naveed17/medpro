@@ -139,6 +139,7 @@
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
+      "duplicatedFileID": "File number already used",
       "last-assure-placeholder": "Tapez le nom de famille de l'assuré",
       "first-assure-placeholder": "Tapez le prénom de l'assuré",
       "group-placeholder": "Sélectionner un groupe",
@@ -350,6 +351,9 @@
     "surgical_antecedents": "Antécédents chirurgicaux",
     "add-background": "Ajouter Antécédents",
     "register": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "father": "Père",
+    "mother": "Mère",
+    "both": "Les deux"
   }
 }

@@ -39,7 +39,8 @@ function AppointmentTypesFilter({...props}) {
                         dispatch(setFilter({type: item.uuid + (query?.type ? `,${query.type}` : "")}));
                     } else {
                         const sp = query?.type?.split(",") as string[];
-                        dispatch(setFilter({type: sp?.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined}));
+                        sp?.splice(sp.findIndex((searchElement: string) => searchElement === item.uuid), 1);
+                        dispatch(setFilter({type: sp?.length > 0 ? sp?.join(",") : undefined}));
                     }
                 }}
             />

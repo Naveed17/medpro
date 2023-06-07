@@ -26,9 +26,9 @@ class ErrorBoundary extends React.Component {
             // You can render any custom fallback UI
             return (
                 <LoadingScreen
-                    error
+                    color={"error"}
                     OnClick={(error: string) => this.setState({hasError: false})}
-                    button={'loading-error-404-reset'}
+                    button
                     text={"loading-error"}/>
             )
         }

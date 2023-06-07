@@ -19,7 +19,7 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -36,12 +36,11 @@ import RecondingBoxStyle from '@features/card/components/consultationDetailCard/
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import DialogTitle from "@mui/material/DialogTitle";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -71,11 +70,11 @@ function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
     const {data: session} = useSession();
-    const urlMedicalEntitySuffix = useMedicalEntitySuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {record} = useAppSelector(consultationSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger} = useRequestMutation(null, "/drugs");
 
@@ -95,12 +94,6 @@ function ConsultationIPToolbar({...props}) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-
-    const {data: httpPatientPhotoResponse} = useRequest(medicalEntityHasUser && patient?.hasPhoto ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
 
     const startRecord = () => {
         recorder.start().then(() => {
@@ -381,7 +374,7 @@ function ConsultationIPToolbar({...props}) {
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
                         pdoc.push({
                             id: 2,
-                            name: "Ordonnance médicale",
+                            name: "requestedPrescription",
                             status: "in_progress",
                             icon: "ic-traitement",
                             state
@@ -396,7 +389,7 @@ function ConsultationIPToolbar({...props}) {
                     if (pdoc.findIndex((pdc) => pdc.id === 1) === -1)
                         pdoc.push({
                             id: 1,
-                            name: "Demande bilan",
+                            name: "requestedAnalyses",
                             status: "in_progress",
                             icon: "ic-analyse",
                             state
@@ -586,8 +579,6 @@ function ConsultationIPToolbar({...props}) {
         ]);
     }, [tabs, appointement]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-
     if (!ready) return <>toolbar loading..</>;
 
     return (
@@ -597,7 +588,9 @@ function ConsultationIPToolbar({...props}) {
                     {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
                         <Zoom>
                             <Avatar
-                                src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                src={patientPhoto
+                                    ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                    : (patient?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                 sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
                                 <IconUrl width={"40"} height={"40"} path="men-avatar"/>
                             </Avatar>

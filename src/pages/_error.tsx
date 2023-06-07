@@ -6,7 +6,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 
 const Error: NextPage<ErrorProps> = ({statusCode}) => {
-    return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 }
 
 Error.getInitialProps = async contextData => {

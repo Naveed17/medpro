@@ -10,17 +10,30 @@
   "stats": " Statistiques",
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
-  "loading-error": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
-  "loading-error-404": "404 - La page n'a pas été trouvée",
-  "loading-error-data-404": "Données non trouvées",
-  "loading-error-404-reset": "Retourner à la agenda",
+  "loading-error": {
+    "title": "Oops!",
+    "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
+    "button": "Réessayer"
+  },
+  "maintenance-error": {
+    "title": "Nous reviendrons",
+    "description": "Nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
+    "button": "Réessayer"
+  },
+  "loading-error-404": {
+    "title": "Page non trouvée",
+    "description": "La page que vous recherchez a peut-être été supprimée ou est temporairement indisponible.",
+    "button": "Retourner à la agenda"
+  },
   "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",
+  "of": "sur",
   "type_of_document": "Sélectionner le type de document",
   "to_upload": "pour télécharger vos documents",
   "prescription_of_medication": "Ordonnance de médicaments",
   "orders": "Ordonnances",
   "report": "Rapport",
+  "phone_format": "Format international",
   "analysis": "Analyse",
   "medical_imaging": "Imagerie médicale",
   "mail_addressing": "Courrier adressé",
@@ -164,6 +177,8 @@
   "today": "Aujourd’hui",
   "permission": "Vous n'avez pas la permission d'accéder à cette ressource",
   "back": "Retour",
+  "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
+  "install_app": "Installer l'app",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Avez-vous déjà utilisé med.tn ?",
@@ -498,5 +513,31 @@
     "medical_entity__requested_analyses_modal_create": "entité médicale demandée analyses modales créer",
     "medical_entity__requested_analyses_modal_update": "entité médicale a demandé des analyses mise à jour modale",
     "medical_entity__requested_analyses_modal_delete": "entité médicale demandée analyses suppression modale"
+  },
+  "appointment-status": {
+    "PENDING": "En attende",
+    "CONFIRMED": "Confirmé",
+    "REFUSED": "Refusé",
+    "WAITING_ROOM": "Salle d'attende",
+    "ON_GOING": "En consultation",
+    "FINISHED": "Effectué",
+    "CANCELED": "Annulé",
+    "EXPIRED": "Expiré",
+    "PAUSED": "Pausé",
+    "NOSHOW": "Patient ne s'est pas présenté",
+    "ONLINE": "Rendez-vous depuis le site"
+  },
+  "social_insured": {
+    "socialInsured": "L'assuré social",
+    "himself": "Lui-même",
+    "partner": "Le conjoint",
+    "ascendant": "L'ascendant",
+    "father": "Le Pére",
+    "mother": "Le Mére",
+    "child": "L'enfant",
+    "1_child": "1er Enfant",
+    "2_child": "2ème Enfant",
+    "3_child": "3ème Enfant",
+    "other_child": "Autre"
   }
 }
