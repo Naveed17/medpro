@@ -28,7 +28,6 @@ function ModelSwitchButton({...props}) {
         onClickEvent("set-prescription");
     }
 
-    console.log(lastPrescriptions)
     return (
         <Box
             sx={{
