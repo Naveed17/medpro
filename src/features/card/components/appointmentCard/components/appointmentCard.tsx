@@ -29,6 +29,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSWRConfig} from "swr";
+import {debounce} from "lodash";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -53,16 +54,17 @@ function AppointmentCard({...props}) {
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
+    const [instruction, setInstruction] = useState(data.instruction);
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    const updateDetails = (input: { reason?: string[]; type?: string }) => {
+    const updateDetails = (input: { attribute: string; value: any }) => {
         const form = new FormData();
-        form.append("attribute", input.reason ? "consultation_reason" : "type");
-        form.append("value", (input.reason ? input.reason : input.type) as string);
+        form.append("attribute", input.attribute);
+        form.append("value", input.value as string);
         updateAppointmentTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
@@ -78,7 +80,7 @@ function AppointmentCard({...props}) {
     };
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
-        updateDetails({reason: reasons.map(reason => reason.uuid)});
+        updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
         setReason(reasons);
         setSelectedReason(reasons);
     }
@@ -107,6 +109,12 @@ function AppointmentCard({...props}) {
             setLoadingRequest(false);
         }));
     }
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        updateDetails({attribute: "global_instructions", value: event.target.value});
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 1000);
 
     return (
         <RootStyled>
@@ -196,7 +204,8 @@ function AppointmentCard({...props}) {
                                                     displayEmpty
                                                     onChange={(event) => {
                                                         updateDetails({
-                                                            type: event.target.value as string,
+                                                            attribute: "type",
+                                                            value: event.target.value as string,
                                                         });
                                                         setTypeEvent(event.target.value as string);
                                                     }}
@@ -281,8 +290,8 @@ function AppointmentCard({...props}) {
                                     )}
                                 </ListItem>
                             )}
-                            {reasons && editConsultation && (
-                                <ListItem>
+                            {editConsultation && <>
+                                {reasons && <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("consultation_reson")}
                                     </Typography>
@@ -362,8 +371,18 @@ function AppointmentCard({...props}) {
                                                                               sx={{paddingLeft: 0}}
                                                                               variant="outlined" fullWidth/>}/>
                                     </FormControl>
-                                </ListItem>
-                            )}
+                                </ListItem>}
+                                {/*<ListItem>
+                                    <Typography fontWeight={400}>
+                                        {t("insctruction")}
+                                    </Typography>
+                                    <FormControl fullWidth size="small">
+                                        <textarea rows={6}
+                                                  onChange={debouncedOnChange}
+                                                  defaultValue={instruction}/>
+                                    </FormControl>
+                                </ListItem>*/}
+                            </>}
                         </List>
                     </Box>
                 </Stack>

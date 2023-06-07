@@ -205,21 +205,8 @@ function CalendarToolbar({...props}) {
                             }
                         }}
                         views={VIEW_OPTIONS}
-                        onSelect={(viewOption: string) => viewOption !== "listWeek" && handleViewChange(viewOption)}
+                        onSelect={(viewOption: string) => handleViewChange(viewOption)}
                     />
-
-                    {/*<CalendarAddButton
-                        sx={{
-                            padding: "8px",
-                            "& .MuiButton-startIcon": {
-                                margin: 0
-                            },
-                            "& .MuiButton-startIcon>*:nth-of-type(1)": {
-                                fontSize: 16
-                            }
-                        }}
-                        onClickEvent={OnAddAppointment}
-                    />*/}
                 </Stack>
             </Hidden>
             <Hidden smDown>
