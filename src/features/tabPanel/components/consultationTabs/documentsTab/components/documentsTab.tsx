@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Box, IconButton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -108,28 +108,34 @@ function DocumentsTab({...props}) {
                         }}/>
                     </Box>
                     <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
-                        <IconButton onClick={() => {
-                            axios.get(selectedAudio.uri, {
-                                responseType: 'blob',
-                            })
-                                .then((res) => {
-                                    fileDownload(res.data, "medlink.mp3");
+                        <Tooltip title={t('consultationIP.download')}>
+                            <IconButton onClick={() => {
+                                axios.get(selectedAudio.uri, {
+                                    responseType: 'blob',
                                 })
-                        }}>
-                            <CloudDownloadIcon color={"primary"}/>
-                        </IconButton>
-                        <IconButton color={"error"} onClick={() => removeDoc()}>
-                            <DeleteOutlineRoundedIcon/>
-                        </IconButton>
-                        <IconButton onClick={() => setSelectedAudio(null)}>
-                            <CloseRoundedIcon/>
-                        </IconButton>
+                                    .then((res) => {
+                                        fileDownload(res.data, "medlink.mp3");
+                                    })
+                            }}>
+                                <CloudDownloadIcon color={"primary"}/>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('consultationIP.delete')}>
+                            <IconButton color={"error"} onClick={() => removeDoc()}>
+                                <DeleteOutlineRoundedIcon/>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('consultationIP.close')}>
+                            <IconButton onClick={() => setSelectedAudio(null)}>
+                                <CloseRoundedIcon/>
+                            </IconButton>
+                        </Tooltip>
 
                     </Stack>
                     <AudioPlayer
                         autoPlay
                         style={{marginTop: 10}}
-                        src={selectedAudio.uri}
+                        src={selectedAudio.uri.url}
                         onPlay={() => console.log("onPlay")}
                     />
                 </Box>}

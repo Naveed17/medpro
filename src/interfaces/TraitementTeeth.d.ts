@@ -4,5 +4,6 @@ interface TraitementTeeth {
   color: string,
   showPicker: boolean,
   teeth: string[],
-  acts: string[]
+  acts: string[],
+  note:string
 }

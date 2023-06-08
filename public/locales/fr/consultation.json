@@ -369,6 +369,8 @@
     "doctor_placeholder": "Nom du doctor",
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
+    "disease": "Maladie",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -493,6 +495,7 @@
     "absente": "Absente",
     "save": "Enregistrer",
     "title": "Traitement des dents",
-    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
+    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes",
+    "note": "Note"
   }
 }
