@@ -22,7 +22,6 @@ const AntecedentWidget: any = memo(
                         let items = state.map((item: AntecedentsModel) => ({...item}));
                         let item = items.find((i: AntecedentsModel) => i.uuid === value.uuid)
                         if (item) item.response = JSON.stringify(ev.data);
-                        console.log(items)
                         setState(items)
                     }}
                     submission={{
