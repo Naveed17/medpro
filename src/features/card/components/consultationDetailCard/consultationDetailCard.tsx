@@ -43,8 +43,10 @@ function CIPPatientHistoryCard({...props}) {
     const [loadingReq, setLoadingReq] = useState(false);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
+    let [diseases, setDiseases] = useState<string[]>([]);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
+    const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
 
     const {
         data: httpConsultReasonResponse,
@@ -66,6 +68,7 @@ function CIPPatientHistoryCard({...props}) {
                     app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
             notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
             diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+            disease: storageData?.disease ? storageData.disease : (app_data?.disease ? app_data?.disease.value.split(',') : []),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -95,6 +98,20 @@ function CIPPatientHistoryCard({...props}) {
             dispatch(SetListen('observation'));
             setOldNote(values.notes);
         })
+    }
+
+    const handleDiseasesChange = (_diseases: string[]) => {
+        setFieldValue("disease",_diseases);
+        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+            ...storageData,
+            disease: _diseases
+        }));
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                disease: _diseases
+            })
+        );
     }
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
@@ -134,6 +151,20 @@ function CIPPatientHistoryCard({...props}) {
             }
             setLoadingReq(false);
         }));
+    }
+
+    const findDiseases = (name:string) =>{
+        triggerDiseases({
+            method: "GET",
+            url: `/api/private/diseases/${router.locale}?name=${name}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(res =>{
+            let resultats:any[] = [];
+            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) =>{
+                resultats.push(r.data.title['@value']);
+            });
+            setDiseases(resultats);
+        })
     }
 
     useEffect(() => {
@@ -345,6 +376,49 @@ function CIPPatientHistoryCard({...props}) {
                                         })
                                     );
                                 }}/>
+                        </Box>
+                        <Box width={1}>
+                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                {t("disease")}
+                            </Typography>
+                            <Autocomplete
+                                id={"diseases"}
+                                freeSolo
+                                multiple
+                                autoHighlight
+                                disableClearable
+                                size="small"
+                                value={values.disease}
+                                onChange={(e, newValue: any) => {
+                                    e.stopPropagation();
+                                    handleDiseasesChange(newValue)
+                                }}
+                                filterOptions={(options, params) => {
+                                    const {inputValue} = params;
+                                    if (inputValue.length > 0) options.push(inputValue)
+                                    return options
+                                }}
+                                sx={{color: "text.secondary"}}
+                                options={diseases}
+                                renderInput={params => <TextField color={"info"}
+                                                                  {...params}
+                                                                  InputProps={{
+                                                                      ...params.InputProps,
+                                                                      endAdornment: (
+                                                                          <React.Fragment>
+                                                                              {loadingReq ?
+                                                                                  <CircularProgress color="inherit"
+                                                                                                    size={20}/> : null}
+                                                                              {params.InputProps.endAdornment}
+                                                                          </React.Fragment>
+                                                                      ),
+                                                                  }}
+                                                                  placeholder={"--"}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  onChange={(ev)=>{
+                                                                      findDiseases(ev.target.value)
+                                                                  }}
+                                                                  variant="outlined" fullWidth/>}/>
                         </Box>
                         {/*<Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>

@@ -369,6 +369,7 @@
     "doctor_placeholder": "Nom du doctor",
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
+    "disease": "Maladie",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",

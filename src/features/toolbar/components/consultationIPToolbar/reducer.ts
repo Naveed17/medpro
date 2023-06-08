@@ -36,6 +36,7 @@ const initialState: MenuState = {
         notes: "",
         diagnosis: "",
         treatment: "",
+        diseases:""
     },
     fiche: null,
     mutate: null,
