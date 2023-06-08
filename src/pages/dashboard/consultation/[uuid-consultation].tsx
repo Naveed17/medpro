@@ -241,6 +241,7 @@ function ConsultationInProgress() {
             setLoading(false);
         }
     }, [httpAppResponse]);
+
     useEffect(() => {
         if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data;
@@ -411,6 +412,7 @@ function ConsultationInProgress() {
             );
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
+            form.append("disease", exam.disease.toString());
             form.append("treatment", exam.treatment ? exam.treatment : "");
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
