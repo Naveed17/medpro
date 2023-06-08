@@ -367,6 +367,7 @@
     "today": "Today",
     "today_placeholder": "Today's date",
     "disease": "Disease",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Delete folder",

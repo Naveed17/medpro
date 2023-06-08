@@ -370,6 +370,7 @@
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
     "disease": "Maladie",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
