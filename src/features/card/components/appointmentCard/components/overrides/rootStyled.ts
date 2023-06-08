@@ -84,6 +84,12 @@ const RootStyled = styled(Card)(({ theme }) => {
         },
       },
     },
+    "& textarea": {
+      borderColor: theme.palette.common.white,
+      borderRadius: 6,
+      padding: 6,
+      backgroundColor: theme.palette.grey["A10"]
+    }
   };
 });
 export default RootStyled;

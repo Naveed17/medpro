@@ -1009,8 +1009,8 @@ function Agenda() {
                                         <SpeedDial
                                             ariaLabel="SpeedDial tooltip Add"
                                             sx={{
-                                                position: 'absolute',
-                                                bottom: 16,
+                                                position: 'fixed',
+                                                bottom: 50,
                                                 right: 16
                                             }}
                                             icon={<SpeedDialIcon/>}
