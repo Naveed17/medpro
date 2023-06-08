@@ -68,7 +68,7 @@ function CIPPatientHistoryCard({...props}) {
                     app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
             notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
             diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-            disease: storageData?.disease ? storageData.disease : (app_data?.disease ? app_data?.disease.value.split(',') : []),
+            disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -175,6 +175,7 @@ function CIPPatientHistoryCard({...props}) {
                         app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
                 notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
                 diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
                 treatment: exam.treatment
             })
         );
