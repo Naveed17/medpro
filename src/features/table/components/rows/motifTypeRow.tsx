@@ -63,12 +63,12 @@ function MotifRow({...props}) {
                             onClick={() => editMotif(row, "edit")}>
                             <IconUrl path="setting/edit"/>
                         </IconButton>
-                        <IconButton
+                        {!row.hasData &&<IconButton
                             size="small"
                             sx={{mr: {md: 1}}}
                             onClick={() => editMotif(row, "delete")}>
                             <IconUrl path="setting/icdelete"/>
-                        </IconButton>
+                        </IconButton>}
                     </Stack>
                 ) : (
                     <Skeleton width={30} height={40} sx={{m: "auto"}}/>

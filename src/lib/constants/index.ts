@@ -156,3 +156,5 @@ export const UrlMedicalEntitySuffix: string = '/api/medical-entity';
 export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 
 export const MedicalFormUnit = data;
+
+export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
