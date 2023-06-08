@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
 export default function TeethPreview({...props}) {
-    let {t, of, appuuid, acts, previousData, setOpenTeeth} = props
+    let {t, of, appuuid, acts, previousData, setOpenTeeth,local} = props
 
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -99,7 +99,7 @@ export default function TeethPreview({...props}) {
                          }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/static/img/${of === 'adult' ? 'adultTeeth' : 'childTeeth'}.svg`}
+                <img src={`/static/img/${of === 'adult' ? local === 'fr' ?'adultTeeth':'adultTeethEN' : local === 'fr' ?'childTeeth':'childTeethEN'}.svg`}
                      id={"t"}
                      onClick={() => {
                          setOpenTeeth(of)

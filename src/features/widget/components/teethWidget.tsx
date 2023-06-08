@@ -58,7 +58,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function TeethWidget({...props}) {
-    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid, previousData} = props
+    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid, previousData,local} = props
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -253,7 +253,7 @@ export default function TeethWidget({...props}) {
                         }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/static/img/${of === 'adult' ? 'adultTeeth' : 'childTeeth'}.svg`}
+                <img src={`/static/img/${of === 'adult' ? local === 'fr' ?'adultTeeth':'adultTeethEN' : local === 'fr' ?'childTeeth':'childTeethEN'}.svg`}
                      id={"tooth"}
                      onClick={GetCoordinates}
                      alt={"patient teeth"}/>
