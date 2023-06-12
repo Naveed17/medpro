@@ -36,10 +36,7 @@ function AddNewRoleDialog({...props}) {
 
     const [loading, setLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>([]);
-
     const {trigger} = useRequestMutation(null, "/profile");
-
-
     useEffect(() => {
         if (allPermissions) {
             const permissions = allPermissions.map((item: any) => {
@@ -65,7 +62,7 @@ function AddNewRoleDialog({...props}) {
             selected.permissions.forEach((permission: any) => {
                 permissionsArray.forEach((item: any) => {
                     if (item.uuid === permission.parent) {
-                        item.value = true;
+                        item.value = item.children.every((child: any) => child.uuid === permission.uuid)
                         item.children.forEach((child: any) => {
                             if (child.uuid === permission.uuid) {
                                 child.value = true;

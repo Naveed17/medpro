@@ -335,40 +335,41 @@
     }
   },
   "users": {
-    "new": {
-      "path": "Paramètres > Utilisateurs > Ajouter",
-      "user": "Utilisateur",
-      "pro": "C'est un professionnel ?",
-      "mail": "Adresse mail",
-      "name": "Nom de l'utilisateur",
-      "tname": "tapez ici nom de l'utilisateur",
-      "admin": "Administrateur (accès aux paramètres)",
-      "roles": "Droits d'accès",
-      "send": "Message d'invitation à envoyer à l'utilisateur",
-      "message": "Message",
-      "tmessage": "Tapez le message",
-      "select": "Séléctionner ...",
-      "yes": "Oui",
-      "no": "Non",
-      "all": "Définir l'accès aux differents agendas",
-      "nameReq": "Nom est obligatoire",
-      "codeReq": "code est obligatoire",
-      "townReq": "ville est obligatoire",
-      "cityReq": "gouvernorat est obligatoire",
-      "ntc": "Nom est trop court",
-      "ntl": "Nom est trop long",
-      "mailInvalid": "Adresse mail est invalide",
-      "mailReq": "Adresse mail est obligatoire",
-      "consultation_fees": "Frais",
-      "birthdate": "Date de naissance",
-      "firstname": "Prénom",
-      "lastname": "Nom de famille",
-      "phone": "Téléphone",
-      "password": "Mot de passe",
-      "profile": "Profil"
-    },
+    "path_new": "Paramètres > Utilisateurs > Ajouter",
+    "path_update": "Paramètres > Utilisateurs > Modifier",
+    "user": "Utilisateur",
+    "pro": "C'est un professionnel ?",
+    "mail": "Adresse mail",
+    "name": "Nom de l'utilisateur",
+    "tname": "tapez ici nom de l'utilisateur",
+    "admin": "Administrateur (accès aux paramètres)",
+    "roles": "Droits d'accès",
+    "send": "Message d'invitation à envoyer à l'utilisateur",
+    "message": "Message",
+    "tmessage": "Tapez le message",
+    "select": "Séléctionner ...",
+    "yes": "Oui",
+    "no": "Non",
+    "all": "Définir l'accès aux differents agendas",
+    "nameReq": "Nom est obligatoire",
+    "codeReq": "code est obligatoire",
+    "townReq": "ville est obligatoire",
+    "cityReq": "gouvernorat est obligatoire",
+    "ntc": "Nom est trop court",
+    "ntl": "Nom est trop long",
+    "mailInvalid": "Adresse mail est invalide",
+    "mailReq": "Adresse mail est obligatoire",
+    "consultation_fees": "Frais",
+    "birthdate": "Date de naissance",
+    "firstname": "Prénom",
+    "lastname": "Nom de famille",
+    "phone": "Téléphone",
+    "password": "Mot de passe",
+    "confirm_password": "confirmer le mot de passe",
+    "profile": "Profil",
     "config": {
       "add": "Ajouter",
+      "delete_success": "l'utilisateur a été supprimé avec succès",
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
@@ -379,9 +380,12 @@
       "add_appointment": "Ajouter RDV",
       "profile_created": "Profil créé",
       "visitor_added": "Visiteur ajoute",
+      "updated": "Utilisateur mis à jour",
       "dialog": {
         "delete-profile-title": "Suppression du profil",
+        "delete-user-title": "Suppression du utilisateur",
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
         "ntc": "Nom est trop court",
         "delete": "Supprimer",
         "cancel": "Annuler"
@@ -391,11 +395,22 @@
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
-        },
-        "role": {
-          "title": "Ajoutez votre premier rôle",
-          "description": "Gérer votre accès et créer votre première secrétaire"
         }
+      },
+      "table": {
+        "accessSetting": "Paramètre",
+        "name": "Nom",
+        "agenda": "Agenda",
+        "fonction": "Fonction",
+        "request": "Demande",
+        "access": "accès",
+        "action": "Action",
+        "remove": "Supprimer",
+        "update": "Editer",
+        "role_professional": "Rôle professionnel",
+        "secretary": "Secretaire",
+        "active": "Actif",
+        "inactive": "Inactif"
       }
     },
     "dialog": {
@@ -408,20 +423,10 @@
       "role_name": "Nom du rôle",
       "select_all": "Sélectionner tout"
     },
-    "table": {
-      "accessSetting": "Paramètre",
-      "name": "Nom",
-      "agenda": "Agenda",
-      "fonction": "Fonction",
-      "request": "Demande",
-      "access": "accès",
-      "action": "Action",
-      "remove": "Supprimer",
-      "update": "Editer"
-    },
     "alert": {
-      "added-role": "Un nouveau rôle a été ajouté",
-      "updated-role": "Le rôle a été mis à jour"
+      "success": "l'utilisateur a été ajouté avec succès",
+      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "update": "l'utilisateur a été mis à jour avec succès"
     }
   },
   "instructions": {
