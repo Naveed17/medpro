@@ -10,7 +10,7 @@ const settingsData = {
         {
             name: "cabinet",
             icon: "setting/ic-cabinet",
-            href: "/dashboard/settings/places/",
+            href: "/dashboard/settings/places/[uuid]",
             disable: false
         },
         {
