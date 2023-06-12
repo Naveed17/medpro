@@ -45,3 +45,4 @@ export * from "./patientHistoryStaticCard";
 export * from "./historyAppointementContainer";
 export * from "./fileTemplateMobileCard";
 export * from "./actfeesMobileCard";
+export * from './userMobileCard'

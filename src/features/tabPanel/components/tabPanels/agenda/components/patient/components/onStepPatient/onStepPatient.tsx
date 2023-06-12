@@ -46,7 +46,7 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
-import {useInsurances} from "@lib/hooks/rest";
+import {useContactType, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
@@ -283,11 +283,6 @@ function OnStepPatient({...props}) {
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
 
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}/?nationality=true`
@@ -298,7 +293,7 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
+    const contacts = useContactType();
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 

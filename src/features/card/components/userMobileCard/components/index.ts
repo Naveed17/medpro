@@ -1,0 +1,1 @@
+export {default as UserMobileCard} from './userMobileCard'

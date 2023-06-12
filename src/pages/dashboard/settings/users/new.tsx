@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState, useEffect, memo, useRef} from "react";
+import React, {ReactElement, useState,useEffect,memo,useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -30,79 +30,57 @@ import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {DatePicker} from "@features/datepicker";
-import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestMutation,useRequest} from "@lib/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { DatePicker } from "@features/datepicker";
+import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry} from "@lib/constants";
-import { Session } from "next-auth";
-import {isValidPhoneNumber} from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input/input";
-import {
-     CustomInput,
-   
-} from "@features/tabPanel";
+import {CustomInput} from "@features/tabPanel";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import { useContactType } from "@lib/hooks/rest";
  const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
-
-function ModifyUser() {
+function NewUser() {
+    const contacts = useContactType();
     const router = useRouter();
     const phoneInputRef = useRef(null);
-     const {enqueueSnackbar} = useSnackbar()
-    const {uuid} = router.query;
+    const {enqueueSnackbar} = useSnackbar()
     const dispatch = useAppDispatch();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
-    const {t, ready} = useTranslation("settings");
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
-    const [profiles, setProfiles] = useState<any[]>([]);
-    const [agendaRoles] = useState(agendas);
-    const [user, setUser] = useState<any>({});
+    const[profiles,setProfiles] = useState<any[]>([]);
+    const { data: session } = useSession();
+    const { data: userSession } = session as Session;
+    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
+    const [agendaRoles, setAgendaRoles] = useState(agendas);
+    const [user] = useState(tableState.editUser);
     const {data: userData} = session as Session;
-    const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const [roles] = useState([
+    const {trigger} = useRequestMutation(null, "/users");
+    const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-    const {trigger} = useRequestMutation(null, "/users");
-
-    const {data: httpProfilesResponse,} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
-     const { data: httpUserResponse,error } = useRequest({
+const { data: httpProfilesResponse, } = useRequest({
     method: "GET",
-    url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
+    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
   });
-
   useEffect(() => {
    if (httpProfilesResponse){
       setProfiles((httpProfilesResponse as HttpResponse)?.data)
    }
-    }, [httpProfilesResponse]);
-     useEffect(() => {
-    const user = (httpUserResponse as HttpResponse)?.data
-    if (error){
-    setUser(null)
-    }else if(user){
-    setUser(user)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpUserResponse,error])
+    }, [httpProfilesResponse])
+    const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -113,14 +91,16 @@ function ModifyUser() {
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
         consultation_fees: Yup.string()
-            .required(),
+            .required(),   
         birthdate: Yup.string()
+            .required(), 
+        firstname: Yup.string()
             .required(),
-        FirstName: Yup.string()
+        lastname: Yup.string()
             .required(),
-        lastName: Yup.string()
+        password: Yup.string()
             .required(),
-             phones: Yup.array().of(
+        phones: Yup.array().of(
             Yup.object().shape({
                 dial: Yup.object().shape({
                     code: Yup.string(),
@@ -137,62 +117,69 @@ function ModifyUser() {
                     })
                     .required(),
             })
-        ), 
+        ),    
+        confirmPassword: Yup.string().when('password', (password, field) =>
+        password ? field.required().oneOf([Yup.ref('password')]) : field),
         profile: Yup.string()
-            .required(),
+            .required(),       
     });
+    
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             role: "",
-            agendas: agendaRoles.map(agenda => ({...agenda, role: ""})),
-            isProfessional: user?.isProfessional || false,
-            email: user?.email || "",
-            name: user?.userName || "" ,
-            message: user?.message || "",
-            admin: user?.admin || false,
-            consultation_fees: user?.ConsultationFees || "",
-            birthdate: user?.birthDate || null,
-            FirstName: user?.FirstName || "",
-            lastName: user?.lastName || "",
+            agendas: agendaRoles.map((agenda:any) => ({...agenda, role: ""})),
+            professionnel: false,
+            email:  "",
+            name:  "",
+            message:   "",
+            admin:  false,
+            consultation_fees:"",
+            birthdate: null,
+            firstname :"",
+            lastname:"",
             phones:  [
                 {
                     phone: "",dial: doctor_country
                 }
                 ],
-            profile: user?.profile?.uuid || ""
+            password:"",
+            confirmPassword:"", 
+            profile:""
         },
         validationSchema,
-        onSubmit: async (values) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             setLoading(true);
             const form = new FormData();
             form.append('username', values.name);
             form.append('email', values.email);
-            form.append('is_owner', values.admin);
+            form.append('is_owner', JSON.stringify(values.admin));
             form.append('is_active', 'true');
-            form.append('is_professional', values.isProfessional);
+            form.append('is_professional', JSON.stringify(values.professionnel));
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
             form.append('consultation_fees', values.consultation_fees);
             form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
-            form.append('firstname', values.FirstName);
-            form.append('lastname', values.lastName);
+            form.append('firstname', values.firstname);
+            form.append('lastname', values.lastname);
             form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
             code: phoneData.dial?.phone,
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
+            contact_type: contacts[0].uuid,
             is_public: false,
             is_support: false
-            }))));
-            form.append('profile', values.profile);
+        }))));
+            form.append('password', values.password);
+            form.append('profile', values.profile); 
             trigger({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then(() => {
-            enqueueSnackbar(t("users.alert.update"), {variant: "error"});
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            enqueueSnackbar(t("users.alert.success"), {variant: "success"});
             setLoading(false)
             dispatch(addUser({...values}));
             router.push("/dashboard/settings/users");
@@ -200,7 +187,7 @@ function ModifyUser() {
             setLoading(false);
             enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
         })
-
+           
         },
     });
 
@@ -212,20 +199,13 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-    if (!ready) return (<LoadingScreen 
-        {...(uuid && {
-            error:true,
-            button: 'loading-error-404-reset',
-            text: 'loading-error'
-        })}
-       />);
-       //console.log(user)
-    if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    console.log(values)
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t("users.path_update")}</p>
+                    <p style={{margin: 0}}>{t("users.path_new")}</p>
                 </RootStyled>
             </SubHeader>
 
@@ -255,9 +235,9 @@ function ModifyUser() {
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
-                                                        checked={values.isProfessional}
+                                                        checked={values.professionnel}
                                                         onChange={() => {
-                                                            setFieldValue("isProfessional", true);
+                                                            setFieldValue("professionnel", true);
                                                         }}
                                                     />
                                                 }
@@ -266,9 +246,9 @@ function ModifyUser() {
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
-                                                        checked={!values.isProfessional}
+                                                        checked={!values.professionnel}
                                                         onChange={() => {
-                                                            setFieldValue("isProfessional", false);
+                                                            setFieldValue("professionnel", false);
                                                         }}
                                                     />
                                                 }
@@ -335,7 +315,7 @@ function ModifyUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
+                                 <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -354,8 +334,8 @@ function ModifyUser() {
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <TextField
-                                            type="number"
                                                 variant="outlined"
+                                                type="number"
                                                 placeholder={t("users.consultation_fees")}
                                                 fullWidth
                                                 required
@@ -365,7 +345,9 @@ function ModifyUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
+                                <Box mb={2} 
+                               
+                                >
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -383,17 +365,17 @@ function ModifyUser() {
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <DatePicker
-                                                value={values.birthdate}
-                                                onChange={(newValue: any) => {
-                                                    setFieldValue("birthdate", newValue);
-                                                }}
-                                                 InputProps={{
-                                                    error:Boolean(touched.birthdate && errors.birthdate),
-                                                     sx:{
-                                                   button:{
-                                                   p:0
-                                                   }
+                                             <DatePicker
+                                            value={values.birthdate}
+                                           onChange={(newValue: any) => {
+                                           setFieldValue("birthdate", newValue);
+                                           }}
+                                           InputProps={{
+                                            error:Boolean(touched.birthdate && errors.birthdate),
+                                            sx:{
+                                           button:{
+                                            p:0
+                                           }
                                                 }
                                              }}
                                             />
@@ -418,18 +400,18 @@ function ModifyUser() {
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <TextField
+                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.firstname")}
                                                 fullWidth
                                                 required
-                                                error={Boolean(touched.FirstName && errors.FirstName)}
-                                                {...getFieldProps("FirstName")}
+                                                error={Boolean(touched.firstname && errors.firstname)}
+                                                {...getFieldProps("firstname")}
                                             />
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
+                                 <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -447,14 +429,13 @@ function ModifyUser() {
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <TextField
-                                            {...getFieldProps("lastName")}
+                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.lastname")}
                                                 fullWidth
                                                 required
-                                                error={Boolean(touched.lastName && errors.lastName)}
-                                                
+                                                error={Boolean(touched.lastname && errors.lastname)}
+                                                {...getFieldProps("lastname")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -507,7 +488,66 @@ function ModifyUser() {
                                     </Grid>
                                 </Box>
                                 ))}
-                               
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                               type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.password && errors.password)}
+                                                {...getFieldProps("password")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                 <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.confirm_password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                             <TextField
+                                               type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.confirm_password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                {...getFieldProps("confirmPassword")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
                                 <Box mb={2}>
                                     <Grid
                                         container
@@ -520,29 +560,28 @@ function ModifyUser() {
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("users.profile")}{" "}
-
+                                               
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <FormControl size="small" fullWidth error = {Boolean(touched.profile && errors.profile)}>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    id={"role"}
-                                                    {...getFieldProps("profile")}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.profile")}</em>;
-                                                        }
-                                                        const profile = profiles?.find(profile => profile.uuid === selected);
-                                                        return <Typography>{profile?.name}</Typography>
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{color: "text.secondary"}}>
-                                                    {profiles.map(profile =>
-                                                        <MenuItem key={profile.uuid}
-                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id={"role"}
+                                                {...getFieldProps("profile")}
+                                                renderValue={selected => {
+                                                    if (selected.length === 0) {
+                                                        return <em>{t("users.profile")}</em>;
+                                                    }
+                                                    const profile = profiles?.find(profile => profile.uuid === selected);
+                                                    return <Typography>{profile?.name}</Typography>
+                                                }}
+                                                displayEmpty
+                                                sx={{color: "text.secondary"}}>
+                                                {profiles.map(profile =>
+                                                    <MenuItem key={profile.uuid} value={profile.uuid}>{profile.name}</MenuItem>)}
+                                            </Select>
+                                        </FormControl>
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -638,7 +677,7 @@ function ModifyUser() {
                                             <FormControlLabel
                                                 control={<Checkbox/>}
                                                 label={agenda.name}
-
+                                                
                                             />
                                         </Grid>
                                         <Grid item xs={12} lg={7}>
@@ -718,30 +757,22 @@ function ModifyUser() {
         </>
     );
 }
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async ({...props}) => {
-    return {
-        paths: [], //indicates that no page needs be created at build time
-        fallback: "blocking", //indicates the type of fallback
-    };
-};
-export const getStaticProps: GetStaticProps = async ({locale, params}) => {
 
-    return {
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, [
+        ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
             "patient",
             "settings",
         ])),
     },
-}};
+});
+export default NewUser;
 
-export default ModifyUser;
+NewUser.auth = true;
 
-ModifyUser.auth = true;
-
-ModifyUser.getLayout = function getLayout(page: ReactElement) {
+NewUser.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };
