@@ -366,6 +366,8 @@
     "doctor_placeholder": "Doctor name",
     "today": "Today",
     "today_placeholder": "Today's date",
+    "disease": "Disease",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Delete folder",
@@ -492,6 +494,7 @@
     "absente": "Absent",
     "save": "Save",
     "title": "Tooth Treatment",
-    "subtitle": "Click on the desired tooth and select the acts"
+    "subtitle": "Click on the desired tooth and select the acts",
+    "note": "Note"
   }
 }

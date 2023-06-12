@@ -145,7 +145,7 @@ function LifeStyleDialog({...props}) {
                                                 {!list.hideStartTime &&<TextField
                                                     name={`${list.uuid}`}
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
-                                                    placeholder={t('starting_year')}
+                                                    placeholder={list.hideEndTime ? t('date'):t('starting_year')}
                                                     sx={{width: 130}}
                                                     onChange={(e) => {
                                                         let items = state.map((item: AntecedentsModel) => ({...item}));

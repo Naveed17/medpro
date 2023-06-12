@@ -33,6 +33,7 @@ import TeethWidget from "@features/widget/components/teethWidget";
 import {useTranslation} from "next-i18next";
 import TeethPreview from "@features/widget/components/teethPreview";
 import ReactDOM from "react-dom/client";
+import {useRouter} from "next/router";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -116,6 +117,7 @@ function Widget({...props}) {
         previousData,
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
+    const router = useRouter();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
 
@@ -166,7 +168,8 @@ function Widget({...props}) {
                     previousData,
                     setOpenTeeth,
                     updated,
-                    appuuid
+                    appuuid,
+                    local:router.locale
                 }}/>)
             }
             if (childTeeth) {
@@ -182,7 +185,8 @@ function Widget({...props}) {
                     previousData,
                     setOpenTeeth,
                     updated,
-                    appuuid
+                    appuuid,
+                    local:router.locale
                 }}/>)
             }
         }, 1000)
@@ -218,7 +222,7 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "44.5rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "48.9rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
