@@ -59,7 +59,7 @@ function Settings() {
                                 disablePadding>
                                 <ListItemButton
                                     onClick={() => {
-                                        router.push(`${locations && v.name === "cabinet" ? `${v.href}${locations[0]?.uuid}` : v.href}`);
+                                        router.push(`${locations && v.name === "cabinet" ? `${v.href.replace('[uuid]', '')}${locations[0]?.uuid}` : v.href}`);
                                     }}
                                     disabled={v.disable}
                                     disableRipple>

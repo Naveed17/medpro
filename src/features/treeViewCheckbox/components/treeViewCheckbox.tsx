@@ -25,7 +25,7 @@ const {data, onNodeCheck,t} = props;
               onChange={handleNodeCheck}
               checked={ hasChildren ? node.children.every((child:any) => child.value): node.value}
               {...(hasChildren && {
-                icon: node.value ? <IconUrl path="ic_check" /> : node.children.some((child:any) => child.value) ? <IndeterminateCheckBoxIcon color="primary" /> : <IconUrl path="ic_uncheck" />,
+                icon: node.children.some((child:any) => child.value) ? <IndeterminateCheckBoxIcon color="primary" /> : node.value ? <IconUrl path="ic_check" /> : <IconUrl path="ic_uncheck" />,
               })}
           />
       }
