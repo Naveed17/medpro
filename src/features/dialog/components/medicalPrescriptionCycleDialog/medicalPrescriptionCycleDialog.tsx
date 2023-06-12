@@ -208,7 +208,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = drug.cycles[0].dosage.split(",")[0]?.split(" ");
+        const [first, ...rest] = (drug.cycles.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
         const unit = rest.join(' ');
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(item => item.unit === unit);
