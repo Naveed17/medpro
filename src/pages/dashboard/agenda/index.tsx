@@ -482,7 +482,7 @@ function Agenda() {
                 updateAppointmentStatus({
                     method: "PATCH",
                     data: {
-                        status: "6"
+                        status: "1"
                     },
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
                 } as any).then(() => {
