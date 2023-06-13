@@ -7,6 +7,7 @@ import React from "react";
 import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 import {PaletteColor} from "@mui/material/styles";
+import {clearBrowserCache} from "@lib/hooks";
 
 function LoadingScreen({...props}) {
     const {text = "loading", button = false, color = "primary", OnClick = null} = props
@@ -109,6 +110,7 @@ function LoadingScreen({...props}) {
                 {button &&
                     <Button
                         onClick={() => {
+                            clearBrowserCache();
                             if (process.env.NODE_ENV !== 'development') {
                                 router.replace("/dashboard/agenda");
                             }

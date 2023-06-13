@@ -56,8 +56,9 @@ function AppointmentPopoverCard({...props}) {
                        direction="row">
                     <Chip
                         sx={{
+                            maxWidth: 260,
                             p: "0 .4rem",
-                            m: "0 .4rem 0 0",
+                            m: ".2rem .4rem 0 0",
                         }}
                         color="error"
                         label={t(error, {ns: "common"})}
