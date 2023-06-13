@@ -103,7 +103,7 @@ function RdvCard({...props}) {
                     {loading ? (
                         <Skeleton variant="text" width={100}/>
                     ) : (
-                        <Stack direction={"row"} spacing={1}>
+                        <Stack spacing={1}>
                             <Stack spacing={.5}>
                                 <Typography variant="body2" color="text.primary">
                                     {t('date')}
