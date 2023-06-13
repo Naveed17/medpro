@@ -92,8 +92,8 @@ function RdvCard({...props}) {
                     {loading ? (
                         <Skeleton variant="text" width={100}/>
                     ) : (
-                        <Stack direction={"row"} justifyItems={"center"} spacing={1.2}>
-                            <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
+                        <Stack direction={"column"} justifyItems={"center"} spacing={1.2}>
+                            <Stack direction={"row"} spacing={1.2}>
                                 {inner?.type && <Stack direction='row' alignItems="center">
                                     <ModelDot
                                         color={inner?.type?.color}
@@ -125,14 +125,15 @@ function RdvCard({...props}) {
                                 </Label>}
                             </Stack>
 
-                            {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
-                                <Typography fontSize={12} fontWeight={400}>
-                                    {t("patient-details.reason")}
-                                </Typography>
-                                <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                                    {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
-                                </Typography>
-                            </Stack>}
+                            {inner.consultationReasons.length > 0 &&
+                                <Stack spacing={.5} alignItems={'flex-start'}>
+                                    <Typography fontSize={12} fontWeight={400}>
+                                        {t("patient-details.reason")} :
+                                    </Typography>
+                                    <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                                        {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                    </Typography>
+                                </Stack>}
                         </Stack>
                     )}
                 </TableCell>
