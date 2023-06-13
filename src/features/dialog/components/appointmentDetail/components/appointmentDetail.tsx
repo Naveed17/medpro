@@ -118,7 +118,7 @@ function AppointmentDetail({...props}) {
                         </IconButton>
                     </Stack>
                 </Toolbar>
-                <Toolbar sx={{marginTop: "-0.6rem"}}>
+                {appointment?.extendedProps.hasErrors?.length > 0 && <Toolbar sx={{marginTop: "-0.6rem"}}>
                     {appointment?.extendedProps.hasErrors?.map(
                         (error: string, index: number) => (
                             <Stack
@@ -134,7 +134,7 @@ function AppointmentDetail({...props}) {
                             </Stack>
                         )
                     )}
-                </Toolbar>
+                </Toolbar>}
             </AppBar>
 
             <Box
