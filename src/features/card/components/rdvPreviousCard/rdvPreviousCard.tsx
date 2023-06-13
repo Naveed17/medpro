@@ -126,8 +126,8 @@ function RdvCard({...props}) {
                             </Stack>
 
                             {inner.consultationReasons.length > 0 &&
-                                <Stack spacing={.5} alignItems={'flex-start'}>
-                                    <Typography fontSize={12} fontWeight={400}>
+                                <Stack direction="row" spacing={.5} alignItems={'flex-start'}>
+                                    <Typography sx={{minWidth: 136}} variant={"body2"} fontSize={12} fontWeight={400}>
                                         {t("patient-details.reason")} :
                                     </Typography>
                                     <Typography component={Stack} spacing={1} alignItems="center" direction="row">
