@@ -13,7 +13,7 @@ export * from "./prepareInsurancesData";
 export * from "./capitalizeFirst";
 export * from "./checkNotification";
 export * from "./rest/useAppointment";
-export * from  './rest/useContactType'
+export * from './rest/useContactType'
 
 export function getDifference<T>(a: T[], b: T[]): T[] {
     return a.filter((element) => {
@@ -28,15 +28,25 @@ export function a11yProps(index: number) {
     };
 }
 
+export function clearBrowserCache() {
+    // Clearing the session storage
+    sessionStorage.clear();
+    // Clearing the browser storage
+    localStorage.clear();
+    // Clearing the browser cache
+    caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+}
+
 Array.prototype.group = (items, fn) => {
     return items.reduce((prev: any, next: any) => {
-        const prop = fn(next);
-        return {
-            ...prev,
-            [prop]: prev[prop] ? [...prev[prop], next] : [next],
-        };
-    }
-, {})};
+            const prop = fn(next);
+            return {
+                ...prev,
+                [prop]: prev[prop] ? [...prev[prop], next] : [next],
+            };
+        }
+        , {})
+};
 
 export const ConditionalWrapper = ({...props}) => {
     const {condition, wrapper, children} = props;
