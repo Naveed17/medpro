@@ -1,9 +1,19 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {Box, Button, LinearProgress, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {
+    Box,
+    Button, Drawer,
+    IconButton,
+    LinearProgress,
+    Stack,
+    Toolbar,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled} from "@features/toolbar";
@@ -14,6 +24,10 @@ import {useSession} from "next-auth/react";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import CloseIcon from "@mui/icons-material/Close";
+import {PfTemplateDetail} from "@features/pfTemplateDetail";
+import {useAppSelector} from "@lib/redux/hooks";
+import {CertifModelDrawer} from "@features/CertifModelDrawer";
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -26,7 +40,13 @@ function TemplatesConfig() {
     const [docs, setDocs] = useState<DocTemplateModel[]>([]);
     const [isdefault, setIsDefault] = useState<DocTemplateModel | null>(null);
     const [isHovering, setIsHovering] = useState("");
+    const [open, setOpen] = useState(false);
+    const [data, setData] = useState<CertifModel | null>(null);
+    const [action, setAction] = useState("");
+
     const theme = useTheme();
+    const {direction} = useAppSelector(configSelector);
+
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -34,7 +54,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse,mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -46,12 +66,14 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    const closeDraw = () => {
+        setOpen(false);
+    };
+
 
     const models = (httpModelResponse as HttpResponse)?.data as CertifModel[];
 
     const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as ModalModel[];
-
-    console.log(models)
 
     const handleMouseOver = (id: string | undefined) => {
         setIsHovering(id ? id : "");
@@ -61,6 +83,12 @@ function TemplatesConfig() {
     };
     const edit = (id: string | undefined) => {
         router.push(`/dashboard/settings/templates/${id}`);
+    }
+
+    const editDoc = (res:CertifModel) => {
+        setOpen(true)
+        setData(res);
+        setAction("editDoc")
     }
 
     useEffect(() => {
@@ -98,15 +126,15 @@ function TemplatesConfig() {
                 color="warning"
             />
 
-            <Typography
-                textTransform="uppercase"
-                marginTop={2}
-                marginLeft={2}
-                fontWeight={600}>
-                {t("layout")}
-            </Typography>
+            {!loading && <Box bgcolor={"#eff2f9"} mt={-1} pt={2} pl={2}>
+                <Typography
+                    textTransform="uppercase"
+                    fontWeight={600}>
+                    {t("layout")}
+                </Typography>
+            </Box>}
             <Box
-                bgcolor={(theme) => theme.palette.background.default}
+                bgcolor={'#eff2f9'}
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
@@ -140,13 +168,13 @@ function TemplatesConfig() {
                                 }} className={"edit-btn"} onClick={() => {
                                     edit(res.uuid)
                                 }}>{t("modifier")}</Button>}
-                            {/* {!loading &&
-                                        <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mt={1}>
+                             {isHovering === res.uuid &&
+                                        <Stack direction={"row"} justifyContent={"space-between"}  style={{position:"absolute",bottom:10,width:"85%",left:10}} alignItems={"center"}>
                                             <Typography className={"doc-title"}>{res.title}</Typography>
                                             <div className={"heading"}>
                                                 {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
                                             </div>
-                                        </Stack>}*/}
+                                        </Stack>}
                         </Box>
                     ))}
                 </TemplateStyled>
@@ -154,30 +182,7 @@ function TemplatesConfig() {
 
             <Typography
                 textTransform="uppercase"
-                marginLeft={2}
-                fontWeight={600}>
-                {t("prescription")}
-            </Typography>
-
-            <TemplateStyled>
-                <Box
-                    bgcolor={(theme) => theme.palette.background.default}
-                    sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                    <div className={"portraitA4"} onClick={() => {
-                        router.push(`/dashboard/settings/templates/new`);
-                    }} style={{
-                        marginTop: 25,
-                        marginRight: 30,
-                        alignItems: "center",
-                        display: "flex",
-                        justifyContent: "center"
-                    }}>
-                        <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
-                    </div>
-                </Box></TemplateStyled>
-
-            <Typography
-                textTransform="uppercase"
+                mt={2}
                 marginLeft={2}
                 fontWeight={600}>
                 {t("document")}
@@ -188,7 +193,8 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
-                        router.push(`/dashboard/settings/templates/new`);
+
+
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,
@@ -225,7 +231,7 @@ function TemplatesConfig() {
                                 <Button variant={"contained"} onMouseOver={() => {
                                     handleMouseOver(res.uuid)
                                 }} className={"edit-btn"} onClick={() => {
-                                    edit(res.uuid)
+                                    editDoc(res)
                                 }}>{t("modifier")}</Button>}
 
                             {isHovering === res.uuid &&<Stack direction={"row"} className={"title-content"}>
@@ -237,6 +243,51 @@ function TemplatesConfig() {
                 </TemplateStyled>
             </Box>
 
+            <Typography
+                textTransform="uppercase"
+                ml={2}
+                fontWeight={600}>
+                {t("prescription")}
+            </Typography>
+
+            <TemplateStyled>
+                <Box
+                    bgcolor={(theme) => theme.palette.background.default}
+                    sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                    <div className={"portraitA4"} onClick={() => {
+                        router.push(`/dashboard/settings/templates/new`);
+                    }} style={{
+                        marginTop: 25,
+                        marginRight: 30,
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "center"
+                    }}>
+                        <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
+                    </div>
+                </Box></TemplateStyled>
+
+            <Drawer
+                anchor={"right"}
+                open={open}
+                dir={direction}
+                onClose={closeDraw}>
+
+                    <Toolbar sx={{bgcolor: theme.palette.common.white}}>
+                        <Stack alignItems="flex-end" width={1}>
+                            <IconButton onClick={closeDraw} disableRipple>
+                                <CloseIcon/>
+                            </IconButton>
+                        </Stack>
+                    </Toolbar>
+
+                <CertifModelDrawer
+                    action={action}
+                    mutate={mutate}
+                    closeDraw={closeDraw}
+                    data={data}></CertifModelDrawer>
+
+            </Drawer>
         </>
     );
 }

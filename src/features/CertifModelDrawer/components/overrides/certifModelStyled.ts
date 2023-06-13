@@ -1,6 +1,6 @@
 import {styled} from "@mui/material/styles";
 
-const TemplateStyled = styled("div")(({theme}) => ({
+const CertifModelStyled = styled("div")(({theme}) => ({
     display: "inline-flex",
     flexWrap: "wrap",
     columnGap: 0,
@@ -58,4 +58,4 @@ const TemplateStyled = styled("div")(({theme}) => ({
     }
 }));
 
-export default TemplateStyled;
+export default CertifModelStyled;
