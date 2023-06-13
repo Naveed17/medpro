@@ -1,4 +1,4 @@
-FROM wodby/node:16 as dev
+FROM wodby/node:18 as dev
 
 COPY --chown=node:node package.json package-lock.json "${APP_ROOT}"/
 RUN set -xe; \
@@ -11,7 +11,7 @@ EXPOSE 3000
 ENV PORT 3000
 VOLUME ["$APP_ROOT"]
 
-FROM wodby/node:16 AS builder
+FROM wodby/node:18 AS builder
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -21,7 +21,7 @@ COPY --chown=node:node . "${APP_ROOT}/"
 RUN set -xe; \
   npm run build -- --no-lint
 
-FROM wodby/node:16 AS runner
+FROM wodby/node:18 AS runner
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
