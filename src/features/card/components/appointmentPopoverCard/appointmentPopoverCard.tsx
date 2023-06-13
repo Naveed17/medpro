@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Alert, Chip} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Chip} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
