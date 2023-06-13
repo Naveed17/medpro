@@ -646,6 +646,7 @@
       "rightSide": "Right Side",
       "paperSize": "Paper Size",
       "A5": "A5",
+      "layout": "Layout",
       "A4": "A4",
       "add": "Add Document",
       "titleModel": "Model Title",
