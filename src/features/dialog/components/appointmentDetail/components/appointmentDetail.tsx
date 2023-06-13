@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
-    Alert,
+    Chip,
     AppBar,
     Avatar,
     Box,
@@ -118,7 +118,25 @@ function AppointmentDetail({...props}) {
                         </IconButton>
                     </Stack>
                 </Toolbar>
+                <Toolbar sx={{marginTop: "-0.6rem"}}>
+                    {appointment?.extendedProps.hasErrors?.map(
+                        (error: string, index: number) => (
+                            <Stack
+                                key={`error${index}`}
+                                spacing={2}
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center">
+                                <Chip
+                                    color="error"
+                                    label={t(error)}
+                                    icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
+                            </Stack>
+                        )
+                    )}
+                </Toolbar>
             </AppBar>
+
             <Box
                 ref={rootRef}
                 sx={{
@@ -126,25 +144,7 @@ function AppointmentDetail({...props}) {
                     overflowY: "scroll",
                 }}>
                 <Box px={1} py={2}>
-                    {appointment?.extendedProps.hasErrors?.map(
-                        (error: string, index: number) => (
-                            <Stack
-                                key={`error${index}`}
-                                spacing={2}
-                                sx={{mb: 1}}
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="center">
-                                <Alert
-                                    sx={{
-                                        backgroundColor: (theme) => theme.palette.error.lighter
-                                    }}
-                                    variant={"outlined"}
-                                    severity="error"
-                                    icon={<ReportProblemRoundedIcon/>}>{t(error)}</Alert>
-                            </Stack>
-                        )
-                    )}
+
                     <Card>
                         <CardContent>
                             <Stack
