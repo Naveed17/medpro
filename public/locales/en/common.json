@@ -3,6 +3,11 @@
   "start": "Start by editing",
   "powered_by": "All rights reserved",
   "lang": "Language",
+  "sms-languages": {
+    "fr": "French",
+    "en": "English",
+    "ar": "Arabic"
+  },
   "light": "Light mode",
   "dark": "Dark mode",
   "dashboard": "Dashboard",

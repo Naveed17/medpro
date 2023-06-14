@@ -62,7 +62,7 @@ function AppointmentDetail({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
-    const {t, ready} = useTranslation("common");
+    const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {patientPhoto, mutatePatientPhoto} = useProfilePhoto({

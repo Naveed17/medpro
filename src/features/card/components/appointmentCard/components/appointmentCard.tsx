@@ -3,9 +3,9 @@ import {
     Autocomplete,
     Box,
     Button,
-    CardContent,
-    FormControl,
-    IconButton,
+    CardContent, Checkbox,
+    FormControl, FormControlLabel, FormGroup, Grid,
+    IconButton, InputAdornment,
     Link,
     List,
     ListItem,
@@ -26,10 +26,16 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSWRConfig} from "swr";
 import {debounce} from "lodash";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
+import SortIcon from "@themes/overrides/icons/sortIcon";
+import moment from "moment-timezone";
+import {LocaleFnsProvider} from "@lib/localization";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -40,6 +46,7 @@ function AppointmentCard({...props}) {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {locale} = useAppSelector(configSelector);
 
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
@@ -55,6 +62,13 @@ function AppointmentCard({...props}) {
 
     const [reason, setReason] = useState(data.motif);
     const [instruction, setInstruction] = useState(data.instruction);
+    const [reminder, setReminder] = useState({
+        smsLang: "fr",
+        rappel: "1",
+        rappelType: "2",
+        smsRappel: true,
+        timeRappel: moment().subtract(1, "day").toDate()
+    });
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -111,6 +125,7 @@ function AppointmentCard({...props}) {
     }
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setInstruction(event.target.value);
         updateDetails({attribute: "global_instructions", value: event.target.value});
     }
 
@@ -372,7 +387,7 @@ function AppointmentCard({...props}) {
                                                                               variant="outlined" fullWidth/>}/>
                                     </FormControl>
                                 </ListItem>}
-                                {/*<ListItem>
+                                <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("insctruction")}
                                     </Typography>
@@ -381,7 +396,103 @@ function AppointmentCard({...props}) {
                                                   onChange={debouncedOnChange}
                                                   defaultValue={instruction}/>
                                     </FormControl>
-                                </ListItem>*/}
+                                </ListItem>
+
+                                <ListItem>
+                                    <Grid container spacing={2} mb={1}>
+                                        <Grid item md={12} sm={12} xs={12}>
+                                            <Typography variant="body1" color="text.primary" mb={1}>
+                                                {t("steppers.stepper-3.sms-reminder", {ns: "agenda"})}
+                                            </Typography>
+                                            <FormControl fullWidth size="small">
+                                                <Select id="demo-simple-select"
+                                                        value={reminder.smsLang}
+                                                        onChange={event => {
+                                                            setReminder({
+                                                                ...reminder,
+                                                                smsLang: event.target.value as string
+                                                            })
+                                                        }}>
+                                                    <MenuItem value="fr">{t("sms-languages.fr")}</MenuItem>
+                                                    <MenuItem value="ar">{t("sms-languages.ar")}</MenuItem>
+                                                    <MenuItem value="en">{t("sms-languages.en")}</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+
+
+                                    <Stack
+                                        mt={1}
+                                        direction={"column"}
+                                        alignItems={"left"}
+                                        sx={{width: "100%"}}
+                                    >
+                                        <FormGroup>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={reminder.smsRappel}
+                                                        onChange={event => setReminder({
+                                                            ...reminder,
+                                                            smsRappel: event.target.checked
+                                                        })}/>}
+                                                label={t("steppers.stepper-3.schedule", {ns: "agenda"})}
+                                            />
+                                        </FormGroup>
+                                        {reminder.smsRappel &&
+                                            <Stack alignItems="center" justifyContent={"space-between"} direction="row">
+                                                <FormControl size="small" sx={{minWidth: 200}}>
+                                                    <Select
+                                                        id="demo-simple-select"
+                                                        value={reminder.rappel}
+                                                        onChange={event => setReminder({
+                                                            ...reminder,
+                                                            rappel: event.target.value
+                                                        })}
+                                                    >
+                                                        <MenuItem
+                                                            value={"0"}>{t("steppers.stepper-3.day", {ns: "agenda"})} 0</MenuItem>
+                                                        <MenuItem
+                                                            value={"1"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -1</MenuItem>
+                                                        <MenuItem
+                                                            value={"2"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -2</MenuItem>
+                                                        <MenuItem
+                                                            value={"3"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -3</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                                <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
+                                                    {t("steppers.stepper-3.to", {ns: "agenda"})}
+                                                </Typography>
+                                                <LocalizationProvider
+                                                    adapterLocale={LocaleFnsProvider(locale)}
+                                                    dateAdapter={AdapterDateFns}>
+                                                    <MobileTimePicker
+                                                        ampm={false}
+                                                        value={reminder.timeRappel}
+                                                        onChange={(newValue) => {
+                                                            setReminder({
+                                                                ...reminder,
+                                                                timeRappel: newValue as Date
+                                                            })
+                                                        }}
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                                {...params}
+                                                                InputProps={{
+                                                                    endAdornment: (
+                                                                        <InputAdornment position="end">
+                                                                            <SortIcon/>
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                }}
+                                                            />
+                                                        )}
+                                                    />
+                                                </LocalizationProvider>
+                                            </Stack>}
+                                    </Stack>
+                                </ListItem>
                             </>}
                         </List>
                     </Box>

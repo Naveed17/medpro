@@ -3,6 +3,11 @@
   "start": "Commencez par modifier",
   "powered_by": "Tous droits réservés",
   "lang": "langue",
+  "sms-languages": {
+    "fr": "Francais",
+    "en": "Anglais",
+    "ar": "Arabe"
+  },
   "light": "Mode lumière",
   "dark": "Mode sombre",
   "dashboard": "Page d'accueil",
