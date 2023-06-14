@@ -10,6 +10,7 @@ export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalS
 export {default as useLastPrescription} from "./useLastPrescription";
 export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";
+export * from "./filterReasonOptions";
 export * from "./capitalizeFirst";
 export * from "./checkNotification";
 export * from "./rest/useAppointment";

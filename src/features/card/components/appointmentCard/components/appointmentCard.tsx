@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
     Autocomplete,
     Box,
@@ -27,7 +27,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions} from "@lib/hooks";
 import {useSWRConfig} from "swr";
 import {debounce} from "lodash";
 import {LocalizationProvider} from "@mui/x-date-pickers";
@@ -63,6 +63,7 @@ function AppointmentCard({...props}) {
     const [reason, setReason] = useState(data.motif);
     const [instruction, setInstruction] = useState(data.instruction);
     const [reminder, setReminder] = useState({
+        init: true,
         smsLang: "fr",
         rappel: "1",
         rappelType: "2",
@@ -75,7 +76,7 @@ function AppointmentCard({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    const updateDetails = (input: { attribute: string; value: any }) => {
+    const updateDetails = useCallback((input: { attribute: string; value: any }) => {
         const form = new FormData();
         form.append("attribute", input.attribute);
         form.append("value", input.value as string);
@@ -91,7 +92,7 @@ function AppointmentCard({...props}) {
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
             }
         });
-    };
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, session?.accessToken, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
@@ -130,6 +131,25 @@ function AppointmentCard({...props}) {
     }
 
     const debouncedOnChange = debounce(handleOnChange, 1000);
+
+    useEffect(() => {
+        if (!reminder.init) {
+            updateDetails({
+                attribute: "reminder",
+                value: {
+                    "type": reminder.rappelType,
+                    "time": moment(reminder.timeRappel).format('HH:mm'),
+                    "number_of_day": reminder.rappel,
+                    "reminder_language": reminder.smsLang,
+                    "reminder_message": reminder.smsLang
+                }
+            });
+            setReminder({
+                ...reminder,
+                init: true
+            })
+        }
+    }, [reminder, updateDetails])
 
     return (
         <RootStyled>
@@ -331,19 +351,7 @@ function AppointmentCard({...props}) {
                                                     handleReasonChange(newValue);
                                                 }
                                             }}
-                                            filterOptions={(options, params) => {
-                                                const {inputValue} = params;
-                                                const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                                // Suggest the creation of a new value
-                                                const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
-                                                if (inputValue !== '' && !isExisting) {
-                                                    filtered.push({
-                                                        inputValue,
-                                                        name: `${t('add_reason')} "${inputValue}"`,
-                                                    });
-                                                }
-                                                return filtered;
-                                            }}
+                                            filterOptions={(options, params) => filterReasonOptions(options,params, t)}
                                             sx={{color: "text.secondary"}}
                                             options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                             loading={reasons?.length === 0}
@@ -410,6 +418,7 @@ function AppointmentCard({...props}) {
                                                         onChange={event => {
                                                             setReminder({
                                                                 ...reminder,
+                                                                init: false,
                                                                 smsLang: event.target.value as string
                                                             })
                                                         }}>
@@ -435,6 +444,7 @@ function AppointmentCard({...props}) {
                                                         checked={reminder.smsRappel}
                                                         onChange={event => setReminder({
                                                             ...reminder,
+                                                            init: false,
                                                             smsRappel: event.target.checked
                                                         })}/>}
                                                 label={t("steppers.stepper-3.schedule", {ns: "agenda"})}
@@ -448,6 +458,7 @@ function AppointmentCard({...props}) {
                                                         value={reminder.rappel}
                                                         onChange={event => setReminder({
                                                             ...reminder,
+                                                            init: false,
                                                             rappel: event.target.value
                                                         })}
                                                     >
@@ -473,6 +484,7 @@ function AppointmentCard({...props}) {
                                                         onChange={(newValue) => {
                                                             setReminder({
                                                                 ...reminder,
+                                                                init: false,
                                                                 timeRappel: newValue as Date
                                                             })
                                                         }}
