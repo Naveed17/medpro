@@ -3,17 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {
-    Box,
-    Button, Drawer,
-    IconButton,
-    LinearProgress,
-    Stack,
-    Toolbar,
-    Typography,
-    useMediaQuery,
-    useTheme
-} from "@mui/material";
+import {Box, Drawer, IconButton, LinearProgress, Stack, Toolbar, Typography, useTheme} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled} from "@features/toolbar";
@@ -21,13 +11,14 @@ import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
 import {useSession} from "next-auth/react";
-import {useRequest} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
+import IconUrl from "@themes/urlIcon";
+import {useSnackbar} from "notistack";
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -42,10 +33,13 @@ function TemplatesConfig() {
     const [isHovering, setIsHovering] = useState("");
     const [open, setOpen] = useState(false);
     const [data, setData] = useState<CertifModel | null>(null);
+    const [models, setModels] = useState<CertifModel[]>([]);
     const [action, setAction] = useState("");
 
     const theme = useTheme();
     const {direction} = useAppSelector(configSelector);
+    const {enqueueSnackbar} = useSnackbar();
+    const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
@@ -54,7 +48,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpModelResponse,mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate: mutateCertif} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -70,8 +64,11 @@ function TemplatesConfig() {
         setOpen(false);
     };
 
+    useEffect(() => {
+        if (httpModelResponse)
+            setModels((httpModelResponse as HttpResponse)?.data as CertifModel[]);
+    }, [httpModelResponse])
 
-    const models = (httpModelResponse as HttpResponse)?.data as CertifModel[];
 
     const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as ModalModel[];
 
@@ -84,11 +81,24 @@ function TemplatesConfig() {
     const edit = (id: string | undefined) => {
         router.push(`/dashboard/settings/templates/${id}`);
     }
-
-    const editDoc = (res:CertifModel) => {
+    const editDoc = (res: CertifModel) => {
         setOpen(true)
         setData(res);
         setAction("editDoc")
+    }
+    const removeDoc = (res: CertifModel) => {
+        trigger({
+            method: "DELETE" ,
+            url:`${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then(() => {
+            mutateCertif().then(() => {
+                enqueueSnackbar(t("removed"), {variant: "error"});
+            });
+        })
     }
 
     useEffect(() => {
@@ -163,18 +173,21 @@ function TemplatesConfig() {
                                 }} />
                             </div>
                             {isHovering === res.uuid &&
-                                <Button variant={"contained"} onMouseOver={() => {
-                                    handleMouseOver(res.uuid)
-                                }} className={"edit-btn"} onClick={() => {
-                                    edit(res.uuid)
-                                }}>{t("modifier")}</Button>}
-                             {isHovering === res.uuid &&
-                                        <Stack direction={"row"} justifyContent={"space-between"}  style={{position:"absolute",bottom:10,width:"85%",left:10}} alignItems={"center"}>
-                                            <Typography className={"doc-title"}>{res.title}</Typography>
-                                            <div className={"heading"}>
-                                                {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
-                                            </div>
-                                        </Stack>}
+                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}}>
+                                    <IconButton size="small" onClick={() => {edit(res.uuid)}}>
+                                        <IconUrl path="setting/edit"/>
+                                    </IconButton>
+                                </Stack>
+                                }
+                            {isHovering === res.uuid &&
+                                <Stack direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}} justifyContent={"space-between"}
+                                       style={{position: "absolute", bottom: 10, width: "85%", left: 10}}
+                                       alignItems={"center"}>
+                                    <Typography className={"doc-title"}>{res.title}</Typography>
+                                    <div className={"heading"}>
+                                        {res.header.data.size === 'portraitA4' ? 'A4' : 'A5'}
+                                    </div>
+                                </Stack>}
                         </Box>
                     ))}
                 </TemplateStyled>
@@ -193,8 +206,9 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
-
-
+                        setOpen(true)
+                        setData(null);
+                        setAction("editDoc")
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,
@@ -217,26 +231,40 @@ function TemplatesConfig() {
                                     values: isdefault?.header.header,
                                     state: {
                                         content: res.content,
-                                        description:"",
-                                        doctor:"",
-                                        name:"certif",
-                                        patient:"Patient",
-                                        title:res.title,
-                                        type:"write_certif"
+                                        description: "",
+                                        doctor: "",
+                                        name: "certif",
+                                        patient: "Patient",
+                                        title: res.title,
+                                        type: "write_certif"
                                     },
                                     loading
                                 }} />
                             </div>
                             {isHovering === res.uuid &&
-                                <Button variant={"contained"} onMouseOver={() => {
-                                    handleMouseOver(res.uuid)
-                                }} className={"edit-btn"} onClick={() => {
-                                    editDoc(res)
-                                }}>{t("modifier")}</Button>}
-
-                            {isHovering === res.uuid &&<Stack direction={"row"} className={"title-content"}>
+                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}}>
+                                    <IconButton size="small" onClick={()=>{
+                                        setOpen(true)
+                                        setData(res);
+                                        setAction("showDoc")
+                                    }}>
+                                        <IconUrl path="setting/ic-voir"/>
+                                    </IconButton>
+                                    <IconButton size="small" onClick={() => {editDoc(res)}}>
+                                        <IconUrl path="setting/edit"/>
+                                    </IconButton>
+                                    <IconButton size="small" onClick={() => {
+                                        removeDoc(res);
+                                    }}>
+                                        <IconUrl path="setting/icdelete"/>
+                                    </IconButton>
+                                </Stack>
+                            }
+                            {isHovering === res.uuid && <Stack direction={"row"}
+                                                               onMouseOver={() => {handleMouseOver(res.uuid)}}
+                                                               className={"title-content"}>
                                 <Typography className={"title"}>{res.title}</Typography>
-                                <div className={"color-content"} style={{background:res.color}}></div>
+                                <div className={"color-content"} style={{background: res.color}}></div>
                             </Stack>}
                         </Box>
                     ))}
@@ -273,19 +301,21 @@ function TemplatesConfig() {
                 dir={direction}
                 onClose={closeDraw}>
 
-                    <Toolbar sx={{bgcolor: theme.palette.common.white}}>
-                        <Stack alignItems="flex-end" width={1}>
-                            <IconButton onClick={closeDraw} disableRipple>
-                                <CloseIcon/>
-                            </IconButton>
-                        </Stack>
-                    </Toolbar>
+                <Toolbar sx={{bgcolor: theme.palette.common.white}}>
+                    <Stack alignItems="flex-end" width={1}>
+                        <IconButton onClick={closeDraw} disableRipple>
+                            <CloseIcon/>
+                        </IconButton>
+                    </Stack>
+                </Toolbar>
 
-                <CertifModelDrawer
-                    action={action}
-                    mutate={mutate}
-                    closeDraw={closeDraw}
-                    data={data}></CertifModelDrawer>
+                <CertifModelDrawer {...{
+                    isdefault,
+                    action,
+                    closeDraw,
+                    data,
+                    mutate:mutateCertif
+                }}></CertifModelDrawer>
 
             </Drawer>
         </>

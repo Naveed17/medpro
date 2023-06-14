@@ -25,7 +25,7 @@ const TemplateStyled = styled("div")(({theme}) => ({
         fontWeight: 600
     },
     "& .doc-title": {
-        fontSize: 12
+        fontSize: 10
     },
     "& .portraitA4": {
         zoom: "18%",
@@ -49,7 +49,12 @@ const TemplateStyled = styled("div")(({theme}) => ({
         alignItems: "center"
     },
     "& .title": {
-        fontSize: 10
+        fontSize: 10,
+        overflow: "hidden",
+        display: "-webkit-box",
+        maxWidth: 110,
+        "-webkit-line-clamp": "1",
+        "-webkit-box-orient": "vertical"
     },
     "& .color-content": {
         width: 15,
