@@ -65,7 +65,7 @@ import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
-import {fuzzy, search} from "fast-fuzzy";
+import {search} from "fast-fuzzy";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
