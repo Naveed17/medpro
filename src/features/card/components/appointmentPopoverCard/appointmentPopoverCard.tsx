@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Alert} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Chip} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
@@ -34,11 +34,11 @@ function AppointmentPopoverCard({...props}) {
 
     return (
         <RootStyled sx={style} ref={componentRef}>
-            <Box className={"badge"} sx={{
-                background: data?.type?.color,
-                width: height - 9
-
-            }}>
+            <Box className={"badge"}
+                 sx={{
+                     background: data?.type?.color,
+                     width: height - 9
+                 }}>
                 <Typography
                     color="text.primary"
                     fontWeight={400}
@@ -54,20 +54,15 @@ function AppointmentPopoverCard({...props}) {
                 <Stack key={index + error}
                        spacing={2} mt={.5} pl={4}
                        direction="row">
-                    <Alert
+                    <Chip
                         sx={{
-                            backgroundColor: (theme) => theme.palette.error.lighter,
+                            maxWidth: 260,
                             p: "0 .4rem",
-                            m: "0 .4rem 0 0",
-                            "& .MuiAlert-icon": {
-                                mr: 1
-                            }
+                            m: ".2rem .4rem 0 0",
                         }}
-                        icon={<ReportProblemRoundedIcon/>}
-                        variant={"outlined"}
-                        severity="error">
-                        {t(error, {ns: "common"})}
-                    </Alert>
+                        color="error"
+                        label={t(error, {ns: "common"})}
+                        icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
                 </Stack>
             ))}
             <Stack direction="row" spacing={2} mt={.5} pl={4}>
