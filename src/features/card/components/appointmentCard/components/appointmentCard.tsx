@@ -136,13 +136,13 @@ function AppointmentCard({...props}) {
         if (!reminder.init) {
             updateDetails({
                 attribute: "reminder",
-                value: {
+                value: JSON.stringify({
                     "type": reminder.rappelType,
                     "time": moment(reminder.timeRappel).format('HH:mm'),
                     "number_of_day": reminder.rappel,
                     "reminder_language": reminder.smsLang,
                     "reminder_message": reminder.smsLang
-                }
+                })
             });
             setReminder({
                 ...reminder,
@@ -351,7 +351,7 @@ function AppointmentCard({...props}) {
                                                     handleReasonChange(newValue);
                                                 }
                                             }}
-                                            filterOptions={(options, params) => filterReasonOptions(options,params, t)}
+                                            filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                             sx={{color: "text.secondary"}}
                                             options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                             loading={reasons?.length === 0}
