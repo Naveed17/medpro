@@ -433,7 +433,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             formUnitMedic = MedicalFormUnit.find((medic: any) => {
                 const matchFormUnit: string[] = search(form, medic.forms.map((data: any) => data.form),
                     {returnMatchData: true}).reduce((filtered: string[], option) => {
-                    if (option.score > 0.8) {
+                    if (option.score >= 0.8) {
                         filtered.push(option.item as string);
                     }
                     return filtered;
