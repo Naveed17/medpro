@@ -2,6 +2,9 @@
   "welcome": "Welcome to the Med project",
   "start": "Start by editing",
   "powered_by": "All rights reserved",
+  "default-view": "Default view",
+  "trash": "Trash",
+  "empty-trash": "Empty trash",
   "lang": "Language",
   "sms-languages": {
     "fr": "French",

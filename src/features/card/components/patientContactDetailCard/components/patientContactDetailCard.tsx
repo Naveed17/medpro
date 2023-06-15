@@ -45,6 +45,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useCountries} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -62,11 +63,11 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {countries: countries_api} = useCountries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -126,11 +127,6 @@ function PatientContactDetailCard({...props}) {
     const {values, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -216,7 +212,6 @@ function PatientContactDetailCard({...props}) {
         });
     }
 
-    const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";

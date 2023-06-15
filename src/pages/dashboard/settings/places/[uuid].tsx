@@ -43,7 +43,6 @@ import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry} from "@lib/constants";
@@ -51,7 +50,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import { useContactType } from "@lib/hooks/rest";
+import {useContactType} from "@lib/hooks/rest";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -124,6 +123,7 @@ function PlacesDetail() {
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {contacts: contactTypes} = useContactType();
 
     const {t} = useTranslation(["settings", "common"]);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -169,9 +169,6 @@ function PlacesDetail() {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
-   
-
-    const contactTypes = useContactType();
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);

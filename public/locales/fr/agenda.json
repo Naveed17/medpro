@@ -6,6 +6,8 @@
   "add-quick": "Ajout rapide",
   "add-complete": "Ajout complet",
   "view": "Voir détails",
+  "restore": "Restaurer",
+  "delete": "Supprimer à jamais",
   "manage": "Gérer",
   "confirm": "Confirmer RDV",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
