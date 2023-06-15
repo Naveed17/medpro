@@ -61,7 +61,7 @@ function NewUser() {
     const {data: session} = useSession();
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
-    const [agendaRoles, setAgendaRoles] = useState(agendas);
+    const [agendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
     const {data: userData} = session as Session;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -150,7 +150,7 @@ function NewUser() {
             profile: ""
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             const form = new FormData();
             form.append('username', values.name);
@@ -185,7 +185,7 @@ function NewUser() {
                 setLoading(false)
                 dispatch(addUser({...values}));
                 router.push("/dashboard/settings/users");
-            }).catch((error) => {
+            }).catch(() => {
                 setLoading(false);
                 enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
             })

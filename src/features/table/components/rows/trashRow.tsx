@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, useTheme, Stack, Tooltip} from "@mui/material";
+import {Typography, Box, Stack, Tooltip} from "@mui/material";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
@@ -19,22 +19,12 @@ import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBacku
 
 function TrashRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
-    const {spinner, pendingData = null} = data;
+    const {spinner} = data;
 
     const dispatch = useAppDispatch();
-    const theme = useTheme();
     const {data: session} = useSession();
 
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
-    const {config} = useAppSelector(agendaSelector);
-
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const devise = doctor_country.currency?.name;
-
-    const [loading, setLoading] = useState<boolean>(false);
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
