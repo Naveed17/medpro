@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Tooltip} from "@mui/material";
+import {Typography, Box, useTheme, Stack, Tooltip} from "@mui/material";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
@@ -42,12 +42,6 @@ function TrashRow({...props}) {
         dispatch(setView("timeGridDay"));
         dispatch(setCurrentDate({date, fallback: true}));
     }
-
-    useEffect(() => {
-        if (!spinner) {
-            setLoading(spinner)
-        }
-    }, [spinner]);
 
     return (
         <>
