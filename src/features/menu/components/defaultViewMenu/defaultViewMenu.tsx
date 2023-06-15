@@ -47,6 +47,7 @@ function DefaultViewMenu() {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
 
@@ -162,13 +163,15 @@ function DefaultViewMenu() {
                             ))}
                         </List>
                     </Collapse>
-                    <Divider/>
-                    <Link href="/dashboard/agenda/trash">
-                        <ListItemButton>
-                            <DeleteOutlineIcon fontSize={"small"}/>
-                            <ListItemText sx={{ml: 1}} primary={t("trash")}/>
-                        </ListItemButton>
-                    </Link>
+                    {!roles?.includes('ROLE_SECRETARY') && <>
+                        <Divider/>
+                        <Link href="/dashboard/agenda/trash">
+                            <ListItemButton>
+                                <DeleteOutlineIcon fontSize={"small"}/>
+                                <ListItemText sx={{ml: 1}} primary={t("trash")}/>
+                            </ListItemButton>
+                        </Link>
+                    </>}
                 </List>
             </Menu>
         </div>
