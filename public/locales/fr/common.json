@@ -2,6 +2,8 @@
   "welcome": "Bienvenue au projet Med",
   "start": "Commencez par modifier",
   "powered_by": "Tous droits réservés",
+  "default-view": "Affichage par défaut",
+  "trash": "Corbeille",
   "lang": "langue",
   "sms-languages": {
     "fr": "Francais",

@@ -138,7 +138,7 @@ function AppointmentCard({...props}) {
                 attribute: "reminder",
                 value: JSON.stringify({
                     "type": reminder.rappelType,
-                    "time": moment(reminder.timeRappel).format('HH:mm'),
+                    "time": moment.utc(reminder.timeRappel).format('HH:mm'),
                     "number_of_day": reminder.rappel,
                     "reminder_language": reminder.smsLang,
                     "reminder_message": reminder.smsLang
