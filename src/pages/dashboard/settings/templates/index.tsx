@@ -19,6 +19,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
+import PrescriptionModelDrawer from "@features/PrescriptionModelDrawer/components/prescriptionModelDrawer";
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -34,13 +35,13 @@ function TemplatesConfig() {
     const [open, setOpen] = useState(false);
     const [data, setData] = useState<CertifModel | null>(null);
     const [models, setModels] = useState<CertifModel[]>([]);
+    const [prescriptions, setPrescriptions] = useState<PrescriptionParentModel[]>([]);
     const [action, setAction] = useState("");
 
     const theme = useTheme();
     const {direction} = useAppSelector(configSelector);
     const {enqueueSnackbar} = useSnackbar();
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
-
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -54,7 +55,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPrescriptionResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpPrescriptionResponse,mutate:mutatePres} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -69,9 +70,26 @@ function TemplatesConfig() {
             setModels((httpModelResponse as HttpResponse)?.data as CertifModel[]);
     }, [httpModelResponse])
 
-
-    const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as ModalModel[];
-
+    useEffect(() => {
+        if (httpPrescriptionResponse) {
+            let _prescriptions:any[] = [];
+            const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as PrescriptionParentModel[];
+            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p =>{
+                p.prescriptionModels.map(pm => {
+                    let _pmhd:any[] = []
+                    pm.prescriptionModalHasDrugs.map((pmhd: any) =>{
+                        _pmhd.push({...pmhd,standard_drug:{commercial_name:pmhd.name,uuid:pmhd.drugUuid}})
+                    })
+                    _prescriptions.push({
+                        uuid:pm.uuid,
+                        name:pm.name,
+                        prescriptionModalHasDrugs:_pmhd
+                    })
+                })
+            })
+            setPrescriptions(_prescriptions);
+        }
+    }, [httpPrescriptionResponse])
     const handleMouseOver = (id: string | undefined) => {
         setIsHovering(id ? id : "");
     };
@@ -88,8 +106,8 @@ function TemplatesConfig() {
     }
     const removeDoc = (res: CertifModel) => {
         trigger({
-            method: "DELETE" ,
-            url:`${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`,
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
             revalidate: true,
@@ -117,12 +135,7 @@ function TemplatesConfig() {
         }
     }, [httpDocumentHeader])
 
-    useEffect(() => {
-        console.log(models)
-    }, [models])
-
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-
 
     return (
         <>
@@ -173,14 +186,20 @@ function TemplatesConfig() {
                                 }} />
                             </div>
                             {isHovering === res.uuid &&
-                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}}>
-                                    <IconButton size="small" onClick={() => {edit(res.uuid)}}>
+                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
+                                    handleMouseOver(res.uuid)
+                                }}>
+                                    <IconButton size="small" onClick={() => {
+                                        edit(res.uuid)
+                                    }}>
                                         <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Stack>
-                                }
+                            }
                             {isHovering === res.uuid &&
-                                <Stack direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}} justifyContent={"space-between"}
+                                <Stack direction={"row"} onMouseOver={() => {
+                                    handleMouseOver(res.uuid)
+                                }} justifyContent={"space-between"}
                                        style={{position: "absolute", bottom: 10, width: "85%", left: 10}}
                                        alignItems={"center"}>
                                     <Typography className={"doc-title"}>{res.title}</Typography>
@@ -242,15 +261,19 @@ function TemplatesConfig() {
                                 }} />
                             </div>
                             {isHovering === res.uuid &&
-                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {handleMouseOver(res.uuid)}}>
-                                    <IconButton size="small" onClick={()=>{
+                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
+                                    handleMouseOver(res.uuid)
+                                }}>
+                                    <IconButton size="small" onClick={() => {
                                         setOpen(true)
                                         setData(res);
                                         setAction("showDoc")
                                     }}>
                                         <IconUrl path="setting/ic-voir"/>
                                     </IconButton>
-                                    <IconButton size="small" onClick={() => {editDoc(res)}}>
+                                    <IconButton size="small" onClick={() => {
+                                        editDoc(res)
+                                    }}>
                                         <IconUrl path="setting/edit"/>
                                     </IconButton>
                                     <IconButton size="small" onClick={() => {
@@ -261,7 +284,9 @@ function TemplatesConfig() {
                                 </Stack>
                             }
                             {isHovering === res.uuid && <Stack direction={"row"}
-                                                               onMouseOver={() => {handleMouseOver(res.uuid)}}
+                                                               onMouseOver={() => {
+                                                                   handleMouseOver(res.uuid)
+                                                               }}
                                                                className={"title-content"}>
                                 <Typography className={"title"}>{res.title}</Typography>
                                 <div className={"color-content"} style={{background: res.color}}></div>
@@ -278,10 +303,10 @@ function TemplatesConfig() {
                 {t("prescription")}
             </Typography>
 
-            <TemplateStyled>
-                <Box
-                    bgcolor={(theme) => theme.palette.background.default}
-                    sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box
+                bgcolor={(theme) => theme.palette.background.default}
+                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
                         router.push(`/dashboard/settings/templates/new`);
                     }} style={{
@@ -293,7 +318,67 @@ function TemplatesConfig() {
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                     </div>
-                </Box></TemplateStyled>
+                        {
+                            isdefault && prescriptions.map((card:any) => (
+                                <Box key={card.uuid} className={"container"}>
+                                    <div onMouseOver={() => {
+                                        handleMouseOver(card.uuid)
+                                    }}
+                                         onMouseOut={handleMouseOut}>
+                                        <PreviewA4  {...{
+                                            eventHandler: null,
+                                            data: isdefault?.header.data,
+                                            values: isdefault?.header.header,
+                                            t,
+                                            state: {
+                                                info:card.prescriptionModalHasDrugs,
+                                                description: "",
+                                                doctor: "",
+                                                name: "prescription",
+                                                patient: "Patient",
+                                                title: card.name,
+                                                type: "prescription"
+                                            },
+                                            loading
+                                        }} />
+                                    </div>
+
+                                    {isHovering === card.uuid &&
+                                        <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
+                                            handleMouseOver(card.uuid)
+                                        }}>
+                                            <IconButton size="small" onClick={() => {
+                                                setOpen(true)
+                                                setData(card);
+                                                setAction("showPrescription")
+                                            }}>
+                                                <IconUrl path="setting/ic-voir"/>
+                                            </IconButton>
+                                           {/* <IconButton size="small" onClick={() => {
+                                                editDoc(res)
+                                            }}>
+                                                <IconUrl path="setting/edit"/>
+                                            </IconButton>
+                                            <IconButton size="small" onClick={() => {
+                                                removeDoc(res);
+                                            }}>
+                                                <IconUrl path="setting/icdelete"/>
+                                            </IconButton>*/}
+                                        </Stack>
+                                    }
+
+                                    {isHovering === card.uuid && <Stack direction={"row"}
+                                                                       onMouseOver={() => {
+                                                                           handleMouseOver(card.uuid)
+                                                                       }}
+                                                                       className={"title-content"}>
+                                        <Typography className={"title"}>{card.name}</Typography>
+                                    </Stack>}
+                                </Box>
+                            ))
+                        }
+                </TemplateStyled>
+            </Box>
 
             <Drawer
                 anchor={"right"}
@@ -309,13 +394,21 @@ function TemplatesConfig() {
                     </Stack>
                 </Toolbar>
 
-                <CertifModelDrawer {...{
+                {(action === 'editDoc' || action === 'showDoc') && <CertifModelDrawer {...{
                     isdefault,
                     action,
                     closeDraw,
                     data,
-                    mutate:mutateCertif
-                }}></CertifModelDrawer>
+                    mutate: mutateCertif
+                }}></CertifModelDrawer>}
+
+                {(action === 'showPrescription' || action === 'editPrescription') && <PrescriptionModelDrawer {...{
+                    isdefault,
+                    action,
+                    closeDraw,
+                    data,
+                    mutate: mutatePres
+                }}></PrescriptionModelDrawer>}
 
             </Drawer>
         </>
