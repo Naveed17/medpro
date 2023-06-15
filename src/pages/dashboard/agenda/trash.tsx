@@ -142,7 +142,7 @@ function Trash() {
                         </IconButton>
                     </Link>
                     <Typography>{t("trash", {ns: "common"})}</Typography>
-                </Stack>‡‡‡
+                </Stack>
        {/*         <Button variant={"text"} color="error"
                         startIcon={<DeleteOutlineIcon/>}>{t("empty-trash", {ns: "common"})}</Button>*/}
             </RootStyled>
