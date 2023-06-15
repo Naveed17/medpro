@@ -184,7 +184,7 @@ function AddPatientStep2({...props}) {
 
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
+        url: `/api/public/places/countries/${router.locale}?nationality=true`
     }, SWRNoValidateConfig);
 
     const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");

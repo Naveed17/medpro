@@ -210,7 +210,7 @@ function Agenda() {
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
             if (!filter || events.current.length === 0) {
-                appointments?.map((appointment) => {
+                appointments?.forEach((appointment) => {
                     const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
                     const hasErrors = [
                         ...(horsWork ? ["event.hors-opening-hours"] : []),
@@ -218,7 +218,7 @@ function Agenda() {
                     eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
                 });
             } else {
-                events.current.map(event => {
+                events.current.forEach(event => {
                     eventsUpdated.push({
                         ...event,
                         filtered: !appointments?.find(appointment => appointment.uuid === event.id)

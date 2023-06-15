@@ -27,7 +27,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {setTimer} from "@features/card";
+import {resetTimer, setTimer} from "@features/card";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
@@ -132,7 +132,7 @@ function FcmLayout({...props}) {
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
-                                dispatch(setTimer({isActive: false}));
+                                dispatch(resetTimer());
                             }
                             setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
                             setOpenDialog(true);

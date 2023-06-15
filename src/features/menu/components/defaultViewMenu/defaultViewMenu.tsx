@@ -8,11 +8,11 @@ import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import {Collapse, ListItemButton, ListItemIcon, SvgIcon, Typography, useTheme} from "@mui/material";
+import {Collapse, Divider, ListItemButton, SvgIcon, Typography, useTheme} from "@mui/material";
 import {ToggleButtonStyled} from "@features/toolbar";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setView} from "@features/calendar";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
@@ -21,6 +21,8 @@ import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import Link from "next/link";
+import {dashLayoutSelector} from "@features/base";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
@@ -37,6 +39,7 @@ function DefaultViewMenu() {
     const dispatch = useAppDispatch();
 
     const {t} = useTranslation('common');
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -159,12 +162,13 @@ function DefaultViewMenu() {
                             ))}
                         </List>
                     </Collapse>
-                    <ListItemButton onClick={handleClick}>
-                        <ListItemIcon>
-                            <DeleteOutlineIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={t("trash")}/>
-                    </ListItemButton>
+                    <Divider/>
+                    <Link href="/dashboard/agenda/trash">
+                        <ListItemButton>
+                            <DeleteOutlineIcon fontSize={"small"}/>
+                            <ListItemText sx={{ml: 1}} primary={t("trash")}/>
+                        </ListItemButton>
+                    </Link>
                 </List>
             </Menu>
         </div>

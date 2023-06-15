@@ -302,7 +302,6 @@ function Calendar({...props}) {
             </ClickAwayListener>}
             <RootStyled>
                 <CalendarStyled>
-
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
