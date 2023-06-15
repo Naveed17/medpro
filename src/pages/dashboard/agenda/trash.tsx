@@ -1,17 +1,16 @@
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import {Box, Button, IconButton, Stack} from "@mui/material";
+import {Box, Button, IconButton, Stack, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
@@ -20,6 +19,12 @@ import {AddAppointmentCardData, agendaSelector} from "@features/calendar";
 import {NoDataCard} from "@features/card";
 import {Otable} from "@features/table";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
+import {Dialog} from "@features/dialog";
 
 const TableHead = [
     {
@@ -57,19 +62,59 @@ const TableHead = [
 function Trash() {
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation(['agenda', 'common']);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [groupTrashArrays, setGroupTrashArrays] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [event, setEvent] = useState<EventModal | null>();
 
-    const {data: httpTrashAppointment} = useRequest({
+    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+
+    const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, {revalidateOnFocus: false});
+
+    const handleDeleteTrashAppointment = (uuid: string) => {
+        setLoading(true);
+        deleteAppointment({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${uuid}/${router.locale}`
+        } as any).then(() => {
+            setLoading(false);
+            mutateTrashAppointment();
+        });
+    }
+
+    const handleTableEvent = (action: string, eventData: EventModal) => {
+        setEvent(eventData);
+        switch (action) {
+            case "restoreEvent":
+                setLoading(true);
+                restoreAppointment({
+                    method: "PATCH",
+                    data: {
+                        status: "1"
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventData.id}/status/${router.locale}`
+                } as any).then(() => {
+                    setLoading(false);
+                    mutateTrashAppointment();
+                });
+                break;
+            case "deleteEvent":
+                setDeleteDialog(true);
+                break;
+        }
+    }
 
     useEffect(() => {
         if (httpTrashAppointment) {
@@ -109,6 +154,9 @@ function Trash() {
                     spinner={loading}
                     maxHeight={`calc(100vh - 180px)`}
                     headers={TableHead}
+                    handleEvent={(action: string, eventData: EventModal) =>
+                        handleTableEvent(action, eventData)
+                    }
                     rows={groupTrashArrays}
                     from={"trash"}
                 />
@@ -116,6 +164,46 @@ function Trash() {
                     <NoDataCard {...{t}} data={AddAppointmentCardData}/>
                 )}
             </DesktopContainer>
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{
+                    direction: direction
+                }}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={t(`dialogs.delete-dialog.title`)}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t(`dialogs.delete-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={() => handleDeleteTrashAppointment(event?.id as string)}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {t(`dialogs.delete-dialog.confirm`)}
+                        </LoadingButton>
+                    </>
+                }
+            />
         </Box>
     </>)
 }

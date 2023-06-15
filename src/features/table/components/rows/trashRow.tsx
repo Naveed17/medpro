@@ -9,12 +9,13 @@ import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
 import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
 
 function TrashRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
@@ -180,17 +181,29 @@ function TrashRow({...props}) {
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
-                        <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>
-                            <Tooltip title={t("view")}>
+                        <Stack direction={"row"} justifyContent={"flex-end"}>
+                            <Tooltip title={t("restore")}>
                                 <LoadingButton
                                     loading={spinner}
-                                    onClick={() => handleEventClick("showEvent", data)}
+                                    onClick={() => handleEventClick("restoreEvent", data)}
                                     {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
                                     variant="text"
                                     color="primary"
                                     size="small">
-                                    <Icon path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
-                                    <span style={{marginLeft: "5px"}}>{t("view")}</span>}
+                                    <SettingsBackupRestoreOutlinedIcon/> {!sideBarOpened &&
+                                    <span style={{marginLeft: "5px"}}>{t("restore")}</span>}
+                                </LoadingButton>
+                            </Tooltip>
+                            <Tooltip title={t("delete")}>
+                                <LoadingButton
+                                    loading={spinner}
+                                    onClick={() => handleEventClick("deleteEvent", data)}
+                                    {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                    variant="text"
+                                    color="primary"
+                                    size="small">
+                                    <DeleteOutlineIcon/> {!sideBarOpened &&
+                                    <span style={{marginLeft: "5px"}}>{t("delete")}</span>}
                                 </LoadingButton>
                             </Tooltip>
                         </Stack>
