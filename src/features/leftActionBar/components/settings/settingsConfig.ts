@@ -8,8 +8,8 @@ const settingsData = {
             disable: false
         },
         {
-            name: "cabinet",
-            icon: "setting/ic-cabinet",
+            name: "horaire",
+            icon: "setting/ic-time",
             href: "/dashboard/settings/places/[uuid]",
             disable: false
         },
