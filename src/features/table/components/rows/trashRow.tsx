@@ -1,19 +1,17 @@
 import {TableRowStyled} from "@features/table";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, useTheme, Stack, Tooltip} from "@mui/material";
+import {Typography, Box, Stack, Tooltip} from "@mui/material";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
-import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
+import {setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {DefaultCountry} from "@lib/constants";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
 
