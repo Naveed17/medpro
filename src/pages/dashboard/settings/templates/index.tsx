@@ -308,7 +308,7 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
-                        router.push(`/dashboard/settings/templates/new`);
+
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,

@@ -8,7 +8,8 @@ const HistoryStyled = styled("table")(({theme}) => ({
     borderRadius:8,
     "& .col": {
         borderBottom: '1px dashed #E0E0E0',
-        padding: 8
+        padding: 8,
+        minWidth:100
     },
     "& .data": {
         textAlign: "center",
