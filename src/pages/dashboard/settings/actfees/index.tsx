@@ -351,7 +351,7 @@ function ActFees() {
                                 {t("add_a_new_act")}
                             </Button>
                         )}
-                        <span>|</span>
+                        {/*<span>|</span>
                         <Typography>{t("consultation")} :</Typography>
                         <TextField
                             id="outlined-basic"
@@ -374,7 +374,7 @@ function ActFees() {
                                 editFees();
                             }}>
                             <SaveRoundedIcon color={"primary"}/>
-                        </IconButton>
+                        </IconButton>*/}
                     </Stack>
                 )}
             </SubHeader>

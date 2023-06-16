@@ -698,7 +698,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list["medical-imaging"]?.name} {list?.note ? "(" + list?.note + ")" : ""}
+                                                    {list["medical-imaging"]?.name}
                                                 </Typography>
                                             </ListItem>
                                         ))}
