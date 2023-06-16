@@ -2,7 +2,15 @@
   "welcome": "Welcome to the Med project",
   "start": "Start by editing",
   "powered_by": "All rights reserved",
+  "default-view": "Default view",
+  "trash": "Trash",
+  "empty-trash": "Empty trash",
   "lang": "Language",
+  "sms-languages": {
+    "fr": "French",
+    "en": "English",
+    "ar": "Arabic"
+  },
   "light": "Light mode",
   "dark": "Dark mode",
   "dashboard": "Dashboard",

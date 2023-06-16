@@ -137,9 +137,8 @@ function DashLayout({children}: LayoutProps) {
                 import_data: calendarStatus.import_data,
                 next: calendarStatus.next ? calendarStatus.next : null,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
-                ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
+                ongoing: calendarStatus.ongoing ? calendarStatus.ongoing : null
             }));
-
         }
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -190,7 +189,7 @@ function DashLayout({children}: LayoutProps) {
                 dialogClose={() => {
                     setImportDataDialog(false);
                 }}
-                action={() => renderNoDataCard} />
+                action={() => renderNoDataCard}/>
         </SideBarMenu>
     );
 }

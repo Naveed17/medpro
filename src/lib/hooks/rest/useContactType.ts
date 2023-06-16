@@ -18,7 +18,7 @@ function useContactType() {
         }
     }, [httpContactsResponse]);
 
-    return contacts
+    return {contacts}
 }
 
 export default useContactType;
