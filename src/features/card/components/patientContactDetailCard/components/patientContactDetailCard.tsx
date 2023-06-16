@@ -246,7 +246,7 @@ function PatientContactDetailCard({...props}) {
                                                     sx={{margin: 'auto'}}
                                                     size='small'
                                                     startIcon={<CloseIcon/>}>
-                                                {t('cancel')}
+                                                {t('config.add-patient.cancel')}
                                             </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
@@ -256,7 +256,7 @@ function PatientContactDetailCard({...props}) {
                                                 sx={{margin: 'auto'}}
                                                 size='small'
                                                 startIcon={<SaveAsIcon/>}>
-                                                {t('register')}
+                                                {t('config.add-patient.register')}
                                             </LoadingButton>
                                         </Stack>
                                         :

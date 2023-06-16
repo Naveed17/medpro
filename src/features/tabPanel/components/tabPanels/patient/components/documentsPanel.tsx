@@ -27,6 +27,7 @@ import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
+import {useAppointmentHistory} from "@lib/hooks/rest";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -53,13 +54,15 @@ const AddAppointmentCardData = {
 
 function DocumentsPanel({...props}) {
     const {
-        previousAppointmentsData, documentViewIndex, patient,
+        documentViewIndex, patient,
         roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
+    const {previousAppointmentsData} = useAppointmentHistory({patientId: patient?.uuid});
+
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);

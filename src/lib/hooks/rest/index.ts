@@ -6,3 +6,4 @@ export {default as sendRequest} from "./sendRequest";
 export {default as useProfilePhoto} from "./useProfilePhoto";
 export {default as useAntecedentTypes} from "./useAntecedentTypes";
 export {default as useCountries} from "./useCountries";
+export {default as useAppointmentHistory} from "./useAppointmentHistory";
