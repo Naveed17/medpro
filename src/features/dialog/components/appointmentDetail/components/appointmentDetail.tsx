@@ -312,6 +312,8 @@ function AppointmentDetail({...props}) {
                             motif: appointment?.extendedProps.motif,
                             status: appointment?.extendedProps.status,
                             type: appointment?.extendedProps.type,
+                            instruction: appointment?.extendedProps.instruction,
+                            reminder: appointment?.extendedProps.reminder
                         }}
                     />
                 </Box>

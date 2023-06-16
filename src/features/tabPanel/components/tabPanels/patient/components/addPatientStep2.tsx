@@ -73,12 +73,17 @@ function AddPatientStep2({...props}) {
     const {contacts} = useContactType();
     const {countries} = useCountries();
 
-    const [loading, setLoading] = useState<boolean>(status === "loading");
-    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
-
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [loading, setLoading] = useState<boolean>(status === "loading");
+    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })));
 
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
@@ -576,13 +581,13 @@ function AddPatientStep2({...props}) {
                                                     <Autocomplete
                                                         size={"small"}
                                                         value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                            SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                            socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                         onChange={(event, insurance: any) => {
                                                             setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                             setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                         }}
                                                         id={"assure"}
-                                                        options={SocialInsured}
+                                                        options={socialInsurances}
                                                         groupBy={(option: any) => option.grouped}
                                                         sx={{minWidth: 460}}
                                                         getOptionLabel={(option: any) => option?.label ? option.label : ""}

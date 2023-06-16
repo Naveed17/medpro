@@ -6,7 +6,7 @@ import {GetRequest} from "../axios/config";
 interface Return<Data, Error>
     extends Pick<
         SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
-        "isValidating" | "error" | "mutate"
+        "isValidating" | "isLoading" | "error" | "mutate"
     > {
     data: Data | undefined;
     response: AxiosResponse<Data> | undefined;
@@ -28,6 +28,7 @@ function useRequest<Data = unknown, Error = unknown>(
         data: response,
         error,
         isValidating,
+        isLoading,
         mutate,
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && request.url,
@@ -53,6 +54,7 @@ function useRequest<Data = unknown, Error = unknown>(
         response,
         error,
         isValidating,
+        isLoading,
         mutate,
     };
 }
