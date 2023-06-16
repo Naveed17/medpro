@@ -412,7 +412,7 @@ function Consultation() {
                         </IconButton>
                     </ListItem>
 
-                    {!isNote && note && (
+                    {!isNote && note && note.trim().length > 0 && (
                         <Box style={{padding: 10, paddingBottom: 0}}>
                             <ContentStyled>
                                 <CardContent id={"note-card-content"}
