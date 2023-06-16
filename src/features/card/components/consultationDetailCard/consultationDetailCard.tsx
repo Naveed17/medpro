@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, IconButton, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -9,7 +9,6 @@ import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToo
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
-import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -18,7 +17,7 @@ import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 function CIPPatientHistoryCard({...props}) {
     const {
         exam: defaultExam,
@@ -28,7 +27,10 @@ function CIPPatientHistoryCard({...props}) {
         notes,
         diagnostics,
         seeHistory,
-        seeHistoryDiagnostic
+        seeHistoryDiagnostic,
+        closed,
+        handleClosePanel,
+        isClose
     } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -44,6 +46,7 @@ function CIPPatientHistoryCard({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
+    const [closeExam, setCloseExam] = useState<boolean>(closed);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
@@ -152,7 +155,6 @@ function CIPPatientHistoryCard({...props}) {
             setLoadingReq(false);
         }));
     }
-
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
@@ -210,14 +212,27 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center"
+            <Stack className="card-header" padding={'0.45rem'}
+                   direction="row"
+                   alignItems="center"
                    justifyContent={"space-between"} borderBottom={1}
                    borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                             fontWeight={600}>
                     <Icon path='ic-edit-file-pen'/>
-                    {t("review")}
+                    {t("review")} {closed ? 'closed':'opened'}
                 </Typography>
+
+                 <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <ArrowForwardIosIcon/>
+                </IconButton>
             </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>

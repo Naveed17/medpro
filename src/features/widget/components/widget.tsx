@@ -57,7 +57,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         data,
         changes,
         setChanges,
-        previousData
+        previousData,
+        closed
     } = props;
 
     if (modal) {
@@ -115,6 +116,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
+        closed,
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
     const router = useRouter();
@@ -137,6 +139,9 @@ function Widget({...props}) {
         uuid: "",
     });
 
+    useEffect(()=>{
+        console.log(closed)
+    },[closed])
     const theme = useTheme();
 
     useEffect(() => {
