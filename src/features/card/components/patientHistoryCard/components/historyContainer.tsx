@@ -167,6 +167,13 @@ function HistoryContainer({...props}) {
                                                 {col.type === "treatment" && <>
                                                     {
                                                         app.appointment.treatments.length > 0 ? <>
+                                                            {
+                                                                app.appointment.treatments.filter((t: {
+                                                                    isOtherProfessional: any;
+                                                                }) => t.isOtherProfessional).length > 0 &&
+                                                                <Typography fontSize={12}
+                                                                            fontWeight={"bold"}>{t('treatement_in_progress')}</Typography>
+                                                            }
                                                             {app.appointment.treatments.filter((t: {
                                                                 isOtherProfessional: any;
                                                             }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
@@ -175,13 +182,6 @@ function HistoryContainer({...props}) {
                                                                         className={'boxHisto'}>
                                                                         <Typography
                                                                             fontSize={12}>{treatment.name}</Typography>
-                                                                        <Stack direction={"row"}>
-                                                                            {treatment.dosage && <Typography
-                                                                                className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
-                                                                            {treatment.duration > 0 && <Typography
-                                                                                className={"treamtementDetail"}
-                                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>}
-                                                                        </Stack>
                                                                     </Box>
                                                                 )
                                                             )}
