@@ -101,7 +101,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
         motif: appointment.consultationReasons,
         instruction: appointment.instruction !== null ? appointment.globalInstructions : "",
-        reminder: appointment.reminder.length > 0 ? appointment.reminder : [],
+        reminder: appointment.reminder?.length > 0 ? appointment.reminder : [],
         id: appointment.uuid,
         updatedAt: moment(appointment.updatedAt, "DD-MM-YYYY HH:mm"),
         filtered: false,
