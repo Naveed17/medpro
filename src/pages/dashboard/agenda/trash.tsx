@@ -4,7 +4,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import {Box, Button, IconButton, Stack, useTheme} from "@mui/material";
+import {Box, Button, Container, IconButton, Stack, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -15,8 +15,8 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
-import {AddAppointmentCardData, agendaSelector} from "@features/calendar";
-import {NoDataCard} from "@features/card";
+import {agendaSelector} from "@features/calendar";
+import {NoDataCard, TrashCard} from "@features/card";
 import {Otable} from "@features/table";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import useSWRMutation from "swr/mutation";
@@ -25,6 +25,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
+import {MobileContainer} from "@themes/mobileContainer";
+import moment from "moment-timezone";
 
 const TableHead = [
     {
@@ -90,6 +92,7 @@ function Trash() {
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${uuid}/${router.locale}`
         } as any).then(() => {
             setLoading(false);
+            setDeleteDialog(false);
             mutateTrashAppointment();
         });
     }
@@ -130,24 +133,26 @@ function Trash() {
         <SubHeader
             sx={{
                 ".MuiToolbar-root": {
-                    flexDirection: {xs: "column", md: "row"},
-                    py: {md: 0, xs: 2},
-                },
+                    flexDirection: "row",
+                    py: {md: 0, xs: 2}
+                }
             }}>
             <RootStyled>
-                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                <Stack direction={"row"} spacing={1.2} alignItems={"center"} justifyContent={"start"}>
                     <Link href="/dashboard/agenda">
                         <IconButton aria-label="back">
                             <ArrowBackRoundedIcon/>
                         </IconButton>
                     </Link>
-                    <Typography>{t("trash", {ns: "common"})}</Typography>
+                    <Typography variant="subtitle2">{t("trash", {ns: "common"})}</Typography>
                 </Stack>
-       {/*         <Button variant={"text"} color="error"
+                {/*         <Button variant={"text"} color="error"
                         startIcon={<DeleteOutlineIcon/>}>{t("empty-trash", {ns: "common"})}</Button>*/}
             </RootStyled>
         </SubHeader>
         <Box className="container">
+            <Typography variant="caption">{t("trash-duration")}</Typography>
+
             <DesktopContainer>
                 <Otable
                     {...{t}}
@@ -160,10 +165,50 @@ function Trash() {
                     rows={groupTrashArrays}
                     from={"trash"}
                 />
-                {(!loading && groupTrashArrays.length === 0) && (
-                    <NoDataCard {...{t}} data={AddAppointmentCardData}/>
-                )}
             </DesktopContainer>
+
+            <MobileContainer>
+                {groupTrashArrays.map((row, index) => (
+                    <Container key={index}>
+                        <Typography variant={"body1"}
+                                    color="text.primary"
+                                    pb={1} pt={2}
+                                    sx={{textTransform: "capitalize", fontSize: '1rem'}}>
+                            {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
+                                "Today"
+                            ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
+                                "Tomorrow"
+                            ) : (
+                                <>
+                                    {moment(row.date, "DD-MM-YYYY").format("MMMM")}{" "}
+                                    {moment(row.date, "DD-MM-YYYY").format("DD")}
+                                </>
+                            )}
+                        </Typography>
+
+                        {row.events.map((event: EventModal) => (
+                            <TrashCard
+                                {...{t}}
+                                spinner={loading}
+                                handleEvent={(action: string, eventData: EventModal) =>
+                                    handleTableEvent(action, eventData)
+                                }
+                                key={event.id}
+                                event={event}/>
+
+                        ))}
+                    </Container>
+                ))}
+            </MobileContainer>
+
+            {(!loading && groupTrashArrays.length === 0) && (
+                <NoDataCard {...{t}} data={{
+                    mainIcon: <DeleteOutlineIcon sx={{width: 100, height: 100}} color={"disabled"}/>,
+                    title: "table.no-data.event.title-trash",
+                    description: "table.no-data.event.description"
+                }}/>
+            )}
+
             <Dialog
                 color={theme.palette.error.main}
                 contrastText={theme.palette.error.contrastText}
