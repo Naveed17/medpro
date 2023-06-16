@@ -70,6 +70,9 @@ main {
   align-items: center;
 }
 
+.form-input-material{
+  display: grid !important;
+  width: fit-content;}
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
@@ -99,7 +102,6 @@ main {
       }
     }
   }
-
 
   label {
     float: left;
