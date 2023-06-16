@@ -1,6 +1,6 @@
-import {GetStaticProps, GetStaticPaths} from "next";
+import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState,useEffect,memo,useRef} from "react";
+import React, {ReactElement, useState, useEffect, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -30,24 +30,26 @@ import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation,useRequest} from "@lib/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { DatePicker } from "@features/datepicker";
-import { LoadingButton } from "@mui/lab";
-import { useSnackbar } from "notistack";
+import {useRequestMutation, useRequest} from "@lib/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DatePicker} from "@features/datepicker";
+import {LoadingButton} from "@mui/lab";
+import {useSnackbar} from "notistack";
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry} from "@lib/constants";
 import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import { useContactType } from "@lib/hooks/rest";
- const PhoneCountry: any = memo(({...props}) => {
+import {useContactType} from "@lib/hooks/rest";
+
+const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
+
 function NewUser() {
-    const contacts = useContactType();
+    const {contacts} = useContactType();
     const router = useRouter();
     const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
@@ -55,11 +57,11 @@ function NewUser() {
     const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
-    const[profiles,setProfiles] = useState<any[]>([]);
-    const { data: session } = useSession();
-    const { data: userSession } = session as Session;
+    const [profiles, setProfiles] = useState<any[]>([]);
+    const {data: session} = useSession();
+    const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
-    const [agendaRoles, setAgendaRoles] = useState(agendas);
+    const [agendaRoles] = useState(agendas);
     const [user] = useState(tableState.editUser);
     const {data: userData} = session as Session;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -68,17 +70,17 @@ function NewUser() {
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-const { data: httpProfilesResponse, } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
-  useEffect(() => {
-   if (httpProfilesResponse){
-      setProfiles((httpProfilesResponse as HttpResponse)?.data)
-   }
+    const {data: httpProfilesResponse,} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/profile`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+    useEffect(() => {
+        if (httpProfilesResponse) {
+            setProfiles((httpProfilesResponse as HttpResponse)?.data)
+        }
     }, [httpProfilesResponse])
     const {t, ready} = useTranslation("settings");
 
@@ -91,9 +93,9 @@ const { data: httpProfilesResponse, } = useRequest({
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
         consultation_fees: Yup.string()
-            .required(),   
+            .required(),
         birthdate: Yup.string()
-            .required(), 
+            .required(),
         firstname: Yup.string()
             .required(),
         lastname: Yup.string()
@@ -117,38 +119,38 @@ const { data: httpProfilesResponse, } = useRequest({
                     })
                     .required(),
             })
-        ),    
+        ),
         confirmPassword: Yup.string().when('password', (password, field) =>
-        password ? field.required().oneOf([Yup.ref('password')]) : field),
+            password ? field.required().oneOf([Yup.ref('password')]) : field),
         profile: Yup.string()
-            .required(),       
+            .required(),
     });
-    
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             role: "",
-            agendas: agendaRoles.map((agenda:any) => ({...agenda, role: ""})),
+            agendas: agendaRoles.map((agenda: any) => ({...agenda, role: ""})),
             professionnel: false,
-            email:  "",
-            name:  "",
-            message:   "",
-            admin:  false,
-            consultation_fees:"",
+            email: "",
+            name: "",
+            message: "",
+            admin: false,
+            consultation_fees: "",
             birthdate: null,
-            firstname :"",
-            lastname:"",
-            phones:  [
+            firstname: "",
+            lastname: "",
+            phones: [
                 {
-                    phone: "",dial: doctor_country
+                    phone: "", dial: doctor_country
                 }
-                ],
-            password:"",
-            confirmPassword:"", 
-            profile:""
+            ],
+            password: "",
+            confirmPassword: "",
+            profile: ""
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             setLoading(true);
             const form = new FormData();
             form.append('username', values.name);
@@ -164,30 +166,30 @@ const { data: httpProfilesResponse, } = useRequest({
             form.append('firstname', values.firstname);
             form.append('lastname', values.lastname);
             form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
-            code: phoneData.dial?.phone,
-            value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
-            type: "phone",
-            contact_type: contacts[0].uuid,
-            is_public: false,
-            is_support: false
-        }))));
+                code: phoneData.dial?.phone,
+                value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
+                type: "phone",
+                contact_type: contacts[0].uuid,
+                is_public: false,
+                is_support: false
+            }))));
             form.append('password', values.password);
-            form.append('profile', values.profile); 
+            form.append('profile', values.profile);
             trigger({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            enqueueSnackbar(t("users.alert.success"), {variant: "success"});
-            setLoading(false)
-            dispatch(addUser({...values}));
-            router.push("/dashboard/settings/users");
-        }).catch((error) => {
-            setLoading(false);
-            enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
-        })
-           
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => {
+                enqueueSnackbar(t("users.alert.success"), {variant: "success"});
+                setLoading(false)
+                dispatch(addUser({...values}));
+                router.push("/dashboard/settings/users");
+            }).catch(() => {
+                setLoading(false);
+                enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
+            })
+
         },
     });
 
@@ -315,7 +317,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -345,8 +347,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2} 
-                               
+                                <Box mb={2}
+
                                 >
                                     <Grid
                                         container
@@ -365,19 +367,19 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <DatePicker
-                                            value={values.birthdate}
-                                           onChange={(newValue: any) => {
-                                           setFieldValue("birthdate", newValue);
-                                           }}
-                                           InputProps={{
-                                            error:Boolean(touched.birthdate && errors.birthdate),
-                                            sx:{
-                                           button:{
-                                            p:0
-                                           }
-                                                }
-                                             }}
+                                            <DatePicker
+                                                value={values.birthdate}
+                                                onChange={(newValue: any) => {
+                                                    setFieldValue("birthdate", newValue);
+                                                }}
+                                                InputProps={{
+                                                    error: Boolean(touched.birthdate && errors.birthdate),
+                                                    sx: {
+                                                        button: {
+                                                            p: 0
+                                                        }
+                                                    }
+                                                }}
                                             />
                                         </Grid>
                                     </Grid>
@@ -400,7 +402,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
+                                            <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.firstname")}
                                                 fullWidth
@@ -411,7 +413,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -429,7 +431,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
+                                            <TextField
                                                 variant="outlined"
                                                 placeholder={t("users.lastname")}
                                                 fullWidth
@@ -440,55 +442,55 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 {values.phones.map((phoneObject, index: number) => (
-                                 <Box mb={2} key={index}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.phone")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
+                                {values.phones.map((phoneObject, index: number) => (
+                                    <Box mb={2} key={index}>
+                                        <Grid
+                                            container
+                                            spacing={{lg: 2, xs: 1}}
+                                            alignItems="center">
+                                            <Grid item xs={12} lg={2}>
+                                                <Typography
+                                                    textAlign={{lg: "right", xs: "left"}}
+                                                    color="text.secondary"
+                                                    variant="body2"
+                                                    fontWeight={400}>
+                                                    {t("users.phone")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
                                                 </Typography>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} md={10}>
-                                            <Grid container spacing={2}>
-                                                <Grid item xs={12} md={4}>
-                                                    <PhoneCountry
-                                                   initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                                    onSelect={(state: any) => {
-                                                   setFieldValue(`phones[${index}].phone`, "");
-                                                   setFieldValue(`phones[${index}].dial`, state);
-                                            }}
-                                        />
-                                                </Grid>
-                                                <Grid item xs={12} md={8}>
-                                                     {phoneObject && <PhoneInput
-                                            ref={phoneInputRef}
-                                            international
-                                            fullWidth
-                                            withCountryCallingCode
-                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                            country={phoneObject.dial?.code.toUpperCase() as any}
-                                            value={getFieldProps(`phones[${index}].phone`) ?
-                                                getFieldProps(`phones[${index}].phone`).value : ""}
-                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
-                                            inputComponent={CustomInput as any}
-                                        />}
+                                            </Grid>
+                                            <Grid item xs={12} md={10}>
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12} md={4}>
+                                                        <PhoneCountry
+                                                            initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                            onSelect={(state: any) => {
+                                                                setFieldValue(`phones[${index}].phone`, "");
+                                                                setFieldValue(`phones[${index}].dial`, state);
+                                                            }}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12} md={8}>
+                                                        {phoneObject && <PhoneInput
+                                                            ref={phoneInputRef}
+                                                            international
+                                                            fullWidth
+                                                            withCountryCallingCode
+                                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                            country={phoneObject.dial?.code.toUpperCase() as any}
+                                                            value={getFieldProps(`phones[${index}].phone`) ?
+                                                                getFieldProps(`phones[${index}].phone`).value : ""}
+                                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                                            inputComponent={CustomInput as any}
+                                                        />}
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
-                                    </Grid>
-                                </Box>
+                                    </Box>
                                 ))}
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -506,8 +508,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
-                                               type="password"
+                                            <TextField
+                                                type="password"
                                                 variant="outlined"
                                                 placeholder={t("users.password")}
                                                 fullWidth
@@ -518,7 +520,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                 <Box mb={2}>
+                                <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -536,8 +538,8 @@ const { data: httpProfilesResponse, } = useRequest({
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                             <TextField
-                                               type="password"
+                                            <TextField
+                                                type="password"
                                                 variant="outlined"
                                                 placeholder={t("users.confirm_password")}
                                                 fullWidth
@@ -560,28 +562,30 @@ const { data: httpProfilesResponse, } = useRequest({
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("users.profile")}{" "}
-                                               
+
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <FormControl size="small" fullWidth error = {Boolean(touched.profile && errors.profile)}>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id={"role"}
-                                                {...getFieldProps("profile")}
-                                                renderValue={selected => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("users.profile")}</em>;
-                                                    }
-                                                    const profile = profiles?.find(profile => profile.uuid === selected);
-                                                    return <Typography>{profile?.name}</Typography>
-                                                }}
-                                                displayEmpty
-                                                sx={{color: "text.secondary"}}>
-                                                {profiles.map(profile =>
-                                                    <MenuItem key={profile.uuid} value={profile.uuid}>{profile.name}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                            <FormControl size="small" fullWidth
+                                                         error={Boolean(touched.profile && errors.profile)}>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id={"role"}
+                                                    {...getFieldProps("profile")}
+                                                    renderValue={selected => {
+                                                        if (selected.length === 0) {
+                                                            return <em>{t("users.profile")}</em>;
+                                                        }
+                                                        const profile = profiles?.find(profile => profile.uuid === selected);
+                                                        return <Typography>{profile?.name}</Typography>
+                                                    }}
+                                                    displayEmpty
+                                                    sx={{color: "text.secondary"}}>
+                                                    {profiles.map(profile =>
+                                                        <MenuItem key={profile.uuid}
+                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
+                                                </Select>
+                                            </FormControl>
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -677,7 +681,7 @@ const { data: httpProfilesResponse, } = useRequest({
                                             <FormControlLabel
                                                 control={<Checkbox/>}
                                                 label={agenda.name}
-                                                
+
                                             />
                                         </Grid>
                                         <Grid item xs={12} lg={7}>

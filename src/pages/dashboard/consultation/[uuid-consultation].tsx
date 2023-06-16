@@ -19,12 +19,11 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme,} from "@mui/material";
+import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
-    PendingDocumentCard,
-    setTimer,
+    PendingDocumentCard, resetTimer,
     timerSelector,
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
@@ -309,7 +308,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect] ={...acts[actDetect],fees:act.price,qte:act.qte};
+                                    acts[actDetect] = {...acts[actDetect], fees: act.price, qte: act.qte};
                                 }
                             }
                         );
@@ -345,7 +344,7 @@ function ConsultationInProgress() {
                         setConsultationFees(Number(appointement.type.price));
                     }
                     selectedAct.map(sa => {
-                        _total+= sa.fees * sa.qte;
+                        _total += sa.fees * sa.qte;
                     })
                     setTotal(_total)
                 }
@@ -428,8 +427,11 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                console.log("end consultation");
-                appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
+                if(appointement?.status !== 5) {
+                    dispatch(resetTimer());
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                }
                 mutate().then(() => {
                     leaveDialog.current = true;
                     if (!isHistory)
@@ -535,9 +537,9 @@ function ConsultationInProgress() {
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
-            selectedAct[index] = {...row,qte:row.qte};
+            selectedAct[index] = {...row, qte: row.qte};
             const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
-            acts[indexAct] = {...acts[indexAct],qte:row.qte}
+            acts[indexAct] = {...acts[indexAct], qte: row.qte}
             setActs([...acts])
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
@@ -568,13 +570,13 @@ function ConsultationInProgress() {
                     ])
                 );
             } else {
-                setSelectedAct([...selectedAct, {...row,qte:1}]);
+                setSelectedAct([...selectedAct, {...row, qte: 1}]);
                 const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
-                acts[indexAct] = {...acts[indexAct],qte:1}
+                acts[indexAct] = {...acts[indexAct], qte: 1}
                 setActs([...acts])
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
-                    JSON.stringify([...selectedAct, {...row,qte:1}])
+                    JSON.stringify([...selectedAct, {...row, qte: 1}])
                 );
             }
         }
@@ -642,7 +644,7 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/status/${router.locale}`
         } as any).then(() => {
             router.push("/dashboard/agenda").then(() => {
-                dispatch(setTimer({isActive: false}));
+                dispatch(resetTimer());
                 setActions(false);
                 // refresh on going api
                 mutateOnGoing && mutateOnGoing();
@@ -798,7 +800,7 @@ function ConsultationInProgress() {
 
     return (
         <>
-            {isHistory &&<AppointHistoryContainerStyled> <Toolbar>
+            {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
@@ -1274,7 +1276,9 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     };
 };
 export default ConsultationInProgress;
+
 ConsultationInProgress.auth = true;
+
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

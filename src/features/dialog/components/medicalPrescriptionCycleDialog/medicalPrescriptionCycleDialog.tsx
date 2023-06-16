@@ -65,6 +65,7 @@ import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
+import {search} from "fast-fuzzy";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -429,7 +430,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
         if (hasMultiValues.length > 1) {
             formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
         } else {
-            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+            formUnitMedic = MedicalFormUnit.find((medic: any) => {
+                const matchFormUnit: string[] = search(form, medic.forms.map((data: any) => data.form),
+                    {returnMatchData: true}).reduce((filtered: string[], option) => {
+                    if (option.score >= 0.8) {
+                        filtered.push(option.item as string);
+                    }
+                    return filtered;
+                }, []);
+                return matchFormUnit.length > 0;
+            }) ?? form;
         }
         return formUnitMedic;
     }

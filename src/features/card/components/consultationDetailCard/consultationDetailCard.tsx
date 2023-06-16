@@ -17,7 +17,7 @@ import {useSession} from "next-auth/react";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 
 function CIPPatientHistoryCard({...props}) {
     const {
@@ -101,7 +101,7 @@ function CIPPatientHistoryCard({...props}) {
     }
 
     const handleDiseasesChange = (_diseases: string[]) => {
-        setFieldValue("disease",_diseases);
+        setFieldValue("disease", _diseases);
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
             ...storageData,
             disease: _diseases
@@ -153,14 +153,14 @@ function CIPPatientHistoryCard({...props}) {
         }));
     }
 
-    const findDiseases = (name:string) =>{
+    const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
             url: `/api/private/diseases/${router.locale}?name=${name}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(res =>{
-            let resultats:any[] = [];
-            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) =>{
+        }).then(res => {
+            let resultats: any[] = [];
+            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
                 resultats.push(r.data.title['@value']);
             });
             setDiseases(resultats);
@@ -251,19 +251,7 @@ function CIPPatientHistoryCard({...props}) {
                                         handleReasonChange(newValue);
                                     }
                                 }}
-                                filterOptions={(options, params) => {
-                                    const {inputValue} = params;
-                                    const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                    // Suggest the creation of a new value
-                                    const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
-                                    if (inputValue !== '' && !isExisting) {
-                                        filtered.push({
-                                            inputValue,
-                                            name: `${t('add_reason')} "${inputValue}"`,
-                                        });
-                                    }
-                                    return filtered;
-                                }}
+                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                 sx={{color: "text.secondary"}}
                                 options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                 loading={reasons?.length === 0}
@@ -416,7 +404,7 @@ function CIPPatientHistoryCard({...props}) {
                                                                   }}
                                                                   placeholder={"--"}
                                                                   sx={{paddingLeft: 0}}
-                                                                  onChange={(ev)=>{
+                                                                  onChange={(ev) => {
                                                                       findDiseases(ev.target.value)
                                                                   }}
                                                                   variant="outlined" fullWidth/>}/>

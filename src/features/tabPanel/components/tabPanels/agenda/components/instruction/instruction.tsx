@@ -109,7 +109,7 @@ function Instruction({...props}) {
             smsRappel &&
             form.append('reminder', JSON.stringify([{
                 "type": rappelType,
-                "time": moment(timeRappel).format('HH:mm'),
+                "time": moment.utc(timeRappel).format('HH:mm'),
                 "number_of_day": rappel,
                 "reminder_language": smsLang,
                 "reminder_message": smsLang

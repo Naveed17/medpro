@@ -209,6 +209,7 @@ function TopNavBar({...props}) {
                     },
                 },
             };
+
             dispatch(
                 setTimer({
                     isActive: true,
