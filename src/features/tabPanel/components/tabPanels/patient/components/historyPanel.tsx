@@ -1,26 +1,22 @@
-import {Box, Button, DialogActions, Stack, Typography, useTheme} from '@mui/material'
-import {HistoryContainer} from '@features/card'
+import {Box, Stack, Typography, useTheme} from '@mui/material'
+import {HistoryContainer, NoDataCard, PatientHistoryNoDataCard} from '@features/card'
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
-import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
 import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {useAppointmentHistory} from "@lib/hooks/rest";
 
 function HistoryPanel({...props}) {
     const {
-        previousAppointmentsData: previousAppointments,
         patient,
         mutate,
-        mutatePatientHis,
         closePatientDialog
     } = props;
 
@@ -28,10 +24,14 @@ function HistoryPanel({...props}) {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
+    const {
+        previousAppointmentsData: previousAppointments,
+        isLoading
+    } = useAppointmentHistory({patientId: patient?.uuid});
 
     const {direction} = useAppSelector(configSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
-    const {t} = useTranslation("consultation");
+    const {t} = useTranslation(["consultation", "patient"]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -41,7 +41,7 @@ function HistoryPanel({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
-    const [apps, setApps] = useState<any>([]);
+    const [apps, setApps] = useState<any>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
 
     const handleCloseDialog = () => {
@@ -128,75 +128,96 @@ function HistoryPanel({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setApps(previousAppointments ? [...previousAppointments] : []);
+        if (previousAppointments) {
+            setApps([...previousAppointments]);
+        }
     }, [previousAppointments, dispatch]);
 
-    return (
-        <PanelStyled>
-            <Box className="files-panel">
-                <Typography fontWeight={600} p={1}>
-                    {t("history")}
-                </Typography>
-                <Stack spacing={2} mt={0}>
-                    {apps && apps.map((app: any, appID: number) => (
-                        <React.Fragment key={`app-el-${appID}`}>
-                            <HistoryContainer {...{
-                                app,
-                                closePatientDialog,
-                                apps,
-                                setApps,
-                                appID,
-                                appuuid: '',
-                                dispatch,
-                                t,
-                                setInfo,
-                                setState,
-                                setOpenDialog,
-                                showDoc: ((data: any) => {
-                                    setSelectedAppointment(app.appointment.uuid);
-                                    showDoc(data, app);
-                                }),
-                                mutate,
-                                patient,
-                                session,
-                                medical_entity,
-                            }}/>
-                        </React.Fragment>))}
-                </Stack>
-            </Box>
+    console.log("isLoading", isLoading, apps);
 
-            {info && (
-                <Dialog
-                    {...{
-                        direction,
-                        sx: {
-                            minHeight: 300
+    return (
+        (isLoading || !apps) ? <Stack spacing={2} padding={2}>
+            {Array.from({length: 3}).map((_, idx) => (
+                <React.Fragment key={`${idx}-empty-history`}>
+                    <PatientHistoryNoDataCard/>
+                </React.Fragment>
+            ))}
+        </Stack> : (apps && apps.length > 0) ?
+            <PanelStyled>
+                <Box className="files-panel">
+                    <Typography fontWeight={600} p={1}>
+                        {t("history")}
+                    </Typography>
+                    <Stack spacing={2} mt={0}>
+                        {apps.map((app: any, appID: number) => (
+                            <React.Fragment key={`app-el-${appID}`}>
+                                <HistoryContainer {...{
+                                    app,
+                                    closePatientDialog,
+                                    apps,
+                                    setApps,
+                                    appID,
+                                    appuuid: '',
+                                    dispatch,
+                                    t,
+                                    setInfo,
+                                    setState,
+                                    setOpenDialog,
+                                    showDoc: ((data: any) => {
+                                        setSelectedAppointment(app.appointment.uuid);
+                                        showDoc(data, app);
+                                    }),
+                                    mutate,
+                                    patient,
+                                    session,
+                                    medical_entity,
+                                }}/>
+                            </React.Fragment>))}
+                    </Stack>
+                </Box>
+
+                {info && (
+                    <Dialog
+                        {...{
+                            direction,
+                            sx: {
+                                minHeight: 300
+                            }
+                        }}
+                        action={info}
+                        open={openDialog}
+                        data={{
+                            state,
+                            setState,
+                            setDialog,
+                            setOpenDialog,
+                            t
+                        }}
+                        size={"lg"}
+                        color={
+                            info === "secretary_consultation_alert" && theme.palette.error.main
                         }
-                    }}
-                    action={info}
-                    open={openDialog}
-                    data={{
-                        state,
-                        setState,
-                        setDialog,
-                        setOpenDialog,
-                        t
-                    }}
-                    size={"lg"}
-                    color={
-                        info === "secretary_consultation_alert" && theme.palette.error.main
-                    }
-                    {...(info === "document_detail" && {
-                        sx: {p: 0},
-                    })}
-                    title={t(info === "document_detail" ? "doc_detail_title" : "")}
-                    {...((info === "document_detail" || info === "end_consultation") && {
-                        onClose: handleCloseDialog,
-                    })}
-                    dialogClose={handleCloseDialog}
-                />
-            )}
-        </PanelStyled>
+                        {...(info === "document_detail" && {
+                            sx: {p: 0},
+                        })}
+                        title={t(info === "document_detail" ? "doc_detail_title" : "")}
+                        {...((info === "document_detail" || info === "end_consultation") && {
+                            onClose: handleCloseDialog,
+                        })}
+                        dialogClose={handleCloseDialog}
+                    />
+                )}
+            </PanelStyled>
+            :
+            <NoDataCard
+                t={t}
+                ns={"patient"}
+                data={{
+                    mainIcon: "consultation/ic-text",
+                    title: "config.no-data.consultation.title",
+                    description: "config.no-data.consultation.description"
+                }}
+            />
     )
 }
 

@@ -284,6 +284,11 @@ function OnStepPatient({...props}) {
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })));
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -907,13 +912,13 @@ function OnStepPatient({...props}) {
                                                             <Autocomplete
                                                                 size={"small"}
                                                                 value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                                    SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                                    socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                                 onChange={(event, insurance: any) => {
                                                                     setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                                     setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                                 }}
                                                                 id={"assure"}
-                                                                options={SocialInsured}
+                                                                options={socialInsurances}
                                                                 groupBy={(option: any) => option.grouped}
                                                                 sx={{minWidth: 500}}
                                                                 getOptionLabel={(option: any) => option?.label ? option.label : ""}
