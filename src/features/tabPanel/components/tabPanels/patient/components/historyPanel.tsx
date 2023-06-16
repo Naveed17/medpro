@@ -133,8 +133,6 @@ function HistoryPanel({...props}) {
         }
     }, [previousAppointments, dispatch]);
 
-    console.log("isLoading", isLoading, apps);
-
     return (
         (isLoading || !apps) ? <Stack spacing={2} padding={2}>
             {Array.from({length: 3}).map((_, idx) => (
