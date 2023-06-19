@@ -11,6 +11,7 @@ const WidgetForm: any = memo(
             appuuid,
             changes,
             setChanges,
+            closed,
             handleClosePanel,
             isClose,
             expandButton,previousData,
@@ -18,7 +19,7 @@ const WidgetForm: any = memo(
         } = props;
         return (
             <Widget
-                {...{modal, data, models, appuuid, changes, setChanges, isClose, expandButton,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData}}
+                {...{modal, data, models, appuuid, changes, setChanges, isClose, expandButton,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData,closed}}
                 setModal={setSM}
                 handleClosePanel={handleClosePanel}></Widget>
         );

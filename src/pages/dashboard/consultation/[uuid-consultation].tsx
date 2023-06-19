@@ -92,6 +92,7 @@ function ConsultationInProgress() {
     const [appointement, setAppointement] = useState<any>();
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isClose, setIsClose] = useState<boolean>(false);
+    const [closeExam, setCloseExam] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -796,6 +797,15 @@ function ConsultationInProgress() {
 
     }
 
+    const getWidgetSize = () => {
+        return isClose ? 1 : closeExam ? 11 : 5
+    }
+
+    const getExamSize = () => {
+        return isClose ? 11 : closeExam ? 1  : 7;
+    }
+
+
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -912,7 +922,7 @@ function ConsultationInProgress() {
 */}
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{
@@ -930,12 +940,13 @@ function ConsultationInProgress() {
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
+                                        closed={closeExam}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
                             </Grid>
                             <Grid item xs={12}
-                                  md={isClose ? 11 : 7}
+                                  md={getExamSize()}
                                   style={{paddingLeft: isClose ? 0 : 10}}>
                                 <ConsultationDetailCard
                                     {...{
@@ -953,7 +964,11 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
+                                        closed:closeExam,
+                                        setCloseExam,
+                                        isClose
                                     }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
                             </Grid>
                         </Grid>
