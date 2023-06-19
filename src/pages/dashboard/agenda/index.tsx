@@ -295,7 +295,6 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("filter", filter);
         if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
