@@ -34,7 +34,6 @@ import {Dialog} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 function TemplatesConfig() {
@@ -78,7 +77,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPrescriptionResponse, mutate: mutatePres} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpPrescriptionResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
