@@ -134,9 +134,11 @@ function FcmLayout({...props}) {
                             if (!data.body.appointment) {
                                 dispatch(resetTimer());
                             }
-                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                            const notifications = localStorage.getItem("notifications");
+                            localStorage.setItem("notifications", JSON.stringify([...(notifications ? JSON.parse(notifications) : []), data.body]));
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             agendaConfig?.mutate[1]();
