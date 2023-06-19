@@ -309,7 +309,8 @@
       "leave-waiting-room": "le patient a quitté la salle d'attente",
       "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
       "patient-no-show": "le rendez-vous a été modifié avec succès",
-      "confirm-appointment": "le rendez-vous a été confirmé avec succès"
+      "confirm-appointment": "le rendez-vous a été confirmé avec succès",
+      "consultation-finish": "Consultation terminée pour le patient"
     }
   },
   "filter": {

@@ -186,7 +186,7 @@ function NotificationPopover({...props}) {
                         height: 60
                     }
                 }}>
-                {pendingAppointments.length > 0 ?
+                {(pendingAppointments.length > 0 || notifications.length > 0) ?
                     <>
                         <Typography variant="h6">Notifications</Typography>
                         <Box
@@ -203,6 +203,33 @@ function NotificationPopover({...props}) {
                                 </Tabs>
                             </Box>
                             <TabPanel value={value} index={0} className={"container"}>
+                                <BasicList
+                                    handleAction={(action: string, event: EventDef) => {
+                                        console.log(action, event);
+                                    }}
+                                    sx={{
+                                        "& .MuiSvgIcon-root": {
+                                            width: 26,
+                                            height: 26
+                                        }
+                                    }}
+                                    data={[
+                                        ...notifications.map(appointment => ({
+                                            ...appointment,
+                                            duration: appointment.createdAt && getDuration(appointment.createdAt),
+                                            title: `${t("dialogs.alert.consultation-finish")} ${appointment?.patient.firstName} ${appointment?.patient.lastName}`,
+                                            icon: <EventIcon/>,
+                                            ...(appointment?.control && {
+                                                buttons: [{
+                                                    text: t("dialogs.finish-dialog.reschedule"),
+                                                    color: "primary",
+                                                    action: "reschedule"
+                                                }]
+                                            })
+                                        }))
+                                    ]}/>
+                            </TabPanel>
+                            <TabPanel value={value} index={1} className={"container"}>
                                 <BasicList
                                     handleAction={handleNotificationAction}
                                     sx={{
@@ -232,30 +259,6 @@ function NotificationPopover({...props}) {
                                                         action: "onCall"
                                                     })
                                                 }
-                                            ]
-                                        }))
-                                    ]}/>
-                            </TabPanel>
-                            <TabPanel value={value} index={1} className={"container"}>
-                                <BasicList
-                                    handleAction={(action: string, event: EventDef) => {
-                                        console.log(action, event);
-                                    }}
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            width: 26,
-                                            height: 26
-                                        }
-                                    }}
-                                    data={[
-                                        ...pendingAppointments.map(appointment => ({
-                                            ...appointment,
-                                            duration: appointment.createdAt && getDuration(appointment.createdAt),
-                                            title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
-                                            icon: <EventIcon/>,
-                                            buttons: [
-                                                {text: "Confirmer", color: "success", action: "onConfirm"},
-                                                {text: "Gérer", color: "white", action: "onEdit"}
                                             ]
                                         }))
                                     ]}/>

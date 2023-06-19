@@ -34,7 +34,7 @@ function BasicList({...props}) {
                                         {"RDV en ligne"}
                                     </span>
 
-                                    {item.buttons.map((button: any, index: number) => (
+                                    {item.buttons?.map((button: any, index: number) => (
                                         <Button key={index}
                                                 onClick={() => handleAction(button.action, item)}
                                                 sx={{margin: 1}}

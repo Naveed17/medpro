@@ -69,9 +69,12 @@ function TopNavBar({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing, next, import_data, allowNotification, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {
+        ongoing, next, notifications,
+        import_data, allowNotification, mutate: mutateOnGoing
+    } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
 
@@ -85,7 +88,7 @@ function TopNavBar({...props}) {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
-    const [notifications, setNotifications] = useState(0);
+    const [notificationsCount, setNotificationsCount] = useState(0);
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -222,8 +225,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotifications(pendingAppointments.length);
-    }, [pendingAppointments]);
+        setNotificationsCount((notifications ?? []).length);
+    }, [notifications]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
@@ -376,7 +379,7 @@ function TopNavBar({...props}) {
                             }
                             {topBar.map((item, index) => (
                                 <Badge
-                                    badgeContent={notifications}
+                                    badgeContent={notificationsCount}
                                     className="custom-badge"
                                     color="warning"
                                     {...(item.action && {

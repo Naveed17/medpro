@@ -138,7 +138,10 @@ function FcmLayout({...props}) {
                             setOpenDialog(true);
                             setNotificationData(data.body);
                             const localStorageNotifications = localStorage.getItem("notifications");
-                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications) : []), data.body];
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
                             localStorage.setItem("notifications", JSON.stringify(notifications));
                             // Update notifications popup
                             dispatch(setOngoing({notifications}));

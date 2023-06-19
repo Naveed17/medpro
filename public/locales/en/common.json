@@ -309,7 +309,8 @@
       "leave-waiting-room": "The patient has left the waiting room",
       "on-waiting-room": "The patient has been added to the waiting room",
       "patient-no-show": "The appointment has been successfully modified",
-      "confirm-appointment": "The appointment has been successfully confirmed"
+      "confirm-appointment": "The appointment has been successfully confirmed",
+      "consultation-finish": "Consultation completed for patient"
     }
   },
   "filter": {
