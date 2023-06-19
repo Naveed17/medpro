@@ -64,12 +64,13 @@ function AppointmentCard({...props}) {
     const [instruction, setInstruction] = useState(data.instruction);
     const [reminder, setReminder] = useState({
         init: true,
-        smsLang: "fr",
-        rappel: "1",
-        rappelType: "2",
-        smsRappel: true,
-        timeRappel: moment().subtract(1, "day").toDate()
+        smsLang: data.reminder.length > 0 ? data.reminder[0].reminderLanguage : "fr",
+        rappel: data.reminder.length > 0 ? data.reminder[0].numberOfDay : "1",
+        rappelType: data.reminder.length > 0 ? data.reminder[0].type : "2",
+        smsRappel: data.reminder.length > 0,
+        timeRappel: (data.reminder.length > 0 ? moment(`${data.reminder[0].date} ${data.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
     });
+
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -136,13 +137,13 @@ function AppointmentCard({...props}) {
         if (!reminder.init) {
             updateDetails({
                 attribute: "reminder",
-                value: JSON.stringify([{
+                value: JSON.stringify(reminder.smsRappel ? [{
                     "type": reminder.rappelType,
                     "time": moment.utc(reminder.timeRappel).format('HH:mm'),
                     "number_of_day": reminder.rappel,
                     "reminder_language": reminder.smsLang,
                     "reminder_message": reminder.smsLang
-                }])
+                }] : [])
             });
             setReminder({
                 ...reminder,
@@ -180,13 +181,13 @@ function AppointmentCard({...props}) {
                             {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    {!roles.includes("ROLE_SECRETARY") && <IconButton
+                    <IconButton
 
                         size="small"
                         onClick={onEditConsultation}
                         className="btn-toggle">
                         <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
-                    </IconButton>}
+                    </IconButton>
                 </Stack>
                 <Stack
                     spacing={2}
@@ -430,13 +431,11 @@ function AppointmentCard({...props}) {
                                         </Grid>
                                     </Grid>
 
-
                                     <Stack
                                         mt={1}
                                         direction={"column"}
                                         alignItems={"left"}
-                                        sx={{width: "100%"}}
-                                    >
+                                        sx={{width: "100%"}}>
                                         <FormGroup>
                                             <FormControlLabel
                                                 control={
