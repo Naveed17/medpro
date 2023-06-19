@@ -18,6 +18,8 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+
 function CIPPatientHistoryCard({...props}) {
     const {
         exam: defaultExam,
@@ -47,6 +49,7 @@ function CIPPatientHistoryCard({...props}) {
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
     const [closeExam, setCloseExam] = useState<boolean>(closed);
+    const [hide, setHide] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
@@ -80,7 +83,6 @@ function CIPPatientHistoryCard({...props}) {
     });
 
     const {handleSubmit, values, setFieldValue} = formik;
-
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -93,7 +95,6 @@ function CIPPatientHistoryCard({...props}) {
         }
 
     }
-
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -102,7 +103,6 @@ function CIPPatientHistoryCard({...props}) {
             setOldNote(values.notes);
         })
     }
-
     const handleDiseasesChange = (_diseases: string[]) => {
         setFieldValue("disease", _diseases);
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -116,7 +116,6 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }
-
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         setFieldValue("motif", reasons.map(reason => reason.uuid));
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -130,7 +129,6 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }
-
     const addNewReason = (name: string) => {
         setLoadingReq(true);
         const params = new FormData();
@@ -168,6 +166,10 @@ function CIPPatientHistoryCard({...props}) {
             setDiseases(resultats);
         })
     }
+
+    useEffect(() => {
+        setHide(closed && !isClose)
+    }, [isClose, closed])
 
     useEffect(() => {
         dispatch(
@@ -215,15 +217,35 @@ function CIPPatientHistoryCard({...props}) {
             <Stack className="card-header" padding={'0.45rem'}
                    direction="row"
                    alignItems="center"
-                   justifyContent={"space-between"} borderBottom={1}
+                   justifyContent={hide ? "" : "space-between"}
+                   spacing={2}
+                   borderBottom={hide ? 0 : 1}
+                   sx={{
+                       position: hide ? "absolute" : "static",
+                       transform: hide ? "rotate(90deg)" : "rotate(0)",
+                       transformOrigin: "left",
+                       width: hide ? "44.5rem" : "auto",
+                       left: hide ? 32 : 23,
+                       top: -26,
+                   }}
                    borderColor="divider">
+                {hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <KeyboardArrowDownRoundedIcon/>
+                </IconButton>}
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                             fontWeight={600}>
                     <Icon path='ic-edit-file-pen'/>
-                    {t("review")} {closed ? 'closed':'opened'}
+                    {t("review")}
                 </Typography>
 
-                 <IconButton
+                {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
                         setCloseExam(!closeExam);
@@ -232,7 +254,7 @@ function CIPPatientHistoryCard({...props}) {
                     className="btn-collapse"
                     disableRipple>
                     <ArrowForwardIosIcon/>
-                </IconButton>
+                </IconButton>}
             </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
@@ -241,6 +263,7 @@ function CIPPatientHistoryCard({...props}) {
                         component={Form}
                         autoComplete="off"
                         noValidate
+                        style={{display: hide ? "none" : "block"}}
                         onSubmit={handleSubmit}>
 
                         <Box width={1}>
