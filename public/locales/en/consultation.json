@@ -368,6 +368,9 @@
     "today": "Today",
     "today_placeholder": "Today's date",
     "disease": "Disease",
+    "noActiveFile": "No active consultation file",
+    "configureNow": "Please configure your consultation file",
+    "configure": "Configure",
     "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
