@@ -1,21 +1,19 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
     setDirection, setLocalization,
-    setTheme, setNotifications
+    setTheme
 } from './actions';
 
 export type themeState = {
     mode: 'light' | 'dark';
     direction: string;
     locale: string;
-    notifications: any[];
 };
 
 const initialState: themeState = {
     mode: 'light',
     direction: 'ltr',
-    locale: 'frFR',
-    notifications: []
+    locale: 'frFR'
 };
 
 export const ConfigReducer = createReducer(initialState, builder => {
@@ -26,7 +24,5 @@ export const ConfigReducer = createReducer(initialState, builder => {
         state.direction = action.payload;
     }).addCase(setLocalization, (state, action) => {
         state.locale = action.payload;
-    }).addCase(setNotifications, (state, action) => {
-        state.notifications = action.payload;
     });
 });

@@ -19,7 +19,7 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -56,6 +56,7 @@ function NotificationPopover({...props}) {
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
+    const {notifications: localNotifications} = useAppSelector(dashLayoutSelector);
     const {
         date: moveDialogDate,
         time: moveDialogTime
@@ -68,7 +69,8 @@ function NotificationPopover({...props}) {
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
-
+    const [notifications, setNotifications] = useState<any[]>([...pendingAppointments, ...(localNotifications ?? [])]);
+    console.log("notifications", notifications);
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };

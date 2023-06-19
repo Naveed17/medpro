@@ -137,8 +137,11 @@ function FcmLayout({...props}) {
                             setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
                             setOpenDialog(true);
                             setNotificationData(data.body);
-                            const notifications = localStorage.getItem("notifications");
-                            localStorage.setItem("notifications", JSON.stringify([...(notifications ? JSON.parse(notifications) : []), data.body]));
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications) : []), data.body];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             agendaConfig?.mutate[1]();
@@ -294,6 +297,12 @@ function FcmLayout({...props}) {
             dispatch(setOngoing({appointmentTypes}));
         }
     }, [dispatch, appointmentTypes])
+
+    useEffect(() => {
+        // Update notifications popup
+        const localStorageNotifications = localStorage.getItem("notifications");
+        localStorageNotifications && dispatch(setOngoing({notifications: JSON.parse(localStorageNotifications)}));
+    }, [dispatch])
 
     return (
         <>

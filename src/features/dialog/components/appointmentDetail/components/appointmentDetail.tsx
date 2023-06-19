@@ -466,7 +466,6 @@ function AppointmentDetail({...props}) {
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
                                     display:
-                                        appointment?.extendedProps.status.key === "CANCELED" ||
                                         appointment?.extendedProps.status.key === "FINISHED" ||
                                         appointment?.extendedProps.status.key === "ON_GOING"
                                             ? "none"
