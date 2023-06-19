@@ -39,7 +39,7 @@ import Zoom from "react-medium-image-zoom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import DialogTitle from "@mui/material/DialogTitle";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {useProfilePhoto} from "@lib/hooks/rest";
 
 const MicRecorder = require('mic-recorder-to-mp3');
@@ -412,7 +412,8 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setInfo(setPrescriptionUI());
+                setInfo(getPrescriptionUI());
+                console.log(prescription);
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -467,7 +468,7 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(false);
         setInfo(null);
         // switch UI and open dialog
-        setInfo(setPrescriptionUI());
+        setInfo(getPrescriptionUI());
         setAnchorEl(null);
         setOpenDialog(true);
         setActions(true);
@@ -478,7 +479,7 @@ function ConsultationIPToolbar({...props}) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setInfo(setPrescriptionUI());
+                    setInfo(getPrescriptionUI());
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
@@ -519,7 +520,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setInfo(setPrescriptionUI());
+                setInfo(getPrescriptionUI());
                 setState(prescription);
                 break;
             case "balance_sheet_request":

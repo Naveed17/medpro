@@ -3,10 +3,21 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {Box, Drawer, IconButton, LinearProgress, Stack, Toolbar, Typography, useTheme} from "@mui/material";
+import {
+    Box,
+    Button,
+    DialogActions,
+    Drawer,
+    IconButton,
+    LinearProgress,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
-import {RootStyled} from "@features/toolbar";
+import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
@@ -15,11 +26,17 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import PrescriptionModelDrawer from "@features/PrescriptionModelDrawer/components/prescriptionModelDrawer";
+import {Dialog} from "@features/dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -27,6 +44,7 @@ function TemplatesConfig() {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
+    const {t: tConsultation} = useTranslation("consultation");
 
     const [loading, setLoading] = useState(true);
     const [docs, setDocs] = useState<DocTemplateModel[]>([]);
@@ -37,6 +55,12 @@ function TemplatesConfig() {
     const [models, setModels] = useState<CertifModel[]>([]);
     const [prescriptions, setPrescriptions] = useState<PrescriptionParentModel[]>([]);
     const [action, setAction] = useState("");
+
+    const [info, setInfo] = useState<null | string>("");
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [state, setState] = useState<any>([]);
+
+    const dispatch = useAppDispatch();
 
     const theme = useTheme();
     const {direction} = useAppSelector(configSelector);
@@ -55,7 +79,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPrescriptionResponse,mutate:mutatePres} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpPrescriptionResponse, mutate: mutatePres} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -72,18 +96,18 @@ function TemplatesConfig() {
 
     useEffect(() => {
         if (httpPrescriptionResponse) {
-            let _prescriptions:any[] = [];
+            let _prescriptions: any[] = [];
             const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as PrescriptionParentModel[];
-            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p =>{
+            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p => {
                 p.prescriptionModels.map(pm => {
-                    let _pmhd:any[] = []
-                    pm.prescriptionModalHasDrugs.map((pmhd: any) =>{
-                        _pmhd.push({...pmhd,standard_drug:{commercial_name:pmhd.name,uuid:pmhd.drugUuid}})
+                    let _pmhd: any[] = []
+                    pm.prescriptionModalHasDrugs.map((pmhd: any) => {
+                        _pmhd.push({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}})
                     })
                     _prescriptions.push({
-                        uuid:pm.uuid,
-                        name:pm.name,
-                        prescriptionModalHasDrugs:_pmhd
+                        uuid: pm.uuid,
+                        name: pm.name,
+                        prescriptionModalHasDrugs: _pmhd
                     })
                 })
             })
@@ -118,6 +142,22 @@ function TemplatesConfig() {
             });
         })
     }
+
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        setInfo(getPrescriptionUI());
+        setOpenDialog(true);
+    }
+
+    const handleCloseDialog = () => {
+
+        setOpenDialog(false);
+        setInfo(null);
+        dispatch(SetSelectedDialog(null))
+
+    };
 
     useEffect(() => {
         if (httpDocumentHeader) {
@@ -308,7 +348,9 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
-
+                        console.log("Aaaa");
+                        setInfo(getPrescriptionUI());
+                        setOpenDialog(true);
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,
@@ -318,43 +360,43 @@ function TemplatesConfig() {
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                     </div>
-                        {
-                            isdefault && prescriptions.map((card:any) => (
-                                <Box key={card.uuid} className={"container"}>
-                                    <div onMouseOver={() => {
-                                        handleMouseOver(card.uuid)
-                                    }}
-                                         onMouseOut={handleMouseOut}>
-                                        <PreviewA4  {...{
-                                            eventHandler: null,
-                                            data: isdefault?.header.data,
-                                            values: isdefault?.header.header,
-                                            t,
-                                            state: {
-                                                info:card.prescriptionModalHasDrugs,
-                                                description: "",
-                                                doctor: "",
-                                                name: "prescription",
-                                                patient: "Patient",
-                                                title: card.name,
-                                                type: "prescription"
-                                            },
-                                            loading
-                                        }} />
-                                    </div>
+                    {
+                        isdefault && prescriptions.map((card: any) => (
+                            <Box key={card.uuid} className={"container"}>
+                                <div onMouseOver={() => {
+                                    handleMouseOver(card.uuid)
+                                }}
+                                     onMouseOut={handleMouseOut}>
+                                    <PreviewA4  {...{
+                                        eventHandler: null,
+                                        data: isdefault?.header.data,
+                                        values: isdefault?.header.header,
+                                        t,
+                                        state: {
+                                            info: card.prescriptionModalHasDrugs,
+                                            description: "",
+                                            doctor: "",
+                                            name: "prescription",
+                                            patient: "Patient",
+                                            title: card.name,
+                                            type: "prescription"
+                                        },
+                                        loading
+                                    }} />
+                                </div>
 
-                                    {isHovering === card.uuid &&
-                                        <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
-                                            handleMouseOver(card.uuid)
+                                {isHovering === card.uuid &&
+                                    <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
+                                        handleMouseOver(card.uuid)
+                                    }}>
+                                        <IconButton size="small" onClick={() => {
+                                            setOpen(true)
+                                            setData(card);
+                                            setAction("showPrescription")
                                         }}>
-                                            <IconButton size="small" onClick={() => {
-                                                setOpen(true)
-                                                setData(card);
-                                                setAction("showPrescription")
-                                            }}>
-                                                <IconUrl path="setting/ic-voir"/>
-                                            </IconButton>
-                                           {/* <IconButton size="small" onClick={() => {
+                                            <IconUrl path="setting/ic-voir"/>
+                                        </IconButton>
+                                        {/* <IconButton size="small" onClick={() => {
                                                 editDoc(res)
                                             }}>
                                                 <IconUrl path="setting/edit"/>
@@ -364,19 +406,19 @@ function TemplatesConfig() {
                                             }}>
                                                 <IconUrl path="setting/icdelete"/>
                                             </IconButton>*/}
-                                        </Stack>
-                                    }
+                                    </Stack>
+                                }
 
-                                    {isHovering === card.uuid && <Stack direction={"row"}
-                                                                       onMouseOver={() => {
-                                                                           handleMouseOver(card.uuid)
-                                                                       }}
-                                                                       className={"title-content"}>
-                                        <Typography className={"title"}>{card.name}</Typography>
-                                    </Stack>}
-                                </Box>
-                            ))
-                        }
+                                {isHovering === card.uuid && <Stack direction={"row"}
+                                                                    onMouseOver={() => {
+                                                                        handleMouseOver(card.uuid)
+                                                                    }}
+                                                                    className={"title-content"}>
+                                    <Typography className={"title"}>{card.name}</Typography>
+                                </Stack>}
+                            </Box>
+                        ))
+                    }
                 </TemplateStyled>
             </Box>
 
@@ -411,6 +453,55 @@ function TemplatesConfig() {
                 }}></PrescriptionModelDrawer>}
 
             </Drawer>
+
+            {info && (
+                <Dialog
+                    action={info}
+                    open={openDialog}
+                    data={{state, setState, t: tConsultation, setOpenDialog}}
+                    size={info === "add_vaccin" ? "sm" : "lg"}
+                    direction={"ltr"}
+                    sx={{height: 400}}
+                    {...(info === "document_detail" && {
+                        sx: {height: 400, p: 0},
+                    })}
+                    title={tConsultation(info)}
+                    {...(info === "document_detail" && {
+                        onClose: handleCloseDialog,
+                    })}
+                    dialogClose={handleCloseDialog}
+                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                        headerDialog: (<DialogTitle
+                                sx={{
+                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                    position: "relative",
+                                }}
+                                id="scroll-dialog-title">
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                    {tConsultation(`consultationIP.${info}`)}
+                                    <SwitchPrescriptionUI {...{t:tConsultation,keyPrefix:'consultationIP', handleSwitchUI}} />
+                                </Stack>
+                            </DialogTitle>
+                        )
+                    })}
+                    actionDialog={
+                        action ? (
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                    {t("cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    //onClick={handleSaveDialog}
+                                    disabled={info.includes("medical_prescription") && state.length === 0}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {t("save")}
+                                </Button>
+                            </DialogActions>
+                        ) : null
+                    }
+                />
+            )}
         </>
     );
 }
@@ -421,6 +512,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
+            "consultation",
             "patient",
             "settings",
         ])),
