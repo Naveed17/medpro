@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
+import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
     addPatientSelector,
     DocumentsPanel,
@@ -62,6 +62,7 @@ import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
+import {useSWRConfig} from "swr";
 
 function a11yProps(index: number) {
     return {
@@ -75,12 +76,6 @@ const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
     title: "no-data.appointment.title",
     description: "no-data.appointment.description"
-};
-// add consultation details RDV for not data
-const AddConsultationCardData = {
-    mainIcon: "consultation/ic-text",
-    title: "no-data.consultation.title",
-    description: "no-data.consultation.description"
 };
 
 function PatientDetail({...props}) {
@@ -101,6 +96,7 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -158,15 +154,6 @@ function PatientDetail({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
-
-    const {
-        data: httpPatientHistoryResponse,
-        mutate: mutatePatientHis
-    } = useRequest(medicalEntityHasUser && patientId ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
 
     const {
         data: httpPatientDocumentsResponse,
@@ -271,7 +258,7 @@ function PatientDetail({...props}) {
                         Authorization: `Bearer ${session?.accessToken}`
                     },
                 }).then((result: any) => {
-                    mutatePatientHis();
+                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
                     mutatePatientDocuments();
                     setOpenDialog(false);
                     setInfo("document_detail");
@@ -331,7 +318,6 @@ function PatientDetail({...props}) {
 
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
-    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
     const tabsContent = [
@@ -349,30 +335,12 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.history",
-            children: <>
-                {!previousAppointmentsData ? <Stack spacing={2} padding={2}>
-                    {Array.from({length: 3}).map((_, idx) => (
-                        <React.Fragment key={`${idx}-empty-history`}>
-                            <PatientHistoryNoDataCard/>
-                        </React.Fragment>
-                    ))}
-                </Stack> : previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                    <HistoryPanel {...{
-                        t,
-                        previousAppointmentsData,
-                        patient,
-                        mutate: mutatePatientDocuments,
-                        mutatePatientHis,
-                        closePatientDialog
-                    }} />
-                ) : (
-                    <NoDataCard
-                        t={t}
-                        ns={"patient"}
-                        data={AddConsultationCardData}
-                    />
-                )}
-            </>,
+            children: <HistoryPanel {...{
+                t,
+                patient,
+                mutate: mutatePatientDocuments,
+                closePatientDialog
+            }} />,
             permission: ["ROLE_PROFESSIONAL"]
         },
         {
@@ -402,7 +370,6 @@ function PatientDetail({...props}) {
                 },
                 mutatePatientDetails,
                 mutatePatientDocuments,
-                previousAppointmentsData,
                 patientDocuments,
                 loadingRequest,
                 setLoadingRequest
