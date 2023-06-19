@@ -295,6 +295,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        console.log("filter", filter);
         if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
@@ -309,7 +310,7 @@ function Agenda() {
     }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        dispatch(resetFilterPatient());
+        // dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
