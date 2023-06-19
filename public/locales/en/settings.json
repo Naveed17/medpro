@@ -669,7 +669,8 @@
       "titleholder": "Prescription...",
       "selectTypes": "Apply this template to (select documents)",
       "asDefault": "Set it as the default template",
-      "modifier": "Update"
+      "modifier": "Update",
+      "close": "Close"
     }
   }
 }

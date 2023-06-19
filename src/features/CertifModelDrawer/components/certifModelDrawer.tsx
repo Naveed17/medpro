@@ -1,7 +1,6 @@
 import * as Yup from "yup";
-import {Form, FormikProvider, useFormik} from "formik";
+import {FormikProvider, useFormik} from "formik";
 import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography,} from "@mui/material";
-import {styled} from "@mui/material/styles";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
@@ -9,59 +8,20 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {useSWRConfig} from "swr";
 import {Editor} from '@tinymce/tinymce-react';
 import {useRequestMutation} from "@lib/axios";
 import PreviewA4 from "@features/files/components/previewA4";
 import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
+import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperStyled";
 
-const PaperStyled = styled(Form)(({theme}) => ({
-    backgroundColor: "#F0F7FA",
-    borderRadius: 0,
-    minWidth: "650px",
-    border: "none",
-    padding: theme.spacing(2),
-    paddingBottom: theme.spacing(0),
-    [theme.breakpoints.down("md")]: {
-        minWidth: 0,
-    },
-    "& .container": {
-        maxHeight: 680,
-        overflowY: "auto",
-        "& .MuiCard-root": {
-            border: "none",
-            "& .MuiCardContent-root": {
-                padding: theme.spacing(2),
-            },
-        },
-    },
-    "& .bottom-section": {
-        background: theme.palette.background.paper,
-        padding: theme.spacing(1),
-        marginTop: theme.spacing(2),
-        marginLeft: theme.spacing(-2),
-        marginRight: theme.spacing(-2),
-        position: "fixed",
-        width: "650px",
-        bottom: 0,
-        borderTop: `3px solid ${theme.palette.grey["A700"]}`,
-        [theme.breakpoints.down("md")]: {
-            width: "100%",
-        },
-    },
-    "& fieldset legend": {
-        display: "none",
-    },
-}));
 
 function CertifModelDrawer({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {mutate} = useSWRConfig();
 
-    const {data,action,isdefault} = props;
+    const {data, action, isdefault} = props;
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
@@ -71,7 +31,7 @@ function CertifModelDrawer({...props}) {
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
-    const [loading, setLoading] = useState(false);
+    const loading=false;
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', desc: "Nom du patient"},
@@ -104,7 +64,7 @@ function CertifModelDrawer({...props}) {
             if (data)
                 url = `${urlMedicalProfessionalSuffix}/certificate-modals/${data.uuid}/${router.locale}`
             trigger({
-                method: data ? "PUT": "POST" ,
+                method: data ? "PUT" : "POST",
                 url,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -114,7 +74,7 @@ function CertifModelDrawer({...props}) {
             }).then(() => {
                 props.closeDraw();
                 props.mutate();
-                enqueueSnackbar(t(data ? "updated":"created"), {variant: 'success'})
+                enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
 
             })
         },
@@ -152,7 +112,7 @@ function CertifModelDrawer({...props}) {
                     },
                     loading
                 }} />
-            </Box>:<FormikProvider value={formik}>
+            </Box> : <FormikProvider value={formik}>
                 <Box style={{marginTop: 20, marginRight: 20, marginLeft: 20}}>
                     <Typography variant="h6">
                         {data ? t("titleEditDoc") : t("titleAddDoc")}
@@ -210,7 +170,7 @@ function CertifModelDrawer({...props}) {
                         </Typography>
 
                         {contentBtns.map(cb => (<Tooltip key={cb.name} title={t(`${cb.title}_placeholder`)}>
-                            <Button style={{marginBottom:5}} onClick={() => {
+                            <Button style={{marginBottom: 5}} onClick={() => {
                                 addVal(cb.name)
                             }} size={"small"}> <AddIcon/> {t(`${cb.title}`)}</Button>
                         </Tooltip>))}

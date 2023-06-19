@@ -30,7 +30,6 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
-import PrescriptionModelDrawer from "@features/PrescriptionModelDrawer/components/prescriptionModelDrawer";
 import {Dialog} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -348,7 +347,6 @@ function TemplatesConfig() {
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
-                        console.log("Aaaa");
                         setInfo(getPrescriptionUI());
                         setOpenDialog(true);
                     }} style={{
@@ -443,15 +441,6 @@ function TemplatesConfig() {
                     data,
                     mutate: mutateCertif
                 }}></CertifModelDrawer>}
-
-                {(action === 'showPrescription' || action === 'editPrescription') && <PrescriptionModelDrawer {...{
-                    isdefault,
-                    action,
-                    closeDraw,
-                    data,
-                    mutate: mutatePres
-                }}></PrescriptionModelDrawer>}
-
             </Drawer>
 
             {info && (
@@ -459,16 +448,10 @@ function TemplatesConfig() {
                     action={info}
                     open={openDialog}
                     data={{state, setState, t: tConsultation, setOpenDialog}}
-                    size={info === "add_vaccin" ? "sm" : "lg"}
+                    size={"lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
-                    {...(info === "document_detail" && {
-                        sx: {height: 400, p: 0},
-                    })}
                     title={tConsultation(info)}
-                    {...(info === "document_detail" && {
-                        onClose: handleCloseDialog,
-                    })}
                     dialogClose={handleCloseDialog}
                     {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
                         headerDialog: (<DialogTitle
@@ -485,20 +468,11 @@ function TemplatesConfig() {
                         )
                     })}
                     actionDialog={
-                        action ? (
                             <DialogActions>
                                 <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                    {t("cancel")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    //onClick={handleSaveDialog}
-                                    disabled={info.includes("medical_prescription") && state.length === 0}
-                                    startIcon={<SaveRoundedIcon/>}>
-                                    {t("save")}
+                                    {t("close")}
                                 </Button>
                             </DialogActions>
-                        ) : null
                     }
                 />
             )}

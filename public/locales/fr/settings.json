@@ -676,7 +676,8 @@
       "titleholder": "Ordonnance...",
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
       "asDefault": "Sélectionnez-le comme modèle par défaut",
-      "modifier": "Modifier"
+      "modifier": "Modifier",
+      "close": "Terminer"
     }
   }
 }
