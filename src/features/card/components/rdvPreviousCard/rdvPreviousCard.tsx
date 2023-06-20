@@ -62,7 +62,6 @@ function RdvCard({...props}) {
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
-    console.log("inner", inner);
     return (
         <>
             <RootStyled>
