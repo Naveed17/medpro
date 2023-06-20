@@ -155,7 +155,6 @@ function ConsultationInProgress() {
             disabled: true,
         },
     ];
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
@@ -323,7 +322,6 @@ function ConsultationInProgress() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, medicalProfessionalData, uuind, consultationFees]);
 
-    console.log(appointement);
     useEffect(() => {
         if (medicalProfessionalData && !loadingApp) {
             setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
@@ -519,7 +517,7 @@ function ConsultationInProgress() {
                         birthdate: patient.birthdate,
                         firstName: patient.firstName,
                         lastName: patient.lastName,
-                        gender: patient.gender === "M" ? 1 : 2,
+                        gender: patient.gender,
                         account: patient.account,
                         address: patient.address,
                         contact: patient.contact,

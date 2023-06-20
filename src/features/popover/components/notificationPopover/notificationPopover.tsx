@@ -19,10 +19,10 @@ import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import {configSelector, dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 
@@ -54,7 +54,7 @@ function NotificationPopover({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("common");
-    const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
+    const {config, pendingAppointments: localPendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
     const {notifications: localNotifications, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {
@@ -69,7 +69,39 @@ function NotificationPopover({...props}) {
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [notifications, setNotifications] = useState<any[]>([...pendingAppointments, ...(localNotifications ?? [])]);
+    const [pendingAppointments, setPendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
+        ...appointment,
+        dur: appointment.duration,
+        avatar: `${appointment.patient.firstName.charAt(0).toUpperCase()}${appointment.patient.lastName.charAt(0).toUpperCase()}`,
+        duration: appointment.createdAt && getDiffDuration(appointment.createdAt),
+        title: `${appointment.patient.firstName} ${appointment.patient.lastName} ${t("request-appointment")} ${appointment.dayDate} ${appointment.startTime}`,
+        icon: <EventIcon/>,
+        buttons: [
+            {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
+            {text: t("dialogs.confirm-dialog.edit"), color: "white", action: "onEdit"},
+            {
+                ...(appointment.patient?.contact.length > 0 && {
+                    text: `${t("dialogs.confirm-dialog.call")} ${appointment.patient?.contact[0].value}`,
+                    href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
+                    color: "primary",
+                    action: "onCall"
+                })
+            }
+        ]
+    }))])
+    const [notifications, setNotifications] = useState<any[]>([
+        ...pendingAppointments
+        , ...(localNotifications ? localNotifications.map(data => ({
+            ...data,
+            avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
+            title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
+            icon: <EventIcon/>,
+            buttons: [{
+                text: t("dialogs.finish-dialog.reschedule"),
+                color: "primary",
+                action: "onReschedule"
+            }]
+        })) : [])]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
@@ -137,11 +169,6 @@ function NotificationPopover({...props}) {
         });
     }
 
-    const getDuration = (date: string) => {
-        const duration: any = moment.duration(moment.utc().diff(moment.utc(date, "DD-MM-YYYY HH:mm")));
-        return humanizeDuration(duration, {largest: 2, round: true});
-    }
-
     const handleNotificationAction = (action: string, event: any) => {
         const eventUpdated = {
             publicId: event?.uuid,
@@ -172,6 +199,18 @@ function NotificationPopover({...props}) {
                 onConfirmAppointment(eventUpdated);
                 break;
             case "onReschedule":
+                const localStorageNotifications = localStorage.getItem("notifications");
+                if (localStorageNotifications) {
+                    const notifications = JSON.parse(localStorageNotifications).map((notification: any) => {
+                        if (notification.appointment.appUuid === event.appointment.appUuid) return {
+                            ...notification,
+                            appointment: {...notification.appointment, edited: true}
+                        }
+                        return notification
+                    });
+                    dispatch(setOngoing({notifications}));
+                    localStorage.setItem("notifications", JSON.stringify(notifications));
+                }
                 onClose();
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setStepperIndex(1));
@@ -181,6 +220,8 @@ function NotificationPopover({...props}) {
                 });
                 break;
         }
+
+
     }
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -190,7 +231,7 @@ function NotificationPopover({...props}) {
             <Box
                 sx={{
                     width: isMobile ? 320 : 400,
-                    p: 2,
+                    p: 0,
                     "& .MuiSvgIcon-root": {
                         width: 60,
                         height: 60
@@ -198,12 +239,15 @@ function NotificationPopover({...props}) {
                 }}>
                 {(pendingAppointments.length > 0 || notifications.length > 0) ?
                     <>
-                        <Typography variant="h6">Notifications</Typography>
+                        <Typography variant="h6" sx={{p: "16px 16px 0 16px"}}>Notifications</Typography>
                         <Box
                             sx={{
                                 width: '100%',
                                 "& .container .MuiBox-root": {
-                                    padding: "0.2rem"
+                                    padding: 0
+                                },
+                                "& .container .MuiButtonBase-root": {
+                                    margin: "8px 4px"
                                 }
                             }}>
                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
@@ -222,19 +266,7 @@ function NotificationPopover({...props}) {
                                             height: 26
                                         }
                                     }}
-                                    data={[
-                                        ...notifications.map(data => ({
-                                            ...data,
-                                            duration: data.appointment.createdAt && getDuration(data.appointment.createdAt),
-                                            title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
-                                            icon: <EventIcon/>,
-                                            buttons: [{
-                                                text: t("dialogs.finish-dialog.reschedule"),
-                                                color: "primary",
-                                                action: "onReschedule"
-                                            }]
-                                        }))
-                                    ]}/>
+                                    data={notifications}/>
                             </TabPanel>
                             {pendingAppointments.length > 0 &&
                                 <TabPanel value={value} index={1} className={"container"}>
@@ -245,32 +277,9 @@ function NotificationPopover({...props}) {
                                             "& .MuiSvgIcon-root": {
                                                 width: 26,
                                                 height: 26
-                                            },
-                                            "& .MuiButtonBase-root": {
-                                                margin: "8px 4px"
                                             }
                                         }}
-                                        data={[
-                                            ...pendingAppointments.map(appointment => ({
-                                                ...appointment,
-                                                dur: appointment.duration,
-                                                duration: appointment.createdAt && getDuration(appointment.createdAt),
-                                                title: `${appointment.patient.firstName} ${appointment.patient.lastName} a demandé un nouveau rendez-vous en ligne pour le ${appointment.dayDate} ${appointment.startTime}`,
-                                                icon: <EventIcon/>,
-                                                buttons: [
-                                                    {text: "Confirmer", color: "success", action: "onConfirm"},
-                                                    {text: "Gérer", color: "white", action: "onEdit"},
-                                                    {
-                                                        ...(appointment.patient?.contact.length > 0 && {
-                                                            text: `Appeler ${appointment.patient?.contact[0].value}`,
-                                                            href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
-                                                            color: "primary",
-                                                            action: "onCall"
-                                                        })
-                                                    }
-                                                ]
-                                            }))
-                                        ]}/>
+                                        data={pendingAppointments}/>
                                 </TabPanel>}
                         </Box>
 
@@ -378,8 +387,7 @@ function NotificationPopover({...props}) {
                             variant="contained"
                             color={"warning"}
                             onClick={() => handleMoveAppointment(event as EventDef)}
-                            startIcon={<Icon path="iconfinder"></Icon>}
-                        >
+                            startIcon={<Icon path="iconfinder"></Icon>}>
                             {t("dialogs.move-dialog.confirm")}
                         </LoadingButton>
                     </>

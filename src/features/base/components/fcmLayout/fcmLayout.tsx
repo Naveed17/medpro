@@ -138,7 +138,8 @@ function FcmLayout({...props}) {
                             setOpenDialog(true);
                             setNotificationData(data.body);
                             const localStorageNotifications = localStorage.getItem("notifications");
-                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications) : []), {
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
                                 appointment: data.body,
                                 action: "end-consultation"
                             }];
@@ -304,7 +305,11 @@ function FcmLayout({...props}) {
     useEffect(() => {
         // Update notifications popup
         const localStorageNotifications = localStorage.getItem("notifications");
-        localStorageNotifications && dispatch(setOngoing({notifications: JSON.parse(localStorageNotifications)}));
+        if (localStorageNotifications) {
+            const notifications = JSON.parse(localStorageNotifications).filter(
+                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
+            dispatch(setOngoing({notifications}))
+        }
     }, [dispatch])
 
     return (

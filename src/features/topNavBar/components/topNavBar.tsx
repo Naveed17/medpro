@@ -69,7 +69,7 @@ function TopNavBar({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
@@ -225,8 +225,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotificationsCount((notifications ?? []).length);
-    }, [notifications]);
+        setNotificationsCount((notifications ?? []).length + (pendingAppointments?? []).length);
+    }, [notifications, pendingAppointments]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
@@ -433,8 +433,8 @@ function TopNavBar({...props}) {
                                         },
                                     },
                                 }}
-                                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}>
+                                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                                 {popovers[popoverAction]}
                             </Menu>
                             {/*<Badge

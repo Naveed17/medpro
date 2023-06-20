@@ -33,7 +33,7 @@ function AppointmentStatusFilter() {
                                 const statusKey = Object.entries(AppointmentStatus).find((value) => value[1].key === status.key);
                                 const type = (statusKey && statusKey[1]) as AppointmentStatusModel;
                                 const key = type?.key === "ONLINE" ? "isOnline" : "status";
-                                console.log(key, type, statusKey, selected);
+
                                 if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
                                     const value = type?.key === "ONLINE" ? selected : (statusKey && statusKey[0]) as string;
                                     dispatch(setFilter({[key]: `${value}${(query?.status && type?.key !== "ONLINE" ? `,${query.status}` : "")}`}));

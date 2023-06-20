@@ -161,6 +161,7 @@
   "all": "Tous",
   "pending": "En attende",
   "online": "RDV en ligne",
+  "request-appointment": "a demandé un nouveau rendez-vous en ligne pour le",
   "consultation_reson": "Motif de consultation",
   "reason-consultation-placeholder": "Choisissez votre motif de consultation",
   "consultation_type": "Type de consultation",

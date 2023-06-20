@@ -161,6 +161,7 @@
   "all": "ALL",
   "pending": "Pending",
   "online": "Online appointment",
+  "request-appointment": "requested a new appointment online for the",
   "consultation_reson": "Reason for Consultation",
   "reason-consultation-placeholder": "Choose your reason for consultation",
   "consultation_type": "Consultation Type",
