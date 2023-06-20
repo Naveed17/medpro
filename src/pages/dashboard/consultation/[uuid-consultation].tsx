@@ -19,11 +19,24 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme} from "@mui/material";
+import {
+    alpha,
+    Box,
+    Button,
+    CardContent,
+    DialogActions,
+    Drawer,
+    Grid,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
-    PendingDocumentCard, resetTimer,
+    PendingDocumentCard,
+    resetTimer,
     timerSelector,
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
@@ -52,6 +65,7 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -66,6 +80,7 @@ function ConsultationInProgress() {
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
+        mutateModels();
     });
 
     const {t, ready} = useTranslation("consultation");
@@ -165,7 +180,7 @@ function ConsultationInProgress() {
     const {trigger} = useRequestMutation(null, "consultation/end");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse,mutate:mutateModels} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -405,7 +420,7 @@ function ConsultationInProgress() {
             );
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append("modal_uuid", selectedModel?.default_modal.uuid);
             form.append(
                 "modal_data",
                 localStorage.getItem("Modeldata" + uuind) as string
@@ -428,7 +443,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                if(appointement?.status !== 5) {
+                if (appointement?.status !== 5) {
                     dispatch(resetTimer());
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
@@ -943,6 +958,26 @@ function ConsultationInProgress() {
                                         closed={closeExam}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
+                                )}
+                                {!loading && !selectedModel && (<CardContent
+                                        sx={{
+                                            bgcolor: alpha(theme.palette.primary.main,0.1),
+                                            border: '1px solid #E0E0E0',
+                                            overflow: 'hidden',
+                                            borderRadius: 2,
+                                            height: {xs: "30vh", md: "48.9rem"},
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+
+                                        <Stack spacing={1} alignItems={"center"}>
+                                            <TuneRoundedIcon/>
+                                            <Typography fontSize={11} textAlign={"center"}>{t('noActiveFile')}</Typography>
+                                            <Typography fontSize={10} textAlign={"center"} style={{opacity:0.5}}>{t('configure')}</Typography>
+                                            <Button size={"small"} onClick={()=>{router.replace("/dashboard/settings/patient-file-templates")}}></Button>
+                                        </Stack>
+                                    </CardContent>
                                 )}
                             </Grid>
                             <Grid item xs={12}

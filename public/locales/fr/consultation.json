@@ -371,6 +371,9 @@
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
     "disease": "Maladie",
+    "noActiveFile": "Pas de formulaire de consultation actif",
+    "configureNow": "Veuillez configurer votre formulaire de consultation",
+    "configure": "Configurer",
     "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
