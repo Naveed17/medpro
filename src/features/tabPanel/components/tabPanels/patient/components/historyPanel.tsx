@@ -10,7 +10,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {useAppointmentHistory} from "@lib/hooks/rest";
 
 function HistoryPanel({...props}) {
@@ -111,7 +111,7 @@ function HistoryPanel({...props}) {
         setOpenDialog(false);
         setInfo(null);
         // switch UI and open dialog
-        setInfo(setPrescriptionUI());
+        setInfo(getPrescriptionUI());
         setOpenDialog(true);
     }
 

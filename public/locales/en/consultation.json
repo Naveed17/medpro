@@ -104,6 +104,7 @@
   "gallery": "Consultation Images",
   "docs": "Consultation Documents",
   "history": "Historical Record",
+  "balance_sheet_request": "Analyses",
   "reason_for_consultation": "Reason for Consultation",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
@@ -368,6 +369,9 @@
     "today": "Today",
     "today_placeholder": "Today's date",
     "disease": "Disease",
+    "noActiveFile": "No active consultation file",
+    "configureNow": "Please configure your consultation file",
+    "configure": "Configure",
     "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {

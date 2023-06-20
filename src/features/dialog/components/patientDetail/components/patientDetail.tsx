@@ -58,7 +58,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
-import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
@@ -312,7 +312,7 @@ function PatientDetail({...props}) {
         setOpenDialog(false);
         setInfo(null);
         // switch UI and open dialog
-        setInfo(setPrescriptionUI());
+        setInfo(getPrescriptionUI());
         setOpenDialog(true);
     }
 
@@ -395,7 +395,7 @@ function PatientDetail({...props}) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setInfo(setPrescriptionUI());
+                    setInfo(getPrescriptionUI());
                     setState(selectedDialog.state);
                     setOpenDialog(true);
                     break;

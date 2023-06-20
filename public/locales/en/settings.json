@@ -604,14 +604,26 @@
       "dialog": {
         "title": "Consultation Follow-up Template:",
         "titleEdit": "Edit Consultation Follow-up Template",
+        "titleEditDoc": "Edit template",
+        "name": "Template name",
+        "content": "Content",
         "titleAdd": "Add Consultation Follow-up Template",
+        "titleAddDoc": "Add template",
         "selectColor": "Please select a color",
         "nameReq": "Name is required",
         "cancel": "Cancel",
         "save": "Save",
         "named": "Please name the template",
         "select": "Please select your variables",
-        "info": "Template Information"
+        "info": "Template Information",
+        "patient": "Patient",
+        "doctor": "Doctor",
+        "today": "Today",
+        "patient_placeholder": "Patient name",
+        "doctor_placeholder": "Doctor name",
+        "today_placeholder": "Date today",
+        "created": "Model created",
+        "updated": "Model updated"
       }
     }
   },
@@ -646,6 +658,7 @@
       "rightSide": "Right Side",
       "paperSize": "Paper Size",
       "A5": "A5",
+      "layout": "Layout",
       "A4": "A4",
       "add": "Add Document",
       "titleModel": "Model Title",
@@ -656,7 +669,9 @@
       "titleholder": "Prescription...",
       "selectTypes": "Apply this template to (select documents)",
       "asDefault": "Set it as the default template",
-      "modifier": "Update"
+      "modifier": "Update",
+      "close": "Close",
+      "analyses": "Analyses"
     }
   }
 }
