@@ -49,9 +49,10 @@ function TemplatesConfig() {
     const [isdefault, setIsDefault] = useState<DocTemplateModel | null>(null);
     const [isHovering, setIsHovering] = useState("");
     const [open, setOpen] = useState(false);
-    const [data, setData] = useState<CertifModel | null>(null);
+    const [data, setData] = useState<any>(null);
     const [models, setModels] = useState<CertifModel[]>([]);
     const [prescriptions, setPrescriptions] = useState<PrescriptionParentModel[]>([]);
+    const [analysis, setAnalysis] = useState<AnalysisModel[]>([]);
     const [action, setAction] = useState("");
 
     const [info, setInfo] = useState<null | string>("");
@@ -77,41 +78,20 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpPrescriptionResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpPrescriptionResponse, mutate: mutatePrescription} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    const {data: httpAnalysesResponse, mutate:mutateAnalyses} = useRequest(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
     const closeDraw = () => {
         setOpen(false);
     };
-
-    useEffect(() => {
-        if (httpModelResponse)
-            setModels((httpModelResponse as HttpResponse)?.data as CertifModel[]);
-    }, [httpModelResponse])
-
-    useEffect(() => {
-        if (httpPrescriptionResponse) {
-            let _prescriptions: any[] = [];
-            const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as PrescriptionParentModel[];
-            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p => {
-                p.prescriptionModels.map(pm => {
-                    let _pmhd: any[] = []
-                    pm.prescriptionModalHasDrugs.map((pmhd: any) => {
-                        _pmhd.push({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}})
-                    })
-                    _prescriptions.push({
-                        uuid: pm.uuid,
-                        name: pm.name,
-                        prescriptionModalHasDrugs: _pmhd
-                    })
-                })
-            })
-            setPrescriptions(_prescriptions);
-        }
-    }, [httpPrescriptionResponse])
     const handleMouseOver = (id: string | undefined) => {
         setIsHovering(id ? id : "");
     };
@@ -140,21 +120,44 @@ function TemplatesConfig() {
             });
         })
     }
-
+    const removePrescription = (uuid:string) => {
+        trigger({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then(() => {
+            mutatePrescription().then(() => {
+                enqueueSnackbar(t("removed"), {variant: "error"});
+            });
+        })
+    }
+    const removeAnalyses = (uuid:string) => {
+        trigger({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then(() => {
+            mutateAnalyses().then(() => {
+                enqueueSnackbar(t("removed"), {variant: "error"});
+            });
+        })
+    }
     const handleSwitchUI = () => {
-        //close the current dialog
         setOpenDialog(false);
         setInfo(null);
         setInfo(getPrescriptionUI());
         setOpenDialog(true);
     }
-
     const handleCloseDialog = () => {
-
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
-
     };
 
     useEffect(() => {
@@ -172,6 +175,44 @@ function TemplatesConfig() {
             }, 500)
         }
     }, [httpDocumentHeader])
+
+    useEffect(() => {
+        if (httpModelResponse)
+            setModels((httpModelResponse as HttpResponse)?.data as CertifModel[]);
+    }, [httpModelResponse])
+
+    useEffect(() => {
+        if (httpPrescriptionResponse) {
+            let _prescriptions: any[] = [];
+            const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as PrescriptionParentModel[];
+            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p => {
+                p.prescriptionModels.map(pm => {
+                    let _pmhd: any[] = []
+                    pm.prescriptionModalHasDrugs.map((pmhd: any) => {
+                        _pmhd.push({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}})
+                    })
+                    _prescriptions.push({
+                        uuid: pm.uuid,
+                        name: pm.name,
+                        prescriptionModalHasDrugs: _pmhd
+                    })
+                })
+            })
+            setPrescriptions(_prescriptions);
+        }
+    }, [httpPrescriptionResponse])
+
+    useEffect(() => {
+        const res: any[] =  [];
+        if (httpAnalysesResponse) {
+            const _analysis = (httpAnalysesResponse as HttpResponse)?.data as AnalysisModelModel[]
+            _analysis.map(r => {
+                const info = r.analyses.map((ra) => ({analysis:ra,note:''} ))
+                res.push({uuid:r.uuid,name:r.name,info})
+            });
+            setAnalysis(res);
+        }
+    }, [httpAnalysesResponse])
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -398,11 +439,101 @@ function TemplatesConfig() {
                                             }}>
                                                 <IconUrl path="setting/edit"/>
                                             </IconButton>
-                                            <IconButton size="small" onClick={() => {
-                                                removeDoc(res);
+                                            */}
+
+                                        <IconButton size="small" onClick={() => {
+                                            removePrescription(card.uuid);
+                                        }}>
+                                            <IconUrl path="setting/icdelete"/>
+                                        </IconButton>
+                                    </Stack>
+                                }
+
+                                {isHovering === card.uuid && <Stack direction={"row"}
+                                                                    onMouseOver={() => {
+                                                                        handleMouseOver(card.uuid)
+                                                                    }}
+                                                                    className={"title-content"}>
+                                    <Typography className={"title"}>{card.name}</Typography>
+                                </Stack>}
+                            </Box>
+                        ))
+                    }
+                </TemplateStyled>
+            </Box>
+
+            <Typography
+                textTransform="uppercase"
+                ml={2}
+                fontWeight={600}>
+                {t("analyses")}
+            </Typography>
+
+            <Box
+                bgcolor={(theme) => theme.palette.background.default}
+                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <TemplateStyled>
+                    <div className={"portraitA4"} onClick={() => {
+                        setInfo('balance_sheet_request');
+                        setOpenDialog(true);
+                    }} style={{
+                        marginTop: 25,
+                        marginRight: 30,
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "center"
+                    }}>
+                        <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
+                    </div>
+
+                    {
+                        isdefault && analysis.map((card: any) => (
+                            <Box key={card.uuid} className={"container"}>
+                                <div onMouseOver={() => {
+                                    handleMouseOver(card.uuid)
+                                }}
+                                     onMouseOut={handleMouseOut}>
+                                    <PreviewA4  {...{
+                                        eventHandler: null,
+                                        data: isdefault?.header.data,
+                                        values: isdefault?.header.header,
+                                        t,
+                                        state: {
+                                            info: card.info,
+                                            description: "",
+                                            doctor: "",
+                                            name: "requested-analysis",
+                                            patient: "Patient",
+                                            title: card.name,
+                                            type: "requested-analysis"
+                                        },
+                                        loading
+                                    }} />
+                                </div>
+
+                                {isHovering === card.uuid &&
+                                    <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
+                                        handleMouseOver(card.uuid)
+                                    }}>
+                                        <IconButton size="small" onClick={() => {
+                                            setOpen(true)
+                                            setData(card);
+                                            setAction("showAnalyses")
+                                        }}>
+                                            <IconUrl path="setting/ic-voir"/>
+                                        </IconButton>
+                                        {/* <IconButton size="small" onClick={() => {
+                                                editDoc(res)
                                             }}>
-                                                <IconUrl path="setting/icdelete"/>
-                                            </IconButton>*/}
+                                                <IconUrl path="setting/edit"/>
+                                            </IconButton>
+                                            */}
+
+                                        <IconButton size="small" onClick={() => {
+                                            removeAnalyses(card.uuid);
+                                        }}>
+                                            <IconUrl path="setting/icdelete"/>
+                                        </IconButton>
                                     </Stack>
                                 }
 
@@ -439,8 +570,54 @@ function TemplatesConfig() {
                     closeDraw,
                     data,
                     mutate: mutateCertif
-                }}></CertifModelDrawer>}
+                }}></CertifModelDrawer>
+                }
+
+                {
+                    action === 'showPrescription' &&
+                    <Box padding={2}>
+                        <PreviewA4  {...{
+                            eventHandler: null,
+                            data: isdefault?.header.data,
+                            values: isdefault?.header.header,
+                            t,
+                            state: {
+                                info: data?.prescriptionModalHasDrugs,
+                                description: "",
+                                doctor: "",
+                                name: "prescription",
+                                patient: "Patient",
+                                title: data?.name,
+                                type: "prescription"
+                            },
+                            loading
+                        }} />
+                    </Box>
+                }
+
+                {
+                    action === 'showAnalyses' &&
+                    <Box padding={2}>
+                        <PreviewA4  {...{
+                            eventHandler: null,
+                            data: isdefault?.header.data,
+                            values: isdefault?.header.header,
+                            t,
+                            state: {
+                                info: data.info,
+                                description: "",
+                                doctor: "",
+                                name: "requested-analysis",
+                                patient: "Patient",
+                                title: data.name,
+                                type: "requested-analysis"
+                            },
+                            loading
+                        }} />
+                    </Box>
+                }
             </Drawer>
+
 
             {info && (
                 <Dialog
@@ -461,17 +638,21 @@ function TemplatesConfig() {
                                 id="scroll-dialog-title">
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                                     {tConsultation(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{t:tConsultation,keyPrefix:'consultationIP', handleSwitchUI}} />
+                                    <SwitchPrescriptionUI {...{
+                                        t: tConsultation,
+                                        keyPrefix: 'consultationIP',
+                                        handleSwitchUI
+                                    }} />
                                 </Stack>
                             </DialogTitle>
                         )
                     })}
                     actionDialog={
-                            <DialogActions>
-                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                    {t("close")}
-                                </Button>
-                            </DialogActions>
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                {t("close")}
+                            </Button>
+                        </DialogActions>
                     }
                 />
             )}

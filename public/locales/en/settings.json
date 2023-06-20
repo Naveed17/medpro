@@ -670,7 +670,8 @@
       "selectTypes": "Apply this template to (select documents)",
       "asDefault": "Set it as the default template",
       "modifier": "Update",
-      "close": "Close"
+      "close": "Close",
+      "analyses": "Analyses"
     }
   }
 }

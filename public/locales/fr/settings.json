@@ -677,7 +677,8 @@
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
       "asDefault": "Sélectionnez-le comme modèle par défaut",
       "modifier": "Modifier",
-      "close": "Terminer"
+      "close": "Terminer",
+      "analyses": "Analyses"
     }
   }
 }

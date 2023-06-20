@@ -54,8 +54,6 @@ function CertifModelDrawer({...props}) {
         },
         validationSchema,
         onSubmit: async (values) => {
-            console.log(values);
-
             const form = new FormData();
             form.append('content', values.content);
             form.append('color', modelColor);
