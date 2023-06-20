@@ -9,6 +9,7 @@ import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
 import {NotifBadgeStyled} from "@features/popover";
 import {ConditionalWrapper} from "@lib/hooks";
+import NotesIcon from '@mui/icons-material/Notes';
 
 function BasicList({...props}) {
     const {data, handleAction, t, ...rest} = props;
@@ -40,6 +41,12 @@ function BasicList({...props}) {
                             </ListItemAvatar>
                             <Stack direction={"column"}>
                                 <ListItemText sx={{"& .MuiTypography-root": {fontSize: 12}}} primary={item.title}/>
+                                {item.appointment?.instruction?.length > 0 && <Stack direction={"row"}>
+                                    <NotesIcon sx={{fontSize: 20}}/>
+                                    <Typography
+                                        variant={"body2"}>{`${item.appointment.control ? `${t("next-appointment-control")} ${item.appointment.nextApp} ${t("times.days")} \r\n` : ""}, ${item.appointment.instruction}`}
+                                    </Typography>
+                                </Stack>}
                                 <Stack direction={item?.action !== "end-consultation" ? "column" : "row"}
                                        alignItems={item?.action !== "end-consultation" ? "flex-start" : "center"}>
                                     {item?.action !== "end-consultation" ? <span style={{display: "flex"}}>
@@ -51,10 +58,11 @@ function BasicList({...props}) {
                                         >
                                             {item.duration} <span className="dot"></span>
                                         </Typography>
-                                        {t("online")}
+                                        <Typography variant={"body2"}> {t("online")}</Typography>
                                     </span> : item.appointment?.fees > 0 && <Chip sx={{height: 26}}
                                                                                   color="primary"
                                                                                   label={`${item.appointment?.fees} ${devise}`}/>}
+
 
                                     <Stack direction={"row"}>
                                         {item.buttons?.map((button: any, index: number) => (
