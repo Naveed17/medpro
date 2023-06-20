@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, IconButton, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -9,7 +9,6 @@ import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToo
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
-import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -18,6 +17,8 @@ import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
 function CIPPatientHistoryCard({...props}) {
     const {
@@ -28,7 +29,10 @@ function CIPPatientHistoryCard({...props}) {
         notes,
         diagnostics,
         seeHistory,
-        seeHistoryDiagnostic
+        seeHistoryDiagnostic,
+        closed,
+        handleClosePanel,
+        isClose
     } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -44,6 +48,8 @@ function CIPPatientHistoryCard({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
+    const [closeExam, setCloseExam] = useState<boolean>(closed);
+    const [hide, setHide] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
@@ -77,7 +83,6 @@ function CIPPatientHistoryCard({...props}) {
     });
 
     const {handleSubmit, values, setFieldValue} = formik;
-
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -90,7 +95,6 @@ function CIPPatientHistoryCard({...props}) {
         }
 
     }
-
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -99,7 +103,6 @@ function CIPPatientHistoryCard({...props}) {
             setOldNote(values.notes);
         })
     }
-
     const handleDiseasesChange = (_diseases: string[]) => {
         setFieldValue("disease", _diseases);
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -113,7 +116,6 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }
-
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         setFieldValue("motif", reasons.map(reason => reason.uuid));
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -127,7 +129,6 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }
-
     const addNewReason = (name: string) => {
         setLoadingReq(true);
         const params = new FormData();
@@ -152,7 +153,6 @@ function CIPPatientHistoryCard({...props}) {
             setLoadingReq(false);
         }));
     }
-
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
@@ -166,6 +166,10 @@ function CIPPatientHistoryCard({...props}) {
             setDiseases(resultats);
         })
     }
+
+    useEffect(() => {
+        setHide(closed && !isClose)
+    }, [isClose, closed])
 
     useEffect(() => {
         dispatch(
@@ -210,14 +214,47 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center"
-                   justifyContent={"space-between"} borderBottom={1}
+            <Stack className="card-header" padding={'0.45rem'}
+                   direction="row"
+                   alignItems="center"
+                   justifyContent={hide ? "" : "space-between"}
+                   spacing={2}
+                   borderBottom={hide ? 0 : 1}
+                   sx={{
+                       position: hide ? "absolute" : "static",
+                       transform: hide ? "rotate(90deg)" : "rotate(0)",
+                       transformOrigin: "left",
+                       width: hide ? "44.5rem" : "auto",
+                       left: hide ? 32 : 23,
+                       top: -26,
+                   }}
                    borderColor="divider">
+                {hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <KeyboardArrowDownRoundedIcon/>
+                </IconButton>}
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                             fontWeight={600}>
                     <Icon path='ic-edit-file-pen'/>
                     {t("review")}
                 </Typography>
+
+                {!hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <ArrowForwardIosIcon/>
+                </IconButton>}
             </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
@@ -226,6 +263,7 @@ function CIPPatientHistoryCard({...props}) {
                         component={Form}
                         autoComplete="off"
                         noValidate
+                        style={{display: hide ? "none" : "block"}}
                         onSubmit={handleSubmit}>
 
                         <Box width={1}>

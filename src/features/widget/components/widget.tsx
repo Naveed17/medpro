@@ -57,19 +57,20 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         data,
         changes,
         setChanges,
-        previousData
+        previousData,
+        closed
     } = props;
 
     if (modal) {
         if (previousData && modal.length > 0) {
-            cmp = [...modal];
-            cmp[0].components.map((mc: { key: string; description: string; }) => {
+            modal[0].components.map((mc: { key: string; description: string; }) => {
                 const index = Object.keys(previousData).findIndex(pdata => pdata === mc.key);
                 if (index > -1 && !mc.description?.includes('(') && previousData[mc.key]) {
                     const unity = mc.description ? mc.description : "";
                     mc.description = ` (${previousData[mc.key]} ${unity}) `
                 }
             })
+            cmp = [...modal];
         } else
             cmp = [...modal];
     }
@@ -115,6 +116,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
+        closed,
         acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
     } = props;
     const router = useRouter();
@@ -137,6 +139,9 @@ function Widget({...props}) {
         uuid: "",
     });
 
+    useEffect(()=>{
+        console.log(closed)
+    },[closed])
     const theme = useTheme();
 
     useEffect(() => {
@@ -169,7 +174,7 @@ function Widget({...props}) {
                     setOpenTeeth,
                     updated,
                     appuuid,
-                    local:router.locale
+                    local: router.locale
                 }}/>)
             }
             if (childTeeth) {
@@ -186,7 +191,7 @@ function Widget({...props}) {
                     setOpenTeeth,
                     updated,
                     appuuid,
-                    local:router.locale
+                    local: router.locale
                 }}/>)
             }
         }, 1000)
