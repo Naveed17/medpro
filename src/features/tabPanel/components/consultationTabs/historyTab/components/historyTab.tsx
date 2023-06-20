@@ -130,26 +130,29 @@ function HistoryTab({...props}) {
                 </Label>
             </Stack>}
 
-            {Object.keys(modelData).length > 0 &&
-                <HistoryStyled>
-                    <thead>
+            <div style={{overflowY:"hidden"}}>
+                {Object.keys(modelData).length > 0 &&
+                    <HistoryStyled>
+                        <thead>
                         <tr>
                             <td className={'col'}></td>
                             {dates.map((date: string) => (<td key={date} className={'col'}><Typography
                                 className={"header"}>{date}</Typography></td>))}
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         {keys.map((key: string) => (
                             <tr key={key}>
-                                <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                <td style={{minWidth:120}}><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
                                 </td>))}
                             </tr>
                         ))}
-                    </tbody>
-                </HistoryStyled>}
+                        </tbody>
+                    </HistoryStyled>}
+            </div>
+
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>

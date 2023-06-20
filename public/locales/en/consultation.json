@@ -104,6 +104,7 @@
   "gallery": "Consultation Images",
   "docs": "Consultation Documents",
   "history": "Historical Record",
+  "balance_sheet_request": "Analyses",
   "reason_for_consultation": "Reason for Consultation",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
