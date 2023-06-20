@@ -139,9 +139,6 @@ function Widget({...props}) {
         uuid: "",
     });
 
-    useEffect(()=>{
-        console.log(closed)
-    },[closed])
     const theme = useTheme();
 
     useEffect(() => {

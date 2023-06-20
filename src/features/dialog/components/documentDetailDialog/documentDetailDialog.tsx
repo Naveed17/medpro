@@ -397,7 +397,6 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log(state);
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (

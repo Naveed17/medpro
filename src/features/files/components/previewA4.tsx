@@ -86,7 +86,7 @@ function PreviewDialog({...props}) {
                 }
             }
 
-            list.map((el: any) => {
+            list.map((el: any,index:number) => {
                 if (state) {
                     switch (state.type) {
                         case "prescription":
@@ -95,7 +95,7 @@ function PreviewDialog({...props}) {
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 switch (pr.name) {
                                     case "name":
-                                        const val = `• ${el.standard_drug.commercial_name}`;
+                                        const val = `${index+1} • ${el.standard_drug.commercial_name}`;
                                         elx.append(val)
                                         rows.push({
                                             value: val,
@@ -106,7 +106,7 @@ function PreviewDialog({...props}) {
                                         break;
                                     case "dosage":
                                         el.cycles.map((cycle: any, index: number) => {
-                                            let val = `- ${cycle.dosage}`
+                                            let val = cycle.dosage ? `- ${cycle.dosage}`: ''
                                             if (cycle.duration)
                                                 val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                                             if (cycle.note)
