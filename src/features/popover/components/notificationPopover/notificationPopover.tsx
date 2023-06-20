@@ -7,9 +7,9 @@ import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
 import {BasicList} from "@features/list";
-import {TabPanel} from "@features/tabPanel";
+import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
@@ -56,7 +56,7 @@ function NotificationPopover({...props}) {
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
-    const {notifications: localNotifications} = useAppSelector(dashLayoutSelector);
+    const {notifications: localNotifications, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {
         date: moveDialogDate,
         time: moveDialogTime
@@ -70,7 +70,7 @@ function NotificationPopover({...props}) {
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
     const [notifications, setNotifications] = useState<any[]>([...pendingAppointments, ...(localNotifications ?? [])]);
-    console.log("notifications", notifications);
+
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
@@ -154,6 +154,7 @@ function NotificationPopover({...props}) {
                 time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
             }
         } as any;
+
         switch (action) {
             case "onEdit":
                 // onClose();
@@ -169,6 +170,15 @@ function NotificationPopover({...props}) {
                 break;
             case "onConfirm":
                 onConfirmAppointment(eventUpdated);
+                break;
+            case "onReschedule":
+                onClose();
+                router.push("/dashboard/agenda").then(() => {
+                    dispatch(setStepperIndex(1));
+                    dispatch(setAppointmentPatient(event?.appointment.patient));
+                    appointmentTypes && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                    dispatch(openDrawer({type: "add", open: true}));
+                });
                 break;
         }
     }
@@ -198,71 +208,70 @@ function NotificationPopover({...props}) {
                             }}>
                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                    <Tab label="Tous" {...a11yProps(0)} />
-                                    <Tab label="En attende" {...a11yProps(1)} />
+                                    <Tab label={t("all")} {...a11yProps(0)} />
+                                    {pendingAppointments.length > 0 && <Tab label={t("pending")} {...a11yProps(1)} />}
                                 </Tabs>
                             </Box>
                             <TabPanel value={value} index={0} className={"container"}>
                                 <BasicList
-                                    handleAction={(action: string, event: EventDef) => {
-                                        console.log(action, event);
-                                    }}
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            width: 26,
-                                            height: 26
-                                        }
-                                    }}
-                                    data={[
-                                        ...notifications.map(appointment => ({
-                                            ...appointment,
-                                            duration: appointment.createdAt && getDuration(appointment.createdAt),
-                                            title: `${t("dialogs.alert.consultation-finish")} ${appointment?.patient.firstName} ${appointment?.patient.lastName}`,
-                                            icon: <EventIcon/>,
-                                            ...(appointment?.control && {
-                                                buttons: [{
-                                                    text: t("dialogs.finish-dialog.reschedule"),
-                                                    color: "primary",
-                                                    action: "reschedule"
-                                                }]
-                                            })
-                                        }))
-                                    ]}/>
-                            </TabPanel>
-                            <TabPanel value={value} index={1} className={"container"}>
-                                <BasicList
+                                    {...{t}}
                                     handleAction={handleNotificationAction}
                                     sx={{
                                         "& .MuiSvgIcon-root": {
                                             width: 26,
                                             height: 26
-                                        },
-                                        "& .MuiButtonBase-root": {
-                                            margin: "8px 4px"
                                         }
                                     }}
                                     data={[
-                                        ...pendingAppointments.map(appointment => ({
-                                            ...appointment,
-                                            dur: appointment.duration,
-                                            duration: appointment.createdAt && getDuration(appointment.createdAt),
-                                            title: `${appointment.patient.firstName} ${appointment.patient.lastName} a demandé un nouveau rendez-vous en ligne pour le ${appointment.dayDate} ${appointment.startTime}`,
+                                        ...notifications.map(data => ({
+                                            ...data,
+                                            duration: data.appointment.createdAt && getDuration(data.appointment.createdAt),
+                                            title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
                                             icon: <EventIcon/>,
-                                            buttons: [
-                                                {text: "Confirmer", color: "success", action: "onConfirm"},
-                                                {text: "Gérer", color: "white", action: "onEdit"},
-                                                {
-                                                    ...(appointment.patient?.contact.length > 0 && {
-                                                        text: `Appeler ${appointment.patient?.contact[0].value}`,
-                                                        href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
-                                                        color: "primary",
-                                                        action: "onCall"
-                                                    })
-                                                }
-                                            ]
+                                            buttons: [{
+                                                text: t("dialogs.finish-dialog.reschedule"),
+                                                color: "primary",
+                                                action: "onReschedule"
+                                            }]
                                         }))
                                     ]}/>
                             </TabPanel>
+                            {pendingAppointments.length > 0 &&
+                                <TabPanel value={value} index={1} className={"container"}>
+                                    <BasicList
+                                        {...{t}}
+                                        handleAction={handleNotificationAction}
+                                        sx={{
+                                            "& .MuiSvgIcon-root": {
+                                                width: 26,
+                                                height: 26
+                                            },
+                                            "& .MuiButtonBase-root": {
+                                                margin: "8px 4px"
+                                            }
+                                        }}
+                                        data={[
+                                            ...pendingAppointments.map(appointment => ({
+                                                ...appointment,
+                                                dur: appointment.duration,
+                                                duration: appointment.createdAt && getDuration(appointment.createdAt),
+                                                title: `${appointment.patient.firstName} ${appointment.patient.lastName} a demandé un nouveau rendez-vous en ligne pour le ${appointment.dayDate} ${appointment.startTime}`,
+                                                icon: <EventIcon/>,
+                                                buttons: [
+                                                    {text: "Confirmer", color: "success", action: "onConfirm"},
+                                                    {text: "Gérer", color: "white", action: "onEdit"},
+                                                    {
+                                                        ...(appointment.patient?.contact.length > 0 && {
+                                                            text: `Appeler ${appointment.patient?.contact[0].value}`,
+                                                            href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
+                                                            color: "primary",
+                                                            action: "onCall"
+                                                        })
+                                                    }
+                                                ]
+                                            }))
+                                        ]}/>
+                                </TabPanel>}
                         </Box>
 
                     </>

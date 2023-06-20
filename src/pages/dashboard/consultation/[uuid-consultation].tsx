@@ -279,9 +279,9 @@ function ConsultationInProgress() {
             if (appointement) {
                 setPatient(appointement.patient);
 
-                if (appointement.consultation_fees) {
+                /*if (appointement.consultation_fees) {
                     //setConsultationFees(Number(appointement.consultation_fees));
-                }
+                }*/
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
                 dispatch(SetMutation(mutate));
@@ -323,6 +323,7 @@ function ConsultationInProgress() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, medicalProfessionalData, uuind, consultationFees]);
 
+    console.log(appointement);
     useEffect(() => {
         if (medicalProfessionalData && !loadingApp) {
             setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
@@ -428,7 +429,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                if(appointement?.status !== 5) {
+                if (appointement?.status !== 5) {
                     dispatch(resetTimer());
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
@@ -508,14 +509,17 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
+                    edited: false,
                     nextApp: meeting ? meeting : "0",
+                    appUuid: uuind,
+                    dayDate: appointement.day_date,
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
                         birthdate: patient.birthdate,
                         firstName: patient.firstName,
                         lastName: patient.lastName,
-                        gender: patient.gender,
+                        gender: patient.gender === "M" ? 1 : 2,
                         account: patient.account,
                         address: patient.address,
                         contact: patient.contact,
@@ -802,7 +806,7 @@ function ConsultationInProgress() {
     }
 
     const getExamSize = () => {
-        return isClose ? 11 : closeExam ? 1  : 7;
+        return isClose ? 11 : closeExam ? 1 : 7;
     }
 
 
@@ -964,7 +968,7 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
-                                        closed:closeExam,
+                                        closed: closeExam,
                                         setCloseExam,
                                         isClose
                                     }}

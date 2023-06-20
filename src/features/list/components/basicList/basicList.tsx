@@ -3,11 +3,20 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import BasicListStyled from "./overrides/basicListStyled";
-import {Avatar, Button, ListItemAvatar, Typography} from "@mui/material";
+import {Avatar, Button, Chip, ListItemAvatar, Typography, Stack} from "@mui/material";
 import EventIcon from '@mui/icons-material/Event';
+import {Session} from "next-auth";
+import {DefaultCountry} from "@lib/constants";
+import {useSession} from "next-auth/react";
 
 function BasicList({...props}) {
-    const {data, handleAction, ...rest} = props;
+    const {data, handleAction, t, ...rest} = props;
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
 
     return (
         <BasicListStyled {...rest}>
@@ -20,9 +29,10 @@ function BasicList({...props}) {
                                     <EventIcon/>
                                 </Avatar>
                             </ListItemAvatar>
-                            <ListItemText primary={item.title} secondary={
-                                <React.Fragment>
-                                    <span style={{display: "flex"}}>
+                            <Stack direction={"column"}>
+                                <ListItemText primary={item.title}/>
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    {item?.action !== "end-consultation" ? <span style={{display: "flex"}}>
                                         <Typography
                                             sx={{display: 'inline'}}
                                             component="span"
@@ -31,8 +41,10 @@ function BasicList({...props}) {
                                         >
                                             {item.duration} <span className="dot"></span>
                                         </Typography>
-                                        {"RDV en ligne"}
-                                    </span>
+                                        {t("online")}
+                                    </span> : <Chip sx={{height: 26}}
+                                                    color="primary"
+                                                    label={`${item.appointment?.fees} ${devise}`}/>}
 
                                     {item.buttons?.map((button: any, index: number) => (
                                         <Button key={index}
@@ -42,9 +54,8 @@ function BasicList({...props}) {
                                                 variant="contained" color={button.color}
                                                 size="small">{button.text}</Button>))
                                     }
-                                </React.Fragment>
-                            }/>
-
+                                </Stack>
+                            </Stack>
                         </ListItem>
                     ))}
                 </List>
