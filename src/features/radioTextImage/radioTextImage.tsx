@@ -20,7 +20,7 @@ export default function TextIconRadio({...props}) {
                 sx={{
                     justifyContent: "flex-start",
                     padding: "1.2rem 0.75rem",
-                    border: "1px solid #DDDDDD",
+                    border: (theme) => theme.palette.grey[200],
                     ...(!disabled
                         ? {
                             bgcolor: "#fff",
@@ -38,7 +38,7 @@ export default function TextIconRadio({...props}) {
                             "&.Mui-disabled": {
                                 bgcolor: "#F1F1F1",
                                 color: (theme) => theme.palette.grey[300],
-                                border: "1px solid #DDDDDD",
+                                border: (theme) => theme.palette.grey[200]
                             },
                         }),
                 }}

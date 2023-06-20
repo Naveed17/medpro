@@ -134,9 +134,18 @@ function FcmLayout({...props}) {
                             if (!data.body.appointment) {
                                 dispatch(resetTimer());
                             }
-                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             agendaConfig?.mutate[1]();
@@ -292,6 +301,16 @@ function FcmLayout({...props}) {
             dispatch(setOngoing({appointmentTypes}));
         }
     }, [dispatch, appointmentTypes])
+
+    useEffect(() => {
+        // Update notifications popup
+        const localStorageNotifications = localStorage.getItem("notifications");
+        if (localStorageNotifications) {
+            const notifications = JSON.parse(localStorageNotifications).filter(
+                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
+            dispatch(setOngoing({notifications}))
+        }
+    }, [dispatch])
 
     return (
         <>

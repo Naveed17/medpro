@@ -158,7 +158,7 @@ function AppointmentDetail({...props}) {
                                             src={
                                                 patientPhoto
                                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                                    : appointment?.extendedProps?.patient?.gender === 1
+                                                    : appointment?.extendedProps?.patient?.gender === "M"
                                                         ? "/static/icons/men-avatar.svg"
                                                         : "/static/icons/women-avatar.svg"
                                             }
@@ -466,7 +466,6 @@ function AppointmentDetail({...props}) {
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
                                     display:
-                                        appointment?.extendedProps.status.key === "CANCELED" ||
                                         appointment?.extendedProps.status.key === "FINISHED" ||
                                         appointment?.extendedProps.status.key === "ON_GOING"
                                             ? "none"

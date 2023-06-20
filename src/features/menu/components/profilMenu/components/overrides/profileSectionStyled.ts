@@ -1,8 +1,8 @@
 //components styles
-import { alpha, styled } from "@mui/material/styles";
-import { pxToRem } from "@themes/formatFontSize";
+import {alpha, styled} from "@mui/material/styles";
+import {pxToRem} from "@themes/formatFontSize";
 
-const ProfileSectionStyled = styled('div')(({ theme }) => ({
+const ProfileSectionStyled = styled('div')(({theme}) => ({
     display: "flex",
     alignItems: "center",
     "& .profile-btn": {
@@ -36,7 +36,7 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
             boxSizing: "border-box",
             boxShadow: theme.shadows[5],
             borderRadius: 10,
-
+            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             [theme.breakpoints.down("sm")]: {
                 minWidth: "auto",
             },

@@ -170,7 +170,6 @@ function ConsultationInProgress() {
             disabled: true,
         },
     ];
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
@@ -294,9 +293,9 @@ function ConsultationInProgress() {
             if (appointement) {
                 setPatient(appointement.patient);
 
-                if (appointement.consultation_fees) {
+                /*if (appointement.consultation_fees) {
                     //setConsultationFees(Number(appointement.consultation_fees));
-                }
+                }*/
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
                 dispatch(SetMutation(mutate));
@@ -523,7 +522,10 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
+                    edited: false,
                     nextApp: meeting ? meeting : "0",
+                    appUuid: uuind,
+                    dayDate: appointement.day_date,
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
@@ -817,7 +819,7 @@ function ConsultationInProgress() {
     }
 
     const getExamSize = () => {
-        return isClose ? 11 : closeExam ? 1  : 7;
+        return isClose ? 11 : closeExam ? 1 : 7;
     }
 
 
@@ -999,7 +1001,7 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
-                                        closed:closeExam,
+                                        closed: closeExam,
                                         setCloseExam,
                                         isClose
                                     }}
