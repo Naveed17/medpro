@@ -116,9 +116,9 @@ export default function TeethPreview({...props}) {
                     }}/>
                     <Typography fontSize={10} color={"#737780"}>{t('hiddenTeeth')}</Typography>
                 </Stack>
-                <Stack direction={"row"} alignItems={"center"} spacing={.5} p={1} pt={0}>
-                    {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10}} label={a}/>))}
-                </Stack>
+                <div>
+                    {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10,margin:2}} label={a}/>))}
+                </div>
             </div>
             <div>
                 {traitements.map(traitement => (
