@@ -11,7 +11,7 @@ export const checkNotification = () => {
     if (!Reflect.has(window, 'Notification')) {
         console.log('This browser does not support notifications.');
     } else {
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
             Notification.requestPermission().then(() => resolve(true));
         }).catch(() => {
             Notification.requestPermission(handlePermission);
