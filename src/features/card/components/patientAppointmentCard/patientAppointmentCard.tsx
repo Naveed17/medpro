@@ -1,7 +1,6 @@
 import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
 import React, {useState} from "react";
@@ -31,7 +30,7 @@ function PatientAppointmentCard({...props}) {
                         className={"zoom-list"}
                         src={patientPhoto
                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                            : (patient?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                            : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0
@@ -69,7 +68,7 @@ function PatientAppointmentCard({...props}) {
                                 }}
                             >
                                 {!loading ?
-                                    <Icon color={"white"} path="setting/edit"/> :
+                                    <IconUrl color={"white"} path="setting/edit"/> :
                                     <Box sx={{display: 'flex'}}>
                                         <CircularProgress size={"20px"} color={"white"}/>
                                     </Box>

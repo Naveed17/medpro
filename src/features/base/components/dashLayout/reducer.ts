@@ -9,6 +9,7 @@ export type dashLayoutState = {
     medicalEntityHasUser?: MedicalEntityHasUsersModel[];
     medicalProfessionalData?: MedicalProfessionalDataModel[];
     appointmentTypes?: AppointmentTypeModel[];
+    notifications?: any[];
     mutate?: KeyedMutator<any> | null;
     last_fiche_id?: string;
     ongoing?: {
@@ -30,6 +31,7 @@ const initialState: dashLayoutState = {
     waiting_room: 0,
     allowNotification: false,
     import_data: [],
+    notifications: [],
     last_fiche_id: "0",
     mutate: null,
     ongoing: null,

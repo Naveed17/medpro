@@ -107,6 +107,7 @@
   "reason_for_consultation": "Motif de consultation",
   "requestedAnalyses": "Demande bilan",
   "requestedPrescription": "Ordonnance médicale",
+  "balance_sheet_request": "Analyse",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -371,6 +372,9 @@
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
     "disease": "Maladie",
+    "noActiveFile": "Pas de formulaire de consultation actif",
+    "configureNow": "Veuillez configurer votre formulaire de consultation",
+    "configure": "Configurer",
     "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
@@ -416,6 +420,7 @@
   "exempleFees": "Exemple: Suivi ...",
   "consultation_reason": "Motif de consultation",
   "diagnostics": "Diagnostique",
+  "disease": "Maladie",
   "treatments": "Traitements",
   "diagonistic": "Diagnostique",
   "total": "Total",

@@ -56,7 +56,7 @@ function LifeStyleDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map((item: any) => {
+            items.forEach((item: any) => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && item.response && typeof item.response !== "string") {
                     item.response = item.response[0]?.uuid
                 }

@@ -41,7 +41,7 @@ function DuplicatedRow({...props}) {
                             <Typography>--</Typography>
                         ) : (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.gender === 1 ? "Mr" : "Ms"}
+                                {modalData.gender === "M" ? "Mr" : "Ms"}
                             </Typography>
                         )}
                     </Stack>

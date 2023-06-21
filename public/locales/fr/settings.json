@@ -609,14 +609,26 @@
       "dialog": {
         "title": "Modèle de suivi de consultation : ",
         "titleEdit": "Modifier un modèle de suivi de consultation",
+        "titleEditDoc": "Modifier un modèle ",
+        "name": "Nom du modèle",
+        "content": "Contenu",
         "titleAdd": "Ajouter un modèle de suivi de consultation",
+        "titleAddDoc": "Ajouter un modèle ",
         "selectColor": "Veuillez choisir une couleur",
         "nameReq": "Nom est obligatoire",
         "cancel": "Annuler",
         "save": "Enregistrer",
         "named": "Veuillez nommer le modèle",
         "select": "Veuillez choisir vos variables",
-        "info": "Information du modèle"
+        "info": "Information du modèle",
+        "patient": "Patient",
+        "doctor": "Doctor",
+        "today": "Aujourd'hui",
+        "patient_placeholder": "Nom du patient",
+        "doctor_placeholder": "Nom du doctor",
+        "today_placeholder": "Date aujourd'hui",
+        "created": "Modèle créé",
+        "updated": "Modèle mis à jour"
       }
     }
   },
@@ -627,6 +639,9 @@
       "footer": "Bas de page",
       "case1": "Première case",
       "case2": "Deuxième case",
+      "layout": "Mise en page",
+      "document": "Modèles document médicale",
+      "prescription": "Modèles d'ordonnance",
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
@@ -661,7 +676,9 @@
       "titleholder": "Ordonnance...",
       "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
       "asDefault": "Sélectionnez-le comme modèle par défaut",
-      "modifier": "Modifier"
+      "modifier": "Modifier",
+      "close": "Terminer",
+      "analyses": "Analyses"
     }
   }
 }

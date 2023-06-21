@@ -54,7 +54,7 @@ function AddDocumentDialog({...props}) {
         setLoad(true);
         const filesAccepted = e.target.files;
         let docs: any = [];
-        Array.from(filesAccepted).map((file) => {
+        Array.from(filesAccepted).forEach((file) => {
             if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
                     850,

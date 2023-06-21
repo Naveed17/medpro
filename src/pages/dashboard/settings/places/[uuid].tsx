@@ -320,7 +320,7 @@ function PlacesDetail() {
     }
 
     const apply = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
+        Object.keys(horaires[0].openingHours).forEach((day) => {
             if (day !== "MON") {
                 horaires[0].openingHours[day] = [];
             }
@@ -329,7 +329,7 @@ function PlacesDetail() {
     };
 
     const cleanData = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
+        Object.keys(horaires[0].openingHours).forEach((day) => {
             horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
                 (hour: { start_time: string; end_time: string }) =>
                     hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
@@ -395,9 +395,9 @@ function PlacesDetail() {
         const monday = [...horaires[0].openingHours["MON"]]
 
         if (alldays) {
-            Object.keys(horaires[0].openingHours).map((day) => {
+            Object.keys(horaires[0].openingHours).forEach((day) => {
                 if (day !== "MON") {
-                    monday.map((hour: any, index: number) => {
+                    monday.forEach((hour: any, index: number) => {
                         horaires[0].openingHours[day] = [
                             ...horaires[0].openingHours[day],
                             {
@@ -420,8 +420,8 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = row.contacts.length > 0 ? [] : [];
-            row.contacts.map((contact: ContactModel) => {
+            const cnts: any[] = [];
+            row.contacts.forEach((contact: ContactModel) => {
                 cnts.push({
                     code: contact.code,
                     value: contact.value,
@@ -448,10 +448,10 @@ function PlacesDetail() {
                     },
                 },
             ];
-            row.openingHours.map((ohours: any, index: number) => {
+            row.openingHours.forEach((ohours: any, index: number) => {
                 hours[index].isMain = ohours.isMain;
                 hours[index].isVisible = ohours.isVisible;
-                Object.keys(hours[index].openingHours).map((day) => {
+                Object.keys(hours[index].openingHours).forEach((day) => {
                     // @ts-ignore
                     hours[index].openingHours[day] = ohours.openingHours[day];
                 });

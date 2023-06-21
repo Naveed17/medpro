@@ -192,7 +192,7 @@ function RdvCard({...props}) {
                         inner
                     })}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t(`patient-details.${inner?.status === 5 ? "start-consultation" : "see-details"}`)}
+                        {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
                     </Typography>
                 </MenuItem>
                 <MenuItem

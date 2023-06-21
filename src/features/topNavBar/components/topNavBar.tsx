@@ -10,7 +10,7 @@ import {
     Button,
     Drawer,
     Hidden,
-    IconButton,
+    IconButton, Menu,
     MenuItem,
     MenuList,
     Popover,
@@ -69,9 +69,12 @@ function TopNavBar({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing, next, import_data, allowNotification, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {
+        ongoing, next, notifications,
+        import_data, allowNotification, mutate: mutateOnGoing
+    } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
 
@@ -85,7 +88,7 @@ function TopNavBar({...props}) {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
-    const [notifications, setNotifications] = useState(0);
+    const [notificationsCount, setNotificationsCount] = useState(0);
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -222,8 +225,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotifications(pendingAppointments.length);
-    }, [pendingAppointments]);
+        setNotificationsCount((notifications ?? []).length + (pendingAppointments?? []).length);
+    }, [notifications, pendingAppointments]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
@@ -376,7 +379,7 @@ function TopNavBar({...props}) {
                             }
                             {topBar.map((item, index) => (
                                 <Badge
-                                    badgeContent={notifications}
+                                    badgeContent={notificationsCount}
                                     className="custom-badge"
                                     color="warning"
                                     {...(item.action && {
@@ -398,21 +401,42 @@ function TopNavBar({...props}) {
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
                             </Badge>
-                            <Popover
+                            <Menu
                                 id={id}
                                 open={open}
                                 anchorEl={anchorEl}
                                 onClose={handleClose}
-                                anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "left",
+                                PaperProps={{
+                                    elevation: 0,
+                                    sx: {
+                                        overflow: 'visible',
+                                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                        mt: 1.5,
+                                        ml: -1,
+                                        '& .MuiAvatar-root': {
+                                            width: 32,
+                                            height: 32,
+                                            ml: -0.5,
+                                            mr: 1,
+                                        },
+                                        '&:before': {
+                                            content: '""',
+                                            display: 'block',
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 14,
+                                            width: 10,
+                                            height: 10,
+                                            bgcolor: 'background.paper',
+                                            transform: 'translateY(-50%) rotate(45deg)',
+                                            zIndex: 0,
+                                        },
+                                    },
                                 }}
-                                transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "right",
-                                }}>
+                                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                                 {popovers[popoverAction]}
-                            </Popover>
+                            </Menu>
                             {/*<Badge
                                 badgeContent={null}
                                 onClick={() => {

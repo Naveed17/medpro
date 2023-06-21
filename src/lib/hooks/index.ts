@@ -12,6 +12,7 @@ export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";
 export * from "./filterReasonOptions";
 export * from "./capitalizeFirst";
+export * from "./getDiffDuration";
 export * from "./checkNotification";
 export * from "./rest/useAppointment";
 export * from './rest/useContactType'

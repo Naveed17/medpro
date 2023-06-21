@@ -42,19 +42,19 @@ function PaymentRow({...props}) {
     } = props;
     const {insurances} = data;
     const {data: session} = useSession();
+
     const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
+    const [selected, setSelected] = useState<any>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
     const open = Boolean(anchorEl);
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const devise = doctor_country.currency?.name;
-
-    const [selected, setSelected] = useState<any>([]);
 
     const openFeesPopover = (event: React.MouseEvent<any>) => {
         event.stopPropagation();

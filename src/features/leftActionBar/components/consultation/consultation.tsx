@@ -195,7 +195,7 @@ function Consultation() {
                     allergicBadge = res['allergic']?.length;
 
                 let nb = 0;
-                Object.keys(res).map(ant => {
+                Object.keys(res).forEach(ant => {
                     if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic") {
                         nb += res[ant].length;
                     }
@@ -270,7 +270,7 @@ function Consultation() {
                                     src={
                                         patientPhoto
                                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                            : patient?.gender === 1
+                                            : patient?.gender === "M"
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"
                                     }

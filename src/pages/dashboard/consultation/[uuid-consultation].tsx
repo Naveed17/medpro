@@ -19,16 +19,28 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme} from "@mui/material";
+import {
+    alpha,
+    Box,
+    Button,
+    CardContent,
+    DialogActions,
+    Drawer,
+    Grid,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
-    PendingDocumentCard, resetTimer,
+    PendingDocumentCard,
+    resetTimer,
     timerSelector,
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
@@ -52,6 +64,7 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -66,6 +79,7 @@ function ConsultationInProgress() {
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
+        mutateModels();
     });
 
     const {t, ready} = useTranslation("consultation");
@@ -92,6 +106,7 @@ function ConsultationInProgress() {
     const [appointement, setAppointement] = useState<any>();
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isClose, setIsClose] = useState<boolean>(false);
+    const [closeExam, setCloseExam] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -154,7 +169,6 @@ function ConsultationInProgress() {
             disabled: true,
         },
     ];
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
@@ -164,7 +178,7 @@ function ConsultationInProgress() {
     const {trigger} = useRequestMutation(null, "consultation/end");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse,mutate:mutateModels} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -278,9 +292,9 @@ function ConsultationInProgress() {
             if (appointement) {
                 setPatient(appointement.patient);
 
-                if (appointement.consultation_fees) {
+                /*if (appointement.consultation_fees) {
                     //setConsultationFees(Number(appointement.consultation_fees));
-                }
+                }*/
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
                 dispatch(SetMutation(mutate));
@@ -404,7 +418,7 @@ function ConsultationInProgress() {
             );
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append("modal_uuid", selectedModel?.default_modal.uuid);
             form.append(
                 "modal_data",
                 localStorage.getItem("Modeldata" + uuind) as string
@@ -427,7 +441,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                if(appointement?.status !== 5) {
+                if (appointement?.status !== 5) {
                     dispatch(resetTimer());
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
@@ -470,9 +484,9 @@ function ConsultationInProgress() {
             let dates: string[] = [];
             let keys: string[] = [];
 
-            Object.keys(res).map(key => {
+            Object.keys(res).forEach(key => {
                 keys.push(key);
-                Object.keys(res[key].data).map(date => {
+                Object.keys(res[key].data).forEach(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);
                 })
             })
@@ -507,7 +521,10 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
+                    edited: false,
                     nextApp: meeting ? meeting : "0",
+                    appUuid: uuind,
+                    dayDate: appointement.day_date,
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
@@ -796,6 +813,15 @@ function ConsultationInProgress() {
 
     }
 
+    const getWidgetSize = () => {
+        return isClose ? 1 : closeExam ? 11 : 5
+    }
+
+    const getExamSize = () => {
+        return isClose ? 11 : closeExam ? 1 : 7;
+    }
+
+
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -912,7 +938,7 @@ function ConsultationInProgress() {
 */}
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{
@@ -930,12 +956,33 @@ function ConsultationInProgress() {
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
+                                        closed={closeExam}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
+                                {!loading && !selectedModel && (<CardContent
+                                        sx={{
+                                            bgcolor: alpha(theme.palette.primary.main,0.1),
+                                            border: '1px solid #E0E0E0',
+                                            overflow: 'hidden',
+                                            borderRadius: 2,
+                                            height: {xs: "30vh", md: "48.9rem"},
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+
+                                        <Stack spacing={1} alignItems={"center"}>
+                                            <TuneRoundedIcon/>
+                                            <Typography fontSize={11} textAlign={"center"}>{t('noActiveFile')}</Typography>
+                                            <Typography fontSize={10} textAlign={"center"} style={{opacity:0.5}}>{t('configure')}</Typography>
+                                            <Button size={"small"} onClick={()=>{router.replace("/dashboard/settings/patient-file-templates")}}></Button>
+                                        </Stack>
+                                    </CardContent>
+                                )}
                             </Grid>
                             <Grid item xs={12}
-                                  md={isClose ? 11 : 7}
+                                  md={getExamSize()}
                                   style={{paddingLeft: isClose ? 0 : 10}}>
                                 <ConsultationDetailCard
                                     {...{
@@ -953,7 +1000,11 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
+                                        closed: closeExam,
+                                        setCloseExam,
+                                        isClose
                                     }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
                             </Grid>
                         </Grid>
@@ -1043,7 +1094,6 @@ function ConsultationInProgress() {
                                             <Stack
                                                 direction="row"
                                                 alignItems="center"
-                                                display={{xs: "none", md: "block"}}
                                                 spacing={2}>
                                                 <span>|</span>
                                                 <Button
@@ -1082,8 +1132,8 @@ function ConsultationInProgress() {
                                         }
                                         color={appointement?.status === 5 ? "warning" : "error"}
                                         className="btn-action"
-                                        startIcon={appointement?.status === 5 ? <Icon path="ic-edit"/> :
-                                            <Icon path="ic-check"/>}
+                                        startIcon={appointement?.status === 5 ? <IconUrl path="ic-edit"/> :
+                                            <IconUrl path="ic-check"/>}
                                         variant="contained"
                                         sx={{".react-svg": {mr: 1}}}>
                                         {appointement?.status == 5

@@ -28,7 +28,6 @@ import {
 import {useTranslation} from "next-i18next";
 import {Dialog, PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
@@ -243,13 +242,13 @@ function Payment() {
         },
         {
             title: "leave_waiting_room",
-            icon: <Icon color={"white"} path="ic-salle"/>,
+            icon: <IconUrl color={"white"} path="ic-salle"/>,
             action: "onLeaveWaitingRoom",
         },
         {
             title: "see_patient_form",
             icon: (
-                <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
+                <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
             ),
             action: "onPatientDetail",
         },
@@ -774,9 +773,9 @@ function Payment() {
                             value={somme}
                             onChange={(ev) => {
                                 setSomme(Number(ev.target.value));
-                                collected -= freeTrans;
-                                collected += Number(ev.target.value);
-                                setCollected(collected);
+                                let updatedCollected = collected - freeTrans;
+                                updatedCollected = updatedCollected + Number(ev.target.value);
+                                setCollected(updatedCollected);
                                 setFreeTrans(Number(ev.target.value));
                             }}
                             InputProps={{
@@ -826,11 +825,11 @@ function Payment() {
                                     justifyContent="space-between"
                                     width={1}>
                                     <Stack spacing={0.5} direction="row" alignItems="center">
-                                        <Icon path="ic-agenda-jour"/>
+                                        <IconUrl path="ic-agenda-jour"/>
                                         <Typography fontWeight={600}>{col.date}</Typography>
                                     </Stack>
                                     <Stack spacing={0.5} direction="row" alignItems="center">
-                                        <Icon path="setting/ic-time"/>
+                                        <IconUrl path="setting/ic-time"/>
                                         <Typography fontWeight={600} className="date">
                                             {col.time}
                                         </Typography>
@@ -846,7 +845,7 @@ function Payment() {
                                                 direction="row"
                                                 alignItems="center"
                                                 spacing={1}>
-                                                <Icon path={type.icon}/>
+                                                <IconUrl path={type.icon}/>
                                                 <Typography color="text.primary" variant="body2">
                                                     {t("table." + type.name)}
                                                 </Typography>
@@ -903,7 +902,7 @@ function Payment() {
                 </DialogActions>
             </MuiDialog>
             <Button
-                startIcon={<Icon path="ic-filter"/>}
+                startIcon={<IconUrl path="ic-filter"/>}
                 variant="filter"
                 onClick={() => setFilter(true)}
                 sx={{

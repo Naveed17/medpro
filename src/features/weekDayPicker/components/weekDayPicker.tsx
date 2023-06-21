@@ -18,7 +18,7 @@ function WeekDayPicker({...props}) {
     const [daysOfYear, setDaysOfYear] = useState<Date[]>([]);
 
     const getMonths = () => {
-        Array.from(Array(12).keys()).map(index =>
+        Array.from(Array(12).keys()).forEach(index =>
             months.push(moment().set('month', index).format("MMMM")))
     }
 

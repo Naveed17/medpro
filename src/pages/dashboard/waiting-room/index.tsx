@@ -2,7 +2,6 @@ import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
 import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
-import Icon from "@themes/urlIcon";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -111,12 +110,12 @@ function WaitingRoom() {
         },
         {
             title: "leave_waiting_room",
-            icon: <Icon color={"white"} path="ic-salle"/>,
+            icon: <IconUrl color={"white"} path="ic-salle"/>,
             action: "onLeaveWaitingRoom",
         },
         {
             title: "see_patient_form",
-            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+            icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
             action: "onPatientDetail",
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -239,7 +238,6 @@ function WaitingRoom() {
                 startConsultation(row);
                 break;
             case "onPreConsultation":
-                setRow(row);
                 setOpenPreConsultationDialog(true);
                 break;
             case "onNextConsultation":
@@ -297,7 +295,7 @@ function WaitingRoom() {
                     process.env.NODE_ENV === 'development') {
                     setPopoverActions([{
                         title: "consultation_pay",
-                        icon: <Icon color={"white"} path="ic-fees"/>,
+                        icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
                     }, ...popoverActions])
                 }
@@ -339,7 +337,7 @@ function WaitingRoom() {
         if (roles && roles.includes('ROLE_SECRETARY')) {
             setPopoverActions([{
                 title: "leave_waiting_room",
-                icon: <Icon color={"white"} path="ic-salle"/>,
+                icon: <IconUrl color={"white"} path="ic-salle"/>,
                 action: "onLeaveWaitingRoom",
             }])
         }

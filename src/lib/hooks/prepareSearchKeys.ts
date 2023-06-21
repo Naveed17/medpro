@@ -3,9 +3,9 @@ import {ActionBarState} from "@features/leftActionBar";
 export const prepareSearchKeys = (filter: ActionBarState | undefined) => {
     let query = "";
     if (filter) {
-        Object.entries(filter).map((param, index) => {
+        Object.entries(filter).forEach((param, index) => {
             if (param[0] === "patient" && param[1]) {
-                Object.entries(param[1]).map(deepParam => {
+                Object.entries(param[1]).forEach(deepParam => {
                     if (deepParam[1]) {
                         query += `&${deepParam[0]}=${deepParam[1]}`;
                     }

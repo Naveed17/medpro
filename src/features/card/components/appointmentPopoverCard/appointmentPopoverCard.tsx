@@ -133,7 +133,7 @@ function AppointmentPopoverCard({...props}) {
                     <Avatar
                         src={patientPhoto
                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                            : (data?.patient.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                            : (data?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0

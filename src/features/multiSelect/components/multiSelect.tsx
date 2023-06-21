@@ -1,12 +1,12 @@
 import * as React from "react";
-import { Autocomplete, TextField, Chip } from "@mui/material";
+import {Autocomplete, TextField, Chip} from "@mui/material";
 
 function MultiSelect({...props}) {
     const {
         label = 'title',
         multiple = true,
         id,
-        freeSolo,
+        freeSolo = null,
         data,
         initData,
         placeholder,
@@ -25,7 +25,7 @@ function MultiSelect({...props}) {
         <Autocomplete
             {...rest}
             {...{filterOptions, onDragOver, onInputChange}}
-            {...(freeSolo && freeSolo)}
+            {...(freeSolo !== null && freeSolo)}
             multiple={multiple}
             id="tags-standard"
             options={data}
@@ -39,7 +39,7 @@ function MultiSelect({...props}) {
                 return option[label];
             }}
             isOptionEqualToValue={(option: any, value: any) => option[label] === value[label]}
-            onChange={(event, value) =>  onChange(event, value, id)}
+            onChange={(event, value) => onChange(event, value, id)}
             onDrop={(e) => onDrop(id, e)}
             renderInput={(params) => (
                 <TextField
@@ -56,11 +56,11 @@ function MultiSelect({...props}) {
                         variant="contained"
                         color="primary"
                         label={option[label]}
-                        {...getTagProps({ index })}
+                        {...getTagProps({index})}
                     />
                 ))
             }
-            sx={{ "& .MuiFormHelperText-root": { textAlign: "right" } }}
+            sx={{"& .MuiFormHelperText-root": {textAlign: "right"}}}
         />
     );
 }

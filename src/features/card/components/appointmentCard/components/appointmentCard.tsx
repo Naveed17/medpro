@@ -224,7 +224,7 @@ function AppointmentCard({...props}) {
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
                                 (data.type &&
-                                    data?.type.name !== "Contrôl" &&
+                                    data?.type.icon !== "ic-control" &&
                                     roles.includes("ROLE_SECRETARY"))) && (
                                 <ListItem>
                                     {editConsultation ? (

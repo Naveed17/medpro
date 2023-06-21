@@ -11,6 +11,7 @@ export const onAppointmentView = ({...props}) => {
             patient: patient,
             motif: inner.consultationReasons,
             instruction: inner.instruction,
+            reminder: inner.reminder ?? [],
             description: "",
             meeting: false,
             status: AppointmentStatus[inner.status]

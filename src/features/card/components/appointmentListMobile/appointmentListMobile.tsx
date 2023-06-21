@@ -2,7 +2,6 @@ import {Box, IconButton, Typography} from "@mui/material";
 import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
@@ -88,7 +87,7 @@ function AppointmentListMobile({...props}) {
                                 sx={{display: "block", ml: "auto"}}
                                 size="small"
                             >
-                                <Icon path="more-vert"/>
+                                <IconUrl path="more-vert"/>
                             </IconButton>
                         }
                     />

@@ -22,7 +22,7 @@ function ConsultationPopupAction({...props}) {
     const {data, OnSchedule} = props
 
     const {t, ready} = useTranslation("common");
-    const [instruction] = useState(`${data.control ? `Contrôle médical apres ${data.nextAppointment} jours \r\n`: ""} ${data.instruction}`);
+    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n`: ""}, ${data.instruction}`);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
