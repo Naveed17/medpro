@@ -19,7 +19,6 @@ function BeforeAfter({...props}) {
                                el1.style.width = `${sliderPos}%`;
                                el2.style.left = `calc(${sliderPos}% - 18px)`;
                            }
-                           console.log(e)
                        }
                        }
                        id="slider"/>

@@ -413,7 +413,6 @@ function ConsultationIPToolbar({...props}) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo(getPrescriptionUI());
-                console.log(prescription);
                 setState(prescription);
                 break;
             case "balance_sheet_request":
