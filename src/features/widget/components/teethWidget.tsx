@@ -186,7 +186,6 @@ export default function TeethWidget({...props}) {
                     `consultation-acts-${appuuid}`,
                     JSON.stringify([...selectedAct, ...teethActs])
                 );
-                console.log(localStorage.getItem( `consultation-acts-${appuuid}`))
                 setSelectedAct([...selectedAct, ...teethActs])
             }
         })
