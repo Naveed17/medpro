@@ -84,15 +84,6 @@ function Motif() {
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
     const reasonsMobile = isMobile ? ((httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[]) : [];
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                color={"error"}
-                button
-                text={"loading-error"}
-            />
-        );
-
     const headCells = [
         {
             id: "name",
@@ -202,6 +193,7 @@ function Motif() {
             setOpen(true);
         }
     };
+
     const removeReason = (uuid: any) => {
         setLoading(true);
         medicalEntityHasUser && trigger({
@@ -224,6 +216,7 @@ function Motif() {
             enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
         });
     };
+
     const handleScroll = () => {
         const total = (httpConsultReasonResponse as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
@@ -239,10 +232,9 @@ function Motif() {
             }
         }
     };
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
     useEffect(() => {
         // Add scroll listener
-
         let promise = new Promise((resolve) => {
             document.body.style.overflow = "hidden";
             setTimeout(() => {
@@ -254,9 +246,10 @@ function Motif() {
             setLoading(false);
             return (document.body.style.overflow = "visible");
         });
-
         return () => window.removeEventListener("scroll", handleScroll);
     }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

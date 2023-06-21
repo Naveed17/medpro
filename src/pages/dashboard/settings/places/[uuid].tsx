@@ -420,7 +420,7 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = row.contacts.length > 0 ? [] : [];
+            const cnts: any[] = [];
             row.contacts.forEach((contact: ContactModel) => {
                 cnts.push({
                     code: contact.code,

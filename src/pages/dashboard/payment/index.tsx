@@ -773,9 +773,9 @@ function Payment() {
                             value={somme}
                             onChange={(ev) => {
                                 setSomme(Number(ev.target.value));
-                                collected -= freeTrans;
-                                collected += Number(ev.target.value);
-                                setCollected(collected);
+                                let updatedCollected = collected - freeTrans;
+                                updatedCollected = updatedCollected + Number(ev.target.value);
+                                setCollected(updatedCollected);
                                 setFreeTrans(Number(ev.target.value));
                             }}
                             InputProps={{

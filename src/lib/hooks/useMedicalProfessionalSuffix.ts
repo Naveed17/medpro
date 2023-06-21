@@ -15,7 +15,7 @@ function useMedicalProfessionalSuffix() {
 
     return {
         urlMedicalProfessionalSuffix: medicalProfessional && `${UrlMedicalProfessionalSuffix}/${medicalProfessional.uuid}`,
-        medical_professional: medicalProfessional && medicalProfessional
+        medical_professional: medicalProfessional
     };
 }
 

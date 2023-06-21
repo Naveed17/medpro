@@ -238,7 +238,6 @@ function WaitingRoom() {
                 startConsultation(row);
                 break;
             case "onPreConsultation":
-                setRow(row);
                 setOpenPreConsultationDialog(true);
                 break;
             case "onNextConsultation":
