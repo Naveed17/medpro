@@ -6,7 +6,7 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
-    FormControlLabel,
+    FormControlLabel, IconButton,
     MenuItem,
     OutlinedInput,
     Paper,
@@ -24,6 +24,7 @@ import React, {useEffect, useState} from "react";
 import Draggable from "react-draggable";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
+import IconUrl from "@themes/urlIcon";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -181,6 +182,11 @@ export default function TeethWidget({...props}) {
                 const el = a[indexAct]
                 a.splice(indexAct, 1);
                 setActs([{...el, qte: 1}, ...a]);
+                localStorage.setItem(
+                    `consultation-acts-${appuuid}`,
+                    JSON.stringify([...selectedAct, ...teethActs])
+                );
+                console.log(localStorage.getItem( `consultation-acts-${appuuid}`))
                 setSelectedAct([...selectedAct, ...teethActs])
             }
         })
@@ -290,17 +296,27 @@ export default function TeethWidget({...props}) {
                                            setTraitements([...traitements])
                                            editStorage(traitements)
                                        }}></input>
-                                <div onClick={() => {
-                                    traitements[index].showPicker = !traitements[index].showPicker;
-                                    setTraitements([...traitements]);
-                                    editStorage(traitements)
-                                }}
-                                     style={{
-                                         background: traitement.color,
-                                         width: 18,
-                                         height: 18,
-                                         borderRadius: 7
-                                     }}></div>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                    <div onClick={() => {
+                                        traitements[index].showPicker = !traitements[index].showPicker;
+                                        setTraitements([...traitements]);
+                                        editStorage(traitements)
+                                    }}
+                                         style={{
+                                             background: traitement.color,
+                                             width: 18,
+                                             height: 18,
+                                             borderRadius: 7
+                                         }}></div>
+
+                                    <IconButton size="small" onClick={() => {
+                                        traitements.splice(index,1)
+                                        setTraitements([...traitements])
+                                        editStorage(traitements)
+                                    }}>
+                                        <IconUrl path="setting/icdelete"/>
+                                    </IconButton>
+                                </Stack>
                             </Stack>
 
                             {traitement.showPicker && <GithubPicker width={"130"}
