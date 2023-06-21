@@ -16,7 +16,6 @@ import {useAppointmentHistory} from "@lib/hooks/rest";
 function HistoryPanel({...props}) {
     const {
         patient,
-        mutate,
         closePatientDialog
     } = props;
 
@@ -65,8 +64,7 @@ function HistoryPanel({...props}) {
                 createdAt: card.createdAt,
                 name: 'certif',
                 detectedType: card.type,
-                type: 'write_certif',
-                mutate
+                type: 'write_certif'
             })
             setOpenDialog(true);
             setDialogAction(true);
@@ -99,8 +97,7 @@ function HistoryPanel({...props}) {
                 uuidDoc: uuidDoc,
                 appUuid: app?.appointment.uuid,
                 detectedType: card.type,
-                patient: patient.firstName + ' ' + patient.lastName,
-                mutate
+                patient: patient.firstName + ' ' + patient.lastName
             })
             setOpenDialog(true);
         }
@@ -165,7 +162,6 @@ function HistoryPanel({...props}) {
                                         setSelectedAppointment(app.appointment.uuid);
                                         showDoc(data, app);
                                     }),
-                                    mutate,
                                     patient,
                                     session,
                                     medical_entity,

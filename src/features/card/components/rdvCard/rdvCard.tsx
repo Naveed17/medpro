@@ -36,7 +36,7 @@ function RdvCard({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-
+    const status = AppointmentStatus[parseInt(inner?.status)];
 
     const handleClose = () => {
         setContextMenu(null);
@@ -76,7 +76,7 @@ function RdvCard({...props}) {
                                 padding={3} marginRight={5}/>
                             <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
                         </Stack>}
-                        {inner?.status && <Label
+                        {status && <Label
                             variant="filled"
                             sx={{
                                 "& .MuiSvgIcon-root": {
@@ -85,16 +85,16 @@ function RdvCard({...props}) {
                                     pl: 0,
                                 },
                             }}
-                            color={AppointmentStatus[inner?.status]?.classColor}>
-                            {AppointmentStatus[inner?.status]?.icon}
+                            color={status.classColor}>
+                            {status.icon}
                             <Typography
                                 sx={{
                                     fontSize: 10,
-                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(status.key)
                                         ? 0.5
                                         : 0,
                                 }}>
-                                {commonTranslation(`appointment-status.${AppointmentStatus[inner?.status]?.key}`)}
+                                {commonTranslation(`appointment-status.${status.key}`)}
                             </Typography>
                         </Label>}
                     </Stack>

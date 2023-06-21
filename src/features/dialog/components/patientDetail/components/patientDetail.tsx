@@ -155,15 +155,6 @@ function PatientDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {
-        data: httpPatientDocumentsResponse,
-        mutate: mutatePatientDocuments
-    } = useRequest(medicalEntityHasUser && patientId ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
-
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
@@ -236,7 +227,7 @@ function PatientDetail({...props}) {
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
-            mutatePatientDocuments();
+            mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
             setLoadingRequest(false);
         });
     }
@@ -259,7 +250,7 @@ function PatientDetail({...props}) {
                     },
                 }).then((result: any) => {
                     medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
-                    mutatePatientDocuments();
+                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
                     setOpenDialog(false);
                     setInfo("document_detail");
                     const res = result.data.data;
@@ -319,7 +310,7 @@ function PatientDetail({...props}) {
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
-    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
+
     const tabsContent = [
         {
             title: "tabs.personal-info",
@@ -338,7 +329,6 @@ function PatientDetail({...props}) {
             children: <HistoryPanel {...{
                 t,
                 patient,
-                mutate: mutatePatientDocuments,
                 closePatientDialog
             }} />,
             permission: ["ROLE_PROFESSIONAL"]
@@ -369,8 +359,6 @@ function PatientDetail({...props}) {
                     dispatch(setOpenUploadDialog(ev))
                 },
                 mutatePatientDetails,
-                mutatePatientDocuments,
-                patientDocuments,
                 loadingRequest,
                 setLoadingRequest
             }} />,
