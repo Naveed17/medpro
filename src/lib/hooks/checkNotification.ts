@@ -27,8 +27,10 @@ export const checkNotification = () => {
 // Safari only supports the old callback-based version
 const checkNotificationPromise = () => {
     try {
-        return Notification.requestPermission();
+        Notification.requestPermission().then();
     } catch (e) {
         return false;
     }
+
+    return true;
 }
