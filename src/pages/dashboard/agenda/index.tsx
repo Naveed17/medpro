@@ -54,10 +54,9 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
@@ -1256,7 +1255,7 @@ function Agenda() {
                                 color={moveDialogAction === "move" ? "warning" : "primary"}
                                 onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
                                     handleRescheduleAppointment(event as EventDef)}
-                                startIcon={<Icon path="iconfinder"></Icon>}
+                                startIcon={<IconUrl path="iconfinder"></IconUrl>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
@@ -1297,7 +1296,7 @@ function Agenda() {
                                 variant="contained"
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
-                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete"></IconUrl>}
                             >
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
@@ -1380,7 +1379,7 @@ function Agenda() {
                                 disabled={!moveDateChanged}
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
-                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="iconfinder"></IconUrl>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
