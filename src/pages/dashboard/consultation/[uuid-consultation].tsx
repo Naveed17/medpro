@@ -41,7 +41,6 @@ import {
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
@@ -485,7 +484,7 @@ function ConsultationInProgress() {
             let dates: string[] = [];
             let keys: string[] = [];
 
-            Object.keys(res).map(key => {
+            Object.keys(res).forEach(key => {
                 keys.push(key);
                 Object.keys(res[key].data).map(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);
@@ -1134,8 +1133,8 @@ function ConsultationInProgress() {
                                         }
                                         color={appointement?.status === 5 ? "warning" : "error"}
                                         className="btn-action"
-                                        startIcon={appointement?.status === 5 ? <Icon path="ic-edit"/> :
-                                            <Icon path="ic-check"/>}
+                                        startIcon={appointement?.status === 5 ? <IconUrl path="ic-edit"/> :
+                                            <IconUrl path="ic-check"/>}
                                         variant="contained"
                                         sx={{".react-svg": {mr: 1}}}>
                                         {appointement?.status == 5

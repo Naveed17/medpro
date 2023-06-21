@@ -195,7 +195,7 @@ function Consultation() {
                     allergicBadge = res['allergic']?.length;
 
                 let nb = 0;
-                Object.keys(res).map(ant => {
+                Object.keys(res).forEach(ant => {
                     if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic") {
                         nb += res[ant].length;
                     }

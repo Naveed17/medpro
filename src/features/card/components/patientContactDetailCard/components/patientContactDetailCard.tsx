@@ -23,7 +23,6 @@ import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
-
 import IconUrl from "@themes/urlIcon";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -37,7 +36,6 @@ import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import Icon from "@themes/urlIcon";
 import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -763,7 +761,7 @@ function PatientContactDetailCard({...props}) {
                                                                         },
                                                                     }}
                                                                 >
-                                                                    <Icon path="ic-plus"/>
+                                                                    <IconUrl path="ic-plus"/>
                                                                 </IconButton>
                                                             </> : (editable && <IconButton
                                                                 onClick={() => handleRemovePhone(index)}
@@ -780,7 +778,7 @@ function PatientContactDetailCard({...props}) {
                                                                     },
                                                                 }}
                                                             >
-                                                                <Icon path="ic-moin"/>
+                                                                <IconUrl path="ic-moin"/>
                                                             </IconButton>)}
                                                         </Stack>
                                                     </Grid>

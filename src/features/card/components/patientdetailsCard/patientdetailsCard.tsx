@@ -15,9 +15,7 @@ import {
 // styled
 import {RootStyled} from "./overrides";
 // utils
-import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import UrlIcon from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 
@@ -209,7 +207,7 @@ function PatientDetailsCard({...props}) {
                                             className={"date-birth"}
                                             direction={isMobile ? "column" : "row"} alignItems="center">
                                             <Stack direction={"row"} alignItems="center">
-                                                <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
+                                                <IconUrl width={"13"} height={"14"} path="ic-anniverssaire"/>
                                                 <Box
                                                     sx={{
                                                         input: {
@@ -271,7 +269,7 @@ function PatientDetailsCard({...props}) {
                                                 <Skeleton variant="text" width={100}/>
                                             ) : patient?.email && (
                                                 <>
-                                                    <Icon path="ic-message-contour"/>
+                                                    <IconUrl path="ic-message-contour"/>
                                                     <Typography {...(!patient?.email && {color: "primary"})}
                                                                 variant={"body2"}>{patient?.email}</Typography>
                                                 </>
@@ -289,7 +287,7 @@ function PatientDetailsCard({...props}) {
                                         readOnly
                                         startAdornment={
                                             <Stack direction={"row"}>
-                                                <UrlIcon width={15} height={15} color={"gray"} path="ic-docotor"/>
+                                                <IconUrl width={15} height={15} color={"gray"} path="ic-docotor"/>
                                                 <Typography sx={{width: 150, color: "gray"}}
                                                             variant={"body2"}>{t("family_doctor")}{":"}</Typography>
                                             </Stack>}

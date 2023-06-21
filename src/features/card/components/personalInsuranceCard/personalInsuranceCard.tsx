@@ -22,7 +22,6 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
@@ -471,7 +470,7 @@ function PersonalInsuranceCard({...props}) {
                                         }}
                                         disabled={!!errors?.insurances || values.insurances.filter((insur: InsurancesModel) => !insur.online).length === 0}
                                         variant="contained"
-                                        startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                        startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                         {t("config.add-patient.register")}
                                     </LoadingButton>
                                 </Stack>
