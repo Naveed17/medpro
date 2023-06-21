@@ -1095,7 +1095,6 @@ function ConsultationInProgress() {
                                             <Stack
                                                 direction="row"
                                                 alignItems="center"
-                                                display={{xs: "none", md: "block"}}
                                                 spacing={2}>
                                                 <span>|</span>
                                                 <Button
