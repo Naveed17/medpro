@@ -125,7 +125,7 @@ function ActFees() {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
-    const {data: httpProfessionalsActs, mutate} = useRequest({
+    const {data: httpProfessionalsActs, mutate} = useRequest(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
             !isMobile
@@ -133,7 +133,7 @@ function ActFees() {
                 : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
 
     useEffect(() => {
@@ -304,7 +304,7 @@ function ActFees() {
             }
         }
     };
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
