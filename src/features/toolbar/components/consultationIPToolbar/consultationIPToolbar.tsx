@@ -591,7 +591,7 @@ function ConsultationIPToolbar({...props}) {
                             <Avatar
                                 src={patientPhoto
                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                    : (patient?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                    : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                 sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
                                 <IconUrl width={"40"} height={"40"} path="men-avatar"/>
                             </Avatar>
