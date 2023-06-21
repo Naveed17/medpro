@@ -30,7 +30,7 @@ function useDateConverture(min: number, max: number) {
 
     } while (min <= max)
 
-    minutes.map((minute: number) => {
+    minutes.forEach((minute: number) => {
         const dates = Object.values(((moment.duration(minute, "minutes") as any)._data));
         const index = dates.reverse().findIndex((date) => date !== 0);
         convertDate.current = [...convertDate.current, {

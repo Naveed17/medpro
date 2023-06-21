@@ -484,7 +484,7 @@ function ConsultationInProgress() {
             let dates: string[] = [];
             let keys: string[] = [];
 
-            Object.keys(res).map(key => {
+            Object.keys(res).forEach(key => {
                 keys.push(key);
                 Object.keys(res[key].data).map(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);

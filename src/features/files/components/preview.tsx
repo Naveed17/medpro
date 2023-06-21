@@ -58,7 +58,7 @@ function PreviewDialog({...props}) {
                 if (state) {
                     switch (state.type) {
                         case "prescription":
-                            prescriptionRows.map((pr) => {
+                            prescriptionRows.forEach((pr) => {
                                 const elx = document.createElement('p');
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                                 let val = ""
