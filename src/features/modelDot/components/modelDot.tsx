@@ -11,7 +11,7 @@ function ModelDot({...DotProps}) {
         sizedot = 20,
         padding = 5,
         marginRight = 0,
-        icon,
+        icon = null,
         ...rest
     } = DotProps;
     return (
@@ -56,7 +56,7 @@ function ModelDot({...DotProps}) {
                     order: 0,
                     flexGrow: 0,
                 }}>
-                {icon && icon}
+                {icon !== null && icon}
             </Stack>
         </div>
     );
