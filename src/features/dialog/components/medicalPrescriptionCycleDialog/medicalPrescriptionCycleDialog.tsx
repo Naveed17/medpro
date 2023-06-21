@@ -965,7 +965,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             >
                                                                                 {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
                                                                             </Typography>
-                                                                            {cycle.note.length > 0 && `(${cycle.note})`}
+                                                                            {cycle.note?.length > 0 && `(${cycle.note})`}
                                                                         </span>
                                                                         {(indexCycle < (drug.cycles.length - 1) &&
                                                                                 !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] ||
