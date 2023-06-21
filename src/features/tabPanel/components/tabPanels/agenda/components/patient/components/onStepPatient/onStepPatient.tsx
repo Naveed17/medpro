@@ -254,7 +254,7 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
+                        code: insurance.insuredPerson && insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
                         value: insurance.insuredPerson && insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: contacts.length > 0 && contacts[0].uuid,
