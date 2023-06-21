@@ -84,7 +84,7 @@ function TemplatesConfig() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpAnalysesResponse, mutate:mutateAnalyses} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpAnalysesResponse, mutate: mutateAnalyses} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -120,7 +120,7 @@ function TemplatesConfig() {
             });
         })
     }
-    const removePrescription = (uuid:string) => {
+    const removePrescription = (uuid: string) => {
         trigger({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${uuid}/${router.locale}`,
@@ -134,7 +134,7 @@ function TemplatesConfig() {
             });
         })
     }
-    const removeAnalyses = (uuid:string) => {
+    const removeAnalyses = (uuid: string) => {
         trigger({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${uuid}/${router.locale}`,
@@ -185,10 +185,10 @@ function TemplatesConfig() {
         if (httpPrescriptionResponse) {
             let _prescriptions: any[] = [];
             const modelPrescrition = (httpPrescriptionResponse as HttpResponse)?.data as PrescriptionParentModel[];
-            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).map(p => {
-                p.prescriptionModels.map(pm => {
+            modelPrescrition.filter(mp => mp.prescriptionModels.length > 0).forEach(p => {
+                p.prescriptionModels.forEach(pm => {
                     let _pmhd: any[] = []
-                    pm.prescriptionModalHasDrugs.map((pmhd: any) => {
+                    pm.prescriptionModalHasDrugs.forEach((pmhd: any) => {
                         _pmhd.push({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}})
                     })
                     _prescriptions.push({
@@ -203,12 +203,12 @@ function TemplatesConfig() {
     }, [httpPrescriptionResponse])
 
     useEffect(() => {
-        const res: any[] =  [];
+        const res: any[] = [];
         if (httpAnalysesResponse) {
             const _analysis = (httpAnalysesResponse as HttpResponse)?.data as AnalysisModelModel[]
-            _analysis.map(r => {
-                const info = r.analyses.map((ra) => ({analysis:ra,note:''} ))
-                res.push({uuid:r.uuid,name:r.name,info})
+            _analysis.forEach(r => {
+                const info = r.analyses.map((ra) => ({analysis: ra, note: ''}))
+                res.push({uuid: r.uuid, name: r.name, info})
             });
             setAnalysis(res);
         }
