@@ -64,11 +64,11 @@ function AppointmentCard({...props}) {
     const [instruction, setInstruction] = useState(data.instruction);
     const [reminder, setReminder] = useState({
         init: true,
-        smsLang: data.reminder.length > 0 ? data.reminder[0].reminderLanguage : "fr",
-        rappel: data.reminder.length > 0 ? data.reminder[0].numberOfDay : "1",
-        rappelType: data.reminder.length > 0 ? data.reminder[0].type : "2",
-        smsRappel: data.reminder.length > 0,
-        timeRappel: (data.reminder.length > 0 ? moment(`${data.reminder[0].date} ${data.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
+        smsLang: data.reminder?.length > 0 ? data.reminder[0].reminderLanguage : "fr",
+        rappel: data.reminder?.length > 0 ? data.reminder[0].numberOfDay : "1",
+        rappelType: data.reminder?.length > 0 ? data.reminder[0].type : "2",
+        smsRappel: data.reminder?.length > 0,
+        timeRappel: (data.reminder?.length > 0 ? moment(`${data.reminder[0].date} ${data.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
     });
 
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
