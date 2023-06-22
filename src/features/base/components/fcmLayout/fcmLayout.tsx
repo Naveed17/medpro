@@ -243,7 +243,7 @@ function FcmLayout({...props}) {
                 },
             }).catch(() => {
                 setRefreshToken(topicName, fcm_api_key);
-                console.error(`Can't subscribe to ${topicName} topic`);
+                console.log(`Can't subscribe to ${topicName} topic`);
             });
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
