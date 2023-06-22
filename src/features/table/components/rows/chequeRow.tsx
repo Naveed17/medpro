@@ -43,7 +43,6 @@ function ChequeRow({...props}) {
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
-                key={Math.random()}
                 selected={isItemSelected}
                 className="payment-row"
                 sx={{

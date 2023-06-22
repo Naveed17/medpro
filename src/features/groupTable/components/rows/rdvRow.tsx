@@ -107,7 +107,7 @@ function RDVRow({...props}) {
             </TableRow>}
             {(loading ? Array.from(new Array(3)) : patient.nextAppointments).map(
                 (data: PatientDetailsRDV) => (
-                    <React.Fragment key={Math.random()}>
+                    <React.Fragment key={patient.uuid}>
                         {matches ? (
                             <RDVCard
                                 inner={data}
@@ -136,8 +136,8 @@ function RDVRow({...props}) {
                 </TableCell>
             </TableRow>}
             {(loading ? Array.from(new Array(1)) : previousAppointments).map(
-                (data: any) => (
-                    <React.Fragment key={Math.random()}>
+                (data: any, index: number) => (
+                    <React.Fragment key={index.toString()}>
                         <TableRow>
                             <TableCell className="text-row">
                                 <Typography variant="body1" color="text.primary">
@@ -150,8 +150,8 @@ function RDVRow({...props}) {
                             </TableCell>
                         </TableRow>
                         {(loading ? Array.from(new Array(4)) : data?.data).map(
-                            (inner: any) => (
-                                <React.Fragment key={Math.random()}>
+                            (inner: any, index: number) => (
+                                <React.Fragment key={index.toString()}>
                                     {matches ? (
                                         <RDVPreviousCard
                                             inner={inner}

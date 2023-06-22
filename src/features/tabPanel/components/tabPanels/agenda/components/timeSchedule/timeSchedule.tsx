@@ -534,7 +534,7 @@ function TimeSchedule({...props}) {
                                             <DeleteIcon color={"error"}/>
                                         </IconButton>
                                     }
-                                    key={Math.random()} item={recurringDate} size="small"/>
+                                    key={index.toString()} item={recurringDate} size="small"/>
                             ))}
                             {!moreDate &&
                                 <Button
