@@ -48,11 +48,11 @@ const firebaseCloudSdk = {
                     return {token: fcm_token, analytics};
                 }
             } else {
-                console.error("requestPermission", status);
+                console.log("requestPermission", status);
                 return {token: null, analytics: null};
             }
         } catch (error) {
-            console.error("firebaseCloudMessaging", error);
+            console.log("firebaseCloudMessaging", error);
             return {token: null, analytics: null};
         }
     },

@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import React, {ChangeEvent, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Box} from "@mui/material";
@@ -57,11 +57,8 @@ function Patient({...props}) {
         }
     }
 
-    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const search = event.target.value;
-        if (search.length >= 3) {
-            setQuery(search);
-        }
+    const handleSearchChange = (search: string) => {
+        setQuery(search);
     }
 
     const onNextStep = () => {

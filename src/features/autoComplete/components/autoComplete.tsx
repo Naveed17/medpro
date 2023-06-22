@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import MenuList from "@mui/material/MenuList";
 import {Button, Divider, IconButton, InputBase, LinearProgress, Paper, Theme, useMediaQuery} from "@mui/material";
 import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
+import {debounce} from "lodash";
 
 function AutoComplete({...props}) {
     const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;
@@ -12,6 +13,10 @@ function AutoComplete({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const [focus, setFocus] = useState(true);
+
+    const onChangeInput = useCallback((value: string) => {
+        onSearchChange(value);
+    }, [onSearchChange]);
 
     const handleListItemClick = ({...props}) => {
         onSelectData(props);
@@ -22,6 +27,8 @@ function AutoComplete({...props}) {
             setFocus(false);
         }
     };
+
+    const debouncedOnChange = debounce(onChangeInput, 1000);
 
     return (
         <RootStyled>
@@ -35,7 +42,10 @@ function AutoComplete({...props}) {
                     autoFocus
                     onFocus={() => setFocus(true)}
                     onKeyDown={onKeyDown}
-                    onChange={onSearchChange}
+                    onChange={event => {
+                        event.stopPropagation();
+                        debouncedOnChange(event.target.value);
+                    }}
                     inputProps={{'aria-label': 'Chercher un patient'}}
                 />
                 <Divider sx={{height: 28, m: 0.5}} orientation="vertical"/>

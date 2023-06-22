@@ -34,7 +34,7 @@ function CropImage({...props}) {
 
             handleClose();
         } catch (e) {
-            console.error(e);
+            console.log(e);
         }
     }, [croppedAreaPixels, rotation]); // eslint-disable-line react-hooks/exhaustive-deps
 

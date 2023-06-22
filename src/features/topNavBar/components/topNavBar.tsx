@@ -300,11 +300,11 @@ function TopNavBar({...props}) {
                                     if (document.fullscreenElement) {
                                         document
                                             .exitFullscreen()
-                                            .catch((err) => console.error(err));
+                                            .catch((err) => console.log(err));
                                     } else {
                                         document.documentElement
                                             .requestFullscreen()
-                                            .catch((err) => console.error(err));
+                                            .catch((err) => console.log(err));
                                     }
                                 }}
                                 color="primary"

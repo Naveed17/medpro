@@ -99,7 +99,7 @@ function ConsultationIPToolbar({...props}) {
         recorder.start().then(() => {
             dispatch(SetRecord(true))
         }).catch((e: any) => {
-            console.error(e);
+            console.log(e);
         });
     }
 
