@@ -195,7 +195,7 @@ function Agenda() {
         return true;
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
+    const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
         if (query.includes("format=list")) {
             dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
@@ -243,7 +243,7 @@ function Agenda() {
             }
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
@@ -305,7 +305,7 @@ function Agenda() {
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
         }
-    }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         // dispatch(resetFilterPatient());
@@ -891,13 +891,13 @@ function Agenda() {
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
+            setLoading(false);
             if (value?.data.status === 'success') {
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setQuickAddAppointment(false);
                 refreshData();
             }
-            setLoading(false);
         });
     }
 
@@ -915,7 +915,7 @@ function Agenda() {
         }
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
@@ -1296,7 +1296,8 @@ function Agenda() {
                                 variant="contained"
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
-                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete"></IconUrl>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                    path="icdelete"></IconUrl>}
                             >
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
@@ -1379,7 +1380,8 @@ function Agenda() {
                                 disabled={!moveDateChanged}
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
-                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="iconfinder"></IconUrl>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                    path="iconfinder"></IconUrl>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
