@@ -27,7 +27,7 @@ import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlin
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
-import {Dialog, QrCodeDialog, setMoveDateTime} from "@features/dialog";
+import {Dialog, openDrawer as DialogOpenDrawer, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
@@ -46,6 +46,7 @@ function AppointmentDetail({...props}) {
         OnConfirmAppointment,
         OnDataUpdated = null,
         patientId = null,
+        from = null,
         OnPatientNoShow,
         OnWaiting,
         OnLeaveWaiting,
@@ -99,7 +100,7 @@ function AppointmentDetail({...props}) {
         }
     }, [appointment]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -111,9 +112,13 @@ function AppointmentDetail({...props}) {
                             disableRipple
                             size="medium"
                             edge="end"
-                            onClick={() =>
-                                dispatch(openDrawer({type: "view", open: false}))
-                            }>
+                            onClick={() => {
+                                if (from === "HistoryTab") {
+                                    dispatch(DialogOpenDrawer(false));
+                                } else {
+                                    dispatch(openDrawer({type: "view", open: false}));
+                                }
+                            }}>
                             <Icon path="ic-x"/>
                         </IconButton>
                     </Stack>
