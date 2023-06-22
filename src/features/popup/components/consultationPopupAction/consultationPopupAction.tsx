@@ -24,7 +24,7 @@ function ConsultationPopupAction({...props}) {
     const {t, ready} = useTranslation("common");
     const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n`: ""}, ${data.instruction}`);
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <ConsultationPopupActionStyled>

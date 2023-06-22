@@ -88,7 +88,7 @@ function CalendarToolbar({...props}) {
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
     }, [pendingAppointments])
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <RootStyled {...props}>

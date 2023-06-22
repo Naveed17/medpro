@@ -204,7 +204,7 @@ function DocsConfig() {
         }
     }, [httpData, setFieldValue])
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>

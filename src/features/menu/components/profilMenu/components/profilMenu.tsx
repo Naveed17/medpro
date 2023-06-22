@@ -59,7 +59,7 @@ function ProfilMenu() {
 
     const {trigger} = useRequestMutation(null, "/settings");
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));

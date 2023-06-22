@@ -15,7 +15,7 @@ function Settings() {
     if (!isMobile) {
         return <Redirect to='/dashboard/settings/profil'/>
     }
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <Box className="container">
