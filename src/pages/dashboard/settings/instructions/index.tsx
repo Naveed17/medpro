@@ -57,7 +57,7 @@ function Instructions() {
     const {t, ready} = useTranslation("settings", {
         keyPrefix: "instructions.config",
     });
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     const closeDraw = () => {
         setEdit(false);

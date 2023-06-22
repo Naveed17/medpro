@@ -163,7 +163,7 @@ function Acts() {
         setItems(val.slice(0, 10));
     };
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>

@@ -5,7 +5,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function Footer() {
     const { t, ready } = useTranslation('common');
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
   return (
       <footer className={styles.footer}>

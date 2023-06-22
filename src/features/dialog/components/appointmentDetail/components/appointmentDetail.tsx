@@ -99,7 +99,7 @@ function AppointmentDetail({...props}) {
         }
     }, [appointment]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <RootStyled>

@@ -324,7 +324,7 @@ function ActFees() {
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>

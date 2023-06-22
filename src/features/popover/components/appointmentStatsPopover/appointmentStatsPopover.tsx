@@ -7,7 +7,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 function AppointmentStatsPopover() {
     const theme = useTheme();
     const {t, ready} = useTranslation('common');
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <List

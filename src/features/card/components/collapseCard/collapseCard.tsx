@@ -21,7 +21,7 @@ export default function ConsultationProgressCard({ ...props }) {
             setOffsetTop(0);
         }
     }, []);
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
 
 

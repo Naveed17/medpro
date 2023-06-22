@@ -62,7 +62,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
