@@ -135,9 +135,9 @@ function RDVRow({...props}) {
                     </Typography>
                 </TableCell>
             </TableRow>}
-            {(loading ? Array.from(new Array(1)) : previousAppointments, number).map(
-                (data: any) => (
-                    <React.Fragment key={number.toString()}>
+            {(loading ? Array.from(new Array(1)) : previousAppointments).map(
+                (data: any, index: number) => (
+                    <React.Fragment key={index.toString()}>
                         <TableRow>
                             <TableCell className="text-row">
                                 <Typography variant="body1" color="text.primary">
@@ -149,9 +149,9 @@ function RDVRow({...props}) {
                                 </Typography>
                             </TableCell>
                         </TableRow>
-                        {(loading ? Array.from(new Array(4)) : data?.data, number).map(
-                            (inner: any) => (
-                                <React.Fragment key={number.toString()}>
+                        {(loading ? Array.from(new Array(4)) : data?.data).map(
+                            (inner: any, index: number) => (
+                                <React.Fragment key={index.toString()}>
                                     {matches ? (
                                         <RDVPreviousCard
                                             inner={inner}
