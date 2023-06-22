@@ -74,9 +74,9 @@ function WeekDayPicker({...props}) {
                 </Box>
                 <Divider/>
                 <Box className="week-days">
-                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v) => (
+                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v, index) => (
                         <Box
-                            key={Math.random()}
+                            key={index.toString()}
                             sx={{
                                 bgcolor: date.getTime() === v.getTime() ? "warning.main" : "",
                                 "&:hover": {

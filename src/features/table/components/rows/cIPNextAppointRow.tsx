@@ -4,10 +4,7 @@ import {CipNextAppointCard} from "@features/card";
 
 function CIPNextAppointRow({...props}) {
     return (
-        <TableRowStyled
-            hover
-            key={Math.random()}
-        >
+        <TableRowStyled hover>
             <TableCell align="left" colSpan={7}>
                 <CipNextAppointCard {...props} />
             </TableCell>

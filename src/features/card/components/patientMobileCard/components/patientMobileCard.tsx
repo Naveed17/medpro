@@ -37,7 +37,7 @@ const CardSection = ({...props}) => {
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
 
     return (
-        <Paper key={Math.random()} className="card-main">
+        <Paper className="card-main">
             <Grid container>
                 <Grid item xs={12} onClick={() => onOpenPatientDetails(data)}>
                     {loading ? (

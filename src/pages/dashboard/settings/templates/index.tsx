@@ -40,9 +40,13 @@ function TemplatesConfig() {
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const dispatch = useAppDispatch();
+    const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {t: tConsultation} = useTranslation("consultation");
+    const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState(true);
     const [docs, setDocs] = useState<DocTemplateModel[]>([]);
@@ -54,16 +58,10 @@ function TemplatesConfig() {
     const [prescriptions, setPrescriptions] = useState<PrescriptionParentModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>([]);
     const [action, setAction] = useState("");
-
     const [info, setInfo] = useState<null | string>("");
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>([]);
 
-    const dispatch = useAppDispatch();
-
-    const theme = useTheme();
-    const {direction} = useAppSelector(configSelector);
-    const {enqueueSnackbar} = useSnackbar();
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
@@ -434,12 +432,6 @@ function TemplatesConfig() {
                                         }}>
                                             <IconUrl path="setting/ic-voir"/>
                                         </IconButton>
-                                        {/* <IconButton size="small" onClick={() => {
-                                                editDoc(res)
-                                            }}>
-                                                <IconUrl path="setting/edit"/>
-                                            </IconButton>
-                                            */}
 
                                         <IconButton size="small" onClick={() => {
                                             removePrescription(card.uuid);
@@ -667,7 +659,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
             "common",
             "menu",
             "consultation",
-            "patient",
             "settings",
         ])),
     },
