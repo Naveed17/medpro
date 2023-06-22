@@ -28,7 +28,7 @@ function SurgicalHistoryDialog() {
         })
     };
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <SurgicalHistoryDialogStyled display='block'>
             <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">

@@ -17,7 +17,7 @@ function RoomToolbar({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'subheader'});
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <Stack direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">

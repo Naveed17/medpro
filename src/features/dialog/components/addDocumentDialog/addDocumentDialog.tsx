@@ -88,7 +88,7 @@ function AddDocumentDialog({...props}) {
     }
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>
