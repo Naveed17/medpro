@@ -36,6 +36,7 @@ import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useSWRConfig} from "swr";
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
@@ -49,7 +50,10 @@ function PatientDetailsCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
-            picture: {url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""), file: ""},
+            picture: {
+                url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
+                file: ""
+            },
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
@@ -58,6 +62,7 @@ function PatientDetailsCard({...props}) {
         },
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
@@ -113,7 +118,7 @@ function PatientDetailsCard({...props}) {
                 setRequestLoading(false);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
-
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
                 if (appointment) {
                     const event = {
                         ...appointment,
@@ -128,7 +133,7 @@ function PatientDetailsCard({...props}) {
         }
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
