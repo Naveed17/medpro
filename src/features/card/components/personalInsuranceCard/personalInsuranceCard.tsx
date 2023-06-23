@@ -155,7 +155,7 @@ function PersonalInsuranceCard({...props}) {
                     birthday: insurance.insuredPerson.birthday,
                     phone: {
                         code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                        value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: patient.contact[0].uuid,
                         is_public: false,

@@ -60,7 +60,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -186,11 +186,18 @@ function RdvCard({...props}) {
             >
                 <MenuItem
                     className="popover-item"
-                    onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView({
-                        dispatch,
-                        patient,
-                        inner
-                    })}>
+                    onClick={() => {
+                        if (inner?.status === 5) {
+                            onConsultationView(inner?.uuid)
+                        } else {
+                            handleClose();
+                            onAppointmentView({
+                                dispatch,
+                                patient,
+                                inner
+                            })
+                        }
+                    }}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
                     </Typography>
