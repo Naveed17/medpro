@@ -48,6 +48,7 @@ import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import {LoadingButton} from "@mui/lab";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -255,7 +256,7 @@ function OnStepPatient({...props}) {
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
                         code: insurance.insuredPerson && insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson && insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                        value: insurance.insuredPerson && insurance.insuredPerson.contact?.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
                         contact_type: contacts.length > 0 && contacts[0].uuid,
                         is_public: false,
@@ -275,6 +276,7 @@ function OnStepPatient({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             if (OnSubmit) {
+                setLoading(true);
                 OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
         },
@@ -289,6 +291,7 @@ function OnStepPatient({...props}) {
         grouped: commonTranslation(`social_insured.${Insured.grouped}`),
         label: commonTranslation(`social_insured.${Insured.label}`)
     })));
+    const [loading, setLoading] = useState<boolean>(false);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -370,7 +373,7 @@ function OnStepPatient({...props}) {
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -1226,9 +1229,11 @@ function OnStepPatient({...props}) {
                     >
                         {t("cancel")}
                     </Button>
-                    <Button variant="contained" type="submit" color="primary">
+                    <LoadingButton
+                        {...{loading}}
+                        variant="contained" type="submit" color="primary">
                         {t("next")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </Stack>
         </FormikProvider>
