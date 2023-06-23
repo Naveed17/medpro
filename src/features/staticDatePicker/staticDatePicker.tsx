@@ -4,10 +4,8 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticDatePicker as DatePicker} from '@mui/x-date-pickers';
 // styles
 import { RootStyled } from "./overrides";
-
 // redux
 import { useAppSelector } from "@lib/redux/hooks";
-
 // __________
 import { configSelector } from "@features/base";
 import { LocaleFnsProvider } from "@lib/localization";
