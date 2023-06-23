@@ -191,8 +191,9 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
-        const newDateFormat = moment.utc(date?.toString()).format("DD-MM-YYYY");
-        const newDate = moment(`${newDateFormat} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
+        const newDateFormat = date?.toLocaleDateString('en-GB');
+        const newDate = moment(`${newDateFormat} ${newTime}`, "DD/MM/YYYY HH:mm").toDate();
+
         dispatch(setAppointmentDate(newDate));
         const updatedRecurringDates = [{
             id: `${newDateFormat}--${newTime}`,
