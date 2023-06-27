@@ -80,10 +80,9 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                     <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
                                 </Head>
                                 <AnimatePresence
-                                    exitBeforeEnter
+                                    mode='wait'
                                     initial={false}
-                                    onExitComplete={() => window.scrollTo(0, 0)}
-                                >
+                                    onExitComplete={() => window.scrollTo(0, 0)}>
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>

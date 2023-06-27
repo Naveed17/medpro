@@ -24,7 +24,7 @@ instanceAxios.interceptors.response.use((response) => response, (error) => {
     // const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     // whatever you want to do with the error
     // enqueueSnackbar('Oups, une erreur s’est produite. Veuillez réessayer plus tard', { variant: "error" });
-    switch (error.response.data?.code) {
+    switch (error.response?.data?.code) {
         case 4000:
             console.log("fin session");
             signIn('keycloak', {

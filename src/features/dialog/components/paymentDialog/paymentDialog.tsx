@@ -272,7 +272,7 @@ function PaymentDialog({...props}) {
                         />
                     )}
                 </FormGroup>
-                <AnimatePresence exitBeforeEnter>
+                <AnimatePresence mode='wait'>
                     {(() => {
                         switch (values.selected) {
                             case 'cash':
@@ -487,7 +487,7 @@ function PaymentDialog({...props}) {
                         }
                     })()}
                 </AnimatePresence>
-                <AnimatePresence exitBeforeEnter>
+                <AnimatePresence mode='wait'>
                     {payments.length > 0 &&
                         <Box mt={4}>
                             <DesktopContainer>

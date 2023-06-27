@@ -190,11 +190,11 @@ function AddPatientStep1({...props}) {
     };
 
     const checkFicheID = () => {
-        trigger(medicalEntityHasUser ?{
+        trigger(medicalEntityHasUser ? {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }:null).then((res:any) => {
+        } : null).then((res: any) => {
             setDuplicatedFiche(res.data.data.length > 0)
         })
     }
@@ -392,9 +392,9 @@ function AddPatientStep1({...props}) {
                                     />
                                 </Box>
                                 {(duplicatedFiche && (
-                                <FormHelperText error sx={{px: 2, mx: 0}}>
-                                    {t('duplicatedFileID')}
-                                </FormHelperText>
+                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                        {t('duplicatedFileID')}
+                                    </FormHelperText>
                                 ))}
                             </Box>
                         </>
