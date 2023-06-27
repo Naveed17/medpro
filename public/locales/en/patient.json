@@ -197,6 +197,8 @@
       "assurance-type-error": "Please select the insurance",
       "email": "Email",
       "email-placeholder": "Add email address",
+      "old": "Age",
+      "old-placeholder": "Add Age",
       "cin": "ID Card",
       "cin-placeholder": "Patient's ID Card",
       "profession": "Profession",
