@@ -2,6 +2,7 @@ import useSWR, {SWRConfiguration, SWRResponse} from "swr";
 import {AxiosResponse, AxiosError} from "axios";
 import {instanceAxios} from "../axios";
 import {GetRequest} from "../axios/config";
+import {Fetcher} from "swr/_internal";
 
 interface Return<Data, Error>
     extends Pick<
@@ -14,16 +15,16 @@ interface Return<Data, Error>
 
 export interface Config<Data = unknown, Error = unknown>
     extends Omit<
-        SWRConfiguration<AxiosResponse<Data>, AxiosError<Error>>,
+        SWRConfiguration<Data, Error, Fetcher<Data, any>> | undefined,
         "fallbackData"
     > {
-    fallbackData?: Data;
+    fallbackData?: Data | undefined;
 }
 
-function useRequest<Data = unknown, Error = unknown>(
-    request: GetRequest,
-    {fallbackData, ...config}: Config<Data, Error> = {}
-): Return<Data, Error> {
+function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
+    fallbackData,
+    ...config
+}: any = {}): Return<Data, Error> {
     const {
         data: response,
         error,
@@ -32,10 +33,6 @@ function useRequest<Data = unknown, Error = unknown>(
         mutate,
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && request.url,
-        /**
-         * NOTE: Typescript thinks `request` can be `null` here, but the fetcher
-         * function is actually only called by `useSWR` when it isn't.
-         */
         () => instanceAxios.request<Data>(request!),
         {
             ...config,
@@ -45,7 +42,7 @@ function useRequest<Data = unknown, Error = unknown>(
                 config: request!,
                 headers: {},
                 data: fallbackData,
-            },
+            }
         }
     );
 

@@ -25,7 +25,6 @@ import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
-
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
@@ -937,7 +936,7 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -967,7 +966,7 @@ function Agenda() {
                 }} color="warning"/>
                 <>
                     {agenda &&
-                        <AnimatePresence exitBeforeEnter>
+                        <AnimatePresence mode='wait'>
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}

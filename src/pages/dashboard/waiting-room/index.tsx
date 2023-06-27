@@ -343,7 +343,7 @@ function WaitingRoom() {
         }
     }, [roles]);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -356,7 +356,7 @@ function WaitingRoom() {
                 <RoomToolbar/>
 
                 {error &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
