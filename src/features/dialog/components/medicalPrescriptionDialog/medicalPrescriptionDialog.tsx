@@ -297,8 +297,7 @@ function MedicalPrescriptionDialog({...props}) {
                                         }}
                                         MenuListProps={{
                                             'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
+                                        }}>
                                         {
                                             lastPrescriptions.length > 0 &&
                                             <MenuItem sx={{color: theme => theme.palette.grey[0]}}
