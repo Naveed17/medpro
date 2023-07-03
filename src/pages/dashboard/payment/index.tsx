@@ -452,7 +452,7 @@ function Payment() {
                             const updatedData = filterQuery.payment?.insurance?.filter(
                                 (insur: any) =>
                                     row.patient.insurances
-                                        .map((insurance: any) => insurance.uuid)
+                                        ?.map((insurance: any) => insurance.uuid)
                                         .includes(insur)
                             );
                             return (
@@ -839,7 +839,7 @@ function Payment() {
                                         alignItems="center"
                                         justifyContent="flex-start"
                                         spacing={1}>
-                                        {col.payment_type.map((type: any, i: number) => (
+                                        {col.payment_type?.map((type: any, i: number) => (
                                             <Stack
                                                 key={i}
                                                 direction="row"
