@@ -119,18 +119,20 @@ function TopNavBar({...props}) {
         }*/
 
     const handleInstallClick = () => {
-        // Hide the lib provided installation promotion
-        setInstallable(false);
-        // Show the installation prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult: any) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
-        });
+        if (deferredPrompt) {
+            // Hide the lib provided installation promotion
+            setInstallable(false);
+            // Show the installation prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult: any) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+            });
+        }
     }
 
     const resetNextConsultation = (uuid: string) => {
@@ -225,7 +227,7 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotificationsCount((notifications ?? []).length + (pendingAppointments?? []).length);
+        setNotificationsCount((notifications ?? []).length + (pendingAppointments ?? []).length);
     }, [notifications, pendingAppointments]);
 
     useEffect(() => {
