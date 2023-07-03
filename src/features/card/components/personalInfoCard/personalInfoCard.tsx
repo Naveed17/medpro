@@ -448,6 +448,7 @@ function PersonalInfo({...props}) {
                                                 readOnly={!editable}
                                                 error={Boolean(touched.email && errors.email)}
                                                 {...getFieldProps("old")}
+                                                value={values.old ?? ""}
                                                 onChange={event => {
                                                     const old = parseInt(event.target.value);
                                                     console.log("old", old)

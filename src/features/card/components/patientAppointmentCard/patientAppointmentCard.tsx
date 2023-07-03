@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientAppointmentCard({...props}) {
-    const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
+    const {item: patient, handleListItemClick = null, listing, onReset, onEdit, ...rest} = props;
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState(false);
@@ -42,8 +42,15 @@ function PatientAppointmentCard({...props}) {
                         <IconUrl width={"30"} height={"30"} path="men-avatar"/>
                     </Avatar>
                 </Zoom>
-                <Stack ml={1} direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                    <Box onClick={() => handleListItemClick(patient)}>
+                <Stack ml={1}
+                       onClick={(e) => {
+                           e.stopPropagation();
+                           handleListItemClick && handleListItemClick(patient)
+                       }}
+                       direction={"row"}
+                       justifyContent={"space-between"}
+                       sx={{width: "100%"}}>
+                    <Box>
                         <Stack spacing={.5} direction="row" alignItems='center'>
                             <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
                                 {patient.firstName} {patient.lastName}
