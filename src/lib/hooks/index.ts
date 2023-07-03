@@ -55,12 +55,16 @@ export const ConditionalWrapper = ({...props}) => {
     return condition ? wrapper(children) : children;
 }
 
+export const getBirthday = (birthdate: string) => {
+    return moment().preciseDiff(moment(birthdate, "DD-MM-YYYY"), true);
+}
+
 export const getBirthdayFormat = (patient: PatientModel, t: any, keyPrefix?: string) => {
-    const birthday = moment().preciseDiff(moment(patient?.birthdate, "DD-MM-YYYY"), true);
+    const birthday = getBirthday(patient?.birthdate);
     return `${birthday.years ? `${birthday.years} ${t(`${keyPrefix ? `${keyPrefix}.` : ""}years`).toLowerCase()}${birthday.years <= 2 ? "," : ""} ` : ""}
          ${birthday.years <= 2 && birthday.months ? `${birthday.months} ${t(`${keyPrefix ? `${keyPrefix}.` : ""}months`).toLowerCase()}, ` : ""} 
          ${birthday.years <= 2 && birthday.days ? `${birthday.days} ${t(`${keyPrefix ? `${keyPrefix}.` : ""}days`).toLowerCase()}` : ""}`;
-};
+}
 
 export const appointmentGroupByDate = (events: any[]) => {
     // this gives an object with dates as keys
