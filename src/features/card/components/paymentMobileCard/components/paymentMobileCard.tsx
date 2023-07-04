@@ -251,10 +251,12 @@ function PaymentMobileCard({...props}) {
                                         open={contextMenu !== null}
                                         onClose={handleClose}
                                         anchorReference="anchorPosition"
-                                        PaperProps={{
-                                            sx: {
-                                                width: "100%",
-                                            },
+                                        slotProps={{
+                                            paper: {
+                                                sx: {
+                                                    width: "100%",
+                                                }
+                                            }
                                         }}
                                         anchorPosition={
                                             contextMenu !== null
