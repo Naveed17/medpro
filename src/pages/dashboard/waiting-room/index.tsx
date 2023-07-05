@@ -2,7 +2,6 @@ import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
 import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
-import Icon from "@themes/urlIcon";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -22,113 +21,32 @@ import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import Typography from "@mui/material/Typography";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
-import {toggleSideBar} from "@features/sideBarMenu";
-import {useIsMountedRef} from "@app/hooks";
+import {toggleSideBar} from "@features/menu";
+import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {DefaultCountry} from "@app/constants";
+import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-
-export const headCells = [
-    {
-        id: "id",
-        numeric: true,
-        disablePadding: true,
-        label: "Id",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "patient",
-        numeric: false,
-        disablePadding: true,
-        label: "patient",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "arrivaltime",
-        numeric: false,
-        disablePadding: true,
-        label: "arrival time",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "appointmentTime",
-        numeric: false,
-        disablePadding: true,
-        label: "appointment time",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "waiting",
-        numeric: false,
-        disablePadding: true,
-        label: "waiting",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "type",
-        numeric: false,
-        disablePadding: true,
-        label: "type",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "motif",
-        numeric: false,
-        disablePadding: true,
-        label: "reason",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "fees",
-        numeric: false,
-        disablePadding: true,
-        label: "empty",
-        align: "right",
-        sortable: false,
-    },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: true,
-        label: "action",
-        align: "right",
-        sortable: false,
-    }
-];
-
-const AddWaitingRoomCardData = {
-    mainIcon: "ic-salle",
-    title: "empty",
-    description: "desc",
-    buttonText: "table.no-data.event.title",
-    buttonIcon: "ic-salle",
-    buttonVariant: "primary",
-};
+import {useSWRConfig} from "swr";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -137,10 +55,12 @@ function WaitingRoom() {
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
+    const {mutate} = useSWRConfig();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -148,15 +68,14 @@ function WaitingRoom() {
     const {model} = useAppSelector(preConsultationSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
+    const [loading] = useState<boolean>(status === 'loading');
     const [error, setError] = useState<boolean>(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
+    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
@@ -179,11 +98,11 @@ function WaitingRoom() {
         selected: null
     });
     const [popoverActions, setPopoverActions] = useState([
-        // {
-        //     title: "pre_consultation_data",
-        //     icon: <PendingIcon/>,
-        //     action: "onPreConsultation",
-        // },
+        {
+            title: "pre_consultation_data",
+            icon: <PendingIcon/>,
+            action: "onPreConsultation",
+        },
         {
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
@@ -191,12 +110,12 @@ function WaitingRoom() {
         },
         {
             title: "leave_waiting_room",
-            icon: <Icon color={"white"} path="ic-salle"/>,
+            icon: <IconUrl color={"white"} path="ic-salle"/>,
             action: "onLeaveWaitingRoom",
         },
         {
             title: "see_patient_form",
-            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+            icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
             action: "onPatientDetail",
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -207,20 +126,20 @@ function WaitingRoom() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
-    const {trigger: updatePreConsultationTrigger} = useRequestMutation(null, "/pre-consultation/update");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpAgendasResponse} = useRequest({
+    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
+        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -228,25 +147,9 @@ function WaitingRoom() {
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
-        setAnchorEl(event.currentTarget);
+        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
@@ -264,7 +167,7 @@ function WaitingRoom() {
         setContextMenu(null);
     };
 
-    const handleSubmit = (data: any) => {
+    const handleSubmit = () => {
         console.log(selectedPayment.payments);
     };
 
@@ -281,7 +184,7 @@ function WaitingRoom() {
         form.append('value', `${!Boolean(row.is_next)}`);
         updateTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
@@ -303,10 +206,15 @@ function WaitingRoom() {
             };
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(event.publicId as string, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event.publicId}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -330,14 +238,17 @@ function WaitingRoom() {
                 startConsultation(row);
                 break;
             case "onPreConsultation":
-                setRow(row);
                 setOpenPreConsultationDialog(true);
                 break;
             case "onNextConsultation":
                 nextConsultation(row);
                 break;
             case "onLeaveWaitingRoom":
-                updateAppointmentStatus(row?.uuid as string, "6").then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {status: "1"},
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
+                } as any).then(() => {
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
                     mutateWaitingRoom();
@@ -384,7 +295,7 @@ function WaitingRoom() {
                     process.env.NODE_ENV === 'development') {
                     setPopoverActions([{
                         title: "consultation_pay",
-                        icon: <Icon color={"white"} path="ic-fees"/>,
+                        icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
                     }, ...popoverActions])
                 }
@@ -394,25 +305,17 @@ function WaitingRoom() {
     }
 
     const submitPreConsultationData = () => {
-        setLoadingReq(true);
-        const form = new FormData();
-        form.append("modal_uuid", model);
-        form.append(
-            "modal_data",
-            localStorage.getItem(`Modeldata${row?.uuid}`) as string
-        );
-
-        updatePreConsultationTrigger({
+        handlePreConsultationData({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            setLoadingReq(false);
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
+            data: {
+                "modal_uuid": model,
+                "modal_data": localStorage.getItem(`Modeldata${row?.uuid}`) as string
+            }
+        } as any).then(() => {
             localStorage.removeItem(`Modeldata${row?.uuid}`);
-            setOpenPreConsultationDialog(false)
+            setOpenPreConsultationDialog(false);
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 
@@ -434,13 +337,13 @@ function WaitingRoom() {
         if (roles && roles.includes('ROLE_SECRETARY')) {
             setPopoverActions([{
                 title: "leave_waiting_room",
-                icon: <Icon color={"white"} path="ic-salle"/>,
+                icon: <IconUrl color={"white"} path="ic-salle"/>,
                 action: "onLeaveWaitingRoom",
             }])
         }
     }, [roles]);
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -493,7 +396,7 @@ function WaitingRoom() {
                                                 loading: loadingRequest,
                                                 setLoading: setLoadingRequest
                                             }}
-                                            headers={headCells}
+                                            headers={WaitingHeadCells}
                                             rows={waitingRooms}
                                             from={"waitingRoom"}
                                             t={t}
@@ -668,7 +571,6 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "menu",
             "common",
-            "agenda",
             "patient",
             "consultation",
             "payment",

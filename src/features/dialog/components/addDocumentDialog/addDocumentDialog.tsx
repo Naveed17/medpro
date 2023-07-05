@@ -4,7 +4,7 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -54,7 +54,7 @@ function AddDocumentDialog({...props}) {
         setLoad(true);
         const filesAccepted = e.target.files;
         let docs: any = [];
-        Array.from(filesAccepted).map((file) => {
+        Array.from(filesAccepted).forEach((file) => {
             if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
                     850,
@@ -88,7 +88,7 @@ function AddDocumentDialog({...props}) {
     }
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>
@@ -114,7 +114,7 @@ function AddDocumentDialog({...props}) {
                                 (item: any, index) => (
                                     <Grid key={index} item xs={6} md={6}>
                                         <DocumentButton
-                                            icon={item.logo}
+                                            icon={item.logo.url}
                                             active={data.state.type}
                                             t={t}
                                             lable={item.name}

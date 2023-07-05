@@ -1,55 +1,67 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, CardContent, IconButton, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
-import {pxToRem} from "@themes/formatFontSize";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam,
+    const {
+        exam: defaultExam,
         changes,
         setChanges,
         uuind,
         notes,
         diagnostics,
         seeHistory,
-        seeHistoryDiagnostic} = props;
+        seeHistoryDiagnostic,
+        closed,
+        handleClosePanel,
+        isClose
+    } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {exam, listen} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [loadingReq, setLoadingReq] = useState(false);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    let [diseases, setDiseases] = useState<string[]>([]);
+    const [closeExam, setCloseExam] = useState<boolean>(closed);
+    const [hide, setHide] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerGetReasons} = useRequestMutation(null, "/motif/all");
+    const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason, mutate: mutateReasonsData} = useRequest({
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
     const app_data = defaultExam?.appointment_data;
@@ -62,6 +74,7 @@ function CIPPatientHistoryCard({...props}) {
                     app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
             notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
             diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+            disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -70,7 +83,6 @@ function CIPPatientHistoryCard({...props}) {
     });
 
     const {handleSubmit, values, setFieldValue} = formik;
-
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -83,7 +95,6 @@ function CIPPatientHistoryCard({...props}) {
         }
 
     }
-
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -92,7 +103,19 @@ function CIPPatientHistoryCard({...props}) {
             setOldNote(values.notes);
         })
     }
-
+    const handleDiseasesChange = (_diseases: string[]) => {
+        setFieldValue("disease", _diseases);
+        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+            ...storageData,
+            disease: _diseases
+        }));
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                disease: _diseases
+            })
+        );
+    }
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         setFieldValue("motif", reasons.map(reason => reason.uuid));
         localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -106,7 +129,6 @@ function CIPPatientHistoryCard({...props}) {
             })
         );
     }
-
     const addNewReason = (name: string) => {
         setLoadingReq(true);
         const params = new FormData();
@@ -114,12 +136,12 @@ function CIPPatientHistoryCard({...props}) {
         params.append("duration", "15");
         params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
-            fr: name
+            [router.locale as string]: name
         }));
 
-        triggerAddReason({
+        medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateReasonsData().then((result: any) => {
@@ -131,6 +153,23 @@ function CIPPatientHistoryCard({...props}) {
             setLoadingReq(false);
         }));
     }
+    const findDiseases = (name: string) => {
+        triggerDiseases({
+            method: "GET",
+            url: `/api/private/diseases/${router.locale}?name=${name}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(res => {
+            let resultats: any[] = [];
+            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
+                resultats.push(r.data.title['@value']);
+            });
+            setDiseases(resultats);
+        })
+    }
+
+    useEffect(() => {
+        setHide(closed && !isClose)
+    }, [isClose, closed])
 
     useEffect(() => {
         dispatch(
@@ -140,6 +179,7 @@ function CIPPatientHistoryCard({...props}) {
                         app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
                 notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
                 diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
+                disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
                 treatment: exam.treatment
             })
         );
@@ -170,18 +210,51 @@ function CIPPatientHistoryCard({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center"
-                   justifyContent={"space-between"} borderBottom={1}
+            <Stack className="card-header" padding={'0.45rem'}
+                   direction="row"
+                   alignItems="center"
+                   justifyContent={hide ? "" : "space-between"}
+                   spacing={2}
+                   borderBottom={hide ? 0 : 1}
+                   sx={{
+                       position: hide ? "absolute" : "static",
+                       transform: hide ? "rotate(90deg)" : "rotate(0)",
+                       transformOrigin: "left",
+                       width: hide ? "44.5rem" : "auto",
+                       left: hide ? 32 : 23,
+                       top: -26,
+                   }}
                    borderColor="divider">
+                {hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <KeyboardArrowDownRoundedIcon/>
+                </IconButton>}
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                             fontWeight={600}>
                     <Icon path='ic-edit-file-pen'/>
                     {t("review")}
                 </Typography>
+
+                {!hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <ArrowForwardIosIcon/>
+                </IconButton>}
             </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
@@ -190,6 +263,7 @@ function CIPPatientHistoryCard({...props}) {
                         component={Form}
                         autoComplete="off"
                         noValidate
+                        style={{display: hide ? "none" : "block"}}
                         onSubmit={handleSubmit}>
 
                         <Box width={1}>
@@ -215,19 +289,7 @@ function CIPPatientHistoryCard({...props}) {
                                         handleReasonChange(newValue);
                                     }
                                 }}
-                                filterOptions={(options, params) => {
-                                    const {inputValue} = params;
-                                    const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                    // Suggest the creation of a new value
-                                    const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
-                                    if (inputValue !== '' && !isExisting) {
-                                        filtered.push({
-                                            inputValue,
-                                            name: `${t('add_reason')} "${inputValue}"`,
-                                        });
-                                    }
-                                    return filtered;
-                                }}
+                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                 sx={{color: "text.secondary"}}
                                 options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                 loading={reasons?.length === 0}
@@ -276,13 +338,16 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                            seeHistory()
-                                        }}>{t('seeHistory')}</Typography>}
+                                        {notes?.length > 0 &&
+                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                                seeHistory()
+                                            }}>{t('seeHistory')}</Typography>}
                                     </>}
-                                    <RecButton onClick={() => {
-                                        startStopRec();
-                                    }}/>
+                                    <RecButton
+                                        small
+                                        onClick={() => {
+                                            startStopRec();
+                                        }}/>
                                 </Stack>
                             </Stack>
                             <TextField
@@ -312,9 +377,10 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {diagnostics.length > 0 && <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                    seeHistoryDiagnostic()
-                                }}>{t('seeHistory')}</Typography>}
+                                {diagnostics.length > 0 &&
+                                    <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
+                                        seeHistoryDiagnostic()
+                                    }}>{t('seeHistory')}</Typography>}
                             </Stack>
 
                             <TextField
@@ -337,6 +403,49 @@ function CIPPatientHistoryCard({...props}) {
                                         })
                                     );
                                 }}/>
+                        </Box>
+                        <Box width={1}>
+                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                {t("disease")}
+                            </Typography>
+                            <Autocomplete
+                                id={"diseases"}
+                                freeSolo
+                                multiple
+                                autoHighlight
+                                disableClearable
+                                size="small"
+                                value={values.disease}
+                                onChange={(e, newValue: any) => {
+                                    e.stopPropagation();
+                                    handleDiseasesChange(newValue)
+                                }}
+                                filterOptions={(options, params) => {
+                                    const {inputValue} = params;
+                                    if (inputValue.length > 0) options.push(inputValue)
+                                    return options
+                                }}
+                                sx={{color: "text.secondary"}}
+                                options={diseases}
+                                renderInput={params => <TextField color={"info"}
+                                                                  {...params}
+                                                                  InputProps={{
+                                                                      ...params.InputProps,
+                                                                      endAdornment: (
+                                                                          <React.Fragment>
+                                                                              {loadingReq ?
+                                                                                  <CircularProgress color="inherit"
+                                                                                                    size={20}/> : null}
+                                                                              {params.InputProps.endAdornment}
+                                                                          </React.Fragment>
+                                                                      ),
+                                                                  }}
+                                                                  placeholder={"--"}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  onChange={(ev) => {
+                                                                      findDiseases(ev.target.value)
+                                                                  }}
+                                                                  variant="outlined" fullWidth/>}/>
                         </Box>
                         {/*<Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>

@@ -9,7 +9,7 @@ import RootStyled from "./overrides/rootStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
 import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 
 function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;
@@ -63,7 +63,7 @@ function DuplicateDetected({...props}) {
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: "config"});
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <RootStyled>

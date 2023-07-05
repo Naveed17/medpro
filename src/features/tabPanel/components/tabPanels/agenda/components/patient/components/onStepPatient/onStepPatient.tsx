@@ -24,14 +24,14 @@ import {
 } from "@mui/material";
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef, useState} from "react";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {addPatientSelector, appointmentSelector, CustomInput} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -39,13 +39,16 @@ import {LoadingScreen} from "@features/loadingScreen";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
+import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
+import {LoadingButton} from "@mui/lab";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -91,7 +94,6 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 function OnStepPatient({...props}) {
     const {
-        onNext,
         onClose,
         handleAddPatient = null,
         OnSubmit = null,
@@ -104,12 +106,17 @@ function OnStepPatient({...props}) {
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
+    const {insurances} = useInsurances();
+    const {contacts} = useContactType();
+    const {countries} = useCountries();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {t: commonTranslation} = useTranslation("common");
+
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
@@ -177,15 +184,7 @@ function OnStepPatient({...props}) {
                             message: t("last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("birthday-error"))
-                        .max(50, t("birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
+                    birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
                         value: Yup.string()
@@ -193,8 +192,8 @@ function OnStepPatient({...props}) {
                                 name: 'phone-value-test',
                                 message: t("telephone-error"),
                                 test: (value, ctx: any) => {
-                                    const isValidPhone = value ? isValidPhoneNumber(value) : false;
-                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhone)
+                                    const isValidPhone = value ? (value.length > 0 ? isValidPhoneNumber(value) : true) : true;
+                                    return (ctx.from[2].value.insurance_type === "0" || isValidPhone);
                                 }
                             }),
                         type: Yup.string(),
@@ -256,10 +255,10 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                        code: insurance.insuredPerson && insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
+                        value: insurance.insuredPerson && insurance.insuredPerson.contact?.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
-                        contact_type: contacts && contacts[0].uuid,
+                        contact_type: contacts.length > 0 && contacts[0].uuid,
                         is_public: false,
                         is_support: false
                     }
@@ -275,8 +274,9 @@ function OnStepPatient({...props}) {
             }[]
         },
         validationSchema: RegisterPatientSchema,
-        onSubmit: async (values, formikHelpers) => {
+        onSubmit: async (values) => {
             if (OnSubmit) {
+                setLoading(true);
                 OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
         },
@@ -286,31 +286,18 @@ function OnStepPatient({...props}) {
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
-    const [value, setValue] = useState("");
-
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
-    }, SWRNoValidateConfig);
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })));
+    const [loading, setLoading] = useState<boolean>(false);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
-    const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleExpandClick = () => {
@@ -386,7 +373,7 @@ function OnStepPatient({...props}) {
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -537,7 +524,7 @@ function OnStepPatient({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
@@ -928,13 +915,13 @@ function OnStepPatient({...props}) {
                                                             <Autocomplete
                                                                 size={"small"}
                                                                 value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                                    SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                                    socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                                 onChange={(event, insurance: any) => {
                                                                     setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                                     setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                                 }}
                                                                 id={"assure"}
-                                                                options={SocialInsured}
+                                                                options={socialInsurances}
                                                                 groupBy={(option: any) => option.grouped}
                                                                 sx={{minWidth: 500}}
                                                                 getOptionLabel={(option: any) => option?.label ? option.label : ""}
@@ -951,7 +938,6 @@ function OnStepPatient({...props}) {
                                                                         </li>)
                                                                 }}
                                                                 renderInput={(params) => {
-                                                                    const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
                                                                     return (<TextField {...params}
                                                                                        placeholder={t("patient-placeholder")}/>)
                                                                 }}
@@ -978,36 +964,27 @@ function OnStepPatient({...props}) {
                                                                     options={insurances ? insurances : []}
                                                                     getOptionLabel={option => option?.name ? option.name : ""}
                                                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                                                                    renderOption={(params, option) => (
+                                                                    renderOption={(params, insuranceItem) => (
                                                                         <MenuItem
                                                                             {...params}
-                                                                            key={option.uuid}
-                                                                            value={option.uuid}>
-                                                                            <Avatar
-                                                                                sx={{
-                                                                                    width: 20,
-                                                                                    height: 20,
-                                                                                    borderRadius: 0.4
-                                                                                }}
-                                                                                alt={"insurance"}
-                                                                                src={option.logoUrl}
-                                                                            />
+                                                                            key={insuranceItem.uuid}
+                                                                            value={insuranceItem.uuid}>
+                                                                            {insuranceItem?.logoUrl &&
+                                                                                <ImageHandler
+                                                                                    alt={insuranceItem?.name}
+                                                                                    src={insuranceItem?.logoUrl.url}
+                                                                                />}
                                                                             <Typography
-                                                                                sx={{ml: 1}}>{option.name}</Typography>
+                                                                                sx={{ml: 1}}>{insuranceItem.name}</Typography>
                                                                         </MenuItem>)}
                                                                     renderInput={(params) => {
                                                                         const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
                                                                         params.InputProps.startAdornment = insurance && (
                                                                             <InputAdornment position="start">
                                                                                 {insurance?.logoUrl &&
-                                                                                    <Avatar
-                                                                                        sx={{
-                                                                                            width: 20,
-                                                                                            height: 20,
-                                                                                            borderRadius: 0.4
-                                                                                        }}
-                                                                                        alt="insurance"
-                                                                                        src={insurance?.logoUrl}
+                                                                                    <ImageHandler
+                                                                                        alt={insurance?.name}
+                                                                                        src={insurance?.logoUrl.url}
                                                                                     />}
                                                                             </InputAdornment>
                                                                         );
@@ -1146,7 +1123,7 @@ function OnStepPatient({...props}) {
                                                                         withCountryCallingCode
                                                                         {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
                                                                             {
-                                                                                helperText: `Format international: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                                helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
                                                                                     getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
                                                                             })}
                                                                         country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
@@ -1252,9 +1229,11 @@ function OnStepPatient({...props}) {
                     >
                         {t("cancel")}
                     </Button>
-                    <Button variant="contained" type="submit" color="primary">
+                    <LoadingButton
+                        {...{loading}}
+                        variant="contained" type="submit" color="primary">
                         {t("next")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </Stack>
         </FormikProvider>

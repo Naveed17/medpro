@@ -1,7 +1,18 @@
-import {Backdrop, Box, Button, DialogActions, Divider, Paper, Stack, Tab, Tabs} from "@mui/material";
-import {PatientDetailsToolbar} from "@features/toolbar";
+import {
+    Backdrop,
+    Box,
+    Button,
+    DialogActions,
+    Divider,
+    Drawer,
+    Paper,
+    Stack,
+    Tab,
+    Tabs
+} from "@mui/material";
+import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard, PatientHistoryNoDataCard} from "@features/card";
+import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
     addPatientSelector,
     DocumentsPanel,
@@ -20,29 +31,38 @@ import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import React, {SyntheticEvent, useState} from "react";
+import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {Dialog} from "@features/dialog";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {AppointmentDetail, Dialog} from "@features/dialog";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import ReactPDF, {PDFViewer} from "@react-pdf/renderer";
+import {PDFViewer} from "@react-pdf/renderer";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import DialogTitle from "@mui/material/DialogTitle";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
+import {useSWRConfig} from "swr";
 
 function a11yProps(index: number) {
     return {
@@ -57,12 +77,6 @@ const AddAppointmentCardData = {
     title: "no-data.appointment.title",
     description: "no-data.appointment.description"
 };
-// add consultation details RDV for not data
-const AddConsultationCardData = {
-    mainIcon: "consultation/ic-text",
-    title: "no-data.consultation.title",
-    description: "no-data.consultation.description"
-};
 
 function PatientDetail({...props}) {
     const {
@@ -70,8 +84,6 @@ function PatientDetail({...props}) {
         isAddAppointment = false,
         currentStepper = 0,
         onCloseDialog,
-        onChangeStepper,
-        onAddAppointment,
         onConsultation = null,
         onConsultationStart = null,
         mutate: mutatePatientList,
@@ -82,8 +94,22 @@ function PatientDetail({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {allAntecedents} = useAntecedentTypes();
+    const {mutate} = useSWRConfig();
+
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {t: translate} = useTranslation("consultation");
+
+    const {direction} = useAppSelector(configSelector);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
+    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {
+        config: agenda,
+        sortedData: groupSortedData,
+        openViewDrawer
+    } = useAppSelector(agendaSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -91,9 +117,6 @@ function PatientDetail({...props}) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    const {openUploadDialog} = useAppSelector(addPatientSelector);
-    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
-    //const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
@@ -112,57 +135,36 @@ function PatientDetail({...props}) {
             disabled: true,
         }
     ]);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [state, setState] = useState<any>();
+    const [info, setInfo] = useState<null | string>("");
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
+    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
+    const {
+        data: httpPatientDetailsResponse,
+        mutate: mutatePatientDetails
+    } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
-    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
-
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
-
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(
-        patient ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+    const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
+
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -186,10 +188,6 @@ function PatientDetail({...props}) {
         dispatch(onOpenPatientDrawer({patientId: ""}));
         onCloseDialog(false);
     }
-    const download = () => {
-        console.log(patient);
-        console.log(antecedentsData);
-    }
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -198,8 +196,13 @@ function PatientDetail({...props}) {
         setIndex(newValue);
     };
 
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        dispatch(SetSelectedDialog(null));
+    }
+
     const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
+        const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
             steps[index].disabled = false;
             setStepperData(steps);
@@ -218,41 +221,73 @@ function PatientDetail({...props}) {
         documentConfig.files.map((file: any) => {
             params.append(`document[${file.type}][]`, file.file, file.name);
         });
-        triggerUploadDocuments({
+        medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
-            mutatePatientDocuments();
+            mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
             setLoadingRequest(false);
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+    const handleSaveDialog = () => {
         const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
+        switch (info) {
+            case "medical_prescription":
+            case "medical_prescription_cycle":
+                form.append("globalNote", "");
+                form.append("isOtherProfessional", "false");
+                form.append("drugs", JSON.stringify(state));
+
+                triggerUpdate({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/appointments/${selectedDialog.appUuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
+                }).then((result: any) => {
+                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
+                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
+                    setOpenDialog(false);
+                    setInfo("document_detail");
+                    const res = result.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
+                    setState({
+                        uri: res[1],
+                        name: "prescription",
+                        type: "prescription",
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        uuidDoc: res[0].uuid,
+                        appUuid: selectedDialog.appUuid,
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                    });
+                    setOpenDialog(true);
+                });
+                break;
         }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
     }
 
     const onOpenWaitingRoom = (event: EventDef) => {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id,
-            "3", {is_first_appointment: filteredEvents}).then(
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "3",
+                is_first_appointment: filteredEvents
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+        } as any).then(
             () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api
@@ -263,12 +298,19 @@ function PatientDetail({...props}) {
             });
     }
 
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        // switch UI and open dialog
+        setInfo(getPrescriptionUI());
+        setOpenDialog(true);
+    }
+
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
-    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
-    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
+
     const tabsContent = [
         {
             title: "tabs.personal-info",
@@ -284,29 +326,11 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.history",
-            children: <>
-                {!previousAppointmentsData ? <Stack spacing={2} padding={2}>
-                    {Array.from({length: 3}).map((_, idx) => (
-                        <React.Fragment key={`${idx}-empty-history`}>
-                            <PatientHistoryNoDataCard/>
-                        </React.Fragment>
-                    ))}
-                </Stack> : previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                    <HistoryPanel {...{
-                        t,
-                        previousAppointmentsData,
-                        patient,
-                        mutate: mutatePatientDocuments,
-                        closePatientDialog
-                    }} />
-                ) : (
-                    <NoDataCard
-                        t={t}
-                        ns={"patient"}
-                        data={AddConsultationCardData}
-                    />
-                )}
-            </>,
+            children: <HistoryPanel {...{
+                t,
+                patient,
+                closePatientDialog
+            }} />,
             permission: ["ROLE_PROFESSIONAL"]
         },
         {
@@ -335,8 +359,8 @@ function PatientDetail({...props}) {
                     dispatch(setOpenUploadDialog(ev))
                 },
                 mutatePatientDetails,
-                mutatePatientDocuments,
-                patientDocuments, loadingRequest, setLoadingRequest
+                loadingRequest,
+                setLoadingRequest
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -348,13 +372,26 @@ function PatientDetail({...props}) {
         {
             title: "tabs.recap",
             children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData,t}} />
+                <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
             </PDFViewer>,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+            permission: ["ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    useEffect(() => {
+        if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                case "medical_prescription_cycle":
+                    setInfo(getPrescriptionUI());
+                    setState(selectedDialog.state);
+                    setOpenDialog(true);
+                    break;
+            }
+        }
+    }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -362,7 +399,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog} download={download}/>
+                    <PatientDetailsToolbar onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}
@@ -463,9 +500,66 @@ function PatientDetail({...props}) {
                     </Paper>
 
                     <Dialog
+                        {...{
+                            direction,
+                            sx: {
+                                minHeight: 300
+                            }
+                        }}
+                        action={info}
+                        open={openDialog}
+                        data={{
+                            state,
+                            setState,
+                            setOpenDialog: setOpenDialog,
+                            t: translate
+                        }}
+                        size={"lg"}
+                        dialogClose={handleCloseDialog}
+                        {...(info === "document_detail" && {
+                            sx: {p: 0},
+                        })}
+                        title={t(info === "document_detail" ? "doc_detail_title" : "")}
+                        {...((info === "document_detail" || info === "end_consultation") && {
+                            onClose: handleCloseDialog,
+                        })}
+                        {...((info && ["medical_prescription", "medical_prescription_cycle"].includes(info)) && {
+                            headerDialog: (<DialogTitle
+                                    sx={{
+                                        backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                        position: "relative",
+                                    }}
+                                    id="scroll-dialog-title">
+                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                        {translate(`consultationIP.${info}`)}
+                                        <SwitchPrescriptionUI {...{
+                                            t: translate,
+                                            keyPrefix: "consultationIP",
+                                            handleSwitchUI
+                                        }} />
+                                    </Stack>
+                                </DialogTitle>
+                            ),
+                            actionDialog: <DialogActions>
+                                <Button
+                                    onClick={handleCloseDialog}
+                                    startIcon={<CloseIcon/>}>
+                                    {translate("cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSaveDialog}
+                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {translate("consultationIP.save")}
+                                </Button>
+                            </DialogActions>,
+                        })}
+                    />
+
+                    <Dialog
                         action={"add_a_document"}
                         open={openUploadDialog}
-
                         data={{
                             t,
                             state: documentConfig,
@@ -515,7 +609,6 @@ function PatientDetail({...props}) {
                         modal={"patient"}
                         OnSubmitStepper={submitStepper}
                         OnAction={(action: string, event: EventDef) => {
-                            console.log(action);
                             switch (action) {
                                 case "close":
                                     if (patientId) {
@@ -544,6 +637,17 @@ function PatientDetail({...props}) {
                         onClickCancel={() => setIsAdd(false)}
                     />
                 )}
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}>
+                <AppointmentDetail {...{patientId}}/>
+            </Drawer>
+
         </>
     );
 }

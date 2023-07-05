@@ -21,120 +21,82 @@ import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {upperFirst} from "lodash";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Session} from "next-auth";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat} from "@app/hooks";
-import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
-import Image from "next/image";
+import {dashLayoutSelector} from "@features/base";
+import {useInsurances} from "@lib/hooks/rest";
+import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
+import {useSWRConfig} from "swr";
 
 function Consultation() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances: allInsurances} = useInsurances();
+    const {allAntecedents} = useAntecedentTypes();
+    const {cache} = useSWRConfig();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
+    const {listen} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState<boolean>(true);
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
-    const [insurances, setInsurances] = useState<PatientInsuranceModel[]>([]);
+    const [insurances, setInsurances] = useState<any[]>([]);
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
-    const [allAntecedents, setallAntecedents] = useState<any>([]);
+    const [analyses, setAnalyses] = useState<any>([]);
+    const [mi, setMi] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState("");
 
-    const {listen} = useAppSelector(consultationSelector);
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    useEffect(() => {
-        if (isStarted) {
-            setNote(oldNote + " " + transcript);
-        }
-    }, [transcript, isStarted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const {trigger: triggerPatientUpdate} = useRequestMutation(
-        null,
-        "/patient/update"
-    );
-
-    useEffect(() => {
-        const noteContainer = document.getElementById("note-card-content");
-        if (noteContainer) {
-            if (noteContainer.clientHeight >= 153)
-                setIsLong(true);
-            else {
-                setIsLong(false);
-            }
-        }
-    }, [note]);
-
-    const {data: httpPatientPhotoResponse} = useRequest(
-        patient?.hasPhoto
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(
-        patient
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
-
-    const {data: httpInsuranceResponse} = useRequest({
+    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `/api/public/insurances/${router.locale}`,
-    }, SWRNoValidateConfig);
-
-    const {data: httpAnctecentType} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
-    useEffect(() => {
-        if (httpAnctecentType) {
-            setallAntecedents((httpAnctecentType as HttpResponse).data)
-        }
-    }, [httpAnctecentType])
+    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
+    const {data: httpPatientMI, mutate: miMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -161,26 +123,54 @@ function Consultation() {
             patient?.address.length > 0 &&
             patient?.address[0].city &&
             params.append("zip_code", patient?.address[0]?.postalCode);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].street &&
-            params.append(
-                "address",
-                JSON.stringify({fr: patient?.address[0]?.street})
-            );
+            if (patient?.address &&
+                patient?.address.length > 0 &&
+                patient?.address[0].street) {
+                params.append("address", JSON.stringify({[router.locale as string]: patient?.address[0]?.street}));
+            }
             patient.idCard && params.append("id_card", patient.idCard);
         }
-
-        triggerPatientUpdate({
-            method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-            data: params,
-        }).then(() => {
-        });
+        if (medicalEntityHasUser) {
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+            triggerPatientUpdate({
+                method: "PUT",
+                url,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+                data: params,
+            }).then(() => cache.delete(url));
+        }
     };
+
+    useEffect(() => {
+        if (httpPatientAnalyses) {
+            setAnalyses((httpPatientAnalyses as HttpResponse).data)
+        }
+    }, [httpPatientAnalyses])
+
+    useEffect(() => {
+        if (httpPatientMI) {
+            setMi((httpPatientMI as HttpResponse).data)
+        }
+    }, [httpPatientMI])
+
+    useEffect(() => {
+        const noteContainer = document.getElementById("note-card-content");
+        if (noteContainer) {
+            if (noteContainer.clientHeight >= 153)
+                setIsLong(true);
+            else {
+                setIsLong(false);
+            }
+        }
+    }, [note]);
+
+    useEffect(() => {
+        if (isStarted) {
+            setNote(oldNote + " " + transcript);
+        }
+    }, [transcript, isStarted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (patient && !lock) {
@@ -205,7 +195,7 @@ function Consultation() {
                     allergicBadge = res['allergic']?.length;
 
                 let nb = 0;
-                Object.keys(res).map(ant => {
+                Object.keys(res).forEach(ant => {
                     if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic") {
                         nb += res[ant].length;
                     }
@@ -238,11 +228,17 @@ function Consultation() {
                     badge: antecedentBadge
                 },
                 {
+                    id: 9,
+                    title: "balance_sheet",
+                    icon: "ic-analyse",
+                    badge: patient.requestedAnalyses.length,
+                },
+                /*{
                     id: 2,
                     title: "balance_sheet_pending",
                     icon: "ic-analyse",
                     badge: patient.requestedAnalyses.length,
-                },
+                },*/
                 {
                     id: 5,
                     title: "medical_imaging_pending",
@@ -256,20 +252,12 @@ function Consultation() {
                     badge: 0,
                 },
             ]);
+            analysessMutate();
+            miMutate();
         }
     }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const allInsurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
-
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <ConsultationStyled>
@@ -281,7 +269,7 @@ function Consultation() {
                                 <Avatar
                                     src={
                                         patientPhoto
-                                            ? patientPhoto
+                                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                             : patient?.gender === "M"
                                                 ? "/static/icons/men-avatar.svg"
                                                 : "/static/icons/women-avatar.svg"
@@ -299,21 +287,20 @@ function Consultation() {
                         </label>
                         {insurances && insurances.length > 0 &&
                             <Stack direction='row' alignItems="center" spacing={1}>
-                                <AvatarGroup max={3} sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
-                                    {insurances.map((insuranceItem: { insurance: InsuranceModel }) =>
-                                        <Tooltip key={insuranceItem.insurance?.uuid}
-                                                 title={insuranceItem.insurance?.name}>
+                                <AvatarGroup max={3}>
+                                    {insurances.map((insuranceItem: any) =>
+                                        <Tooltip key={insuranceItem?.insurance.uuid}
+                                                 title={insuranceItem?.insurance.name}>
                                             <Avatar variant={"circular"}>
-                                                <Image
-                                                    style={{borderRadius: 2}}
-                                                    alt={insuranceItem.insurance?.name}
-                                                    src="static/icons/Med-logo.png"
-                                                    width={20}
-                                                    height={20}
-                                                    loader={({src, width, quality}) => {
-                                                        return allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem.insurance?.uuid)?.logoUrl as string
-                                                    }}
-                                                />
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                    <ImageHandler
+                                                        alt={insuranceItem?.insurance.name}
+                                                        src={allInsurances.find(
+                                                            (insurance: any) =>
+                                                                insurance.uuid ===
+                                                                insuranceItem?.insurance.uuid
+                                                        )?.logoUrl?.url}
+                                                    />}
                                             </Avatar>
                                         </Tooltip>
                                     )}
@@ -420,11 +407,12 @@ function Consultation() {
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
-                            <Icon path="ic-expand-more"/>
+                            <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
+
                         </IconButton>
                     </ListItem>
 
-                    {!isNote && note && (
+                    {!isNote && note && note.trim().length > 0 && (
                         <Box style={{padding: 10, paddingBottom: 0}}>
                             <ContentStyled>
                                 <CardContent id={"note-card-content"}
@@ -511,17 +499,21 @@ function Consultation() {
                                         color="warning"
                                     />
                                     <IconButton size="small">
-                                        <Icon path="ic-expand-more"/>
+                                        <Icon path={collapse === col.id ? "arrow-up-table" : "ic-expand-more"}/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} patient={patient}
-                                                 antecedentsMutate={antecedentsMutate}
-                                                 patientAntecedents={patientAntecedents}
-                                                 allAntecedents={allAntecedents}/>
+                                        <Content id={col.id} {...{
+                                            patient,
+                                            antecedentsMutate,
+                                            patientAntecedents,
+                                            allAntecedents,
+                                            analyses,
+                                            mi
+                                        }} patient={patient}/>
                                     </Box>
                                 </Collapse>
                             </ListItem>

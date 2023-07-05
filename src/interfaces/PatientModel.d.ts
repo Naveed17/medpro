@@ -6,7 +6,7 @@ interface PatientModel {
     lastName: string;
     email: string;
     birthdate: string;
-    gender: string;
+    gender: string | number;
     idCard: string;
     profession: string;
     familyDoctor: string;

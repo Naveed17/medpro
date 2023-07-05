@@ -8,17 +8,18 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -28,6 +29,7 @@ function Lieux() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -84,7 +86,7 @@ function Lieux() {
 
     const {data, mutate} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/locations/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/locations/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -119,22 +121,14 @@ function Lieux() {
         if (event == 'active') {
             props.isActive = !props.isActive;
             setRows([...rows]);
-
             const form = new FormData();
             form.append('attribute', JSON.stringify({attribute: 'is_active', value: props.isActive}));
-
             trigger({
                 method: "PATCH",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + props.uuid,
-                headers: {
-                    ContentType: 'application/x-www-form-urlencoded',
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
-                data: form,
-
-            }, {revalidate: true, populateCache: true}).then((r) => {
-                console.log(r);
-            })
+                url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`},
+                data: form
+            });
         } else if (event === 'remove') {
             setSelected({
                 title: t('askRemove'),
@@ -145,11 +139,8 @@ function Lieux() {
                 data: props,
                 request: {
                     method: "DELETE",
-                    url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + props.uuid,
-                    headers: {
-                        ContentType: 'application/x-www-form-urlencoded',
-                        Authorization: `Bearer ${session?.accessToken}`
-                    },
+                    url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
+                    headers: {Authorization: `Bearer ${session?.accessToken}`}
                 }
             })
             setOpen(true);
@@ -189,7 +180,7 @@ function Lieux() {
         keyPrefix: "lieux.config",
     });
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>

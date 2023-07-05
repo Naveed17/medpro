@@ -5,13 +5,13 @@ import React, { ReactElement, useState } from "react";
 import { Box, Button, Container, Paper, Toolbar, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { TopNavBar } from "@features/topNavBar";
-import { MainMenuStyled } from "@features/sideBarMenu";
+import { MainMenuStyled } from "@features/menu";
 import { CheckProfileStatus } from "@features/checkProfileStatus";
 import { LoadingScreen } from "@features/loadingScreen";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import { Info, Document, Actes, Cabinet, stepperProfileSelector } from "@features/tabPanel";
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector } from "@lib/redux/hooks";
 import { CustomStepper } from "@features/customStepper";
 
 const stepperData = [

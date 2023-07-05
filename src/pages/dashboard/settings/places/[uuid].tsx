@@ -34,22 +34,23 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useContactType} from "@lib/hooks/rest";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -121,9 +122,10 @@ function PlacesDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {contacts: contactTypes} = useContactType();
 
-    const {t} = useTranslation("settings");
-
+    const {t} = useTranslation(["settings", "common"]);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
@@ -155,27 +157,17 @@ function PlacesDetail() {
     const uuind = router.query.uuid;
 
     const {trigger} = useRequestMutation(null, "/settings/place");
-    const {data, mutate} = useRequest(
-        uuind !== "new"
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/locations/${uuind}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            }
-            : null
-    );
+    const {data, mutate} = useRequest(uuind !== "new" ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     const {data: httpStateResponse} = useRequest({
         method: "GET",
         url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
-    const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
 
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
@@ -191,12 +183,12 @@ function PlacesDetail() {
             isVisible: false,
             openingHours: {
                 MON: [],
-                THU: [],
-                WED: [],
                 TUE: [],
+                WED: [],
+                THU: [],
                 FRI: [],
                 SAT: [],
-                SUN: [],
+                SUN: []
             },
         },
     ]);
@@ -230,8 +222,8 @@ function PlacesDetail() {
             form.append("access_data", JSON.stringify({}));
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
-            form.append("name", JSON.stringify({fr: values.name}));
-            form.append("address", JSON.stringify({fr: values.address}));
+            form.append("name", JSON.stringify({[router.locale as string]: values.name}));
+            form.append("address", JSON.stringify({[router.locale as string]: values.address}));
             const updatedPhones: any[] = [];
             values.phones.map((phone: any) => {
                 updatedPhones.push({
@@ -251,14 +243,13 @@ function PlacesDetail() {
 
             if (data) {
                 method = "PUT";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${(data as HttpResponse).data.uuid}/${router.locale}`;
             } else {
                 method = "POST";
-                url = `/api/medical-entity/${medical_entity.uuid}/locations/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger(
-                {
+            trigger({
                     method,
                     data: form,
                     url,
@@ -329,7 +320,7 @@ function PlacesDetail() {
     }
 
     const apply = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
+        Object.keys(horaires[0].openingHours).forEach((day) => {
             if (day !== "MON") {
                 horaires[0].openingHours[day] = [];
             }
@@ -338,7 +329,7 @@ function PlacesDetail() {
     };
 
     const cleanData = () => {
-        Object.keys(horaires[0].openingHours).map((day) => {
+        Object.keys(horaires[0].openingHours).forEach((day) => {
             horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
                 (hour: { start_time: string; end_time: string }) =>
                     hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
@@ -388,12 +379,12 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ]);
@@ -404,9 +395,9 @@ function PlacesDetail() {
         const monday = [...horaires[0].openingHours["MON"]]
 
         if (alldays) {
-            Object.keys(horaires[0].openingHours).map((day) => {
+            Object.keys(horaires[0].openingHours).forEach((day) => {
                 if (day !== "MON") {
-                    monday.map((hour: any, index: number) => {
+                    monday.forEach((hour: any, index: number) => {
                         horaires[0].openingHours[day] = [
                             ...horaires[0].openingHours[day],
                             {
@@ -429,8 +420,8 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = row.contacts.length > 0 ? [] : [];
-            row.contacts.map((contact: ContactModel) => {
+            const cnts: any[] = [];
+            row.contacts.forEach((contact: ContactModel) => {
                 cnts.push({
                     code: contact.code,
                     value: contact.value,
@@ -448,19 +439,19 @@ function PlacesDetail() {
                     isVisible: false,
                     openingHours: {
                         MON: [],
-                        THU: [],
-                        WED: [],
                         TUE: [],
+                        WED: [],
+                        THU: [],
                         FRI: [],
                         SAT: [],
-                        SUN: [],
+                        SUN: []
                     },
                 },
             ];
-            row.openingHours.map((ohours: any, index: number) => {
+            row.openingHours.forEach((ohours: any, index: number) => {
                 hours[index].isMain = ohours.isMain;
                 hours[index].isVisible = ohours.isVisible;
-                Object.keys(hours[index].openingHours).map((day) => {
+                Object.keys(hours[index].openingHours).forEach((day) => {
                     // @ts-ignore
                     hours[index].openingHours[day] = ohours.openingHours[day];
                 });
@@ -544,7 +535,7 @@ function PlacesDetail() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={6}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writeAdress")}
@@ -555,16 +546,19 @@ function PlacesDetail() {
                                                 {...getFieldProps("address")}
                                             />
                                         </Grid>
-                                        <Grid item xs={12} lg={1}>
+                                        <Grid item xs={12} lg={2}>
                                             <Typography
                                                 textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("lieux.new.postal")}
+                                                {t("lieux.new.postal")} {" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={3}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t("lieux.new.writePostal")}
@@ -749,11 +743,11 @@ function PlacesDetail() {
                                                             }}
                                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                                 {
-                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                    helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                 })}
                                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any})}
+                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any}) as any}
                                                             value={data && values.phones[index] ? values.phones[index]?.value : ""}
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}
                                                             inputComponent={CustomInput as any}

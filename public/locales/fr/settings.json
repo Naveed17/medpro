@@ -7,6 +7,7 @@
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
+    "cabinet": "Cabinet",
     "horaire": "Horaire",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
@@ -15,7 +16,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "configdoc": "Configuration document",
+    "configdoc": "Documents",
     "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
@@ -27,7 +28,7 @@
     "langues": "Langues parlées",
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
-    "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495",
+    "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 28 916 800",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
@@ -63,6 +64,18 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
+      "dialog": {
+        "title": "Supprimer le motif",
+        "desc": "Êtes-vous sûr de vouloir supprimer le motif ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "alert": {
+        "delete-reason": "le motif a été supprimé",
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "add": "Le motif a été ajouté",
+        "updated": "Motif modifé"
+      },
       "table": {
         "name": "Nom",
         "duration": "Durée",
@@ -73,7 +86,10 @@
         "active": "Active",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "minutes": "Minutes",
+        "hours": "Heures",
+        "hour": "Heure"
       }
     },
     "dialog": {
@@ -105,7 +121,18 @@
         "name": "Nom",
         "action": "Action",
         "code": "Code",
-        "icon": "Icône"
+        "icon": "Icône",
+        "consultation_fees": "Frais",
+        "empty": ""
+      },
+      "dialog": {
+        "title": "Motif type suppression",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "desc": "voulez-vous supprimer le motif type"
+      },
+      "alert": {
+        "delete-reasonType": "le motif type a été supprimé"
       }
     },
     "dialog": {
@@ -117,7 +144,15 @@
       "tapez": "Tapez le nom du type",
       "cancel": "Annuler",
       "color": "couleur",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "type": "Type du motif",
+      "payed": "Payé",
+      "un_payed": "Non payé"
+    },
+    "alert": {
+      "add": "Ajouter motif de consultation",
+      "edit": "Modifier motif de consultation",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "lieux": {
@@ -189,7 +224,7 @@
         "type": "Type",
         "speciality": "Spécialité",
         "autoConfirm": "Confirmation auto",
-        "default": "Par defaut",
+        "default": "Par défaut",
         "actif": "actif",
         "public": "public",
         "action": "action",
@@ -300,36 +335,61 @@
     }
   },
   "users": {
-    "new": {
-      "path": "Paramètres > Utilisateurs > Ajouter",
-      "user": "Utilisateur",
-      "pro": "C'est un professionnel ?",
-      "mail": "Adresse mail",
-      "name": "Nom de l'utilisateur",
-      "tname": "tapez ici nom de l'utilisateur",
-      "admin": "Administrateur (accès aux paramètres)",
-      "roles": "Droits d'accès",
-      "send": "Message d'invitation à envoyer à l'utilisateur",
-      "message": "Message",
-      "tmessage": "Tapez le message",
-      "select": "Séléctionner ...",
-      "yes": "Oui",
-      "no": "Non",
-      "all": "Définir l'accès aux differents agendas",
-      "nameReq": "Nom est obligatoire",
-      "codeReq": "code est obligatoire",
-      "townReq": "ville est obligatoire",
-      "cityReq": "gouvernorat est obligatoire",
-      "ntc": "Nom est trop court",
-      "ntl": "Nom est trop long",
-      "mailInvalid": "Adresse mail est invalide",
-      "mailReq": "Adresse mail est obligatoire"
-    },
+    "path_new": "Paramètres > Utilisateurs > Ajouter",
+    "path_update": "Paramètres > Utilisateurs > Modifier",
+    "user": "Utilisateur",
+    "pro": "C'est un professionnel ?",
+    "mail": "Adresse mail",
+    "name": "Nom de l'utilisateur",
+    "tname": "tapez ici nom de l'utilisateur",
+    "admin": "Administrateur (accès aux paramètres)",
+    "roles": "Droits d'accès",
+    "send": "Message d'invitation à envoyer à l'utilisateur",
+    "message": "Message",
+    "tmessage": "Tapez le message",
+    "select": "Séléctionner ...",
+    "yes": "Oui",
+    "no": "Non",
+    "all": "Définir l'accès aux differents agendas",
+    "nameReq": "Nom est obligatoire",
+    "codeReq": "code est obligatoire",
+    "townReq": "ville est obligatoire",
+    "cityReq": "gouvernorat est obligatoire",
+    "ntc": "Nom est trop court",
+    "ntl": "Nom est trop long",
+    "mailInvalid": "Adresse mail est invalide",
+    "mailReq": "Adresse mail est obligatoire",
+    "consultation_fees": "Frais",
+    "birthdate": "Date de naissance",
+    "firstname": "Prénom",
+    "lastname": "Nom de famille",
+    "phone": "Téléphone",
+    "password": "Mot de passe",
+    "confirm_password": "confirmer le mot de passe",
+    "profile": "Profil",
     "config": {
       "add": "Ajouter",
+      "delete_success": "l'utilisateur a été supprimé avec succès",
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "access_management": "Gestion des accès",
+      "add_new_role": "Ajouter nouveau rôle",
+      "add_a_new_role": "Ajouter un nouveau rôle",
+      "agenda_management": "Gestion Agenda",
+      "add_appointment": "Ajouter RDV",
+      "profile_created": "Profil créé",
+      "visitor_added": "Visiteur ajoute",
+      "updated": "Utilisateur mis à jour",
+      "dialog": {
+        "delete-profile-title": "Suppression du profil",
+        "delete-user-title": "Suppression du utilisateur",
+        "delete-profile-desc": "Voulez-vous supprimer le profil ?",
+        "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
+        "ntc": "Nom est trop court",
+        "delete": "Supprimer",
+        "cancel": "Annuler"
+      },
       "no-data": {
         "user": {
           "title": "Ajouter votre premier utilisateur",
@@ -346,8 +406,27 @@
         "access": "accès",
         "action": "Action",
         "remove": "Supprimer",
-        "update": "Editer"
+        "update": "Editer",
+        "role_professional": "Rôle professionnel",
+        "secretary": "Secretaire",
+        "active": "Actif",
+        "inactive": "Inactif"
       }
+    },
+    "dialog": {
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "description": "Description",
+      "description_placeholder": "Description de l'profile",
+      "is_standard": "Est le Standrad",
+      "select_permissions": "Choisissez les permissions",
+      "role_name": "Nom du rôle",
+      "select_all": "Sélectionner tout"
+    },
+    "alert": {
+      "success": "l'utilisateur a été ajouté avec succès",
+      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "update": "l'utilisateur a été mis à jour avec succès"
     }
   },
   "instructions": {
@@ -373,7 +452,6 @@
     "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
-    "removed": "Acte est supprimé",
     "addedfees": "Acte est ajouté",
     "updated": "Acte est modifé",
     "price_of_act": "Prix",
@@ -393,7 +471,17 @@
       "editAct": "Modifier acte",
       "info": "Information d'acte",
       "name": "Nom d'acte",
-      "price": "Prix"
+      "price": "Prix",
+      "delete-act-title": "Acte supprimer",
+      "delete-act-desc": "Voulez-vous supprimer l'acte",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "alert": {
+      "add": "Acte est ajouté",
+      "updated": "Acte est modifé",
+      "delete-act": "Acte est supprimé",
+      "cannot-delete-resource": "Impossible de supprimer la ressource"
     }
   },
   "import-data": {
@@ -408,7 +496,8 @@
       "progress": "En cours",
       "success": "Importé",
       "failed": "Échoué",
-      "error": "Échoué"
+      "error": "Échoué",
+      "empty": ""
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
@@ -493,9 +582,9 @@
   },
   "days": {
     "MON": "Lundi",
-    "THU": "Mardi",
+    "TUE": "Mardi",
     "WED": "Mercredi",
-    "TUE": "Jeudi",
+    "THU": "Jeudi",
     "FRI": "Vendredi",
     "SUN": "Dimanche",
     "SAT": "Samedi"
@@ -504,6 +593,14 @@
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
       "add": "Ajouter un modèle",
+      "delete-dialog-title": "Supprimer modale",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "delete-dialog-desc": "Êtes-vous sûr de vouloir supprimer cette fenêtre modale ?",
+      "alert": {
+        "cannot-delete-resource": "Impossible de supprimer la ressource",
+        "modal-deleted": "Modal a été supprimé"
+      },
       "table": {
         "name": "Nom",
         "active": "Active",
@@ -512,28 +609,44 @@
       "dialog": {
         "title": "Modèle de suivi de consultation : ",
         "titleEdit": "Modifier un modèle de suivi de consultation",
+        "titleEditDoc": "Modifier un modèle ",
+        "name": "Nom du modèle",
+        "content": "Contenu",
         "titleAdd": "Ajouter un modèle de suivi de consultation",
+        "titleAddDoc": "Ajouter un modèle ",
         "selectColor": "Veuillez choisir une couleur",
         "nameReq": "Nom est obligatoire",
         "cancel": "Annuler",
         "save": "Enregistrer",
         "named": "Veuillez nommer le modèle",
         "select": "Veuillez choisir vos variables",
-        "info": "Information du modèle"
+        "info": "Information du modèle",
+        "patient": "Patient",
+        "doctor": "Doctor",
+        "today": "Aujourd'hui",
+        "patient_placeholder": "Nom du patient",
+        "doctor_placeholder": "Nom du doctor",
+        "today_placeholder": "Date aujourd'hui",
+        "created": "Modèle créé",
+        "updated": "Modèle mis à jour"
       }
     }
   },
   "documents": {
     "config": {
-      "path": "Paramètres > Configuration ",
+      "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
       "case1": "Première case",
       "case2": "Deuxième case",
+      "layout": "Mise en page",
+      "document": "Modèles document médicale",
+      "prescription": "Modèles d'ordonnance",
       "case3": "Troisième case",
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "Document modèle modifé",
+      "updated": "Document enregistré",
+      "removed": "Document supprimé",
       "background": "Importer le document actuel",
       "title": "Titre du document",
       "date": "Date",
@@ -553,7 +666,19 @@
       "rightSide": "Côté droit",
       "paperSize": "Taille de papier",
       "A5": "A5",
-      "A4": "A4"
+      "A4": "A4",
+      "add": "Ajouter document",
+      "titleModel": "Titre du modèle",
+      "cancel": "Annuler",
+      "askRemove": "Supprimer un modèle",
+      "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
+      "remove": "Supprimer",
+      "titleholder": "Ordonnance...",
+      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
+      "asDefault": "Sélectionnez-le comme modèle par défaut",
+      "modifier": "Modifier",
+      "close": "Terminer",
+      "analyses": "Analyses"
     }
   }
 }

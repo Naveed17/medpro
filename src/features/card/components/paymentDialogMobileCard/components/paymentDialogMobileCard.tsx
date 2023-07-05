@@ -4,7 +4,7 @@ import React from 'react'
 import PaymentDialogMobileCardStyled from './overrides/paymentDialogMobileCardStyle'
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function PaymentMobileCard({ ...props }) {
     const { data, t } = props;

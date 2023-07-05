@@ -1,12 +1,11 @@
-import {Typography, Box, Stack, IconButton, Button} from "@mui/material";
+import {Box, Button, IconButton, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {ModelDot} from "@features/modelDot";
 import HistoryCardStyled from "./overrides/historyCardStyle";
 import moment from "moment/moment";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {openDrawer} from "@features/dialog";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 
 export default function HistoryCard({...props}) {
@@ -15,7 +14,7 @@ export default function HistoryCard({...props}) {
     const dispatch = useAppDispatch();
     const status = AppointmentStatus[row.status];
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <HistoryCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
@@ -27,7 +26,7 @@ export default function HistoryCard({...props}) {
                         {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                     </Typography>
                 </Stack>}
-                <Box display={{ md: 'block'}}>
+                <Box display={{md: 'block'}}>
                     <Typography fontWeight={400}>
                         {t("appointment_date")}
                     </Typography>

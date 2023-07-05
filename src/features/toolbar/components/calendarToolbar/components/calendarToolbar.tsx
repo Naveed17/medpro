@@ -19,7 +19,7 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setView, TableHead} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
@@ -31,7 +31,8 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent} from "@app/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
+import {DefaultViewMenu} from "@features/menu";
 
 function CalendarToolbar({...props}) {
     const {
@@ -52,15 +53,13 @@ function CalendarToolbar({...props}) {
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
     const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
-
+    const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
         {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
         {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
-
-    const [pendingDialog, setPendingDialog] = useState(false);
 
     const handleViewChange = (view: string) => {
         dispatch(setView(view));
@@ -82,13 +81,14 @@ function CalendarToolbar({...props}) {
                 OnMoveEvent(eventData);
                 break;
         }
-    };
+    }
+
     useEffect(() => {
         pendingEvents.current = [];
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
-    }, [pendingAppointments]);
+    }, [pendingAppointments])
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <RootStyled {...props}>
@@ -198,32 +198,20 @@ function CalendarToolbar({...props}) {
             <Hidden smUp>
                 <Stack direction="row" spacing={1.5} justifyContent={"flex-end"} sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
-                        {...{view}}
+                        {...{view, t}}
                         sx={{
                             "& .MuiButton-startIcon>*:nth-of-type(1)": {
                                 fontSize: 20
                             }
                         }}
                         views={VIEW_OPTIONS}
-                        onSelect={(viewOption: string) => viewOption !== "listWeek" && handleViewChange(viewOption)}
+                        onSelect={(viewOption: string) => handleViewChange(viewOption)}
                     />
-
-                    {/*<CalendarAddButton
-                        sx={{
-                            padding: "8px",
-                            "& .MuiButton-startIcon": {
-                                margin: 0
-                            },
-                            "& .MuiButton-startIcon>*:nth-of-type(1)": {
-                                fontSize: 16
-                            }
-                        }}
-                        onClickEvent={OnAddAppointment}
-                    />*/}
                 </Stack>
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
+                    <DefaultViewMenu/>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
                                  TransitionComponent={Zoom}
@@ -262,9 +250,9 @@ function CalendarToolbar({...props}) {
                     setPendingDialog(false);
                 }}
                 action={() => <Otable
-                    {...{t}}
+                    {...{t, pendingData: true}}
                     maxHeight={`calc(100vh - 180px)`}
-                    headers={TableHead}
+                    headers={TableHead.filter((head: any) => head.id !== "motif")}
                     handleEvent={handleTableEvent}
                     rows={appointmentGroupByDate(pendingEvents.current)}
                     from={"calendar"}

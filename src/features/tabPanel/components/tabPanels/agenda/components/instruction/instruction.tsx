@@ -2,15 +2,18 @@ import React, {useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import {
-    Box, Button,
+    Box,
+    Button,
     Checkbox,
     FormControlLabel,
-    FormGroup, Grid,
+    FormGroup,
+    Grid,
     InputAdornment,
     Paper,
     Stack,
     TextField,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -18,14 +21,14 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     appointmentSelector,
     resetAppointment,
     setAppointmentInstruction,
     setAppointmentSubmit
 } from "@features/tabPanel";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import moment from "moment-timezone";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -33,6 +36,7 @@ import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Instruction({...props}) {
     const {onNext, onBack, OnAction, modal} = props;
@@ -40,6 +44,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {
         motif,
@@ -56,23 +61,18 @@ function Instruction({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
     const [smsLang, setLang] = useState(instruction.smsLang);
-    const [rappelType, setRappelType] = useState(instruction.rappelType);
+    const [rappelType] = useState(instruction.rappelType);
     const [smsRappel, setSmsRappel] = useState(instruction.smsRappel);
     const [rappel, setRappel] = useState(instruction.rappel);
     const [timeRappel, setTimeRappel] = useState<Date>(instruction.timeRappel);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger} = useRequestMutation(null, "/calendar/addPatient");
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
-    };
-
-    const handleRappelTypeChange = (event: SelectChangeEvent) => {
-        setRappelType(event.target.value as string);
     };
 
     const handleRappelChange = (event: SelectChangeEvent) => {
@@ -109,7 +109,7 @@ function Instruction({...props}) {
             smsRappel &&
             form.append('reminder', JSON.stringify([{
                 "type": rappelType,
-                "time": moment(timeRappel).format('HH:mm'),
+                "time": moment.utc(timeRappel).format('HH:mm'),
                 "number_of_day": rappel,
                 "reminder_language": smsLang,
                 "reminder_message": smsLang
@@ -118,7 +118,7 @@ function Instruction({...props}) {
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
@@ -177,7 +177,7 @@ function Instruction({...props}) {
         OnAction(action, defEvent);
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <div>

@@ -1,6 +1,8 @@
 interface CertifModel {
-    uuid: string;
-    content: string;
-    title: string;
-    color: string;
+    uuid?:string
+    name: string,
+    title: string,
+    content: string,
+    color: string,
+    preview:string
 }

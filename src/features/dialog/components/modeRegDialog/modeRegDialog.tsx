@@ -1,6 +1,6 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@app/axios";
+import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
@@ -32,7 +32,7 @@ function ModeRegDialog(info:any) {
     },[data])
 
     const { t, ready } = useTranslation("settings");
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <CheckList items={items}

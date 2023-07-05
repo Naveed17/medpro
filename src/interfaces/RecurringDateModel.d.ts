@@ -1,6 +1,6 @@
-interface RecurringDateModel{
+interface RecurringDateModel {
     id: string;
     status: string;
-    date: string;
+    date: string | undefined;
     time: string
 }

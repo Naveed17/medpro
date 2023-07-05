@@ -17,7 +17,10 @@ import ExpiredCircleIcon from "@themes/overrides/icons/expiredCircleIcon";
 import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
 import NoShowCircleIcon from "@themes/overrides/icons/noShowCircleIcon";
 import WaitingCircleIcon from "@themes/overrides/icons/waitingCircleIcon";
+import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFilledWhiteOutlined';
+import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
 
 export const IconsTypes: any = {
@@ -193,9 +196,15 @@ export const SlotFormat = {
 export const CalendarContextMenu = [
     {
         title: "start_the_consultation",
-        icon: <PlayCircleIcon/>,
+        icon: <PlayCircleFilledWhiteOutlinedIcon/>,
         action: "onConsultationDetail",
-    }, {
+    },
+    {
+        title: "pre_consultation_data",
+        icon: <CoPresentOutlinedIcon/>,
+        action: "onPreConsultation",
+    },
+    {
         title: "confirm_appointment",
         icon: <CheckCircleOutlineRoundedIcon/>,
         action: "onConfirmAppointment",
@@ -212,7 +221,7 @@ export const CalendarContextMenu = [
     },
     {
         title: "patient_no_show",
-        icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-user1"/>,
+        icon: <PersonOffIcon/>,
         action: "onPatientNoShow",
     },
     {

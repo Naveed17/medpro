@@ -15,7 +15,7 @@ import {
 import {Otable, TableRowStyled} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
 import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment/moment";
@@ -113,7 +113,7 @@ function FeesTab({...props}) {
             <Box>
                 <Stack alignItems={"flex-end"} mb={2}>
                     <TextField
-                        placeholder={"Exemple: Suivi ..."}
+                        placeholder={t("exempleFees")}
                         value={search}
                         onChange={(ev) => {
                             setSearch(ev.target.value);
@@ -142,7 +142,6 @@ function FeesTab({...props}) {
                                 className={'cip-medical-proce-row'}
                                 hover
                                 tabIndex={-1}
-                                key={Math.random()}
                             >
                                 <TableCell padding="checkbox">
                                     <Checkbox

@@ -1,27 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {useRouter} from "next/router";
 import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-
+import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 function InsuranceFilter({...props}) {
     const {t, OnSearch} = props;
 
-    const router = useRouter();
+    const {insurances: insurancesData} = useInsurances();
 
     const {query: filterData} = useAppSelector(leftActionBarSelector);
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
-
-    const insurancesData = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const [queryState, setQueryState] = useState<any>({
         insurance: []
@@ -91,14 +82,9 @@ function InsuranceFilter({...props}) {
                         <MenuItem
                             {...params}>
                             <Checkbox checked={selected}/>
-                            <Avatar
-                                sx={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: 0.4
-                                }}
+                            <ImageHandler
                                 alt={"insurance"}
-                                src={option.logoUrl}
+                                src={option.logoUrl.url}
                             />
                             <Typography
                                 sx={{ml: 1}}>{option.name}</Typography>

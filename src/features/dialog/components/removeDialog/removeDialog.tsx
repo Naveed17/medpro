@@ -24,13 +24,13 @@ function RemoveDialog({ ...props }) {
         color={"primary"}
         sx={{ textAlign: "center" }}
       >
-        {props.data.name1}
+        {props.data.name1 ? props.data.name1:""}
       </Typography>
       <Typography
         variant={"body2"}
         sx={{ textAlign: "center", color: "#7C878E" }}
       >
-        {props.data.name2}
+        {props.data.name2 ? props.data.name2: ""}
       </Typography>
     </>
   );

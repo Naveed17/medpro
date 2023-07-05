@@ -8,6 +8,13 @@ const settingsData = {
             disable: false
         },
         {
+            name: "horaire",
+            deep: "location",
+            icon: "setting/ic-time",
+            href: "/dashboard/settings/places/[uuid]",
+            disable: false
+        },
+        {
             name: "acts",
             icon: "ic-generaliste",
             href: "/dashboard/settings/acts",
@@ -15,19 +22,19 @@ const settingsData = {
         },
         {
             name: "actfees",
-            icon: "ic-argent",
+            icon: "setting/fees",
             href: "/dashboard/settings/actfees",
             disable: false
         },
         {
             name: "motif",
-            icon: "ic-door",
+            icon: "setting/ic-patient-file",
             href: "/dashboard/settings/motif",
             disable: false
         },
         {
             name: "consultation",
-            icon: "setting/ic-patient-file",
+            icon: "setting/medical-history",
             href: "/dashboard/settings/patient-file-templates",
             disable: false
         },
@@ -35,17 +42,17 @@ const settingsData = {
             name: "lieu",
             icon: "setting/ic-pin",
             href: "/dashboard/settings/places",
-            disable: false
+            disable: true
         },
         {
             name: "configdoc",
-            icon: "setting/ic-edit-file",
-            href: "/dashboard/settings/docs",
+            icon: "setting/ic-doc",
+            href: "/dashboard/settings/templates",
             disable: false
         },
         {
             name: "type",
-            icon: "setting/ic-doc",
+            icon: "setting/c-type",
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
@@ -94,17 +101,17 @@ const settingsData = {
         },
         {
             name: "import-data",
-            icon: "ic-upload-3",
+            icon: "setting/ic-dowlaodfile",
             fill: "default",
             href: "/dashboard/settings/data",
             disable: false
         },
-       /* {
-            name: "app_lock",
-            icon: "ic-cloc",
-            href: "/dashboard/settings/app-lock",
-            disable: false
-        },*/
+        /* {
+             name: "app_lock",
+             icon: "ic-cloc",
+             href: "/dashboard/settings/app-lock",
+             disable: false
+         },*/
 
     ],
 }

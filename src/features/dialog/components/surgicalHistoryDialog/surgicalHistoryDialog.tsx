@@ -3,7 +3,7 @@ import SurgicalHistoryDialogStyled from './overrides/surgicalHistoryDialogStyle'
 import { useTranslation } from 'next-i18next';
 import { TextField, Box, Stack, Typography } from '@mui/material'
 import {SetSubmit} from "@features/toolbar/components/consultationIPToolbar/actions";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import {LoadingScreen} from "@features/loadingScreen";
 function SurgicalHistoryDialog() {
@@ -28,7 +28,7 @@ function SurgicalHistoryDialog() {
         })
     };
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <SurgicalHistoryDialogStyled display='block'>
             <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">

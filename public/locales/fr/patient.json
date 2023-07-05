@@ -10,6 +10,7 @@
     "fiche_placeholder": "Numéro de la fiche médicale du patient",
     "start-consultation": "Commencer la consultation",
     "pre_consultation_data": "Remplir les données de suivi",
+    "pre_consultation_dialog_title": "Remplir les données de suivi de la consultation",
     "view_the_consultation": "Ouvrir la consultation",
     "edit": "Modifier",
     "old-appo": "Ancien rendez-vous",
@@ -138,6 +139,7 @@
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
+      "duplicatedFileID": "File number already used",
       "last-assure-placeholder": "Tapez le nom de famille de l'assuré",
       "first-assure-placeholder": "Tapez le prénom de l'assuré",
       "group-placeholder": "Sélectionner un groupe",
@@ -349,6 +351,9 @@
     "surgical_antecedents": "Antécédents chirurgicaux",
     "add-background": "Ajouter Antécédents",
     "register": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "father": "Père",
+    "mother": "Mère",
+    "both": "Les deux"
   }
 }

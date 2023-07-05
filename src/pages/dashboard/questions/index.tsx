@@ -20,7 +20,7 @@ import { Label } from "@features/label";
 import { QuestionCard } from '@features/card'
 import { DrawerBottom } from '@features/drawerBottom';
 import { Questions as QuestionFilter } from '@features/leftActionBar'
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector } from "@lib/redux/hooks";
 import { qsSidebarSelector } from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -40,7 +40,7 @@ function Questions() {
             setOffsetTop(0);
         }
     }, []);
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>

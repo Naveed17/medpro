@@ -10,7 +10,7 @@ import {
 } from "./overrides";
 import { ActionBarState, setFilter } from "@features/leftActionBar";
 import React, { useState } from "react";
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { LoadingScreen } from "@features/loadingScreen";
 import { useRouter } from "next/router";
 
@@ -98,14 +98,7 @@ function Patient() {
     },
   ]);
 
-  if (!ready)
-    return (
-      <LoadingScreen
-        error
-        button={"loading-error-404-reset"}
-        text={"loading-error"}
-      />
-    );
+  if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
   return (
     <div>

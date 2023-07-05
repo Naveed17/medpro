@@ -17,12 +17,16 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import ReactDOM from "react-dom/client";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {SearchInput} from "@features/input";
+import {useSWRConfig} from "swr";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -62,6 +66,9 @@ const PaperStyled = styled(Form)(({theme}) => ({
         width: "650px",
         bottom: 0,
         borderTop: `3px solid ${theme.palette.grey["A700"]}`,
+        [theme.breakpoints.down("md")]: {
+            width: "100%",
+        },
     },
     "& fieldset legend": {
         display: "none",
@@ -69,13 +76,12 @@ const PaperStyled = styled(Form)(({theme}) => ({
 }));
 
 function PfTemplateDetail({...props}) {
-    const {t, ready} = useTranslation("settings", {
-        keyPrefix: "templates.config.dialog",
-    });
-
     const {data: session} = useSession();
-    const {data: user} = session as Session;
     const router = useRouter();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {mutate} = useSWRConfig();
+
+    const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
     const colors = [
         "#FEBD15",
@@ -87,63 +93,62 @@ function PfTemplateDetail({...props}) {
         "#72D0BE",
         "#56A97F",
     ];
-    const [modelColor, setModelColor] = useState(
-        props.data ? props.data.color : "#FEBD15"
-    );
+    const [modelColor, setModelColor] = useState(props.data ? props.data.color : "#FEBD15");
     const [sections, setSections] = useState<SpecialtyJsonWidgetModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
     const [open, setOpen] = useState<string[]>([]);
     const [components, setComponents] = useState<any[]>([]);
-    const [medical_professional_uuid, setMedicalProfessionalUuid] =
-        useState<string>("");
     const initalData = Array.from(new Array(4));
 
-    const {data} = useRequest({
+    const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
+
+    const {data: jsonWidgetsResponse} = useRequest({
         method: "GET",
         url: "/api/private/json-widgets/specialities/fr",
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    }, SWRNoValidateConfig);
 
-    const {trigger} = useRequestMutation(null, "/settings/pfTemplateDetails");
-
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-
-    const {data: httpProfessionalsResponse} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    });
+    const widgets = (jsonWidgetsResponse as HttpResponse)?.data;
 
     useEffect(() => {
-        if (data) {
-            setSections((data as HttpResponse).data);
-        }
-        if (httpProfessionalsResponse !== undefined) {
-            setMedicalProfessionalUuid(
-                (httpProfessionalsResponse as HttpResponse).data[0].medical_professional
-                    .uuid
-            );
-        }
-
-        if (props.data) {
-            setComponents(props.data.structure);
-            if (data) {
+        if (widgets) {
+            setSections(widgets);
+            if (props.data) {
+                setComponents(props.data.structure);
                 let wdg: any[] = [];
                 props.data.structure.map((comp: any) => {
-                    const compnent = (data as HttpResponse).data.find(
-                        (elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key
-                    );
-                    wdg.push({...compnent});
+                    const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.uuid === comp.key);
+                    const filteredData = component?.jsonWidgets.filter((widget: any) =>
+                        comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
+                    wdg.push({...component, jsonWidgets: filteredData});
                 });
                 setWidget([...wdg]);
+                setTimeout(() => {
+                    const adultTeeth = document.getElementById('adultTeeth');
+                    const childTeeth = document.getElementById('childTeeth');
+                    if (adultTeeth) {
+                        const root = ReactDOM.createRoot(adultTeeth);
+                        root.render(
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"}/>
+                        );
+                    }
+                    if (childTeeth) {
+                        const root = ReactDOM.createRoot(childTeeth);
+                        root.render(
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={`/static/img/${router.locale =='fr' ? 'childTeeth':'childTeethEN'}.svg`} alt={"child teeth"}/>
+                        );
+                    }
+                }, 2000)
             }
         }
-    }, [data, httpProfessionalsResponse, props.data]);
+    }, [widgets, props.data]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, t("ntc"))
+            .min(3, t("nameReq"))
             .max(50, t("ntl"))
             .required(t("nameReq")),
     });
@@ -154,79 +159,41 @@ function PfTemplateDetail({...props}) {
             name: props.data ? (props.data.label as string) : "",
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
-            setLoading(true)
-            const struct: any[] = [];
+        onSubmit: async (values) => {
+            setLoading(true);
+            let _uuids = "";
+            // let struct: any[] = [];
             widget.map((w) => {
-                w.jsonWidgets.map((jw) => {
-                    w.fieldSet.components = [...w.fieldSet.components, ...jw.structure];
-                });
-                struct.push(w.fieldSet);
+                //let jsonWidgets: JsonWidgetModel[] = []
+                w.jsonWidgets.map((jw) => _uuids += `${jw.uuid},`);
+                // struct.push({...w.fieldSet, components: jsonWidgets});
             });
-
-            /*if (struct.length > 0)
-                      struct[0].components.push({
-                          key: "submit",
-                          type: "button",
-                          input: true,
-                          label: "Submit",
-                          tableView: false,
-                          customClass: "sub-btn",
-                          disableOnInvalid: true,
-                          saveOnEnter: false,
-                          showValidations: false,
-                      })*/
+            _uuids = _uuids.slice(0, -1);
 
             const form = new FormData();
             form.append("label", values.name);
             form.append("color", modelColor);
-            form.append("medicalProfessionalUuid", medical_professional_uuid);
-            form.append("structure", JSON.stringify(struct));
-
-            if (props.action === "edit" && !props.data.hasData) {
-                trigger(
-                    {
-                        method: "PUT",
-                        url:`/api/medical-entity/${medical_entity.uuid}/modals/${props.data.uuid}`,
-                        data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    },
-                    {revalidate: true, populateCache: true}
-                ).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            } else {
-                trigger(
-                    {
-                        method: "POST",
-                        url: `/api/medical-entity/${medical_entity.uuid}/modals`,
-                        data: form,
-                        headers: {
-                            ContentType: "application/x-www-form-urlencoded",
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    },
-                    {revalidate: true, populateCache: true}
-                ).then(() => {
-                    props.mutate();
-                    props.closeDraw();
-                    setLoading(false);
-                });
-            }
+            form.append("widgets", _uuids);
+            const editAction = props.action === "edit" && !props.data.hasData;
+            triggerModalRequest({
+                method: editAction ? "PUT" : "POST",
+                url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then(() => {
+                mutate(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
+                props.mutate();
+                props.closeDraw();
+                setLoading(false);
+            });
         },
     });
+
     const {
-        values,
         errors,
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
     } = formik;
 
     const handleWidgetCheck = (
@@ -292,14 +259,20 @@ function PfTemplateDetail({...props}) {
         }
     };
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    const handleSearchInput = (event: any) => {
+        let sectionUpdated = widgets;
+        if (event.target.value?.length > 2) {
+            let filtered: SpecialtyJsonWidgetModel[] = [];
+            sections.map(section => {
+                const searchedData = section.jsonWidgets.filter(widget => widget.label.toLowerCase().includes(event.target.value.toLowerCase()));
+                searchedData.length > 0 && filtered.push({...section, jsonWidgets: searchedData});
+            })
+            sectionUpdated = filtered;
+        }
+        setSections(sectionUpdated);
+    };
+
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <Box style={{background: "black"}}>
@@ -391,6 +364,7 @@ function PfTemplateDetail({...props}) {
                             </CardContent>
                         </Card>
 
+
                         <Typography
                             variant="body1"
                             fontWeight={400}
@@ -399,9 +373,13 @@ function PfTemplateDetail({...props}) {
                             {t("info")}
                         </Typography>
 
+                        <SearchInput onChange={handleSearchInput}/>
+
+
                         <Card>
                             <CardContent>
                                 <Stack spacing={2}>
+
                                     <FormControl size="small" fullWidth>
                                         <Typography
                                             variant="body2"
@@ -452,23 +430,23 @@ function PfTemplateDetail({...props}) {
 
                                                     <Collapse
                                                         in={open.find((i: string) => i == section.uuid) !== undefined}>*/}
-                                                        <Card style={{width: "50%", margin: 5}}>
+                                                        <Card
+                                                            sx={{
+                                                                width: {xs: "100%", md: "50%"},
+                                                                margin: 0.5,
+                                                            }}>
                                                             <CardContent>
                                                                 {section.jsonWidgets.map(
                                                                     (jw: JsonWidgetModel) => (
                                                                         <ItemCheckboxPF
                                                                             key={jw.uuid}
-                                                                            checked={
-                                                                                widget
-                                                                                    .find(
-                                                                                        (i: { uuid: string }) =>
-                                                                                            i.uuid == section.uuid
-                                                                                    )
-                                                                                    ?.jsonWidgets.find(
-                                                                                    (j: { uuid: string }) =>
-                                                                                        j.uuid == jw.uuid
-                                                                                ) !== undefined
-                                                                            }
+                                                                            checked={widget.find((i: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                i.uuid == section.uuid)?.jsonWidgets.find((j: {
+                                                                                uuid: string
+                                                                            }) =>
+                                                                                j.uuid == jw.uuid) !== undefined}
                                                                             onChange={(v: any) =>
                                                                                 handleWidgetCheck(v, section, jw)
                                                                             }
@@ -508,7 +486,11 @@ function PfTemplateDetail({...props}) {
                             spacing={2}
                             direction={"row"}>
                             <Button onClick={props.closeDraw}>{t("cancel")}</Button>
-                            <Button type="submit" disabled={loading} variant="contained" color="primary">
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                variant="contained"
+                                color="primary">
                                 {t("save")}
                             </Button>
                         </Stack>

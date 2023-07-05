@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Box, IconButton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -20,21 +20,16 @@ function DocumentsTab({...props}) {
     };
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
-    const [mode, setMode] = useState(false);
 
     const {
         documents,
-        setIsViewerOpen,
-        setInfo,
-        setState,
-        patient,
         mutateDoc,
-        setOpenDialog,
         showDoc,
         router,
         session,
         t, trigger
     } = props;
+
 
     const removeDoc = () => {
         trigger({
@@ -55,30 +50,16 @@ function DocumentsTab({...props}) {
                 </Typography>}
 
             <Box style={{overflowX: "auto", marginBottom: 10}}>
-                <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
-                {
-                    documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                        <Box onClick={() => {
-                            showDoc(card)
-                        }} key={`doc-item-${idx}`} width={150} height={140} borderRadius={2}
-                             style={{background: "white"}}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={card.uri}
-                                 style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
-                                 alt={card.title}/>
-
-                            <Typography whiteSpace={'nowrap'}
-                                        textOverflow={"ellipsis"}
-                                        overflow={"hidden"}
-                                        width={"120px"}
-                                        margin={"auto"}
-                                        textAlign={"center"}
-                                        fontSize={13}>
-                                {card.title}
-                            </Typography>
-                        </Box>
-                    )
-                }
+                <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
+                    {
+                        documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                            <React.Fragment key={`doc-item-${idx}`}>
+                                <DocumentCard onClick={() => {
+                                    showDoc(card)
+                                }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                            </React.Fragment>
+                        )
+                    }
                 </Stack>
             </Box>
 
@@ -87,13 +68,12 @@ function DocumentsTab({...props}) {
                     {t('docs')}
                 </Typography>}
 
-
             <Box display='grid' sx={{
                 gridGap: 16,
                 gridTemplateColumns: {
-                    xs: `repeat(${mode ? 1 : 2},minmax(0,1fr))`,
+                    xs: `repeat(2,minmax(0,1fr))`,
                     md: "repeat(3,minmax(0,1fr))",
-                    lg: `repeat(4,minmax(0,1fr))`,
+                    lg: `repeat(5,minmax(0,1fr))`,
                 }
             }}>
                 {
@@ -102,18 +82,10 @@ function DocumentsTab({...props}) {
                         <React.Fragment key={`doc-item-${idx}`}>
                             <DocumentCard onClick={() => {
                                 card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
-                            }} {...{t,data:card,date:false,time:true,title:true}}/>
+                            }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
                         </React.Fragment>
                     )
                 }
-                {/*{documents.length > 0 && <DocumentCardStyled>
-                    <CardContent>
-                        <Stack justifyContent={"center"} alignItems="center" className="document-detail">
-                            <AddIcon color={"primary"} style={{marginTop: 10}}/>
-                        </Stack>
-                    </CardContent>
-                </DocumentCardStyled>}
-*/}
             </Box>
 
             <Box style={{marginTop: 10}}>
@@ -122,36 +94,49 @@ function DocumentsTab({...props}) {
                         gridGap: 16,
                         gridTemplateColumns: {
                             xs: "repeat(2,minmax(0,1fr))",
-                            md: "repeat(4,minmax(0,1fr))",
-                            lg: "repeat(5,minmax(0,1fr))",
+                            md: "repeat(5,minmax(0,1fr))",
+                            lg: "repeat(6,minmax(0,1fr))",
                         }
                     }}>
-                        <DocumentCard {...{t,data:selectedAudio,date:false,time:true,title:true}}/>
+                        <DocumentCard {...{
+                            t,
+                            data: selectedAudio,
+                            date: false,
+                            time: true,
+                            title: true,
+                            resize: true
+                        }}/>
                     </Box>
                     <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
-                        <IconButton onClick={() => {
-                            axios.get(selectedAudio.uri, {
-                                responseType: 'blob',
-                            })
-                                .then((res) => {
-                                    fileDownload(res.data, "medlink.mp3");
+                        <Tooltip title={t('consultationIP.download')}>
+                            <IconButton onClick={() => {
+                                axios.get(selectedAudio.uri, {
+                                    responseType: 'blob',
                                 })
-                        }}>
-                            <CloudDownloadIcon color={"primary"}/>
-                        </IconButton>
-                        <IconButton color={"error"} onClick={() => removeDoc()}>
-                            <DeleteOutlineRoundedIcon/>
-                        </IconButton>
-                        <IconButton onClick={() => setSelectedAudio(null)}>
-                            <CloseRoundedIcon/>
-                        </IconButton>
+                                    .then((res) => {
+                                        fileDownload(res.data, "medlink.mp3");
+                                    })
+                            }}>
+                                <CloudDownloadIcon color={"primary"}/>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('consultationIP.delete')}>
+                            <IconButton color={"error"} onClick={() => removeDoc()}>
+                                <DeleteOutlineRoundedIcon/>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('consultationIP.close')}>
+                            <IconButton onClick={() => setSelectedAudio(null)}>
+                                <CloseRoundedIcon/>
+                            </IconButton>
+                        </Tooltip>
 
                     </Stack>
                     <AudioPlayer
                         autoPlay
                         style={{marginTop: 10}}
-                        src={selectedAudio.uri}
-                        onPlay={e => console.log("onPlay")}
+                        src={selectedAudio.uri.url}
+                        onPlay={() => console.log("onPlay")}
                     />
                 </Box>}
             </Box>

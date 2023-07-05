@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import {setTheme} from "@features/base/actions";
 import {useRouter} from "next/router";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {signIn, useSession} from "next-auth/react";
 import {useEffect} from "react";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -39,7 +39,7 @@ function Home() {
         dispatch(setTheme(mode));
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <div className={styles.container} dir={dir}>

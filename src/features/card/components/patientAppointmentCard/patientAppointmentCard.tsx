@@ -3,34 +3,15 @@ import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
-import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const router = useRouter();
-    const {data: session} = useSession();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const [loading, setLoading] = useState(false);
 
     return (
@@ -47,7 +28,9 @@ function PatientAppointmentCard({...props}) {
                 <Zoom>
                     <Avatar
                         className={"zoom-list"}
-                        src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                        src={patientPhoto
+                            ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                            : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0
@@ -85,7 +68,7 @@ function PatientAppointmentCard({...props}) {
                                 }}
                             >
                                 {!loading ?
-                                    <Icon color={"white"} path="setting/edit"/> :
+                                    <IconUrl color={"white"} path="setting/edit"/> :
                                     <Box sx={{display: 'flex'}}>
                                         <CircularProgress size={"20px"} color={"white"}/>
                                     </Box>

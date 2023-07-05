@@ -7,26 +7,20 @@ import {
     Checkbox,
     FormControlLabel,
     FormGroup,
-    InputAdornment,
+    InputAdornment, List, ListItem, ListSubheader,
     Skeleton,
     Stack,
     TextField,
     Typography
 } from '@mui/material'
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
-import dynamic from "next/dynamic";
-
-const FormBuilder: any = dynamic(
-    () => import("@formio/react").then((mod: any) => mod.Form),
-    {
-        ssr: false,
-    }
-);
+import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
+import SearchIcon from "@mui/icons-material/Search";
 
 function LifeStyleDialog({...props}) {
 
@@ -46,7 +40,9 @@ function LifeStyleDialog({...props}) {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/${allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid}/${router.locale}`,
+        url: `/api/private/antecedents/${allAntecedents?.find((ant: {
+            slug: any;
+        }) => ant.slug === action).uuid}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -60,10 +56,9 @@ function LifeStyleDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map((item: any) => {
-                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
-                    console.log(item);
-                    item.response = item.antecedentValues[0].uuid
+            items.forEach((item: any) => {
+                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && item.response && typeof item.response !== "string") {
+                    item.response = item.response[0]?.uuid
                 }
             })
             setState(items)
@@ -89,53 +84,55 @@ function LifeStyleDialog({...props}) {
             ]);
         }
     };
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+
     return (
         <LifeStyleDialogStyled display='block'>
-
             <Box maxWidth={{xs: '100%', md: '100%'}} mx="auto">
-                <TextField
-                    id="standard-basic"
-                    variant="outlined"
-                    sx={{marginBottom: 3}}
-                    placeholder={'recherche par mots-clés'}
-                    onChange={(e) => {
-                        handleChangeSearch(e);
-                    }}
-                    fullWidth
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end" sx={{justifyContent: "center"}}>
-                                <CodeIcon
-                                    sx={{
-                                        transform: "rotate(90deg)",
-                                        color: "text.secondary",
-                                        fontSize: "1rem",
-                                    }}
-                                />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                {
-
-                    loading ?
-                        initalData.map((item, index) => (
-                            <Box
-                                key={index}
-                                sx={{display: "flex", alignItems: "center", margin: "0 5px"}}
-                            >
-                                <Checkbox size="small"/>
-                                <Skeleton width={180} variant="text"/>
-                            </Box>
-                        ))
-
-                        :
-                        antecedents.filter((item: AntecedentsTypeModel) => {
-                            return item.name.toLowerCase().includes(value.toLowerCase());
-                        })
-                            .map((list: any, idx: number) =>
-                                <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ?"selected-ant":""} row key={idx}>
+                {loading ?
+                    initalData.map((item, index) => (
+                        <Box
+                            key={index}
+                            sx={{display: "flex", alignItems: "center", margin: "0 5px"}}
+                        >
+                            <Checkbox size="small"/>
+                            <Skeleton width={180} variant="text"/>
+                        </Box>
+                    ))
+                    :
+                    <List sx={{width: '100%', bgcolor: 'background.paper'}}>
+                        <ListSubheader>
+                            <TextField
+                                id="standard-basic"
+                                variant="outlined"
+                                placeholder={t('search')}
+                                onChange={(e) => {
+                                    handleChangeSearch(e);
+                                }}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end" sx={{justifyContent: "center"}}>
+                                            <CodeIcon
+                                                sx={{
+                                                    transform: "rotate(90deg)",
+                                                    color: "text.secondary",
+                                                    fontSize: "1rem",
+                                                }}
+                                            />
+                                        </InputAdornment>
+                                    ),
+                                    startAdornment: <InputAdornment position="start">
+                                        <SearchIcon/>
+                                    </InputAdornment>
+                                }}
+                            />
+                        </ListSubheader>
+                        {antecedents.filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).map((list: any, idx: number) =>
+                            <ListItem key={idx}>
+                                <FormGroup
+                                    className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""}
+                                    row>
                                     <FormControlLabel
                                         control={
                                             <Checkbox checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
@@ -143,15 +140,13 @@ function LifeStyleDialog({...props}) {
                                         }
                                         label={list.name}
                                     />
-                                    {
-                                        state?.find((inf: AntecedentsModel) => inf.uuid == list.uuid) &&
+                                    {state?.find((inf: AntecedentsModel) => inf.uuid == list.uuid) &&
                                         <>
-
                                             <Stack spacing={1} direction={'row'}>
-                                                <TextField
+                                                {!list.hideStartTime && <TextField
                                                     name={`${list.uuid}`}
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
-                                                    placeholder={t('starting_year')}
+                                                    placeholder={list.hideEndTime ? t('date') : t('starting_year')}
                                                     sx={{width: 130}}
                                                     onChange={(e) => {
                                                         let items = state.map((item: AntecedentsModel) => ({...item}));
@@ -159,8 +154,8 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.startDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
-                                                <TextField
+                                                    }/>}
+                                                {!list.hideEndTime && <TextField
                                                     name={`${list.uuid}`}
                                                     sx={{width: 130}}
                                                     value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
@@ -171,8 +166,72 @@ function LifeStyleDialog({...props}) {
                                                         if (item) item.endDate = e.target.value;
                                                         setState(items)
                                                     }
-                                                    }/>
+                                                    }/>}
                                             </Stack>
+                                            {action === 'family_antecedents' && <Stack spacing={1} direction={'row'}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            name={list.uuid}
+                                                            checked={state?.find(inf => inf.uuid == list.uuid)?.ascendantOf === 'father'}
+                                                            onChange={() => {
+                                                                let items = state.map(item => ({...item}));
+                                                                let item = items.find(i => i.uuid === list.uuid)
+                                                                if (item) {
+                                                                    if (item.ascendantOf === 'father')
+                                                                        item.ascendantOf = '';
+                                                                    else
+                                                                        item.ascendantOf = 'father';
+                                                                }
+                                                                setState(items)
+                                                            }}
+                                                        />
+
+                                                    }
+                                                    label={t('father')}
+                                                />
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            name={list.uuid}
+                                                            checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'mother'}
+                                                            onChange={() => {
+                                                                let items = state.map(item => ({...item}));
+                                                                let item = items.find(i => i.uuid === list.uuid)
+                                                                if (item) {
+                                                                    if (item.ascendantOf === 'mother')
+                                                                        item.ascendantOf = '';
+                                                                    else
+                                                                        item.ascendantOf = 'mother';
+                                                                }
+                                                                setState(items)
+
+                                                            }}
+                                                        />
+                                                    }
+                                                    label={t('mother')}
+                                                />
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            name={list.uuid}
+                                                            checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'both'}
+                                                            onChange={() => {
+                                                                let items = state.map(item => ({...item}));
+                                                                let item = items.find(i => i.uuid === list.uuid)
+                                                                if (item) {
+                                                                    if (item.ascendantOf === 'both')
+                                                                        item.ascendantOf = '';
+                                                                    else
+                                                                        item.ascendantOf = 'both';
+                                                                }
+                                                                setState(items)
+                                                            }}
+                                                        />
+                                                    }
+                                                    label={t('both')}
+                                                />
+                                            </Stack>}
                                             {
                                                 list.value_type === 1 &&
                                                 <TextField
@@ -187,7 +246,7 @@ function LifeStyleDialog({...props}) {
                                                     }
                                                     }/>
                                             }
-                                            {
+                                            {!list.hideNote &&
                                                 <TextField
                                                     value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.note : ''}
                                                     placeholder={t('note2')}
@@ -200,11 +259,11 @@ function LifeStyleDialog({...props}) {
                                                     }
                                                     }/>
                                             }
-                                            {
-                                                list.value_type === 2 &&
+                                            {list.value_type === 2 &&
                                                 <>
                                                     <Typography fontSize={10} mt={2}
-                                                                ml={1}>{t('selectPlz')}</Typography>
+                                                                ml={1}>{t('selectPlz')} <span
+                                                        style={{color: "red"}}> *</span></Typography>
                                                     <Stack direction={'row'} spacing={1} mb={1} ml={1}>
                                                         {list.values.map((val: { uuid: string; value: string }) => (
                                                             <FormControlLabel
@@ -232,43 +291,26 @@ function LifeStyleDialog({...props}) {
                                             }
                                             {
                                                 list.value_type === 7 &&
-                                                <>
-                                                    <FormBuilder
-                                                        onChange={(ev: any) => {
-                                                            let items = state.map((item: AntecedentsModel) => ({...item}));
-                                                            let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
-                                                            if (item) item.response = JSON.stringify(ev.data);
-
-                                                            /*console.log(state);
-                                                            if (!equals(items, state)) {
-                                                                console.log("set el");
-                                                                setState(items)
-                                                            }*/
-                                                        }}
-                                                        submission={{
-                                                            //data: JSON.parse(list.response)
-                                                        }}
-                                                        form={{
-                                                            display: "form",
-                                                            components: list.values,
-                                                        }}
-                                                    />
-                                                </>
+                                                <Box padding={3} pb={0}>
+                                                    <AntecedentWidget {...{list, state, setState}}/>
+                                                </Box>
                                             }
                                         </>
                                     }
                                 </FormGroup>
-                            )
+                            </ListItem>
+                        )}
+                    </List>
                 }
-                {antecedents.filter((item: any) => {
-                        return item.name.toLowerCase().includes(value.toLowerCase());
-                    }).length === 0 &&
+                {antecedents.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).length === 0 &&
                     <Button className='btn-add'
                             sx={{ml: 'auto'}}
                             size='small'
                             onClick={() => {
                                 const form = new FormData();
-                                form.append('type', allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid);
+                                form.append('type', allAntecedents?.find((ant: {
+                                    slug: any;
+                                }) => ant.slug === action).uuid);
                                 form.append('name', value);
                                 trigger({
                                     method: "POST",

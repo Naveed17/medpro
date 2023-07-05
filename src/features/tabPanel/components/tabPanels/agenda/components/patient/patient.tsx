@@ -1,22 +1,22 @@
 import Typography from "@mui/material/Typography";
-import React, {ChangeEvent, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {formatPhoneNumber} from "react-phone-number-input";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -25,27 +25,22 @@ function Patient({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {currentStepper} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
 
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpPatientResponse, isValidating, mutate} = useRequest({
+    const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
 
@@ -61,11 +56,9 @@ function Patient({...props}) {
             onPatientSearch(true);
         }
     }
-    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const search = event.target.value;
-        if (search.length >= 3) {
-            setQuery(search);
-        }
+
+    const handleSearchChange = (search: string) => {
+        setQuery(search);
     }
 
     const onNextStep = () => {
@@ -93,35 +86,12 @@ function Patient({...props}) {
                 `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
         }
         form.append('address', JSON.stringify({
-            fr: patient.address
+            [router.locale as string]: patient.address
         }));
-        const insurances: any[] = [];
-        patient.insurance.map((insurance: InsurancesModel) => {
-            let phone = null;
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-
-            if (insurance.insurance_social) {
-                const localPhone = insurance.insurance_social.phone;
-                phone = localPhone.value.replace(localPhone.code, "");
-            }
-
-            insurances.push({
-                ...insurance,
-                ...(phone && {
-                    insurance_social: {
-                        ...insurance.insurance_social,
-                        phone: {
-                            ...insurance.insurance_social?.phone,
-                            contact_type: patient.contact.uuid,
-                            value: phone as string
-                        }
-                    }
-                })
-            })
-        });
-        form.append('insurance', JSON.stringify(insurances));
+        form.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: patient.insurance,
+            contact: patient.contact.uuid
+        })));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);
         form.append('region', patient.region);
@@ -130,16 +100,14 @@ function Patient({...props}) {
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
 
-        trigger(
-            {
-                method: selectedPatient ? "PUT" : "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-                data: form
-            }, TriggerWithoutValidation
-        ).then((res: any) => {
+        medicalEntityHasUser && trigger({
+            method: selectedPatient ? "PUT" : "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+            data: form
+        }).then((res: any) => {
             const {data: patient} = res;
             const {status} = patient;
             if (status === "success") {

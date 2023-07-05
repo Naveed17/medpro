@@ -1,147 +1,84 @@
-import { Typography, IconButton, Stack, Box, Select, Switch, MenuItem, SelectChangeEvent, List, ListItem, Grid } from "@mui/material";
-import RootStyled from './overrides/rootStyled';
+import {useMemo} from "react";
+import {
+    Typography,
+    IconButton,
+    Stack,
+    Box,
+    Select,
+    Switch,
+    MenuItem,
+    Grid,
+} from "@mui/material";
+import RootStyled from "./overrides/rootStyled";
 import IconUrl from "@themes/urlIcon";
-import Lable from '@themes/overrides/Lable'
-import { useState } from 'react'
-function MotifListMobile({ ...props }) {
-    const { data, t, durations, delay } = props;
-    const [state, setstate] = useState<any>({
-        duration: `${data?.duration}`,
-        min: `${data?.minimumDelay}`,
-        max: `${data?.maximumDelay}`,
-    });
-    const handleChange = (event: SelectChangeEvent) => {
-        setstate({
-            ...state,
-            [event.target.name]: event.target.value as string
-        })
-    };
+import {useTranslation} from "next-i18next";
+
+function MotifListMobile({...props}) {
+    const {data, handleChange, editMotif} = props;
+    const {t} = useTranslation("common");
+    const duration = useMemo(() => {
+            if (data.duration < 60) {
+                return data.duration + " " + t("times.minutes");
+            }
+            if (data.duration > 59 && data.duration < 120) {
+                return data.duration / 60 + " " + t("times.hour");
+            }
+            if (data.duration > 119) {
+                return data.duration / 60 + " " + t("times.hours");
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        , [data.duration]);
     return (
         <RootStyled
             sx={{
                 "&:before": {
                     bgcolor: data?.color,
-                    width: ".4rem"
+                    width: ".4rem",
                 },
-            }}
-        >
-
+            }}>
             <Box className="card-main">
-                <Typography variant={"subtitle2"} color="primary.main" className="title">
+                <Typography
+                    variant={"subtitle2"}
+                    color="primary.main"
+                    className="title">
                     {data?.name}
                 </Typography>
-                <Grid container spacing={1}>
-                    <Grid item xs={4}>
-                        <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("table.duration")}
+                <Grid container spacing={1} alignItems="center">
+                    <Grid item xs={6}>
+                        <Typography>
+                            {duration}
                         </Typography>
-                        <Select
-                            fullWidth
-                            labelId="demo-simple-select-label"
-                            id={"dur"}
-                            name="duration"
-                            size="small"
-                            onChange={handleChange}
-                            value={state.duration}
-                            displayEmpty={true}
-                            sx={{ color: "text.secondary" }}
-                            renderValue={(value) =>
-                                value?.length
-                                    ? Array.isArray(value)
-                                        ? value.join(", ")
-                                        : value
-                                    : t("duration")
-                            }
-                        >
-                            {
-                                durations.map((duration: any) =>
-                                (<MenuItem key={duration.value} value={duration.value}>
-                                    {duration.date + ' ' + t('times.' + duration.unity)}
-                                </MenuItem>))
-                            }
-                        </Select>
                     </Grid>
-                    <Grid item xs={4}>
-                        <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("table.delay_min")}
-                        </Typography>
-                        <Select
-                            fullWidth
-                            labelId="demo-simple-select-label"
-                            id={"min"}
-                            name="min"
-                            size="small"
-                            onChange={handleChange}
-                            value={state.min}
-                            displayEmpty={true}
-                            sx={{ color: "text.secondary" }}
-                            renderValue={(value) =>
-                                value?.length
-                                    ? Array.isArray(value)
-                                        ? value.join(", ")
-                                        : value
-                                    : t("table.delay_min")
-                            }
-                        >
-                            {
-                                delay.map((duration: any) =>
-                                (<MenuItem key={duration.value} value={duration.value}>
-                                    {duration.date + ' ' + t('times.' + duration.unity)}
-                                </MenuItem>))
-                            }
-                        </Select>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("table.delay_max")}
-                        </Typography>
-                        <Select
-                            fullWidth
-                            labelId="demo-simple-select-label"
-                            id={"max"}
-                            name="max"
-                            size="small"
-                            onChange={handleChange}
-                            value={state.max}
-                            displayEmpty={true}
-                            sx={{ color: "text.secondary" }}
-                            renderValue={(value) =>
-                                value?.length
-                                    ? Array.isArray(value)
-                                        ? value.join(", ")
-                                        : value
-                                    : t("table.delay_max")
-                            }
-                        >
-                            {
-                                delay.map((duration: any) =>
-                                (<MenuItem key={duration.value} value={duration.value}>
-                                    {duration.date + ' ' + t('times.' + duration.unity)}
-                                </MenuItem>))
-                            }
-                        </Select>
+                    <Grid item xs={6}>
+                        <Stack
+                            width={1}
+                            direction="row"
+                            spacing={1}
+                            justifyContent="flex-end"
+                            alignItems="center">
+                            <Switch
+                                name="active"
+                                onChange={(e) => handleChange(data, "active", "")}
+                                checked={data.isEnabled}
+                            />
+                            <IconButton
+                                onClick={() => editMotif(data, "edit")}
+                                size="small"
+                            >
+                                <IconUrl path="setting/edit"/>
+                            </IconButton>
+                            <IconButton
+                                size="small"
+                                onClick={() => editMotif(data, "delete")}>
+                                <IconUrl path="setting/icdelete"/>
+                            </IconButton>
+                        </Stack>
                     </Grid>
                 </Grid>
-                <Stack direction='row' alignItems="center">
-                    <List>
-                        <ListItem sx={{ py: 0 }}>
-                            {t('table.agenda')} : <Lable sx={{ ml: 1 }}>{data?.agenda?.length}</Lable>
-                        </ListItem>
-                        <ListItem>
-                            {t('table.type')} :<Lable sx={{ ml: 1 }}>{data?.types?.length}</Lable>
-                        </ListItem>
-                    </List>
-                    <Stack ml={'auto'} direction="row" spacing={1} justifyContent="flex-start" alignItems="center">
-                        <Switch name='active' checked={data.isEnabled} />
-                        <IconButton size="small" sx={{ mr: { md: 1 } }}>
-                            <IconUrl path="setting/edit" />
-                        </IconButton>
-                    </Stack>
-                </Stack>
             </Box>
-
         </RootStyled>
-    )
+    );
 }
 
 export default MotifListMobile;

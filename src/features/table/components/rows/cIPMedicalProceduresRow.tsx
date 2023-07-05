@@ -8,7 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function CIPMedicalProceduresRow({...props}) {
     const {row, isItemSelected, handleClick, editMotif} = props;
@@ -18,11 +18,8 @@ function CIPMedicalProceduresRow({...props}) {
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<string>("");
@@ -38,7 +35,6 @@ function CIPMedicalProceduresRow({...props}) {
             role="checkbox"
             aria-checked={isItemSelected}
             tabIndex={-1}
-            key={Math.random()}
             selected={isItemSelected}>
             <TableCell padding="checkbox">
                 <Checkbox
@@ -79,8 +75,7 @@ function CIPMedicalProceduresRow({...props}) {
                             onChange={(e) => {
                                 // @ts-ignore
                                 if (!isNaN(e.currentTarget.value)) {
-                                    row.qte = Number(e.currentTarget.value);
-                                    editMotif(row, "change");
+                                    editMotif({...row,qte:Number(e.currentTarget.value)}, "change");
                                 }
                             }}
                         />

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {Box, Popover, FormControl, TextField, Button, Stack} from "@mui/material";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {DateRange} from 'react-date-range';
 import moment from "moment-timezone";
@@ -105,7 +105,7 @@ function DateRangeFilter({...props}) {
                         size={"small"}
                         color={"primary"}
                         variant={"text"}
-                        onClick={() => handleClose()}>Confirmer</Button>
+                        onClick={() => handleClose()}>{t("save")}</Button>
                     <Button
                         size={"small"}
                         color={"error"}
@@ -113,7 +113,7 @@ function DateRangeFilter({...props}) {
                         onClick={() => {
                             resetDateRange();
                             handleClose();
-                        }}>Annuler</Button>
+                        }}>{t("cancel")}</Button>
                 </Stack>
 
             </Popover>

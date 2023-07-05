@@ -21,7 +21,7 @@ import {
     InputStyled,
     onAddPatient,
 } from "@features/tabPanel";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -30,14 +30,17 @@ import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
-import {CropImage} from "@features/cropImage";
-import {DefaultCountry, PhoneRegExp} from "@app/constants";
+import {CropImage} from "@features/image";
+import {DefaultCountry} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from "react-phone-number-input/input";
+import {useRequestMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -55,9 +58,12 @@ function AddPatientStep1({...props}) {
         translationPrefix = "config.add-patient",
     } = props;
 
+    const {trigger} = useRequestMutation(null, "/detect");
+
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const phoneInputRef = useRef(null);
+    const router = useRouter();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -65,9 +71,14 @@ function AddPatientStep1({...props}) {
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {t: commonTranslation} = useTranslation("common");
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
@@ -178,6 +189,16 @@ function AddPatientStep1({...props}) {
         setOpenUploadPicture(true);
     };
 
+    const checkFicheID = () => {
+        trigger(medicalEntityHasUser ?{
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }:null).then((res:any) => {
+            setDuplicatedFiche(res.data.data.length > 0)
+        })
+    }
+
     const {
         handleSubmit,
         values,
@@ -190,8 +211,8 @@ function AddPatientStep1({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
+                color={"error"}
+                button
                 text={"loading-error"}
             />
         );
@@ -361,14 +382,20 @@ function AddPatientStep1({...props}) {
                                         size="small"
                                         fullWidth
                                         {...getFieldProps("fiche_id")}
-                                        error={Boolean(touched.fiche_id && errors.fiche_id)}
+                                        error={Boolean(duplicatedFiche)}
                                         helperText={
                                             Boolean(touched.fiche_id && errors.fiche_id)
                                                 ? String(errors.fiche_id)
                                                 : undefined
                                         }
+                                        onBlur={checkFicheID}
                                     />
                                 </Box>
+                                {(duplicatedFiche && (
+                                <FormHelperText error sx={{px: 2, mx: 0}}>
+                                    {t('duplicatedFileID')}
+                                </FormHelperText>
+                                ))}
                             </Box>
                         </>
                     )}
@@ -443,7 +470,7 @@ function AddPatientStep1({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
                                                         getFieldProps(`phones[${index}].phone`).value : ""}`
                                                 })}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}

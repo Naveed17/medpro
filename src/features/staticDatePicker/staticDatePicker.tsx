@@ -4,13 +4,11 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, StaticDatePicker as DatePicker} from '@mui/x-date-pickers';
 // styles
 import { RootStyled } from "./overrides";
-
 // redux
-import { useAppSelector } from "@app/redux/hooks";
-
+import { useAppSelector } from "@lib/redux/hooks";
 // __________
 import { configSelector } from "@features/base";
-import { LocaleFnsProvider } from "@app/localization";
+import { LocaleFnsProvider } from "@lib/localization";
 
 export default function StaticDatePicker({ ...props }) {
   const { loading, value, onChange, onDateDisabled, ...rest } = props;
@@ -20,7 +18,7 @@ export default function StaticDatePicker({ ...props }) {
     <RootStyled className={loading ? "loading" : ""}>
       <LocalizationProvider
         dateAdapter={AdapterDateFns}
-        locale={LocaleFnsProvider(locale)}
+        adapterLocale={LocaleFnsProvider(locale)}
       >
         <DatePicker
           reduceAnimations

@@ -12,7 +12,7 @@ import {
     Stack,
     Table,
     TableRow,
-    Typography, useTheme
+    Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
@@ -25,14 +25,14 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ErrorIcon from '@mui/icons-material/Error';
 import HelpIcon from '@mui/icons-material/Help';
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingButton} from "@mui/lab";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -45,32 +45,23 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
-    /*    const [infoDuplication, setInfoDuplication] = useState<Array<{
-            key: string;
-            row: string;
-            data: PatientModel | null;
-            fixed: boolean;
-        }>>([]);*/
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [expandData, setExpandData] = useState([]);
     const [expandType, setExpandType] = useState("");
-    const [loadingAction, setLoadingAction] = useState<boolean>(false);
 
     const getDetailImportData = (uuid: string, type: string) => {
         setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             const {data} = value?.data;
@@ -192,7 +183,6 @@ function ImportDataRow({...props}) {
                             {(row.status == 1 || row.status == 3) && <LoadingButton
                                 {...{loading}}
                                 onClick={() => {
-                                    setLoadingAction(true);
                                     handleEvent("delete-import", row.uuid);
                                 }}
                                 variant="text"

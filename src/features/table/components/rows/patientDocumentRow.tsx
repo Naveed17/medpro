@@ -5,7 +5,6 @@ import {
     TableCell,
     Stack,
     IconButton,
-    Checkbox,
     Button,
     Typography,
     Avatar,
@@ -14,10 +13,7 @@ import {
     useMediaQuery, useTheme,
 } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-
 // components
-import {Popover} from "@features/popover";
-import Icon from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import IconUrl from "@themes/urlIcon";
 
@@ -147,7 +143,7 @@ export default function EnhancedTable({...props}) {
                             >
                                 {row.documentType !== 'audio' && <Button
                                     onClick={() => handleEvent("MORE", row)}
-                                    startIcon={<Icon path={"ic-voir"}/>}>
+                                    startIcon={<IconUrl path={"ic-voir"}/>}>
                                     {t("config.table.see", {ns: 'patient'})}
                                 </Button>}
                                 {row.documentType === 'audio' && <Button
@@ -199,7 +195,7 @@ export default function EnhancedTable({...props}) {
                             </Stack>
                             <Stack mt={1}>
                                 <Stack spacing={1} direction="row">
-                                    <Icon path="ic-agenda-jour"/>
+                                    <IconUrl path="ic-agenda-jour"/>
                                     <Typography
                                         variant="body2"
                                         color="text.secondary"
@@ -236,7 +232,7 @@ export default function EnhancedTable({...props}) {
                                 alignItems="center"
                             >
                                 <IconButton>
-                                    <Icon color={theme.palette.text.primary} path={"ic-voir"}/>
+                                    <IconUrl color={theme.palette.text.primary} path={"ic-voir"}/>
                                 </IconButton>
                             </Stack>
                         </TableCell>

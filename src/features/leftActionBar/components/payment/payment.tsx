@@ -8,7 +8,7 @@ import {
 } from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, DayOfWeek} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
@@ -36,7 +36,7 @@ const CalendarPickers = dynamic(() =>
 function Payment() {
     const dispatch = useAppDispatch();
 
-    const {selectedBox, insurances, paymentTypes, query} = useAppSelector(cashBoxSelector);
+    const {insurances, paymentTypes} = useAppSelector(cashBoxSelector);
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query: queryData} = useAppSelector(leftActionBarSelector);

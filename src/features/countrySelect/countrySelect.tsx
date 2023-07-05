@@ -17,7 +17,6 @@ function CountrySelect({...props}) {
         },
         [onSelect]
     );
-
     return (
         <Autocomplete
             {...rest}

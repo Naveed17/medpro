@@ -1,8 +1,8 @@
 import { Toolbar } from "@mui/material";
 import { SubFooterStyled } from "@features/subFooter";
 import React from "react";
-import { useAppSelector } from "@app/redux/hooks";
-import { sideBarSelector } from "@features/sideBarMenu/selectors";
+import { useAppSelector } from "@lib/redux/hooks";
+import { sideBarSelector } from "@features/menu";
 type LayoutProps = {
     children: React.ReactNode,
     sx?: any,

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {firebaseCloudMessaging} from "@app/firebase";
+import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Dialog,
@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -22,18 +22,22 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {useSnackbar} from "notistack";
+import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {setTimer} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {resetTimer, setTimer} from "@features/card";
+import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
-import {DefaultCountry, EnvPattern} from "@app/constants";
+import {DefaultCountry, EnvPattern} from "@lib/constants";
 import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
+import {setUserId, setUserProperties} from "@firebase/analytics";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -47,6 +51,7 @@ function FcmLayout({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -56,37 +61,42 @@ function FcmLayout({...props}) {
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
+    const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse)?.general_information.roles;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
-        TriggerWithoutValidation);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequest({
+    const {data: httpUserResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/appointments/types/" + router.locale,
+        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
+
+    const medicalEntityHasUser = (httpUserResponse as HttpResponse)?.data as MedicalEntityHasUsersModel[];
+
+    const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
-
-    const handleClickOpen = () => {
-        setOpenDialog(true);
-    };
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -94,28 +104,26 @@ function FcmLayout({...props}) {
 
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
-        const messaging = getMessaging(firebaseCloudMessaging.firebase);
+        const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
                     enqueueSnackbar(message.notification.body, {variant: "info"});
-                } else {
-                    if (data.body.hasOwnProperty('progress')) {
-                        if (data.body.progress === -1 || data.body.progress === 100) {
-                            localStorage.removeItem("import-data");
-                            localStorage.removeItem("import-data-progress");
-                            importData.mutate && importData.mutate();
-                            // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
-                            closeSnackbar();
-                            enqueueSnackbar((data.body.progress === -1 ?
-                                    translationCommon.import_data.failed : translationCommon.import_data.end),
-                                {variant: data.body.progress === -1 ? "error" : "success"});
-                        } else {
-                            localStorage.setItem("import-data-progress", data.body.progress.toString());
-                            dispatch(setProgress(parseFloat(data.body.progress)));
-                        }
+                } else if (data.body.hasOwnProperty('progress')) {
+                    if (data.body.progress === -1 || data.body.progress === 100) {
+                        localStorage.removeItem("import-data");
+                        localStorage.removeItem("import-data-progress");
+                        importData.mutate && importData.mutate();
+                        // refresh on going api
+                        mutateOnGoing && mutateOnGoing();
+                        closeSnackbar();
+                        enqueueSnackbar((data.body.progress === -1 ?
+                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                            {variant: data.body.progress === -1 ? "error" : "success"});
+                    } else {
+                        localStorage.setItem("import-data-progress", data.body.progress.toString());
+                        dispatch(setProgress(parseFloat(data.body.progress)));
                     }
                 }
             } else {
@@ -124,11 +132,20 @@ function FcmLayout({...props}) {
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
-                                dispatch(setTimer({isActive: false}));
+                                dispatch(resetTimer());
                             }
-                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             agendaConfig?.mutate[1]();
@@ -171,19 +188,28 @@ function FcmLayout({...props}) {
 
     const setToken = async () => {
         try {
-            const token = await firebaseCloudMessaging.init();
+            const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
                 setFcmToken(token as string);
                 getFcmMessage();
             }
+            if (analytics) {
+                // identify firebase analytics user
+                setUserId(analytics, general_information.uuid);
+                setUserProperties(analytics, {
+                    name: `${general_information.firstName} ${general_information.lastName}`,
+                    email: general_information.email,
+                    role: roles[0]
+                });
+            }
         } catch (error) {
-            console.log(error);
+            console.log("error: undefined token");
         }
     }
 
     const setRefreshToken = async (topicName: string, fcm_api_key: string) => {
         localStorage.removeItem("fcm_token");
-        const refreshToken = await firebaseCloudMessaging.init();
+        const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
             setFcmToken(refreshToken as string);
@@ -217,32 +243,21 @@ function FcmLayout({...props}) {
                 },
             }).catch(() => {
                 setRefreshToken(topicName, fcm_api_key);
-                console.error(`Can't subscribe to ${topicName} topic`);
+                console.log(`Can't subscribe to ${topicName} topic`);
             });
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
-        const form = new FormData();
-        form.append('status', status);
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
-            const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+            dispatch(setOngoing({medicalProfessionalData}));
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
                     name: `${general_information.firstName} ${general_information.lastName}`,
                     email: general_information.email,
-                    role: general_information.roles[0]
+                    role: roles[0]
                 });
             }
         }
@@ -250,14 +265,52 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         setToken();
-
         // Event listener that listens for the push notification event in the background
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
             });
         }
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                // when we're back online
+                closeSnackbar(noConnection);
+                setNoConnection(undefined);
+            });
+
+            window.addEventListener("offline", () => {
+                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
+                    key: "offline",
+                    variant: 'error',
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
+                    persist: true
+                }));
+            });
+        }
     });
+
+    useEffect(() => {
+        if (medicalEntityHasUser) {
+            dispatch(setOngoing({medicalEntityHasUser}));
+        }
+    }, [dispatch, medicalEntityHasUser])
+
+    useEffect(() => {
+        if (appointmentTypes) {
+            dispatch(setOngoing({appointmentTypes}));
+        }
+    }, [dispatch, appointmentTypes])
+
+    useEffect(() => {
+        // Update notifications popup
+        const localStorageNotifications = localStorage.getItem("notifications");
+        if (localStorageNotifications) {
+            const notifications = JSON.parse(localStorageNotifications).filter(
+                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
+            dispatch(setOngoing({notifications}))
+        }
+    }, [dispatch])
 
     return (
         <>
@@ -346,7 +399,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
-                            updateAppointmentStatus(notificationData?.appointment?.uuid, "1");
+                            updateAppointmentStatus({
+                                method: "PATCH",
+                                data: {
+                                    status: "1"
+                                },
+                                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
+                            } as any);
                         }}
                     />}
             </Dialog>

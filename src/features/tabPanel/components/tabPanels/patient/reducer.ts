@@ -1,7 +1,7 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {onAddPatient, onResetPatient, onSubmitPatient, setOpenUploadDialog} from "./actions";
 import AddPatient from "@interfaces/AddPatient";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 export type MenuState = {
     openUploadDialog:boolean;

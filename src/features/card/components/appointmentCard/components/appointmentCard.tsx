@@ -1,85 +1,102 @@
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
-    CardContent,
-    Stack,
+    Autocomplete,
     Box,
+    Button,
+    CardContent, Checkbox,
+    FormControl, FormControlLabel, FormGroup, Grid,
+    IconButton, InputAdornment,
+    Link,
     List,
     ListItem,
+    Stack,
+    TextField,
     Typography,
-    FormControl,
-    IconButton,
-    Link, Button, TextField, Autocomplete,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
-} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions} from "@lib/hooks";
+import {useSWRConfig} from "swr";
+import {debounce} from "lodash";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
+import SortIcon from "@themes/overrides/icons/sortIcon";
+import moment from "moment-timezone";
+import {LocaleFnsProvider} from "@lib/localization";
 
 function AppointmentCard({...props}) {
-    const {data, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
+    const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
+
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {locale} = useAppSelector(configSelector);
+
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest({
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}?sort=true`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/appointments/types/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        },
-        SWRNoValidateConfig
-    );
     const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
+    const [instruction, setInstruction] = useState(data.instruction);
+    const [reminder, setReminder] = useState({
+        init: true,
+        smsLang: data.reminder?.length > 0 ? data.reminder[0].reminderLanguage : "fr",
+        rappel: data.reminder?.length > 0 ? data.reminder[0].numberOfDay : "1",
+        rappelType: data.reminder?.length > 0 ? data.reminder[0].type : "2",
+        smsRappel: data.reminder?.length > 0,
+        timeRappel: (data.reminder?.length > 0 ? moment(`${data.reminder[0].date} ${data.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
+    });
+
     const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
-    const updateDetails = (input: { reason?: string[]; type?: string }) => {
+    const updateDetails = useCallback((input: { attribute: string; value: any }) => {
         const form = new FormData();
-        form.append("attribute", input.reason ? "consultation_reason" : "type");
-        form.append("value", (input.reason ? input.reason : input.type) as string);
+        form.append("attribute", input.attribute);
+        form.append("value", input.value as string);
         updateAppointmentTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`},
         }).then(() => {
-            onDataUpdated();
+            if (onDataUpdated) {
+                onDataUpdated();
+            } else {
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
+            }
         });
-    };
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, session?.accessToken, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
-        updateDetails({reason: reasons.map(reason => reason.uuid)});
+        updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
         setReason(reasons);
         setSelectedReason(reasons);
     }
@@ -91,12 +108,12 @@ function AppointmentCard({...props}) {
         params.append("duration", "15");
         params.append("isEnabled", "true");
         params.append("translations", JSON.stringify({
-            fr: name
+            [router.locale as string]: name
         }));
 
-        triggerAddReason({
+        medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => mutateConsultReason().then((result: any) => {
@@ -108,6 +125,32 @@ function AppointmentCard({...props}) {
             setLoadingRequest(false);
         }));
     }
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setInstruction(event.target.value);
+        updateDetails({attribute: "global_instructions", value: event.target.value});
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 1000);
+
+    useEffect(() => {
+        if (!reminder.init) {
+            updateDetails({
+                attribute: "reminder",
+                value: JSON.stringify(reminder.smsRappel ? [{
+                    "type": reminder.rappelType,
+                    "time": moment.utc(reminder.timeRappel).format('HH:mm'),
+                    "number_of_day": reminder.rappel,
+                    "reminder_language": reminder.smsLang,
+                    "reminder_message": reminder.smsLang
+                }] : [])
+            });
+            setReminder({
+                ...reminder,
+                init: true
+            })
+        }
+    }, [reminder, updateDetails])
 
     return (
         <RootStyled>
@@ -135,16 +178,16 @@ function AppointmentCard({...props}) {
                                     ? 0.5
                                     : 0,
                             }}>
-                            {data?.status?.value}
+                            {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    {!roles.includes("ROLE_SECRETARY") && <IconButton
+                    <IconButton
 
                         size="small"
                         onClick={onEditConsultation}
                         className="btn-toggle">
                         <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
-                    </IconButton>}
+                    </IconButton>
                 </Stack>
                 <Stack
                     spacing={2}
@@ -160,7 +203,10 @@ function AppointmentCard({...props}) {
                                     <Typography fontWeight={400}>
                                         {t("appintment_date")} :
                                     </Typography>
-                                    <Button sx={{p: .5}}>
+                                    <ConditionalWrapper
+                                        condition={onMoveAppointment}
+                                        wrapper={(children: any) => <Button sx={{p: .5}}>{children}</Button>}
+                                    >
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
                                                 <IconUrl className="callander" path="ic-agenda-jour"/>
@@ -173,12 +219,12 @@ function AppointmentCard({...props}) {
                                                 <Typography className="date">{data?.time}</Typography>
                                             </Stack>
                                         </Stack>
-                                    </Button>
+                                    </ConditionalWrapper>
                                 </Stack>
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
                                 (data.type &&
-                                    data?.type.name !== "Contrôl" &&
+                                    data?.type.icon !== "ic-control" &&
                                     roles.includes("ROLE_SECRETARY"))) && (
                                 <ListItem>
                                     {editConsultation ? (
@@ -194,7 +240,8 @@ function AppointmentCard({...props}) {
                                                     displayEmpty
                                                     onChange={(event) => {
                                                         updateDetails({
-                                                            type: event.target.value as string,
+                                                            attribute: "type",
+                                                            value: event.target.value as string,
                                                         });
                                                         setTypeEvent(event.target.value as string);
                                                     }}
@@ -215,7 +262,7 @@ function AppointmentCard({...props}) {
                                                             return <em>{t("stepper-1.type-placeholder")}</em>;
                                                         }
 
-                                                        const type = types?.find(
+                                                        const type = appointmentTypes?.find(
                                                             (type) => type.uuid === selected
                                                         );
                                                         return (
@@ -230,7 +277,7 @@ function AppointmentCard({...props}) {
                                                             </Box>
                                                         );
                                                     }}>
-                                                    {types?.map((type) => (
+                                                    {appointmentTypes?.map((type) => (
                                                         <MenuItem value={type.uuid} key={type.uuid}>
                                                             <FiberManualRecordIcon
                                                                 fontSize="small"
@@ -279,8 +326,8 @@ function AppointmentCard({...props}) {
                                     )}
                                 </ListItem>
                             )}
-                            {reasons && editConsultation && (
-                                <ListItem>
+                            {editConsultation && <>
+                                {reasons && <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("consultation_reson")}
                                     </Typography>
@@ -305,19 +352,7 @@ function AppointmentCard({...props}) {
                                                     handleReasonChange(newValue);
                                                 }
                                             }}
-                                            filterOptions={(options, params) => {
-                                                const {inputValue} = params;
-                                                const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                                // Suggest the creation of a new value
-                                                const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
-                                                if (inputValue !== '' && !isExisting) {
-                                                    filtered.push({
-                                                        inputValue,
-                                                        name: `${t('add_reason')} "${inputValue}"`,
-                                                    });
-                                                }
-                                                return filtered;
-                                            }}
+                                            filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                             sx={{color: "text.secondary"}}
                                             options={reasons ? reasons.filter(item => item.isEnabled) : []}
                                             loading={reasons?.length === 0}
@@ -360,8 +395,116 @@ function AppointmentCard({...props}) {
                                                                               sx={{paddingLeft: 0}}
                                                                               variant="outlined" fullWidth/>}/>
                                     </FormControl>
+                                </ListItem>}
+                                <ListItem>
+                                    <Typography fontWeight={400}>
+                                        {t("insctruction")}
+                                    </Typography>
+                                    <FormControl fullWidth size="small">
+                                        <textarea rows={6}
+                                                  onChange={debouncedOnChange}
+                                                  defaultValue={instruction}/>
+                                    </FormControl>
                                 </ListItem>
-                            )}
+
+                                <ListItem>
+                                    <Grid container spacing={2} mb={1}>
+                                        <Grid item md={12} sm={12} xs={12}>
+                                            <Typography variant="body1" color="text.primary" mb={1}>
+                                                {t("steppers.stepper-3.sms-reminder", {ns: "agenda"})}
+                                            </Typography>
+                                            <FormControl fullWidth size="small">
+                                                <Select id="demo-simple-select"
+                                                        value={reminder.smsLang}
+                                                        onChange={event => {
+                                                            setReminder({
+                                                                ...reminder,
+                                                                init: false,
+                                                                smsLang: event.target.value as string
+                                                            })
+                                                        }}>
+                                                    <MenuItem value="fr">{t("sms-languages.fr")}</MenuItem>
+                                                    <MenuItem value="ar">{t("sms-languages.ar")}</MenuItem>
+                                                    <MenuItem value="en">{t("sms-languages.en")}</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+
+                                    <Stack
+                                        mt={1}
+                                        direction={"column"}
+                                        alignItems={"left"}
+                                        sx={{width: "100%"}}>
+                                        <FormGroup>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={reminder.smsRappel}
+                                                        onChange={event => setReminder({
+                                                            ...reminder,
+                                                            init: false,
+                                                            smsRappel: event.target.checked
+                                                        })}/>}
+                                                label={t("steppers.stepper-3.schedule", {ns: "agenda"})}
+                                            />
+                                        </FormGroup>
+                                        {reminder.smsRappel &&
+                                            <Stack alignItems="center" justifyContent={"space-between"} direction="row">
+                                                <FormControl size="small" sx={{minWidth: 200}}>
+                                                    <Select
+                                                        id="demo-simple-select"
+                                                        value={reminder.rappel}
+                                                        onChange={event => setReminder({
+                                                            ...reminder,
+                                                            init: false,
+                                                            rappel: event.target.value
+                                                        })}
+                                                    >
+                                                        <MenuItem
+                                                            value={"0"}>{t("steppers.stepper-3.day", {ns: "agenda"})} 0</MenuItem>
+                                                        <MenuItem
+                                                            value={"1"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -1</MenuItem>
+                                                        <MenuItem
+                                                            value={"2"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -2</MenuItem>
+                                                        <MenuItem
+                                                            value={"3"}>{t("steppers.stepper-3.day", {ns: "agenda"})} -3</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                                <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
+                                                    {t("steppers.stepper-3.to", {ns: "agenda"})}
+                                                </Typography>
+                                                <LocalizationProvider
+                                                    adapterLocale={LocaleFnsProvider(locale)}
+                                                    dateAdapter={AdapterDateFns}>
+                                                    <MobileTimePicker
+                                                        ampm={false}
+                                                        value={reminder.timeRappel}
+                                                        onChange={(newValue) => {
+                                                            setReminder({
+                                                                ...reminder,
+                                                                init: false,
+                                                                timeRappel: newValue as Date
+                                                            })
+                                                        }}
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                                {...params}
+                                                                InputProps={{
+                                                                    endAdornment: (
+                                                                        <InputAdornment position="end">
+                                                                            <SortIcon/>
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                }}
+                                                            />
+                                                        )}
+                                                    />
+                                                </LocalizationProvider>
+                                            </Stack>}
+                                    </Stack>
+                                </ListItem>
+                            </>}
                         </List>
                     </Box>
                 </Stack>

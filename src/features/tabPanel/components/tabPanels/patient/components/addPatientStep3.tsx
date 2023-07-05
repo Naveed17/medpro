@@ -1,6 +1,6 @@
 import {SuccessCard} from "@features/card/";
 import {useTranslation} from "next-i18next";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     addPatientSelector,
     appointmentSelector,
@@ -20,7 +20,7 @@ function AddPatientStep3({...props}) {
     const {stepsData} = useAppSelector(addPatientSelector);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     return (
         <SuccessCard
             data={{

@@ -36,6 +36,7 @@ export default function SettingsTabs({ ...props }) {
       }}>
       {data?.map((item: any, index: number) => (
         <Box
+          className="tab-item"
           sx={{ maxWidth: "33%", width: "100%", p: 1, mb: { xs: 2, md: 0 } }}
           key={`tab-${index}`}>
           <TabsStyled
@@ -58,8 +59,9 @@ export default function SettingsTabs({ ...props }) {
               ) : (
                 item.icon
               )}
-              <Box sx={{ ml: 3 }}>
+              <Box sx={{ ml: 3 }} className="tab-content">
                 <Typography
+                  className="tab-label"
                   variant="body1"
                   color={
                     state.tabIndex === index ? "common.white" : "common.black"
@@ -72,6 +74,7 @@ export default function SettingsTabs({ ...props }) {
                   {t(item.label)}
                 </Typography>
                 <Typography
+                  className="tab-desc"
                   variant="caption"
                   sx={{ mb: 26, display: "block" }}
                   color={

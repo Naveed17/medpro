@@ -1,5 +1,4 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
-
 import {
     Backdrop,
     Box,
@@ -19,25 +18,27 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
-    CalendarContextMenu, DayOfWeek,
+    CalendarContextMenu,
+    DayOfWeek,
     Event,
-    Header, setCurrentDate, setView, SlotFormat,
+    Header,
+    setCurrentDate,
+    setView,
+    SlotFormat,
     TableHead
 } from "@features/calendar";
 
 import dynamic from "next/dynamic";
-
-const Otable = dynamic(() => import('@features/table/components/table'));
-
-import {useIsMountedRef} from "@app/hooks";
+import {useIsMountedRef} from "@lib/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
@@ -46,6 +47,8 @@ import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
+
+const Otable = dynamic(() => import('@features/table/components/table'));
 
 function Calendar({...props}) {
     const {
@@ -85,8 +88,6 @@ function Calendar({...props}) {
     const [eventMenu, setEventMenu] = useState<string>();
     const [slotMinTime, setSlotMinTime] = useState(8);
     const [slotMaxTime, setSlotMaxTime] = useState(20);
-    const [date, setDate] = useState(currentDate.date);
-    const [calendarHeight, setCalendarHeight] = useState(!isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122))));
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [slotInfo, setSlotInfo] = useState<DateClickTouchArg | null>(null);
     const [slotInfoPopover, setSlotInfoPopover] = useState<boolean | null>(null);
@@ -94,13 +95,13 @@ function Calendar({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
     const [loading, setLoading] = useState(true);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
+    const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -125,7 +126,7 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
+    const handleNavLinkDayClick = (date: Date) => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -157,7 +158,6 @@ function Calendar({...props}) {
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
-        setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
@@ -184,14 +184,16 @@ function Calendar({...props}) {
             (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
             (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            action === "onPreConsultation" &&
+            ["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) ||
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
             (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onDelete" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onMove" &&
-            (moment().isAfter(eventMenu.time) || eventMenu.status.key === "FINISHED") ||
+            (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
             ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") ||
                 eventMenu.status.key === "FINISHED") ||
@@ -203,10 +205,10 @@ function Calendar({...props}) {
     }
 
     const handlers = useSwipeable({
-        onSwipedLeft: (eventData) => {
+        onSwipedLeft: () => {
             handleClickDateNext();
         },
-        onSwipedRight: (eventData) => {
+        onSwipedRight: () => {
             handleClickDatePrev();
         },
         preventScrollOnSwipe: true
@@ -215,8 +217,8 @@ function Calendar({...props}) {
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
-            Object.entries(openingHours).map((openingHours: any) => {
-                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+            Object.entries(openingHours).forEach((openingHours: any) => {
+                openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                     const min = moment.duration(openingHour?.start_time).asHours();
                     const max = moment.duration(openingHour?.end_time).asHours();
                     if (min < slotMinTime) {
@@ -300,7 +302,6 @@ function Calendar({...props}) {
             </ClickAwayListener>}
             <RootStyled>
                 <CalendarStyled>
-
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
@@ -318,7 +319,7 @@ function Calendar({...props}) {
                                 <NoDataCard t={translation} data={AddAppointmentCardData}/>
                             )}
                         </Box>
-                    ) : !loading && (
+                    ) : (!loading && view !== "listWeek") && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
                                 weekends
@@ -336,7 +337,7 @@ function Calendar({...props}) {
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
-                                allDayContent={(event) => ""}
+                                allDayContent={() => ""}
                                 eventDrop={(eventDrop) => {
                                     if (eventDrop.event._def.allDay) {
                                         eventDrop.revert();
@@ -390,7 +391,7 @@ function Calendar({...props}) {
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}
                                 height={calendarHeight}
-                                initialDate={date}
+                                initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
                                 slotMaxTime={getSlotsFormat(slotMaxTime)}
                                 businessHours={daysOfWeek}
@@ -405,7 +406,7 @@ function Calendar({...props}) {
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
-                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
                             />
 
                             {slotInfo && <StyledMenu
@@ -457,19 +458,19 @@ function Calendar({...props}) {
                             >
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
-                                    OnAddAppointment("quick-add");
+                                    OnAddAppointment("add-quick");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
                                     <FastForwardOutlinedIcon/>
-                                    Ajout rapide
+                                    {translation('add-quick')}
                                 </MenuItem>
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
-                                    OnAddAppointment("full-add");
+                                    OnAddAppointment("add-complete");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
                                     <AddOutlinedIcon/>
-                                    Ajout complet
+                                    {translation('add-complete')}
                                 </MenuItem>
                             </StyledMenu>}
 

@@ -1,30 +1,31 @@
 import TableCell from "@mui/material/TableCell";
 import {
-    Typography,
+    Avatar,
+    AvatarGroup,
+    Badge,
     Box,
     Button,
+    Chip,
     IconButton,
-    Skeleton, Stack, Chip, Avatar, Tooltip, Badge, styled, AvatarGroup
+    Skeleton,
+    Stack,
+    styled,
+    Tooltip,
+    Typography
 } from "@mui/material";
-import {TableRowStyled} from "@features/table";
-import Icon from "@themes/urlIcon";
+import {onOpenPatientDrawer, TableRowStyled} from "@features/table";
+import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import {useAppDispatch} from "@app/redux/hooks";
-import {onOpenPatientDrawer} from "@features/table";
+import {useAppDispatch} from "@lib/redux/hooks";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import {useRequest} from "@app/axios";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from 'react-medium-image-zoom'
-import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
-import {ConditionalWrapper} from "@app/hooks";
-import Image from "next/image";
+import {ConditionalWrapper} from "@lib/hooks";
+import {useProfilePhoto} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -34,31 +35,16 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 }));
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
+    const {row, isItemSelected, t, loading, handleEvent, data} = props;
     const {insurances} = data;
     const dispatch = useAppDispatch();
-    const router = useRouter();
-    const {data: session} = useSession();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpPatientPhotoResponse} = useRequest(row?.hasPhoto ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null, SWRNoValidateConfig);
-
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+    const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
 
     return (
         <TableRowStyled
             hover
             onClick={(event: any) => {
                 event.stopPropagation();
-                // !loading && handleClick(row.uuid as string);
                 dispatch(
                     onOpenPatientDrawer({
                         patientId: row.uuid,
@@ -70,7 +56,6 @@ function PatientRow({...props}) {
             role="checkbox"
             aria-checked={isItemSelected}
             tabIndex={-1}
-            key={Math.random()}
             selected={isItemSelected}
         >
             <TableCell
@@ -123,7 +108,9 @@ function PatientRow({...props}) {
                                             <Fragment>
                                                 <Avatar
                                                     {...(row.hasPhoto && {className: "zoom"})}
-                                                    src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                                    src={patientPhoto
+                                                        ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
+                                                        : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                                     sx={{
                                                         "& .injected-svg": {
                                                             margin: 0
@@ -171,7 +158,7 @@ function PatientRow({...props}) {
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
                                                 <>
-                                                    <Icon path="ic-anniverssaire"/> {row.birthdate} - {" "}
+                                                    <IconUrl path="ic-anniverssaire"/> {row.birthdate} - {" "}
                                                     {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                                 </>
                                             )}
@@ -188,19 +175,18 @@ function PatientRow({...props}) {
                     <Stack direction={"row"} alignItems={"center"}>
                         {row.insurances.length > 0 ?
                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
-                                {row.insurances.map((insur: any, index: number) =>
-                                    <Tooltip key={index} title={insur.insurance?.name}>
+                                {row.insurances.map((insuranceItem: any, index: number) =>
+                                    <Tooltip key={index} title={insuranceItem?.insurance.name}>
                                         <Avatar variant={"circular"}>
-                                            <Image
-                                                style={{borderRadius: 2}}
-                                                alt={insur.insurance?.name}
-                                                src="static/icons/Med-logo.png"
-                                                width={20}
-                                                height={20}
-                                                loader={({src, width, quality}) => {
-                                                    return insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl
-                                                }}
-                                            />
+                                            {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                <ImageHandler
+                                                    alt={insuranceItem?.name}
+                                                    src={insurances.find(
+                                                        (insurance: any) =>
+                                                            insurance.uuid ===
+                                                            insuranceItem?.insurance.uuid
+                                                    ).logoUrl.url}
+                                                />}
                                         </Avatar>
                                     </Tooltip>
                                 )}
@@ -265,7 +251,7 @@ function PatientRow({...props}) {
                                     handleEvent("APPOINTMENT_MOVE", appointment);
                                 }}
                                 size="small">
-                                <Icon path="ic-historique"/>
+                                <IconUrl path="ic-historique"/>
                             </IconButton>
 
                             <Box ml={1}>
@@ -276,7 +262,7 @@ function PatientRow({...props}) {
                                     color="text.primary"
                                 >
                                     <>
-                                        <Icon path="ic-agenda"/>
+                                        <IconUrl path="ic-agenda"/>
                                         {row.nextAppointment?.dayDate}
                                     </>
                                 </Typography>
@@ -294,7 +280,7 @@ function PatientRow({...props}) {
                                     color="text.primary"
                                 >
                                     <>
-                                        <Icon path="ic-time"/>
+                                        <IconUrl path="ic-time"/>
                                         {row.nextAppointment?.startTime}
                                     </>
                                 </Typography>
@@ -310,7 +296,7 @@ function PatientRow({...props}) {
                             size="small"
                             color="primary"
                             style={{margin: "auto"}}
-                            startIcon={<Icon path="ic-agenda-+"/>}
+                            startIcon={<IconUrl path="ic-agenda-+"/>}
                             sx={{position: "relative"}}
                         >
                             {t("table.add-appointment")}
@@ -335,7 +321,7 @@ function PatientRow({...props}) {
                                         <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <Icon path="ic-agenda"/>
+                                            <IconUrl path="ic-agenda"/>
                                             {row.previousAppointments?.dayDate || "-"}
                                         </>
                                     )}
@@ -357,7 +343,7 @@ function PatientRow({...props}) {
                                         <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <Icon path="ic-time"/>{" "}
+                                            <IconUrl path="ic-time"/>{" "}
                                             {row.previousAppointments?.startTime || "-"}
                                         </>
                                     )}
@@ -409,7 +395,7 @@ function PatientRow({...props}) {
                                     handleEvent("PATIENT_DETAILS", row);
                                 }}
                                 size="small"
-                                startIcon={<Icon path="/ic-voir"/>}
+                                startIcon={<IconUrl path="/ic-voir"/>}
                             >
                                 {t("table.see-card")}
                             </Button>
@@ -447,7 +433,7 @@ function PatientRow({...props}) {
                                     handleEvent("PATIENT_DETAILS", row);
                                 }}
                             >
-                                <Icon path="/ic-voir"/>
+                                <IconUrl path="/ic-voir"/>
                             </IconButton>
                             {/*                         <IconButton
                                 onClick={(e) => {

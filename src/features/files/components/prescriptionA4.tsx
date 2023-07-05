@@ -1,21 +1,23 @@
 import Draggable from "react-draggable";
 import {DocHeader} from "@features/files";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Box, useMediaQuery} from "@mui/material";
 import {Theme} from "@mui/material/styles";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
+    const {eventHandler, data, pages, id, values, state, loading, date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     const footer = useRef<HTMLDivElement>(null);
-    useEffect(()=>{
+    const [selected, setSelected] = useState("");
+    const [lastSelected, setLastSelected] = useState("");
+
+    useEffect(() => {
         content.current?.append(pages[id].content)
         const footer = document.getElementById('footer')
         if (footer && data.footer) {
-            console.log(data.footer)
             footer.innerHTML = data.footer.content;
         }
-    },[data, id, loading, pages])
+    }, [data, id, loading, pages])
 
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
@@ -24,52 +26,117 @@ const Prescription = ({...props}) => {
     return (
         <>
             {!loading && <Box>
-                {data !== undefined && <div className={"portraitA4"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:''}}>
+                {data !== undefined && <div className={"portraitA4"} style={{
+                    zoom: isMobile ? '40%' : '',
+                    marginBottom: isMobile ? 80 : '',
+                    marginLeft: isMobile ? 30 : '',
+                    fontSize: data.size === 'portraitA4' ? '15px' : ''
+                }}>
 
-                    {data.background.show && data.background.content !== '' && state === undefined && id === 0 &&
+                    {data.background.show && data.background.content !== '' && id === 0 &&
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={"portraitA4"}
-                             style={{position: "absolute", height: '421mm',width:'297mm'}}
-                             src={data.background.content} alt={'backgroud'}/>}
+                             style={{position: "absolute", height: '100%', width: '100%'}}
+                             src={data.background.content.url} alt={'background'}/>}
 
-                    <Draggable onStop={(ev, data) => {
-                        eventHandler(ev, data, 'header')
-                    }}
-                               bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
-                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
-                            {data.header.show && <DocHeader data={values}></DocHeader>}
+                    {data.header.show && id === 0 && <Draggable
+                        onStop={(ev, data) => {
+                            eventHandler(ev, data, 'header');
+                            setSelected("");
+                        }}
+                        onStart={() => {
+                            setSelected("header");
+                            setLastSelected("header");
+                        }}
+                        disabled={eventHandler === null}
+                        bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
+                        <div style={{
+                            padding: "1.5rem 1.5rem 0",
+                            position:"absolute",
+                            zIndex: lastSelected === "header" ? 999 : 1,
+                            opacity: selected === "" || selected === "header" ? 1 : 0.5,
+                            width: "100%",
+                            border: '0 solid red'
+                        }}>
+                            <DocHeader data={values}></DocHeader>
                         </div>
-                    </Draggable>
+                    </Draggable>}
 
                     {id === 0 && <>
-                        <Draggable onStop={(ev, data) => {
-                            eventHandler(ev, data, 'title')
-                        }}
-                                   defaultPosition={{x: data.title.x, y: data.title.y}}
-                                   bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "100%", fontWeight:"bold", textAlign: "center", height: '6mm'}}>
-                                {data.title.show && <div
-                                    className="handle">{state && state.title ? state.title : title}</div>}
+                        {data.title.show &&
+                            <Draggable onStop={(ev, data) => {
+                                eventHandler(ev, data, 'title');
+                                setSelected("");
+                            }}
+                                       onStart={() => {
+                                           setSelected("title");
+                                           setLastSelected("title");
+                                       }}
+                                       disabled={eventHandler === null}
+                                       defaultPosition={{x: data.title.x, y: data.title.y}}
+                                       bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                                <div style={{
+                                    width: "100%",
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    height: '7mm',
+                                    position:"absolute",
+                                    zIndex: lastSelected === "title" ? 999 : 1,
+                                    opacity: selected === "" || selected === "title" ? 1 : 0.5,
+                                    border: state === undefined ? selected === 'title' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
+                                }}>
+                                    <div
+                                        className="handle">{state && state.title ? state.title : title}</div>
+                                </div>
+                            </Draggable>}
+
+                        {data.date.show && <Draggable
+                            onStop={(ev, data) => {
+                                eventHandler(ev, data, 'date');
+                                setSelected("");
+                            }}
+                            onStart={() => {
+                                setSelected("date");
+                                setLastSelected("date");
+                            }}
+                            disabled={eventHandler === null}
+                            defaultPosition={{x: data.date.x, y: data.date.y}}
+                            bounds={{left: 0, top: 0, right: 460, bottom: 1000}}>
+                            <div style={{
+                                width: "100%",
+                                border: state === undefined ? selected === 'date' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
+                                margin: "auto",
+                                position:"absolute",
+                                zIndex: lastSelected === "date" ? 999 : 1,
+                                textAlign: data.date.textAlign ? data.date.textAlign : "",
+                                opacity: selected === "" || selected === "date" ? 1 : 0.5,
+                                padding: 10
+                            }}>
+                                <div
+                                    className="handle"
+                                    style={{whiteSpace: 'break-spaces'}}>{data.date.prefix} {state ? date : data.date.content} </div>
                             </div>
-                        </Draggable>
+                        </Draggable>}
 
                         <Draggable onStop={(ev, data) => {
-                            eventHandler(ev, data, 'date')
+                            eventHandler(ev, data, 'patient');
+                            setSelected("");
                         }}
-                                   defaultPosition={{x: data.date.x, y: data.date.y}}
-                                   bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "100%",border: '0px solid red',margin:"auto" ,textAlign:data.date.textAlign? data.date.textAlign:"",padding:10}}>
-                                {data.date.show && <div
-                                    className="handle" style={{whiteSpace: 'break-spaces'}}>{data.date.prefix} {state ? date : data.date.content} </div>}
-                            </div>
-                        </Draggable>
+                                   onStart={() => {
+                                       setSelected("patient");
+                                       setLastSelected("patient");
+                                   }}
 
-                        <Draggable onStop={(ev, data) => {
-                            eventHandler(ev, data, 'patient')
-                        }}
+                                   disabled={eventHandler === null}
                                    defaultPosition={{x: data.patient.x, y: data.patient.y}}
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "fit-content", border: '0 solid red'}}>
+                            <div style={{
+                                width: "fit-content",
+                                position:"absolute",
+                                zIndex: lastSelected === "patient" ? 999 : 1,
+                                opacity: selected === "" || selected === "patient" ? 1 : 0.5,
+                                border: state === undefined ? selected === 'patient' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
+                            }}>
                                 {data.patient.show && <div
                                     className="handle">{data.patient.prefix} {state ? state.patient : data.patient.content}</div>}
                             </div>
@@ -78,25 +145,56 @@ const Prescription = ({...props}) => {
 
                     <Draggable
                         defaultPosition={{x: data.content.x, y: data.content.y}}
+                        disabled={eventHandler === null}
+                        allowAnyClick={false}
                         onStop={(ev, data) => {
-                            eventHandler(ev, data, 'content')
+                            eventHandler(ev, data, 'content');
+                            setSelected("");
                         }}
-                        bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                        <div style={{width: "100%", padding: '0 10mm',border:"0 solid", overflowWrap: 'break-word',height: `${data.content.maxHeight}px`}}>
+                        onStart={() => {
+                            setSelected("content");
+                            setLastSelected("content");
+                        }}
+                        bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
+                        <div style={{
+                            width: "100%",
+                            padding: '0 10mm',
+                            border: "0 solid",
+                            overflowWrap: 'break-word',
+                            position:"absolute",
+                            zIndex: lastSelected === "content" ? 999 : 1,
+                            opacity: selected === "" || selected === "content" ? 1 : 0.5,
+                            height: `${data.content.maxHeight}px`
+                        }}>
                             {state === undefined && <div id={'content' + id} className="box"
-                                                         style={{height: `${data.content.maxHeight}px`}}>
+                                                         style={{
+                                                             height: `${data.content.maxHeight}px`,
+                                                             border: state === undefined ? selected === 'content' ? '1px solid #0096d6' : '1px dashed #0096d6' : '0',
+                                                         }}>
                                 {data.content.content}</div>}
-
                             {<div id={id} ref={content}></div>}
                         </div>
                     </Draggable>
 
                     {data.footer && <Draggable defaultPosition={{x: data.footer.x, y: data.footer.y}}
+                                               disabled={eventHandler === null}
                                                onStop={(ev, data) => {
-                                                   eventHandler(ev, data, 'footer')
+                                                   eventHandler(ev, data, 'footer');
+                                                   setSelected("");
                                                }}
-                                               bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
-                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
+                                               onStart={() => {
+                                                   setSelected("footer");
+                                                   setLastSelected("footer");
+                                               }}
+                                               bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
+                        <div style={{
+                            padding: "1.5rem 1.5rem 0",
+                            position:"absolute",
+                            zIndex: lastSelected === "footer" ? 999 : 1,
+                            opacity: selected === "" || selected === "footer" ? 1 : 0.5,
+                            width: "100%",
+                            border: '0 solid red'
+                        }}>
                             {data.footer.show && <div id={"footer"} className={"footer-st"} ref={footer}></div>}
                         </div>
                     </Draggable>}

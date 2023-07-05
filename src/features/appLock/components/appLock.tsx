@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {Button, Fade, Stack, Typography, TextField} from '@mui/material'
 import {Player} from '@lottiefiles/react-lottie-player';
 import AppLookStyled from "./overrides/appLookStyled";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appLockSelector} from "@features/appLock/selectors";
 import {setLock} from "@features/appLock/actions";
 import {useTranslation} from "next-i18next";
@@ -38,7 +38,7 @@ function AppLock() {
         }
     };
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <Fade in={lock} timeout={1000}>

@@ -15,12 +15,15 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {MotifCard, PatientHistoryCard, PatientHistoryStaticCard} from "@features/card";
 import Image from "next/image";
-import {useRequestMutation} from "@app/axios";
-import {DefaultCountry} from "@app/constants";
-import {useAppSelector} from "@app/redux/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {DefaultCountry, SubMotifCard} from "@lib/constants";
+import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSWRConfig} from "swr";
+import {dashLayoutSelector} from "@features/base";
 
 function HistoryContainer({...props}) {
     const {
@@ -36,69 +39,26 @@ function HistoryContainer({...props}) {
         setState,
         setOpenDialog,
         showDoc,
-        mutate,
         patient,
         setSelectedTab,
         session,
         medical_entity,
     } = props;
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
-    const router = useRouter();
 
     const {trigger} = useRequestMutation(null, "/editRA");
 
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const {selectedApp} = useAppSelector(consultationSelector);
-
-    const subMotifCard = [
-        {
-            id: 1,
-            title: "treatment_medication",
-            icon: "ic-traitement",
-            type: "treatment",
-            drugs: [
-                {
-                    id: 1,
-                    name: "Doliprane 1000",
-                    dosage: "dosage_unit",
-                    duration: 10,
-                },
-                {
-                    id: 2,
-                    name: "Doliprane 1000",
-                    dosage: "dosage_unit",
-                    duration: 10,
-                },
-            ],
-        },
-        {
-            id: 2,
-            title: "documents",
-            icon: "ic-document",
-            type: "document",
-            documents: ["document_1", "document_2"],
-        },
-        {
-            id: 3,
-            title: "bal_sheet_req",
-            icon: "ic-document",
-            type: "req-sheet",
-        },
-        {
-            id: 4,
-            title: "medical_sheet_req",
-            icon: "ic-soura",
-            type: "req-medical-imaging",
-        },
-        {
-            id: 5,
-            title: "actfees",
-            icon: "ic-text",
-            type: "act-fees",
-        },
-    ];
 
     const printFees = (app: any) => {
 
@@ -132,14 +92,16 @@ function HistoryContainer({...props}) {
         setOpenDialog(true);
     }
 
-    const editReqSheet = (apps: { [x: string]: { appointment: { requestedAnalyses: { [x: string]: any; }; }; }; }, iid: number, idx: number) => {
+    const editReqSheet = (apps: {
+        [x: string]: { appointment: { requestedAnalyses: { [x: string]: any; }; }; };
+    }, iid: number, idx: number) => {
         const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
         trigger(
             {
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
                 data: form,
                 headers: {
                     ContentType: "application/x-www-form-urlencoded",
@@ -151,7 +113,7 @@ function HistoryContainer({...props}) {
                 populateCache: true
             }
         ).then(() => {
-            mutate();
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`);
         });
     }
 
@@ -180,7 +142,7 @@ function HistoryContainer({...props}) {
             open={app.appointment.uuid === selectedApp}
             key={`${app.appointment.uuid}timeline`}>
             <PatientHistoryCard
-                {...{selectedApp, t, appuuid, dispatch, closePatientDialog,setSelectedTab}}
+                {...{selectedApp, t, appuuid, dispatch, closePatientDialog, setSelectedTab}}
                 key={app.appointment.uuid}
                 keyID={app.appointment.uuid}
                 data={app}>
@@ -189,7 +151,7 @@ function HistoryContainer({...props}) {
                     <Stack spacing={2}>
                         <MotifCard data={app} t={t}/>
                         <List dense>
-                            {subMotifCard.map((col: any, indx: number) => (
+                            {SubMotifCard.map((col: any, indx: number) => (
                                 <React.Fragment key={`list-item-${indx}`}>
                                     <>
                                         <ListItemStyled
@@ -210,29 +172,35 @@ function HistoryContainer({...props}) {
                                                 {col.type === "treatment" && <>
                                                     {
                                                         app.appointment.treatments.length > 0 ? <>
-                                                            {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                            {
+                                                                app.appointment.treatments.filter((t: {
+                                                                    isOtherProfessional: any;
+                                                                }) => t.isOtherProfessional).length > 0 &&
+                                                                <Typography fontSize={12}
+                                                                            fontWeight={"bold"}>{t('treatement_in_progress')}</Typography>
+                                                            }
+                                                            {app.appointment.treatments.filter((t: {
+                                                                isOtherProfessional: any;
+                                                            }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                                     <Box
                                                                         key={`list-treatement-${idx}`}
                                                                         className={'boxHisto'}>
                                                                         <Typography
                                                                             fontSize={12}>{treatment.name}</Typography>
-                                                                        <Stack direction={"row"}>
-                                                                            {treatment.dosage && <Typography
-                                                                                className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
-                                                                            {treatment.duration > 0 && <Typography
-                                                                                className={"treamtementDetail"}
-                                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>}
-                                                                        </Stack>
                                                                     </Box>
                                                                 )
                                                             )}
 
                                                             {
-                                                                app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).length > 0 &&
+                                                                app.appointment.treatments.filter((t: {
+                                                                    isOtherProfessional: any;
+                                                                }) => !t.isOtherProfessional).length > 0 &&
                                                                 <Typography fontSize={12}
                                                                             fontWeight={"bold"}>{t('prescription')}</Typography>
                                                             }
-                                                            {app.appointment.treatments.filter((t: { isOtherProfessional: any; }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
+                                                            {app.appointment.treatments.filter((t: {
+                                                                isOtherProfessional: any;
+                                                            }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                                     <Box
                                                                         key={`list-treatement-${idx}`}
                                                                         className={'boxHisto'}>
@@ -294,7 +262,7 @@ function HistoryContainer({...props}) {
                                                                             {data.documentType === 'photo' &&
                                                                                 <Image width={25}
                                                                                        height={25}
-                                                                                       src={data.uri}
+                                                                                       src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_32']}
                                                                                        style={{borderRadius: 5}}
                                                                                        alt={'photo history'}/>}
                                                                             <Typography variant='subtitle2'
@@ -391,7 +359,9 @@ function HistoryContainer({...props}) {
                                                                             <Grid container mb={0.1} mt={0}
                                                                                   spacing={1}>
                                                                                 {
-                                                                                    app.documents.filter((doc: { uri: any; }) => rs.uri.includes(doc.uri)).map((card: any) => (
+                                                                                    app.documents.filter((doc: {
+                                                                                        uri: any;
+                                                                                    }) => rs.uri.includes(doc.uri)).map((card: any) => (
                                                                                         <Grid item xs={3}
                                                                                               key={`doc-item-${card.uuid}`}>
                                                                                             <Stack direction={"row"}
@@ -517,7 +487,7 @@ function HistoryContainer({...props}) {
                                                                 )
                                                             )}
 
-                                                            <Stack mt={2} direction={"row"}
+                                                            <Stack mt={2} pt={1} direction={"row"}
                                                                    alignItems={"center"}
                                                                    justifyContent={"flex-end"}>
                                                                 <Typography textAlign={"right"} mr={2}

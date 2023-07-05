@@ -17,7 +17,7 @@ function RoomToolbar({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'subheader'});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <Stack direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
@@ -28,7 +28,7 @@ function RoomToolbar({...props}) {
                 {(isMobile && board) && (
                     <React.Fragment>
                         {
-                            data?.map((item: any) => (
+                            data?.map((item: any, index: number) => (
                                 <Button
                                     {...(handleCollapse && {onClick: () => handleCollapse(item.id)})}
                                     sx={{
@@ -40,14 +40,14 @@ function RoomToolbar({...props}) {
                                             height: 14,
                                             '& path': {fill: theme => theme.palette.text.primary}
                                         }
-                                    }} variant='contained' color={item.color} key={Math.random()}>
+                                    }} variant='contained' color={item.color} key={index.toString()}>
                                     <Icon path={item.icon}/>
                                 </Button>
                             ))
                         }
                     </React.Fragment>
                 )}
-{/*                <Button
+                {/*                <Button
                     onClick={() => {
                         router.push('/dashboard/agenda').then(() => {
                             enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})

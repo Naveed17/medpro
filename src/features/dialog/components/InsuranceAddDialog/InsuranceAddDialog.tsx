@@ -1,5 +1,5 @@
 import {
-    Autocomplete, Avatar,
+    Autocomplete,
     CardContent, Collapse, Divider, FormControl, FormHelperText,
     Grid,
     IconButton, InputAdornment,
@@ -9,11 +9,11 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {DefaultCountry, SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import React, {memo, useRef} from "react";
+import React, {memo, useRef, useState} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -21,6 +21,8 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
+import {ImageHandler} from "@features/image";
+import {useTranslation} from "next-i18next";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -52,6 +54,14 @@ function InsuranceAddDialog({...props}) {
 
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+
+    const {t: commonTranslation} = useTranslation("common");
+
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })))
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -104,28 +114,26 @@ function InsuranceAddDialog({...props}) {
                                                     }
                                                 }}
                                                 id={"assure"}
-                                                options={SocialInsured}
+                                                options={socialInsurances}
                                                 groupBy={(option: any) => option.grouped}
                                                 fullWidth
-                                                renderGroup={(params) => {
-                                                    return (
-                                                        <li key={params.key}>
-                                                            {(params.children as Array<any>)?.length > 1 &&
-                                                                <GroupHeader
-                                                                    sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
-                                                            <GroupItems {...(
-                                                                (params.children as Array<any>)?.length > 1 &&
-                                                                {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
-                                                        </li>)
-                                                }}
+                                                renderGroup={(params) => (
+                                                    <li key={params.key}>
+                                                        {(params.children as Array<any>)?.length > 1 &&
+                                                            <GroupHeader
+                                                                sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                        <GroupItems {...(
+                                                            (params.children as Array<any>)?.length > 1 &&
+                                                            {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                    </li>)}
                                                 renderInput={(params) => {
-                                                    const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
+                                                    const insurance = socialInsurances.find(insurance => insurance.value === params.inputProps.value);
                                                     return (<TextField {...params}
                                                                        inputProps={{
                                                                            ...params.inputProps,
                                                                            value: insurance?.label
                                                                        }}
-                                                                       placeholder={t("patient")}/>)
+                                                                       placeholder={t("config.add-patient.patient")}/>)
                                                 }}
                                             />
                                         </Stack>
@@ -148,31 +156,21 @@ function InsuranceAddDialog({...props}) {
                                                         {...params}
                                                         key={option.uuid}
                                                         value={option.uuid}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 20,
-                                                                height: 20,
-                                                                borderRadius: 0.4
-                                                            }}
+                                                        <ImageHandler
                                                             alt={"insurance"}
-                                                            src={option.logoUrl}
+                                                            src={option.logoUrl.url}
                                                         />
                                                         <Typography
-                                                            sx={{ml: 1}}>{option.name}</Typography>
+                                                            sx={{ml: 1}}><span>{option.name}</span></Typography>
                                                     </MenuItem>)}
                                                 renderInput={(params) => {
                                                     const insurance = insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value);
                                                     params.InputProps.startAdornment = insurance && (
                                                         <InputAdornment position="start">
                                                             {insurance?.logoUrl &&
-                                                                <Avatar
-                                                                    sx={{
-                                                                        width: 20,
-                                                                        height: 20,
-                                                                        borderRadius: 0.4
-                                                                    }}
+                                                                <ImageHandler
                                                                     alt="insurance"
-                                                                    src={insurance?.logoUrl}
+                                                                    src={insurance?.logoUrl.url}
                                                                 />}
                                                         </InputAdornment>
                                                     );
@@ -180,7 +178,7 @@ function InsuranceAddDialog({...props}) {
                                                     return <TextField color={"info"}
                                                                       {...params}
                                                                       sx={{paddingLeft: 0}}
-                                                                      placeholder={t("assurance-placeholder")}
+                                                                      placeholder={t("config.add-patient.assurance-placeholder")}
                                                                       variant="outlined"
                                                                       fullWidth/>;
                                                 }}/>
@@ -194,7 +192,7 @@ function InsuranceAddDialog({...props}) {
                                     <Grid item xs={6} md={3.5}>
                                         <TextField
                                             variant="outlined"
-                                            placeholder={t("assurance-phone-error")}
+                                            placeholder={t("config.add-patient.assurance-phone-error")}
                                             error={Boolean(touched.insurances &&
                                                 (touched.insurances as any)[index]?.insurance_number &&
                                                 errors.insurances && (errors.insurances as any)[index]?.insurance_number)}
@@ -227,15 +225,15 @@ function InsuranceAddDialog({...props}) {
                                     <CardContent sx={{paddingTop: 0}}
                                                  className={"insurance-section"}>
                                         <fieldset>
-                                            <legend>{t("patient-detail")}</legend>
+                                            <legend>{t("config.add-patient.patient-detail")}</legend>
                                             <Grid container spacing={1.2}>
                                                 <Grid item md={6} sm={6}>
                                                     <Stack mb={1.5}>
                                                         <Typography variant="body2">
-                                                            {t("first-name")}
+                                                            {t("config.add-patient.first-name")}
                                                         </Typography>
                                                         <TextField
-                                                            placeholder={t("first-assure-placeholder")}
+                                                            placeholder={t("config.add-patient.first-assure-placeholder")}
                                                             error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social.firstName)}
                                                             helperText={
                                                                 Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.firstName)
@@ -254,10 +252,10 @@ function InsuranceAddDialog({...props}) {
                                                 <Grid item md={6} sm={6}>
                                                     <Stack mb={1.5}>
                                                         <Typography variant="body2">
-                                                            {t("last-name")}
+                                                            {t("config.add-patient.last-name")}
                                                         </Typography>
                                                         <TextField
-                                                            placeholder={t("last-assure-placeholder")}
+                                                            placeholder={t("config.add-patient.last-assure-placeholder")}
                                                             error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.lastName)}
                                                             helperText={
                                                                 Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.lastName)
@@ -275,6 +273,7 @@ function InsuranceAddDialog({...props}) {
                                                 </Grid>
                                             </Grid>
                                             <Stack
+                                                spacing={1.2}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root button": {
                                                         padding: "5px",
@@ -287,7 +286,7 @@ function InsuranceAddDialog({...props}) {
                                                 <Typography variant="body2"
                                                             color="text.secondary"
                                                             gutterBottom>
-                                                    {t("birthdate")}
+                                                    {t("config.add-patient.birthdate")}
                                                 </Typography>
                                                 <FormControl
                                                     fullWidth
@@ -307,7 +306,7 @@ function InsuranceAddDialog({...props}) {
                                             <Stack direction={"row"} alignItems={"center"}>
                                                 <Typography variant="body2" color="text.secondary"
                                                             gutterBottom>
-                                                    {t("telephone")}
+                                                    {t("config.add-patient.telephone")}
                                                 </Typography>
                                                 <Grid container spacing={2}>
                                                     <Grid item md={6} lg={4} xs={12}>
@@ -328,7 +327,7 @@ function InsuranceAddDialog({...props}) {
                                                             withCountryCallingCode
                                                             {...(getFieldProps(`insurances[${index}].insurance_social.phone.value`) &&
                                                                 {
-                                                                    helperText: `Format international: ${getFieldProps(`insurances[${index}].insurance_social.phone.value`)?.value ?
+                                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurances[${index}].insurance_social.phone.value`)?.value ?
                                                                         getFieldProps(`insurances[${index}].insurance_social.phone.value`).value : ""}`
                                                                 })}
                                                             country={(getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?

@@ -1,7 +1,6 @@
 //material-ui
 import {
     Avatar,
-    Badge,
     Box,
     Button,
     IconButton,
@@ -9,13 +8,13 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 // utils
-import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
@@ -25,26 +24,22 @@ import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
-import {CropImage} from "@features/cropImage";
-import {useRequestMutation} from "@app/axios";
+import {CropImage} from "@features/image";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {getBirthdayFormat} from "@app/hooks";
-import UrlIcon from "@themes/urlIcon";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useSWRConfig} from "swr";
 
 function PatientDetailsCard({...props}) {
-    const {
-        patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, antecedentsData,
-        mutateAntecedents, loading
-    } = props;
-
+    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
@@ -55,7 +50,10 @@ function PatientDetailsCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
-            picture: {url: !loading && patientPhoto ? patientPhoto : "", file: ""},
+            picture: {
+                url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
+                file: ""
+            },
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
@@ -63,14 +61,12 @@ function PatientDetailsCard({...props}) {
             console.log("ok", values);
         },
     });
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "patient-details",
-    });
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
 
@@ -108,12 +104,12 @@ function PatientDetailsCard({...props}) {
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
             patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({
-                fr: patient?.address[0]?.street
+                [router.locale as string]: patient?.address[0]?.street
             }));
 
-            triggerPatientUpdate({
+            medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
@@ -122,7 +118,7 @@ function PatientDetailsCard({...props}) {
                 setRequestLoading(false);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
-
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
                 if (appointment) {
                     const event = {
                         ...appointment,
@@ -137,7 +133,7 @@ function PatientDetailsCard({...props}) {
         }
     }
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -216,7 +212,7 @@ function PatientDetailsCard({...props}) {
                                             className={"date-birth"}
                                             direction={isMobile ? "column" : "row"} alignItems="center">
                                             <Stack direction={"row"} alignItems="center">
-                                                <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
+                                                <IconUrl width={"13"} height={"14"} path="ic-anniverssaire"/>
                                                 <Box
                                                     sx={{
                                                         input: {
@@ -278,7 +274,7 @@ function PatientDetailsCard({...props}) {
                                                 <Skeleton variant="text" width={100}/>
                                             ) : patient?.email && (
                                                 <>
-                                                    <Icon path="ic-message-contour"/>
+                                                    <IconUrl path="ic-message-contour"/>
                                                     <Typography {...(!patient?.email && {color: "primary"})}
                                                                 variant={"body2"}>{patient?.email}</Typography>
                                                 </>
@@ -296,7 +292,7 @@ function PatientDetailsCard({...props}) {
                                         readOnly
                                         startAdornment={
                                             <Stack direction={"row"}>
-                                                <UrlIcon width={15} height={15} color={"gray"} path="ic-docotor"/>
+                                                <IconUrl width={15} height={15} color={"gray"} path="ic-docotor"/>
                                                 <Typography sx={{width: 150, color: "gray"}}
                                                             variant={"body2"}>{t("family_doctor")}{":"}</Typography>
                                             </Stack>}
@@ -468,9 +464,7 @@ function PatientDetailsCard({...props}) {
 
                     {patient && (
                         <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
-                            {/*
-                            <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
-*/}
+                            {/*<QrCodeScanner value={patient?.uuid} width={100} height={100}/>*/}
                         </Box>
                     )}
                 </RootStyled>

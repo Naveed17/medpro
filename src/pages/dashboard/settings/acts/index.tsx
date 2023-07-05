@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -10,16 +10,26 @@ import {Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {getDifference} from "@app/hooks";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {useSWRConfig} from "swr";
 
 function Acts() {
     const {data: session} = useSession();
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
+    const {mutate} = useSWRConfig();
+
+    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+
     const [mainActs, setMainActs] = useState<ActModel[]>([]);
     const [secondaryActs, setSecondaryActs] = useState<ActModel[]>([]);
     const [selected, setSelected] = useState<ActModel>();
@@ -30,19 +40,11 @@ function Acts() {
 
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
-    const router = useRouter();
-    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
 
     const initialData = Array.from(new Array(8));
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpProfessionalsResponse, mutate} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
 
     const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
     const {trigger: triggerDeleteAct} = useRequestMutation(null, "/settings/acts/delete");
@@ -57,7 +59,7 @@ function Acts() {
     const removeFees = (uuid: string) => {
         triggerDeleteAct({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -70,17 +72,11 @@ function Acts() {
         form.append('act', actUuid);
         triggerAddAct({
             method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/acts/' + router.locale,
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
             data: form,
-            headers: {
-                ContentType: 'application/x-www-form-urlencoded',
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation).then(() => {
-            mutate();
-        })
-
-    }, [medical_entity.uuid, medical_professional_uuid, mutate, router.locale, session?.accessToken, triggerAddAct]);
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`));
+    }, [medical_entity.uuid, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (data !== undefined) {
@@ -91,15 +87,14 @@ function Acts() {
     }, [data]);
 
     useEffect(() => {
-        if (httpProfessionalsResponse !== undefined) {
+        if (medicalProfessionalData !== undefined) {
             const professionalSpecialities = {};
-            (httpProfessionalsResponse as any).data[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
+            medicalProfessionalData[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
             setSpecialities(professionalSpecialities);
             setIsProfile(true);
-            setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0]?.medical_professional.uuid);
-            const acts = (httpProfessionalsResponse as any).data[0]?.acts;
+            const acts = medicalProfessionalData[0]?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
             acts?.map((act: MedicalProfessionalActModel) => {
@@ -109,7 +104,7 @@ function Acts() {
             setMainActs(main);
             setSecondaryActs(secondary);
         }
-    }, [httpProfessionalsResponse])
+    }, [medicalProfessionalData])
 
     useEffect(() => {
         const selectedActs = [...mainActs, ...secondaryActs];
@@ -168,8 +163,7 @@ function Acts() {
         setItems(val.slice(0, 10));
     };
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -388,7 +382,7 @@ function Acts() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient','settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient', 'settings']))
     }
 })
 

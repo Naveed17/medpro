@@ -4,36 +4,31 @@ import Icon from "@themes/icon";
 import Link from "@themes/Link";
 // material-ui
 import {
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Drawer,
     Hidden,
+    IconButton, Menu,
     MenuItem,
     MenuList,
-    Badge,
+    Popover,
     Toolbar,
-    IconButton,
-    Box,
-    Popover, useMediaQuery, Button, Drawer, Stack, Typography, Avatar, useTheme, Tooltip
+    useMediaQuery
 } from "@mui/material";
-// config
-import {siteHeader} from "@features/sideBarMenu";
 // components
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
-import {
-    NavbarStepperStyled,
-    NavbarStyled
-} from "@features/topNavBar";
+import {LangButton, NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, setTimer, timerSelector} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {
-    AppointmentStatsPopover,
-    NotificationPopover,
-} from "@features/popover";
+import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
-import {appLockSelector, setLock} from "@features/appLock";
+import {appLockSelector} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
 import {Theme} from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
@@ -41,16 +36,21 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
-import {useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
+import {WarningTooltip} from "./warningTooltip";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import {useTranslation} from "next-i18next";
 
 const ProfilMenuIcon = dynamic(
-    () => import("@features/profilMenu/components/profilMenu")
+    () => import("@features/menu/components/profilMenu/components/profilMenu")
 );
 
 let deferredPrompt: any;
@@ -64,28 +64,31 @@ function TopNavBar({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
-    const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
+    const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {pendingAppointments, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {ongoing, next, import_data, allowNotification, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {
+        ongoing, next, notifications,
+        import_data, allowNotification, mutate: mutateOnGoing
+    } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
-    const [notifications, setNotifications] = useState(0);
+    const [notificationsCount, setNotificationsCount] = useState(0);
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -109,16 +112,16 @@ function TopNavBar({...props}) {
         setAnchorEl(null);
     };
 
-    const openAppLock = () => {
-        localStorage.setItem('lock-on', "true");
-        dispatch(setLock(true));
-        dispatch(toggleSideBar(true));
-    }
+    /*    const openAppLock = () => {
+            localStorage.setItem('lock-on', "true");
+            dispatch(setLock(true));
+            dispatch(toggleSideBar(true));
+        }*/
 
-    const handleInstallClick = (e: any) => {
-        // Hide the app provided install promotion
+    const handleInstallClick = () => {
+        // Hide the lib provided installation promotion
         setInstallable(false);
-        // Show the install prompt
+        // Show the installation prompt
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult: any) => {
@@ -137,31 +140,15 @@ function TopNavBar({...props}) {
         form.append('value', 'false');
         updateTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             // refresh on going api
             mutateOnGoing && mutateOnGoing();
             // refresh waiting room api
-            mutate(`/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`)
+            mutate(`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`)
                 .then(() => setLoading(false));
-        });
-    }
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
         });
     }
 
@@ -179,10 +166,15 @@ function TopNavBar({...props}) {
         };
         if (router.asPath !== slugConsultation) {
             router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus(nextPatient.uuid, "4", {
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                }).then(() => {
+                updateAppointmentStatus({
+                    method: "PATCH",
+                    data: {
+                        status: "4",
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    },
+                    url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${nextPatient.uuid}/status/${router.locale}`
+                } as any).then(() => {
                     dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -198,7 +190,7 @@ function TopNavBar({...props}) {
     }
 
     const requestNotificationPermission = () => {
-        Notification.requestPermission().then((permission) => {
+        Notification?.requestPermission().then((permission) => {
             console.log("requestPermission", permission);
             // If the user accepts, let's create a notification
             if (permission === "granted") {
@@ -220,6 +212,7 @@ function TopNavBar({...props}) {
                     },
                 },
             };
+
             dispatch(
                 setTimer({
                     isActive: true,
@@ -232,10 +225,11 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotifications(pendingAppointments.length);
-    }, [pendingAppointments]);
+        setNotificationsCount((notifications ?? []).length + (pendingAppointments?? []).length);
+    }, [notifications, pendingAppointments]);
 
     useEffect(() => {
+        const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
@@ -247,8 +241,18 @@ function TopNavBar({...props}) {
 
         window.addEventListener('appinstalled', () => {
             // Log install to analytics
-            console.log('INSTALL: Success');
+            localStorage.setItem('Medlink-install', "true");
         });
+
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
+            if (matches) {
+                setInstallable(false);
+            }
+        });
+
+        if (appInstall) {
+            setInstallable(false);
+        }
     }, []);
 
     return (
@@ -296,11 +300,11 @@ function TopNavBar({...props}) {
                                     if (document.fullscreenElement) {
                                         document
                                             .exitFullscreen()
-                                            .catch((err) => console.error(err));
+                                            .catch((err) => console.log(err));
                                     } else {
                                         document.documentElement
                                             .requestFullscreen()
-                                            .catch((err) => console.error(err));
+                                            .catch((err) => console.log(err));
                                     }
                                 }}
                                 color="primary"
@@ -315,24 +319,16 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            {!allowNotification && (isMobile ?
-                                <Tooltip
-                                    title={"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}>
+                            {!allowNotification &&
+                                <WarningTooltip
+                                    title={commonTranslation("notif_alert")}>
                                     <Avatar
-                                        sx={{mr: 2, bgcolor: theme.palette.warning.main}}
+                                        sx={{mr: 3}}
+                                        className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
                                         <NotificationsPausedIcon color={"black"}/>
                                     </Avatar>
-                                </Tooltip>
-                                :
-                                <Button variant="contained"
-                                        onClick={() => requestNotificationPermission()}
-                                        sx={{mr: 3, margin: "0 24px 8px"}}
-                                        startIcon={<NotificationsPausedIcon color={"warning"}/>}
-                                        color={"warning"}>
-                                    <Typography
-                                        variant={"body2"}> {"Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications."}</Typography>
-                                </Button>)}
+                                </WarningTooltip>}
                             {next &&
                                 <LoadingButton
                                     {...{loading}}
@@ -373,24 +369,17 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            {!installable && (isMobile ?
-                                    <Tooltip title={"Installer l'app"}>
-                                        <Avatar
-                                            sx={{mr: 2, bgcolor: theme.palette.primary.main}}
-                                            onClick={handleInstallClick}>
-                                            <IconUrl width={20} height={20} path={"Med-logo_white"}/>
-                                        </Avatar>
-                                    </Tooltip>
-                                    : <Button sx={{mr: 2, p: "6px 12px"}}
-                                              onClick={handleInstallClick}
-                                              startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
-                                              variant={"contained"}>
-                                        {"Installer l'app"}
-                                    </Button>
-                            )}
+                            {(installable && !isMobile) &&
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
+                                    {commonTranslation("install_app")}
+                                </Button>
+                            }
                             {topBar.map((item, index) => (
                                 <Badge
-                                    badgeContent={notifications}
+                                    badgeContent={notificationsCount}
                                     className="custom-badge"
                                     color="warning"
                                     {...(item.action && {
@@ -412,21 +401,42 @@ function TopNavBar({...props}) {
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
                             </Badge>
-                            <Popover
+                            <Menu
                                 id={id}
                                 open={open}
                                 anchorEl={anchorEl}
                                 onClose={handleClose}
-                                anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "left",
+                                PaperProps={{
+                                    elevation: 0,
+                                    sx: {
+                                        overflow: 'visible',
+                                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                        mt: 1.5,
+                                        ml: -1,
+                                        '& .MuiAvatar-root': {
+                                            width: 32,
+                                            height: 32,
+                                            ml: -0.5,
+                                            mr: 1,
+                                        },
+                                        '&:before': {
+                                            content: '""',
+                                            display: 'block',
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 14,
+                                            width: 10,
+                                            height: 10,
+                                            bgcolor: 'background.paper',
+                                            transform: 'translateY(-50%) rotate(45deg)',
+                                            zIndex: 0,
+                                        },
+                                    },
                                 }}
-                                transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "right",
-                                }}>
+                                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                                 {popovers[popoverAction]}
-                            </Popover>
+                            </Menu>
                             {/*<Badge
                                 badgeContent={null}
                                 onClick={() => {
@@ -443,7 +453,7 @@ function TopNavBar({...props}) {
                                 </IconButton>
                             </Badge>*/}
                         </MenuList>
-                        {/*<LangButton/>*/}
+                        <LangButton/>
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenuIcon/>
@@ -484,9 +494,9 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-                        {/*                        <MenuList className="topbar-nav">
+                        <MenuList className="topbar-nav">
                             <LangButton/>
-                        </MenuList>*/}
+                        </MenuList>
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>

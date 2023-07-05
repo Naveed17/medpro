@@ -7,7 +7,7 @@ import {RootStyled} from "@features/toolbar";
 import {Box, Button, Drawer} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {SubstituteDetails} from "@features/substituteDetails";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -100,7 +100,7 @@ function Subtitule() {
     const {t, ready} = useTranslation("settings", {
         keyPrefix: "substitute.config",
     });
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <>
             <SubHeader>

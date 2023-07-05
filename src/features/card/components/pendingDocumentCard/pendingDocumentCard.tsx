@@ -5,6 +5,7 @@ import { IconButton, Stack, Typography, } from '@mui/material';
 import IconUrl from '@themes/urlIcon';
 function CipCard({ ...props }) {
     const { data, t, closeDocument, onClick } = props
+
     return (
         <PendingDocumentCardStyled onClick={onClick}>
             <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center">
@@ -12,7 +13,7 @@ function CipCard({ ...props }) {
                     <IconUrl path={data.icon} />
                 </IconButton>
                 <Typography color="common.white">
-                    {data.name}
+                    {t(data.name)}
                 </Typography>
 
                 <Label color='warning' variant='filled' className='label'>

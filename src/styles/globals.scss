@@ -57,7 +57,6 @@ main {
 }
 
 .collapse-header {
-  position: -webkit-sticky;
   position: sticky;
   top: 0;
   background-color: $white;
@@ -71,6 +70,9 @@ main {
   align-items: center;
 }
 
+.form-input-material{
+  display: grid !important;
+  width: fit-content;}
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
@@ -101,14 +103,13 @@ main {
     }
   }
 
-
   label {
     float: left;
-    width: 6rem;
+    width: 5rem;
     margin-top: 0.4rem;
     margin-right: 1em;
     color: #7C878E;
-    font-size: 12px;
+    font-size: 10px;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
@@ -118,6 +119,7 @@ main {
     background: #F8FAFC;
     border: 1px solid #DDDDDD;
     border-radius: 6px;
+    font-size: 11px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -125,7 +127,7 @@ main {
     padding: 10px;
     gap: 10px;
     text-align: center;
-    width: 7rem;
+    width: 5rem;
     height: 2rem;
     flex: none;
     order: 1;
@@ -151,11 +153,42 @@ main {
 
   .form-text {
     color: #7C878E;
-    font-size: 12px;
+    font-size: 10px;
     margin: 0.4rem;
   }
 }
-
+.form-control-title {
+  label {
+    width: 6rem;
+    margin-top: 0.4rem;
+    margin-right: 1em;
+    color: #7C878E;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  input{
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+.checkbox-formio{
+  width: fit-content;
+  margin: auto;
+}
+.formio-component-table{
+  .table{
+    width: 100%;
+  }
+  .sr-only{
+    visibility: hidden;
+    height: 0;
+  }
+  p{
+    font-size: 12px;
+  }
+}
 .form-control-pregnancy {
   label {
     float: left;
@@ -271,6 +304,7 @@ fieldset {
 }
 
 .portraitA4 {
+  position: relative;
   width: 210mm;
   height: 295mm;
   zoom: 70%;
@@ -289,9 +323,6 @@ fieldset {
     margin: 0;
     box-shadow: none;
     zoom: 1;
-  }
-  img {
-    display: none;
   }
 }
 

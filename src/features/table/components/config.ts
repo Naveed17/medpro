@@ -44,6 +44,12 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "trash",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/trashRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "patient",
     component: dynamic((): any =>
       import("@features/table/components/rows/patientRow").then((mod) => mod)

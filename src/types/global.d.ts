@@ -1,6 +1,6 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-import {PaletteColor, Palette} from "@mui/material";
+import {PaletteColor} from "@mui/material";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {
@@ -18,6 +18,13 @@ declare module "next-auth" {
         data: any;
         accessToken: string;
         error: string;
+    }
+}
+
+declare module "notistack" {
+    interface VariantOverrides {
+        // adds `offline` variant
+        offline: true;
     }
 }
 declare module "@mui/material/Button" {
@@ -112,5 +119,11 @@ declare module "@fullcalendar/interaction" {
 
     interface DateClickTouchArg extends DateClickArg {
         jsEvent: MouseTouchEvent
+    }
+}
+
+declare global {
+    interface Array<T> {
+        group(o: T, fn: Function): Array<T>;
     }
 }

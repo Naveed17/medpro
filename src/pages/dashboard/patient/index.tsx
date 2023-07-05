@@ -6,7 +6,6 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 // material components
 import {
     Box,
@@ -18,10 +17,10 @@ import {
     TextField,
     useMediaQuery,
     Zoom,
-    SpeedDial, Fab,
+    Fab
 } from "@mui/material";
 // redux
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     onOpenPatientDrawer,
     Otable,
@@ -33,7 +32,7 @@ import {PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -43,7 +42,6 @@ import {
     onResetPatient, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {
     AppointmentDetail,
     Dialog,
@@ -51,14 +49,13 @@ import {
     PatientDetail,
 } from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
+import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {toggleSideBar} from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
@@ -75,6 +72,8 @@ import {
     setFilter,
 } from "@features/leftActionBar";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import {sendRequest, useInsurances} from "@lib/hooks/rest";
+import useSWRMutation from "swr/mutation";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -166,6 +165,8 @@ function Patient() {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -175,7 +176,7 @@ function Patient() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
@@ -193,7 +194,7 @@ function Patient() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const [loading, setLoading] = useState<boolean>(status === "loading");
+    const [loading] = useState<boolean>(status === "loading");
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
     const [dataPatient, setDataPatient] = useState([
@@ -267,27 +268,15 @@ function Patient() {
         },
     ]);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status");
-
-    const {data: httpPatientsResponse, mutate} = useRequest({
+    const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     useEffect(() => {
         if (filter?.type || filter?.patient) {
@@ -326,7 +315,7 @@ function Patient() {
         params.append("duration", event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: params,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
@@ -357,30 +346,18 @@ function Patient() {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     };
 
-
-    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
-        const form = new FormData();
-        form.append('status', status);
-        if (params) {
-            Object.entries(params).map((param: any, index) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
-    }
-
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
-                start_date: moment().format("DD-MM-YYYY"),
-                start_time: moment().format("HH:mm")
-            }).then(() => {
+            updateAppointmentStatus({
+                method: "PATCH",
+                data: {
+                    status: "4",
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                },
+                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+            } as any).then(() => {
                 dispatch(openDrawer({type: "view", open: false}));
                 dispatch(setTimer({
                         isActive: true,
@@ -457,7 +434,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen error button={"loading-error-404-reset"} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -549,11 +526,11 @@ function Patient() {
                             variant="contained"
                             color={"primary"}
                             startIcon={
-                                <Icon
+                                <IconUrl
                                     height={"18"}
                                     width={"18"}
                                     color={"white"}
-                                    path="iconfinder"></Icon>
+                                    path="iconfinder"></IconUrl>
                             }>
                             {t(`dialogs.move-dialog.confirm`)}
                         </Button>
@@ -643,7 +620,7 @@ function Patient() {
                             }}
                             variant="contained"
                             color={"warning"}
-                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            startIcon={<IconUrl path="iconfinder"></IconUrl>}>
                             {t("dialogs.move-dialog.confirm")}
                         </LoadingButton>
                     </>

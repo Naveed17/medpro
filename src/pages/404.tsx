@@ -8,7 +8,7 @@ interface Props {
 
 const Custom404: NextPage<Props> = ({statusCode}) => {
     return (
-        <LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-404"}/>
+        <LoadingScreen color={"error"} button text={"loading-error-404"}/>
     );
 }
 

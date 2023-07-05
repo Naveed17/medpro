@@ -1,8 +1,13 @@
-import { Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-const MedicalPrescriptionDialogStyled = styled(Stack)(({ theme }) => ({
+import {Stack} from "@mui/material";
+import {styled} from "@mui/material/styles";
+
+const MedicalPrescriptionDialogStyled = styled(Stack)(({theme}) => ({
     minWidth: 892,
     width: "100%",
+    "& .MuiGrid-root .grid-container": {
+        paddingTop: 0,
+        marginTop: 40
+    },
     '.btn-add': {
         alignSelf: 'flex-start',
     },
@@ -26,7 +31,7 @@ const MedicalPrescriptionDialogStyled = styled(Stack)(({ theme }) => ({
     },
     ".list-container": {
         maxHeight: 300,
-        paddingTop: 8,
+        marginTop: 8,
         paddingBottom: 8,
         overflowY: 'scroll'
     },

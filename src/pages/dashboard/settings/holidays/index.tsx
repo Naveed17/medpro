@@ -7,7 +7,7 @@ import {useTranslation} from "next-i18next";
 import {Box, Button, Drawer} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {HolidayDetails} from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -36,7 +36,7 @@ function Holidays() {
     ]);
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "holidays.config"});
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     const headCells = [
         {
             id: 'name',

@@ -9,7 +9,7 @@ import Icon from "@themes/urlIcon";
 import React from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 
 function PaymentDialogRow({...props}) {
@@ -25,7 +25,6 @@ function PaymentDialogRow({...props}) {
     return (
         <TableRowStyled
             hover
-            key={Math.random()}
             className="payment-dialog-row"
         >
             <TableCell padding="checkbox">
@@ -71,7 +70,7 @@ function PaymentDialogRow({...props}) {
                                    justifyContent={"flex-end"}
                                    spacing={1}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img width={10} src={type.logoUrl} alt={'payment means icon'}/>
+                                <img width={10} src={type.logoUrl.url} alt={'payment means icon'}/>
                                 <Typography color="text.primary"
                                             variant="body2">{t(type.name)}</Typography>
                             </Stack>

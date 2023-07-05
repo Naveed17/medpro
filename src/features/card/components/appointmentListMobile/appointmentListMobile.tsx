@@ -1,11 +1,10 @@
-import {Typography, IconButton, Box} from "@mui/material";
+import {Box, IconButton, Typography} from "@mui/material";
 import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
-import Icon from "@themes/urlIcon";
 import {CalendarContextMenu} from "@features/calendar";
 
 function AppointmentListMobile({...props}) {
@@ -27,6 +26,15 @@ function AppointmentListMobile({...props}) {
                 ...event
             }
         }));
+    }
+
+    const getColor = () => {
+        if (event?.status.key === "CONFIRMED")
+            return "success"
+        else if (event?.status.key === "CANCELED")
+            return "error";
+        else
+            return "primary"
     }
 
     return (
@@ -57,13 +65,7 @@ function AppointmentListMobile({...props}) {
                         </Typography>
                         <Label variant='filled'
                                sx={{ml: 1}}
-                               color={
-                                   event?.status.key === "CONFIRMED"
-                                       ? "success"
-                                       : event?.status.key === "CANCELED"
-                                           ? "error"
-                                           : "primary"
-                               }>
+                               color={getColor()}>
                             {event.status.value}
                         </Label>
                     </Box>
@@ -85,7 +87,7 @@ function AppointmentListMobile({...props}) {
                                 sx={{display: "block", ml: "auto"}}
                                 size="small"
                             >
-                                <Icon path="more-vert"/>
+                                <IconUrl path="more-vert"/>
                             </IconButton>
                         }
                     />

@@ -26,7 +26,7 @@ function Accordion({...props}) {
         },
         [data, setData]
     );
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         data.map((item: any, index: number) => (
@@ -57,7 +57,7 @@ function Accordion({...props}) {
                                     {badge}
                                 </Box>
                             )}
-                            <Icon path="ic-expand-more"/>
+                            <Icon path={item.expanded ? "arrow-up-table":  "ic-expand-more"}/>
                         </>
                     }
                 >

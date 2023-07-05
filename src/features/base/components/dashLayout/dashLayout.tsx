@@ -3,12 +3,12 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
-import {setAgendas, setConfig, setPendingAppointments} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -17,10 +17,10 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification} from "@app/hooks";
-import {isAppleDevise} from "@app/hooks/isAppleDevise";
+import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
+import {isAppleDevise} from "@lib/hooks/isAppleDevise";
 
-const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
+const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 const variants = {
     hidden: {opacity: 0},
@@ -46,36 +46,38 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const general_information = (user as UserDataResponse).general_information;
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
+    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
-    const permission = !isAppleDevise() ? checkNotification(): false;
+    const permission = !isAppleDevise() ? checkNotification() : false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -84,13 +86,23 @@ function DashLayout({children}: LayoutProps) {
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
+    const renderNoDataCard = <NoDataCard
+        {...{t}}
+        ns={'common'}
+        onHandleClick={() => {
+            router.push('/dashboard/settings/data').then(() => {
+                setImportDataDialog(false);
+            });
+        }}
+        data={ImportCardData}/>
+
     const justNumbers = (str: string) => {
-        const res =  str.match(/\d(?!.*\d)/); // Find the last numeric digit
+        const res = str.match(/\d+$/); // Find the last numeric digit
         if (str && res) {
             let numStr = res[0];
             let num = parseInt(numStr);
             num++;
-            str = str.replace(/\d(?!.*\d)/, num.toString());
+            str = str.replace(/\d+$/, num.toString());
         }
         return str;
     }
@@ -125,14 +137,12 @@ function DashLayout({children}: LayoutProps) {
                 import_data: calendarStatus.import_data,
                 next: calendarStatus.next ? calendarStatus.next : null,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
-                ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
+                ongoing: calendarStatus.ongoing ? calendarStatus.ongoing : null
             }));
-
         }
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        //console.log(navigator.brave);
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
                 callbackUrl: `${router.locale}/dashboard/agenda`,
@@ -145,6 +155,13 @@ function DashLayout({children}: LayoutProps) {
             dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
     }, [dispatch, permission])
+
+    useEffect(() => {
+        if (general_information && general_information?.agendaDefaultFormat) {
+            // Set default calendar view
+            dispatch(setView(general_information.agendaDefaultFormat));
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>
@@ -167,23 +184,12 @@ function DashLayout({children}: LayoutProps) {
                 }}
                 color={theme.palette.expire.main}
                 contrastText={theme.palette.expire.contrastText}
+                open={importDataDialog}
+                title={t(`import_data.title`)}
                 dialogClose={() => {
                     setImportDataDialog(false);
                 }}
-                action={() => {
-                    return (<NoDataCard
-                        {...{t}}
-                        ns={'common'}
-                        onHandleClick={() => {
-                            router.push('/dashboard/settings/data').then(() => {
-                                setImportDataDialog(false);
-                            });
-                        }}
-                        data={ImportCardData}/>)
-                }}
-                open={importDataDialog}
-                title={t(`import_data.title`)}
-            />
+                action={() => renderNoDataCard}/>
         </SideBarMenu>
     );
 }

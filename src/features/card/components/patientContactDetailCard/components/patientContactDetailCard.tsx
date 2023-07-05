@@ -23,26 +23,27 @@ import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
-
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import Icon from "@themes/urlIcon";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useCountries} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -59,11 +60,12 @@ function PatientContactDetailCard({...props}) {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {countries: countries_api} = useCountries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
+    const {t, ready} = useTranslation(["patient", "common"]);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -73,9 +75,9 @@ function PatientContactDetailCard({...props}) {
 
     const RegisterPatientSchema = Yup.object().shape({
         country: Yup.string()
-            .min(3, t("country-error")),
+            .min(3, t("config.add-patient.country-error")),
         region: Yup.string()
-            .min(3, t("region-error")),
+            .min(3, t("config.add-patient.region-error")),
         zip_code: Yup.string(),
         address: Yup.string(),
         nationality: Yup.string(),
@@ -85,12 +87,12 @@ function PatientContactDetailCard({...props}) {
                 value: Yup.string()
                     .test({
                         name: 'is-phone',
-                        message: t("telephone-error"),
+                        message: t("config.add-patient.telephone-error"),
                         test: (value) => {
                             return value ? isValidPhoneNumber(value) : false
                         }
                     })
-                    .required(t("telephone-error"))
+                    .required(t("config.add-patient.telephone-error"))
             })),
     });
 
@@ -120,14 +122,9 @@ function PatientContactDetailCard({...props}) {
         },
     });
 
-    const {values, touched, errors, getFieldProps, setFieldValue} = formik;
+    const {values, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -169,7 +166,7 @@ function PatientContactDetailCard({...props}) {
             "is_support": false
         }))));
         params.append('address', JSON.stringify({
-            fr: values.address
+            [router.locale as string]: values.address
         }));
         patient.fiche_id && params.append('fiche_id', patient.fiche_id);
         patient.email && params.append('email', patient.email);
@@ -179,9 +176,9 @@ function PatientContactDetailCard({...props}) {
         patient.note && params.append('note', patient.note);
         patient.idCard && params.append('id_card', patient.idCard);
 
-        triggerPatientUpdate({
+        medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -213,12 +210,11 @@ function PatientContactDetailCard({...props}) {
         });
     }
 
-    const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -236,7 +232,7 @@ function PatientContactDetailCard({...props}) {
                                             {loading ? (
                                                 <Skeleton variant="text" sx={{maxWidth: 200}}/>
                                             ) : (
-                                                t("contact")
+                                                t("config.add-patient.contact")
                                             )}
                                         </Typography>
                                     </Box>
@@ -248,7 +244,7 @@ function PatientContactDetailCard({...props}) {
                                                     sx={{margin: 'auto'}}
                                                     size='small'
                                                     startIcon={<CloseIcon/>}>
-                                                {t('cancel')}
+                                                {t('config.add-patient.cancel')}
                                             </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
@@ -258,7 +254,7 @@ function PatientContactDetailCard({...props}) {
                                                 sx={{margin: 'auto'}}
                                                 size='small'
                                                 startIcon={<SaveAsIcon/>}>
-                                                {t('register')}
+                                                {t('config.add-patient.register')}
                                             </LoadingButton>
                                         </Stack>
                                         :
@@ -272,7 +268,7 @@ function PatientContactDetailCard({...props}) {
                                                 {...(disableActions && {color: "white"})}
                                                 path={"setting/edit"}/>}
                                             color="primary" size="small">
-                                            {t("edit")}
+                                            {t("config.add-patient.edit")}
                                         </Button>
                                     }
                                 </Toolbar>
@@ -285,13 +281,13 @@ function PatientContactDetailCard({...props}) {
                                         className="label"
                                         variant="body2"
                                         color="text.secondary">
-                                        {t("address-group")}
+                                        {t("config.add-patient.address-group")}
                                     </Typography>
                                 </Divider>
 
                                 <Grid item md={12} sm={12} xs={12}
-                                      onClick={()=>{
-                                          if (!editable){
+                                      onClick={() => {
+                                          if (!editable) {
                                               setCurrentSection("PatientContactDetailCard");
                                               setEditable(true)
                                           }
@@ -310,12 +306,12 @@ function PatientContactDetailCard({...props}) {
                                                 className="label"
                                                 variant="body2"
                                                 color="text.secondary">
-                                                {t("address")}
+                                                {t("config.add-patient.address")}
                                             </Typography>
                                         </Grid>
                                         <Grid
-                                            {...(editable && {className: "grid-border"} )}
-                                            {...(editable  && {style:{height: 120,paddingTop:10}})}
+                                            {...(editable && {className: "grid-border"})}
+                                            {...(editable && {style: {height: 120, paddingTop: 10}})}
                                             item md={10.54} sm={9} xs={9}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
@@ -324,8 +320,8 @@ function PatientContactDetailCard({...props}) {
                                                     readOnly={!editable}
                                                     sx={{width: "100%"}}
                                                     multiline={editable}
-                                                    rows={editable ?5:1}
-                                                    placeholder={t("address-placeholder")}
+                                                    rows={editable ? 5 : 1}
+                                                    placeholder={t("config.add-patient.address-placeholder")}
                                                     inputProps={{
                                                         style: {
                                                             background: "white",
@@ -347,7 +343,7 @@ function PatientContactDetailCard({...props}) {
                                                 className="label"
                                                 variant="body2"
                                                 color="text.secondary">
-                                                {t("country")}
+                                                {t("config.add-patient.country")}
                                             </Typography>
                                         </Grid>
                                         <Grid
@@ -376,7 +372,7 @@ function PatientContactDetailCard({...props}) {
                                             ) : (
                                                 <Autocomplete
                                                     id={"country"}
-                                                    disabled={!countries_api}
+                                                    disabled={!countries_api || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
@@ -395,7 +391,7 @@ function PatientContactDetailCard({...props}) {
                                                     options={countries_api ? countries_api?.filter(country => country.hasState) : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === (value?.name ?? "")}
                                                     renderOption={(props, option) => (
                                                         <MenuItem
                                                             {...props}
@@ -434,7 +430,7 @@ function PatientContactDetailCard({...props}) {
                                                         return <TextField color={"info"}
                                                                           {...params}
                                                                           sx={{paddingLeft: 0}}
-                                                                          placeholder={t("country-placeholder")}
+                                                                          placeholder={t("config.add-patient.country-placeholder")}
                                                                           variant="outlined" fullWidth/>;
                                                     }}/>
                                             )}
@@ -451,7 +447,7 @@ function PatientContactDetailCard({...props}) {
                                                 variant="body2"
                                                 color="text.secondary"
                                                 width="50%">
-                                                {t("region")}
+                                                {t("config.add-patient.region")}
                                             </Typography>
                                         </Grid>
                                         <Grid
@@ -480,7 +476,7 @@ function PatientContactDetailCard({...props}) {
 
                                                 <Autocomplete
                                                     id={"region"}
-                                                    disabled={!states}
+                                                    disabled={!states || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
@@ -505,7 +501,7 @@ function PatientContactDetailCard({...props}) {
                                                     )}
                                                     renderInput={params => <TextField color={"info"}
                                                                                       {...params}
-                                                                                      placeholder={t("region-placeholder")}
+                                                                                      placeholder={t("config.add-patient.region-placeholder")}
                                                                                       sx={{paddingLeft: 0}}
                                                                                       variant="outlined"
                                                                                       fullWidth/>}/>
@@ -530,7 +526,7 @@ function PatientContactDetailCard({...props}) {
                                                 className="label"
                                                 variant="body2"
                                                 color="text.secondary">
-                                                {t("zip_code")}
+                                                {t("config.add-patient.zip_code")}
                                             </Typography>
                                         </Grid>
                                         <Grid
@@ -542,7 +538,7 @@ function PatientContactDetailCard({...props}) {
                                                 <InputBase
                                                     readOnly={!editable}
                                                     sx={{width: "50%"}}
-                                                    placeholder={t("zip_code-placeholder")}
+                                                    placeholder={t("config.add-patient.zip_code-placeholder")}
                                                     inputProps={{
                                                         style: {
                                                             background: "white",
@@ -564,7 +560,7 @@ function PatientContactDetailCard({...props}) {
                                                 variant="body2"
                                                 color="text.secondary"
                                                 width="50%">
-                                                {t("nationality")}
+                                                {t("config.add-patient.nationality")}
                                             </Typography>
                                         </Grid>
                                         <Grid
@@ -589,7 +585,7 @@ function PatientContactDetailCard({...props}) {
                                             ) : (
                                                 <Autocomplete
                                                     id={"nationality"}
-                                                    disabled={!countries_api}
+                                                    disabled={!countries_api || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
@@ -648,7 +644,7 @@ function PatientContactDetailCard({...props}) {
                                                         return <TextField color={"info"}
                                                                           {...params}
                                                                           sx={{paddingLeft: 0}}
-                                                                          placeholder={t("nationality")}
+                                                                          placeholder={t("config.add-patient.nationality")}
                                                                           variant="outlined" fullWidth/>;
                                                     }}/>
                                             )}
@@ -661,7 +657,7 @@ function PatientContactDetailCard({...props}) {
                                         className="label"
                                         variant="body2"
                                         color="text.secondary">
-                                        {t("telephone")}
+                                        {t("config.add-patient.telephone")}
                                     </Typography>
                                 </Divider>}
                                 <FieldArray
@@ -685,7 +681,7 @@ function PatientContactDetailCard({...props}) {
                                                                     className="label"
                                                                     variant="body2"
                                                                     color="text.secondary">
-                                                                    {`${t("phone")}  ${values.phones.length > 1 ? ("N° " + (index + 1)) : ""}`}
+                                                                    {`${t("config.add-patient.phone")}  ${values.phones.length > 1 ? ("N° " + (index + 1)) : ""}`}
                                                                 </Typography>
                                                                 <Stack direction={"row"} alignItems={"flex-start"}
                                                                        spacing={1.2}
@@ -730,11 +726,11 @@ function PatientContactDetailCard({...props}) {
                                                                             international
                                                                             disabled={!editable}
                                                                             fullWidth
-                                                                            error={Boolean( errors.phones && (errors.phones as any)[index])}
+                                                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
                                                                             withCountryCallingCode
                                                                             {...((editable && getFieldProps(`phones[${index}].value`)) &&
                                                                                 {
-                                                                                    helperText: `Format international: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                                    helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
                                                                                         getFieldProps(`phones[${index}].value`).value : ""}`
                                                                                 })}
                                                                             country={getCountryByCode(phone.code)?.code as any}
@@ -765,7 +761,7 @@ function PatientContactDetailCard({...props}) {
                                                                         },
                                                                     }}
                                                                 >
-                                                                    <Icon path="ic-plus"/>
+                                                                    <IconUrl path="ic-plus"/>
                                                                 </IconButton>
                                                             </> : (editable && <IconButton
                                                                 onClick={() => handleRemovePhone(index)}
@@ -782,7 +778,7 @@ function PatientContactDetailCard({...props}) {
                                                                     },
                                                                 }}
                                                             >
-                                                                <Icon path="ic-moin"/>
+                                                                <IconUrl path="ic-moin"/>
                                                             </IconButton>)}
                                                         </Stack>
                                                     </Grid>

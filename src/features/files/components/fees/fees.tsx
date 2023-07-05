@@ -3,7 +3,7 @@ import moment from "moment/moment";
 import TableStyled from "../../overrides/tableStyled";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
+import {DefaultCountry} from "@lib/constants";
 
 function Fees({...props}) {
     const {data} = props;

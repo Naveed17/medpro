@@ -1,4 +1,4 @@
-import React, {memo, ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {pdfjs} from "react-pdf";
@@ -11,25 +11,36 @@ import {
     SetMutationDoc,
     SetPatient,
 } from "@features/toolbar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation,} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
+import {
+    alpha,
+    Box,
+    Button,
+    CardContent,
+    DialogActions,
+    Drawer,
+    Grid,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
     PendingDocumentCard,
-    setTimer,
+    resetTimer,
     timerSelector,
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
@@ -44,28 +55,42 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {appLockSelector} from "@features/appLock";
 import moment from "moment";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@app/constants";
-import {useLeavePageConfirm} from "@app/hooks/useLeavePageConfirm";
+import {DefaultCountry} from "@lib/constants";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {LoadingButton} from "@mui/lab";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import AppointHistoryContainerStyled
+    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
-        if (!leaveDialog.current) {
-            /*if (!window.confirm(`message: ${uuind}`)) {
-                      throw "Route Canceled";
-                  } else {
-                      // localStorage.removeItem(`consultation-data-${uuind}`);
-                  }*/
-        }
+        mutateModels();
     });
+
+    const {t, ready} = useTranslation("consultation");
+    const {direction} = useAppSelector(configSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
+    const {mutate: mutateOnGoing, medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedDialog, exam} = useAppSelector(consultationSelector);
+    const {lock} = useAppSelector(appLockSelector);
 
     const leaveDialog = useRef(false);
     const [filterdrawer, setFilterDrawer] = useState(false);
@@ -81,6 +106,7 @@ function ConsultationInProgress() {
     const [appointement, setAppointement] = useState<any>();
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isClose, setIsClose] = useState<boolean>(false);
+    const [closeExam, setCloseExam] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -92,7 +118,7 @@ function ConsultationInProgress() {
     const [loading, setLoading] = useState<boolean>(true);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [loadingApp, setLoadingApp] = useState<boolean>(false);
-    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [isAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState<any[]>([]);
     const [notes, setNotes] = useState<any[]>([]);
@@ -100,22 +126,14 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
+    const [keys, setKeys] = useState<any[]>([]);
+    const [dates, setDates] = useState<any[]>([]);
+    const [modelData, setModelData] = useState<any>(null);
     const [isHistory, setIsHistory] = useState(false);
-    const {direction} = useAppSelector(configSelector);
-    const {exam} = useAppSelector(consultationSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const {tableState} = useAppSelector(tableActionSelector);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const {isActive, event} = useAppSelector(timerSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
-    const {drawer} = useAppSelector(
-        (state: { dialog: DialogProps }) => state.dialog
-    );
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const dispatch = useAppDispatch();
+    const [previousData, setPreviousData] = useState(null);
     const [end, setEnd] = useState(false);
-    const {selectedDialog} = useAppSelector(consultationSelector);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
@@ -134,8 +152,6 @@ function ConsultationInProgress() {
         },
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
-    const {lock} = useAppSelector(appLockSelector);
-
     const EventStepper = [
         {
             title: "steppers.tabs.tab-1",
@@ -153,121 +169,56 @@ function ConsultationInProgress() {
             disabled: true,
         },
     ];
-
-    const {trigger} = useRequestMutation(null, "/endConsultation");
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateStatusTrigger} = useRequestMutation(
-        null,
-        "/agenda/update/appointment/status",
-        TriggerWithoutValidation
-    );
+    const {trigger} = useRequestMutation(null, "consultation/end");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const updateAppointmentStatus = (
-        appointmentUUid: string,
-        status: string,
-        params?: any
-    ) => {
-        const form = new FormData();
-        form.append("status", status);
-        if (params) {
-            Object.entries(params).map((param: any) => {
-                form.append(param[0], param[1]);
-            });
-        }
-        return updateStatusTrigger({
-            method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        });
-    };
+    const {data: httpModelResponse,mutate:mutateModels} = useRequest(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpMPResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,SWRNoValidateConfig
-    );
+    const {data: httpUsersResponse} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/users`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpModelResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/modals",
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpPreviousResponse} = useRequest(medical_entity && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
-    const {data: httpUsersResponse} = useRequest(
-        medical_entity
-            ? {
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/users",
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpAppResponse, mutate} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,SWRNoValidateConfig
-    );
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/consultation-sheet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`,},
+    } : null);
 
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null
-    );
-
-    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(
-        mpUuid && agenda
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
-                headers: {
-                    ContentType: "multipart/form-data",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpDocumentResponse) {
@@ -305,14 +256,22 @@ function ConsultationInProgress() {
     }, [httpAppResponse]);
 
     useEffect(() => {
+        if (httpPreviousResponse) {
+            const data = (httpPreviousResponse as HttpResponse).data;
+            if (data) {
+                setPreviousData(data);
+            }
+        }
+    }, [httpPreviousResponse]);
+
+    useEffect(() => {
         setInfo(null);
         setOpenDialog(true);
     }, [selectedDialog, setInfo, setOpenDialog]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+        if (medicalProfessionalData) {
+            const mpRes = medicalProfessionalData[0];
             setMpUuid(mpRes.medical_professional.uuid);
             const acts = [...mpRes.acts];
             const selectedLocal = localStorage.getItem(`consultation-acts-${uuind}`)
@@ -326,73 +285,82 @@ function ConsultationInProgress() {
                 const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.uuid) as any;
                 if (actDetect === -1) {
                     acts.push(act);
-                }
+                } else acts[actDetect] = act
             });
             setActs([...acts]);
 
-            if (appointement ) {
+            if (appointement) {
                 setPatient(appointement.patient);
 
-                if (appointement.consultation_fees) {
+                /*if (appointement.consultation_fees) {
                     //setConsultationFees(Number(appointement.consultation_fees));
-                }
+                }*/
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
                 dispatch(SetMutation(mutate));
                 dispatch(SetMutationDoc(mutateDoc));
 
-                if (!loadingApp){
-                    setTimeout(() => {
-                        if (appointement.acts) {
-                            let sAct: any[] = [];
-                            appointement.acts.map(
-                                (act: { act_uuid: string; price: any; qte: any }) => {
-                                    sAct.push({
+                setTimeout(() => {
+                    if (appointement.acts && !loadingApp) {
+                        let sAct: any[] = [];
+                        appointement.acts.map(
+                            (act: any) => {
+                                sAct.push({
+                                    ...act,
+                                    fees: act.price,
+                                    uuid: act.act_uuid,
+                                    qte: act.qte,
+                                    act: {name: (act as any).name}
+                                });
+                                const actDetect = acts.findIndex((a: any) => a.uuid === act.act_uuid) as any;
+                                if (actDetect === -1) {
+                                    acts.push({
                                         ...act,
                                         fees: act.price,
                                         uuid: act.act_uuid,
+                                        qte: act.qte,
                                         act: {name: (act as any).name}
                                     });
-                                    const actDetect = acts.findIndex((a: { uuid: string }) => a.uuid === act.act_uuid) as any;
-                                    if (actDetect === -1) {
-                                        acts.push({
-                                            ...act,
-                                            fees: act.price,
-                                            uuid: act.act_uuid,
-                                            act: {name: (act as any).name}
-                                        });
-                                    } else {
-                                        acts[actDetect].fees = act.price;
-                                    }
+                                } else {
+                                    acts[actDetect] = {...acts[actDetect], fees: act.price, qte: act.qte};
                                 }
-                            );
-                            setSelectedAct(sAct);
-                            setActs([...acts]);
-                        }
-                    }, 500);
-                }
+                            }
+                        );
+                        setSelectedAct(sAct);
+                        setActs([...acts]);
+                    }
+                }, 1000);
 
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointement, httpMPResponse, uuind, consultationFees]);
+    }, [appointement, medicalProfessionalData, uuind, consultationFees]);
 
     useEffect(() => {
-        if (httpMPResponse) {
-            const mpRes = (httpMPResponse as HttpResponse)?.data[0];
-            setConsultationFees(Number(mpRes.consultation_fees));
+        if (medicalProfessionalData && !loadingApp) {
+            setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
         }
-    }, [httpMPResponse]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [medicalProfessionalData]);
 
     useEffect(() => {
         setTimeout(() => {
             if (appointement) {
-                if (!loadingApp){
+                if (!loadingApp) {
+                    let _total = 0;
                     const checkFree = (appointement.status !== 5 && appointement.type.code === 3) || (appointement.status === 5 && appointement.consultation_fees === null);
                     setFree(checkFree);
-                    if (!checkFree) setTotal(consultationFees);
-                    if (appointement.fees) setTotal(appointement.fees)
-                    if (appointement.consultation_fees) setConsultationFees(Number(appointement.consultation_fees));
+                    if (!checkFree) _total = consultationFees;
+                    if (appointement.fees) _total = appointement.fees
+                    if (appointement.consultation_fees) {
+                        setConsultationFees(Number(appointement.consultation_fees));
+                    } else if (appointement.type.isFree !== null && !appointement.type.isFree && appointement.type.price) {
+                        setConsultationFees(Number(appointement.type.price));
+                    }
+                    selectedAct.map(sa => {
+                        _total += sa.fees * sa.qte;
+                    })
+                    setTotal(_total)
                 }
                 setLoadingApp(true);
                 let noteHistories: any[] = []
@@ -410,10 +378,9 @@ function ConsultationInProgress() {
                 setNotes(noteHistories);
                 setDiagnostics(diagnosticHistories);
             }
-        }, 2000)
+        }, 500)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement]);
-
 
     useEffect(() => {
         let fees = free ? 0 : Number(consultationFees);
@@ -451,13 +418,14 @@ function ConsultationInProgress() {
             );
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append("modal_uuid", selectedModel?.default_modal.uuid);
             form.append(
                 "modal_data",
                 localStorage.getItem("Modeldata" + uuind) as string
             );
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
+            form.append("disease", exam.disease.toString());
             form.append("treatment", exam.treatment ? exam.treatment : "");
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
@@ -467,14 +435,17 @@ function ConsultationInProgress() {
 
             trigger({
                 method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                console.log("end consultation");
-                appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
+                if (appointement?.status !== 5) {
+                    dispatch(resetTimer());
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                }
                 mutate().then(() => {
                     leaveDialog.current = true;
                     if (!isHistory)
@@ -503,6 +474,29 @@ function ConsultationInProgress() {
         } else setIsHistory(false)
     }, [event, isActive, uuind])
 
+    useEffect(() => {
+        medicalEntityHasUser && trigger({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/consultation-sheet/history/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((r: any) => {
+            const res = r?.data.data;
+            let dates: string[] = [];
+            let keys: string[] = [];
+
+            Object.keys(res).forEach(key => {
+                keys.push(key);
+                Object.keys(res[key].data).forEach(date => {
+                    if (dates.indexOf(date) === -1) dates.push(date);
+                })
+            })
+            setModelData(res);
+            setDates(dates);
+            setKeys(keys)
+        });
+    }, [medical_entity, patient, router, session, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
@@ -527,7 +521,10 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
+                    edited: false,
                     nextApp: meeting ? meeting : "0",
+                    appUuid: uuind,
+                    dayDate: appointement.day_date,
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
@@ -545,7 +542,7 @@ function ConsultationInProgress() {
             );
             trigger({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/${secretary}/notification/${router.locale}`,
                 data: form,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -557,7 +554,10 @@ function ConsultationInProgress() {
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
-            selectedAct[index] = row;
+            selectedAct[index] = {...row, qte: row.qte};
+            const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+            acts[indexAct] = {...acts[indexAct], qte: row.qte}
+            setActs([...acts])
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
                 `consultation-acts-${uuind}`,
@@ -587,26 +587,28 @@ function ConsultationInProgress() {
                     ])
                 );
             } else {
-                row.qte = 1;
-                setSelectedAct([...selectedAct, row]);
+                setSelectedAct([...selectedAct, {...row, qte: 1}]);
+                const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
+                acts[indexAct] = {...acts[indexAct], qte: 1}
+                setActs([...acts])
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
-                    JSON.stringify([...selectedAct, row])
+                    JSON.stringify([...selectedAct, {...row, qte: 1}])
                 );
             }
         }
-    };
-    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
-              setNumPages(numPages);
-          };*/
+    }
+
     const seeHistory = () => {
         setOpenActDialog(true);
         setstateAct(notes)
     }
+
     const seeHistoryDiagnostic = () => {
         setOpenActDialog(true);
         setstateAct(diagnostics)
     }
+
     const openDialogue = (item: any) => {
         switch (item.id) {
             case 1:
@@ -617,9 +619,11 @@ function ConsultationInProgress() {
                 break;
         }
     };
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
+
     const submitStepper = (index: number) => {
         if (EventStepper.length !== index) {
             EventStepper[index].disabled = false;
@@ -627,14 +631,17 @@ function ConsultationInProgress() {
             mutate();
         }
     };
+
     const handleCloseDialogAct = () => {
         setOpenActDialog(false);
     };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
         setActions(false);
     };
+
     const clearData = () => {
         localStorage.removeItem(`Modeldata${uuind}`);
         localStorage.removeItem(`Model-${uuind}`);
@@ -643,20 +650,29 @@ function ConsultationInProgress() {
         localStorage.removeItem(`consultation-fees`);
         localStorage.removeItem(`consultation-acts-${uuind}`);
     }
+
     const leave = () => {
         clearData();
-        updateAppointmentStatus(uuind as string, "11").then(() => {
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "11"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/status/${router.locale}`
+        } as any).then(() => {
             router.push("/dashboard/agenda").then(() => {
-                dispatch(setTimer({isActive: false}));
+                dispatch(resetTimer());
                 setActions(false);
                 // refresh on going api
                 mutateOnGoing && mutateOnGoing();
             });
         });
     };
+
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
+
     const saveConsultation = () => {
         const btn = document.getElementsByClassName("sub-btn")[1];
         const examBtn = document.getElementsByClassName("sub-exam")[0];
@@ -664,11 +680,13 @@ function ConsultationInProgress() {
         (examBtn as HTMLElement)?.click();
         setEnd(true);
     };
+
     const endConsultation = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
         setActions(true);
     };
+
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
@@ -709,6 +727,7 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     };
+
     const showDoc = (card: any) => {
         let type = "";
         if (!(appointement.patient.birthdate && moment().diff(moment(appointement.patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -732,7 +751,6 @@ function ConsultationInProgress() {
                 type: "write_certif",
                 mutate: mutateDoc,
                 mutateDetails: mutate
-
             });
             setOpenDialog(true);
         } else {
@@ -772,6 +790,7 @@ function ConsultationInProgress() {
             setOpenDialog(true);
         }
     };
+
     const handleTableActions = (action: string, event: any) => {
         switch (action) {
             case "onDetailPatient":
@@ -793,20 +812,46 @@ function ConsultationInProgress() {
         }
 
     }
-    const {t, ready} = useTranslation("consultation");
 
-    if (!ready)
-        return (
-            <LoadingScreen
-                error
-                button={"loading-error-404-reset"}
-                text={"loading-error"}
-            />
-        );
+    const getWidgetSize = () => {
+        return isClose ? 1 : closeExam ? 11 : 5
+    }
+
+    const getExamSize = () => {
+        return isClose ? 11 : closeExam ? 1 : 7;
+    }
+
+
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
-            <SubHeader>
+            {isHistory && <AppointHistoryContainerStyled> <Toolbar>
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                       width={"100%"}>
+                    <Stack spacing={1.5} direction="row" alignItems="center">
+                        <IconUrl path={'ic-speaker'}/>
+                        <Typography>{t('consultationIP.updateHistory')} {appointement?.day_date}.</Typography>
+                    </Stack>
+                    <LoadingButton
+                        disabled={loadingReq}
+                        loading={loadingReq}
+                        loadingPosition="start"
+                        onClick={closeHistory}
+                        className="btn-action"
+                        color="warning"
+                        size="small"
+                        startIcon={<IconUrl path="ic-retour"/>}>
+                        {t('consultationIP.back')}
+                    </LoadingButton>
+                </Stack>
+            </Toolbar></AppointHistoryContainerStyled>}
+            <SubHeader sx={isHistory && {
+                backgroundColor: alpha(theme.palette.warning.main, 0.2),
+                borderLeft: `2px solid${theme.palette.warning.main}`,
+                borderRight: `2px solid${theme.palette.warning.main}`,
+                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
+            }}>
                 {appointement && (
                     <ConsultationIPToolbar
                         appuuid={uuind}
@@ -835,7 +880,8 @@ function ConsultationInProgress() {
                 )}
             </SubHeader>
             {<HistoryAppointementContainer {...{isHistory, loading, closeHistory, appointement, t, loadingReq}}>
-                <Box className="container container-scroll">
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     className="container container-scroll">
                     {loading && (
                         <Stack spacing={2} padding={2}>
                             {Array.from({length: 3}).map((_, idx) => (
@@ -863,6 +909,7 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                dates, keys, modelData,
                                 setIsViewerOpen,
                             }}
                             appuuid={uuind}
@@ -891,19 +938,51 @@ function ConsultationInProgress() {
 */}
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
-                                        {...{models, changes, setChanges, isClose}}
+                                        {...{
+                                            models,
+                                            changes,
+                                            setChanges,
+                                            isClose,
+                                            acts,
+                                            setActs,
+                                            setSelectedAct,
+                                            selectedAct,
+                                            setSelectedUuid,
+                                            previousData
+                                        }}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
+                                        closed={closeExam}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
+                                {!loading && !selectedModel && (<CardContent
+                                        sx={{
+                                            bgcolor: alpha(theme.palette.primary.main,0.1),
+                                            border: '1px solid #E0E0E0',
+                                            overflow: 'hidden',
+                                            borderRadius: 2,
+                                            height: {xs: "30vh", md: "48.9rem"},
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+
+                                        <Stack spacing={1} alignItems={"center"}>
+                                            <TuneRoundedIcon/>
+                                            <Typography fontSize={11} textAlign={"center"}>{t('noActiveFile')}</Typography>
+                                            <Typography fontSize={10} textAlign={"center"} style={{opacity:0.5}}>{t('configure')}</Typography>
+                                            <Button size={"small"} onClick={()=>{router.replace("/dashboard/settings/patient-file-templates")}}></Button>
+                                        </Stack>
+                                    </CardContent>
+                                )}
                             </Grid>
                             <Grid item xs={12}
-                                  md={isClose ? 11 : 7}
+                                  md={getExamSize()}
                                   style={{paddingLeft: isClose ? 0 : 10}}>
                                 <ConsultationDetailCard
                                     {...{
@@ -921,7 +1000,11 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
+                                        closed: closeExam,
+                                        setCloseExam,
+                                        isClose
                                     }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
                             </Grid>
                         </Grid>
@@ -1011,7 +1094,6 @@ function ConsultationInProgress() {
                                             <Stack
                                                 direction="row"
                                                 alignItems="center"
-                                                display={{xs: "none", md: "block"}}
                                                 spacing={2}>
                                                 <span>|</span>
                                                 <Button
@@ -1050,8 +1132,8 @@ function ConsultationInProgress() {
                                         }
                                         color={appointement?.status === 5 ? "warning" : "error"}
                                         className="btn-action"
-                                        startIcon={appointement?.status === 5 ? <Icon path="ic-edit"/> :
-                                            <Icon path="ic-check"/>}
+                                        startIcon={appointement?.status === 5 ? <IconUrl path="ic-edit"/> :
+                                            <IconUrl path="ic-check"/>}
                                         variant="contained"
                                         sx={{".react-svg": {mr: 1}}}>
                                         {appointement?.status == 5
@@ -1223,11 +1305,11 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(context.locale as string, [
+            ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common",
@@ -1244,7 +1326,9 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     };
 };
 export default ConsultationInProgress;
+
 ConsultationInProgress.auth = true;
+
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

@@ -35,6 +35,7 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
             width: "100%",
             left: 0,
             top: 0,
+            zIndex:3
         },
         ".MuiList-root": {
             padding: 0,

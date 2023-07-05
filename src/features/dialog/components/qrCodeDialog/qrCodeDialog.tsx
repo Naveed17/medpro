@@ -9,7 +9,7 @@ function QrCodeDialog({...props}) {
     const {data} = props;
     const {t, ready} = useTranslation("common")
     const imgUrl = null
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <QrCodeDialogStyled spacing={2} alignItems="center">
             <Avatar {...(imgUrl ? {src: imgUrl} : {src: '/static/icons/avatar-1.svg'})} />

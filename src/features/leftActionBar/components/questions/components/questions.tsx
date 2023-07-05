@@ -4,7 +4,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import Icon from '@themes/urlIcon';
 import QuestionStyled from './overrides/questionsStyle';
 import { useTranslation } from 'next-i18next';
-import { useAppDispatch } from "@app/redux/hooks";
+import { useAppDispatch } from "@lib/redux/hooks";
 import { setQs } from "@features/leftActionBar";
 import { upperFirst } from 'lodash';
 import data from './config';
@@ -24,7 +24,7 @@ function Questions() {
 
 
     const { t, ready } = useTranslation('questions');
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     return (
         <QuestionStyled>
             <TabContext value={value}>

@@ -46,7 +46,7 @@ function BalanceSheetPendingDialog({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <BalanceSheetPendingStyled>
             {/*<Grid container spacing={5}>

@@ -36,7 +36,7 @@ Open `http://localhost:3000` with your browser to see the result.
 
 - [`public`](./public) — Static assets such as robots.txt, images, and favicon.<br>
 - [`src`](./src) — Application source code, including pages, features, styles.
-  - [`app`](./src/app) — project config files.
+  - [`lib`](./src/lib) — project config files.
   - [`features`](./src/features) — features components with redux toolkit example.
   - [`interfaces`](./src/interfaces) — interfaces for objects .
   - [`pages`](./src/pages) — pages with custom _app.js and layout.
@@ -129,7 +129,7 @@ The main React hook to execute HTTP requests with [SWR](https://swr.vercel.app/)
 
 ### Quick Start
 ```ts
-    import {useRequest} from "@app/axios";
+    import {useRequest} from "@lib/axios";
 
     const {data: httpResponse, error: errorHttp} = useRequest({
         method: "GET",
@@ -187,7 +187,7 @@ The React hook to execute HTTP requests for remote mutations (useSWRMutation).
 - 
 ### Quick Start
 ```ts
-    import {useRequestMutation} from "@app/axios";
+    import {useRequestMutation} from "@lib/axios";
 
     const {data: httpResponse, error: errorHttp, trigger, isMutating} = useRequestMutation({
         method: "GET",

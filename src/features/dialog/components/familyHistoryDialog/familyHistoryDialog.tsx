@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -51,7 +51,7 @@ function FamilyHistoryDialog({...props}) {
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
-            items.map(item => {
+            items.forEach(item => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && item.response && typeof item.response !== "string") {
                     item.response = item.response[0]?.uuid
                 }
@@ -81,7 +81,7 @@ function FamilyHistoryDialog({...props}) {
         setValue(e.target.value);
     };
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">

@@ -1,47 +1,40 @@
 import React, {useState} from "react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
-import {LocaleFnsProvider} from "@app/localization";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {PickersDay, StaticDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
-type CalendarPickerView = "day" | "month" | "year";
 
 function CalendarPickers({...props}) {
-    const {notes, disabled} = props;
+    const {disabled} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {data: session} = useSession();
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {data: httpAppCountResponse} = useRequest(
-        agendaConfig ?
-            {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
-            } : null,
-        SWRNoValidateConfig
-    );
+    const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null, SWRNoValidateConfig);
 
     const handleDateChange = (date: Date | null) => {
         if (date) {
@@ -49,17 +42,13 @@ function CalendarPickers({...props}) {
         }
     }
 
-    const onYearChange = (year: any) => {
-        setDefaultView("day");
-    };
-
     const appointmentDayCount = (httpAppCountResponse as HttpResponse)?.data;
 
     return (
         <CalendarPickerStyled>
             <LocalizationProvider
                 dateAdapter={AdapterDateFns}
-                locale={LocaleFnsProvider(locale)}
+                adapterLocale={LocaleFnsProvider(locale)}
             >
                 <StaticDatePicker
                     {...props}
@@ -103,8 +92,6 @@ function CalendarPickers({...props}) {
                         setStartOfMonth(moment(date).startOf('month').format('DD-MM-YYYY'));
                         setEndOfMonth(moment(date).endOf('month').format('DD-MM-YYYY'));
                     }}
-                    onViewChange={(view: CalendarPickerView) => setDefaultView(view)}
-                    onYearChange={onYearChange}
                 />
             </LocalizationProvider>
         </CalendarPickerStyled>

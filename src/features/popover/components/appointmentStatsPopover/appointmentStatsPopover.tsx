@@ -7,7 +7,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 function AppointmentStatsPopover() {
     const theme = useTheme();
     const {t, ready} = useTranslation('common');
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <List
@@ -30,7 +30,7 @@ function AppointmentStatsPopover() {
             {Object.values(AppointmentStatus).map((info, index) => info.icon &&
                 <ListItem key={index} sx={{display: "inline-flex"}}>
                     {info.icon}
-                    <Typography ml={1}>{info.value}</Typography>
+                    <Typography ml={1}>{t(`appointment-status.${info.key}`)}</Typography>
                 </ListItem>)}
             <ListItem>
                 <Box
