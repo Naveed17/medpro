@@ -12,12 +12,15 @@ import createEmotionServer from "@emotion/server/create-instance";
 class MyDocument extends Document {
     render() {
         return (
-            <Html lang="fr">
+            <Html lang={this.props.locale}>
                 <Head>
                     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
                     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
                     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
-                    <link rel="manifest" href="/manifest.json" />
+                    <link rel="manifest" href="/manifest.json"/>
+                    <link rel="preload"
+                          href={`${process.env.NEXT_PUBLIC_API_URL}api/public/places/countries/${this.props.locale}?nationality=true`}
+                          as="fetch" crossOrigin="anonymous"/>
                     <link
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swa"
