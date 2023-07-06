@@ -1,14 +1,21 @@
 import {UrlMedicalProfessionalSuffix} from "../constants";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useEffect, useState} from "react";
 
 function useMedicalProfessionalSuffix() {
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const medical_professional = medicalProfessionalData && medicalProfessionalData[0]?.medical_professional as MedicalProfessionalModel;
+    const [medicalProfessional, setMedicalProfessional] = useState<any>(null);
+
+    useEffect(() => {
+        if (medicalProfessionalData) {
+            setMedicalProfessional(medicalProfessionalData[0]?.medical_professional as MedicalProfessionalModel);
+        }
+    }, [medicalProfessionalData]);
 
     return {
-        urlMedicalProfessionalSuffix: medical_professional && `${UrlMedicalProfessionalSuffix}/${medical_professional.uuid}`,
-        medical_professional: medical_professional && medical_professional
+        urlMedicalProfessionalSuffix: medicalProfessional && `${UrlMedicalProfessionalSuffix}/${medicalProfessional.uuid}`,
+        medical_professional: medicalProfessional
     };
 }
 

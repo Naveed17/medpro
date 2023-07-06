@@ -46,8 +46,9 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
-import {useInsurances} from "@lib/hooks/rest";
+import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import {LoadingButton} from "@mui/lab";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -106,6 +107,8 @@ function OnStepPatient({...props}) {
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
     const {insurances} = useInsurances();
+    const {contacts} = useContactType();
+    const {countries} = useCountries("nationality=true");
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -252,10 +255,10 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson && insurance.insuredPerson.contact.value.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                        code: insurance.insuredPerson && insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
+                        value: insurance.insuredPerson && insurance.insuredPerson.contact?.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                         type: "phone",
-                        contact_type: contacts && contacts[0].uuid,
+                        contact_type: contacts.length > 0 && contacts[0].uuid,
                         is_public: false,
                         is_support: false
                     }
@@ -273,6 +276,7 @@ function OnStepPatient({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             if (OnSubmit) {
+                setLoading(true);
                 OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
         },
@@ -282,24 +286,18 @@ function OnStepPatient({...props}) {
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
-
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })));
+    const [loading, setLoading] = useState<boolean>(false);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
-    const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleExpandClick = () => {
@@ -375,7 +373,7 @@ function OnStepPatient({...props}) {
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -917,13 +915,13 @@ function OnStepPatient({...props}) {
                                                             <Autocomplete
                                                                 size={"small"}
                                                                 value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                                    SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                                    socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                                 onChange={(event, insurance: any) => {
                                                                     setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                                     setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                                 }}
                                                                 id={"assure"}
-                                                                options={SocialInsured}
+                                                                options={socialInsurances}
                                                                 groupBy={(option: any) => option.grouped}
                                                                 sx={{minWidth: 500}}
                                                                 getOptionLabel={(option: any) => option?.label ? option.label : ""}
@@ -1231,9 +1229,11 @@ function OnStepPatient({...props}) {
                     >
                         {t("cancel")}
                     </Button>
-                    <Button variant="contained" type="submit" color="primary">
+                    <LoadingButton
+                        {...{loading}}
+                        variant="contained" type="submit" color="primary">
                         {t("next")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </Stack>
         </FormikProvider>

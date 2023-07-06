@@ -1,7 +1,6 @@
 import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
 import React, {useState} from "react";
@@ -10,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientAppointmentCard({...props}) {
-    const {item: patient, handleListItemClick, listing, onReset, onEdit, ...rest} = props;
+    const {item: patient, handleListItemClick = null, listing, onReset, onEdit, ...rest} = props;
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState(false);
@@ -31,7 +30,7 @@ function PatientAppointmentCard({...props}) {
                         className={"zoom-list"}
                         src={patientPhoto
                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                            : (patient?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                            : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0
@@ -43,8 +42,15 @@ function PatientAppointmentCard({...props}) {
                         <IconUrl width={"30"} height={"30"} path="men-avatar"/>
                     </Avatar>
                 </Zoom>
-                <Stack ml={1} direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                    <Box onClick={() => handleListItemClick(patient)}>
+                <Stack ml={1}
+                       onClick={(e) => {
+                           e.stopPropagation();
+                           handleListItemClick && handleListItemClick(patient)
+                       }}
+                       direction={"row"}
+                       justifyContent={"space-between"}
+                       sx={{width: "100%"}}>
+                    <Box>
                         <Stack spacing={.5} direction="row" alignItems='center'>
                             <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
                                 {patient.firstName} {patient.lastName}
@@ -69,7 +75,7 @@ function PatientAppointmentCard({...props}) {
                                 }}
                             >
                                 {!loading ?
-                                    <Icon color={"white"} path="setting/edit"/> :
+                                    <IconUrl color={"white"} path="setting/edit"/> :
                                     <Box sx={{display: 'flex'}}>
                                         <CircularProgress size={"20px"} color={"white"}/>
                                     </Box>

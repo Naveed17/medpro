@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
-    Alert,
+    Chip,
     AppBar,
     Avatar,
     Box,
@@ -27,7 +27,7 @@ import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlin
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
-import {Dialog, QrCodeDialog, setMoveDateTime} from "@features/dialog";
+import {Dialog, openDrawer as DialogOpenDrawer, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
@@ -46,6 +46,7 @@ function AppointmentDetail({...props}) {
         OnConfirmAppointment,
         OnDataUpdated = null,
         patientId = null,
+        from = null,
         OnPatientNoShow,
         OnWaiting,
         OnLeaveWaiting,
@@ -62,7 +63,7 @@ function AppointmentDetail({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
-    const {t, ready} = useTranslation("common");
+    const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {patientPhoto, mutatePatientPhoto} = useProfilePhoto({
@@ -99,7 +100,7 @@ function AppointmentDetail({...props}) {
         }
     }, [appointment]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -111,14 +112,36 @@ function AppointmentDetail({...props}) {
                             disableRipple
                             size="medium"
                             edge="end"
-                            onClick={() =>
-                                dispatch(openDrawer({type: "view", open: false}))
-                            }>
+                            onClick={() => {
+                                if (from === "HistoryTab") {
+                                    dispatch(DialogOpenDrawer(false));
+                                } else {
+                                    dispatch(openDrawer({type: "view", open: false}));
+                                }
+                            }}>
                             <Icon path="ic-x"/>
                         </IconButton>
                     </Stack>
                 </Toolbar>
+                {appointment?.extendedProps.hasErrors?.length > 0 && <Toolbar sx={{marginTop: "-0.6rem"}}>
+                    {appointment?.extendedProps.hasErrors?.map(
+                        (error: string, index: number) => (
+                            <Stack
+                                key={`error${index}`}
+                                spacing={2}
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center">
+                                <Chip
+                                    color="error"
+                                    label={t(error)}
+                                    icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
+                            </Stack>
+                        )
+                    )}
+                </Toolbar>}
             </AppBar>
+
             <Box
                 ref={rootRef}
                 sx={{
@@ -126,25 +149,7 @@ function AppointmentDetail({...props}) {
                     overflowY: "scroll",
                 }}>
                 <Box px={1} py={2}>
-                    {appointment?.extendedProps.hasErrors?.map(
-                        (error: string, index: number) => (
-                            <Stack
-                                key={`error${index}`}
-                                spacing={2}
-                                sx={{mb: 1}}
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="center">
-                                <Alert
-                                    sx={{
-                                        backgroundColor: (theme) => theme.palette.error.lighter
-                                    }}
-                                    variant={"outlined"}
-                                    severity="error"
-                                    icon={<ReportProblemRoundedIcon/>}>{t(error)}</Alert>
-                            </Stack>
-                        )
-                    )}
+
                     <Card>
                         <CardContent>
                             <Stack
@@ -158,7 +163,7 @@ function AppointmentDetail({...props}) {
                                             src={
                                                 patientPhoto
                                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                                    : appointment?.extendedProps?.patient?.gender === 1
+                                                    : appointment?.extendedProps?.patient?.gender === "M"
                                                         ? "/static/icons/men-avatar.svg"
                                                         : "/static/icons/women-avatar.svg"
                                             }
@@ -312,6 +317,8 @@ function AppointmentDetail({...props}) {
                             motif: appointment?.extendedProps.motif,
                             status: appointment?.extendedProps.status,
                             type: appointment?.extendedProps.type,
+                            instruction: appointment?.extendedProps.instruction,
+                            reminder: appointment?.extendedProps.reminder
                         }}
                     />
                 </Box>
@@ -464,7 +471,6 @@ function AppointmentDetail({...props}) {
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
                                     display:
-                                        appointment?.extendedProps.status.key === "CANCELED" ||
                                         appointment?.extendedProps.status.key === "FINISHED" ||
                                         appointment?.extendedProps.status.key === "ON_GOING"
                                             ? "none"

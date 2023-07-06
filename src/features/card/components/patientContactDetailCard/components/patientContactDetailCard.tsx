@@ -23,7 +23,6 @@ import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
-
 import IconUrl from "@themes/urlIcon";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -37,7 +36,6 @@ import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import Icon from "@themes/urlIcon";
 import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -45,6 +43,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useCountries} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -62,11 +61,11 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {countries: countries_api} = useCountries("nationality=true");
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -126,11 +125,6 @@ function PatientContactDetailCard({...props}) {
     const {values, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -216,12 +210,11 @@ function PatientContactDetailCard({...props}) {
         });
     }
 
-    const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -251,7 +244,7 @@ function PatientContactDetailCard({...props}) {
                                                     sx={{margin: 'auto'}}
                                                     size='small'
                                                     startIcon={<CloseIcon/>}>
-                                                {t('cancel')}
+                                                {t('config.add-patient.cancel')}
                                             </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
@@ -261,7 +254,7 @@ function PatientContactDetailCard({...props}) {
                                                 sx={{margin: 'auto'}}
                                                 size='small'
                                                 startIcon={<SaveAsIcon/>}>
-                                                {t('register')}
+                                                {t('config.add-patient.register')}
                                             </LoadingButton>
                                         </Stack>
                                         :
@@ -379,12 +372,12 @@ function PatientContactDetailCard({...props}) {
                                             ) : (
                                                 <Autocomplete
                                                     id={"country"}
-                                                    disabled={!countries_api}
+                                                    disabled={!countries_api || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
                                                     value={countries_api?.find(country => country.uuid === getFieldProps("country").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : null}
                                                     onChange={(e, v: any) => {
                                                         setFieldValue("country", v.uuid);
                                                     }}
@@ -398,12 +391,9 @@ function PatientContactDetailCard({...props}) {
                                                     options={countries_api ? countries_api?.filter(country => country.hasState) : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`country-${option.uuid}`}
-                                                            value={option.uuid}>
+                                                        <MenuItem {...props}>
                                                             {option?.code && <Avatar
                                                                 sx={{
                                                                     width: 26,
@@ -483,12 +473,12 @@ function PatientContactDetailCard({...props}) {
 
                                                 <Autocomplete
                                                     id={"region"}
-                                                    disabled={!states}
+                                                    disabled={!states || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
                                                     value={states?.find(country => country.uuid === getFieldProps("region").value) ?
-                                                        states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                        states.find(country => country.uuid === getFieldProps("region").value) : null}
                                                     onChange={(e, state: any) => {
                                                         setFieldValue("region", state.uuid);
                                                         setFieldValue("zip_code", state.zipCode);
@@ -497,7 +487,7 @@ function PatientContactDetailCard({...props}) {
                                                     options={states ? states : []}
                                                     loading={!states}
                                                     getOptionLabel={(option) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
                                                         <MenuItem
                                                             {...props}
@@ -592,12 +582,12 @@ function PatientContactDetailCard({...props}) {
                                             ) : (
                                                 <Autocomplete
                                                     id={"nationality"}
-                                                    disabled={!countries_api}
+                                                    disabled={!countries_api || !editable}
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
                                                     value={countries_api?.find(country => country.uuid === getFieldProps("nationality").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : null}
                                                     onChange={(e, v: any) => {
                                                         setFieldValue("nationality", v.uuid);
                                                     }}
@@ -608,15 +598,12 @@ function PatientContactDetailCard({...props}) {
                                                             border: `1px solid ${theme.palette.grey['A100']}`
                                                         }
                                                     })}
-                                                    options={countries_api ? countries_api : []}
+                                                    options={countries_api ? [...new Map(countries_api.map(item => [item["nationality"], item])).values()] : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.nationality === value?.nationality}
+                                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`nationality-${option.uuid}`}
-                                                            value={option.uuid}>
+                                                        <MenuItem {...props}>
                                                             {option?.code && <Avatar
                                                                 sx={{
                                                                     width: 26,
@@ -768,7 +755,7 @@ function PatientContactDetailCard({...props}) {
                                                                         },
                                                                     }}
                                                                 >
-                                                                    <Icon path="ic-plus"/>
+                                                                    <IconUrl path="ic-plus"/>
                                                                 </IconButton>
                                                             </> : (editable && <IconButton
                                                                 onClick={() => handleRemovePhone(index)}
@@ -785,7 +772,7 @@ function PatientContactDetailCard({...props}) {
                                                                     },
                                                                 }}
                                                             >
-                                                                <Icon path="ic-moin"/>
+                                                                <IconUrl path="ic-moin"/>
                                                             </IconButton>)}
                                                         </Stack>
                                                     </Grid>

@@ -9,7 +9,6 @@ import {
   Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import Icon from "@themes/urlIcon";
 import DetailCardStyled from "./overrides/detailCardStyle";
 import CircleIcon from "@mui/icons-material/Circle";
 import { Dialog } from "@features/dialog";
@@ -37,7 +36,7 @@ export default function DetailsCard({ ...props }) {
         <Button
           variant="contained"
           onClick={handleCloseDialog}
-          startIcon={<Icon path="ic-check" />}>
+          startIcon={<IconUrl path="ic-check" />}>
           {t("table.end_consultation")}
         </Button>
       </DialogActions>
@@ -108,7 +107,7 @@ export default function DetailsCard({ ...props }) {
                           },
                         },
                       }}>
-                      <Icon path="ic-time" />
+                      <IconUrl path="ic-time" />
                       <Typography component="span" fontWeight={600}>
                         {item.arrive_time}
                       </Typography>
@@ -132,7 +131,7 @@ export default function DetailsCard({ ...props }) {
                     }}
                     sx={{ display: "block", ml: "auto" }}
                     size="small">
-                    <Icon path="more-vert" />
+                    <IconUrl path="more-vert" />
                   </IconButton>
                   <IconButton
                     size="small"

@@ -2,7 +2,15 @@
   "welcome": "Bienvenue au projet Med",
   "start": "Commencez par modifier",
   "powered_by": "Tous droits réservés",
+  "default-view": "Affichage par défaut",
+  "trash": "Corbeille",
+  "empty-trash": "Vider la corbeille",
   "lang": "langue",
+  "sms-languages": {
+    "fr": "Francais",
+    "en": "Anglais",
+    "ar": "Arabe"
+  },
   "light": "Mode lumière",
   "dark": "Mode sombre",
   "dashboard": "Page d'accueil",
@@ -150,6 +158,11 @@
   "confirm_appointment": "Confirmer RDV",
   "reschedule_appointment": "Replanifier RDV",
   "on_hold": "En attente",
+  "all": "Tous",
+  "pending": "En attende",
+  "online": "RDV en ligne",
+  "request-appointment": "a demandé un nouveau rendez-vous en ligne pour le",
+  "next-appointment-control": "Contrôle médical apres",
   "consultation_reson": "Motif de consultation",
   "reason-consultation-placeholder": "Choisissez votre motif de consultation",
   "consultation_type": "Type de consultation",
@@ -301,7 +314,8 @@
       "leave-waiting-room": "le patient a quitté la salle d'attente",
       "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
       "patient-no-show": "le rendez-vous a été modifié avec succès",
-      "confirm-appointment": "le rendez-vous a été confirmé avec succès"
+      "confirm-appointment": "le rendez-vous a été confirmé avec succès",
+      "consultation-finish": "Consultation terminée pour le patient"
     }
   },
   "filter": {

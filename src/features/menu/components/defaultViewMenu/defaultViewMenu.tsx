@@ -8,23 +8,27 @@ import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import {Collapse, ListItemButton, SvgIcon, Typography, useTheme} from "@mui/material";
+import {Collapse, Divider, ListItemButton, SvgIcon, Typography, useTheme} from "@mui/material";
 import {ToggleButtonStyled} from "@features/toolbar";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setView} from "@features/calendar";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
+import {useTranslation} from "next-i18next";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import Link from "next/link";
+import {dashLayoutSelector} from "@features/base";
 
 const VIEW_OPTIONS = [
-    {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
-    {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
-    {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
-    {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
+    {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
+    {value: "timeGridWeek", label: "weeks", text: "Semaine", icon: DayIcon},
+    {value: "dayGridMonth", label: "months", text: "Mois", icon: WeekIcon},
+    {value: "listWeek", label: "agenda", text: "List", icon: GridIcon}
 ];
 
 function DefaultViewMenu() {
@@ -34,12 +38,16 @@ function DefaultViewMenu() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
+    const {t} = useTranslation('common');
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [openItem, setOpenItem] = React.useState(true);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
 
@@ -108,36 +116,37 @@ function DefaultViewMenu() {
                     'aria-labelledby': 'lock-button',
                     role: 'listbox',
                 }}
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        overflow: 'visible',
-                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                        mt: 1.5,
-                        '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
-                        },
-                        '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            left: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                        },
-                    },
-                }}
-            >
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                            },
+                            '&:before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                left: 14,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                            },
+                        }
+                    }
+                }}>
                 <List>
                     <ListItemButton onClick={handleClick}>
-                        <ListItemText primary="Affichage par défaut"/>
+                        <ListItemText primary={t("default-view")}/>
                         {openItem ? <ExpandLess/> : <ExpandMore/>}
                     </ListItemButton>
                     <Collapse in={openItem} timeout="auto" unmountOnExit>
@@ -150,12 +159,20 @@ function DefaultViewMenu() {
                                     onClick={(event) => handleMenuItemClick(event, option)}
                                 >
                                     <SvgIcon component={option.icon} width={20} height={20}/>
-                                    <Typography ml={1}>{option.text}</Typography>
+                                    <Typography ml={1}>{t(`times.${option.label}`)}</Typography>
                                 </MenuItem>
                             ))}
                         </List>
-
                     </Collapse>
+                    {!roles?.includes('ROLE_SECRETARY') && <>
+                        <Divider/>
+                        <Link href="/dashboard/agenda/trash">
+                            <ListItemButton>
+                                <DeleteOutlineIcon fontSize={"small"}/>
+                                <ListItemText sx={{ml: 1}} primary={t("trash")}/>
+                            </ListItemButton>
+                        </Link>
+                    </>}
                 </List>
             </Menu>
         </div>

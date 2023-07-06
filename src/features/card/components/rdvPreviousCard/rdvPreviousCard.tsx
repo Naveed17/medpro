@@ -60,7 +60,7 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -92,8 +92,8 @@ function RdvCard({...props}) {
                     {loading ? (
                         <Skeleton variant="text" width={100}/>
                     ) : (
-                        <Stack direction={"row"} justifyItems={"center"} spacing={1.2}>
-                            <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
+                        <Stack direction={"column"} justifyItems={"center"} spacing={1.2}>
+                            <Stack direction={"row"} spacing={1.2}>
                                 {inner?.type && <Stack direction='row' alignItems="center">
                                     <ModelDot
                                         color={inner?.type?.color}
@@ -125,14 +125,15 @@ function RdvCard({...props}) {
                                 </Label>}
                             </Stack>
 
-                            {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
-                                <Typography fontSize={12} fontWeight={400}>
-                                    {t("patient-details.reason")}
-                                </Typography>
-                                <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                                    {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
-                                </Typography>
-                            </Stack>}
+                            {inner.consultationReasons.length > 0 &&
+                                <Stack direction="row" spacing={.5} alignItems={'flex-start'}>
+                                    <Typography sx={{minWidth: 136}} variant={"body2"} fontSize={12} fontWeight={400}>
+                                        {t("patient-details.reason")} :
+                                    </Typography>
+                                    <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                                        {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                    </Typography>
+                                </Stack>}
                         </Stack>
                     )}
                 </TableCell>
@@ -155,19 +156,21 @@ function RdvCard({...props}) {
                 open={contextMenu !== null}
                 onClose={handleClose}
                 anchorReference="anchorPosition"
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        minWidth: 200,
-                        backgroundColor: theme.palette.text.primary,
-                        "& .popover-item": {
-                            padding: theme.spacing(2),
-                            display: "flex",
-                            alignItems: "center",
-                            svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                            cursor: "pointer",
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            minWidth: 200,
+                            backgroundColor: theme.palette.text.primary,
+                            "& .popover-item": {
+                                padding: theme.spacing(2),
+                                display: "flex",
+                                alignItems: "center",
+                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                cursor: "pointer",
+                            }
                         }
-                    },
+                    }
                 }}
                 anchorPosition={
                     contextMenu !== null
@@ -185,13 +188,20 @@ function RdvCard({...props}) {
             >
                 <MenuItem
                     className="popover-item"
-                    onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView({
-                        dispatch,
-                        patient,
-                        inner
-                    })}>
+                    onClick={() => {
+                        if (inner?.status === 5) {
+                            onConsultationView(inner?.uuid)
+                        } else {
+                            handleClose();
+                            onAppointmentView({
+                                dispatch,
+                                patient,
+                                inner
+                            })
+                        }
+                    }}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t(`patient-details.${inner?.status === 5 ? "start-consultation" : "see-details"}`)}
+                        {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
                     </Typography>
                 </MenuItem>
                 <MenuItem

@@ -54,7 +54,7 @@ function ReportDialog({...props}) {
         doc.save();
     }
     const {t, ready} = useTranslation("consultation");
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <div>

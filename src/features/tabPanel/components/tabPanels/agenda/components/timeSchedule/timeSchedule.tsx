@@ -191,8 +191,9 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
-        const newDateFormat = moment.utc(date?.toString()).format("DD-MM-YYYY");
-        const newDate = moment(`${newDateFormat} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
+        const newDateFormat = date?.toLocaleDateString('en-GB');
+        const newDate = moment(`${newDateFormat} ${newTime}`, "DD/MM/YYYY HH:mm").toDate();
+
         dispatch(setAppointmentDate(newDate));
         const updatedRecurringDates = [{
             id: `${newDateFormat}--${newTime}`,
@@ -506,7 +507,7 @@ function TimeSchedule({...props}) {
                 }
 
                 {(timeAvailable || recurringDates.length > 0) &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -534,7 +535,7 @@ function TimeSchedule({...props}) {
                                             <DeleteIcon color={"error"}/>
                                         </IconButton>
                                     }
-                                    key={Math.random()} item={recurringDate} size="small"/>
+                                    key={index.toString()} item={recurringDate} size="small"/>
                             ))}
                             {!moreDate &&
                                 <Button

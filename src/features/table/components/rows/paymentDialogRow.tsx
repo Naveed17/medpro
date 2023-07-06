@@ -25,7 +25,6 @@ function PaymentDialogRow({...props}) {
     return (
         <TableRowStyled
             hover
-            key={Math.random()}
             className="payment-dialog-row"
         >
             <TableCell padding="checkbox">

@@ -27,7 +27,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {setTimer} from "@features/card";
+import {resetTimer, setTimer} from "@features/card";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
@@ -132,11 +132,20 @@ function FcmLayout({...props}) {
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
-                                dispatch(setTimer({isActive: false}));
+                                dispatch(resetTimer());
                             }
-                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             agendaConfig?.mutate[1]();
@@ -234,7 +243,7 @@ function FcmLayout({...props}) {
                 },
             }).catch(() => {
                 setRefreshToken(topicName, fcm_api_key);
-                console.error(`Can't subscribe to ${topicName} topic`);
+                console.log(`Can't subscribe to ${topicName} topic`);
             });
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -292,6 +301,16 @@ function FcmLayout({...props}) {
             dispatch(setOngoing({appointmentTypes}));
         }
     }, [dispatch, appointmentTypes])
+
+    useEffect(() => {
+        // Update notifications popup
+        const localStorageNotifications = localStorage.getItem("notifications");
+        if (localStorageNotifications) {
+            const notifications = JSON.parse(localStorageNotifications).filter(
+                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
+            dispatch(setOngoing({notifications}))
+        }
+    }, [dispatch])
 
     return (
         <>

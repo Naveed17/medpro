@@ -39,7 +39,7 @@ import Zoom from "react-medium-image-zoom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import DialogTitle from "@mui/material/DialogTitle";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {setPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {useProfilePhoto} from "@lib/hooks/rest";
 
 const MicRecorder = require('mic-recorder-to-mp3');
@@ -99,7 +99,7 @@ function ConsultationIPToolbar({...props}) {
         recorder.start().then(() => {
             dispatch(SetRecord(true))
         }).catch((e: any) => {
-            console.error(e);
+            console.log(e);
         });
     }
 
@@ -412,7 +412,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
-                setInfo(setPrescriptionUI());
+                setInfo(getPrescriptionUI());
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -467,7 +467,7 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(false);
         setInfo(null);
         // switch UI and open dialog
-        setInfo(setPrescriptionUI());
+        setInfo(getPrescriptionUI());
         setAnchorEl(null);
         setOpenDialog(true);
         setActions(true);
@@ -478,7 +478,7 @@ function ConsultationIPToolbar({...props}) {
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
-                    setInfo(setPrescriptionUI());
+                    setInfo(getPrescriptionUI());
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
@@ -519,7 +519,7 @@ function ConsultationIPToolbar({...props}) {
     useEffect(() => {
         switch (dialog) {
             case "draw_up_an_order":
-                setInfo(setPrescriptionUI());
+                setInfo(getPrescriptionUI());
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -590,7 +590,7 @@ function ConsultationIPToolbar({...props}) {
                             <Avatar
                                 src={patientPhoto
                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                    : (patient?.gender === 1 ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                    : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                 sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
                                 <IconUrl width={"40"} height={"40"} path="men-avatar"/>
                             </Avatar>

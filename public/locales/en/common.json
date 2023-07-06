@@ -2,7 +2,15 @@
   "welcome": "Welcome to the Med project",
   "start": "Start by editing",
   "powered_by": "All rights reserved",
+  "default-view": "Default view",
+  "trash": "Trash",
+  "empty-trash": "Empty trash",
   "lang": "Language",
+  "sms-languages": {
+    "fr": "French",
+    "en": "English",
+    "ar": "Arabic"
+  },
   "light": "Light mode",
   "dark": "Dark mode",
   "dashboard": "Dashboard",
@@ -150,6 +158,10 @@
   "confirm_appointment": "Confirm Appointment",
   "reschedule_appointment": "Reschedule Appointment",
   "on_hold": "On Hold",
+  "all": "ALL",
+  "pending": "Pending",
+  "online": "Online appointment",
+  "request-appointment": "requested a new appointment online for the",
   "consultation_reson": "Reason for Consultation",
   "reason-consultation-placeholder": "Choose your reason for consultation",
   "consultation_type": "Consultation Type",
@@ -301,7 +313,8 @@
       "leave-waiting-room": "The patient has left the waiting room",
       "on-waiting-room": "The patient has been added to the waiting room",
       "patient-no-show": "The appointment has been successfully modified",
-      "confirm-appointment": "The appointment has been successfully confirmed"
+      "confirm-appointment": "The appointment has been successfully confirmed",
+      "consultation-finish": "Consultation completed for patient"
     }
   },
   "filter": {

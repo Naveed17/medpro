@@ -100,7 +100,7 @@ function WaitingRoomRow({...props}) {
 
     return (
         <>
-            <TableRow key={Math.random()}>
+            <TableRow>
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">

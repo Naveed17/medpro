@@ -36,7 +36,7 @@ function RdvCard({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-
+    const status = AppointmentStatus[parseInt(inner?.status)];
 
     const handleClose = () => {
         setContextMenu(null);
@@ -62,51 +62,41 @@ function RdvCard({...props}) {
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
             <RootStyled>
                 <TableCell>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                        {inner.consultationReasons.length > 0 && <Stack spacing={1} alignItems={'flex-start'}>
-                            <Typography fontSize={12} fontWeight={400}>
-                                {t("reason")}
-                            </Typography>
-                            <Typography component={Stack} spacing={1} alignItems="center" direction="row">
-                                {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
-                            </Typography>
+                    <Stack direction={"row"} spacing={1.2} justifyContent={"start"}>
+                        {inner?.type && <Stack direction='row' alignItems="center">
+                            <ModelDot
+                                color={inner?.type?.color}
+                                selected={false} size={20} sizedot={12}
+                                padding={3} marginRight={5}/>
+                            <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
                         </Stack>}
-                        <Stack direction={inner.consultationReasons.length > 0 ? "column" : "row"} spacing={1.2}>
-                            {inner?.type && <Stack direction='row' alignItems="center">
-                                <ModelDot
-                                    color={inner?.type?.color}
-                                    selected={false} size={20} sizedot={12}
-                                    padding={3} marginRight={5}/>
-                                <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
-                            </Stack>}
-                            {inner?.status && <Label
-                                variant="filled"
+                        {status && <Label
+                            variant="filled"
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0,
+                                },
+                            }}
+                            color={status.classColor}>
+                            {status.icon}
+                            <Typography
                                 sx={{
-                                    "& .MuiSvgIcon-root": {
-                                        width: 16,
-                                        height: 16,
-                                        pl: 0,
-                                    },
-                                }}
-                                color={AppointmentStatus[inner?.status]?.classColor}>
-                                {AppointmentStatus[inner?.status]?.icon}
-                                <Typography
-                                    sx={{
-                                        fontSize: 10,
-                                        ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
-                                            ? 0.5
-                                            : 0,
-                                    }}>
-                                    {commonTranslation(`appointment-status.${AppointmentStatus[inner?.status]?.key}`)}
-                                </Typography>
-                            </Label>}
-                        </Stack>
+                                    fontSize: 10,
+                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(status.key)
+                                        ? 0.5
+                                        : 0,
+                                }}>
+                                {commonTranslation(`appointment-status.${status.key}`)}
+                            </Typography>
+                        </Label>}
                     </Stack>
                 </TableCell>
                 <TableCell>
@@ -114,27 +104,36 @@ function RdvCard({...props}) {
                         <Skeleton variant="text" width={100}/>
                     ) : (
                         <Stack spacing={1}>
-                            <Typography variant="body2" color="text.primary">
-                                {t('date')}
-                            </Typography>
-                            <Stack spacing={3} direction="row" alignItems='center'>
-                                <Stack spacing={1} direction="row" alignItems='center' className="date-time">
-                                    <Icon path="ic-agenda"/>
-                                    <Typography fontWeight={700} variant="body2" color="text.primary">
-                                        {inner?.dayDate}
-                                    </Typography>
-                                </Stack>
-                                <Stack spacing={1} direction="row" alignItems='center'>
-                                    <Icon path="ic-time"/>
-                                    <Typography fontWeight={700} variant="body2" color="text.primary">
-                                        {inner?.startTime}
-                                    </Typography>
+                            <Stack spacing={.5}>
+                                <Typography variant="body2" color="text.primary">
+                                    {t('date')}
+                                </Typography>
+                                <Stack spacing={3} direction="row" alignItems='center'>
+                                    <Stack spacing={1} direction="row" alignItems='center' className="date-time">
+                                        <Icon path="ic-agenda"/>
+                                        <Typography fontWeight={700} variant="body2" color="text.primary">
+                                            {inner?.dayDate}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack spacing={1} direction="row" alignItems='center'>
+                                        <Icon path="ic-time"/>
+                                        <Typography fontWeight={700} variant="body2" color="text.primary">
+                                            {inner?.startTime}
+                                        </Typography>
+                                    </Stack>
                                 </Stack>
                             </Stack>
+                            {inner.consultationReasons.length > 0 && <Stack spacing={.5} alignItems={'flex-start'}>
+                                <Typography fontSize={12} fontWeight={400}>
+                                    {t("reason")} :
+                                </Typography>
+                                <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                                    {inner.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                </Typography>
+                            </Stack>}
                         </Stack>
                     )}
                 </TableCell>
-
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
                     {loading ? (
                         <Skeleton variant="text" width={80} height={22} sx={{ml: "auto"}}/>
@@ -154,19 +153,21 @@ function RdvCard({...props}) {
                 open={contextMenu !== null}
                 onClose={handleClose}
                 anchorReference="anchorPosition"
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        minWidth: 200,
-                        backgroundColor: theme.palette.text.primary,
-                        "& .popover-item": {
-                            padding: theme.spacing(2),
-                            display: "flex",
-                            alignItems: "center",
-                            svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                            cursor: "pointer",
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            minWidth: 200,
+                            backgroundColor: theme.palette.text.primary,
+                            "& .popover-item": {
+                                padding: theme.spacing(2),
+                                display: "flex",
+                                alignItems: "center",
+                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                cursor: "pointer",
+                            }
                         }
-                    },
+                    }
                 }}
                 anchorPosition={
                     contextMenu !== null
@@ -184,11 +185,18 @@ function RdvCard({...props}) {
             >
                 <MenuItem
                     className="popover-item"
-                    onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView({
-                        dispatch,
-                        patient,
-                        inner
-                    })}>
+                    onClick={() => {
+                        if (inner?.status === 5) {
+                            onConsultationView(inner?.uuid)
+                        } else {
+                            handleClose();
+                            onAppointmentView({
+                                dispatch,
+                                patient,
+                                inner
+                            })
+                        }
+                    }}>
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Typography>

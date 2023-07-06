@@ -3,7 +3,7 @@ import {HistoryCard, HistoryContainer,} from "@features/card";
 import {Label} from "@features/label";
 import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
-import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
+import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {SetSelectedApp} from "@features/toolbar";
 import {useRequest} from "@lib/axios";
 import Icon from "@themes/urlIcon";
@@ -36,7 +36,7 @@ function HistoryTab({...props}) {
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {drawer} = useAppSelector(dialogSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [size, setSize] = useState<number>(3);
@@ -103,9 +103,10 @@ function HistoryTab({...props}) {
                                      style={{background: "white"}}>
                                     <Zoom>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
-                                             alt={'img'}
-                                             style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
+                                        <img
+                                            src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
+                                            alt={'img'}
+                                            style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                         />
                                     </Zoom>
 
@@ -130,26 +131,30 @@ function HistoryTab({...props}) {
                 </Label>
             </Stack>}
 
-            {Object.keys(modelData).length > 0 &&
-                <HistoryStyled>
-                    <thead>
+            <div style={{overflowY: "hidden"}}>
+                {Object.keys(modelData).length > 0 &&
+                    <HistoryStyled>
+                        <thead>
                         <tr>
                             <td className={'col'}></td>
                             {dates.map((date: string) => (<td key={date} className={'col'}><Typography
                                 className={"header"}>{date}</Typography></td>))}
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         {keys.map((key: string) => (
                             <tr key={key}>
-                                <td><Typography className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                <td style={{minWidth: 120}}><Typography
+                                    className={"keys col"}>{modelData[key]['label']}</Typography></td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
                                 </td>))}
                             </tr>
                         ))}
-                    </tbody>
-                </HistoryStyled>}
+                        </tbody>
+                    </HistoryStyled>}
+            </div>
+
             <Stack spacing={1}>
                 {apps.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
@@ -181,7 +186,7 @@ function HistoryTab({...props}) {
                 onClose={() => {
                     dispatch(DialogOpenDrawer(false));
                 }}>
-                <AppointmentDetail/>
+                <AppointmentDetail from="HistoryTab"/>
             </Drawer>
         </>
     );

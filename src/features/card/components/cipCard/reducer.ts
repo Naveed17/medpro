@@ -1,5 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
+    resetTimer,
     setTimer
 } from './actions';
 import {EventDef} from "@fullcalendar/core/internal";
@@ -21,5 +22,12 @@ const initialState: TimerProps = {
 export const timerReducer = createReducer(initialState, builder => {
     builder.addCase(setTimer, (state, action) => {
         return {...state, ...action.payload};
+    }).addCase(resetTimer, (state, action) => {
+        return {
+            startTime: null,
+            isActive: false,
+            isPaused: true,
+            event: null
+        };
     });
 });

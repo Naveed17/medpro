@@ -82,7 +82,7 @@ function ImportData() {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            type: "",
+            type: "2",
             file: "",
             source: "med-pro",
             comment: "",
@@ -155,7 +155,7 @@ function ImportData() {
 
     useEffect(() => {
         if (httpFileResponse)
-            setUriFile((httpFileResponse as HttpResponse).data.file);
+            setUriFile((httpFileResponse as HttpResponse).data.file.url);
     }, [httpFileResponse]);
 
     const handleRemove = (file: any) => {
@@ -244,7 +244,7 @@ function ImportData() {
     if (!ready)
         return (
             <LoadingScreen
-                color={"error"}
+
                 button
                 text={"loading-error"}
             />

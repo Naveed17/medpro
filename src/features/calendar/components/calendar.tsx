@@ -191,7 +191,7 @@ function Calendar({...props}) {
             action === "onCancel" &&
             (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onDelete" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onMove" &&
             (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
@@ -302,7 +302,6 @@ function Calendar({...props}) {
             </ClickAwayListener>}
             <RootStyled>
                 <CalendarStyled>
-
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
@@ -479,18 +478,20 @@ function Calendar({...props}) {
                                 open={contextMenu !== null}
                                 onClose={handleClose}
                                 anchorReference="anchorPosition"
-                                PaperProps={{
-                                    elevation: 0,
-                                    sx: {
-                                        backgroundColor: theme.palette.text.primary,
-                                        "& .popover-item": {
-                                            padding: theme.spacing(2),
-                                            display: "flex",
-                                            alignItems: "center",
-                                            svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                            cursor: "pointer",
+                                slotProps={{
+                                    paper: {
+                                        elevation: 0,
+                                        sx: {
+                                            backgroundColor: theme.palette.text.primary,
+                                            "& .popover-item": {
+                                                padding: theme.spacing(2),
+                                                display: "flex",
+                                                alignItems: "center",
+                                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                                cursor: "pointer",
+                                            }
                                         }
-                                    },
+                                    }
                                 }}
                                 anchorPosition={
                                     contextMenu !== null

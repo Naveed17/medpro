@@ -16,7 +16,7 @@ import {
     Stack,
     TextField,
     Tooltip,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ModelDot} from "@features/modelDot";
@@ -42,6 +42,7 @@ function CertifDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const {
         transcript,
         listening,
@@ -181,7 +182,7 @@ function CertifDialog({...props}) {
 
     const {t, ready} = useTranslation("consultation");
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <Box>
@@ -266,7 +267,7 @@ function CertifDialog({...props}) {
                         </Stack>
                     </List>
                 </Grid>
-                <Grid item xs={12} md={3} style={{borderLeft: '1px solid #DDDDDD'}}>
+                <Grid item xs={12} md={3} style={{borderLeft: `1px solid ${theme.palette.grey[200]}`}}>
                     <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                         <Typography variant={'h6'} marginLeft={2} marginTop={1}>{t('Models')}</Typography>
                         <Button sx={{ml: 'auto', height: 1}}

@@ -19,17 +19,28 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {alpha, Box, Button, DialogActions, Drawer, Grid, Stack, Toolbar, Typography, useTheme,} from "@mui/material";
+import {
+    alpha,
+    Box,
+    Button,
+    CardContent,
+    DialogActions,
+    Drawer,
+    Grid,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {
     ConsultationDetailCard,
     PatientHistoryNoDataCard,
     PendingDocumentCard,
-    setTimer,
+    resetTimer,
     timerSelector,
 } from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import {agendaSelector, openDrawer, setStepperIndex,} from "@features/calendar";
@@ -53,6 +64,7 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -67,6 +79,7 @@ function ConsultationInProgress() {
     useLeavePageConfirm(() => {
         setLoading(true);
         mutateSheetData().then(() => setLoading(true));
+        mutateModels();
     });
 
     const {t, ready} = useTranslation("consultation");
@@ -93,6 +106,7 @@ function ConsultationInProgress() {
     const [appointement, setAppointement] = useState<any>();
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isClose, setIsClose] = useState<boolean>(false);
+    const [closeExam, setCloseExam] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -155,7 +169,6 @@ function ConsultationInProgress() {
             disabled: true,
         },
     ];
-
     const uuind = router.query["uuid-consultation"];
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
@@ -165,7 +178,7 @@ function ConsultationInProgress() {
     const {trigger} = useRequestMutation(null, "consultation/end");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse,mutate:mutateModels} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -181,7 +194,7 @@ function ConsultationInProgress() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/previous/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
@@ -241,6 +254,7 @@ function ConsultationInProgress() {
             setLoading(false);
         }
     }, [httpAppResponse]);
+
     useEffect(() => {
         if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data;
@@ -278,9 +292,9 @@ function ConsultationInProgress() {
             if (appointement) {
                 setPatient(appointement.patient);
 
-                if (appointement.consultation_fees) {
+                /*if (appointement.consultation_fees) {
                     //setConsultationFees(Number(appointement.consultation_fees));
-                }
+                }*/
                 dispatch(SetPatient(appointement.patient));
                 dispatch(SetAppointement(appointement));
                 dispatch(SetMutation(mutate));
@@ -308,7 +322,7 @@ function ConsultationInProgress() {
                                         act: {name: (act as any).name}
                                     });
                                 } else {
-                                    acts[actDetect] ={...acts[actDetect],fees:act.price,qte:act.qte};
+                                    acts[actDetect] = {...acts[actDetect], fees: act.price, qte: act.qte};
                                 }
                             }
                         );
@@ -344,7 +358,7 @@ function ConsultationInProgress() {
                         setConsultationFees(Number(appointement.type.price));
                     }
                     selectedAct.map(sa => {
-                        _total+= sa.fees * sa.qte;
+                        _total += sa.fees * sa.qte;
                     })
                     setTotal(_total)
                 }
@@ -404,13 +418,14 @@ function ConsultationInProgress() {
             );
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append("modal_uuid", selectedModel?.default_modal.uuid);
             form.append(
                 "modal_data",
                 localStorage.getItem("Modeldata" + uuind) as string
             );
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
+            form.append("disease", exam.disease.toString());
             form.append("treatment", exam.treatment ? exam.treatment : "");
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
@@ -426,8 +441,11 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                console.log("end consultation");
-                appointement?.status !== 5 && dispatch(setTimer({isActive: false}));
+                if (appointement?.status !== 5) {
+                    dispatch(resetTimer());
+                    // refresh on going api
+                    mutateOnGoing && mutateOnGoing();
+                }
                 mutate().then(() => {
                     leaveDialog.current = true;
                     if (!isHistory)
@@ -466,9 +484,9 @@ function ConsultationInProgress() {
             let dates: string[] = [];
             let keys: string[] = [];
 
-            Object.keys(res).map(key => {
+            Object.keys(res).forEach(key => {
                 keys.push(key);
-                Object.keys(res[key].data).map(date => {
+                Object.keys(res[key].data).forEach(date => {
                     if (dates.indexOf(date) === -1) dates.push(date);
                 })
             })
@@ -503,7 +521,10 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
+                    edited: false,
                     nextApp: meeting ? meeting : "0",
+                    appUuid: uuind,
+                    dayDate: appointement.day_date,
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
@@ -533,9 +554,9 @@ function ConsultationInProgress() {
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
-            selectedAct[index] = {...row,qte:row.qte};
+            selectedAct[index] = {...row, qte: row.qte};
             const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
-            acts[indexAct] = {...acts[indexAct],qte:row.qte}
+            acts[indexAct] = {...acts[indexAct], qte: row.qte}
             setActs([...acts])
             setSelectedAct([...selectedAct]);
             localStorage.setItem(
@@ -566,13 +587,13 @@ function ConsultationInProgress() {
                     ])
                 );
             } else {
-                setSelectedAct([...selectedAct, {...row,qte:1}]);
+                setSelectedAct([...selectedAct, {...row, qte: 1}]);
                 const indexAct = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid);
-                acts[indexAct] = {...acts[indexAct],qte:1}
+                acts[indexAct] = {...acts[indexAct], qte: 1}
                 setActs([...acts])
                 localStorage.setItem(
                     `consultation-acts-${uuind}`,
-                    JSON.stringify([...selectedAct, {...row,qte:1}])
+                    JSON.stringify([...selectedAct, {...row, qte: 1}])
                 );
             }
         }
@@ -640,7 +661,7 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuind}/status/${router.locale}`
         } as any).then(() => {
             router.push("/dashboard/agenda").then(() => {
-                dispatch(setTimer({isActive: false}));
+                dispatch(resetTimer());
                 setActions(false);
                 // refresh on going api
                 mutateOnGoing && mutateOnGoing();
@@ -792,11 +813,20 @@ function ConsultationInProgress() {
 
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    const getWidgetSize = () => {
+        return isClose ? 1 : closeExam ? 11 : 5
+    }
+
+    const getExamSize = () => {
+        return isClose ? 11 : closeExam ? 1 : 7;
+    }
+
+
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
-            {isHistory &&<AppointHistoryContainerStyled> <Toolbar>
+            {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
@@ -908,7 +938,7 @@ function ConsultationInProgress() {
 */}
                     <TabPanel padding={1} value={value} index={"consultation_form"}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={isClose ? 1 : 5}>
+                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
                                 {!loading && models && selectedModel && (
                                     <WidgetForm
                                         {...{
@@ -926,12 +956,33 @@ function ConsultationInProgress() {
                                         modal={selectedModel}
                                         data={sheetModal?.data}
                                         appuuid={uuind}
+                                        closed={closeExam}
                                         setSM={setSelectedModel}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
+                                {!loading && !selectedModel && (<CardContent
+                                        sx={{
+                                            bgcolor: alpha(theme.palette.primary.main,0.1),
+                                            border: '1px solid #E0E0E0',
+                                            overflow: 'hidden',
+                                            borderRadius: 2,
+                                            height: {xs: "30vh", md: "48.9rem"},
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+
+                                        <Stack spacing={1} alignItems={"center"}>
+                                            <TuneRoundedIcon/>
+                                            <Typography fontSize={11} textAlign={"center"}>{t('noActiveFile')}</Typography>
+                                            <Typography fontSize={10} textAlign={"center"} style={{opacity:0.5}}>{t('configure')}</Typography>
+                                            <Button size={"small"} onClick={()=>{router.replace("/dashboard/settings/patient-file-templates")}}></Button>
+                                        </Stack>
+                                    </CardContent>
+                                )}
                             </Grid>
                             <Grid item xs={12}
-                                  md={isClose ? 11 : 7}
+                                  md={getExamSize()}
                                   style={{paddingLeft: isClose ? 0 : 10}}>
                                 <ConsultationDetailCard
                                     {...{
@@ -949,7 +1000,11 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         seeHistoryDiagnostic,
                                         router,
+                                        closed: closeExam,
+                                        setCloseExam,
+                                        isClose
                                     }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
                             </Grid>
                         </Grid>
@@ -1039,7 +1094,6 @@ function ConsultationInProgress() {
                                             <Stack
                                                 direction="row"
                                                 alignItems="center"
-                                                display={{xs: "none", md: "block"}}
                                                 spacing={2}>
                                                 <span>|</span>
                                                 <Button
@@ -1078,8 +1132,8 @@ function ConsultationInProgress() {
                                         }
                                         color={appointement?.status === 5 ? "warning" : "error"}
                                         className="btn-action"
-                                        startIcon={appointement?.status === 5 ? <Icon path="ic-edit"/> :
-                                            <Icon path="ic-check"/>}
+                                        startIcon={appointement?.status === 5 ? <IconUrl path="ic-edit"/> :
+                                            <IconUrl path="ic-check"/>}
                                         variant="contained"
                                         sx={{".react-svg": {mr: 1}}}>
                                         {appointement?.status == 5
@@ -1272,7 +1326,9 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     };
 };
 export default ConsultationInProgress;
+
 ConsultationInProgress.auth = true;
+
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

@@ -15,9 +15,7 @@ import {
 // styled
 import {RootStyled} from "./overrides";
 // utils
-import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import UrlIcon from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 
@@ -38,6 +36,7 @@ import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useSWRConfig} from "swr";
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
@@ -51,7 +50,10 @@ function PatientDetailsCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
-            picture: {url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""), file: ""},
+            picture: {
+                url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
+                file: ""
+            },
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
@@ -60,6 +62,7 @@ function PatientDetailsCard({...props}) {
         },
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
@@ -115,7 +118,7 @@ function PatientDetailsCard({...props}) {
                 setRequestLoading(false);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
-
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
                 if (appointment) {
                     const event = {
                         ...appointment,
@@ -130,7 +133,7 @@ function PatientDetailsCard({...props}) {
         }
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -209,7 +212,7 @@ function PatientDetailsCard({...props}) {
                                             className={"date-birth"}
                                             direction={isMobile ? "column" : "row"} alignItems="center">
                                             <Stack direction={"row"} alignItems="center">
-                                                <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
+                                                <IconUrl width={"13"} height={"14"} path="ic-anniverssaire"/>
                                                 <Box
                                                     sx={{
                                                         input: {
@@ -271,7 +274,7 @@ function PatientDetailsCard({...props}) {
                                                 <Skeleton variant="text" width={100}/>
                                             ) : patient?.email && (
                                                 <>
-                                                    <Icon path="ic-message-contour"/>
+                                                    <IconUrl path="ic-message-contour"/>
                                                     <Typography {...(!patient?.email && {color: "primary"})}
                                                                 variant={"body2"}>{patient?.email}</Typography>
                                                 </>
@@ -289,7 +292,7 @@ function PatientDetailsCard({...props}) {
                                         readOnly
                                         startAdornment={
                                             <Stack direction={"row"}>
-                                                <UrlIcon width={15} height={15} color={"gray"} path="ic-docotor"/>
+                                                <IconUrl width={15} height={15} color={"gray"} path="ic-docotor"/>
                                                 <Typography sx={{width: 150, color: "gray"}}
                                                             variant={"body2"}>{t("family_doctor")}{":"}</Typography>
                                             </Stack>}

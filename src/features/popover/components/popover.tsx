@@ -23,7 +23,7 @@ function BasicPopover({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                color={"error"}
+
                 button
                 text={"loading-error"}
             />

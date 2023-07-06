@@ -18,45 +18,13 @@ import {
     Typography,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
-import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useProfilePhoto} from "@lib/hooks/rest";
 
-/*const menuList = [
-    {
-        title: "add_appointment",
-        icon: <IconUrl path="ic-plus" color="white" width={18} height={18}/>,
-        action: "onAddAppointment",
-    },
-    {
-        title: "event.start",
-        icon: <PlayCircleIcon/>,
-        action: "onStartAppointment",
-    },
-    {
-        title: "add_to_waiting_room",
-        icon: <IconUrl path="ic-salle"/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "import_document",
-        icon: (
-            <IconUrl path="ic-dowlaodfile" color="white" width={18} height={18}/>
-        ),
-        action: "onImportFile",
-    },
-
-    {
-        title: "delete_appointment",
-        icon: <IconUrl path="icdelete" color="white" width={18} height={18}/>,
-        action: "onDelete",
-    },
-];*/
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
     height: 20,
@@ -69,7 +37,7 @@ const CardSection = ({...props}) => {
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
 
     return (
-        <Paper key={Math.random()} className="card-main">
+        <Paper className="card-main">
             <Grid container>
                 <Grid item xs={12} onClick={() => onOpenPatientDetails(data)}>
                     {loading ? (
@@ -100,7 +68,7 @@ const CardSection = ({...props}) => {
                                         src={
                                             patientPhoto
                                                 ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                                : data?.gender === 1
+                                                : data?.gender === "M"
                                                     ? "/static/icons/men-avatar.svg"
                                                     : "/static/icons/women-avatar.svg"
                                         }
@@ -123,7 +91,7 @@ const CardSection = ({...props}) => {
                                         {data.firstName} {data.lastName}
                                     </Typography>
                                     <Stack direction={"row"} alignItems={"center"}>
-                                        <Icon
+                                        <IconUrl
                                             path="ic-anniverssaire"
                                             className="d-inline-block mr-1"
                                         />
@@ -176,9 +144,9 @@ const CardSection = ({...props}) => {
                             className="button"
                             startIcon={
                                 data?.isParent ? (
-                                    <Icon path="ic-agenda"/>
+                                    <IconUrl path="ic-agenda"/>
                                 ) : (
-                                    <Icon path="ic-historique"/>
+                                    <IconUrl path="ic-historique"/>
                                 )
                             }
                             sx={{
@@ -199,9 +167,9 @@ const CardSection = ({...props}) => {
                                 color="text.primary"
                                 className="date-time-text"
                                 component="div">
-                                <Icon path="ic-agenda"/>
+                                <IconUrl path="ic-agenda"/>
                                 {data.nextAppointment?.dayDate || "-"}
-                                <Icon path="ic-time"/>
+                                <IconUrl path="ic-time"/>
                                 {data.nextAppointment?.startTime || "-"}
                             </Typography>
                         )}
@@ -231,7 +199,7 @@ function PatientMobileCard({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-                color={"error"}
+
                 button
                 text={"loading-error"}
             />

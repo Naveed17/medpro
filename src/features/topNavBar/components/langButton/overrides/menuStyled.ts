@@ -1,7 +1,7 @@
-import { styled } from "@mui/material/styles";
-import { Menu } from "@mui/material";
+import {styled} from "@mui/material/styles";
+import {Menu} from "@mui/material";
 
-const MenuStyled = styled(Menu)(({ theme }) => ({
+const MenuStyled = styled(Menu)(({theme}) => ({
     '& .MuiList-root': {
         width: 100,
         paddingTop: 0,

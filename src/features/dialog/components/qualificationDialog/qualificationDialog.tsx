@@ -33,7 +33,7 @@ function QualificationDialog(info: any) {
     }, [dispatch, items])
 
     const {t, ready} = useTranslation('settings');
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     const handleRemove = (file: any) => {
         setFile(files.filter((_file) => _file !== file));

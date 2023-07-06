@@ -7,7 +7,6 @@ function DuplicatedRow({...props}) {
 
     return (
         <ListItem
-            key={Math.random()}
             className={`list-item ${index !== "init" ? "except" + index : "first"}`}
         >
             <List className="child-list-main">
@@ -41,7 +40,7 @@ function DuplicatedRow({...props}) {
                             <Typography>--</Typography>
                         ) : (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.gender === 1 ? "Mr" : "Ms"}
+                                {modalData.gender === "M" ? "Mr" : "Ms"}
                             </Typography>
                         )}
                     </Stack>
@@ -264,18 +263,6 @@ function DuplicatedRow({...props}) {
                         </Typography>
                         {modalData.insurance ? (
                             <Typography>{modalData.insurance.insuranceNumber}</Typography>
-                            /*modalData.insurance?.map(
-                                (assurance: { name: string; number: number }) => (
-                                    <Stack
-                                        direction="row"
-                                        spacing={1}
-                                        key={Math.random()}
-                                    >
-                                        <Typography>{assurance.name}</Typography>:
-                                        <Typography>{assurance.insuranceNumber}</Typography>
-                                    </Stack>
-                                )
-                            )*/
                         ) : (
                             <Typography>--</Typography>
                         )}

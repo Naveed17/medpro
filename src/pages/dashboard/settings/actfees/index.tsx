@@ -125,7 +125,7 @@ function ActFees() {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
-    const {data: httpProfessionalsActs, mutate} = useRequest({
+    const {data: httpProfessionalsActs, mutate} = useRequest(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
             !isMobile
@@ -133,7 +133,7 @@ function ActFees() {
                 : "?sort=true"
         }`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
+    } : null, SWRNoValidateConfig);
 
 
     useEffect(() => {
@@ -304,7 +304,7 @@ function ActFees() {
             }
         }
     };
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
@@ -324,7 +324,7 @@ function ActFees() {
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -351,7 +351,7 @@ function ActFees() {
                                 {t("add_a_new_act")}
                             </Button>
                         )}
-                        <span>|</span>
+                        {/*<span>|</span>
                         <Typography>{t("consultation")} :</Typography>
                         <TextField
                             id="outlined-basic"
@@ -374,7 +374,7 @@ function ActFees() {
                                 editFees();
                             }}>
                             <SaveRoundedIcon color={"primary"}/>
-                        </IconButton>
+                        </IconButton>*/}
                     </Stack>
                 )}
             </SubHeader>

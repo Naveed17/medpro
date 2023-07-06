@@ -36,7 +36,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -60,8 +60,9 @@ function PersonalInfo({...props}) {
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
@@ -79,6 +80,7 @@ function PersonalInfo({...props}) {
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
+        old: Yup.string(),
         profession: Yup.string(),
         cin: Yup.string(),
         familyDoctor: Yup.string()
@@ -93,6 +95,7 @@ function PersonalInfo({...props}) {
             firstName: !loading ? `${patient.firstName.trim()}` : "",
             lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
+            old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
             address:
                 !loading && patient.address.length > 0
                     ? patient.address[0].city?.name + ", " + patient.address[0].street
@@ -174,7 +177,7 @@ function PersonalInfo({...props}) {
     const editable = currentSection === "PersonalInfo" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PersonalInfo";
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -403,10 +406,60 @@ function PersonalInfo({...props}) {
                                                     onChange={date => {
                                                         const dateInput = moment(date);
                                                         setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
+                                                        if (dateInput.isValid()) {
+                                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                            setFieldValue("old", old > 120 ? "" : old);
+                                                        } else {
+                                                            setFieldValue("old", "");
+                                                        }
                                                     }}
                                                     renderInput={(params) => <TextField size={"small"} {...params} />}
                                                 />
                                             </LocalizationProvider>
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("old")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("old-placeholder")}
+                                                endAdornment={<Typography
+                                                    mr={1}>{commonTranslation(`times.years`)}</Typography>}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.email && errors.email)}
+                                                {...getFieldProps("old")}
+                                                value={values.old ?? ""}
+                                                onChange={event => {
+                                                    const old = parseInt(event.target.value);
+                                                    console.log("old", old)
+                                                    setFieldValue("old", old ? old : "");
+                                                    if (old) {
+                                                        setFieldValue("birthdate", (values.birthdate ?
+                                                            moment(values.birthdate, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old).format("DD-MM-YYYY")
+                                                        );
+                                                    }
+                                                }}
+                                            />
                                         )}
                                     </Grid>
                                 </Stack>

@@ -78,7 +78,7 @@ function AddRDVStep1({ ...props }) {
             }}
           >
             {listData.map((v) => (
-              <MenuItem value={v.id} key={Math.random()}>
+              <MenuItem value={v.id} key={v.id}>
                 <FiberManualRecordIcon
                   fontSize="small"
                   sx={{ mr: 1, color: v.color }}
@@ -170,8 +170,8 @@ function AddRDVStep1({ ...props }) {
             date: "Fri April 10",
             time: "14:20",
           },
-        ].map((item) => (
-          <PatientCardMobile key={Math.random()} item={item} size="small" />
+        ].map((item, number) => (
+          <PatientCardMobile key={number.toString()} item={item} size="small" />
         ))}
       </Box>
       <Paper

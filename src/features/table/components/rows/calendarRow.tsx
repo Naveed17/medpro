@@ -11,7 +11,6 @@ import TimeIcon from "@themes/overrides/icons/time";
 import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/menu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import {LoadingButton} from "@mui/lab";
@@ -220,7 +219,7 @@ function CalendarRow({...props}) {
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
-                    <TableCell align="center">{"Payment "}{config?.name}</TableCell>
+                    <TableCell align="center">{config?.name}</TableCell>
                     <TableCell align="right">
                         {data?.fees && data?.status?.key !== "PENDING" ? <Box>
                             <Stack direction={"row"}
@@ -284,7 +283,7 @@ function CalendarRow({...props}) {
                                                     handleEventClick("waitingRoom", data)
                                                 }}
                                             >
-                                                <Icon color={spinner ? "white" : theme.palette.primary.main}
+                                                <IconUrl color={spinner ? "white" : theme.palette.primary.main}
                                                       path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
                                                 <span
                                                     style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
@@ -303,7 +302,7 @@ function CalendarRow({...props}) {
                                                 handleEventClick("leaveWaitingRoom", data)
                                             }}
                                         >
-                                            <Icon color={theme.palette.primary.main}
+                                            <IconUrl color={theme.palette.primary.main}
                                                   path="ic-salle-leave"/> {!sideBarOpened &&
                                             <span
                                                 style={{marginLeft: "5px"}}>{t("leave-waiting-room")}</span>}
@@ -318,7 +317,7 @@ function CalendarRow({...props}) {
                                     variant="text"
                                     color="primary"
                                     size="small">
-                                    <Icon path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
+                                    <IconUrl path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
                                     <span style={{marginLeft: "5px"}}>{t("view")}</span>}
                                 </LoadingButton>
                             </Tooltip>

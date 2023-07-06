@@ -32,7 +32,7 @@ function MedicalImagingDialog({...props}) {
     const handleChange = (ev: any, uuid: string) => {
         const filesUploaded = ev.target.files;
 
-        Object.keys(filesUploaded).map(fu => {
+        Object.keys(filesUploaded).forEach(fu => {
             const form = new FormData();
             form.append("files", filesUploaded[fu], filesUploaded[fu].name);
             trigger(
@@ -54,7 +54,7 @@ function MedicalImagingDialog({...props}) {
             });
         })
     };
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <BalanceSheetPendingStyled>

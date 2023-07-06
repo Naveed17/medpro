@@ -54,10 +54,9 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
@@ -196,7 +195,7 @@ function Agenda() {
         return true;
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
+    const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
         if (query.includes("format=list")) {
             dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
@@ -210,7 +209,7 @@ function Agenda() {
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
             if (!filter || events.current.length === 0) {
-                appointments?.map((appointment) => {
+                appointments?.forEach((appointment) => {
                     const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
                     const hasErrors = [
                         ...(horsWork ? ["event.hors-opening-hours"] : []),
@@ -218,7 +217,7 @@ function Agenda() {
                     eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
                 });
             } else {
-                events.current.map(event => {
+                events.current.forEach(event => {
                     eventsUpdated.push({
                         ...event,
                         filtered: !appointments?.find(appointment => appointment.uuid === event.id)
@@ -244,7 +243,7 @@ function Agenda() {
             }
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
@@ -289,8 +288,8 @@ function Agenda() {
 
     useEffect(() => {
         if (calendarEl && currentDate) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(currentDate.date);
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            calendarApi && calendarApi.gotoDate(currentDate.date);
         }
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -306,10 +305,10 @@ function Agenda() {
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
         }
-    }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        dispatch(resetFilterPatient());
+        // dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
@@ -319,9 +318,11 @@ function Agenda() {
     }
 
     const handleOnToday = () => {
-        const calendarApi = (calendarEl as FullCalendar).getApi();
-        calendarApi.today();
-        dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        const calendarApi = (calendarEl as FullCalendar)?.getApi();
+        if(calendarApi) {
+            calendarApi.today();
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        }
     }
 
     const onLoadCalendar = (event: FullCalendar) => {
@@ -406,9 +407,11 @@ function Agenda() {
 
     const handleClickDatePrev = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.prev();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            if (calendarApi) {
+                calendarApi.prev();
+                dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            }
         } else {
             scrollToView(refs.current[0], 1);
             const prevDate = moment(currentDate.date).clone().subtract(1, "days");
@@ -420,9 +423,11 @@ function Agenda() {
 
     const handleClickDateNext = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.next();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            if (calendarApi) {
+                calendarApi.next();
+                dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            }
         } else {
             const nextDate = moment(currentDate.date).clone().add(1, "days");
             dispatch(setCurrentDate({date: nextDate.toDate(), fallback: false}));
@@ -482,7 +487,7 @@ function Agenda() {
                 updateAppointmentStatus({
                     method: "PATCH",
                     data: {
-                        status: "6"
+                        status: "1"
                     },
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
                 } as any).then(() => {
@@ -892,13 +897,13 @@ function Agenda() {
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
+            setLoading(false);
             if (value?.data.status === 'success') {
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setQuickAddAppointment(false);
                 refreshData();
             }
-            setLoading(false);
         });
     }
 
@@ -916,7 +921,7 @@ function Agenda() {
         }
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
@@ -938,7 +943,7 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -968,7 +973,7 @@ function Agenda() {
                 }} color="warning"/>
                 <>
                     {agenda &&
-                        <AnimatePresence exitBeforeEnter>
+                        <AnimatePresence mode='wait'>
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}
@@ -1256,7 +1261,7 @@ function Agenda() {
                                 color={moveDialogAction === "move" ? "warning" : "primary"}
                                 onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
                                     handleRescheduleAppointment(event as EventDef)}
-                                startIcon={<Icon path="iconfinder"></Icon>}
+                                startIcon={<IconUrl path="iconfinder"></IconUrl>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
@@ -1297,7 +1302,8 @@ function Agenda() {
                                 variant="contained"
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
-                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                    path="icdelete"></IconUrl>}
                             >
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
@@ -1380,7 +1386,8 @@ function Agenda() {
                                 disabled={!moveDateChanged}
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
-                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
+                                startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                    path="iconfinder"></IconUrl>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>

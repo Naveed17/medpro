@@ -65,6 +65,7 @@ import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
+import {search} from "fast-fuzzy";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -208,7 +209,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = drug.cycles[0].dosage.split(",")[0]?.split(" ");
+        const [first, ...rest] = (drug.cycles.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
         const unit = rest.join(' ');
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(item => item.unit === unit);
@@ -240,7 +241,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
                     dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                    cautionaryNoteInput: cycle.note.length > 0,
+                    cautionaryNoteInput: cycle.note?.length > 0,
                     dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
                     cautionaryNote: cycle.note !== "" ? cycle.note : "",
                     dosageTime: [
@@ -429,7 +430,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
         if (hasMultiValues.length > 1) {
             formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
         } else {
-            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.forms.map((data: any) => data.form).includes(form)) ?? form;
+            formUnitMedic = MedicalFormUnit.find((medic: any) => {
+                const matchFormUnit: string[] = search(form, medic.forms.map((data: any) => data.form),
+                    {returnMatchData: true}).reduce((filtered: string[], option) => {
+                    if (option.score >= 0.8) {
+                        filtered.push(option.item as string);
+                    }
+                    return filtered;
+                }, []);
+                return matchFormUnit.length > 0;
+            }) ?? form;
         }
         return formUnitMedic;
     }
@@ -603,7 +613,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Grid>
                                         <Stack
                                             component={AnimatePresence}
-                                            exitBeforeEnter
+                                            mode='wait'
                                             spacing={2}>
                                             {item.cycles.map((innerItem: any, index: number) => (
                                                 <Card
@@ -955,7 +965,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             >
                                                                                 {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
                                                                             </Typography>
-                                                                            {cycle.note.length > 0 && `(${cycle.note})`}
+                                                                            {cycle.note?.length > 0 && `(${cycle.note})`}
                                                                         </span>
                                                                         {(indexCycle < (drug.cycles.length - 1) &&
                                                                                 !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] ||

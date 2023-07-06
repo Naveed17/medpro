@@ -40,7 +40,7 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
+import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 
 const GroupHeader = styled('div')(({theme}) => ({
@@ -70,13 +70,20 @@ function AddPatientStep2({...props}) {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-
-    const [loading, setLoading] = useState<boolean>(status === "loading");
-    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
+    const {contacts} = useContactType();
+    const {countries} = useCountries("nationality=true");
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [loading, setLoading] = useState<boolean>(status === "loading");
+    const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
+    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
+        ...Insured,
+        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
+        label: commonTranslation(`social_insured.${Insured.label}`)
+    })));
 
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
@@ -182,20 +189,8 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpContactResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: `/api/public/places/countries/${router.locale}/?nationality=true`
-    }, SWRNoValidateConfig);
-
     const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
 
-    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
-    const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
@@ -586,13 +581,13 @@ function AddPatientStep2({...props}) {
                                                     <Autocomplete
                                                         size={"small"}
                                                         value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                            SocialInsured.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                            socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                         onChange={(event, insurance: any) => {
                                                             setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
                                                             setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                         }}
                                                         id={"assure"}
-                                                        options={SocialInsured}
+                                                        options={socialInsurances}
                                                         groupBy={(option: any) => option.grouped}
                                                         sx={{minWidth: 460}}
                                                         getOptionLabel={(option: any) => option?.label ? option.label : ""}

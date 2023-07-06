@@ -54,7 +54,7 @@ function AddDocumentDialog({...props}) {
         setLoad(true);
         const filesAccepted = e.target.files;
         let docs: any = [];
-        Array.from(filesAccepted).map((file) => {
+        Array.from(filesAccepted).forEach((file) => {
             if (file.type.includes('image')) {
                 Resizer.imageFileResizer(file,
                     850,
@@ -88,7 +88,7 @@ function AddDocumentDialog({...props}) {
     }
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>

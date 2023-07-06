@@ -1,4 +1,4 @@
-import {Typography, Button} from "@mui/material";
+import {Typography, Button, useMediaQuery, Theme} from "@mui/material";
 import {RootStyled} from "./overrides";
 import Icon from "@themes/urlIcon";
 
@@ -11,13 +11,16 @@ export default function NoDataCard({...props}) {
         buttons = []
     } = data;
 
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
     return (
         <RootStyled {...rest} className={"no-data-card"}>
             {typeof mainIcon === "string" ? <Icon path={mainIcon} className="main-icon"/> : mainIcon}
             <Typography
                 variant="subtitle1"
                 color="text.primary"
-                my={3}
+                my={isMobile ? 1 : 3}
+                {...(isMobile && {fontSize: 16})}
                 fontWeight={600}
             >
                 {t(title, {ns})}

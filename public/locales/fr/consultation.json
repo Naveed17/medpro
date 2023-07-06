@@ -107,6 +107,7 @@
   "reason_for_consultation": "Motif de consultation",
   "requestedAnalyses": "Demande bilan",
   "requestedPrescription": "Ordonnance médicale",
+  "balance_sheet_request": "Analyse",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -346,6 +347,7 @@
     "appointment_date": "Date du RDV",
     "see_details": "Voir détails",
     "prescription": "Ordonnance",
+    "treatement_in_progress": "Traitement en cours",
     "requested-analysis": "Demande analyse",
     "requested-medical-imaging": "Demande imagerie",
     "years": "Ans",
@@ -369,6 +371,11 @@
     "doctor_placeholder": "Nom du doctor",
     "today": "Aujourd'hui",
     "today_placeholder": "Date aujourd'hui",
+    "disease": "Maladie",
+    "noActiveFile": "Pas de formulaire de consultation actif",
+    "configureNow": "Veuillez configurer votre formulaire de consultation",
+    "configure": "Configurer",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -413,6 +420,7 @@
   "exempleFees": "Exemple: Suivi ...",
   "consultation_reason": "Motif de consultation",
   "diagnostics": "Diagnostique",
+  "disease": "Maladie",
   "treatments": "Traitements",
   "diagonistic": "Diagnostique",
   "total": "Total",
@@ -469,7 +477,7 @@
   },
   "background": {
     "title": "Antécédents",
-    "way_of_life": "Mode de vie",
+    "way_of_life": "Facteurs de risque",
     "allergic": "Allergies",
     "family_antecedents": "Antécédents familiaux",
     "medical_antecedents": "Antécédents médicaux",
@@ -493,6 +501,7 @@
     "absente": "Absente",
     "save": "Enregistrer",
     "title": "Traitement des dents",
-    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes"
+    "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes",
+    "note": "Note"
   }
 }

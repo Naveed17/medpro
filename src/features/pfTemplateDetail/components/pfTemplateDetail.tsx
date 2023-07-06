@@ -138,7 +138,7 @@ function PfTemplateDetail({...props}) {
                         const root = ReactDOM.createRoot(childTeeth);
                         root.render(
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={'/static/img/childTeeth.svg'} alt={"child teeth"}/>
+                            <img src={`/static/img/${router.locale =='fr' ? 'childTeeth':'childTeethEN'}.svg`} alt={"child teeth"}/>
                         );
                     }
                 }, 2000)

@@ -20,6 +20,10 @@ const RootStyled = styled(Paper)(({theme}) => ({
         "& .MuiTypography-root": {
             color: "#fff"
         }
+    },
+    "& .MuiChip-label": {
+        fontSize: 11,
+        wordBreak: "break-all"
     }
 }));
 export default RootStyled;

@@ -104,6 +104,7 @@
   "gallery": "Consultation Images",
   "docs": "Consultation Documents",
   "history": "Historical Record",
+  "balance_sheet_request": "Analyses",
   "reason_for_consultation": "Reason for Consultation",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
@@ -343,6 +344,7 @@
     "appointment_date": "Appointment date",
     "see_details": "See details",
     "prescription": "Prescription",
+    "treatement_in_progress": "In progress treatment",
     "requested-analysis": "Requested analysis",
     "requested-medical-imaging": "Requested medical imaging",
     "years": "Years",
@@ -366,6 +368,11 @@
     "doctor_placeholder": "Doctor name",
     "today": "Today",
     "today_placeholder": "Today's date",
+    "disease": "Disease",
+    "noActiveFile": "No active consultation file",
+    "configureNow": "Please configure your consultation file",
+    "configure": "Configure",
+    "date": "Date",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Delete folder",
@@ -411,6 +418,7 @@
   "consultation_reason": "Consultation reason",
   "diagnostics": "Diagnostics",
   "treatments": "Treatments",
+  "disease": "Disease",
   "diagonistic": "Diagnostic",
   "total": "Total",
   "next_meeting": "Next appointment",
@@ -492,6 +500,7 @@
     "absente": "Absent",
     "save": "Save",
     "title": "Tooth Treatment",
-    "subtitle": "Click on the desired tooth and select the acts"
+    "subtitle": "Click on the desired tooth and select the acts",
+    "note": "Note"
   }
 }

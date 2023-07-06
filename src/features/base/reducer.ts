@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit';
+import {createReducer} from '@reduxjs/toolkit';
 import {
     setDirection, setLocalization,
     setTheme
@@ -21,8 +21,8 @@ export const ConfigReducer = createReducer(initialState, builder => {
         .addCase(setTheme, (state, action: any) => {
             state.mode = action.payload;
         }).addCase(setDirection, (state, action) => {
-            state.direction = action.payload;
-        }).addCase(setLocalization, (state, action) => {
-            state.locale = action.payload;
-        });
+        state.direction = action.payload;
+    }).addCase(setLocalization, (state, action) => {
+        state.locale = action.payload;
+    });
 });

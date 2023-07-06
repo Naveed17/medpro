@@ -22,6 +22,8 @@ import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSWRConfig} from "swr";
+import {dashLayoutSelector} from "@features/base";
 
 function HistoryContainer({...props}) {
     const {
@@ -37,7 +39,6 @@ function HistoryContainer({...props}) {
         setState,
         setOpenDialog,
         showDoc,
-        mutate,
         patient,
         setSelectedTab,
         session,
@@ -45,6 +46,10 @@ function HistoryContainer({...props}) {
     } = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
 
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
@@ -108,7 +113,7 @@ function HistoryContainer({...props}) {
                 populateCache: true
             }
         ).then(() => {
-            mutate();
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`);
         });
     }
 
@@ -167,6 +172,13 @@ function HistoryContainer({...props}) {
                                                 {col.type === "treatment" && <>
                                                     {
                                                         app.appointment.treatments.length > 0 ? <>
+                                                            {
+                                                                app.appointment.treatments.filter((t: {
+                                                                    isOtherProfessional: any;
+                                                                }) => t.isOtherProfessional).length > 0 &&
+                                                                <Typography fontSize={12}
+                                                                            fontWeight={"bold"}>{t('treatement_in_progress')}</Typography>
+                                                            }
                                                             {app.appointment.treatments.filter((t: {
                                                                 isOtherProfessional: any;
                                                             }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
@@ -175,13 +187,6 @@ function HistoryContainer({...props}) {
                                                                         className={'boxHisto'}>
                                                                         <Typography
                                                                             fontSize={12}>{treatment.name}</Typography>
-                                                                        <Stack direction={"row"}>
-                                                                            {treatment.dosage && <Typography
-                                                                                className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
-                                                                            {treatment.duration > 0 && <Typography
-                                                                                className={"treamtementDetail"}
-                                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>}
-                                                                        </Stack>
                                                                     </Box>
                                                                 )
                                                             )}

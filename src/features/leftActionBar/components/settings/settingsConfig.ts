@@ -8,9 +8,10 @@ const settingsData = {
             disable: false
         },
         {
-            name: "cabinet",
-            icon: "setting/ic-cabinet",
-            href: "/dashboard/settings/places/",
+            name: "horaire",
+            deep: "location",
+            icon: "setting/ic-time",
+            href: "/dashboard/settings/places/[uuid]",
             disable: false
         },
         {
@@ -105,12 +106,12 @@ const settingsData = {
             href: "/dashboard/settings/data",
             disable: false
         },
-       /* {
-            name: "app_lock",
-            icon: "ic-cloc",
-            href: "/dashboard/settings/app-lock",
-            disable: false
-        },*/
+        /* {
+             name: "app_lock",
+             icon: "ic-cloc",
+             href: "/dashboard/settings/app-lock",
+             disable: false
+         },*/
 
     ],
 }

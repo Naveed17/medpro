@@ -31,15 +31,16 @@ function AppointmentStatusFilter() {
                             onChange={(event) => {
                                 const selected = event.target.checked;
                                 const statusKey = Object.entries(AppointmentStatus).find((value) => value[1].key === status.key);
+                                const type = (statusKey && statusKey[1]) as AppointmentStatusModel;
+                                const key = type?.key === "ONLINE" ? "isOnline" : "status";
+
                                 if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
-                                    const type = (statusKey && statusKey[1]) as AppointmentStatusModel;
-                                    const key = type?.key === "ONLINE" ? "isOnline" : "status";
                                     const value = type?.key === "ONLINE" ? selected : (statusKey && statusKey[0]) as string;
                                     dispatch(setFilter({[key]: `${value}${(query?.status && type?.key !== "ONLINE" ? `,${query.status}` : "")}`}));
                                 } else {
                                     const sp = query?.status?.split(",") as string[];
                                     statusKey && sp?.splice(sp.findIndex((searchElement: string) => searchElement === statusKey[0]), 1);
-                                    dispatch(setFilter({status: sp?.length > 0 ? sp?.join(",") : undefined}));
+                                    dispatch(setFilter({[key]: type?.key !== "ONLINE" && (sp?.length > 0 ? sp?.join(",") : undefined)}));
                                 }
                             }}
                             name={status.key}

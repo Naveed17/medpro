@@ -245,7 +245,7 @@ function MedicalPrescriptionDialog({...props}) {
             setTouchedFileds({name: true, duration: true})
     }, [errors]);
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <MedicalPrescriptionDialogStyled>
@@ -297,8 +297,7 @@ function MedicalPrescriptionDialog({...props}) {
                                         }}
                                         MenuListProps={{
                                             'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
+                                        }}>
                                         {
                                             lastPrescriptions.length > 0 &&
                                             <MenuItem sx={{color: theme => theme.palette.grey[0]}}

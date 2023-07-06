@@ -142,7 +142,6 @@ function FeesTab({...props}) {
                                 className={'cip-medical-proce-row'}
                                 hover
                                 tabIndex={-1}
-                                key={Math.random()}
                             >
                                 <TableCell padding="checkbox">
                                     <Checkbox

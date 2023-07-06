@@ -387,7 +387,7 @@ function DocumentDetailDialog({...props}) {
                         setSelectedTemplate(docInfo[0].uuid)
                         setData({
                             ...docInfo[0].header.data,
-                            background: {show: docInfo.header.data.background.show, content: docInfo.file ? docInfo.file : ''}
+                            background: {show: docInfo.header?.data.background.show, content: docInfo.file ? docInfo.file : ''}
                         })
                         setHeader(docInfo[0].header.header)
                     }
@@ -397,7 +397,7 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <DocumentDetailDialogStyled>

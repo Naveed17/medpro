@@ -56,7 +56,6 @@ import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
@@ -435,7 +434,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
         <>
@@ -527,11 +526,11 @@ function Patient() {
                             variant="contained"
                             color={"primary"}
                             startIcon={
-                                <Icon
+                                <IconUrl
                                     height={"18"}
                                     width={"18"}
                                     color={"white"}
-                                    path="iconfinder"></Icon>
+                                    path="iconfinder"></IconUrl>
                             }>
                             {t(`dialogs.move-dialog.confirm`)}
                         </Button>
@@ -621,7 +620,7 @@ function Patient() {
                             }}
                             variant="contained"
                             color={"warning"}
-                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            startIcon={<IconUrl path="iconfinder"></IconUrl>}>
                             {t("dialogs.move-dialog.confirm")}
                         </LoadingButton>
                     </>

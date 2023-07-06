@@ -18,7 +18,7 @@ function WeekDayPicker({...props}) {
     const [daysOfYear, setDaysOfYear] = useState<Date[]>([]);
 
     const getMonths = () => {
-        Array.from(Array(12).keys()).map(index =>
+        Array.from(Array(12).keys()).forEach(index =>
             months.push(moment().set('month', index).format("MMMM")))
     }
 
@@ -74,9 +74,9 @@ function WeekDayPicker({...props}) {
                 </Box>
                 <Divider/>
                 <Box className="week-days">
-                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v) => (
+                    {daysOfYear.slice(currentWeek[0], currentWeek[1]).map((v, index) => (
                         <Box
-                            key={Math.random()}
+                            key={index.toString()}
                             sx={{
                                 bgcolor: date.getTime() === v.getTime() ? "warning.main" : "",
                                 "&:hover": {
