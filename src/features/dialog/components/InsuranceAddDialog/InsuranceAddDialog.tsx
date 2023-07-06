@@ -102,7 +102,7 @@ function InsuranceAddDialog({...props}) {
                                                 size={"small"}
                                                 disableClearable
                                                 value={getFieldProps(`insurances[${index}].insurance_type`) ?
-                                                    getFieldProps(`insurances[${index}].insurance_type`).value : ""}
+                                                    getFieldProps(`insurances[${index}].insurance_type`).value : null}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_type`, insurance?.value);
                                                     const expended = insurance?.key !== "socialInsured";
@@ -143,7 +143,7 @@ function InsuranceAddDialog({...props}) {
                                             <Autocomplete
                                                 size={"small"}
                                                 value={insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) ?
-                                                    insurances.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) : ""}
+                                                    insurances.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) : null}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_uuid`, insurance?.uuid);
                                                 }}

@@ -3,7 +3,6 @@ import {
     Typography,
     Box,
     FormControl,
-    MenuItem,
     Avatar, Autocomplete, TextField,
 } from "@mui/material";
 import {useRouter} from "next/router";
@@ -11,6 +10,7 @@ import _ from "lodash";
 import {useIsMountedRef} from "@lib/hooks";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useCountries} from "@lib/hooks/rest";
 
 interface StateProps {
     states: string;
@@ -21,6 +21,7 @@ function PlaceFilter({...props}) {
     const {item, t, keyPrefix = "", OnSearch, setOpend} = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
+    const {countries} = useCountries();
 
     const [queryState, setQueryState] = useState<StateProps>({
         states: "",
@@ -34,11 +35,6 @@ function PlaceFilter({...props}) {
         states: []
     });
 
-    const {data: httpCountriesResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/places/countries/" + router.locale
-    }, SWRNoValidateConfig);
-
     const {data: httpStatesResponse} = useRequest(state.country.length > 0 ? {
         method: "GET",
         url: `/api/public/places/countries/${state.country}/state/${router.locale}`
@@ -46,7 +42,6 @@ function PlaceFilter({...props}) {
 
     const {query} = router;
     const {states} = query as { states: string };
-
 
     const handleChangeCity = (country: CountryModel) => {
         setstate({country: country ? country.uuid : "", states: []});
@@ -101,7 +96,6 @@ function PlaceFilter({...props}) {
         }
     }, [query, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const statesCountry = (httpStatesResponse as HttpResponse)?.data as any[];
 
     return (

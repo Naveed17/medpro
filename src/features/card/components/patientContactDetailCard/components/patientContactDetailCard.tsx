@@ -61,7 +61,7 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {countries: countries_api} = useCountries();
+    const {countries: countries_api} = useCountries("nationality=true");
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
@@ -214,7 +214,7 @@ function PatientContactDetailCard({...props}) {
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -377,7 +377,7 @@ function PatientContactDetailCard({...props}) {
                                                     disableClearable
                                                     size="small"
                                                     value={countries_api?.find(country => country.uuid === getFieldProps("country").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : null}
                                                     onChange={(e, v: any) => {
                                                         setFieldValue("country", v.uuid);
                                                     }}
@@ -391,12 +391,9 @@ function PatientContactDetailCard({...props}) {
                                                     options={countries_api ? countries_api?.filter(country => country.hasState) : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option.name === (value?.name ?? "")}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`country-${option.uuid}`}
-                                                            value={option.uuid}>
+                                                        <MenuItem {...props}>
                                                             {option?.code && <Avatar
                                                                 sx={{
                                                                     width: 26,
@@ -481,7 +478,7 @@ function PatientContactDetailCard({...props}) {
                                                     disableClearable
                                                     size="small"
                                                     value={states?.find(country => country.uuid === getFieldProps("region").value) ?
-                                                        states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                        states.find(country => country.uuid === getFieldProps("region").value) : null}
                                                     onChange={(e, state: any) => {
                                                         setFieldValue("region", state.uuid);
                                                         setFieldValue("zip_code", state.zipCode);
@@ -490,7 +487,7 @@ function PatientContactDetailCard({...props}) {
                                                     options={states ? states : []}
                                                     loading={!states}
                                                     getOptionLabel={(option) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
                                                         <MenuItem
                                                             {...props}
@@ -590,7 +587,7 @@ function PatientContactDetailCard({...props}) {
                                                     disableClearable
                                                     size="small"
                                                     value={countries_api?.find(country => country.uuid === getFieldProps("nationality").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : null}
                                                     onChange={(e, v: any) => {
                                                         setFieldValue("nationality", v.uuid);
                                                     }}
@@ -601,15 +598,12 @@ function PatientContactDetailCard({...props}) {
                                                             border: `1px solid ${theme.palette.grey['A100']}`
                                                         }
                                                     })}
-                                                    options={countries_api ? countries_api : []}
+                                                    options={countries_api ? [...new Map(countries_api.map(item => [item["nationality"], item])).values()] : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.nationality === value?.nationality}
+                                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`nationality-${option.uuid}`}
-                                                            value={option.uuid}>
+                                                        <MenuItem {...props}>
                                                             {option?.code && <Avatar
                                                                 sx={{
                                                                     width: 26,

@@ -108,7 +108,7 @@ function OnStepPatient({...props}) {
     const phoneInputRef = useRef(null);
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
-    const {countries} = useCountries();
+    const {countries} = useCountries("nationality=true");
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;

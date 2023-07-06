@@ -241,7 +241,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
                     dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                    cautionaryNoteInput: cycle.note.length > 0,
+                    cautionaryNoteInput: cycle.note?.length > 0,
                     dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
                     cautionaryNote: cycle.note !== "" ? cycle.note : "",
                     dosageTime: [

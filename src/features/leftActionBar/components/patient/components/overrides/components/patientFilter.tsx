@@ -128,7 +128,7 @@ function PatientFilter({...props}) {
                         <Fragment key={`patient-filter-label-${i}`}>
                             {lab.label === "name" ? (
                                 <>
-                                    <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
+                                    <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
                                     <FormControl component="form" fullWidth>
@@ -170,7 +170,7 @@ function PatientFilter({...props}) {
                                         minWidth: "auto"
                                     }
                                 }}>
-                                    <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
+                                    <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
