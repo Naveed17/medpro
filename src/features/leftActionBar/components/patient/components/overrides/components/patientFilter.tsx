@@ -1,4 +1,4 @@
-import React, {Fragment, KeyboardEvent, useEffect, useState} from "react";
+import React, {Fragment, KeyboardEvent} from "react";
 import {
     Typography,
     Box,
@@ -24,6 +24,12 @@ import {FormikHelpers, FormikProvider, useFormik} from "formik";
 interface Lab {
     label: string;
     placeholder: string;
+}
+
+const Gender: { [key: number]: string } = {
+    0: "M",
+    1: "F",
+    2: "O"
 }
 
 function PatientFilter({...props}) {
@@ -100,7 +106,7 @@ function PatientFilter({...props}) {
                         {item.gender?.genders.map((gender: string, i: number) => (
                             <FormControlLabel
                                 key={`gender-${i}`}
-                                value={++i}
+                                value={Gender[i]}
                                 control={<Radio/>}
                                 label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
                                     {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
