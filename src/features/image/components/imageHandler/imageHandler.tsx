@@ -9,7 +9,8 @@ function ImageHandler({...props}) {
         {...{alt}}
         src={"/static/icons/Med-logo.png"}
         style={{borderRadius: 2}}
-        placeholder="blur"
+        /*placeholder="blur"*/
+        unoptimized={true}
         onError={() => setError(true)}
         blurDataURL="/static/icons/Med-logo.png"
         width={20}
