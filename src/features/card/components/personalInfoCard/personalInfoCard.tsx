@@ -76,7 +76,6 @@ function PersonalInfo({...props}) {
             .min(3, t("name-error"))
             .max(50, t("name-error"))
             .required(t("name-error")),
-        address: Yup.string(),
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
@@ -96,10 +95,6 @@ function PersonalInfo({...props}) {
             lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
-            address:
-                !loading && patient.address.length > 0
-                    ? patient.address[0].city?.name + ", " + patient.address[0].street
-                    : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
             profession: !loading && patient.profession ? patient.profession : "",
@@ -117,32 +112,16 @@ function PersonalInfo({...props}) {
         params.append('first_name', values.firstName);
         params.append('last_name', values.lastName);
         params.append('gender', values.gender);
-        params.append('phone', JSON.stringify(
-            patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
-                code: phone.code,
-                value: phone.value.replace(phone.code, ""),
-                type: "phone",
-                "contact_type": patient.contact[0].uuid,
-                "is_public": false,
-                "is_support": false
-            }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
-        params.append('address', JSON.stringify({
-            [router.locale as string]: values.address
-        }));
         patient.note && params.append('note', patient.note);
-        patient.nationality && params.append('nationality', patient.nationality.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },

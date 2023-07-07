@@ -23,6 +23,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {ImageHandler} from "@features/image";
 import {useTranslation} from "next-i18next";
+import {useContactType} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -54,6 +55,7 @@ function InsuranceAddDialog({...props}) {
 
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+    const {contacts} = useContactType();
 
     const {t: commonTranslation} = useTranslation("common");
 
@@ -109,7 +111,7 @@ function InsuranceAddDialog({...props}) {
                                                     setFieldValue(`insurances[${index}].expand`, expended);
                                                     if (expended) {
                                                         setFieldValue(`insurances[${index}].insurance_social.phone.code`, doctor_country?.phone);
-                                                        setFieldValue(`insurances[${index}].insurance_social.phone.contact_type`, patient.contact[0].uuid);
+                                                        setFieldValue(`insurances[${index}].insurance_social.phone.contact_type`, contacts[0].uuid);
                                                         setFieldValue(`insurances[${index}].insurance_social.phone.type`, "phone");
                                                     }
                                                 }}
@@ -126,6 +128,7 @@ function InsuranceAddDialog({...props}) {
                                                             (params.children as Array<any>)?.length > 1 &&
                                                             {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
                                                     </li>)}
+                                                isOptionEqualToValue={(option: any, value) => option.value === value?.value}
                                                 renderInput={(params) => {
                                                     const insurance = socialInsurances.find(insurance => insurance.value === params.inputProps.value);
                                                     return (<TextField {...params}
@@ -152,10 +155,7 @@ function InsuranceAddDialog({...props}) {
                                                 getOptionLabel={option => option?.name ? option.name : ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                 renderOption={(params, option) => (
-                                                    <MenuItem
-                                                        {...params}
-                                                        key={option.uuid}
-                                                        value={option.uuid}>
+                                                    <MenuItem {...params}>
                                                         <ImageHandler
                                                             alt={"insurance"}
                                                             src={option.logoUrl.url}

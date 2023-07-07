@@ -19,10 +19,10 @@ function PersonInfoPanel({...props}) {
                 currentSection, setCurrentSection, ...props
             }} />
             <PersonalInsuranceCard {...{editable, ...props}} />
-            <PatientDetailContactCard {...{
+{/*            <PatientDetailContactCard {...{
                 editable, setEditable,
                 currentSection, setCurrentSection, ...props
-            }} />
+            }} />*/}
             <AntecedentsCard {...props} />
         </Stack>
     );
