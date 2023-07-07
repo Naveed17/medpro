@@ -126,7 +126,30 @@ function PersonalInsuranceCard({...props}) {
             })
         )
     });
-
+    const prepareInsuranceInstance = (insurance: PatientInsurancesModel, extraProps?: any) => {
+        return {
+            insurance_key: insurance.uuid,
+            insurance_number: insurance.insuranceNumber,
+            insurance_uuid: insurance.insurance?.uuid,
+            insurance_social: insurance.insuredPerson && {
+                firstName: insurance.insuredPerson.firstName,
+                lastName: insurance.insuredPerson.lastName,
+                birthday: insurance.insuredPerson.birthday,
+                phone: {
+                    code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
+                    value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                    type: "phone",
+                    contact_type: contacts[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
+            insurance_type: insurance.type ? insurance.type.toString() : "0",
+            expand: insurance.type ? insurance.type.toString() !== "0" : false,
+            online: false,
+            ...extraProps
+        }
+    }
     const patientInsurances = (httpPatientInsurancesResponse as HttpResponse)?.data as PatientInsurancesModel[];
     const formik = useFormik({
         enableReinitialize: true,
@@ -162,30 +185,7 @@ function PersonalInsuranceCard({...props}) {
         });
     }
 
-    const prepareInsuranceInstance = (insurance: PatientInsurancesModel, extraProps?: any) => {
-        return {
-            insurance_key: insurance.uuid,
-            insurance_number: insurance.insuranceNumber,
-            insurance_uuid: insurance.insurance?.uuid,
-            insurance_social: insurance.insuredPerson && {
-                firstName: insurance.insuredPerson.firstName,
-                lastName: insurance.insuredPerson.lastName,
-                birthday: insurance.insuredPerson.birthday,
-                phone: {
-                    code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                    value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
-                    type: "phone",
-                    contact_type: contacts[0].uuid,
-                    is_public: false,
-                    is_support: false
-                }
-            },
-            insurance_type: insurance.type ? insurance.type.toString() : "0",
-            expand: insurance.type ? insurance.type.toString() !== "0" : false,
-            online: false,
-            ...extraProps
-        }
-    }
+
 
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
         const insurances = [prepareInsuranceInstance(insurance)]
