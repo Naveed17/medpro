@@ -54,7 +54,7 @@ import {
 import {alpha} from "@mui/material/styles";
 import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
-import {DocumentsTab, EventType, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
+import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
 import {WidgetForm} from "@features/widget";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import moment from "moment/moment";
@@ -172,10 +172,10 @@ function ConsultationInProgress() {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
-    const [keys, setKeys] = useState<any[]>([]);
-    const [dates, setDates] = useState<any[]>([]);
+    const [keys, setKeys] = useState<string[]>([]);
+    const [dates, setDates] = useState<string[]>([]);
     const [modelData, setModelData] = useState<any>(null);
-    const [acts, setActs] = useState<ActModel[]>([]);
+    const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [isClose, setIsClose] = useState<boolean>(false);
     const [closeExam, setCloseExam] = useState<boolean>(false);
     const [notes, setNotes] = useState<any[]>([]);
@@ -366,18 +366,32 @@ function ConsultationInProgress() {
             setDiagnostics(diagnosticHistories);
 
             //Acts
-            let _acts: any[] = [];
-            medicalProfessionalData[0].acts.forEach(act => _acts.push({...act, selected: false, qte: 0}));
+            let _acts: AppointmentActModel[] = [];
+            medicalProfessionalData[0].acts.forEach(act => _acts.push({...act, selected: false, qte: 1}));
+            console.log(appointment.type);
+            _acts = [{
+                act: {name: appointment.type.name},
+                fees: appointment.type.price,
+                isTopAct: false,
+                qte: 1,
+                selected: !appointment.type.isFree,
+                uuid: "consultation_type"
+            }]
             appointment.acts.forEach(act => {
                 const act_index = _acts.findIndex(_act => _act.uuid === act.act_uuid)
                 if (act_index > -1) {
-                    _acts[act_index] = {..._acts[act_index], selected: true, qte: act.qte, fees: act.price}
+                    _acts[act_index] = {
+                        ..._acts[act_index],
+                        selected: true,
+                        qte: act.qte ? act.qte : 1,
+                        fees: act.price
+                    }
                 } else {
                     _acts.push({
                         act: {name: act.name},
                         fees: act.price,
                         isTopAct: false,
-                        qte: act.qte,
+                        qte: act.qte ? act.qte : 1,
                         selected: true,
                         uuid: act.act_uuid
                     })
@@ -468,6 +482,14 @@ function ConsultationInProgress() {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
     }, [tableState.patientId]);
+
+    useEffect(() => {
+        console.log(acts);
+        let _total = 0
+        acts.filter(act => act.selected).forEach(act => _total += act.fees * act.qte)
+        console.log(_total);
+        setTotal(_total);
+    }, [acts])
 
     //***** FUNCTIONS ****//
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -714,7 +736,17 @@ function ConsultationInProgress() {
             });
         }
     };
+    const editAct = (row: any, from: any) => {
+        const act_index = acts.findIndex(act => act.uuid === row.uuid)
+        if (from === 'check')
+            acts[act_index].selected = !acts[act_index].selected
 
+        if (from === 'change')
+            acts[act_index] = row
+
+        setActs([...acts])
+        localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
+    }
 
     return (
         <>
@@ -902,7 +934,14 @@ function ConsultationInProgress() {
                             }}></DocumentsTab>
                     </TabPanel>
                     <TabPanel padding={1} value={value} index={"medical_procedures"}>
-                        fees
+                        <FeesTab {...{
+                            acts,
+                            editAct,
+                            setTotal,
+                            router,
+                            devise,
+                            t
+                        }}/>
                     </TabPanel>
 
                     <Stack
@@ -941,7 +980,7 @@ function ConsultationInProgress() {
                                     }>
                                     {value === "medical_procedures" && (
                                         <Stack direction="row" alignItems={"center"}>
-                                            {/*<Typography variant="subtitle1">
+                                            <Typography variant="subtitle1">
                                                 <span>{t("total")} : </span>
                                             </Typography>
                                             <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
@@ -955,26 +994,28 @@ function ConsultationInProgress() {
                                                 <Button
                                                     variant="text-black"
                                                     onClick={(event) => {
-                                                        let type = "";
-                                                        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                                                            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
+                                                        /*
+                                                                                                                let type = "";
+                                                                                                                if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                                                                                    type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
 
-                                                        event.stopPropagation();
-                                                        setInfo("document_detail");
-                                                        setState({
-                                                            type: "fees",
-                                                            name: "Honoraire",
-                                                            info: selectedAct,
-                                                            createdAt: moment().format("DD/MM/YYYY"),
-                                                            consultationFees: free ? 0 : consultationFees,
-                                                            patient: `${type} ${patient.firstName} ${patient.lastName}`,
-                                                        });
-                                                        setOpenDialog(true);
+                                                                                                                event.stopPropagation();
+                                                                                                                setInfo("document_detail");
+                                                                                                                setState({
+                                                                                                                    type: "fees",
+                                                                                                                    name: "Honoraire",
+                                                                                                                    info: selectedAct,
+                                                                                                                    createdAt: moment().format("DD/MM/YYYY"),
+                                                                                                                    consultationFees: free ? 0 : consultationFees,
+                                                                                                                    patient: `${type} ${patient.firstName} ${patient.lastName}`,
+                                                                                                                });
+                                                                                                                setOpenDialog(true);
+                                                        */
                                                     }}
                                                     startIcon={<IconUrl path="ic-imprime"/>}>
                                                     {t("consultationIP.print")}
                                                 </Button>
-                                            </Stack>*/}
+                                            </Stack>
                                         </Stack>
                                     )}
                                     <LoadingButton
@@ -1089,7 +1130,7 @@ function ConsultationInProgress() {
                         setOpenDialog,
                         t,
                         changes,
-                        total: 0,
+                        total,
                         meeting,
                         setMeeting,
                         checkedNext,

@@ -4,13 +4,14 @@ import {pxToRem} from "@themes/formatFontSize";
 
 const InputBaseStyled = styled(InputBase)(({theme}) => ({
     border: "1px solid",
-    height: pxToRem(30),
-    borderRadius: 10,
+    height: 25,
+    borderRadius: 5,
+    backgroundColor:theme.palette.common.white,
     marginLeft: 5,
     marginRight: 5,
     maxWidth: 64,
     textAlign: "center",
-    borderColor: theme.palette.divider,
+    borderColor: theme.palette.grey["A600"],
 
     color: theme.palette.text.primary,
     "& .MuiOutlinedInput-root": {
