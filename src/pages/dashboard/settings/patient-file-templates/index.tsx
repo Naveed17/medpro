@@ -129,7 +129,7 @@ function PatientFileTemplates() {
             url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() =>refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`))
     }
 
     const handleEdit = (props: ModalModel, event: string, value?: string) => {

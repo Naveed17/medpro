@@ -28,11 +28,11 @@ function useWidgetModel({...props}) {
         }
     }, [httpModelsResponse]);
 
-    useEffect(()=>{
+    useEffect(() => {
         const cachedData = cache.get(`${urlMedicalProfessionalSuffix}/modals/${router.locale}${filter}`);
-        if (cachedData)
+        if (cachedData && Array.isArray(cachedData.data))
             setModels(cachedData.data);
-    },[cache, filter, router.locale, urlMedicalProfessionalSuffix])
+    }, [cache, filter, router.locale, urlMedicalProfessionalSuffix])
 
     return {models, modelsMutate}
 }

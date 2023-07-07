@@ -6,6 +6,7 @@ interface AppointmentDataModel {
     fees:string;
     latestAppointments:LatestAppointmentsModel[];
     status:number;
+    patient:PatientModel;
     type:AppointmentTypeModel;
 
 }
