@@ -1,3 +1,11 @@
+## [4.18.1](https://github.com/SmartMedSA/med-pro/compare/v4.18.0...v4.18.1) (2023-07-06)
+
+
+### Bug Fixes
+
+* filter gender ([60a8bb1](https://github.com/SmartMedSA/med-pro/commit/60a8bb18772bdc842c8eb85f8c7070c7e2befeb9))
+* prescription note .length undefined ([8c67f39](https://github.com/SmartMedSA/med-pro/commit/8c67f39c5b778ada55692a539be4785065db0ab1))
+
 # [4.18.0](https://github.com/SmartMedSA/med-pro/compare/v4.17.8...v4.18.0) (2023-07-04)
 
 
