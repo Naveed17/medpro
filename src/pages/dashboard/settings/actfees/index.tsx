@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {
@@ -43,7 +43,8 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useSWRConfig} from "swr";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -91,6 +92,8 @@ function ActFees() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
+    const {mutate} = useSWRConfig();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
@@ -125,7 +128,7 @@ function ActFees() {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null);
 
-    const {data: httpProfessionalsActs, mutate} = useRequest(medical_professional ? {
+    const {data: httpProfessionalsActs, mutate:mutateActs} = useRequest(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
             !isMobile
@@ -196,10 +199,11 @@ function ActFees() {
             },
             TriggerWithoutValidation
         ).then(() => {
-            mutate().then(() => {
+            mutateActs().then(() => {
                 setOpen(false);
                 setLoading(false)
                 enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
+                mutateMedicalProfessionalData();
             });
         }).catch((error) => {
             const {
@@ -209,6 +213,10 @@ function ActFees() {
             setOpen(false);
             enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
         });
+    };
+
+    const mutateMedicalProfessionalData = () => {
+        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`).then(r => dispatch(setOngoing(r.data.data)));
     };
 
     const saveFees = () => {
@@ -233,7 +241,7 @@ function ActFees() {
                 },
                 TriggerWithoutValidation
             ).then(() => {
-                mutate().then(() => {
+                mutateActs().then(() => {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});
                     enqueueSnackbar(t("alert.add"), {variant: "success"});
@@ -244,11 +252,11 @@ function ActFees() {
 
     const setActFees = useCallback((
             isTopAct: boolean,
-            actFees: { act: ActModel | string | null; fees: string }
+            actFees: any
         ) => {
             const form = new FormData();
             form.append("topAct", isTopAct.toString());
-            form.append("act", (actFees.act as ActModel)?.uuid);
+            form.append("act", actFees?.act?.uuid);
             triggerAddAct({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
@@ -260,7 +268,7 @@ function ActFees() {
         [
             medical_entity.uuid,
             medical_professional?.uuid,
-            mutate,
+            mutateActs,
             router.locale,
             session?.accessToken,
             triggerAddAct,
@@ -279,8 +287,9 @@ function ActFees() {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then(() => {
-            mutate().then(() => {
+            mutateActs().then(() => {
                 enqueueSnackbar(t("alert.updated"), {variant: "success"});
+                mutateMedicalProfessionalData();
                 if (typeof newFees.act !== "string") {
                     setCreate(false);
                     setNewFees({act: null, fees: ""});

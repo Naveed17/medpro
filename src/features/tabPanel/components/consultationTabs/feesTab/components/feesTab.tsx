@@ -1,30 +1,10 @@
-import React, {useEffect, useState} from "react";
-import {
-    Box,
-    Button,
-    Checkbox,
-    InputAdornment,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TextField,
-    Typography
-} from "@mui/material";
-import {Otable, TableRowStyled} from "@features/table";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {DefaultCountry} from "@lib/constants";
-import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
+import React, {useState} from "react";
+import {Box, Button, InputAdornment, Stack, TextField} from "@mui/material";
+import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
-import moment from "moment/moment";
-import IconUrl from "@themes/urlIcon";
-import {SubFooter} from "@features/subFooter";
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 function FeesTab({...props}) {
-
 
     const [search, setSearch] = useState<string>("");
 
@@ -36,7 +16,6 @@ function FeesTab({...props}) {
         sortable: boolean;
         align: "left" | "right" | "center";
     }
-
 
     const headCells: readonly HeadCell[] = [
         {
@@ -82,7 +61,6 @@ function FeesTab({...props}) {
 
     ];
 
-
     const {
         acts,
         editAct,
@@ -103,6 +81,7 @@ function FeesTab({...props}) {
                             setSearch(ev.target.value);
                         }}
                         sx={{width: '15rem'}}
+                        inputProps={{style:{background:"white"}}}
                         InputProps={{
                             endAdornment: <InputAdornment position="end">
                                 <SearchIcon/>
@@ -111,16 +90,16 @@ function FeesTab({...props}) {
                     />
                 </Stack>
 
-                    <Otable
-                        headers={headCells}
-                        rows={acts?.filter((act: any) => {
-                            return act.act.name.toLowerCase().includes(search.toLowerCase())
-                        })}
-                        from={"CIP-medical-procedures"}
-                        t={t}
-                        edit={editAct}
-                        devise={devise}
-                        handleChange={setTotal}/>
+                <Otable
+                    headers={headCells}
+                    rows={acts?.filter((act: any) => {
+                        return act.act.name.toLowerCase().includes(search.toLowerCase())
+                    })}
+                    from={"CIP-medical-procedures"}
+                    t={t}
+                    edit={editAct}
+                    devise={devise}
+                    handleChange={setTotal}/>
 
                 <Button
                     onClick={() => {

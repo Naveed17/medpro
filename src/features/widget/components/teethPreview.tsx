@@ -144,9 +144,13 @@ export default function TeethPreview({...props}) {
                         }}>
                             {traitement.teeth.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10,margin:1}} label={a}/>))}
                         </div>
+
+
                         {traitement.acts.map((act, index) => (`${acts.find((a: {
                         uuid: string;
                     }) => a.uuid === act).act.name}${index === traitement.acts.length - 1 ? '' : ','}`))}
+
+
                         {traitement.note && <p style={{margin: 0, letterSpacing: 0.8, color: "gray"}}>{t('note')}: {traitement.note}</p>}
                     </div>
                 ))}

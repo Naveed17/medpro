@@ -17,6 +17,7 @@ const WidgetForm: any = memo(
             expandButton,previousData,
             acts,setActs,setSelectedAct,selectedAct,setSelectedUuid
         } = props;
+
         return (
             <Widget
                 {...{modal, data, models, appuuid, changes, setChanges, isClose, expandButton,acts,setActs,setSelectedAct,selectedAct,setSelectedUuid,previousData,closed}}
