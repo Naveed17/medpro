@@ -89,36 +89,54 @@ function PatientDetailsCard({...props}) {
         if (patient) {
             params.append('first_name', patient.firstName);
             params.append('last_name', patient.lastName);
-            params.append('phone', JSON.stringify(patient.contact));
             params.append('gender', patient.gender === 'M' ? '1' : '2');
-            values.picture.url.length > 0 && params.append('photo', values.picture.file);
             values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
-            patient.email && params.append('email', patient.email);
-            patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
-            patient.nationality && params.append('nationality', patient.nationality.uuid);
-            patient.profession && params.append('profession', patient.profession);
-            patient.birthdate && params.append('birthdate', patient.birthdate);
-            patient.note && params.append('note', patient.note);
-            patient.idCard && params.append('id_card', patient.idCard);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({
-                [router.locale as string]: patient?.address[0]?.street
-            }));
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
-                data: params,
+                data: params
+            }).then(() => {
+                setRequestLoading(false);
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            photo: values.picture.file
+                        }
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
+            });
+        }
+    }
+
+    const uploadPatientPhoto = () => {
+        setRequestLoading(true);
+        const params = new FormData();
+        if (patient) {
+            params.append('photo', values.picture.file);
+
+            medicalEntityHasUser && triggerPatientUpdate({
+                method: "PATCH",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/photo/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
+                data: params
             }).then(() => {
                 setRequestLoading(false);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
                 mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
                 if (appointment) {
                     const event = {
                         ...appointment,
@@ -476,7 +494,7 @@ function PatientDetailsCard({...props}) {
                 img={values.picture.url}
                 setOpen={(status: boolean) => {
                     setOpenUploadPicture(status);
-                    uploadPatientDetail();
+                    uploadPatientPhoto();
                 }}
             />
         </FormikProvider>

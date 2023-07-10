@@ -235,7 +235,7 @@ function AppointmentDetail({...props}) {
                                                     </Stack>
                                                 </ListItem>
                                             )}
-                                            {appointment?.extendedProps.patient.contact.length >
+                                            {appointment?.extendedProps.patient.contact?.length >
                                                 0 && (
                                                     <ListItem className={"appointment-text"}>
                                                         <IconUrl

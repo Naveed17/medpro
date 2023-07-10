@@ -138,7 +138,7 @@ function PersonalInsuranceCard({...props}) {
                     code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
                     value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
                     type: "phone",
-                    contact_type: contacts[0].uuid,
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
                     is_public: false,
                     is_support: false
                 }
@@ -205,7 +205,7 @@ function PersonalInsuranceCard({...props}) {
                     code: doctor_country?.phone,
                     value: "",
                     type: "phone",
-                    contact_type: contacts[0].uuid,
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
                     is_public: false,
                     is_support: false
                 }
@@ -231,7 +231,7 @@ function PersonalInsuranceCard({...props}) {
                     code: doctor_country?.phone,
                     value: "",
                     type: "phone",
-                    contact_type: contacts[0].uuid,
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
                     is_public: false,
                     is_support: false
                 }
@@ -255,7 +255,7 @@ function PersonalInsuranceCard({...props}) {
         const params = new FormData();
         params.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: values.insurances,
-            contact: contacts[0].uuid
+            contact: contacts?.length > 0 && contacts[0].uuid
         })));
 
         medicalEntityHasUser && triggerPatientUpdate({

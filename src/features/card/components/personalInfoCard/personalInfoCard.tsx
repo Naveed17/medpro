@@ -4,10 +4,10 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar,
+    AppBar, Autocomplete, Avatar,
     Box,
     Button,
-    Grid,
+    Grid, InputAdornment,
     InputBase,
     MenuItem,
     Paper,
@@ -47,7 +47,7 @@ MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null,
+        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null, countries_api,
         loading, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
     } = props;
 
@@ -82,7 +82,8 @@ function PersonalInfo({...props}) {
         old: Yup.string(),
         profession: Yup.string(),
         cin: Yup.string(),
-        familyDoctor: Yup.string()
+        familyDoctor: Yup.string(),
+        nationality: Yup.string()
     });
 
     const formik = useFormik({
@@ -98,7 +99,9 @@ function PersonalInfo({...props}) {
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
             profession: !loading && patient.profession ? patient.profession : "",
-            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : ""
+            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : "",
+            nationality: !loading && patient?.nationality ? patient.nationality.uuid : ""
+
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
@@ -116,6 +119,7 @@ function PersonalInfo({...props}) {
         params.append('id_card', values.cin);
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
+        params.append('nationality', values.nationality);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
         patient.note && params.append('note', patient.note);
 
@@ -568,6 +572,103 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
 
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack direction="row" spacing={1}
+                                       alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography
+                                            className="label"
+                                            variant="body2"
+                                            color="text.secondary"
+                                            width="50%">
+                                            {t("nationality")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        sx={{
+                                            ...(!editable && {
+                                                "& .MuiAutocomplete-endAdornment": {
+                                                    display: "none"
+                                                }
+                                            }),
+                                            "& .MuiInputBase-root": {
+                                                paddingLeft: 0,
+                                                width: "100%",
+                                                height: "100%"
+                                            },
+                                            "& .MuiSelect-select": {
+                                                pl: 0
+                                            }
+                                        }}
+                                        item md={9} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton width={100}/>
+                                        ) : (
+                                            <Autocomplete
+                                                id={"nationality"}
+                                                disabled={!countries_api || !editable}
+                                                autoHighlight
+                                                disableClearable
+                                                size="small"
+                                                value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) ?
+                                                    countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) : null}
+                                                onChange={(e, v: any) => {
+                                                    setFieldValue("nationality", v.uuid);
+                                                }}
+                                                {...(editable && {
+                                                    sx: {
+                                                        color: "text.secondary",
+                                                        borderRadius: .6,
+                                                        border: `1px solid ${theme.palette.grey['A100']}`
+                                                    }
+                                                })}
+                                                options={countries_api ? [...new Map(countries_api.map((country: CountryModel) => [country["nationality"], country])).values()] : []}
+                                                loading={!countries_api}
+                                                getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                                isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                                renderOption={(props, option) => (
+                                                    <MenuItem {...props}>
+                                                        {option?.code && <Avatar
+                                                            sx={{
+                                                                width: 26,
+                                                                height: 18,
+                                                                borderRadius: 0.4
+                                                            }}
+                                                            alt={"flags"}
+                                                            src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                        />}
+                                                        <Typography
+                                                            sx={{ml: 1}}>{option.nationality}</Typography>
+                                                    </MenuItem>
+                                                )}
+                                                renderInput={params => {
+                                                    const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value);
+                                                    params.InputProps.startAdornment = country && (
+                                                        <InputAdornment position="start">
+                                                            {country?.code && <Avatar
+                                                                sx={{
+                                                                    width: 24,
+                                                                    height: 16,
+                                                                    borderRadius: 0.4,
+                                                                    ml: ".5rem",
+                                                                    mr: -.8
+                                                                }}
+                                                                alt={country.name}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />}
+                                                        </InputAdornment>
+                                                    );
+
+                                                    return <TextField color={"info"}
+                                                                      {...params}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      placeholder={t("nationality")}
+                                                                      variant="outlined" fullWidth/>;
+                                                }}/>
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
                         </Grid>
                     </Paper>

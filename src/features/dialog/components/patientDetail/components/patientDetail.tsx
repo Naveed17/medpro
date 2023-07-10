@@ -56,7 +56,7 @@ import {PatientFile} from "@features/files/components/patientFile";
 import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
-import {sendRequest, useContactType} from "@lib/hooks/rest";
+import {sendRequest} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -70,13 +70,6 @@ function a11yProps(index: number) {
         "aria-controls": `simple-tabpanel-${index}`,
     };
 }
-
-// add patient details RDV for not data
-const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "no-data.appointment.title",
-    description: "no-data.appointment.description"
-};
 
 function PatientDetail({...props}) {
     const {
@@ -97,7 +90,6 @@ function PatientDetail({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
     const {mutate} = useSWRConfig();
-    const {contacts} = useContactType();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -308,8 +300,6 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
-    const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
 
     const tabsContent = [
@@ -317,7 +307,6 @@ function PatientDetail({...props}) {
             title: "tabs.personal-info",
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
-                contacts,
                 mutatePatientDetails,
                 mutatePatientList,
                 antecedentsData,
@@ -337,17 +326,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.appointment",
-            children: <>
-                {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
-                    <GroupTable from="patient" loading={!patient} data={patient}/>
-                ) : (
-                    <NoDataCard
-                        t={t}
-                        ns={"patient"}
-                        data={AddAppointmentCardData}
-                    />
-                )}
-            </>,
+            children: <GroupTable from="patient" loading={!patient} data={{patient, translate: t}}/>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
         {
