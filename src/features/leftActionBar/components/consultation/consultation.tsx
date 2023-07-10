@@ -41,6 +41,7 @@ import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {useAntecedentTypes, useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {useSWRConfig} from "swr";
+import {ImageHandler} from "@features/image";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -218,8 +219,6 @@ function Consultation() {
                     badge: 0,
                 },
             ]);
-            //mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`);
-            //  mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`)
         }
     }, [patient, patientAntecedent]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -259,12 +258,15 @@ function Consultation() {
                                                  title={insuranceItem?.insurance.name}>
                                             <Avatar variant={"circular"}>
                                                 {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img src={allInsurances.find(
-                                                        (insurance: any) =>
-                                                            insurance.uuid ===
-                                                            insuranceItem?.insurance.uuid
-                                                    )?.logoUrl?.url} alt={"insurance logo"}/>}
+
+                                                    <ImageHandler
+                                                        alt={insuranceItem?.insurance.name}
+                                                        src={allInsurances.find(
+                                                            (insurance: any) =>
+                                                                insurance.uuid ===
+                                                                insuranceItem?.insurance.uuid
+                                                        )?.logoUrl?.url}
+                                                    />}
                                             </Avatar>
                                         </Tooltip>
                                     )}

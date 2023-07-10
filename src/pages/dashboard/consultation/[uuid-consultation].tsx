@@ -403,14 +403,9 @@ function ConsultationInProgress() {
 
             setActs(local_acts.length > 0 ? local_acts : _acts);
 
-            /*console.log("appointment", appointment)
-            console.log("documents", documents)
-            console.log("previousData", previousData)
-            console.log("selectedModel", selectedModel)
-            console.log("changes", changes)*/
             setLoading(false)
         }
-    }, [appointment])
+    }, [appointment]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         mutate();
