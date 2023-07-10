@@ -35,7 +35,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
-import {useContactType, useInsurances} from "@lib/hooks/rest";
+import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 

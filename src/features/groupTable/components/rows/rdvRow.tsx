@@ -46,8 +46,7 @@ function RDVRow({...props}) {
 
     const {
         data: httpPatientHistoryResponse,
-        isLoading,
-        mutate: mutatePatientHistory
+        isLoading
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard} from "@features/card";
+import {PatientDetailsCard} from "@features/card";
 import {
     addPatientSelector,
     DocumentsPanel,
