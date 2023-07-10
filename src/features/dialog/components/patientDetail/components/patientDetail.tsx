@@ -56,7 +56,7 @@ import {PatientFile} from "@features/files/components/patientFile";
 import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
+import {sendRequest, useContactType} from "@lib/hooks/rest";
 import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -97,6 +97,7 @@ function PatientDetail({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
     const {mutate} = useSWRConfig();
+    const {contacts} = useContactType();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -316,6 +317,7 @@ function PatientDetail({...props}) {
             title: "tabs.personal-info",
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
+                contacts,
                 mutatePatientDetails,
                 mutatePatientList,
                 antecedentsData,
@@ -391,7 +393,7 @@ function PatientDetail({...props}) {
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

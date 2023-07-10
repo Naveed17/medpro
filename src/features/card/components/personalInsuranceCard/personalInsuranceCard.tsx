@@ -41,7 +41,7 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function PersonalInsuranceCard({...props}) {
     const {
-        patient, mutatePatientList = null,
+        patient, mutatePatientList = null, contacts,
         mutateAgenda = null, loading, editable
     } = props;
 
@@ -51,7 +51,6 @@ function PersonalInsuranceCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {contacts} = useContactType();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -186,11 +185,9 @@ function PersonalInsuranceCard({...props}) {
     }
 
 
-
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
         const insurances = [prepareInsuranceInstance(insurance)]
         setRequestAction("PUT");
-        console.log("insurances", insurances);
         setFieldValue("insurances", insurances);
         setInsuranceDialog(true);
     }
@@ -213,7 +210,7 @@ function PersonalInsuranceCard({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "0",
+            insurance_type: `0`,
             expand: false,
             online: false
         }];
@@ -239,7 +236,7 @@ function PersonalInsuranceCard({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "0",
+            insurance_type: `0`,
             expand: false,
             online: false
         }, ...values.insurances];
@@ -263,11 +260,11 @@ function PersonalInsuranceCard({...props}) {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].uuid}/` : ""}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
-            data: params,
+            data: params
         }).then(() => {
             setLoadingRequest(false);
             mutatePatientInsurances();
@@ -422,7 +419,7 @@ function PersonalInsuranceCard({...props}) {
                         }
                     }}
                     data={{
-                        insurances, values, formik, patient, loading,
+                        insurances, values, formik, requestAction, loading,
                         getFieldProps, setFieldValue, touched, errors, t
                     }}
                     color={theme.palette.primary.main}
@@ -443,14 +440,18 @@ function PersonalInsuranceCard({...props}) {
                                 }
                             }}>
                             <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                                <Button
+                                {requestAction !== "PUT" && <Button
                                     onClick={() => {
                                         handleMultiAddInsurance();
                                     }}
                                     startIcon={<AddIcon/>}>
                                     {t("config.add-patient.add-insurance-more")}
-                                </Button>
-                                <Stack direction={"row"} justifyContent={"center"} alignItems={"center"} spacing={1.2}>
+                                </Button>}
+                                <Stack direction={"row"}
+                                       {...(requestAction === "PUT" && {sx: {width: "100%"}})}
+                                       justifyContent={"flex-end"}
+                                       alignItems={"center"}
+                                       spacing={1.2}>
                                     <LoadingButton
                                         loading={loadingRequest}
                                         sx={{
