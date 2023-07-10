@@ -241,7 +241,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
                     durationValue: cycle.durationType ? cycle.durationType : "",
                     dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                    cautionaryNoteInput: cycle.note.length > 0,
+                    cautionaryNoteInput: cycle.note?.length > 0,
                     dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
                     cautionaryNote: cycle.note !== "" ? cycle.note : "",
                     dosageTime: [
@@ -467,7 +467,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         dosage: cycle.dosageInput ? cycle.dosageInputText : generateDosageText(cycle, data.unit),
                         duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : null,
                         durationType: cycle.durationValue.length > 0 ? cycle.durationValue : "",
-                        note: cycle.cautionaryNote.length > 0 ? cycle.cautionaryNote : "",
+                        note: cycle.cautionaryNote?.length > 0 ? cycle.cautionaryNote : "",
                         isOtherDosage: cycle.dosageInput
                     }));
                     drugs.push({

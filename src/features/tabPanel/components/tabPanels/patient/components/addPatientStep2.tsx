@@ -71,7 +71,7 @@ function AddPatientStep2({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
-    const {countries} = useCountries();
+    const {countries} = useCountries("nationality=true");
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);

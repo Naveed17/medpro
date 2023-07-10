@@ -79,6 +79,8 @@ Open `http://localhost:3000` with your browser to see the result.
 | SENTRY_DSN        |               |
 | NEXT_PUBLIC_SENTRY_DSN        |               |
 | SENTRY_IGNORE_API_RESOLUTION_ERROR        |               |
+| NEXT_PUBLIC_EDITOR_KEY        |               |
+| MAINTENANCE_MODE        |               |
 ## API
 - [useRequest](#userequestrequest-config)
 - [useRequestMutation](#userequestmutationrequest-config)
