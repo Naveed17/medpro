@@ -106,7 +106,6 @@ const Content = ({...props}) => {
             ).then(() => {
                 mutateInfo();
                 medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                console.log("After handleCloseDialog")
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
@@ -126,7 +125,6 @@ const Content = ({...props}) => {
             ).then(() => {
                 mutateInfo();
                 medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                console.log("Add traitement")
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -148,12 +146,10 @@ const Content = ({...props}) => {
             ).then(() => {
                 mutateInfo();
                 medicalEntityHasUser &&  mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                console.log("balance_sheet_pending")
             });
         } else if (info === "medical_imaging_pending") {
             mutateInfo();
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-            console.log("medical_imaging_pending")
             mutateDoc();
         }
 
