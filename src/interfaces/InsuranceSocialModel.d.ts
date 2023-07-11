@@ -2,7 +2,7 @@ interface InsuranceSocialModel {
     firstName: string;
     lastName: string;
     birthday?: string;
-    phone: {
+    [key: string]: {
         code: string;
         value: string;
         type: string;

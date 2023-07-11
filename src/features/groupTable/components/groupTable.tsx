@@ -11,7 +11,7 @@ function GroupTable({ ...props }) {
       <TableContainer className={"container"}>
         <Table size="small" aria-label="a dense table">
           <TableBody>
-            <Component isNext data={data} loading={loading} />
+            <Component isNext data={data} loading={loading}  />
           </TableBody>
         </Table>
       </TableContainer>

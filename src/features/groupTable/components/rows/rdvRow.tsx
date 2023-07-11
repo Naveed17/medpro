@@ -8,7 +8,7 @@ import {
     Skeleton, DialogActions, Button,
 } from "@mui/material";
 // components
-import {RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/card";
+import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/card";
 // utils
 import {useTranslation} from "next-i18next";
 import _ from "lodash";
@@ -17,49 +17,60 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function RDVRow({...props}) {
-    const {data: patient, loading} = props;
+    const {data: {patient, translate}, loading} = props;
     const {data: session} = useSession();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [appointmentData, setAppointmentData] = useState<any>(null);
 
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
+    const {
+        data: httpPatientHistoryResponse,
+        isLoading
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
-    const mapped =
-        !loading &&
-        patient.previousAppointments?.map((v: any) => {
-            return {
-                ...v,
-                year: v.dayDate.slice(-4),
-            };
-        });
+    const patientHistory = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const nextAppointmentsData = patientHistory && patientHistory.nextAppointments.length > 0 ? patientHistory.nextAppointments : [];
+    const previousAppointmentsData = patientHistory && patientHistory.previousAppointments.length > 0 ? patientHistory.previousAppointments[0] : [];
 
-    const previousAppointments = _(mapped)
-        .groupBy("year")
-        .map((items, year) => ({
-            year: year,
-            data: _.map(items),
-        }))
-        .value()
-        .reverse();
+    const mapped = !loading && previousAppointmentsData?.map((v: any) => {
+        return {
+            ...v,
+            year: v.dayDate.slice(-4),
+        };
+    });
+
+    const previousAppointments = _(mapped).groupBy("year").map((items, year) => ({
+        year: year,
+        data: _.map(items),
+    })).value().reverse();
 
     const handlePreConsultationDialog = (inner: any) => {
         setAppointmentData(inner);
@@ -82,15 +93,11 @@ function RDVRow({...props}) {
         });
     }
 
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "patient-details",
-    });
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
-
-    return (
+    return (nextAppointmentsData?.length > 0 || previousAppointmentsData?.length > 0 ? (
         <React.Fragment>
-            {patient?.nextAppointments.length > 0 && <TableRow>
+            {nextAppointmentsData.length > 0 && <TableRow>
                 <TableCell colSpan={3} className="text-row">
                     <Typography variant="body1" color="text.primary">
                         {loading ? (
@@ -98,14 +105,14 @@ function RDVRow({...props}) {
                         ) : (
                             <>
                                 {t("next-appo")}{" "}
-                                {patient.nextAppointments.length > 1 &&
-                                    `(${patient.nextAppointments.length})`}
+                                {nextAppointmentsData.length > 1 &&
+                                    `(${nextAppointmentsData.length})`}
                             </>
                         )}
                     </Typography>
                 </TableCell>
             </TableRow>}
-            {(loading ? Array.from(new Array(3)) : patient.nextAppointments).map(
+            {(loading ? Array.from(new Array(3)) : nextAppointmentsData).map(
                 (data: PatientDetailsRDV) => (
                     <React.Fragment key={patient.uuid}>
                         {matches ? (
@@ -120,7 +127,7 @@ function RDVRow({...props}) {
                     </React.Fragment>
                 )
             )}
-            {patient.previousAppointments.length > 0 && <TableRow>
+            {previousAppointmentsData.length > 0 && <TableRow>
                 <TableCell colSpan={3} className="text-row">
                     <Typography variant="body1" color="text.primary">
                         {loading ? (
@@ -128,8 +135,8 @@ function RDVRow({...props}) {
                         ) : (
                             <>
                                 {t("old-appo")}{" "}
-                                {patient.previousAppointments.length > 1 &&
-                                    `(${patient.previousAppointments.length})`}
+                                {previousAppointmentsData.length > 1 &&
+                                    `(${previousAppointmentsData.length})`}
                             </>
                         )}
                     </Typography>
@@ -199,8 +206,21 @@ function RDVRow({...props}) {
                     </DialogActions>
                 }
             />
-        </React.Fragment>
-    );
+        </React.Fragment>) : !isLoading && (
+        <TableRow>
+            <TableCell className="text-row">
+                <NoDataCard
+                    t={translate}
+                    ns={"patient"}
+                    data={{
+                        mainIcon: "ic-agenda-+",
+                        title: "no-data.appointment.title",
+                        description: "no-data.appointment.description"
+                    }}
+                />
+            </TableCell>
+        </TableRow>
+    ));
 }
 
 export default RDVRow;
