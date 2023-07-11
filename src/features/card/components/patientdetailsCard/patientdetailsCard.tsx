@@ -87,14 +87,12 @@ function PatientDetailsCard({...props}) {
         setRequestLoading(true);
         const params = new FormData();
         if (patient) {
-            params.append('first_name', patient.firstName);
-            params.append('last_name', patient.lastName);
-            params.append('gender', patient.gender === 'M' ? '1' : '2');
-            values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
+            params.append('attribute', 'fiche_id');
+            params.append('value', values.fiche_id);
 
             medicalEntityHasUser && triggerPatientUpdate({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
+                method: "PATCH",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
@@ -122,11 +120,12 @@ function PatientDetailsCard({...props}) {
         setRequestLoading(true);
         const params = new FormData();
         if (patient) {
+            params.append('attribute', 'photo');
             params.append('photo', values.picture.file);
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/photo/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },

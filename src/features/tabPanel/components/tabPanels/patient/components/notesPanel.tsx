@@ -30,14 +30,12 @@ function NotesPanel({...props}) {
         setRequestLoading(true);
         const params = new FormData();
         if (patient) {
-            params.append('first_name', patient.firstName);
-            params.append('last_name', patient.lastName);
-            params.append('gender', patient.gender === 'M' ? '1' : '2');
-            params.append('note', notes);
+            params.append('attribute', 'note');
+            params.append('value', notes);
 
             medicalEntityHasUser && triggerPatientUpdate({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
+                method: "PATCH",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
