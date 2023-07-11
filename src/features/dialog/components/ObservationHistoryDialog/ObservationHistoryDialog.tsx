@@ -14,7 +14,7 @@ function ObservationHistoryDialog({...props}) {
     const {data} = props;
     return (
         <>
-            {data.stateAct.map((act: any,index:number) => (
+            {data.stateHistory.map((act: any,index:number) => (
                     <CardContent style={{border: '1px solid #E0E0E0',marginBottom:5,borderRadius:10}} key={`${index}-history-row`}>
                         <Stack spacing={1}>
                             <Stack

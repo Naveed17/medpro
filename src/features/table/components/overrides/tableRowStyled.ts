@@ -170,23 +170,25 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         }
     },
     '.counter-btn': {
-        padding: theme.spacing(1),
+        borderRadius: 5,
+        width:"fit-content",
+        height:25,
+        margin: "auto",
         alignSelf: 'flex-start',
-        //minHeight:50,
+        border: `1px solid ${theme.palette.grey["A600"]}`,
+        backgroundColor: theme.palette.common.white,
+
         '.MuiCheckbox-root': {
             width: 20,
             height: 20,
             marginRight: theme.spacing(1)
         },
         '.MuiInputBase-root': {
-            width: 100,
-            border: `1px solid ${theme.palette.divider}`,
-            backgroundColor: theme.palette.common.white,
-            borderRadius: 10,
-            paddingLeft: theme.spacing(.7),
-            paddingRight: theme.spacing(.7),
-            marginLeft: theme.spacing(1),
-            marginRight: theme.spacing(1),
+            width: 35,
+            height:22,
+            borderRadius: 5,
+            border: 0,
+            margin: 0,
             ".MuiInputBase-input": {
                 textAlign: 'center'
             }
@@ -194,6 +196,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         '.MuiIconButton-root': {
             borderRadius: 4,
             padding: 2,
+            width:25,
+            height:25,
             backgroundColor: theme.palette.grey["A600"],
             svg: {
                 width: 14,

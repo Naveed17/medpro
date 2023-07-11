@@ -6,14 +6,16 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
-    FormControlLabel, IconButton,
+    FormControlLabel,
+    IconButton,
     MenuItem,
     OutlinedInput,
     Paper,
     PaperProps,
     Select,
     SelectChangeEvent,
-    Stack, TextField,
+    Stack,
+    TextField,
     Theme,
     Typography,
     useTheme
@@ -59,7 +61,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function TeethWidget({...props}) {
-    let {acts, t, setActs, of, setSelectedAct, selectedAct, appuuid, previousData,local} = props
+    let {acts, setActs, t, of, appuuid, previousData, local} = props
     const theme = useTheme();
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -68,7 +70,7 @@ export default function TeethWidget({...props}) {
         showPicker: false,
         teeth: [],
         acts: [],
-        note:''
+        note: ''
     }]);
     const [open, setOpen] = useState("");
     const [absent, setAbsent] = useState<string[]>([]);
@@ -161,34 +163,16 @@ export default function TeethWidget({...props}) {
         editStorage(traitements)
     };
     const handleChangeAct = (event: SelectChangeEvent<string[]>, traitement: number) => {
+
         const {target: {value}} = event;
         traitements[traitement].acts = typeof value === 'string' ? value.split(',') : value;
 
-        let teethActs: any[] = [];
-        Array.isArray(value) && value.map(act => {
-            const index = selectedAct.findIndex((sa: { uuid: string; }) => sa.uuid === act)
-            if (index === -1) {
-                const indexAct = acts.findIndex((ac: { uuid: string; }) => ac.uuid === act)
-                teethActs = [...teethActs, {
-                    act: {name: acts[indexAct].act.name},
-                    act_uuid: acts[indexAct].uuid,
-                    fees: acts[indexAct].fees,
-                    name: acts[indexAct].act.name,
-                    price: acts[indexAct].fees,
-                    qte: 1,
-                    uuid: acts[indexAct].uuid
-                }]
-                let a = [...acts]
-                const el = a[indexAct]
-                a.splice(indexAct, 1);
-                setActs([{...el, qte: 1}, ...a]);
-                localStorage.setItem(
-                    `consultation-acts-${appuuid}`,
-                    JSON.stringify([...selectedAct, ...teethActs])
-                );
-                setSelectedAct([...selectedAct, ...teethActs])
-            }
+        let _acts = [...acts]
+        Array.isArray(value) && value.forEach(act => {
+            _acts.find(a => a.uuid === act).selected = true
         })
+        setActs([..._acts]);
+
         setTraitements([...traitements])
         editStorage(traitements)
     };
@@ -226,19 +210,6 @@ export default function TeethWidget({...props}) {
                     ))
                 )}
 
-                {/* <div onClick={(ev) => {
-
-                }}  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: 3,
-                    height: 3,
-                    background: "black",
-                    opacity: 0.5,
-                    borderRadius: 15
-                }}/>*/}
-
                 {absent.map(a => (
                     <div
                         onClick={(ev) => {
@@ -258,10 +229,11 @@ export default function TeethWidget({...props}) {
                         }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/static/img/${of === 'adult' ? local === 'fr' ?'adultTeeth':'adultTeethEN' : local === 'fr' ?'childTeeth':'childTeethEN'}.svg`}
-                     id={"tooth"}
-                     onClick={GetCoordinates}
-                     alt={"patient teeth"}/>
+                <img
+                    src={`/static/img/${of === 'adult' ? local === 'fr' ? 'adultTeeth' : 'adultTeethEN' : local === 'fr' ? 'childTeeth' : 'childTeethEN'}.svg`}
+                    id={"tooth"}
+                    onClick={GetCoordinates}
+                    alt={"patient teeth"}/>
 
                 <Stack direction={"row"} alignItems={"center"} spacing={1} p={1}>
                     <div style={{
@@ -309,7 +281,7 @@ export default function TeethWidget({...props}) {
                                          }}></div>
 
                                     <IconButton size="small" onClick={() => {
-                                        traitements.splice(index,1)
+                                        traitements.splice(index, 1)
                                         setTraitements([...traitements])
                                         editStorage(traitements)
                                     }}>
@@ -384,7 +356,6 @@ export default function TeethWidget({...props}) {
                                 renderValue={(selected) => (
                                     <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                                         {
-
                                             selected.map((value) => {
                                                 const role = acts?.find((a: any) => a.uuid === value);
                                                 return (
@@ -404,14 +375,12 @@ export default function TeethWidget({...props}) {
 
                             <TextField placeholder={'--'}
                                        value={traitement.note}
-                                       onChange={(ev)=>{
+                                       onChange={(ev) => {
                                            traitements[index].note = ev.target.value;
                                            setTraitements([...traitements])
                                            editStorage(traitements)
                                        }}
                             />
-
-
                         </Stack>))
                 }
 
@@ -425,7 +394,7 @@ export default function TeethWidget({...props}) {
                             showPicker: false,
                             teeth: [],
                             acts: [],
-                            note:''
+                            note: ''
                         }]
                         setTraitements([...traitements])
                         editStorage(traitements)
