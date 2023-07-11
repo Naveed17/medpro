@@ -105,7 +105,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                mutate(medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 console.log("After handleCloseDialog")
             });
         } else if (info === "add_treatment") {
@@ -125,7 +125,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                mutate(medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 console.log("Add traitement")
                 setState([]);
             });
@@ -147,12 +147,12 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                mutate(medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser &&  mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 console.log("balance_sheet_pending")
             });
         } else if (info === "medical_imaging_pending") {
             mutateInfo();
-            mutate(medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             console.log("medical_imaging_pending")
             mutateDoc();
         }
@@ -166,7 +166,7 @@ const Content = ({...props}) => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(
             () => {
                 mutateInfo();
-                mutate(medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 console.log("save dialog")
             }
         );
