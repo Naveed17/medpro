@@ -6,21 +6,12 @@ import React, {useState} from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {DefaultCountry} from "@lib/constants";
 
 function CIPMedicalProceduresRow({...props}) {
-    const {row, isItemSelected, handleClick, editMotif} = props;
+
+    const {row, data, editMotif} = props;
+
     const theme = useTheme() as Theme;
-    const [fees, setFees] = useState<number>(row.fees);
-
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<string>("");
 
@@ -28,26 +19,20 @@ function CIPMedicalProceduresRow({...props}) {
         <TableRowStyled
             className={"cip-medical-proce-row"}
             hover
-            onClick={() => {
-                editMotif(row, isItemSelected);
-                return handleClick(row.uuid as string);
-            }}
             role="checkbox"
-            aria-checked={isItemSelected}
-            tabIndex={-1}
-            selected={isItemSelected}>
+            tabIndex={-1}>
             <TableCell padding="checkbox">
                 <Checkbox
                     color="primary"
                     onChange={() => {
-                        editMotif(row, "checked");
+                        editMotif(row, "check");
                     }}
-                    checked={isItemSelected}
+                    checked={row.selected}
                 />
             </TableCell>
             <TableCell>{row.act.name}</TableCell>
             <TableCell align={"center"}>
-                {isItemSelected ? (
+                {row.selected && row.uuid !== 'consultation_type' ? (
                     <Stack alignItems="center" direction="row" className="counter-btn">
                         <IconButton
                             size="small"
@@ -73,9 +58,8 @@ function CIPMedicalProceduresRow({...props}) {
                             }}
                             autoFocus={selected === row.uuid + "qte"}
                             onChange={(e) => {
-                                // @ts-ignore
-                                if (!isNaN(e.currentTarget.value)) {
-                                    editMotif({...row,qte:Number(e.currentTarget.value)}, "change");
+                                if (!isNaN(Number(e.currentTarget.value))) {
+                                    editMotif({...row, qte: Number(e.currentTarget.value)}, "change");
                                 }
                             }}
                         />
@@ -108,12 +92,12 @@ function CIPMedicalProceduresRow({...props}) {
                 )}
             </TableCell>
             <TableCell align="center">
-                {isItemSelected ? (
+                {row.selected ? (
                     <>
                         <InputBaseStyled
                             size="small"
                             id={row.uuid}
-                            value={fees}
+                            value={row.fees}
                             placeholder={"--"}
                             autoFocus={selected === row.uuid}
                             onFocus={() => {
@@ -125,7 +109,6 @@ function CIPMedicalProceduresRow({...props}) {
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e: any) => {
                                 if (!isNaN(e.currentTarget.value)) {
-                                    setFees(Number(e.currentTarget.value));
                                     row.fees = Number(e.currentTarget.value);
                                     editMotif(row, "change", e.currentTarget.value);
                                 }
@@ -146,10 +129,13 @@ function CIPMedicalProceduresRow({...props}) {
                         </Button>
                     </>
                 )}
-                {devise}
+                {data.devise}
             </TableCell>
             <TableCell align={"center"}>
-                {row.qte ? row.fees * row.qte : row.fees} {devise}
+                <span style={{
+                    fontWeight: "bold",
+                    color: "black"
+                }}>{row.qte ? row.fees * row.qte : row.fees}</span> {data.devise}
             </TableCell>
         </TableRowStyled>
     );

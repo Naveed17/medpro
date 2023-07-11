@@ -15,6 +15,7 @@ interface PatientModel {
     contact: ContactModel[];
     address?: AddressModel[];
     account: AccountModel;
+    hasAccount:boolean;
     hasPhoto: boolean;
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
