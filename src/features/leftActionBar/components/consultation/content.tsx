@@ -167,7 +167,6 @@ const Content = ({...props}) => {
             () => {
                 mutateInfo();
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                console.log("save dialog")
             }
         );
         setOpenRemove(false);
