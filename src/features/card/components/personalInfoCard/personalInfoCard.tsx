@@ -601,7 +601,7 @@ function PersonalInfo({...props}) {
                                                 pl: 0
                                             }
                                         }}
-                                        item md={9} sm={6} xs={9}>
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton width={100}/>
                                         ) : (

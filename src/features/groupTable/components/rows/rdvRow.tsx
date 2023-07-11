@@ -58,7 +58,7 @@ function RDVRow({...props}) {
 
     const patientHistory = (httpPatientHistoryResponse as HttpResponse)?.data;
     const nextAppointmentsData = patientHistory && patientHistory.nextAppointments.length > 0 ? patientHistory.nextAppointments : [];
-    const previousAppointmentsData = patientHistory && patientHistory.previousAppointments.length > 0 ? patientHistory.previousAppointments[0] : [];
+    const previousAppointmentsData = patientHistory && patientHistory.previousAppointments.length > 0 ? patientHistory.previousAppointments : [];
 
     const mapped = !loading && previousAppointmentsData?.map((v: any) => {
         return {
