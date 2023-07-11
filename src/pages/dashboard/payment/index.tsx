@@ -404,7 +404,7 @@ function Payment() {
                     (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
 
                 filteredData?.map((app: any) => {
-                    amout += Number(app.fees);
+                    amout += Number(app.fees ?? 0);
                     r.push({
                         uuid: app.uuid,
                         date: app.dayDate,
@@ -415,35 +415,7 @@ function Payment() {
                         type: app.type.name,
                         payment_type: ["ic-argent", "ic-card-pen"],
                         billing_status: "yes",
-                        amount: app.fees,
-                        /*collapse: [
-                                                {
-                                                    uuid: 61,
-                                                    date: "10/10/2022",
-                                                    time: "15:30",
-                                                    payment_type: [
-                                                        {
-                                                            name: "123456789",
-                                                            icon: "ic-card-pen",
-                                                        },
-                                                    ],
-                                                    billing_status: "yes",
-                                                    amount: 10,
-                                                },
-                                                {
-                                                    uuid: 62,
-                                                    date: "10/10/2022",
-                                                    time: "15:30",
-                                                    payment_type: [
-                                                        {
-                                                            name: "credit_card",
-                                                            icon: "ic-argent",
-                                                        },
-                                                    ],
-                                                    billing_status: "yes",
-                                                    amount: 10,
-                                                },
-                                            ],*/
+                        amount: app.fees ?? 0
                     });
                 });
                 setFiltredRows(
