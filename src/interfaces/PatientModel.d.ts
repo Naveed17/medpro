@@ -10,12 +10,13 @@ interface PatientModel {
     idCard: string;
     profession: string;
     familyDoctor: string;
+    nationality: any;
     note: string;
     insurances: PatientInsuranceModel[];
     contact: ContactModel[];
     address?: AddressModel[];
     account: AccountModel;
-    hasAccount:boolean;
+    hasAccount: boolean;
     hasPhoto: boolean;
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];

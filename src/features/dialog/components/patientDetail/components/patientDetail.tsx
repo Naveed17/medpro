@@ -53,7 +53,6 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
@@ -352,9 +351,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.recap",
-            children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
-            </PDFViewer>,
+            children: <PatientFile {...{patient, antecedentsData, t, allAntecedents}} />,
             permission: ["ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));

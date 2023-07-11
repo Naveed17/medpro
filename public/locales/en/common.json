@@ -19,7 +19,7 @@
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
   "loading-error": {
-    "title": "Oops!",
+    "title": "Refresh the page !",
     "description": "An error occurred during initialization. Click the button to retry.",
     "button": "Try again"
   },
