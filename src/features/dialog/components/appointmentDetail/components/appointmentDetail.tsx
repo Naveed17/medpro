@@ -325,7 +325,7 @@ function AppointmentDetail({...props}) {
                 {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
-                            {appointment?.extendedProps.patient.contact.length > 0 && <LoadingButton
+                            {appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
                                 href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                 variant="contained"
                                 startIcon={<IconUrl path="ic-tel" className="ic-tel"/>}
