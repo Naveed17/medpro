@@ -24,6 +24,10 @@ function useProfilePhoto({...props}) {
     } : null, SWRNoValidateConfig);
 
     useEffect(() => {
+        setPatientPhoto(null);
+    }, [patientId])
+
+    useEffect(() => {
         if (httpPatientPhotoResponse) {
             setPatientPhoto((httpPatientPhotoResponse as HttpResponse)?.data.photo);
         }
