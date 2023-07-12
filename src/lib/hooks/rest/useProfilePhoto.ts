@@ -17,20 +17,17 @@ function useProfilePhoto({...props}) {
 
     const [patientPhoto, setPatientPhoto] = useState<any>(null)
 
-    const {data: httpPatientPhotoResponse, mutate: mutatePatientPhoto} = useRequest(medicalEntityHasUser && hasPhoto ? {
+    const {
+        data: httpPatientPhotoResponse,
+        mutate: mutatePatientPhoto
+    } = useRequest((medicalEntityHasUser && hasPhoto && patientId) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     useEffect(() => {
-        setPatientPhoto(null);
-    }, [patientId])
-
-    useEffect(() => {
-        if (httpPatientPhotoResponse) {
-            setPatientPhoto((httpPatientPhotoResponse as HttpResponse)?.data.photo);
-        }
+        setPatientPhoto(httpPatientPhotoResponse ? (httpPatientPhotoResponse as HttpResponse)?.data.photo : null);
     }, [httpPatientPhotoResponse])
 
     return {patientPhoto, mutatePatientPhoto}
