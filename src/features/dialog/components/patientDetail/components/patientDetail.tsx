@@ -325,7 +325,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.appointment",
-            children: <GroupTable from="patient" loading={!patient} data={{patient, translate: t}}/>,
+            children: <GroupTable from="patient" data={{patient, translate: t}}/>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
         {
@@ -412,7 +412,9 @@ function PatientDetail({...props}) {
                         {tabsContent.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
-                                padding={1} value={index} index={tabContentIndex}>
+                                padding={1}
+                                value={index}
+                                index={tabContentIndex}>
                                 {tabContent.children}
                             </TabPanel>
                         ))}

@@ -95,16 +95,16 @@ const styles = StyleSheet.create({
 });
 
 function PatientFile({...props}) {
-    const {patient: {uuid}, antecedentsData, t, allAntecedents} = props;
+    const {patient, antecedentsData, t, allAntecedents} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientDetailsResponse} = useRequest(medicalEntityHasUser && uuid ? {
+    const {data: httpPatientDetailsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
