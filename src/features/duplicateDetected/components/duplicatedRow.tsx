@@ -6,15 +6,12 @@ function DuplicatedRow({...props}) {
     const {modalData, index, t, fields, handleChangeFiled} = props;
 
     return (
-        <ListItem
-            className={`list-item ${index !== "init" ? "except" + index : "first"}`}
-        >
+        <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
             <List className="child-list-main">
                 <ListSubheader
                     disableSticky
                     disableGutters
-                    className={`list-subheader ${index === "init" ? "first" : ""}`}
-                >
+                    className={`list-subheader ${index === "init" ? "first" : ""}`}>
                     <Typography sx={{visibility: index !== "init" ? "hidden" : ""}}>
                         {t("add-patient.dialog.selected")}
                     </Typography>
@@ -61,9 +58,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.name")}
                         </Typography>
-                        {modalData.firstname ? (
+                        {modalData.firstName ? (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.firstname}
+                                {modalData.firstName}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -86,9 +83,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.first-name")}
                         </Typography>
-                        {modalData.lastname ? (
+                        {modalData.lastName ? (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.lastname}
+                                {modalData.lastName}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -118,9 +115,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.date-of-birth")}
                         </Typography>
-                        {modalData.birthday ? (
+                        {modalData.birthdate ? (
                             <Typography>
-                                {modalData.birthday.date.split(" ")[0]}
+                                {modalData.birthdate}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -144,8 +141,8 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.telephone")}
                         </Typography>
-                        {modalData.contact ? (
-                            <Typography>{modalData.contact}</Typography>
+                        {modalData.contact && modalData.contact.length > 0 ? (
+                            <Typography>{`${modalData.contact[0].code} ${modalData.contact[0].value}`}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -214,32 +211,8 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.address")}
                         </Typography>
-                        {modalData.address ? (
-                            <Typography>{modalData.address}</Typography>
-                        ) : (
-                            <Typography>--</Typography>
-                        )}
-                    </Stack>
-                </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
-                    <Checkbox
-                        checked={fields.includes(`city-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`city-${index}`}
-                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
-                    />
-                    <Stack>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            component="p"
-                            gutterBottom
-                            mb={0.56}
-                        >
-                            {t("add-patient.region")}
-                        </Typography>
-                        {modalData.city ? (
-                            <Typography>{modalData.city}</Typography>
+                        {modalData.addresses && modalData.addresses.length > 0 ? (
+                            <Typography>{modalData.addresses[0].street}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -257,12 +230,12 @@ function DuplicatedRow({...props}) {
                             variant="body2"
                             color="text.secondary"
                             component="p"
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("add-patient.assurance")}
                         </Typography>
-                        {modalData.insurance ? (
-                            <Typography>{modalData.insurance.insuranceNumber}</Typography>
+                        {(modalData.insurances && modalData.insurances.length > 0) ? (
+                            modalData.insurances.map((insuranceData: any, index: number) => (
+                                <Typography key={index}>{insuranceData.insurance.name}</Typography>))
                         ) : (
                             <Typography>--</Typography>
                         )}

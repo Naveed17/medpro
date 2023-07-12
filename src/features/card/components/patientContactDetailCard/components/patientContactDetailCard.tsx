@@ -202,7 +202,7 @@ function PatientContactDetailCard({...props}) {
                 } as any;
                 dispatch(setSelectedEvent(event));
             }
-            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
+            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
         });
     }
 

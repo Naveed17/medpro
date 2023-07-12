@@ -5,7 +5,7 @@ import {
 } from './actions';
 
 export type duplicatedState = {
-    patient: PatientImportModel | null
+    patient: PatientModel | null
     fields: string[]
 };
 

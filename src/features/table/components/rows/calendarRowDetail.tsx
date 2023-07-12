@@ -62,7 +62,7 @@ function CalendarRowDetail({...props}) {
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
-        if (!eventData.hasOwnProperty("extendedProps")) {
+        if (!eventData?.hasOwnProperty("extendedProps")) {
             event = Object.assign({...eventData}, {
                 extendedProps: {
                     ...eventData
@@ -205,21 +205,26 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"}>
                         {data.title}
-                        {duplications?.length > 0 && <Label
-                            variant="filled"
-                            sx={{
-                                ml: 1,
-                                cursor: "pointer",
-                                "& .MuiSvgIcon-root": {
-                                    width: 16,
-                                    height: 16,
-                                    pl: 0
-                                }
-                            }}
-                            color={"warning"}>
-                            <WarningRoundedIcon sx={{width: 12, height: 12}}/>
-                            <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
-                        </Label>}
+                        {duplications?.length > 0 && <Button
+                            sx={{p: 0, ml: 1, borderRadius: 3}}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setDuplicateDetectedDialog(true);
+                            }}>
+                            <Label
+                                variant="filled"
+                                sx={{
+                                    cursor: "pointer",
+                                    "& .MuiSvgIcon-root": {
+                                        width: 16,
+                                        height: 16,
+                                        pl: 0
+                                    }
+                                }}
+                                color={"warning"}>
+                                <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                                <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
+                            </Label></Button>}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
@@ -335,16 +340,13 @@ function CalendarRowDetail({...props}) {
                         minHeight: 340,
                     },
                 }}
+                size={"lg"}
                 color={theme.palette.primary.main}
                 contrastText={theme.palette.primary.contrastText}
                 dialogClose={() => {
-                    setDuplicateDetectedDialog(false);
+                    // setDuplicateDetectedDialog(false);
                 }}
-                action={() => {
-                    return (
-                        duplications && <DuplicateDetected data={duplications}/>
-                    );
-                }}
+                action={() => <DuplicateDetected src={data?.patient} data={duplications}/>}
                 actionDialog={
                     <DialogActions
                         sx={{

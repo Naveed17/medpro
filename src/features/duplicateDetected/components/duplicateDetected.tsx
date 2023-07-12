@@ -12,7 +12,7 @@ import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplic
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 
 function DuplicateDetected({...props}) {
-    const {data: duplicatedPatients, translationKey = "patient"} = props;
+    const {data: duplicatedPatients, src: initPatient, translationKey = "patient"} = props;
     const dispatch = useAppDispatch();
     const {fields: duplicatedFields, patient} = useAppSelector(duplicatedSelector);
     const [selectedValue, setSelectedValue] = useState<string>("1");
@@ -20,7 +20,7 @@ function DuplicateDetected({...props}) {
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: (patient ? patient : duplicatedPatients[0]) as PatientImportModel,
+        initialValues: initPatient as PatientModel,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
             console.log(values);
         },
