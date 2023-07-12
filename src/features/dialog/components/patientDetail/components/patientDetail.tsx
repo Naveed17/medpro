@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard} from "@features/card";
+import {PatientDetailsCard} from "@features/card";
 import {
     addPatientSelector,
     DocumentsPanel,
@@ -53,7 +53,6 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
@@ -70,13 +69,6 @@ function a11yProps(index: number) {
         "aria-controls": `simple-tabpanel-${index}`,
     };
 }
-
-// add patient details RDV for not data
-const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "no-data.appointment.title",
-    description: "no-data.appointment.description"
-};
 
 function PatientDetail({...props}) {
     const {
@@ -151,16 +143,16 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null, SWRNoValidateConfig);
 
@@ -307,8 +299,6 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
-    const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
 
     const tabsContent = [
@@ -335,17 +325,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.appointment",
-            children: <>
-                {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
-                    <GroupTable from="patient" loading={!patient} data={patient}/>
-                ) : (
-                    <NoDataCard
-                        t={t}
-                        ns={"patient"}
-                        data={AddAppointmentCardData}
-                    />
-                )}
-            </>,
+            children: <GroupTable from="patient" data={{patient, translate: t}}/>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
         {
@@ -371,9 +351,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.recap",
-            children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
-            </PDFViewer>,
+            children: <PatientFile {...{patient, antecedentsData, t, allAntecedents}} />,
             permission: ["ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
@@ -391,7 +369,7 @@ function PatientDetail({...props}) {
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -434,7 +412,9 @@ function PatientDetail({...props}) {
                         {tabsContent.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
-                                padding={1} value={index} index={tabContentIndex}>
+                                padding={1}
+                                value={index}
+                                index={tabContentIndex}>
                                 {tabContent.children}
                             </TabPanel>
                         ))}

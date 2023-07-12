@@ -38,9 +38,10 @@ import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
+import {useSWRConfig} from "swr";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, antecedentsMutate, analyses, mi} = props;
+    const {id, patient, patientAntecedents, allAntecedents, analyses, mi} = props;
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const router = useRouter();
@@ -49,7 +50,8 @@ const Content = ({...props}) => {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
+    const {mutate: mutateInfo, mutateDoc} = useAppSelector(consultationSelector);
+    const {mutate} = useSWRConfig();
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
@@ -102,8 +104,8 @@ const Content = ({...props}) => {
                 },
                 {revalidate: true, populateCache: true}
             ).then(() => {
-                mutate();
-                antecedentsMutate();
+                mutateInfo();
+                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
@@ -121,8 +123,8 @@ const Content = ({...props}) => {
                 },
                 {revalidate: true, populateCache: true}
             ).then(() => {
-                mutate();
-                antecedentsMutate();
+                mutateInfo();
+                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -142,12 +144,12 @@ const Content = ({...props}) => {
                 },
                 {revalidate: true, populateCache: true}
             ).then(() => {
-                mutate();
-                antecedentsMutate();
+                mutateInfo();
+                medicalEntityHasUser &&  mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
         } else if (info === "medical_imaging_pending") {
-            mutate();
-            antecedentsMutate();
+            mutateInfo();
+            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             mutateDoc();
         }
 
@@ -159,8 +161,8 @@ const Content = ({...props}) => {
     const dialogSave = () => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(
             () => {
-                mutate();
-                antecedentsMutate();
+                mutateInfo();
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             }
         );
         setOpenRemove(false);
@@ -262,8 +264,12 @@ const Content = ({...props}) => {
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
-    const treatements = patient?.treatment.filter((trait: { isOtherProfessional: boolean; }) => trait.isOtherProfessional)
-    const ordonnaces = patient?.treatment.filter((trait: { isOtherProfessional: boolean; }) => !trait.isOtherProfessional)
+    const treatements = patient?.treatment.filter((trait: {
+        isOtherProfessional: boolean;
+    }) => trait.isOtherProfessional)
+    const ordonnaces = patient?.treatment.filter((trait: {
+        isOtherProfessional: boolean;
+    }) => !trait.isOtherProfessional)
 
     if (!ready || status === "loading") return (
         <LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -298,7 +304,7 @@ const Content = ({...props}) => {
                                                         subtitle: t("subtitleRemoveTrait"),
                                                         icon: "/static/icons/ic-medicament.svg",
                                                         name1: list.name,
-                                                        name2: `${list.duration ?list.duration : ''} ${list.durationType ?t(list.durationType):''}`,
+                                                        name2: `${list.duration ? list.duration : ''} ${list.durationType ? t(list.durationType) : ''}`,
                                                         request: {
                                                             method: "PATCH",
                                                             url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
@@ -629,35 +635,39 @@ const Content = ({...props}) => {
             ) : id === 6 ? (
                 patient && (
                     <Antecedent
-                        antecedent={"way_of_life"}
-                        t={t}
-                        patient={patient}
-                        patientAntecedents={patientAntecedents}
-                        trigger={trigger}
-                        mutate={mutate}
-                        setSelected={setSelected}
-                        setOpenRemove={setOpenRemove}
-                        session={session}
-                        handleOpen={handleOpen}
-                        router={router}
-                        medical_entity={medical_entity}></Antecedent>
+                        {...{
+                            antecedent: "way_of_life",
+                            patientAntecedents,
+                            t,
+                            patient,
+                            trigger,
+                            mutate: mutateInfo,
+                            session,
+                            setSelected,
+                            setOpenRemove,
+                            handleOpen,
+                            router,
+                            medical_entity
+                        }}></Antecedent>
                 )
             ) : id === 7 ? (
                 patient && (
                     <Antecedent
-                        antecedent={"allergic"}
-                        patientAntecedents={patientAntecedents}
-                        t={t}
-                        patient={patient}
-                        trigger={trigger}
-                        mutate={mutate}
-                        antecedentsMutate={antecedentsMutate}
-                        session={session}
-                        setSelected={setSelected}
-                        setOpenRemove={setOpenRemove}
-                        handleOpen={handleOpen}
-                        router={router}
-                        medical_entity={medical_entity}></Antecedent>
+                        {...{
+                            antecedent: "allergic",
+                            patientAntecedents,
+                            t,
+                            patient,
+                            trigger,
+                            mutate: mutateInfo,
+                            session,
+                            setSelected,
+                            setOpenRemove,
+                            handleOpen,
+                            router,
+                            medical_entity
+                        }}
+                    ></Antecedent>
                 )
             ) : id === 5 ? (
                 <>
@@ -794,21 +804,23 @@ const Content = ({...props}) => {
                         antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" && antecedent.slug !== "way_of_life" &&
                         antecedent.slug !== "allergic" && (
                             <Antecedent
-                                antecedent={antecedent.slug}
-                                patientAntecedents={patientAntecedents}
-                                allAntecedents={allAntecedents}
-                                t={t}
-                                patient={patient}
-                                trigger={trigger}
-                                mutate={mutate}
-                                session={session}
-                                index={index}
-                                setSelected={setSelected}
-                                setOpenRemove={setOpenRemove}
-                                key={`card-content-${antecedent}${index}`}
-                                handleOpen={handleOpenDynamic}
-                                router={router}
-                                medical_entity={medical_entity}></Antecedent>
+                                {...{
+                                    antecedent: antecedent.slug,
+                                    patientAntecedents,
+                                    allAntecedents,
+                                    t,
+                                    patient,
+                                    trigger,
+                                    index,
+                                    mutate: mutateInfo,
+                                    session,
+                                    setSelected,
+                                    setOpenRemove,
+                                    handleOpen: handleOpenDynamic,
+                                    router,
+                                    medical_entity
+                                }}
+                                key={`card-content-${antecedent}${index}`}></Antecedent>
                         )
                 )
             )}

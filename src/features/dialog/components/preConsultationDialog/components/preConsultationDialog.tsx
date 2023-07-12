@@ -143,7 +143,7 @@ function PreConsultationDialog({...props}) {
                         {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
                     </Typography>
 
-                    {patient.contact.length > 0 && (
+                    {patient.contact?.length > 0 && (
                         <Typography
                             component="div"
                             sx={{

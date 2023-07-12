@@ -343,7 +343,7 @@ function WaitingRoom() {
         }
     }, [roles]);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -356,7 +356,7 @@ function WaitingRoom() {
                 <RoomToolbar/>
 
                 {error &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -419,18 +419,24 @@ function WaitingRoom() {
                                         open={contextMenu !== null}
                                         onClose={handleClose}
                                         anchorReference="anchorPosition"
-                                        PaperProps={{
-                                            elevation: 0,
-                                            sx: {
-                                                backgroundColor: theme.palette.text.primary,
-                                                "& .popover-item": {
-                                                    padding: theme.spacing(2),
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                                    cursor: "pointer",
+                                        slotProps={{
+                                            paper: {
+                                                elevation: 0,
+                                                sx: {
+                                                    backgroundColor: theme.palette.text.primary,
+                                                    "& .popover-item": {
+                                                        padding: theme.spacing(2),
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        svg: {
+                                                            color: "#fff",
+                                                            marginRight: theme.spacing(1),
+                                                            fontSize: 20
+                                                        },
+                                                        cursor: "pointer",
+                                                    }
                                                 }
-                                            },
+                                            }
                                         }}
                                         anchorPosition={
                                             contextMenu !== null

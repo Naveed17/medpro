@@ -5,7 +5,6 @@ function IconUrl({...props}) {
     const {path, onChange, className, color, height, width, ...rest} = props;
     const prefix = "/static/icons/";
     return <ReactSVG  {...rest}
-                      sx={{height: 1}}
                       onClick={onChange}
                       {...(color || height || width) ? {
                           beforeInjection: ((svg) => {

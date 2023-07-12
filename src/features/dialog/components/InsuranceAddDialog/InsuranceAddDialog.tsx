@@ -23,6 +23,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {ImageHandler} from "@features/image";
 import {useTranslation} from "next-i18next";
+import {useContactType} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -49,11 +50,13 @@ function InsuranceAddDialog({...props}) {
     const {data} = props;
     const {
         insurances, values, formik, loading,
-        getFieldProps, setFieldValue, touched, errors, t, patient
+        getFieldProps, setFieldValue, touched, errors, t,
+        requestAction
     } = data;
 
     const {data: session} = useSession();
     const phoneInputRef = useRef(null);
+    const {contacts} = useContactType();
 
     const {t: commonTranslation} = useTranslation("common");
 
@@ -101,15 +104,14 @@ function InsuranceAddDialog({...props}) {
                                             <Autocomplete
                                                 size={"small"}
                                                 disableClearable
-                                                value={getFieldProps(`insurances[${index}].insurance_type`) ?
-                                                    getFieldProps(`insurances[${index}].insurance_type`).value : ""}
+                                                value={getFieldProps(`insurances[${index}].insurance_type`)?.value || null}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_type`, insurance?.value);
                                                     const expended = insurance?.key !== "socialInsured";
                                                     setFieldValue(`insurances[${index}].expand`, expended);
                                                     if (expended) {
                                                         setFieldValue(`insurances[${index}].insurance_social.phone.code`, doctor_country?.phone);
-                                                        setFieldValue(`insurances[${index}].insurance_social.phone.contact_type`, patient.contact[0].uuid);
+                                                        setFieldValue(`insurances[${index}].insurance_social.phone.contact_type`, contacts[0].uuid);
                                                         setFieldValue(`insurances[${index}].insurance_social.phone.type`, "phone");
                                                     }
                                                 }}
@@ -126,6 +128,7 @@ function InsuranceAddDialog({...props}) {
                                                             (params.children as Array<any>)?.length > 1 &&
                                                             {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
                                                     </li>)}
+                                                isOptionEqualToValue={(option: any, value) => option.value === value}
                                                 renderInput={(params) => {
                                                     const insurance = socialInsurances.find(insurance => insurance.value === params.inputProps.value);
                                                     return (<TextField {...params}
@@ -143,7 +146,7 @@ function InsuranceAddDialog({...props}) {
                                             <Autocomplete
                                                 size={"small"}
                                                 value={insurances?.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) ?
-                                                    insurances.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) : ""}
+                                                    insurances.find((insurance: InsuranceModel) => insurance.uuid === getFieldProps(`insurances[${index}].insurance_uuid`).value) : null}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_uuid`, insurance?.uuid);
                                                 }}
@@ -152,10 +155,7 @@ function InsuranceAddDialog({...props}) {
                                                 getOptionLabel={option => option?.name ? option.name : ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                 renderOption={(params, option) => (
-                                                    <MenuItem
-                                                        {...params}
-                                                        key={option.uuid}
-                                                        value={option.uuid}>
+                                                    <MenuItem {...params}>
                                                         <ImageHandler
                                                             alt={"insurance"}
                                                             src={option.logoUrl.url}
@@ -189,7 +189,7 @@ function InsuranceAddDialog({...props}) {
                                             )}
                                         </Stack>
                                     </Grid>
-                                    <Grid item xs={6} md={3.5}>
+                                    <Grid item xs={6} md={requestAction !== "PUT" ? 3.5 : 4.5}>
                                         <TextField
                                             variant="outlined"
                                             placeholder={t("config.add-patient.assurance-phone-error")}
@@ -204,7 +204,7 @@ function InsuranceAddDialog({...props}) {
                                                 getFieldProps(`insurances[${index}].insurance_number`).value : ""}
                                         />
                                     </Grid>
-                                    <Grid item xs={6} md={1}>
+                                    {requestAction !== "PUT" && <Grid item xs={6} md={1}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <IconButton
                                                 onClick={() => handleRemoveInsurance(index)}
@@ -213,7 +213,7 @@ function InsuranceAddDialog({...props}) {
                                                 <Icon path="ic-moin"/>
                                             </IconButton>
                                         </Stack>
-                                    </Grid>
+                                    </Grid>}
                                 </Grid>
                                 <Collapse
                                     sx={{

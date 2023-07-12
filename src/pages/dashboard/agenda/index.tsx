@@ -288,8 +288,8 @@ function Agenda() {
 
     useEffect(() => {
         if (calendarEl && currentDate) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(currentDate.date);
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            calendarApi && calendarApi.gotoDate(currentDate.date);
         }
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -318,9 +318,11 @@ function Agenda() {
     }
 
     const handleOnToday = () => {
-        const calendarApi = (calendarEl as FullCalendar).getApi();
-        calendarApi.today();
-        dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        const calendarApi = (calendarEl as FullCalendar)?.getApi();
+        if(calendarApi) {
+            calendarApi.today();
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        }
     }
 
     const onLoadCalendar = (event: FullCalendar) => {
@@ -405,9 +407,11 @@ function Agenda() {
 
     const handleClickDatePrev = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.prev();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            if (calendarApi) {
+                calendarApi.prev();
+                dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            }
         } else {
             scrollToView(refs.current[0], 1);
             const prevDate = moment(currentDate.date).clone().subtract(1, "days");
@@ -419,9 +423,11 @@ function Agenda() {
 
     const handleClickDateNext = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.next();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            if (calendarApi) {
+                calendarApi.next();
+                dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            }
         } else {
             const nextDate = moment(currentDate.date).clone().add(1, "days");
             dispatch(setCurrentDate({date: nextDate.toDate(), fallback: false}));
@@ -937,7 +943,7 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence exitBeforeEnter>
+                    <AnimatePresence mode='wait'>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -967,7 +973,7 @@ function Agenda() {
                 }} color="warning"/>
                 <>
                     {agenda &&
-                        <AnimatePresence exitBeforeEnter>
+                        <AnimatePresence mode='wait'>
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}

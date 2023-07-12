@@ -613,7 +613,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Grid>
                                         <Stack
                                             component={AnimatePresence}
-                                            exitBeforeEnter
+                                            mode='wait'
                                             spacing={2}>
                                             {item.cycles.map((innerItem: any, index: number) => (
                                                 <Card

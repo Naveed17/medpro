@@ -109,10 +109,10 @@ function Patient({...props}) {
             data: form
         }).then((res: any) => {
             const {data: patient} = res;
-            const {status} = patient;
+            const {status, data: patientData} = patient;
             if (status === "success") {
                 if (!selectedPatient) {
-                    dispatch(setAppointmentPatient(patient.data));
+                    dispatch(setAppointmentPatient(patientData.data));
                 }
                 setAddPatient(false);
                 handleAddPatient && handleAddPatient(false);

@@ -4,10 +4,10 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar,
+    AppBar, Autocomplete, Avatar,
     Box,
     Button,
-    Grid,
+    Grid, InputAdornment,
     InputBase,
     MenuItem,
     Paper,
@@ -36,7 +36,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -47,7 +47,7 @@ MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null,
+        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null, countries_api,
         loading, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
     } = props;
 
@@ -60,8 +60,9 @@ function PersonalInfo({...props}) {
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
@@ -75,13 +76,14 @@ function PersonalInfo({...props}) {
             .min(3, t("name-error"))
             .max(50, t("name-error"))
             .required(t("name-error")),
-        address: Yup.string(),
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
+        old: Yup.string(),
         profession: Yup.string(),
         cin: Yup.string(),
-        familyDoctor: Yup.string()
+        familyDoctor: Yup.string(),
+        nationality: Yup.string()
     });
 
     const formik = useFormik({
@@ -93,14 +95,13 @@ function PersonalInfo({...props}) {
             firstName: !loading ? `${patient.firstName.trim()}` : "",
             lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
-            address:
-                !loading && patient.address.length > 0
-                    ? patient.address[0].city?.name + ", " + patient.address[0].street
-                    : "",
+            old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
             profession: !loading && patient.profession ? patient.profession : "",
-            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : ""
+            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : "",
+            nationality: !loading && patient?.nationality ? patient.nationality.uuid : ""
+
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
@@ -114,32 +115,17 @@ function PersonalInfo({...props}) {
         params.append('first_name', values.firstName);
         params.append('last_name', values.lastName);
         params.append('gender', values.gender);
-        params.append('phone', JSON.stringify(
-            patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
-                code: phone.code,
-                value: phone.value.replace(phone.code, ""),
-                type: "phone",
-                "contact_type": patient.contact[0].uuid,
-                "is_public": false,
-                "is_support": false
-            }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
+        params.append('nationality', values.nationality);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
-        params.append('address', JSON.stringify({
-            [router.locale as string]: values.address
-        }));
         patient.note && params.append('note', patient.note);
-        patient.nationality && params.append('nationality', patient.nationality.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -174,7 +160,7 @@ function PersonalInfo({...props}) {
     const editable = currentSection === "PersonalInfo" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PersonalInfo";
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -403,10 +389,60 @@ function PersonalInfo({...props}) {
                                                     onChange={date => {
                                                         const dateInput = moment(date);
                                                         setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
+                                                        if (dateInput.isValid()) {
+                                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                            setFieldValue("old", old > 120 ? "" : old);
+                                                        } else {
+                                                            setFieldValue("old", "");
+                                                        }
                                                     }}
                                                     renderInput={(params) => <TextField size={"small"} {...params} />}
                                                 />
                                             </LocalizationProvider>
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("old")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("old-placeholder")}
+                                                endAdornment={<Typography
+                                                    mr={1}>{commonTranslation(`times.years`)}</Typography>}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.email && errors.email)}
+                                                {...getFieldProps("old")}
+                                                value={values.old ?? ""}
+                                                onChange={event => {
+                                                    const old = parseInt(event.target.value);
+                                                    console.log("old", old)
+                                                    setFieldValue("old", old ? old : "");
+                                                    if (old) {
+                                                        setFieldValue("birthdate", (values.birthdate ?
+                                                            moment(values.birthdate, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old).format("DD-MM-YYYY")
+                                                        );
+                                                    }
+                                                }}
+                                            />
                                         )}
                                     </Grid>
                                 </Stack>
@@ -536,6 +572,103 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
 
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack direction="row" spacing={1}
+                                       alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography
+                                            className="label"
+                                            variant="body2"
+                                            color="text.secondary"
+                                            width="50%">
+                                            {t("nationality")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        sx={{
+                                            ...(!editable && {
+                                                "& .MuiAutocomplete-endAdornment": {
+                                                    display: "none"
+                                                }
+                                            }),
+                                            "& .MuiInputBase-root": {
+                                                paddingLeft: 0,
+                                                width: "100%",
+                                                height: "100%"
+                                            },
+                                            "& .MuiSelect-select": {
+                                                pl: 0
+                                            }
+                                        }}
+                                        item md={8} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton width={100}/>
+                                        ) : (
+                                            <Autocomplete
+                                                id={"nationality"}
+                                                disabled={!countries_api || !editable}
+                                                autoHighlight
+                                                disableClearable
+                                                size="small"
+                                                value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) ?
+                                                    countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) : null}
+                                                onChange={(e, v: any) => {
+                                                    setFieldValue("nationality", v.uuid);
+                                                }}
+                                                {...(editable && {
+                                                    sx: {
+                                                        color: "text.secondary",
+                                                        borderRadius: .6,
+                                                        border: `1px solid ${theme.palette.grey['A100']}`
+                                                    }
+                                                })}
+                                                options={countries_api ? [...new Map(countries_api.map((country: CountryModel) => [country["nationality"], country])).values()] : []}
+                                                loading={!countries_api}
+                                                getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                                isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                                renderOption={(props, option) => (
+                                                    <MenuItem {...props}>
+                                                        {option?.code && <Avatar
+                                                            sx={{
+                                                                width: 26,
+                                                                height: 18,
+                                                                borderRadius: 0.4
+                                                            }}
+                                                            alt={"flags"}
+                                                            src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                        />}
+                                                        <Typography
+                                                            sx={{ml: 1}}>{option.nationality}</Typography>
+                                                    </MenuItem>
+                                                )}
+                                                renderInput={params => {
+                                                    const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value);
+                                                    params.InputProps.startAdornment = country && (
+                                                        <InputAdornment position="start">
+                                                            {country?.code && <Avatar
+                                                                sx={{
+                                                                    width: 24,
+                                                                    height: 16,
+                                                                    borderRadius: 0.4,
+                                                                    ml: ".5rem",
+                                                                    mr: -.8
+                                                                }}
+                                                                alt={country.name}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />}
+                                                        </InputAdornment>
+                                                    );
+
+                                                    return <TextField color={"info"}
+                                                                      {...params}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      placeholder={t("nationality")}
+                                                                      variant="outlined" fullWidth/>;
+                                                }}/>
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
                         </Grid>
                     </Paper>
