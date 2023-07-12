@@ -19,7 +19,7 @@
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "loading-error": {
-    "title": "Oops!",
+    "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
     "button": "Réessayer"
   },

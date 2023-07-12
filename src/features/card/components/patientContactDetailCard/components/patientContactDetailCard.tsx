@@ -43,14 +43,13 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useCountries} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null, loading,
-        editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
+        patient, mutatePatientList = null, mutateAgenda = null, loading, contacts,
+        countries_api, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
     } = props;
 
     const dispatch = useAppDispatch();
@@ -61,7 +60,6 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {countries: countries_api} = useCountries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
@@ -80,7 +78,6 @@ function PatientContactDetailCard({...props}) {
             .min(3, t("config.add-patient.region-error")),
         zip_code: Yup.string(),
         address: Yup.string(),
-        nationality: Yup.string(),
         phones: Yup.array().of(
             Yup.object().shape({
                 code: Yup.string(),
@@ -96,18 +93,30 @@ function PatientContactDetailCard({...props}) {
             })),
     });
 
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+
+    const {
+        data: httpPatientContactResponse,
+        mutate: mutatePatientContact
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
+    const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            country: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.country?.uuid : "",
-            region: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.uuid : "",
-            zip_code: !loading && patient?.address.length > 0 ? (patient?.address[0]?.postalCode ? patient?.address[0]?.postalCode : "") : "",
+            country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
+            region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
+            zip_code: !loading && contactData?.address.length > 0 ? (contactData?.address[0]?.postalCode ? contactData?.address[0]?.postalCode : "") : "",
             address:
-                !loading && patient?.address[0] ? (patient?.address[0].street ? patient?.address[0].street : "") : "",
-            nationality: !loading && patient?.nationality ? patient.nationality.uuid : "",
+                !loading && contactData?.address[0] ? (contactData?.address[0].street ? contactData?.address[0].street : "") : "",
             phones:
-                !loading && patient.contact.length > 0
-                    ? patient.contact.map((contact: any) => ({
+                !loading && contactData?.contact?.length > 0
+                    ? contactData.contact.map((contact: any) => ({
                         code: contact.code,
                         value: `${contact.code}${contact.value}`
                     }))
@@ -123,8 +132,6 @@ function PatientContactDetailCard({...props}) {
     });
 
     const {values, errors, getFieldProps, setFieldValue} = formik;
-
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
@@ -147,45 +154,34 @@ function PatientContactDetailCard({...props}) {
     }
 
     const handleUpdatePatient = () => {
-        setEditable(false);
         setLoadingRequest(true);
         const params = new FormData();
-        params.append('first_name', patient.firstName.trim());
-        params.append('last_name', patient.lastName.trim());
-        params.append('gender', patient.gender === 'M' ? '1' : '2');
         params.append('country', values.country);
         params.append('region', values.region);
         params.append('zip_code', values.zip_code);
-        params.append('nationality', values.nationality);
         params.append('phone', JSON.stringify(values.phones.map((phone: any) => ({
             code: phone.code,
             value: phone.value.replace(phone.code, ""),
             type: "phone",
-            "contact_type": patient.contact[0].uuid,
+            "contact_type": contacts?.length > 0 && contacts[0].uuid,
             "is_public": false,
             "is_support": false
         }))));
         params.append('address', JSON.stringify({
             [router.locale as string]: values.address
         }));
-        patient.fiche_id && params.append('fiche_id', patient.fiche_id);
-        patient.email && params.append('email', patient.email);
-        patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
-        patient.profession && params.append('profession', patient.profession);
-        patient.birthdate && params.append('birthdate', patient.birthdate);
-        patient.note && params.append('note', patient.note);
-        patient.idCard && params.append('id_card', patient.idCard);
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/contact/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
-            data: params,
+            data: params
         }).then(() => {
             setLoadingRequest(false);
-            mutatePatientDetails && mutatePatientDetails();
+            setEditable(false);
+            mutatePatientContact();
             mutatePatientList && mutatePatientList();
             mutateAgenda && mutateAgenda();
             if (appointment) {
@@ -214,7 +210,7 @@ function PatientContactDetailCard({...props}) {
     const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
     const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -376,8 +372,8 @@ function PatientContactDetailCard({...props}) {
                                                     autoHighlight
                                                     disableClearable
                                                     size="small"
-                                                    value={countries_api?.find(country => country.uuid === getFieldProps("country").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                                    value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("country").value) ?
+                                                        countries_api.find((country: CountryModel) => country.uuid === getFieldProps("country").value) : null}
                                                     onChange={(e, v: any) => {
                                                         setFieldValue("country", v.uuid);
                                                     }}
@@ -388,15 +384,12 @@ function PatientContactDetailCard({...props}) {
                                                             border: `1px solid ${theme.palette.grey['A100']}`
                                                         }
                                                     })}
-                                                    options={countries_api ? countries_api?.filter(country => country.hasState) : []}
+                                                    options={countries_api ? countries_api?.filter((country: CountryModel) => country.hasState) : []}
                                                     loading={!countries_api}
                                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option.name === (value?.name ?? "")}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`country-${option.uuid}`}
-                                                            value={option.uuid}>
+                                                        <MenuItem {...props}>
                                                             {option?.code && <Avatar
                                                                 sx={{
                                                                     width: 26,
@@ -410,7 +403,7 @@ function PatientContactDetailCard({...props}) {
                                                         </MenuItem>
                                                     )}
                                                     renderInput={params => {
-                                                        const country = countries_api?.find(country => country.uuid === getFieldProps("country").value);
+                                                        const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("country").value);
                                                         params.InputProps.startAdornment = country && (
                                                             <InputAdornment position="start">
                                                                 {country?.code && <Avatar
@@ -481,7 +474,7 @@ function PatientContactDetailCard({...props}) {
                                                     disableClearable
                                                     size="small"
                                                     value={states?.find(country => country.uuid === getFieldProps("region").value) ?
-                                                        states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                        states.find(country => country.uuid === getFieldProps("region").value) : null}
                                                     onChange={(e, state: any) => {
                                                         setFieldValue("region", state.uuid);
                                                         setFieldValue("zip_code", state.zipCode);
@@ -490,7 +483,7 @@ function PatientContactDetailCard({...props}) {
                                                     options={states ? states : []}
                                                     loading={!states}
                                                     getOptionLabel={(option) => option?.name ? option.name : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                     renderOption={(props, option) => (
                                                         <MenuItem
                                                             {...props}
@@ -547,106 +540,6 @@ function PatientContactDetailCard({...props}) {
                                                     }}
                                                     {...getFieldProps("zip_code")}
                                                 />
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={6} sm={6} xs={12}>
-                                    <Stack direction="row" spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={3} sm={6} xs={3}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
-                                                {t("config.add-patient.nationality")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid
-                                            sx={{
-                                                ...(!editable && {
-                                                    "& .MuiAutocomplete-endAdornment": {
-                                                        display: "none"
-                                                    }
-                                                }),
-                                                "& .MuiInputBase-root": {
-                                                    paddingLeft: 0,
-                                                    width: "100%",
-                                                    height: "100%"
-                                                },
-                                                "& .MuiSelect-select": {
-                                                    pl: 0
-                                                }
-                                            }}
-                                            item md={9} sm={6} xs={9}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <Autocomplete
-                                                    id={"nationality"}
-                                                    disabled={!countries_api || !editable}
-                                                    autoHighlight
-                                                    disableClearable
-                                                    size="small"
-                                                    value={countries_api?.find(country => country.uuid === getFieldProps("nationality").value) ?
-                                                        countries_api.find(country => country.uuid === getFieldProps("nationality").value) : ""}
-                                                    onChange={(e, v: any) => {
-                                                        setFieldValue("nationality", v.uuid);
-                                                    }}
-                                                    {...(editable && {
-                                                        sx: {
-                                                            color: "text.secondary",
-                                                            borderRadius: .6,
-                                                            border: `1px solid ${theme.palette.grey['A100']}`
-                                                        }
-                                                    })}
-                                                    options={countries_api ? countries_api : []}
-                                                    loading={!countries_api}
-                                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
-                                                    isOptionEqualToValue={(option: any, value) => option?.nationality === value?.nationality}
-                                                    renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={`nationality-${option.uuid}`}
-                                                            value={option.uuid}>
-                                                            {option?.code && <Avatar
-                                                                sx={{
-                                                                    width: 26,
-                                                                    height: 18,
-                                                                    borderRadius: 0.4
-                                                                }}
-                                                                alt={"flags"}
-                                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
-                                                            />}
-                                                            <Typography
-                                                                sx={{ml: 1}}>{option.nationality}</Typography>
-                                                        </MenuItem>
-                                                    )}
-                                                    renderInput={params => {
-                                                        const country = countries_api?.find(country => country.uuid === getFieldProps("nationality").value);
-                                                        params.InputProps.startAdornment = country && (
-                                                            <InputAdornment position="start">
-                                                                {country?.code && <Avatar
-                                                                    sx={{
-                                                                        width: 24,
-                                                                        height: 16,
-                                                                        borderRadius: 0.4,
-                                                                        ml: ".5rem",
-                                                                        mr: -.8
-                                                                    }}
-                                                                    alt={country.name}
-                                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                                                />}
-                                                            </InputAdornment>
-                                                        );
-
-                                                        return <TextField color={"info"}
-                                                                          {...params}
-                                                                          sx={{paddingLeft: 0}}
-                                                                          placeholder={t("config.add-patient.nationality")}
-                                                                          variant="outlined" fullWidth/>;
-                                                    }}/>
                                             )}
                                         </Grid>
                                     </Stack>

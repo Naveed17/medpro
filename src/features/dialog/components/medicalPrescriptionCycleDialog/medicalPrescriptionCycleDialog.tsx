@@ -467,7 +467,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         dosage: cycle.dosageInput ? cycle.dosageInputText : generateDosageText(cycle, data.unit),
                         duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : null,
                         durationType: cycle.durationValue.length > 0 ? cycle.durationValue : "",
-                        note: cycle.cautionaryNote.length > 0 ? cycle.cautionaryNote : "",
+                        note: cycle.cautionaryNote?.length > 0 ? cycle.cautionaryNote : "",
                         isOtherDosage: cycle.dosageInput
                     }));
                     drugs.push({
@@ -613,7 +613,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Grid>
                                         <Stack
                                             component={AnimatePresence}
-                                            exitBeforeEnter
+                                            mode='wait'
                                             spacing={2}>
                                             {item.cycles.map((innerItem: any, index: number) => (
                                                 <Card

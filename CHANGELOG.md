@@ -1,3 +1,10 @@
+## [4.18.2](https://github.com/SmartMedSA/med-pro/compare/v4.18.1...v4.18.2) (2023-07-07)
+
+
+### Bug Fixes
+
+* undefined cautionaryNote bug ([5298d3e](https://github.com/SmartMedSA/med-pro/commit/5298d3e13d0e8676e4e5b81fa2a502b8db8f664f))
+
 ## [4.18.1](https://github.com/SmartMedSA/med-pro/compare/v4.18.0...v4.18.1) (2023-07-06)
 
 

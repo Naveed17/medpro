@@ -58,7 +58,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         changes,
         setChanges,
         previousData,
-        closed
     } = props;
 
     if (modal) {
@@ -116,8 +115,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
-        closed,
-        acts, setActs, setSelectedAct, selectedAct, setSelectedUuid
+        acts, setActs
     } = props;
     const router = useRouter();
 
@@ -164,9 +162,6 @@ function Widget({...props}) {
                     setActs,
                     t,
                     of: 'adult',
-                    setSelectedAct,
-                    selectedAct,
-                    setSelectedUuid,
                     previousData,
                     setOpenTeeth,
                     updated,
@@ -181,9 +176,6 @@ function Widget({...props}) {
                     setActs,
                     t,
                     of: 'child',
-                    setSelectedAct,
-                    selectedAct,
-                    setSelectedUuid,
                     previousData,
                     setOpenTeeth,
                     updated,
@@ -362,9 +354,6 @@ function Widget({...props}) {
                                             data,
                                             acts,
                                             setActs,
-                                            setSelectedAct,
-                                            selectedAct,
-                                            setSelectedUuid,
                                             previousData,
                                         }}
                                         key={m.uuid}
@@ -394,9 +383,6 @@ function Widget({...props}) {
                         setActs,
                         t,
                         of: openTeeth,
-                        setSelectedAct,
-                        selectedAct,
-                        setSelectedUuid,
                         previousData,
                         appuuid
                     }}/>

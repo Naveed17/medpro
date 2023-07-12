@@ -197,6 +197,8 @@
       "assurance-type-error": "Veuillez sélectionner l'assurance",
       "email": "E-mail",
       "email-placeholder": "Ajouter adresse mail",
+      "old": "Âge",
+      "old-placeholder": "Ajouter L'âge",
       "cin": "CIN",
       "cin-placeholder": "CIN du patient",
       "profession": "Profession",

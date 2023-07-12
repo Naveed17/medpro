@@ -13,7 +13,6 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList,
-    Popover,
     Toolbar,
     useMediaQuery
 } from "@mui/material";
@@ -119,18 +118,20 @@ function TopNavBar({...props}) {
         }*/
 
     const handleInstallClick = () => {
-        // Hide the lib provided installation promotion
-        setInstallable(false);
-        // Show the installation prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult: any) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
-        });
+        if (deferredPrompt) {
+            // Hide the lib provided installation promotion
+            setInstallable(false);
+            // Show the installation prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult: any) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+            });
+        }
     }
 
     const resetNextConsultation = (uuid: string) => {
@@ -225,7 +226,7 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotificationsCount((notifications ?? []).length + (pendingAppointments?? []).length);
+        setNotificationsCount((notifications ?? []).length + (pendingAppointments ?? []).length);
     }, [notifications, pendingAppointments]);
 
     useEffect(() => {
@@ -406,32 +407,34 @@ function TopNavBar({...props}) {
                                 open={open}
                                 anchorEl={anchorEl}
                                 onClose={handleClose}
-                                PaperProps={{
-                                    elevation: 0,
-                                    sx: {
-                                        overflow: 'visible',
-                                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                                        mt: 1.5,
-                                        ml: -1,
-                                        '& .MuiAvatar-root': {
-                                            width: 32,
-                                            height: 32,
-                                            ml: -0.5,
-                                            mr: 1,
+                                slotProps={{
+                                    paper: {
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                            mt: 1.5,
+                                            ml: -1,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'background.paper',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+                                            },
                                         },
-                                        '&:before': {
-                                            content: '""',
-                                            display: 'block',
-                                            position: 'absolute',
-                                            top: 0,
-                                            right: 14,
-                                            width: 10,
-                                            height: 10,
-                                            bgcolor: 'background.paper',
-                                            transform: 'translateY(-50%) rotate(45deg)',
-                                            zIndex: 0,
-                                        },
-                                    },
+                                    }
                                 }}
                                 transformOrigin={{horizontal: 'right', vertical: 'top'}}
                                 anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>

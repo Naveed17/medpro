@@ -3,7 +3,7 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
+import {instanceAxios, useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
@@ -40,6 +40,10 @@ export const ImportCardData = {
     }]
 };
 
+import {preload} from 'swr';
+
+const fetcher = (url: string) => instanceAxios({method: "GET", url}).then((res) => res);
+
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
     const {data: session} = useSession();
@@ -47,6 +51,11 @@ function DashLayout({children}: LayoutProps) {
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    // Preload the resource before rendering the User component below,
+    // this prevents potential waterfalls in your application.
+    // You can also start preloading when hovering the button or link, too.
+    preload(`/api/public/places/countries/${router.locale}?nationality=true`, fetcher);
 
     const {t} = useTranslation('common');
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -172,8 +181,7 @@ function DashLayout({children}: LayoutProps) {
                 animate="enter"
                 exit="exit"
                 variants={variants}
-                transition={{type: "linear"}}
-            >
+                transition={{type: "linear"}}>
                 {children}
             </motion.main>
             <Dialog

@@ -18,7 +18,7 @@ function HistoryTab({...props}) {
 
     const {
         patient,
-        appointement,
+        appointment,
         t,
         direction,
         setInfo,
@@ -50,11 +50,11 @@ function HistoryTab({...props}) {
     } : null);
 
     useEffect(() => {
-        setApps(appointement ? [...appointement.latestAppointments] : []);
-        if (appointement?.latestAppointments.length > 0) {
-            dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
+        setApps(appointment ? [...appointment.latestAppointments] : []);
+        if (appointment?.latestAppointments.length > 0) {
+            dispatch(SetSelectedApp(appointment.latestAppointments[0].appointment.uuid))
         }
-    }, [appointement, appuuid, dispatch]);
+    }, [appointment, appuuid, dispatch]);
 
     useEffect(() => {
         if (httpPatientDocumentsResponse) {
@@ -65,7 +65,6 @@ function HistoryTab({...props}) {
 
     return (
         <>
-
             {patient?.nextAppointments.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
                     <Label variant="filled" color="warning">

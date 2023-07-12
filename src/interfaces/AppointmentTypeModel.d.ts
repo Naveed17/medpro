@@ -1,4 +1,6 @@
 interface AppointmentTypeModel {
+    price: number;
+    isFree: boolean;
     code: string,
     uuid: string,
     icon: string,

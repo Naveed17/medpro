@@ -63,7 +63,7 @@ function ConsultationIPToolbar({...props}) {
         setDialog,
         setPatientShow,
         changes,
-        appointement
+        appointment
     } = props;
 
     const dispatch = useAppDispatch();
@@ -89,7 +89,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setActions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
-    const hasLatestAppointments = appointement.latestAppointments.length === 0;
+    const hasLatestAppointments = appointment.latestAppointments.length === 0;
     const [tabsData, setTabsData] = useState<any[]>([]);
 
     const {data: user} = session as Session;
@@ -430,7 +430,7 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`
+                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`
                 });
                 break;
             case "upload_document":
@@ -458,7 +458,7 @@ function ConsultationIPToolbar({...props}) {
 
     const handleOpen = () => {
         dispatch(resetAppointment());
-        dispatch(setAppointmentPatient(appointement?.patient));
+        dispatch(setAppointmentPatient(appointment?.patient));
         dispatch(openDrawer({type: "add", open: true}));
     };
 
@@ -544,8 +544,6 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        // setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
-        //console.log(appointement)
         setTabsData(hasLatestAppointments ? [
             {
                 label: "consultation_form",
@@ -577,7 +575,7 @@ function ConsultationIPToolbar({...props}) {
                 value: "medical procedures"
             },
         ]);
-    }, [tabs, appointement]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [tabs, appointment]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <>toolbar loading..</>;
 
