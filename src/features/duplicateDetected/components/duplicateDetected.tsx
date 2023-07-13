@@ -21,7 +21,7 @@ function DuplicateDetected({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: duplicationSrc as PatientModel,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values) => {
             console.log(values);
         },
     });

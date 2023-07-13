@@ -44,8 +44,7 @@ function CalendarRowDetail({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
 
     const {
-        data: httpPatientDuplicationResponse,
-        isLoading
+        data: httpPatientDuplicationResponse
     } = useRequest(medicalEntityHasUser && data ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient.uuid}/duplications/${router.locale}`,
