@@ -131,13 +131,7 @@ function HistoryPanel({...props}) {
     }, [previousAppointments, dispatch]);
 
     return (
-        (isLoading || !apps) ? <Stack spacing={2} padding={2}>
-            {Array.from({length: 3}).map((_, idx) => (
-                <React.Fragment key={`${idx}-empty-history`}>
-                    <PatientHistoryNoDataCard/>
-                </React.Fragment>
-            ))}
-        </Stack> : (apps && apps.length > 0) ?
+        (apps && apps.length > 0) ?
             <PanelStyled>
                 <Box className="files-panel">
                     <Typography fontWeight={600} p={1}>
@@ -202,16 +196,22 @@ function HistoryPanel({...props}) {
                     />
                 )}
             </PanelStyled>
-            :
-            <NoDataCard
-                t={t}
-                ns={"patient"}
-                data={{
-                    mainIcon: "consultation/ic-text",
-                    title: "config.no-data.consultation.title",
-                    description: "config.no-data.consultation.description"
-                }}
-            />
+            : isLoading ? <Stack spacing={2} padding={2}>
+                    {Array.from({length: 3}).map((_, idx) => (
+                        <React.Fragment key={`${idx}-empty-history`}>
+                            <PatientHistoryNoDataCard/>
+                        </React.Fragment>
+                    ))}
+                </Stack> :
+                <NoDataCard
+                    t={t}
+                    ns={"patient"}
+                    data={{
+                        mainIcon: "consultation/ic-text",
+                        title: "config.no-data.consultation.title",
+                        description: "config.no-data.consultation.description"
+                    }}
+                />
     )
 }
 

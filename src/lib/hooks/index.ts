@@ -70,8 +70,7 @@ export const appointmentGroupByDate = (events: any[]) => {
     // this gives an object with dates as keys
     const groups: any = events.reduce(
         (groups: any, data: any) => {
-            const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
-                .format('DD-MM-YYYY');
+            const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
             if (!groups[date]) {
                 groups[date] = [];
             }
@@ -83,9 +82,9 @@ export const appointmentGroupByDate = (events: any[]) => {
     return Object.keys(groups).map((date) => {
         return {
             date,
-            events: groups[date]
+            events: groups[date].sort((a: EventModal, b: EventModal) => moment(a.start).diff(moment(b.start)))
         };
-    });
+    }).sort((a, b) => moment(a.date, 'DD-MM-YYYY').diff(moment(b.date, 'DD-MM-YYYY')));
 }
 
 export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork: boolean, hasErrors: any[]) => {

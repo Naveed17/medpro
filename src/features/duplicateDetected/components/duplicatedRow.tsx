@@ -5,16 +5,13 @@ import React from "react";
 function DuplicatedRow({...props}) {
     const {modalData, index, t, fields, handleChangeFiled} = props;
 
-    return (
-        <ListItem
-            className={`list-item ${index !== "init" ? "except" + index : "first"}`}
-        >
+    return modalData && (
+        <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
             <List className="child-list-main">
                 <ListSubheader
                     disableSticky
                     disableGutters
-                    className={`list-subheader ${index === "init" ? "first" : ""}`}
-                >
+                    className={`list-subheader ${index === "init" ? "first" : ""}`}>
                     <Typography sx={{visibility: index !== "init" ? "hidden" : ""}}>
                         {t("add-patient.dialog.selected")}
                     </Typography>
@@ -23,7 +20,7 @@ function DuplicatedRow({...props}) {
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`gender-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`gender-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
@@ -47,9 +44,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`firstname-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`firstname-${index}`}
+                        checked={fields.includes(`firstName-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`firstName-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -61,9 +58,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.name")}
                         </Typography>
-                        {modalData.firstname ? (
+                        {modalData.firstName ? (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.firstname}
+                                {modalData.firstName}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -72,9 +69,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`lastname-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`lastname-${index}`}
+                        checked={fields.includes(`lastName-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`lastName-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -86,9 +83,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.first-name")}
                         </Typography>
-                        {modalData.lastname ? (
+                        {modalData.lastName ? (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.lastname}
+                                {modalData.lastName}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -104,9 +101,9 @@ function DuplicatedRow({...props}) {
                     }}
                 >
                     <Checkbox
-                        checked={fields.includes(`birthday-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`birthday-${index}`}
+                        checked={fields.includes(`birthdate-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`birthdate-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -118,9 +115,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.date-of-birth")}
                         </Typography>
-                        {modalData.birthday ? (
+                        {modalData.birthdate ? (
                             <Typography>
-                                {modalData.birthday.date.split(" ")[0]}
+                                {modalData.birthdate}
                             </Typography>
                         ) : (
                             <Typography>--</Typography>
@@ -131,7 +128,7 @@ function DuplicatedRow({...props}) {
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`contact-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`contact-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
@@ -144,8 +141,8 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.telephone")}
                         </Typography>
-                        {modalData.contact ? (
-                            <Typography>{modalData.contact}</Typography>
+                        {modalData.contact && modalData.contact.length > 0 ? (
+                            <Typography>{`${modalData.contact[0].code} ${modalData.contact[0].value}`}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -154,7 +151,7 @@ function DuplicatedRow({...props}) {
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`profession-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`profession-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
@@ -176,9 +173,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`maritalStatus-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`maritalStatus-${index}`}
+                        checked={fields.includes(`nationality-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`nationality-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -188,10 +185,10 @@ function DuplicatedRow({...props}) {
                             component="p"
                             gutterBottom
                         >
-                            {t("add-patient.maritalStatus")}
+                            {t("add-patient.nationality")}
                         </Typography>
-                        {modalData.maritalStatus ? (
-                            <Typography>{modalData.maritalStatus}</Typography>
+                        {modalData.nationality ? (
+                            <Typography>{modalData.nationality.name}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -200,7 +197,7 @@ function DuplicatedRow({...props}) {
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`address-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`address-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
@@ -214,8 +211,8 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.address")}
                         </Typography>
-                        {modalData.address ? (
-                            <Typography>{modalData.address}</Typography>
+                        {modalData.addresses && modalData.addresses.length > 0 ? (
+                            <Typography>{modalData.addresses[0].street}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -223,9 +220,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`city-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`city-${index}`}
+                        checked={fields.includes(`insurances-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`insurances-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -233,36 +230,12 @@ function DuplicatedRow({...props}) {
                             variant="body2"
                             color="text.secondary"
                             component="p"
-                            gutterBottom
-                            mb={0.56}
-                        >
-                            {t("add-patient.region")}
-                        </Typography>
-                        {modalData.city ? (
-                            <Typography>{modalData.city}</Typography>
-                        ) : (
-                            <Typography>--</Typography>
-                        )}
-                    </Stack>
-                </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
-                    <Checkbox
-                        checked={fields.includes(`insurance-${index}`)}
-                        onChange={handleChangeFiled}
-                        name={`insurance-${index}`}
-                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
-                    />
-                    <Stack>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            component="p"
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("add-patient.assurance")}
                         </Typography>
-                        {modalData.insurance ? (
-                            <Typography>{modalData.insurance.insuranceNumber}</Typography>
+                        {(modalData.insurances && modalData.insurances.length > 0) ? (
+                            modalData.insurances.map((insuranceData: any, index: number) => (
+                                <Typography key={index}>{insuranceData.insurance?.name}</Typography>))
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -271,7 +244,7 @@ function DuplicatedRow({...props}) {
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`email-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`email-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
@@ -294,7 +267,7 @@ function DuplicatedRow({...props}) {
                 <ListItem>
                     <Checkbox
                         checked={fields.includes(`idCard-${index}`)}
-                        onChange={handleChangeFiled}
+                        onChange={event => handleChangeFiled(event, modalData)}
                         name={`idCard-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
