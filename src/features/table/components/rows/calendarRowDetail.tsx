@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import {Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, Button, Chip, DialogActions, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Button, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
@@ -11,7 +11,7 @@ import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
@@ -23,9 +23,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
-import CloseIcon from "@mui/icons-material/Close";
-import {Dialog} from "@features/dialog";
-import {DuplicateDetected} from "@features/duplicateDetected";
+import {setDuplicated} from "@features/duplicateDetected";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -37,13 +35,13 @@ function CalendarRowDetail({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
 
     const {
         data: httpPatientDuplicationResponse,
@@ -209,7 +207,7 @@ function CalendarRowDetail({...props}) {
                             sx={{p: 0, ml: 1, borderRadius: 3}}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                setDuplicateDetectedDialog(true);
+                                dispatch(setDuplicated({duplications, duplicationSrc: data.patient, openDialog: true}));
                             }}>
                             <Label
                                 variant="filled"
@@ -333,59 +331,6 @@ function CalendarRowDetail({...props}) {
                     </Stack>
                 </TableCell>
             </TableRowStyled>
-
-            <Dialog
-                {...{
-                    sx: {
-                        minHeight: 340,
-                    },
-                }}
-                size={"lg"}
-                color={theme.palette.primary.main}
-                contrastText={theme.palette.primary.contrastText}
-                dialogClose={() => {
-                    // setDuplicateDetectedDialog(false);
-                }}
-                action={() => <DuplicateDetected src={data?.patient} data={duplications}/>}
-                actionDialog={
-                    <DialogActions
-                        sx={{
-                            justifyContent: "space-between",
-                            width: "100%",
-                            "& .MuiDialogActions-root": {
-                                div: {
-                                    width: "100%",
-                                },
-                            },
-                        }}>
-                        <Stack
-                            direction={"row"}
-                            justifyContent={"space-between"}
-                            sx={{width: "100%"}}>
-                            <Button
-                                onClick={() => setDuplicateDetectedDialog(false)}
-                                startIcon={<CloseIcon/>}>
-                                {t("dialogs.duplication-dialog.later")}
-                            </Button>
-                            <Box>
-                                <Button
-                                    sx={{marginRight: 1}}
-                                    color={"inherit"}
-                                    startIcon={<CloseIcon/>}>
-                                    {t("dialogs.duplication-dialog.no-duplicates")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
-                                    {t("dialogs.duplication-dialog.save")}
-                                </Button>
-                            </Box>
-                        </Stack>
-                    </DialogActions>
-                }
-                open={duplicateDetectedDialog}
-                title={t(`dialogs.duplication-dialog.title`)}
-            />
         </>
     )
 }

@@ -2,7 +2,7 @@ import {RootStyled} from "@features/toolbar";
 import {
     Badge,
     Box,
-    Button,
+    Button, DialogActions,
     Hidden,
     IconButton,
     Stack,
@@ -29,10 +29,17 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {LoadingScreen} from "@features/loadingScreen";
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
+import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {DefaultViewMenu} from "@features/menu";
+import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
+import {useRequestMutation} from "@lib/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
 
 function CalendarToolbar({...props}) {
     const {
@@ -46,20 +53,29 @@ function CalendarToolbar({...props}) {
         OnConfirmEvent
     } = props;
     const theme = useTheme();
+    const router = useRouter();
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
     const isRTL = theme.direction === "rtl";
 
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
+    const {duplications, duplicationSrc, openDialog: duplicateDetectedDialog} = useAppSelector(duplicatedSelector);
+
     const [pendingDialog, setPendingDialog] = useState(false);
+    const [loading, setLoading] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
         {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
         {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
+
+    const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
 
     const handleViewChange = (view: string) => {
         dispatch(setView(view));
@@ -80,16 +96,33 @@ function CalendarToolbar({...props}) {
             case "moveEvent":
                 OnMoveEvent(eventData);
                 break;
-            case "duplicatedPatient":
-                setPendingDialog(false);
-                break;
         }
+    }
+
+    const handleMergeDuplication = () => {
+        setLoading(true);
+        const params = new FormData();
+        duplications && params.append('duplicatedPatients', JSON.stringify(duplications.map(duplication => duplication.uuid).join(",")));
+        Object.entries(duplicationSrc as PatientModel).forEach(
+            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), JSON.stringify(object[1] ?? "")));
+
+        medicalEntityHasUser && mergeDuplicationsTrigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((data) => {
+            setLoading(false);
+            console.log("data", data);
+            dispatch(setDuplicated({openDialog: false}));
+            dispatch(resetDuplicated());
+        })
     }
 
     useEffect(() => {
         pendingEvents.current = [];
         pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
-    }, [pendingAppointments])
+    }, [pendingAppointments]);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -265,6 +298,61 @@ function CalendarToolbar({...props}) {
                 title={t(`dialogs.pending-dialog.title`)}
             />
 
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340,
+                    },
+                }}
+                size={"lg"}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    dispatch(setDuplicated({openDialog: false}));
+                }}
+                action={() => <DuplicateDetected src={duplicationSrc} data={duplications}/>}
+                actionDialog={
+                    <DialogActions
+                        sx={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                            "& .MuiDialogActions-root": {
+                                div: {
+                                    width: "100%",
+                                },
+                            },
+                        }}>
+                        <Stack
+                            direction={"row"}
+                            justifyContent={"space-between"}
+                            sx={{width: "100%"}}>
+                            <Button
+                                onClick={() => dispatch(setDuplicated({openDialog: false}))}
+                                startIcon={<CloseIcon/>}>
+                                {t("dialogs.duplication-dialog.later")}
+                            </Button>
+                            <Box>
+                                <Button
+                                    sx={{marginRight: 1}}
+                                    color={"inherit"}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("dialogs.duplication-dialog.no-duplicates")}
+                                </Button>
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    onClick={handleMergeDuplication}
+                                    variant="contained"
+                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    {t("dialogs.duplication-dialog.save")}
+                                </LoadingButton>
+                            </Box>
+                        </Stack>
+                    </DialogActions>
+                }
+                open={duplicateDetectedDialog}
+                title={t(`dialogs.duplication-dialog.title`)}
+            />
         </RootStyled>
     );
 }

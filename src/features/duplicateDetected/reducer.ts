@@ -5,12 +5,16 @@ import {
 } from './actions';
 
 export type duplicatedState = {
-    patient: PatientModel | null
-    fields: string[]
+    openDialog?: boolean;
+    duplicationSrc?: PatientModel | null;
+    duplications?: PatientModel[];
+    fields?: string[];
 };
 
 const initialState: duplicatedState = {
-    patient: null,
+    openDialog: false,
+    duplicationSrc: null,
+    duplications: [],
     fields: []
 };
 
