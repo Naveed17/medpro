@@ -189,8 +189,8 @@ function CalendarRowDetail({...props}) {
                     </Label>
                 </TableCell>
                 <TableCell align="center">
-                    <Stack direction={"row"} alignItems={"center"}>
-                        <Typography variant={"body2"}>{data.title}</Typography>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                        <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
                         {/*{duplications?.length > 0 && <Button
                             sx={{p: 0, ml: 1, borderRadius: 3}}
                             onClick={(event) => {
