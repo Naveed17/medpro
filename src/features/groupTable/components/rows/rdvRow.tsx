@@ -30,9 +30,9 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
     const {data: session} = useSession();
+    const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);

@@ -201,6 +201,7 @@ function PatientDetail({...props}) {
         } else {
             setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
             mutatePatientDetails();
+            mutatePatientList && mutatePatientList();
         }
     };
 
