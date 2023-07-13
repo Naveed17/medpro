@@ -17,9 +17,6 @@ import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useRouter} from "next/router";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -29,13 +26,9 @@ function CalendarRowDetail({...props}) {
 
     const {data: session} = useSession();
     const theme = useTheme();
-    const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const dispatch = useAppDispatch();
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
 
