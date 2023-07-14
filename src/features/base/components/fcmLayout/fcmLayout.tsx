@@ -10,8 +10,6 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -53,7 +51,7 @@ function FcmLayout({...props}) {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
 
@@ -73,35 +71,11 @@ function FcmLayout({...props}) {
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpProfessionalsResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const {data: httpUserResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const medicalEntityHasUser = (httpUserResponse as HttpResponse)?.data as MedicalEntityHasUsersModel[];
-
-    const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
-    const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
-    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
-    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
     }
-
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
@@ -249,9 +223,7 @@ function FcmLayout({...props}) {
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (medical_professional) {
-            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
-            dispatch(setOngoing({medicalProfessionalData}));
+        if (general_information) {
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
@@ -261,7 +233,13 @@ function FcmLayout({...props}) {
                 });
             }
         }
-    }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (general_information) {
+            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+        }
+    }, [general_information, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setToken();
@@ -289,18 +267,6 @@ function FcmLayout({...props}) {
             });
         }
     });
-
-    useEffect(() => {
-        if (medicalEntityHasUser) {
-            dispatch(setOngoing({medicalEntityHasUser}));
-        }
-    }, [dispatch, medicalEntityHasUser])
-
-    useEffect(() => {
-        if (appointmentTypes) {
-            dispatch(setOngoing({appointmentTypes}));
-        }
-    }, [dispatch, appointmentTypes])
 
     useEffect(() => {
         // Update notifications popup
@@ -358,7 +324,7 @@ function FcmLayout({...props}) {
                                     router.push("/dashboard/agenda").then(() => {
                                         dispatch(setStepperIndex(1));
                                         dispatch(setAppointmentPatient(notificationData?.patient));
-                                        dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                                        (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
                                         dispatch(openDrawer({type: "add", open: true}));
                                     });
                                 }}/>

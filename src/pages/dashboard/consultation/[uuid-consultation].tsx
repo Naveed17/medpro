@@ -753,7 +753,7 @@ function ConsultationInProgress() {
 
     return (
         <>
-            {loading && <LinearProgress/>}
+            {loading && <LinearProgress color={"warning"}/>}
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
