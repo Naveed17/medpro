@@ -224,7 +224,6 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (general_information) {
-            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
             if (prodEnv) {
                 // identify smartlook user
                 smartlookClient.identify(general_information.uuid, {
@@ -235,6 +234,12 @@ function FcmLayout({...props}) {
             }
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (general_information) {
+            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+        }
+    }, [general_information, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setToken();
