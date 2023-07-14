@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useRef, useState} from "react";
+import React, {useState} from "react";
 import {
     Badge,
     Box,
@@ -28,11 +28,11 @@ const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {uuind, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext},
+        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext},
     } = props;
 
     const {data: session} = useSession();
-    const localInstr = localStorage.getItem(`instruction-data-${uuind}`);
+    const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -59,7 +59,7 @@ function SecretaryConsultationDialog({...props}) {
                             value={instruction}
                             onChange={event => {
                                 setInstruction(event.target.value.slice(0, limit));
-                                localStorage.setItem(`instruction-data-${uuind}`, event.target.value.slice(0, limit));
+                                localStorage.setItem(`instruction-data-${app_uuid}`, event.target.value.slice(0, limit));
                             }}
                             placeholder={t("type_instruction_for_the_secretary")}
                             rows={4}

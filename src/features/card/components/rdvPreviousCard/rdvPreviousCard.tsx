@@ -69,7 +69,7 @@ function RdvCard({...props}) {
                     className="first-child"
                     sx={{
                         "&:after": {
-                            bgcolor: loading ? "green" : inner.consultationReason?.color,
+                            bgcolor: loading ? "green" : inner?.consultationReason?.color,
                         },
                     }}
                 >
