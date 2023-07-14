@@ -40,17 +40,10 @@ export const ImportCardData = {
     }]
 };
 
-import {preload, useSWRConfig} from 'swr';
-
-const fetcher = (url: string) => instanceAxios({method: "GET", url}).then((res) => res);
+import {useSWRConfig} from 'swr';
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
-    // Preload the resource before rendering the User component below,
-    // this prevents potential waterfalls in your application.
-    // You can also start preloading when hovering the button or link, too.
-    //preload(`/api/public/places/countries/${router.locale}?nationality=true`, fetcher);
-
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
