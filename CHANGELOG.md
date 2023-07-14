@@ -1,3 +1,51 @@
+# [4.19.0](https://github.com/SmartMedSA/med-pro/compare/v4.18.2...v4.19.0) (2023-07-14)
+
+
+### Bug Fixes
+
+* appointment list grouped push ([6dd07e9](https://github.com/SmartMedSA/med-pro/commit/6dd07e987d3c3a920913cea8ab4d734078968962))
+* Cannot read properties of undefined (reading 'map') ([ed63935](https://github.com/SmartMedSA/med-pro/commit/ed639352e5948d531645bda830547ed187be0a4a))
+* Cannot read properties of undefined (reading 'prompt') ([6bf3225](https://github.com/SmartMedSA/med-pro/commit/6bf32256266e2d96d29ba504d9db278cb517a8ef))
+* countries hook update ([0b74462](https://github.com/SmartMedSA/med-pro/commit/0b744624101c9f691084e7e44b74b07c1c65e01c))
+* deprecated menu props ([00e6609](https://github.com/SmartMedSA/med-pro/commit/00e6609ed6a8099a41b62f892de3867dc4ef472c))
+* duplication row update behavior ([acf8978](https://github.com/SmartMedSA/med-pro/commit/acf89785fff570a2574689e68c44699fdb593594))
+* filter gender ([b0ea09a](https://github.com/SmartMedSA/med-pro/commit/b0ea09a4a59f10a316770b266dbf60aa9c60a8bd))
+* hide absolute text,document config ([2517f1d](https://github.com/SmartMedSA/med-pro/commit/2517f1d356dc05b9ebe52a860de8331fe398ffa6))
+* invalid value autocomplete ([de6cac8](https://github.com/SmartMedSA/med-pro/commit/de6cac8b4f533f4032ab31ca2fb61f8327ebeec6))
+* loading panel bug ([b009b2e](https://github.com/SmartMedSA/med-pro/commit/b009b2e4b47996188a2d925148cdd973ef74108a))
+* merge duplication data ([6654bf3](https://github.com/SmartMedSA/med-pro/commit/6654bf39ffb5b4739b8327965b8e27f543e00d62))
+* optimize patient appointments history/list ([ee5c37c](https://github.com/SmartMedSA/med-pro/commit/ee5c37c4eea1ed2d0ffde72a73242fb53ec15f57))
+* optimize patient info data ([e1c0ad1](https://github.com/SmartMedSA/med-pro/commit/e1c0ad1f1fc9204df9ad1c9cc0543f1cbf51b964))
+* optimize patient info data ([f1b79de](https://github.com/SmartMedSA/med-pro/commit/f1b79dee01328e110e8f78aac6ab40d4af7ee99d))
+* optimize patient insurances data ([910e295](https://github.com/SmartMedSA/med-pro/commit/910e29531a64a19c6e3088f0b2a8370e5234d901))
+* optimize request's call consultation in progress ([5149ac8](https://github.com/SmartMedSA/med-pro/commit/5149ac852d41f1c8936433dee6acab6e420f2cbf))
+* patient click bugs sentry ([522cc2d](https://github.com/SmartMedSA/med-pro/commit/522cc2dbd78977103df13b802e4aa1b96b4393cc))
+* patient useProfilePhoto hook cache data ([a92db6a](https://github.com/SmartMedSA/med-pro/commit/a92db6ade546b2ddfa11fb155b2f4d1346bf416e))
+* patient useProfilePhoto hook cache data ([bd1d7b4](https://github.com/SmartMedSA/med-pro/commit/bd1d7b41cdfc177092fd2f48db67dd61b7211f1e))
+* payment fees null bug ([af4364c](https://github.com/SmartMedSA/med-pro/commit/af4364c1e749a2d131dbfea5dcc122a17cd74883))
+* payment icon position ([ce085a4](https://github.com/SmartMedSA/med-pro/commit/ce085a4d7a658d3c30133319e5a971b396463d7d))
+* prescription note .length undefined ([b6e344f](https://github.com/SmartMedSA/med-pro/commit/b6e344fba2929b2ebac4090306ce516ad3f6b119))
+* prod run warnings ([f2d0906](https://github.com/SmartMedSA/med-pro/commit/f2d09069e8240ba4eb2facc9abcd161961221d8b))
+* semver vulnerability ([5ca426a](https://github.com/SmartMedSA/med-pro/commit/5ca426a4225ec6c1deb6e2218770b7001bd01e7e))
+* set unoptimized attribute ([e5aa51d](https://github.com/SmartMedSA/med-pro/commit/e5aa51dae3aff722c1839b17a428bb0a2fecc964))
+* summary pdf update ([2ce4af1](https://github.com/SmartMedSA/med-pro/commit/2ce4af1c7331f6c820ce2ded4a56af75d0980662))
+* text align appointment row ([369de84](https://github.com/SmartMedSA/med-pro/commit/369de8400ab9e8dc1ad2084989b1a171cc683417))
+* tsconfig target to es6 ([24a5014](https://github.com/SmartMedSA/med-pro/commit/24a5014f2358f0d5d3d8457dfa4ebab6ce0ac836))
+* undefined cautionaryNote bug ([9016548](https://github.com/SmartMedSA/med-pro/commit/9016548e1615df975f4035b27666f0029dbd15e6))
+* Update dependency @grpc/grpc-js to ~1.8.0 [SECURITY] ([20ef166](https://github.com/SmartMedSA/med-pro/commit/20ef166496c040757e003e90153f9ab63cf9d9db))
+* update eslint dependency ([b19508e](https://github.com/SmartMedSA/med-pro/commit/b19508ebee1d32391e83f37b8b4755f1aa8f042b))
+* update motion frame package ([43f6a50](https://github.com/SmartMedSA/med-pro/commit/43f6a50cb4b766f9ebb612fda56eaca5b3e11e77))
+* update patch data patient data ([0d1e84a](https://github.com/SmartMedSA/med-pro/commit/0d1e84a2fa0a2a8e0f837f7ba03cd894b96c3be8))
+* update patient notes ([4a4fe0d](https://github.com/SmartMedSA/med-pro/commit/4a4fe0db1cca0a7949d7fc723c2a0095d85485a4))
+* update readme ([a70d5cc](https://github.com/SmartMedSA/med-pro/commit/a70d5cc1d83a17d803bd422af7903a1be3fa8423))
+* word-wrap vulnerable to Regular Expression Denial of Service ([d5daa7b](https://github.com/SmartMedSA/med-pro/commit/d5daa7b276e8b3229a4e4ceb501963fa613c6a06))
+
+
+### Features
+
+* missing translation Age input ([dcf2df8](https://github.com/SmartMedSA/med-pro/commit/dcf2df8f125ee720ad136d63032f633a33fb942b))
+* set birthday from age ([4161ea0](https://github.com/SmartMedSA/med-pro/commit/4161ea0d0d74b16e01b60018f3b77fa65e8f8b3f))
+
 ## [4.18.2](https://github.com/SmartMedSA/med-pro/compare/v4.18.1...v4.18.2) (2023-07-07)
 
 
