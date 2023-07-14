@@ -51,7 +51,7 @@ function RDVRow({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
@@ -107,8 +107,8 @@ function RDVRow({...props}) {
                             </Typography>
                         </TableCell>
                     </TableRow>
-                    {nextAppointmentsData.map((data: PatientDetailsRDV) => (
-                            <React.Fragment key={"nextAppointmentsData" + patient.uuid}>
+                    {nextAppointmentsData.map((data: PatientDetailsRDV, index: number) => (
+                            <React.Fragment key={"nextAppointmentsData" + index.toString()}>
                                 {matches ? (
                                     <RDVCard
                                         inner={data}
