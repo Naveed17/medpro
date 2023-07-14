@@ -368,10 +368,10 @@ function ConsultationInProgress() {
             let _acts: AppointmentActModel[] = [];
             _acts = [{
                 act: {name: appointment.type.name},
-                fees: appointment.type.price,
+                fees: appointment.consultation_fees ? Number(appointment.consultation_fees) : appointment.type.price,
                 isTopAct: false,
                 qte: 1,
-                selected: !appointment.type.isFree,
+                selected: appointment.status === 5 ? appointment.consultation_fees !== null : !appointment.type.isFree,
                 uuid: "consultation_type"
             }]
 
@@ -446,7 +446,7 @@ function ConsultationInProgress() {
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
             if (!isFree)
-                form.append("consultation_fees", consultationFees.toString());
+                form.append("consultation_fees", consultationFees ? consultationFees.toString(): '0');
             form.append("status", "5");
 
             trigger({
