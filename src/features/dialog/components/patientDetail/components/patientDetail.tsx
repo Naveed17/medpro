@@ -88,7 +88,7 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate} = useSWRConfig();
+    const {mutate, cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -130,6 +130,7 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
+    const [patient, setPatient] = useState<null | PatientModel>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`)?.data?.data?.data) ?? null);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -145,9 +146,8 @@ function PatientDetail({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
     const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
@@ -369,6 +369,12 @@ function PatientDetail({...props}) {
             }
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpPatientDetailsResponse) {
+            setPatient((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel);
+        }
+    }, [httpPatientDetailsResponse]);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
