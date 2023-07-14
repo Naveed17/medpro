@@ -5,16 +5,18 @@ import {useEffect, useState} from "react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
+import {useSWRConfig} from "swr";
 
 function useAppointmentHistory({...props}) {
     const {patientId = null} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {cache} = useSWRConfig();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [previousAppointmentsData, setPreviousAppointmentsData] = useState<any[]>([]);
+    const [previousAppointmentsData, setPreviousAppointmentsData] = useState<any[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`)?.data?.data?.data) ?? []);
 
     const {
         data: httpPatientHistoryResponse,

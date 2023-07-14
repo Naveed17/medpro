@@ -39,6 +39,7 @@ import {onOpenPatientDrawer} from "@features/table";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
+import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 
 const Content = ({...props}) => {
     const {id, patient, patientAntecedents, allAntecedents, analyses, mi} = props;
@@ -52,6 +53,7 @@ const Content = ({...props}) => {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {mutate: mutateInfo, mutateDoc} = useAppSelector(consultationSelector);
     const {mutate} = useSWRConfig();
+    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
@@ -105,7 +107,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
@@ -124,7 +126,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                medicalEntityHasUser && mutate( `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -145,7 +147,7 @@ const Content = ({...props}) => {
                 {revalidate: true, populateCache: true}
             ).then(() => {
                 mutateInfo();
-                medicalEntityHasUser &&  mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
         } else if (info === "medical_imaging_pending") {
             mutateInfo();
@@ -252,17 +254,6 @@ const Content = ({...props}) => {
             setOpenDialogDoc(true);
         }
     };
-
-    const {
-        data: httpPatientDocumentsResponse,
-        mutate: mutatePatientDocuments
-    } = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
-
-    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     const treatements = patient?.treatment.filter((trait: {
         isOtherProfessional: boolean;

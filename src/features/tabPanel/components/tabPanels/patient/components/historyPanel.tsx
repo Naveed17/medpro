@@ -1,6 +1,6 @@
 import {Box, Stack, Typography, useTheme} from '@mui/material'
 import {HistoryContainer, NoDataCard, PatientHistoryNoDataCard} from '@features/card'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
@@ -40,7 +40,7 @@ function HistoryPanel({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
-    const [apps, setApps] = useState<any>(null);
+    const [apps, setApps] = useState(previousAppointments);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
 
     const handleCloseDialog = () => {
