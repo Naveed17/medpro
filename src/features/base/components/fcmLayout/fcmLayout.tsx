@@ -10,8 +10,6 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {
@@ -78,7 +76,6 @@ function FcmLayout({...props}) {
     const handleClose = () => {
         setOpenDialog(false);
     }
-
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
