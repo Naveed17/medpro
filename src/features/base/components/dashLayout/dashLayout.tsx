@@ -49,7 +49,7 @@ function DashLayout({children}: LayoutProps) {
     // Preload the resource before rendering the User component below,
     // this prevents potential waterfalls in your application.
     // You can also start preloading when hovering the button or link, too.
-    preload(`/api/public/places/countries/${router.locale}?nationality=true`, fetcher);
+    //preload(`/api/public/places/countries/${router.locale}?nationality=true`, fetcher);
 
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
