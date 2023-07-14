@@ -1,3 +1,16 @@
+## [4.19.1](https://github.com/SmartMedSA/med-pro/compare/v4.19.0...v4.19.1) (2023-07-14)
+
+
+### Bug Fixes
+
+* delete prefetch country api ([e19a65d](https://github.com/SmartMedSA/med-pro/commit/e19a65d1aeb6af77610ea4f8164fe698260f6605))
+* mobile card rdv bug ([43db7e6](https://github.com/SmartMedSA/med-pro/commit/43db7e6fa98cb1a6917333efe1d621aaad2be65d))
+* mutate next/previous appointment data ([683a2b2](https://github.com/SmartMedSA/med-pro/commit/683a2b257a3c4d0c24df7a5273b112ccb38792f0))
+* optimize loading data behavior ([7d0f812](https://github.com/SmartMedSA/med-pro/commit/7d0f812e5f262ed40654d23bbd0311121388764c))
+* reorder request api ([8a8a6b4](https://github.com/SmartMedSA/med-pro/commit/8a8a6b44b31a81e5a4566ca744c8ae9e6e7262db))
+* secretary instruction ([2ab9a72](https://github.com/SmartMedSA/med-pro/commit/2ab9a7234f3fbb98361331f509fc4b902aee0bbf))
+* subscribe to fcm topic bug ([67e63e5](https://github.com/SmartMedSA/med-pro/commit/67e63e5e2625c57776a14c07e7ed9c5fc4f15816))
+
 # [4.19.0](https://github.com/SmartMedSA/med-pro/compare/v4.18.2...v4.19.0) (2023-07-14)
 
 
