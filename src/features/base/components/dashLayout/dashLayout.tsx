@@ -3,7 +3,7 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {instanceAxios, useRequest} from "@lib/axios";
+import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
