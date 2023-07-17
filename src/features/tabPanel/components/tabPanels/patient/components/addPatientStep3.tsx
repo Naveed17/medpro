@@ -9,7 +9,10 @@ import {
     resetSubmitAppointment
 } from "@features/tabPanel";
 import {useTheme} from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function AddPatientStep3({...props}) {
     const {onNext, selectedPatient, OnCustomAction} = props;

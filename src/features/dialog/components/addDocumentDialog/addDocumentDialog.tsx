@@ -7,9 +7,11 @@ import {FileuploadProgress} from "@features/progressUI";
 import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
@@ -88,7 +90,7 @@ function AddDocumentDialog({...props}) {
     }
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>

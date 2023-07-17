@@ -18,7 +18,10 @@ import {
     Tooltip,
     Typography, useTheme
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";

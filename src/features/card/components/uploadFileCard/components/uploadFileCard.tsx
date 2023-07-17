@@ -9,7 +9,9 @@ import {
 } from '@mui/material';
 import Icon from '@themes/urlIcon';
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 // ----------------------------------------------------------------------
 

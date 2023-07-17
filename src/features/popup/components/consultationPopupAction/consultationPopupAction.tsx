@@ -15,7 +15,10 @@ import IconUrl from "@themes/urlIcon";
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 import * as React from "react";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useState} from "react";
 
 function ConsultationPopupAction({...props}) {

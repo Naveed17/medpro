@@ -8,7 +8,10 @@ import {
 } from "@mui/material";
 import {useCallback} from "react";
 import AddIcon from "@mui/icons-material/Add";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function PatientToolbar({...props}) {
     const {onAddPatient} = props;

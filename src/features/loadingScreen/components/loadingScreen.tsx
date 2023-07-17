@@ -36,7 +36,7 @@ function LoadingScreen({...props}) {
         hidden: {y: 20, opacity: 0},
         visible: {
             y: 0,
-            opacity: 1,
+            opacity: 1
         },
     };
 
@@ -65,7 +65,8 @@ function LoadingScreen({...props}) {
                     sx={{
                         ul: {listStyleType: "none", display: "contents", p: 0},
                         svg: {mx: 0.7},
-                    }}>
+                    }}
+                >
                     <motion.ul
                         className="container"
                         variants={container}
@@ -97,7 +98,6 @@ function LoadingScreen({...props}) {
                     variant="h6" mb={2} px={2} color="text.primary">
                     {t(`${text}.title`)}
                 </Typography>}
-
                 <Typography
                     variant="body2"
                     sx={{
@@ -124,9 +124,7 @@ function LoadingScreen({...props}) {
                         <Typography>{t(`${text}.button`)}</Typography>
                     </Button>}
             </Stack>
-        </RootStyled>
-    )
-        ;
+        </RootStyled>)
 }
 
 export default LoadingScreen;

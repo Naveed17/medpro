@@ -8,7 +8,10 @@ import { useAppDispatch } from "@lib/redux/hooks";
 import { setQs } from "@features/leftActionBar";
 import { upperFirst } from 'lodash';
 import data from './config';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function Questions() {
     const [value, setValue] = useState('1');

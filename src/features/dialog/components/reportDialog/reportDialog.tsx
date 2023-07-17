@@ -1,11 +1,13 @@
 import {useTranslation} from "next-i18next";
 import React, {useEffect, useRef, useState} from "react";
 import {Button, Grid} from "@mui/material";
-import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import PrintIcon from '@mui/icons-material/Print';
 import jsPDF from "jspdf";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,

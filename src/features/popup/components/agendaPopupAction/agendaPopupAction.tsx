@@ -16,7 +16,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import {useTranslation} from "next-i18next";
 import React from "react";
 import {pxToRem} from "@themes/formatFontSize";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import CallIcon from "@mui/icons-material/Call";
 
 function AgendaPopupAction({...props}) {

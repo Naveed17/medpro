@@ -29,7 +29,10 @@ import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";

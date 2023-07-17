@@ -36,7 +36,10 @@ import {useSnackbar} from "notistack";
 import {toggleSideBar} from "@features/menu";
 import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";

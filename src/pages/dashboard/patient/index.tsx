@@ -53,7 +53,10 @@ import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/h
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";

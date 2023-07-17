@@ -16,12 +16,14 @@ import {styled} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";

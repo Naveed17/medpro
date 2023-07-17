@@ -19,7 +19,10 @@ import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";

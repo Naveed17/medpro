@@ -1,7 +1,10 @@
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -11,8 +14,6 @@ import {AutoCompleteButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-
-import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";

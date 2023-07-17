@@ -34,7 +34,6 @@ import {countries} from "@features/countrySelect/countries";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
@@ -43,6 +42,8 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 

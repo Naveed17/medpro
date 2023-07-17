@@ -1,7 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 import axios from "axios";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 

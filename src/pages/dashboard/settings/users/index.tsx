@@ -23,7 +23,10 @@ import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
