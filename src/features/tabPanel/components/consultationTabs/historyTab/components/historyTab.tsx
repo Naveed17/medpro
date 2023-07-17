@@ -7,7 +7,6 @@ import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from
 import {SetSelectedApp} from "@features/toolbar";
 import {useRequest} from "@lib/axios";
 import Icon from "@themes/urlIcon";
-import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
@@ -100,14 +99,14 @@ function HistoryTab({...props}) {
                             {photos.map((photo, index) => (
                                 <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
                                      style={{background: "white"}}>
-                                    <Zoom>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
-                                            alt={'img'}
-                                            style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
-                                        />
-                                    </Zoom>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
+                                        alt={'img'}
+                                        onClick={()=>{showDoc(photo)}}
+                                        style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
+                                    />
+
 
                                     <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row"
                                            alignItems='center'>
