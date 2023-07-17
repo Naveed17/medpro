@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import {Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Button, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
@@ -17,6 +17,9 @@ import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
+import {useDuplicatedDetect} from "@lib/hooks/rest";
+import {setDuplicated} from "@features/duplicateDetected";
+import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 
 function CalendarRowDetail({...props}) {
     const {
@@ -26,25 +29,18 @@ function CalendarRowDetail({...props}) {
 
     const {data: session} = useSession();
     const theme = useTheme();
+    const dispatch = useAppDispatch();
+    const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    /*    const {
-            data: httpPatientDuplicationResponse
-        } = useRequest(medicalEntityHasUser && data ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient.uuid}/duplications/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null, SWRNoValidateConfig);*/
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-    // const duplications = (httpPatientDuplicationResponse as HttpResponse)?.data as PatientModel[]
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
@@ -191,7 +187,7 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
-                        {/*{duplications?.length > 0 && <Button
+                        {duplications?.length > 0 && <Button
                             sx={{p: 0, ml: 1, borderRadius: 3}}
                             onClick={(event) => {
                                 event.stopPropagation();
@@ -210,7 +206,7 @@ function CalendarRowDetail({...props}) {
                                 color={"warning"}>
                                 <WarningRoundedIcon sx={{width: 12, height: 12}}/>
                                 <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
-                            </Label></Button>}*/}
+                            </Label></Button>}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>

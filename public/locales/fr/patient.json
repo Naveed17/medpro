@@ -52,6 +52,7 @@
   "config": {
     "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
+    "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",
     "doc_detail_title": "Document",

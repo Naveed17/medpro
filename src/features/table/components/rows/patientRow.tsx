@@ -24,8 +24,11 @@ import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
-import {useProfilePhoto} from "@lib/hooks/rest";
+import {useDuplicatedDetect, useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import {setDuplicated} from "@features/duplicateDetected";
+import {Label} from "@features/label";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -39,6 +42,7 @@ function PatientRow({...props}) {
     const {insurances} = data;
     const dispatch = useAppDispatch();
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
+    const {duplications} = useDuplicatedDetect({patientId: row?.hasDouble && row?.uuid});
 
     return (
         <TableRowStyled
@@ -138,6 +142,31 @@ function PatientRow({...props}) {
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
+
+                                            {duplications?.length > 0 && <Button
+                                                sx={{p: 0, ml: 1, borderRadius: 3}}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    dispatch(setDuplicated({
+                                                        duplications,
+                                                        duplicationSrc: row,
+                                                        openDialog: true
+                                                    }));
+                                                }}>
+                                                <Label
+                                                    variant="filled"
+                                                    sx={{
+                                                        cursor: "pointer",
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}
+                                                    color={"warning"}>
+                                                    <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                                                    <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
+                                                </Label></Button>}
 
                                             {row.hasInfo &&
                                                 <Chip
