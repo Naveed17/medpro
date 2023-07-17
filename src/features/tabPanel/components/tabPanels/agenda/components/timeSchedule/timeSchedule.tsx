@@ -15,7 +15,10 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import moment from "moment-timezone";
 import {
     appointmentSelector, setAppointmentDate,
@@ -111,7 +114,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         trigger(medicalEntityHasUser && medical_professional ? {
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -254,7 +257,7 @@ function TimeSchedule({...props}) {
 
     useEffect(() => {
         if (locations && locations.length === 1) {
-            setLocation(locations[0].uuid)
+            setLocation(locations[0] as string)
         }
     }, [locations]);
 
@@ -380,7 +383,7 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {(locations && locations.length > 1) && <>
+               {/* {(locations && locations.length > 1) && <>
                     <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                         {t("stepper-1.locations")}
                     </Typography>
@@ -404,7 +407,7 @@ function TimeSchedule({...props}) {
                             ))}
                         </Select>
                     </FormControl>
-                </>}
+                </>}*/}
                 {(recurringDates.length === 0 || moreDate) &&
                     <>
                         <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>

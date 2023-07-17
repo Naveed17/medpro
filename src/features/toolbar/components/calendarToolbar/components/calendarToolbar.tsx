@@ -26,7 +26,10 @@ import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";

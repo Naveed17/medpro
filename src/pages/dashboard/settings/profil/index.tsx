@@ -35,7 +35,10 @@ import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
 import {useSWRConfig} from "swr";

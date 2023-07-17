@@ -14,7 +14,10 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";

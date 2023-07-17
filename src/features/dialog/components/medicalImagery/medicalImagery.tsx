@@ -19,7 +19,10 @@ import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {NoDataCard} from "@features/card";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import SearchIcon from "@mui/icons-material/Search";

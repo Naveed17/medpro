@@ -27,7 +27,10 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {
     ConsultationIPToolbar,
     consultationSelector,

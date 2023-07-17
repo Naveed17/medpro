@@ -6,8 +6,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appLockSelector} from "@features/appLock/selectors";
 import {setLock} from "@features/appLock/actions";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
 
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function AppLock() {
     const dispatch = useAppDispatch();
@@ -38,7 +39,7 @@ function AppLock() {
         }
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <Fade in={lock} timeout={1000}>

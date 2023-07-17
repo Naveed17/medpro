@@ -36,7 +36,7 @@ function LoadingScreen({...props}) {
         hidden: {y: 20, opacity: 0},
         visible: {
             y: 0,
-            opacity: 1,
+            opacity: 1
         },
     };
 
@@ -59,6 +59,7 @@ function LoadingScreen({...props}) {
                 >
                     <MedProIcon color={(theme.palette[color as keyof typeof theme.palette] as PaletteColor).main}/>
                 </Box>
+
                 {text === "loading" && <Box
                     display="flex"
                     sx={{
@@ -92,6 +93,7 @@ function LoadingScreen({...props}) {
                         </motion.li>
                     </motion.ul>
                 </Box>}
+
                 {text !== "loading" && <Typography
                     variant="h6" mb={2} px={2} color="text.primary">
                     {t(`${text}.title`)}
@@ -122,9 +124,7 @@ function LoadingScreen({...props}) {
                         <Typography>{t(`${text}.button`)}</Typography>
                     </Button>}
             </Stack>
-        </RootStyled>
-    )
-        ;
+        </RootStyled>)
 }
 
 export default LoadingScreen;

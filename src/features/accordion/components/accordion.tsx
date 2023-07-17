@@ -5,7 +5,9 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from "@themes/urlIcon";
 import RootStyled from "./overrides/accordionStyled";
 import {upperFirst} from "lodash";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'))
 
 function Accordion({...props}) {
     const {
@@ -57,7 +59,7 @@ function Accordion({...props}) {
                                     {badge}
                                 </Box>
                             )}
-                            <Icon path={item.expanded ? "arrow-up-table":  "ic-expand-more"}/>
+                            <Icon path={item.expanded ? "arrow-up-table" : "ic-expand-more"}/>
                         </>
                     }
                 >

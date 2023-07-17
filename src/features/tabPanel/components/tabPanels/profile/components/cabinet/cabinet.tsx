@@ -19,7 +19,10 @@ import {Schedules} from "@features/schedules";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function Cabinet() {
     const [horaires, setHoraires] = useState<Schedule[]>([

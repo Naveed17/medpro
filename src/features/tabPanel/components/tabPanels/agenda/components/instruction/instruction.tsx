@@ -35,7 +35,10 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Instruction({...props}) {

@@ -32,10 +32,12 @@ import Icon from "@themes/urlIcon";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";

@@ -15,7 +15,10 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";

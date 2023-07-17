@@ -25,7 +25,6 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
@@ -38,6 +37,9 @@ import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PersonalInsuranceCard({...props}) {
     const {

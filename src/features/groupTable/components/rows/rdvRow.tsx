@@ -12,7 +12,10 @@ import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/car
 // utils
 import {useTranslation} from "next-i18next";
 import _ from "lodash";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useAppSelector} from "@lib/redux/hooks";
 import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";

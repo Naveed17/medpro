@@ -6,7 +6,10 @@ import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { useTranslation } from "next-i18next";
 import Acte from "@interfaces/Acte";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const actes: Acte[] = [
     { id: 1, title: "Electrothérapie" },

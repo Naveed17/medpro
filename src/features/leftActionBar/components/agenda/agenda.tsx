@@ -9,13 +9,15 @@ import {
     AppointmentStatusFilter,
     AppointmentTypesFilter
 } from "@features/leftActionBar";
-import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 

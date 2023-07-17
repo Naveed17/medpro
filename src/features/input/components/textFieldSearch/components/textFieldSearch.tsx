@@ -4,7 +4,10 @@ import {InputAdornment} from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import {useTranslation} from "next-i18next";
 import {SearchField} from "@features/input/components/textFieldSearch";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function TextFieldSearch(props: any) {
     const {t, ready} = useTranslation('common');

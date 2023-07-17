@@ -32,11 +32,13 @@ import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export const MyTextInput: any = memo(({...props}) => {
     return (

@@ -13,7 +13,10 @@ import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tab
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Dialog, dialogMoveSelector, setMoveDateTime} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";

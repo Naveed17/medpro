@@ -29,7 +29,10 @@ import {useTranslation} from "next-i18next";
 import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 interface MyFormProps {
     file?: string;
