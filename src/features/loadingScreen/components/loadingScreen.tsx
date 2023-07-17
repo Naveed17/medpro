@@ -59,13 +59,13 @@ function LoadingScreen({...props}) {
                 >
                     <MedProIcon color={(theme.palette[color as keyof typeof theme.palette] as PaletteColor).main}/>
                 </Box>
+
                 {text === "loading" && <Box
                     display="flex"
                     sx={{
                         ul: {listStyleType: "none", display: "contents", p: 0},
                         svg: {mx: 0.7},
-                    }}
-                >
+                    }}>
                     <motion.ul
                         className="container"
                         variants={container}
@@ -92,10 +92,12 @@ function LoadingScreen({...props}) {
                         </motion.li>
                     </motion.ul>
                 </Box>}
+
                 {text !== "loading" && <Typography
                     variant="h6" mb={2} px={2} color="text.primary">
                     {t(`${text}.title`)}
                 </Typography>}
+
                 <Typography
                     variant="body2"
                     sx={{
