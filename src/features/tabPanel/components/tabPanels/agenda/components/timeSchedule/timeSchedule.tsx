@@ -383,31 +383,6 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-               {/* {(locations && locations.length > 1) && <>
-                    <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                        {t("stepper-1.locations")}
-                    </Typography>
-                    <FormControl fullWidth size="small">
-                        <Select
-                            labelId="select-location"
-                            id="select-location"
-                            disabled={selectedReasons.length === 0}
-                            value={location}
-                            onChange={onChangeLocation}
-                            sx={{
-                                "& .MuiSelect-select svg": {
-                                    display: "none",
-                                },
-                            }}
-                        >
-                            {locations?.map((location) => (
-                                <MenuItem value={location.uuid} key={location.uuid}>
-                                    {location.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </>}*/}
                 {(recurringDates.length === 0 || moreDate) &&
                     <>
                         <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
