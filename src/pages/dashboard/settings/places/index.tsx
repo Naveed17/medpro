@@ -5,7 +5,6 @@ import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, DialogActions, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -17,7 +16,10 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 

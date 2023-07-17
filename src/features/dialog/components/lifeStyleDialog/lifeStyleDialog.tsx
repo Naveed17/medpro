@@ -18,7 +18,10 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 import SearchIcon from "@mui/icons-material/Search";
 

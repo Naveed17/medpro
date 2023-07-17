@@ -7,7 +7,10 @@ import {Theme} from "@mui/material/styles";
 import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
 import {Redirect} from "@features/redirect";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function Settings() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));

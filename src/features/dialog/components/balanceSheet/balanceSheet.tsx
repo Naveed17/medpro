@@ -30,7 +30,10 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {NoDataCard} from "@features/card";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";

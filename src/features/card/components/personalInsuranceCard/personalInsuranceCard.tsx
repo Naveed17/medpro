@@ -16,7 +16,7 @@ import {
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import {useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -25,7 +25,6 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
@@ -37,10 +36,14 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PersonalInsuranceCard({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null,
+        patient, mutatePatientList = null, contacts,
         mutateAgenda = null, loading, editable
     } = props;
 
@@ -59,26 +62,21 @@ function PersonalInsuranceCard({...props}) {
 
     const [insuranceDialog, setInsuranceDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
+    const [requestAction, setRequestAction] = useState("POST");
     const {t, ready} = useTranslation(["patient", "common"]);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
+    const {
+        data: httpPatientInsurancesResponse,
+        mutate: mutatePatientInsurances
+    } = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const RegisterPatientSchema = Yup.object().shape({
-        firstName: Yup.string()
-            .min(3, t("config.add-patient.name-error"))
-            .max(50, t("config.add-patient.name-error"))
-            .required(t("config.add-patient.name-error")),
-        lastName: Yup.string()
-            .min(3, t("config.add-patient.name-error"))
-            .max(50, t("config.add-patient.name-error"))
-            .required(t("config.add-patient.name-error")),
-        address: Yup.string()
-            .min(3, t("config.add-patient.name-error"))
-            .max(50, t("config.add-patient.name-error")),
-        email: Yup.string()
-            .email('Invalid email format'),
-        birthdate: Yup.string(),
-        cin: Yup.number(),
         insurances: Yup.array().of(
             Yup.object().shape({
                 insurance_key: Yup.string(),
@@ -129,43 +127,35 @@ function PersonalInsuranceCard({...props}) {
             })
         )
     });
-
+    const prepareInsuranceInstance = (insurance: PatientInsurancesModel, extraProps?: any) => {
+        return {
+            insurance_key: insurance.uuid,
+            insurance_number: insurance.insuranceNumber,
+            insurance_uuid: insurance.insurance?.uuid,
+            insurance_social: insurance.insuredPerson && {
+                firstName: insurance.insuredPerson.firstName,
+                lastName: insurance.insuredPerson.lastName,
+                birthday: insurance.insuredPerson.birthday,
+                phone: {
+                    code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
+                    value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
+                    type: "phone",
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
+            insurance_type: insurance.type ? insurance.type.toString() : "0",
+            expand: insurance.type ? insurance.type.toString() !== "0" : false,
+            online: false,
+            ...extraProps
+        }
+    }
+    const patientInsurances = (httpPatientInsurancesResponse as HttpResponse)?.data as PatientInsurancesModel[];
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            gender: !loading && patient.gender
-                ? patient.gender === "M" ? "1" : "2"
-                : "",
-            firstName: !loading ? `${patient.firstName.trim()}` : "",
-            lastName: !loading ? `${patient.lastName.trim()}` : "",
-            birthdate: !loading && patient.birthdate ? patient.birthdate : "",
-            address:
-                !loading && patient.address.length > 0
-                    ? patient.address[0].street
-                    : "",
-            email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : "",
-            insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
-                insurance_key: insurance.uuid,
-                insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance?.uuid,
-                insurance_social: insurance.insuredPerson && {
-                    firstName: insurance.insuredPerson.firstName,
-                    lastName: insurance.insuredPerson.lastName,
-                    birthday: insurance.insuredPerson.birthday,
-                    phone: {
-                        code: insurance.insuredPerson.contact ? insurance.insuredPerson.contact.code : doctor_country?.phone,
-                        value: insurance.insuredPerson.contact && insurance.insuredPerson.contact.value?.length > 0 ? `${insurance.insuredPerson.contact.code}${insurance.insuredPerson.contact.value}` : "",
-                        type: "phone",
-                        contact_type: patient.contact[0].uuid,
-                        is_public: false,
-                        is_support: false
-                    }
-                },
-                insurance_type: insurance.type ? insurance.type.toString() : "0",
-                expand: insurance.type ? insurance.type.toString() !== "0" : false,
-                online: true
-            })) : [] as InsurancesModel[]
+            insurances: !loading && patientInsurances?.length > 0 ? patientInsurances.map((insurance: any) => prepareInsuranceInstance(insurance, {online: true})) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
@@ -181,19 +171,25 @@ function PersonalInsuranceCard({...props}) {
     }
 
     const handleDeleteInsurance = (insurance: InsuranceModel) => {
-        const indexInsur = values.insurances.findIndex((insur: InsurancesModel) =>
-            insur.insurance_key === insurance.uuid);
-        const insurances = handleRemoveInsurance(indexInsur);
-        handleUpdatePatient(insurances);
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerPatientUpdate({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }).then(() => {
+            setLoadingRequest(false);
+            mutatePatientInsurances();
+            mutatePatientList && mutatePatientList();
+            mutateAgenda && mutateAgenda();
+        });
     }
 
-    const handleEditInsurance = (insurance: InsuranceModel) => {
-        const insurances = [...values.insurances].map(insure => insure.insurance_key === insurance.uuid ?
-            {
-                ...insure,
-                online: false
-            } : insure)
-        insurances.sort(a => !a.online ? -1 : 1);
+
+    const handleEditInsurance = (insurance: PatientInsurancesModel) => {
+        const insurances = [prepareInsuranceInstance(insurance)]
+        setRequestAction("PUT");
         setFieldValue("insurances", insurances);
         setInsuranceDialog(true);
     }
@@ -211,12 +207,38 @@ function PersonalInsuranceCard({...props}) {
                     code: doctor_country?.phone,
                     value: "",
                     type: "phone",
-                    contact_type: patient.contact[0].uuid,
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
                     is_public: false,
                     is_support: false
                 }
             },
-            insurance_type: "0",
+            insurance_type: `0`,
+            expand: false,
+            online: false
+        }];
+        setRequestAction("POST");
+        setFieldValue("insurances", insurance);
+    }
+
+    const handleMultiAddInsurance = () => {
+        const insurance = [{
+            insurance_key: "",
+            insurance_uuid: "",
+            insurance_number: "",
+            insurance_social: {
+                firstName: "",
+                lastName: "",
+                birthday: null,
+                phone: {
+                    code: doctor_country?.phone,
+                    value: "",
+                    type: "phone",
+                    contact_type: contacts?.length > 0 && contacts[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
+            insurance_type: `0`,
             expand: false,
             online: false
         }, ...values.insurances];
@@ -230,49 +252,24 @@ function PersonalInsuranceCard({...props}) {
         return insurance;
     };
 
-    const handleUpdatePatient = (insurances?: InsurancesModel[]) => {
+    const handleUpdatePatient = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append('first_name', values.firstName);
-        params.append('last_name', values.lastName);
-        params.append('gender', values.gender);
-        params.append('phone', JSON.stringify(
-            patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
-                code: phone.code,
-                value: phone.value.replace(phone.code, ""),
-                type: "phone",
-                "contact_type": patient.contact[0].uuid,
-                "is_public": false,
-                "is_support": false
-            }))));
-        params.append('email', values.email);
-        params.append('id_card', values.cin);
-        patient.note && params.append('note', patient.note);
-        patient.profession && params.append('profession', patient.profession);
-        patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
-        patient.nationality && params.append('nationality', patient.nationality.uuid);
         params.append('insurance', JSON.stringify(prepareInsurancesData({
-            insurances: insurances ? insurances : values.insurances,
-            contact: patient.contact[0].uuid
+            insurances: values.insurances,
+            contact: contacts?.length > 0 && contacts[0].uuid
         })));
-        values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
-        params.append('address', JSON.stringify({
-            [router.locale as string]: values.address
-        }));
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
-        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
         medicalEntityHasUser && triggerPatientUpdate({
-            method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+            method: requestAction,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
-            data: params,
+            data: params
         }).then(() => {
             setLoadingRequest(false);
-            mutatePatientDetails && mutatePatientDetails();
+            mutatePatientInsurances();
             mutatePatientList && mutatePatientList();
             mutateAgenda && mutateAgenda();
             enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
@@ -281,7 +278,7 @@ function PersonalInsuranceCard({...props}) {
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -294,7 +291,7 @@ function PersonalInsuranceCard({...props}) {
                                 pt: 0
                             },
                             p: 1.5, borderWidth: 0,
-                            ...((loading || patient?.insurances.length === 0) && {
+                            ...((loading || patientInsurances?.length === 0) && {
                                 "& .MuiAppBar-root": {
                                     borderBottom: "none"
                                 },
@@ -329,7 +326,7 @@ function PersonalInsuranceCard({...props}) {
                                 </LoadingButton>
                             </Toolbar>
                         </AppBar>
-                        {patient?.insurances.map((insurance: any, index: number) => (
+                        {patientInsurances?.map((insurance: any, index: number) => (
                             <Grid container key={`${index}-${insurance.uuid}`}>
                                 <Stack sx={{
                                     ...(index === 0 && {
@@ -424,7 +421,7 @@ function PersonalInsuranceCard({...props}) {
                         }
                     }}
                     data={{
-                        insurances, values, formik, patient, loading,
+                        insurances, values, formik, requestAction, loading,
                         getFieldProps, setFieldValue, touched, errors, t
                     }}
                     color={theme.palette.primary.main}
@@ -445,14 +442,18 @@ function PersonalInsuranceCard({...props}) {
                                 }
                             }}>
                             <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                                <Button
+                                {requestAction !== "PUT" && <Button
                                     onClick={() => {
-                                        handleAddInsurance();
+                                        handleMultiAddInsurance();
                                     }}
                                     startIcon={<AddIcon/>}>
                                     {t("config.add-patient.add-insurance-more")}
-                                </Button>
-                                <Stack direction={"row"} justifyContent={"center"} alignItems={"center"} spacing={1.2}>
+                                </Button>}
+                                <Stack direction={"row"}
+                                       {...(requestAction === "PUT" && {sx: {width: "100%"}})}
+                                       justifyContent={"flex-end"}
+                                       alignItems={"center"}
+                                       spacing={1.2}>
                                     <LoadingButton
                                         loading={loadingRequest}
                                         sx={{
@@ -468,7 +469,7 @@ function PersonalInsuranceCard({...props}) {
                                             setInsuranceDialog(false);
                                             handleUpdatePatient();
                                         }}
-                                        disabled={!!errors?.insurances || values.insurances.filter((insur: InsurancesModel) => !insur.online).length === 0}
+                                        disabled={!!errors?.insurances || (values.insurances as any[]).filter((insur: InsurancesModel) => !insur.online).length === 0}
                                         variant="contained"
                                         startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                         {t("config.add-patient.register")}

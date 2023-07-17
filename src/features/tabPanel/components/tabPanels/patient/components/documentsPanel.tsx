@@ -19,7 +19,10 @@ import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";
@@ -31,6 +34,7 @@ import {useAppointmentHistory} from "@lib/hooks/rest";
 import {useRequest} from "@lib/axios";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
+import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -65,18 +69,16 @@ function DocumentsPanel({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const {previousAppointmentsData} = useAppointmentHistory({patientId: patient?.uuid});
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
     const [documents, setDocuments] = useState<any[]>([]);
-    const [patientDocuments, setPatientDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const tabsContent = [
         {
@@ -119,15 +121,13 @@ function DocumentsPanel({...props}) {
 
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
                         <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                            {
-                                patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard onClick={() => {
-                                            showDoc(card)
-                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                                    </React.Fragment>
-                                )
-                            }
+                            {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard onClick={() => {
+                                        showDoc(card)
+                                    }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                                </React.Fragment>
+                            )}
                         </Stack>
                     </Box>
 
@@ -163,14 +163,7 @@ function DocumentsPanel({...props}) {
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
-    const {
-        data: httpPatientDocumentsResponse,
-        mutate: mutatePatientDocuments
-    } = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
+
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,12 +263,6 @@ function DocumentsPanel({...props}) {
             }, []));
         }
     }, [previousAppointmentsData]);
-
-    useEffect(() => {
-        if (httpPatientDocumentsResponse) {
-            setPatientDocuments((httpPatientDocumentsResponse as HttpResponse)?.data);
-        }
-    }, [httpPatientDocumentsResponse])
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 

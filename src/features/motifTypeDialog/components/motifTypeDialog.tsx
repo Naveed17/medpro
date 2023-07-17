@@ -25,12 +25,16 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@lib/constants";
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector, setOngoing} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useSWRConfig} from "swr";
 
 const icons = [
     "ic-consultation",
@@ -99,6 +103,8 @@ function EditMotifDialog({...props}) {
     const router = useRouter();
     const {trigger} = useRequestMutation(null, "/settings/type");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -106,6 +112,10 @@ function EditMotifDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+
+    const mutateMedicalProfessionalData = () => {
+        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`).then(r => dispatch(setOngoing(r.data.data)));
+    };
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -151,6 +161,7 @@ function EditMotifDialog({...props}) {
                 }).then(() => {
                     enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
                     mutateEvent();
+                    mutateMedicalProfessionalData()
                 }).catch((error) => {
                     enqueueSnackbar(error, {variant: "error"});
                 });

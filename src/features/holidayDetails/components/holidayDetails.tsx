@@ -16,7 +16,10 @@ import RadioTextImage from "@themes/overrides/RadioTextImage";
 import { Otable } from "@features/table";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const ContentStyled = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(2),

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard} from "@features/card";
+import {PatientDetailsCard} from "@features/card";
 import {
     addPatientSelector,
     DocumentsPanel,
@@ -41,7 +41,10 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -53,7 +56,6 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {PDFViewer} from "@react-pdf/renderer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
@@ -70,13 +72,6 @@ function a11yProps(index: number) {
         "aria-controls": `simple-tabpanel-${index}`,
     };
 }
-
-// add patient details RDV for not data
-const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "no-data.appointment.title",
-    description: "no-data.appointment.description"
-};
 
 function PatientDetail({...props}) {
     const {
@@ -96,7 +91,7 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate} = useSWRConfig();
+    const {mutate, cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -138,6 +133,7 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
+    const [patient, setPatient] = useState<null | PatientModel>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`)?.data?.data?.data) ?? null);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -151,16 +147,15 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null, SWRNoValidateConfig);
 
@@ -209,6 +204,7 @@ function PatientDetail({...props}) {
         } else {
             setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
             mutatePatientDetails();
+            mutatePatientList && mutatePatientList();
         }
     };
 
@@ -307,8 +303,6 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
-    const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
 
     const tabsContent = [
@@ -335,17 +329,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.appointment",
-            children: <>
-                {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
-                    <GroupTable from="patient" loading={!patient} data={patient}/>
-                ) : (
-                    <NoDataCard
-                        t={t}
-                        ns={"patient"}
-                        data={AddAppointmentCardData}
-                    />
-                )}
-            </>,
+            children: <GroupTable from="patient" data={{patient, translate: t}}/>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
         {
@@ -371,9 +355,7 @@ function PatientDetail({...props}) {
         },
         {
             title: "tabs.recap",
-            children: <PDFViewer height={470}>
-                <PatientFile {...{patient, antecedentsData, t, router, session, allAntecedents}} />
-            </PDFViewer>,
+            children: <PatientFile {...{patient, antecedentsData, t, allAntecedents}} />,
             permission: ["ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
@@ -391,7 +373,13 @@ function PatientDetail({...props}) {
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    useEffect(() => {
+        if (httpPatientDetailsResponse) {
+            setPatient((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel);
+        }
+    }, [httpPatientDetailsResponse]);
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -434,7 +422,9 @@ function PatientDetail({...props}) {
                         {tabsContent.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
-                                padding={1} value={index} index={tabContentIndex}>
+                                padding={1}
+                                value={index}
+                                index={tabContentIndex}>
                                 {tabContent.children}
                             </TabPanel>
                         ))}

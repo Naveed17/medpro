@@ -21,7 +21,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 function SortIcon({ ...props }) {
   return (
     <SvgIcon

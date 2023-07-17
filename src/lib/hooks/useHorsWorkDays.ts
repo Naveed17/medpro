@@ -8,7 +8,7 @@ function useHorsWorkDays() {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const locations = agendaConfig?.locations;
-    const openingHours = locations && locations[0].openingHours[0].openingHours;
+    const openingHours = agendaConfig?.openingHours[0];
 
     useEffect(() => {
         const localDisabledDay: number[] = [];

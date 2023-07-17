@@ -6,7 +6,10 @@ import {
 } from "@mui/material";
 //utils
 import RootStyled from "./overrides/rootStyled";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {FormikProvider, Form, useFormik} from "formik";
 import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -14,14 +17,14 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;
     const dispatch = useAppDispatch();
-    const {fields: duplicatedFields, patient} = useAppSelector(duplicatedSelector);
+    const {fields: duplicatedFields, duplicationSrc} = useAppSelector(duplicatedSelector);
     const [selectedValue, setSelectedValue] = useState<string>("1");
-    const [fields, setFields] = useState<string[]>(duplicatedFields);
+    const [fields, setFields] = useState<string[]>(duplicatedFields as string[]);
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: (patient ? patient : duplicatedPatients[0]) as PatientImportModel,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        initialValues: duplicationSrc as PatientModel,
+        onSubmit: async (values) => {
             console.log(values);
         },
     });
@@ -40,7 +43,7 @@ function DuplicateDetected({...props}) {
         setSelectedValue(event.target.value);
     };
 
-    const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>, data: PatientModel) => {
         const {name, checked} = event.target;
         const filteredFields = [...fields];
         const checkedFiled = filteredFields.findIndex((el) => el.includes(name.split("-")[0]));
@@ -53,12 +56,10 @@ function DuplicateDetected({...props}) {
         let updatedPatient = values;
         if (checked) {
             const updatedFieldName = name.split("-")[0];
-            const updatedFieldIndex = parseInt(name.split("-")[1]);
-            setFieldValue(updatedFieldName, duplicatedPatients[updatedFieldIndex][updatedFieldName]);
-            updatedPatient = {...values, [updatedFieldName]: duplicatedPatients[updatedFieldIndex][updatedFieldName]};
+            setFieldValue(updatedFieldName, data[updatedFieldName as keyof typeof data]);
+            updatedPatient = {...values, [updatedFieldName]: data[updatedFieldName as keyof typeof data]};
         }
-
-        dispatch(setDuplicated({fields: updatedFields, patient: updatedPatient}));
+        dispatch(setDuplicated({fields: updatedFields, duplicationSrc: updatedPatient}));
     };
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: "config"});

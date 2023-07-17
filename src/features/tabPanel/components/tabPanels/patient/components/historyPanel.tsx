@@ -1,6 +1,6 @@
 import {Box, Stack, Typography, useTheme} from '@mui/material'
 import {HistoryContainer, NoDataCard, PatientHistoryNoDataCard} from '@features/card'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
@@ -40,7 +40,7 @@ function HistoryPanel({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
-    const [apps, setApps] = useState<any>(null);
+    const [apps, setApps] = useState(previousAppointments);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
 
     const handleCloseDialog = () => {
@@ -131,13 +131,7 @@ function HistoryPanel({...props}) {
     }, [previousAppointments, dispatch]);
 
     return (
-        (isLoading || !apps) ? <Stack spacing={2} padding={2}>
-            {Array.from({length: 3}).map((_, idx) => (
-                <React.Fragment key={`${idx}-empty-history`}>
-                    <PatientHistoryNoDataCard/>
-                </React.Fragment>
-            ))}
-        </Stack> : (apps && apps.length > 0) ?
+        (apps && apps.length > 0) ?
             <PanelStyled>
                 <Box className="files-panel">
                     <Typography fontWeight={600} p={1}>
@@ -202,16 +196,22 @@ function HistoryPanel({...props}) {
                     />
                 )}
             </PanelStyled>
-            :
-            <NoDataCard
-                t={t}
-                ns={"patient"}
-                data={{
-                    mainIcon: "consultation/ic-text",
-                    title: "config.no-data.consultation.title",
-                    description: "config.no-data.consultation.description"
-                }}
-            />
+            : isLoading ? <Stack spacing={2} padding={2}>
+                    {Array.from({length: 3}).map((_, idx) => (
+                        <React.Fragment key={`${idx}-empty-history`}>
+                            <PatientHistoryNoDataCard/>
+                        </React.Fragment>
+                    ))}
+                </Stack> :
+                <NoDataCard
+                    t={t}
+                    ns={"patient"}
+                    data={{
+                        mainIcon: "consultation/ic-text",
+                        title: "config.no-data.consultation.title",
+                        description: "config.no-data.consultation.description"
+                    }}
+                />
     )
 }
 

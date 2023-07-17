@@ -4,7 +4,10 @@ import {useRequest} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function ModeRegDialog(info:any) {
 

@@ -33,7 +33,10 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
@@ -235,7 +238,7 @@ function AppointmentDetail({...props}) {
                                                     </Stack>
                                                 </ListItem>
                                             )}
-                                            {appointment?.extendedProps.patient.contact.length >
+                                            {appointment?.extendedProps.patient.contact?.length >
                                                 0 && (
                                                     <ListItem className={"appointment-text"}>
                                                         <IconUrl
@@ -325,7 +328,7 @@ function AppointmentDetail({...props}) {
                 {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
-                            {appointment?.extendedProps.patient.contact.length > 0 && <LoadingButton
+                            {appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
                                 href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                 variant="contained"
                                 startIcon={<IconUrl path="ic-tel" className="ic-tel"/>}

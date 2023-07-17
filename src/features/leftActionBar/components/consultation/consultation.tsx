@@ -2,7 +2,8 @@
 import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
-    Avatar, AvatarGroup,
+    Avatar,
+    AvatarGroup,
     Badge,
     Box,
     Button,
@@ -13,7 +14,8 @@ import {
     ListItem,
     ListItemIcon,
     Skeleton,
-    Stack, Tooltip,
+    Stack,
+    Tooltip,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -26,11 +28,13 @@ import {consultationSelector} from "@features/toolbar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition,} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
@@ -38,10 +42,9 @@ import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
-import {useInsurances} from "@lib/hooks/rest";
-import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
+import {useAntecedentTypes, useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {useSWRConfig} from "swr";
+import {ImageHandler} from "@features/image";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -54,7 +57,7 @@ function Consultation() {
     const {cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient} = useAppSelector(consultationSelector);
+    const {patient, analyses, mi, patientAntecedent} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -72,31 +75,10 @@ function Consultation() {
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
     const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
-    const [analyses, setAnalyses] = useState<any>([]);
-    const [mi, setMi] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
-    let [oldNote, setOldNote] = useState("");
-
+    const [oldNote, setOldNote] = useState("");
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const {data: httpPatientAntecedents, mutate: antecedentsMutate} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
-    const {data: httpPatientAnalyses, mutate: analysessMutate} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
-    const {data: httpPatientMI, mutate: miMutate} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -144,18 +126,6 @@ function Consultation() {
     };
 
     useEffect(() => {
-        if (httpPatientAnalyses) {
-            setAnalyses((httpPatientAnalyses as HttpResponse).data)
-        }
-    }, [httpPatientAnalyses])
-
-    useEffect(() => {
-        if (httpPatientMI) {
-            setMi((httpPatientMI as HttpResponse).data)
-        }
-    }, [httpPatientMI])
-
-    useEffect(() => {
         const noteContainer = document.getElementById("note-card-content");
         if (noteContainer) {
             if (noteContainer.clientHeight >= 153)
@@ -185,8 +155,8 @@ function Consultation() {
             let allergicBadge = 0;
             let antecedentBadge = 0;
 
-            if (httpPatientAntecedents) {
-                const res = (httpPatientAntecedents as HttpResponse).data;
+            if (patientAntecedent) {
+                const res = patientAntecedent;
                 setPatientAntecedents(res);
                 if (res['way_of_life'])
                     wayOfLifeBadge = res['way_of_life'].length;
@@ -252,10 +222,8 @@ function Consultation() {
                     badge: 0,
                 },
             ]);
-            analysessMutate();
-            miMutate();
         }
-    }, [patient, httpPatientAntecedents]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [patient, patientAntecedent]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -293,6 +261,7 @@ function Consultation() {
                                                  title={insuranceItem?.insurance.name}>
                                             <Avatar variant={"circular"}>
                                                 {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+
                                                     <ImageHandler
                                                         alt={insuranceItem?.insurance.name}
                                                         src={allInsurances.find(
@@ -508,7 +477,6 @@ function Consultation() {
                                     <Box px={1.5}>
                                         <Content id={col.id} {...{
                                             patient,
-                                            antecedentsMutate,
                                             patientAntecedents,
                                             allAntecedents,
                                             analyses,

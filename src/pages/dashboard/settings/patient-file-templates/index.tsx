@@ -2,28 +2,21 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
-import {
-    Button,
-    Box,
-    Drawer,
-    Stack,
-    Toolbar,
-    useTheme,
-    Theme,
-    IconButton, useMediaQuery,
-} from "@mui/material";
+import {configSelector, DashLayout} from "@features/base";
+import {Box, Button, Drawer, IconButton, Stack, Theme, Toolbar, useMediaQuery, useTheme,} from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {configSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
@@ -33,8 +26,8 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useSWRConfig} from "swr";
+import {useWidgetModels} from "@lib/hooks/rest";
+import {useRefreshMutation} from "@lib/axios/useRefreshMutation";
 
 function PatientFileTemplates() {
     const {data: session} = useSession();
@@ -43,7 +36,12 @@ function PatientFileTemplates() {
     const isMobile = useMediaQuery("(max-width:669px)");
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
-    const {mutate: mutateSwrConfig} = useSWRConfig();
+    const {models, modelsMutate} = useWidgetModels({
+        filter: !isMobile
+            ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
+            : "?sort=true"
+    })
+
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
@@ -52,6 +50,7 @@ function PatientFileTemplates() {
     const [state, setState] = useState({active: true,});
     const [action, setAction] = useState("");
     const [data, setData] = useState<ModalModel | null>(null);
+
     const headCells = [
         {
             id: "name",
@@ -83,29 +82,20 @@ function PatientFileTemplates() {
     const [loading, setLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
 
-    const {data: modalsHttpResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
-        method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${
-            !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
-                : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
-
     const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
+    const {refresh} = useRefreshMutation();
 
     useEffect(() => {
-        if (modalsHttpResponse !== undefined) {
+        if (models !== undefined) {
             if (isMobile) {
-                setRows((modalsHttpResponse as HttpResponse).data);
+                setRows((models as ModalModel[]));
             } else {
-                setRows((modalsHttpResponse as HttpResponse).data?.list);
+                setRows((models as ModalModelPagination).list);
             }
         }
-    }, [modalsHttpResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [isMobile, models]);
     const handleScroll = () => {
-        const total = (modalsHttpResponse as HttpResponse)?.data.length;
+        const total = (models as ModalModel[]).length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
             if (total > displayedItems) {
                 setDisplayedItems(displayedItems + 10);
@@ -130,7 +120,7 @@ function PatientFileTemplates() {
             });
         }
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [modalsHttpResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [models, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = (props: ModalModel) => {
         props.isEnabled = !props.isEnabled;
@@ -142,7 +132,7 @@ function PatientFileTemplates() {
             url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        });
+        }).then(() => refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`))
     }
 
     const handleEdit = (props: ModalModel, event: string, value?: string) => {
@@ -179,11 +169,13 @@ function PatientFileTemplates() {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
         }).then(() => {
-            mutateSwrConfig(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
             enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
             setLoading(false);
             setOpenDialog(false);
-            mutate();
+            modelsMutate();
+
+            refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
+
         }).catch(() => {
             setLoading(false);
             // enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
@@ -191,7 +183,7 @@ function PatientFileTemplates() {
         });
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -225,8 +217,8 @@ function PatientFileTemplates() {
                         edit={handleEdit}
                         handleConfig={null}
                         handleChange={handleChange}
-                        total={(modalsHttpResponse as HttpResponse)?.data?.total}
-                        totalPages={(modalsHttpResponse as HttpResponse)?.data?.totalPages}
+                        total={(models as ModalModelPagination)?.total}
+                        totalPages={(models as ModalModelPagination)?.totalPages}
                         pagination
                     />
                 </DesktopContainer>
@@ -259,11 +251,13 @@ function PatientFileTemplates() {
                         </Toolbar>
                     )}
 
-                    <PfTemplateDetail
-                        action={action}
-                        mutate={mutate}
-                        closeDraw={closeDraw}
-                        data={data}></PfTemplateDetail>
+                    <PfTemplateDetail {...{
+                        action,
+                        mutate: modelsMutate,
+                        closeDraw,
+                        data,
+                        refresh
+                    }}/>
                 </Drawer>
             </Box>
             <Dialog

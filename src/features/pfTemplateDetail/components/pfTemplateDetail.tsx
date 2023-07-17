@@ -16,17 +16,18 @@ import {styled} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {SearchInput} from "@features/input";
-import {useSWRConfig} from "swr";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -76,11 +77,11 @@ const PaperStyled = styled(Form)(({theme}) => ({
 }));
 
 function PfTemplateDetail({...props}) {
+    const {data, closeDraw, action, mutate, refresh} = props
     const {data: session} = useSession();
     const router = useRouter();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {mutate} = useSWRConfig();
 
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
     const colors = [
@@ -93,7 +94,7 @@ function PfTemplateDetail({...props}) {
         "#72D0BE",
         "#56A97F",
     ];
-    const [modelColor, setModelColor] = useState(props.data ? props.data.color : "#FEBD15");
+    const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
     const [sections, setSections] = useState<SpecialtyJsonWidgetModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [widget, setWidget] = useState<SpecialtyJsonWidgetModel[]>([]);
@@ -105,7 +106,7 @@ function PfTemplateDetail({...props}) {
 
     const {data: jsonWidgetsResponse} = useRequest({
         method: "GET",
-        url: "/api/private/json-widgets/specialities/fr",
+        url: `/api/private/json-widgets/specialities/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
@@ -114,10 +115,10 @@ function PfTemplateDetail({...props}) {
     useEffect(() => {
         if (widgets) {
             setSections(widgets);
-            if (props.data) {
-                setComponents(props.data.structure);
+            if (data) {
+                setComponents(data.structure);
                 let wdg: any[] = [];
-                props.data.structure.map((comp: any) => {
+                data.structure.map((comp: any) => {
                     const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.uuid === comp.key);
                     const filteredData = component?.jsonWidgets.filter((widget: any) =>
                         comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
@@ -138,13 +139,14 @@ function PfTemplateDetail({...props}) {
                         const root = ReactDOM.createRoot(childTeeth);
                         root.render(
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={`/static/img/${router.locale =='fr' ? 'childTeeth':'childTeethEN'}.svg`} alt={"child teeth"}/>
+                            <img src={`/static/img/${router.locale == 'fr' ? 'childTeeth' : 'childTeethEN'}.svg`}
+                                 alt={"child teeth"}/>
                         );
                     }
                 }, 2000)
             }
         }
-    }, [widgets, props.data]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [widgets, data]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -156,7 +158,7 @@ function PfTemplateDetail({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: props.data ? (props.data.label as string) : "",
+            name: data ? (data.label as string) : "",
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -174,16 +176,16 @@ function PfTemplateDetail({...props}) {
             form.append("label", values.name);
             form.append("color", modelColor);
             form.append("widgets", _uuids);
-            const editAction = props.action === "edit" && !props.data.hasData;
+            const editAction = action === "edit" && !data.hasData;
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
-                url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${props.data.uuid}` : ""}/${router.locale}`,
+                url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${data.uuid}` : ""}/${router.locale}`,
                 data: form,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then(() => {
-                mutate(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
-                props.mutate();
-                props.closeDraw();
+                refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
+                mutate();
+                closeDraw();
                 setLoading(false);
             });
         },
@@ -276,7 +278,7 @@ function PfTemplateDetail({...props}) {
 
     return (
         <Box style={{background: "black"}}>
-            {props.action === "see" && (
+            {action === "see" && (
                 <FormikProvider value={formik}>
                     <PaperStyled
                         autoComplete="off"
@@ -289,7 +291,7 @@ function PfTemplateDetail({...props}) {
                                 color={modelColor}
                                 selected={false}></ModelDot>
                             <Typography variant="h6" gutterBottom>
-                                {t("title") + props.data.label}
+                                {t("title") + data.label}
                             </Typography>
                         </Stack>
 
@@ -302,7 +304,7 @@ function PfTemplateDetail({...props}) {
                     </PaperStyled>
                 </FormikProvider>
             )}
-            {props.action !== "see" && (
+            {action !== "see" && (
                 <FormikProvider value={formik}>
                     <PaperStyled
                         autoComplete="off"
@@ -310,7 +312,7 @@ function PfTemplateDetail({...props}) {
                         className="root"
                         onSubmit={handleSubmit}>
                         <Typography variant="h6" gutterBottom>
-                            {props.data ? t("titleEdit") : t("titleAdd")}
+                            {data ? t("titleEdit") : t("titleAdd")}
                         </Typography>
                         <Typography
                             variant="body1"
@@ -485,7 +487,7 @@ function PfTemplateDetail({...props}) {
                             justifyContent="flex-end"
                             spacing={2}
                             direction={"row"}>
-                            <Button onClick={props.closeDraw}>{t("cancel")}</Button>
+                            <Button onClick={closeDraw}>{t("cancel")}</Button>
                             <Button
                                 type="submit"
                                 disabled={loading}

@@ -15,7 +15,10 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
@@ -256,6 +259,7 @@ function TemplatesConfig() {
                                  onMouseOut={handleMouseOut}>
                                 <PreviewA4  {...{
                                     eventHandler: null,
+                                    nbPage:1,
                                     data: res.header.data,
                                     values: res.header.header,
                                     state: null,
@@ -315,7 +319,8 @@ function TemplatesConfig() {
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                     </div>
 
-                    {models && isdefault && models.map(res => (
+
+                    {models && isdefault && !loading &&models.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
                                 handleMouseOver(res.uuid)
@@ -325,6 +330,7 @@ function TemplatesConfig() {
                                     eventHandler: null,
                                     data: isdefault?.header.data,
                                     values: isdefault?.header.header,
+                                    nbPage:1,
                                     state: {
                                         content: res.content,
                                         description: "",
@@ -370,6 +376,7 @@ function TemplatesConfig() {
                             </Stack>}
                         </Box>
                     ))}
+
                 </TemplateStyled>
             </Box>
 
@@ -396,61 +403,62 @@ function TemplatesConfig() {
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                     </div>
-                    {
-                        isdefault && prescriptions.map((card: any) => (
-                            <Box key={card.uuid} className={"container"}>
-                                <div onMouseOver={() => {
+
+                    {isdefault && !loading && prescriptions.map((card: any) => (
+                        <Box key={card.uuid} className={"container"}>
+                            <div onMouseOver={() => {
+                                handleMouseOver(card.uuid)
+                            }}
+                                 onMouseOut={handleMouseOut}>
+                                <PreviewA4  {...{
+                                    eventHandler: null,
+                                    data: isdefault?.header.data,
+                                    values: isdefault?.header.header,
+                                    nbPage:1,
+                                    t,
+                                    state: {
+                                        info: card.prescriptionModalHasDrugs,
+                                        description: "",
+                                        doctor: "",
+                                        name: "prescription",
+                                        patient: "Patient",
+                                        title: card.name,
+                                        type: "prescription"
+                                    },
+                                    loading
+                                }} />
+                            </div>
+
+                            {isHovering === card.uuid &&
+                                <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
                                     handleMouseOver(card.uuid)
-                                }}
-                                     onMouseOut={handleMouseOut}>
-                                    <PreviewA4  {...{
-                                        eventHandler: null,
-                                        data: isdefault?.header.data,
-                                        values: isdefault?.header.header,
-                                        t,
-                                        state: {
-                                            info: card.prescriptionModalHasDrugs,
-                                            description: "",
-                                            doctor: "",
-                                            name: "prescription",
-                                            patient: "Patient",
-                                            title: card.name,
-                                            type: "prescription"
-                                        },
-                                        loading
-                                    }} />
-                                </div>
-
-                                {isHovering === card.uuid &&
-                                    <Stack className={"edit-btn"} direction={"row"} onMouseOver={() => {
-                                        handleMouseOver(card.uuid)
+                                }}>
+                                    <IconButton size="small" onClick={() => {
+                                        setOpen(true)
+                                        setData(card);
+                                        setAction("showPrescription")
                                     }}>
-                                        <IconButton size="small" onClick={() => {
-                                            setOpen(true)
-                                            setData(card);
-                                            setAction("showPrescription")
-                                        }}>
-                                            <IconUrl path="setting/ic-voir"/>
-                                        </IconButton>
+                                        <IconUrl path="setting/ic-voir"/>
+                                    </IconButton>
 
-                                        <IconButton size="small" onClick={() => {
-                                            removePrescription(card.uuid);
-                                        }}>
-                                            <IconUrl path="setting/icdelete"/>
-                                        </IconButton>
-                                    </Stack>
-                                }
+                                    <IconButton size="small" onClick={() => {
+                                        removePrescription(card.uuid);
+                                    }}>
+                                        <IconUrl path="setting/icdelete"/>
+                                    </IconButton>
+                                </Stack>
+                            }
 
-                                {isHovering === card.uuid && <Stack direction={"row"}
-                                                                    onMouseOver={() => {
-                                                                        handleMouseOver(card.uuid)
-                                                                    }}
-                                                                    className={"title-content"}>
-                                    <Typography className={"title"}>{card.name}</Typography>
-                                </Stack>}
-                            </Box>
-                        ))
-                    }
+                            {isHovering === card.uuid && <Stack direction={"row"}
+                                                                onMouseOver={() => {
+                                                                    handleMouseOver(card.uuid)
+                                                                }}
+                                                                className={"title-content"}>
+                                <Typography className={"title"}>{card.name}</Typography>
+                            </Stack>}
+                        </Box>
+                    ))}
+
                 </TemplateStyled>
             </Box>
 
@@ -479,7 +487,7 @@ function TemplatesConfig() {
                     </div>
 
                     {
-                        isdefault && analysis.map((card: any) => (
+                        isdefault && !loading && analysis.map((card: any) => (
                             <Box key={card.uuid} className={"container"}>
                                 <div onMouseOver={() => {
                                     handleMouseOver(card.uuid)
@@ -489,6 +497,7 @@ function TemplatesConfig() {
                                         eventHandler: null,
                                         data: isdefault?.header.data,
                                         values: isdefault?.header.header,
+                                        nbPage:1,
                                         t,
                                         state: {
                                             info: card.info,
@@ -514,13 +523,6 @@ function TemplatesConfig() {
                                         }}>
                                             <IconUrl path="setting/ic-voir"/>
                                         </IconButton>
-                                        {/* <IconButton size="small" onClick={() => {
-                                                editDoc(res)
-                                            }}>
-                                                <IconUrl path="setting/edit"/>
-                                            </IconButton>
-                                            */}
-
                                         <IconButton size="small" onClick={() => {
                                             removeAnalyses(card.uuid);
                                         }}>
@@ -528,7 +530,6 @@ function TemplatesConfig() {
                                         </IconButton>
                                     </Stack>
                                 }
-
                                 {isHovering === card.uuid && <Stack direction={"row"}
                                                                     onMouseOver={() => {
                                                                         handleMouseOver(card.uuid)
@@ -572,6 +573,7 @@ function TemplatesConfig() {
                             eventHandler: null,
                             data: isdefault?.header.data,
                             values: isdefault?.header.header,
+                            nbPage:1,
                             t,
                             state: {
                                 info: data?.prescriptionModalHasDrugs,
@@ -594,6 +596,7 @@ function TemplatesConfig() {
                             eventHandler: null,
                             data: isdefault?.header.data,
                             values: isdefault?.header.header,
+                            nbPage:1,
                             t,
                             state: {
                                 info: data.info,

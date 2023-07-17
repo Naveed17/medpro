@@ -16,11 +16,13 @@ import {useRouter} from "next/router";
 import {AppointmentStatus} from "@features/calendar";
 import {useAppDispatch} from "@lib/redux/hooks";
 import RootStyled from "./overrides/rootStyled";
-import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;
@@ -69,7 +71,7 @@ function RdvCard({...props}) {
                     className="first-child"
                     sx={{
                         "&:after": {
-                            bgcolor: loading ? "green" : inner.consultationReason?.color,
+                            bgcolor: loading ? "green" : inner?.consultationReason?.color,
                         },
                     }}
                 >

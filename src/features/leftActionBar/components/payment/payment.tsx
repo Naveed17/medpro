@@ -80,7 +80,7 @@ function Payment() {
     ]);
 
     const locations = agendaConfig?.locations;
-    const hours = locations && locations[0].openingHours[0].openingHours;
+    const hours = agendaConfig?.openingHours[0];
     const newVersion = process.env.NODE_ENV === 'development';
 
     useEffect(() => {

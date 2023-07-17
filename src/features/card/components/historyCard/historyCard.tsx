@@ -6,7 +6,9 @@ import moment from "moment/moment";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {openDrawer} from "@features/dialog";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export default function HistoryCard({...props}) {
 

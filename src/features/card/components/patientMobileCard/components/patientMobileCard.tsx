@@ -22,8 +22,10 @@ import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import {LoadingScreen} from "@features/loadingScreen";
 import {useProfilePhoto} from "@lib/hooks/rest";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,

@@ -100,7 +100,7 @@ function Calendar({...props}) {
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
-    const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
+    const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const getSlotsFormat = (slot: number) => {

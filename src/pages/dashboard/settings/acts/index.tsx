@@ -14,12 +14,14 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSWRConfig} from "swr";
-
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
@@ -113,17 +115,17 @@ function Acts() {
         }));
     }, [acts, mainActs, secondaryActs]);
 
-    const onDrop = (id: string, ev: any) => {
+    const onDrop = (id: string) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
         setSuggestion([...deleteSuggestion]);
         if (id === "main" && mainActs.length < 10) {
             setMainActs([...mainActs, (selected as ActModel)]);
-            setDoctorActs(true, (selected as ActModel)?.uuid);
+            setDoctorActs(true, selected?.uuid as string);
         } else {
             const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v !== selected);
             setSuggestion([...deleteSuggestion]);
             setSecondaryActs([...secondaryActs, (selected as ActModel)]);
-            setDoctorActs(false, (selected as ActModel)?.uuid);
+            setDoctorActs(false, selected?.uuid as string);
         }
     };
 
@@ -156,14 +158,14 @@ function Acts() {
         const deletedAct = getDifference(items, val);
         const insertedAct = getDifference(val, items);
         if (insertedAct.length > 0) {
-            setDoctorActs(id === "main", (insertedAct[0] as ActModel)?.uuid);
+            setDoctorActs(id === "main", insertedAct[0]?.uuid);
         } else {
             removeFees((deletedAct[0] as ActModel)?.medicalProfessionalAct as string);
         }
         setItems(val.slice(0, 10));
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

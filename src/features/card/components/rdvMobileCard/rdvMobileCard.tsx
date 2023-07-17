@@ -10,13 +10,13 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 function RDVMobileCard({...props}) {
     const {inner} = props;
-    return (
+    return inner && (
         <tr>
             <TableCell colSpan={4} sx={{p: "0!important"}}>
                 <RootStyled
                     sx={{
                         "&:before": {
-                            bgcolor: inner.consultationReason?.color,
+                            bgcolor: inner?.consultationReason?.color,
                         },
                     }}
                 >

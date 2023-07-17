@@ -7,3 +7,4 @@ export {default as useProfilePhoto} from "./useProfilePhoto";
 export {default as useAntecedentTypes} from "./useAntecedentTypes";
 export {default as useCountries} from "./useCountries";
 export {default as useAppointmentHistory} from "./useAppointmentHistory";
+export {default as useWidgetModels} from "./useWidgetModels";

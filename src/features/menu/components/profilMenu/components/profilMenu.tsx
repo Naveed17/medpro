@@ -32,7 +32,10 @@ import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
 import {useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import Image from "next/image";
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -59,7 +62,7 @@ function ProfilMenu() {
 
     const {trigger} = useRequestMutation(null, "/settings");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));
@@ -212,7 +215,7 @@ function ProfilMenu() {
                                                                 selected={subItem.isDefault}
                                                                 {...(subIndex !== agendas.length - 1 && {className: "border-bottom"})}>
                                                                 <ListItemText>
-                                                                    {subItem.locations[0].name}
+                                                                    Default
                                                                 </ListItemText>
                                                             </MenuItem>
                                                         ))}
