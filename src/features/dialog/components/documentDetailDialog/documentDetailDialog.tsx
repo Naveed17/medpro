@@ -14,6 +14,8 @@ import {
     ListItemText,
     Stack,
     TextField,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography
 } from '@mui/material'
 import {Document, Page, pdfjs} from "react-pdf";
@@ -31,9 +33,6 @@ import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
 import ReactPlayer from "react-player";
@@ -47,6 +46,12 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -179,9 +184,11 @@ function DocumentDetailDialog({...props}) {
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
+
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
+
     const handleClose = () => {
         setOpenAlert(false);
     };
@@ -390,7 +397,10 @@ function DocumentDetailDialog({...props}) {
                         setSelectedTemplate(docInfo[0].uuid)
                         setData({
                             ...docInfo[0].header.data,
-                            background: {show: docInfo.header?.data.background.show, content: docInfo.file ? docInfo.file : ''}
+                            background: {
+                                show: docInfo.header?.data.background.show,
+                                content: docInfo.file ? docInfo.file : ''
+                            }
                         })
                         setHeader(docInfo[0].header.header)
                     }
@@ -400,7 +410,7 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <DocumentDetailDialogStyled>
@@ -468,9 +478,34 @@ function DocumentDetailDialog({...props}) {
                                                 </Stack>
                                             </Card>}
 
-                                            {isImg && <Box component={"img"} src={state.uri.url}
-                                                           sx={{marginLeft: 2, maxWidth: "100%"}}
-                                                           alt={"img"}/>}
+                                            {isImg && <TransformWrapper initialScale={1}>
+                                                {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                                    <React.Fragment>
+                                                        <Stack justifyContent={"end"} mr={2}>
+                                                            <ToggleButtonGroup className={"zoombar"} size="small"
+                                                                               aria-label="Small sizes">
+                                                                <ToggleButton onClick={() => zoomIn()} value="left"
+                                                                              aria-label="left aligned">
+                                                                    <ZoomInIcon/>
+                                                                </ToggleButton>
+                                                                <ToggleButton onClick={() => zoomOut()} value="left"
+                                                                              aria-label="left aligned">
+                                                                    <ZoomOutIcon/>
+                                                                </ToggleButton>
+                                                                <ToggleButton onClick={() => resetTransform()} value="left"
+                                                                              aria-label="left aligned">
+                                                                    <CenterFocusWeakIcon/>
+                                                                </ToggleButton>
+                                                            </ToggleButtonGroup>
+                                                        </Stack>
+                                                        <TransformComponent>
+                                                            <Box component={"img"} src={state.uri.url}
+                                                                 sx={{marginLeft: 2, maxWidth: "100%"}}
+                                                                 alt={"img"}/>
+                                                        </TransformComponent>
+                                                    </React.Fragment>
+                                                )}</TransformWrapper>
+                                            }
                                         </Box>
                                     }
                                 </Box>
@@ -480,8 +515,33 @@ function DocumentDetailDialog({...props}) {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
                                 {state.type === 'photo' &&
-                                    <Box component={"img"} src={state.uri.url} sx={{marginLeft: 2, maxWidth: "100%"}}
-                                         alt={"img"}/>}
+                                    <TransformWrapper initialScale={1}>
+                                        {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                            <React.Fragment>
+                                                <Stack justifyContent={"end"} mr={2}>
+                                                    <ToggleButtonGroup className={"zoombar"} size="small"
+                                                                       aria-label="Small sizes">
+                                                        <ToggleButton onClick={() => zoomIn()} value="left"
+                                                                      aria-label="left aligned">
+                                                            <ZoomInIcon/>
+                                                        </ToggleButton>
+                                                        <ToggleButton onClick={() => zoomOut()} value="left"
+                                                                      aria-label="left aligned">
+                                                            <ZoomOutIcon/>
+                                                        </ToggleButton>
+                                                        <ToggleButton onClick={() => resetTransform()} value="left"
+                                                                      aria-label="left aligned">
+                                                            <CenterFocusWeakIcon/>
+                                                        </ToggleButton>
+                                                    </ToggleButtonGroup>
+                                                </Stack>
+                                                <TransformComponent>
+                                                    <Box component={"img"} src={state.uri.url}
+                                                         sx={{marginLeft: 2, maxWidth: "100%"}}
+                                                         alt={"img"}/></TransformComponent>
+                                            </React.Fragment>
+
+                                        )}</TransformWrapper>}
                                 {state.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
                                 {state.type === 'audio' &&
                                     <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
