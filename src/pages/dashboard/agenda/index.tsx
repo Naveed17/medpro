@@ -199,6 +199,7 @@ function Agenda() {
         setLoading(true);
         if (query.includes("format=list")) {
             dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
+            events.current = [];
         }
         trigger({
             method: "GET",
@@ -319,7 +320,7 @@ function Agenda() {
 
     const handleOnToday = () => {
         const calendarApi = (calendarEl as FullCalendar)?.getApi();
-        if(calendarApi) {
+        if (calendarApi) {
             calendarApi.today();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }

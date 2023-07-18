@@ -5,7 +5,7 @@ import {
     TableRow,
     TableCell,
     useMediaQuery,
-    Skeleton, DialogActions, Button, LinearProgress,
+    Skeleton, DialogActions, Button
 } from "@mui/material";
 // components
 import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/card";
@@ -30,9 +30,9 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
     const {data: session} = useSession();
+    const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
@@ -51,7 +51,7 @@ function RDVRow({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
@@ -96,132 +96,137 @@ function RDVRow({...props}) {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (nextAppointmentsData?.length > 0 || previousAppointmentsData?.length > 0 ? (
-                <React.Fragment>
-                    {nextAppointmentsData.length > 0 && <TableRow>
+            <React.Fragment>
+                {nextAppointmentsData.length > 0 && <>
+                    <TableRow>
                         <TableCell colSpan={3} className="text-row">
                             <Typography variant="body1" color="text.primary">
-                                {isLoading ? (
-                                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                ) : (
-                                    <>
-                                        {t("next-appo")}{" "}
-                                        {nextAppointmentsData.length > 1 &&
-                                            `(${nextAppointmentsData.length})`}
-                                    </>
-                                )}
+                                {t("next-appo")}{" "}
+                                {nextAppointmentsData.length > 1 &&
+                                    `(${nextAppointmentsData.length})`}
                             </Typography>
                         </TableCell>
-                    </TableRow>}
-                    {(isLoading ? Array.from(new Array(3)) : nextAppointmentsData).map(
-                        (data: PatientDetailsRDV) => (
-                            <React.Fragment key={patient.uuid}>
+                    </TableRow>
+                    {nextAppointmentsData.map((data: PatientDetailsRDV, index: number) => (
+                            <React.Fragment key={"nextAppointmentsData" + index.toString()}>
                                 {matches ? (
                                     <RDVCard
                                         inner={data}
-                                        {...{t, patient, loading: isLoading, handlePreConsultationDialog}} />
+                                        {...{t, patient, loading: false, handlePreConsultationDialog}} />
                                 ) : (
                                     <RDVMobileCard
                                         inner={data}
-                                        {...{loading: isLoading, handlePreConsultationDialog}} />
+                                        {...{loading: false, handlePreConsultationDialog}} />
                                 )}
                             </React.Fragment>
                         )
                     )}
-                    {previousAppointmentsData.length > 0 && <TableRow>
+                </>}
+
+                {previousAppointmentsData.length > 0 && <>
+                    <TableRow>
                         <TableCell colSpan={3} className="text-row">
                             <Typography variant="body1" color="text.primary">
-                                {isLoading ? (
-                                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                ) : (
-                                    <>
-                                        {t("old-appo")}{" "}
-                                        {previousAppointmentsData.length > 1 &&
-                                            `(${previousAppointmentsData.length})`}
-                                    </>
-                                )}
+                                {t("old-appo")}{" "}
+                                {previousAppointmentsData.length > 1 &&
+                                    `(${previousAppointmentsData.length})`}
                             </Typography>
                         </TableCell>
-                    </TableRow>}
-                    {(isLoading ? Array.from(new Array(1)) : previousAppointments).map(
-                        (data: any, index: number) => (
-                            <React.Fragment key={index.toString()}>
-                                <TableRow>
-                                    <TableCell className="text-row">
-                                        <Typography variant="body1" color="text.primary">
-                                            {isLoading ? (
-                                                <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                            ) : (
-                                                <>{data.year}</>
-                                            )}
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                                {(isLoading ? Array.from(new Array(4)) : data?.data).map(
-                                    (inner: any, index: number) => (
-                                        <React.Fragment key={index.toString()}>
-                                            {matches ? (
-                                                <RDVPreviousCard
-                                                    inner={inner}
-                                                    {...{patient, loading: isLoading, handlePreConsultationDialog}}/>
-                                            ) : (
-                                                <RDVMobileCard
-                                                    inner={inner}
-                                                    {...{loading: isLoading, handlePreConsultationDialog}}/>
-                                            )}
-                                        </React.Fragment>
-                                    )
-                                )}
-                            </React.Fragment>
-                        )
+                    </TableRow>
+                    {previousAppointments.map((data: any, index: number) => (
+                        <React.Fragment key={"previousAppointments" + index.toString()}>
+                            <TableRow>
+                                <TableCell className="text-row">
+                                    <Typography variant="body1" color="text.primary">
+                                        {data.year}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                            {data?.data.map(
+                                (inner: any, index: number) => (
+                                    <React.Fragment key={"previousAppointments" + index.toString()}>
+                                        {matches ? (
+                                            <RDVPreviousCard
+                                                inner={inner}
+                                                {...{patient, loading: false, handlePreConsultationDialog}}/>
+                                        ) : (
+                                            <RDVMobileCard
+                                                inner={inner}
+                                                {...{loading: false, handlePreConsultationDialog}}/>
+                                        )}
+                                    </React.Fragment>
+                                )
+                            )}
+                        </React.Fragment>)
                     )}
+                </>}
 
-                    <Dialog
-                        action={"pre_consultation_data"}
-                        {...{
-                            direction,
-                            sx: {
-                                minHeight: 380
-                            }
-                        }}
-                        open={openPreConsultationDialog}
-                        data={{
-                            patient,
-                            uuid: appointmentData?.uuid
-                        }}
-                        size={"md"}
-                        title={t("pre_consultation_dialog_title")}
-                        {...(!loadingReq && {dialogClose: () => setOpenPreConsultationDialog(false)})}
-                        actionDialog={
-                            <DialogActions>
-                                <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
-                                    {t("cancel")}
-                                </Button>
-                                <Button
-                                    disabled={loadingReq}
-                                    variant="contained"
-                                    onClick={() => submitPreConsultationData()}
-                                    startIcon={<IconUrl path="ic-edit"/>}>
-                                    {t("register")}
-                                </Button>
-                            </DialogActions>
+                <Dialog
+                    action={"pre_consultation_data"}
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 380
                         }
-                    />
-                </React.Fragment>) :
+                    }}
+                    open={openPreConsultationDialog}
+                    data={{
+                        patient,
+                        uuid: appointmentData?.uuid
+                    }}
+                    size={"md"}
+                    title={t("pre_consultation_dialog_title")}
+                    {...(!loadingReq && {dialogClose: () => setOpenPreConsultationDialog(false)})}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                                {t("cancel")}
+                            </Button>
+                            <Button
+                                disabled={loadingReq}
+                                variant="contained"
+                                onClick={() => submitPreConsultationData()}
+                                startIcon={<IconUrl path="ic-edit"/>}>
+                                {t("register")}
+                            </Button>
+                        </DialogActions>
+                    }
+                />
+            </React.Fragment>) : !isLoading ? (
             <TableRow>
                 <TableCell className="text-row">
-                    {!isLoading ? (
-                        <NoDataCard
-                            t={translate}
-                            ns={"patient"}
-                            data={{
-                                mainIcon: "ic-agenda-+",
-                                title: "no-data.appointment.title",
-                                description: "no-data.appointment.description"
-                            }}
-                        />
-                    ) : <LinearProgress color="warning"/>}
+                    <NoDataCard
+                        t={translate}
+                        ns={"patient"}
+                        data={{
+                            mainIcon: "ic-agenda-+",
+                            title: "no-data.appointment.title",
+                            description: "no-data.appointment.description"
+                        }}
+                    />
+                </TableCell>
+            </TableRow>) : <>
+            <TableRow>
+                <TableCell colSpan={3} className="text-row">
+                    <Typography variant="body1" color="text.primary">
+                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                    </Typography>
                 </TableCell>
             </TableRow>
+            {Array.from(new Array(3)).map(
+                (data: PatientDetailsRDV, index: number) => (matches ? (
+                    <RDVCard
+                        key={"RDVCard" + index.toString()}
+                        inner={data}
+                        {...{t, patient, loading: true, handlePreConsultationDialog}} />
+                ) : (
+                    <RDVMobileCard
+                        key={"RDVMobileCard" + index.toString()}
+                        inner={data}
+                        {...{loading: true, handlePreConsultationDialog}} />
+                )))
+            }
+        </>
     );
 }
 

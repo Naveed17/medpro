@@ -3,12 +3,12 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {instanceAxios, useRequest} from "@lib/axios";
+import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector, dashLayoutState, setOngoing} from "@features/base";
+import {useAppDispatch} from "@lib/redux/hooks";
+import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -40,9 +40,7 @@ export const ImportCardData = {
     }]
 };
 
-import {preload} from 'swr';
-
-const fetcher = (url: string) => instanceAxios({method: "GET", url}).then((res) => res);
+import {useSWRConfig} from 'swr';
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -50,20 +48,22 @@ function DashLayout({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
+    const {cache} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    // Preload the resource before rendering the User component below,
-    // this prevents potential waterfalls in your application.
-    // You can also start preloading when hovering the button or link, too.
-    preload(`/api/public/places/countries/${router.locale}?nationality=true`, fetcher);
-
     const {t} = useTranslation('common');
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
-    const {data: user} = session as Session;
-    const general_information = (user as UserDataResponse).general_information;
+    const {data: httpUserResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medicalEntityHasUser = (httpUserResponse as HttpResponse)?.data as MedicalEntityHasUsersModel[];
+    const [agendasData, setAgendasData] = useState<AgendaConfigurationModel[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`)?.data?.data?.data) ?? null);
+    const [agenda, setAgenda] = useState<AgendaConfigurationModel | null>(null);
 
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -73,8 +73,6 @@ function DashLayout({children}: LayoutProps) {
         }
     } : null, SWRNoValidateConfig);
 
-    const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
-    const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     // Check notification permission
     const permission = !isAppleDevise() ? checkNotification() : false;
 
@@ -92,8 +90,24 @@ function DashLayout({children}: LayoutProps) {
         }
     } : null, SWRNoValidateConfig);
 
+    const {data: httpProfessionalsResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
+    const {data: user} = session as Session;
+    const general_information = (user as UserDataResponse).general_information;
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
+    const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -117,11 +131,15 @@ function DashLayout({children}: LayoutProps) {
     }
 
     useEffect(() => {
-        if (agenda) {
-            dispatch(setConfig({...agenda, mutate: [mutateAgenda, mutatePendingAppointment]}));
-            dispatch(setAgendas(agendas));
+        if (httpAgendasResponse) {
+            const localAgendasData = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
+            setAgendasData(localAgendasData);
+            const agendaUser = localAgendasData?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
+            setAgenda(agendaUser);
+            dispatch(setConfig({...agendaUser, mutate: [mutateAgenda, mutatePendingAppointment]}));
+            dispatch(setAgendas(agendasData));
         }
-    }, [agenda, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (pendingAppointments) {
@@ -171,6 +189,24 @@ function DashLayout({children}: LayoutProps) {
             dispatch(setView(general_information.agendaDefaultFormat));
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (medicalEntityHasUser) {
+            dispatch(setOngoing({medicalEntityHasUser}));
+        }
+    }, [dispatch, medicalEntityHasUser])
+
+    useEffect(() => {
+        if (appointmentTypes) {
+            dispatch(setOngoing({appointmentTypes}));
+        }
+    }, [dispatch, appointmentTypes])
+
+    useEffect(() => {
+        if (medicalProfessionalData) {
+            dispatch(setOngoing({medicalProfessionalData}));
+        }
+    }, [medicalProfessionalData, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>

@@ -3,7 +3,7 @@ import {styled} from "@mui/material/styles";
 
 const RootStyled = styled(Box)(({theme}) => ({
     [theme.breakpoints.up("md")]: {
-        width: 890,
+        width: "100%",
     },
     "& .modal-header": {
         backgroundColor: theme.palette.primary.main,
@@ -17,7 +17,7 @@ const RootStyled = styled(Box)(({theme}) => ({
         minHeight: "13.5rem",
         overflow: "auto",
         display: "flex",
-        justifyContent: "center",
+        //justifyContent: "center",
         alignItems: "flex-start",
         [theme.breakpoints.down("sm")]: {
             maxHeight: "100%",
@@ -26,13 +26,13 @@ const RootStyled = styled(Box)(({theme}) => ({
             },
         },
         "& .list-main": {
-            display: "inline-flex",
+            display: "-webkit-inline-box",
             padding: theme.spacing(0),
             borderWidth: 1,
             borderStyle: "solid",
             borderColor: theme.palette.divider,
             borderRadius: 0.7,
-            overflow: "hidden",
+            //overflow: "hidden",
             "& .list-item": {
                 width: 262,
                 overflow: "hidden",

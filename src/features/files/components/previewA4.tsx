@@ -6,7 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, date, t} = props;
+    const {eventHandler, data, values, state, loading, date, t,nbPage} = props;
 
     const {data: session} = useSession();
 
@@ -268,8 +268,6 @@ function PreviewDialog({...props}) {
         for (let i = 0; i < Math.ceil(pageX.clientHeight / data.content.maxHeight); i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
-            el.style.position = "absolute"
-            el.style.top = "0"
             document.body.appendChild(el)
             if (state && state.type === 'fees') {
                 let total = 0;
@@ -406,7 +404,7 @@ function PreviewDialog({...props}) {
 
     return (
         <>
-            {pages.map((el, idx) => (
+            {pages.slice(0,nbPage ?1:pages.length).map((el, idx) => (
                 <div key={idx}>
                     <PrescriptionA4 {...{
                         data,

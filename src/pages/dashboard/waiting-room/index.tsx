@@ -335,11 +335,16 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (roles && roles.includes('ROLE_SECRETARY')) {
-            setPopoverActions([{
-                title: "leave_waiting_room",
-                icon: <IconUrl color={"white"} path="ic-salle"/>,
-                action: "onLeaveWaitingRoom",
-            }])
+            setPopoverActions([
+                {
+                    title: "pre_consultation_data",
+                    icon: <PendingIcon/>,
+                    action: "onPreConsultation",
+                }, {
+                    title: "leave_waiting_room",
+                    icon: <IconUrl color={"white"} path="ic-salle"/>,
+                    action: "onLeaveWaitingRoom",
+                }])
         }
     }, [roles]);
 
