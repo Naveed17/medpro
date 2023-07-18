@@ -446,6 +446,7 @@ function Agenda() {
                 setCancelDialog(true);
                 break;
             case "onConsultationDetail":
+                console.log("event", event);
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
