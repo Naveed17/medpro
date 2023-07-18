@@ -365,7 +365,7 @@ function Calendar({...props}) {
                                     if (jsEvent.screenY > window.innerHeight) {
                                         setTimeout(() => {
                                             const popover = document.getElementsByClassName("fc-popover") as HTMLCollectionOf<HTMLElement>;
-                                            if (popover) {
+                                            if (popover && popover.length > 0) {
                                                 popover[0].style.bottom = "0";
                                                 popover[0].style.top = "auto";
                                                 popover[0].style.transition = "bottom 4s ease 0s";
