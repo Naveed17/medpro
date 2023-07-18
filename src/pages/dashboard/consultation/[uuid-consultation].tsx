@@ -875,7 +875,7 @@ function ConsultationInProgress() {
                                             border: '1px solid #E0E0E0',
                                             overflow: 'hidden',
                                             borderRadius: 2,
-                                            height: {xs: "30vh", md: "48.9rem"},
+                                            height: {xs: "30vh", md: "40.3rem"},
                                             display: "flex",
                                             justifyContent: "center",
                                             alignItems: "center"
