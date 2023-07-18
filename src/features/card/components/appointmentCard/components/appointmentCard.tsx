@@ -3,7 +3,7 @@ import {
     Autocomplete,
     Box,
     Button,
-    CardContent, Checkbox,
+    CardContent, Checkbox, Divider,
     FormControl, FormControlLabel, FormGroup, Grid,
     IconButton, InputAdornment,
     Link,
@@ -36,6 +36,7 @@ import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
 import {LocaleFnsProvider} from "@lib/localization";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -370,12 +371,16 @@ function AppointmentCard({...props}) {
                                             }}
                                             isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                             renderOption={(props, option) => (
-                                                <MenuItem
-                                                    {...props}
-                                                    key={option.uuid ? option.uuid : "-1"}
-                                                    value={option.uuid}>
-                                                    {option.name}
-                                                </MenuItem>
+                                                <Stack key={option.uuid ? option.uuid : "-1"}>
+                                                    {!option.uuid && <Divider/>}
+                                                    <MenuItem
+                                                        {...props}
+                                                        {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                                        value={option.uuid}>
+                                                        {!option.uuid && <AddOutlinedIcon/>}
+                                                        {option.name}
+                                                    </MenuItem>
+                                                </Stack>
                                             )}
                                             renderInput={params => <TextField color={"info"}
                                                                               {...params}
