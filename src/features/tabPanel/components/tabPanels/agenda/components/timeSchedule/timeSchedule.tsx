@@ -161,10 +161,6 @@ function TimeSchedule({...props}) {
         setDate(date);
     };
 
-    const onChangeLocation = (event: SelectChangeEvent) => {
-        setLocation(event.target.value as string);
-    };
-
     const onMenuActions = (recurringDate: RecurringDateModel, action: string, index: number) => {
         switch (action) {
             case "onRemove" :
