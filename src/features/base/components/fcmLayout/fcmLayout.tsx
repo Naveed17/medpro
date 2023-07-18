@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
@@ -58,7 +58,6 @@ function FcmLayout({...props}) {
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
-    const [fcmToken, setFcmToken] = useState("");
     const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
@@ -164,7 +163,6 @@ function FcmLayout({...props}) {
         try {
             const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
-                setFcmToken(token as string);
                 getFcmMessage();
                 subscribeToTopic(token, `${roles[0]}-${general_information.uuid}`);
             }
@@ -187,7 +185,6 @@ function FcmLayout({...props}) {
         const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
-            setFcmToken(refreshToken as string);
             const topicURL = `https://iid.googleapis.com/iid/v1/${refreshToken}/rel/topics/${topicName}`;
             return axios({
                 url: topicURL,
@@ -200,7 +197,6 @@ function FcmLayout({...props}) {
     }
 
     const subscribeToTopic = async (fcmToken: string, topicName: string) => {
-        console.log("subscribeToTopic");
         if (fcmToken) {
             const {data: fcm_api_key} = await axios({
                 url: "/api/helper/server_env",
