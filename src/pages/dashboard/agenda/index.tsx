@@ -285,7 +285,7 @@ function Agenda() {
 
     useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
-            onConfirmAppointment(actionSet.event, true);
+            onConfirmAppointment(actionSet.event);
         }
     }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -592,7 +592,7 @@ function Agenda() {
         })
     }
 
-    const onConfirmAppointment = (event: EventDef, refreshBackground?: boolean) => {
+    const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
         updateAppointmentStatus({
             method: "PATCH",
