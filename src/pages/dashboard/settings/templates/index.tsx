@@ -33,11 +33,12 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
-import {Dialog} from "@features/dialog";
+import {Dialog, handleDrawerAction} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -215,7 +216,7 @@ function TemplatesConfig() {
         }
     }, [httpAnalysesResponse])
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -259,7 +260,7 @@ function TemplatesConfig() {
                                  onMouseOut={handleMouseOut}>
                                 <PreviewA4  {...{
                                     eventHandler: null,
-                                    nbPage:1,
+                                    nbPage: 1,
                                     data: res.header.data,
                                     values: res.header.header,
                                     state: null,
@@ -320,7 +321,7 @@ function TemplatesConfig() {
                     </div>
 
 
-                    {models && isdefault && !loading &&models.map(res => (
+                    {models && isdefault && !loading && models.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
                                 handleMouseOver(res.uuid)
@@ -330,7 +331,7 @@ function TemplatesConfig() {
                                     eventHandler: null,
                                     data: isdefault?.header.data,
                                     values: isdefault?.header.header,
-                                    nbPage:1,
+                                    nbPage: 1,
                                     state: {
                                         content: res.content,
                                         description: "",
@@ -414,7 +415,7 @@ function TemplatesConfig() {
                                     eventHandler: null,
                                     data: isdefault?.header.data,
                                     values: isdefault?.header.header,
-                                    nbPage:1,
+                                    nbPage: 1,
                                     t,
                                     state: {
                                         info: card.prescriptionModalHasDrugs,
@@ -497,7 +498,7 @@ function TemplatesConfig() {
                                         eventHandler: null,
                                         data: isdefault?.header.data,
                                         values: isdefault?.header.header,
-                                        nbPage:1,
+                                        nbPage: 1,
                                         t,
                                         state: {
                                             info: card.info,
@@ -573,7 +574,7 @@ function TemplatesConfig() {
                             eventHandler: null,
                             data: isdefault?.header.data,
                             values: isdefault?.header.header,
-                            nbPage:1,
+                            nbPage: 1,
                             t,
                             state: {
                                 info: data?.prescriptionModalHasDrugs,
@@ -596,7 +597,7 @@ function TemplatesConfig() {
                             eventHandler: null,
                             data: isdefault?.header.data,
                             values: isdefault?.header.header,
-                            nbPage:1,
+                            nbPage: 1,
                             t,
                             state: {
                                 info: data.info,
@@ -619,7 +620,7 @@ function TemplatesConfig() {
                     action={info}
                     open={openDialog}
                     data={{state, setState, t: tConsultation, setOpenDialog}}
-                    size={"lg"}
+                    size={["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
                     title={tConsultation(info)}
@@ -643,10 +644,19 @@ function TemplatesConfig() {
                         )
                     })}
                     actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                {t("close")}
-                            </Button>
+                        <DialogActions sx={{width: "100%"}}>
+                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"space-between"}>
+                                <Button startIcon={<AddIcon/>} onClick={() => {
+                                    dispatch(handleDrawerAction("addDrug"));
+                                }}>
+                                    {tConsultation("consultationIP.add_drug")}
+                                </Button>
+                                <Stack direction={"row"} spacing={1.2}>
+                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                        {t("close")}
+                                    </Button>
+                                </Stack>
+                            </Stack>
                         </DialogActions>
                     }
                 />

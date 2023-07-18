@@ -40,7 +40,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
 import {
-    Dialog as CustomDialog,
+    Dialog as CustomDialog, dialogSelector, handleDrawerAction,
     ModelPrescriptionList,
     prescriptionSelector,
     setParentModel
@@ -66,6 +66,8 @@ import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
+import {dosageMeal, initPrescriptionCycleData, duration} from "@features/dialog";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -75,6 +77,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
+    const refContainer = useRef(null);
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
@@ -82,6 +85,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
     const {direction} = useAppSelector(configSelector);
+    const {drawerAction} = useAppSelector(dialogSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
@@ -95,80 +99,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const [loading, setLoading] = useState(false);
     const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
-
-    const dosageMeal = [
-        {
-            label: "before_meal",
-            value: "before meal",
-        },
-        {
-            label: "after_meal",
-            value: "after meal",
-        },
-        {
-            label: "with_meal",
-            value: "with meal",
-        },
-        {
-            label: "fasting",
-            value: "fasting",
-        },
-    ];
-    const duration = [
-        {
-            label: "day",
-            value: "day",
-        },
-        {
-            label: "week",
-            value: "week",
-        },
-        {
-            label: "month",
-            value: "month",
-        },
-        {
-            label: "year",
-            value: "year",
-        }
-    ];
-    const initData = {
-        drug: null,
-        unit: null,
-        cycles: [
-            {
-                count: 2,
-                dosageQty: "1",
-                dosageDuration: 1,
-                dosageMealValue: "",
-                durationValue: "",
-                dosageInput: false,
-                cautionaryNoteInput: false,
-                dosageInputText: "",
-                cautionaryNote: "",
-                dosageTime: [
-                    {
-                        label: "morning",
-                        value: false,
-                    },
-                    {
-                        label: "mid_day",
-                        value: false,
-                    },
-                    {
-                        label: "evening",
-                        value: false,
-                    },
-                    {
-                        label: "before_sleeping",
-                        value: false,
-                    },
-                ],
-                dosageMeal,
-                duration
-            },
-        ]
-    };
 
     const validationSchema = Yup.object().shape({
         data: Yup.array().of(Yup.object().shape({
@@ -221,7 +151,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         const data: any[] = drugs?.length === 0 ? [{
             drug: null,
             unit: null,
-            cycles: initData.cycles as any[]
+            cycles: initPrescriptionCycleData.cycles as any[]
         }] : [];
         drugs?.map((drug: any) => {
             data.push({
@@ -298,8 +228,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handleAddDrug = () => {
         setFieldValue("data", [
             ...values.data,
-            {...initData}
-        ]);
+            {...initPrescriptionCycleData},
+        ]).then(() => {
+            (refContainer.current as any)?.scrollIntoView({behavior: 'smooth', block: "end"});
+        });
     }
 
     const switchPrescriptionModel = (drugs: DrugModel[]) => {
@@ -344,7 +276,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handAddCycle = (index: number) => {
         setFieldValue(`data[${index}].cycles`, [
             ...values.data[index].cycles,
-            ...initData.cycles
+            ...initPrescriptionCycleData.cycles
         ]);
     }
 
@@ -458,6 +390,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
     }, [dispatch, models]);
 
     useEffect(() => {
+        if (drawerAction === "addDrug") {
+            handleAddDrug();
+            dispatch(handleDrawerAction(""));
+        }
+    }, [dispatch, drawerAction]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (values) {
             const drugs: any[] = [];
             values.data.map((data: any) => {
@@ -493,6 +432,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     <Grid item md={8} xs={12}>
                         <FormikProvider value={formik}>
                             <Stack
+                                ref={refContainer}
                                 component={Form}
                                 spacing={1}
                                 autoComplete="off"
@@ -504,9 +444,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                            className="custom-paper" key={idx}>
                                         <Grid container spacing={2} alignItems="flex-end">
                                             <Grid item md={8} xs={12}>
-                                                <Typography gutterBottom>
-                                                    {t("name_of_drug", {ns: "consultation"})}
-                                                </Typography>
                                                 {drugsList && <Autocomplete
                                                     id="cmo"
                                                     value={item.drug}
@@ -555,12 +492,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     }}
                                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                                     renderOption={(props, option) => (
-                                                        <MenuItem
-                                                            {...props}
-                                                            key={option.uuid ? option.uuid : "-1"}
-                                                            value={option.uuid}>
-                                                            {option.commercial_name}
-                                                        </MenuItem>
+                                                        <Stack key={option.uuid ? option.uuid : "-1"}>
+                                                            {!option.uuid && <Divider/>}
+                                                            <MenuItem
+                                                                {...props}
+                                                                {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                                                value={option.uuid}>
+                                                                {!option.uuid && <AddOutlinedIcon/>}
+                                                                {option.commercial_name}
+                                                            </MenuItem>
+                                                        </Stack>
                                                     )}
                                                     renderInput={(params) => <TextField {...params}
                                                                                         error={Boolean(touched.data && errors.data && (errors.data as any)[idx]?.drug)}
@@ -625,9 +566,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     key={index}>
                                                     <CardContent>
                                                         <Stack>
-                                                            <Typography gutterBottom>
-                                                                {t("dosage", {ns: "consultation"})}
-                                                            </Typography>
                                                             <Stack
                                                                 spacing={3}
                                                                 direction="row"
@@ -846,11 +784,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 ))}
                             </Stack>
                         </FormikProvider>
-                        <Stack spacing={2} mt={2} alignItems="flex-start">
-                            <Button startIcon={<AddIcon/>} onClick={handleAddDrug}>
-                                {t("add_drug", {ns: "consultation"})}
-                            </Button>
-                        </Stack>
                     </Grid>
                     <Grid item md={4} xs={12}>
                         <Stack direction="row"
@@ -948,7 +881,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 }}
                                                 alignItems="flex-start">
                                                 <ListItemText
-                                                    primary={drug.name}
+                                                    primary={`${index + 1} • ${drug.name}`}
                                                     secondary={
                                                         <React.Fragment>
                                                             <span style={{display: "grid"}}>
