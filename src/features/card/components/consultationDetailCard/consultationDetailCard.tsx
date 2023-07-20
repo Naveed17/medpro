@@ -40,9 +40,7 @@ function CIPPatientHistoryCard({...props}) {
         setChanges,
         uuind,
         notes,
-        diagnostics,
         seeHistory,
-        seeHistoryDiagnostic,
         closed,
         handleClosePanel,
         isClose
@@ -396,9 +394,9 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {diagnostics.length > 0 &&
+                                {notes.length > 0 &&
                                     <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                        seeHistoryDiagnostic()
+                                        seeHistory()
                                     }}>{t('seeHistory')}</Typography>}
                             </Stack>
 
