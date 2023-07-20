@@ -370,6 +370,7 @@
     "doctor": "Doctor",
     "doctor_placeholder": "Nom du doctor",
     "today": "Aujourd'hui",
+    "age": "âge",
     "today_placeholder": "Date aujourd'hui",
     "disease": "Maladie",
     "noActiveFile": "Pas de formulaire de consultation actif",

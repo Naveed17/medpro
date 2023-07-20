@@ -15,7 +15,7 @@ import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle"
 import StyledMenu from "./overrides/menuStyle";
 import {useTranslation} from "next-i18next";
 import {documentButtonList} from "./config";
-import {Dialog} from "@features/dialog";
+import {Dialog, handleDrawerAction} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -343,6 +343,7 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
+                        birthdate:patient?.birthdate,
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         title: state.title,
@@ -430,7 +431,8 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`
+                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+                    brithdate: `${appointment.patient.birthdate}`
                 });
                 break;
             case "upload_document":
@@ -763,7 +765,7 @@ function ConsultationIPToolbar({...props}) {
                     action={info}
                     open={openDialog}
                     data={{appuuid, state, setState, t, setOpenDialog}}
-                    size={info === "add_vaccin" ? "sm" : "lg"}
+                    size={info === "add_vaccin" ? "sm" : ["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
                     {...(info === "document_detail" && {
@@ -790,18 +792,25 @@ function ConsultationIPToolbar({...props}) {
                     })}
                     actionDialog={
                         action ? (
-                            <DialogActions>
-                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                    {t("cancel")}
+                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"space-between"}>
+                                <Button startIcon={<AddIcon/>} onClick={() => {
+                                    dispatch(handleDrawerAction("addDrug"));
+                                }}>
+                                    {t("add_drug")}
                                 </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSaveDialog}
-                                    disabled={info.includes("medical_prescription") && state.length === 0}
-                                    startIcon={<SaveRoundedIcon/>}>
-                                    {t("save")}
-                                </Button>
-                            </DialogActions>
+                                <Stack direction={"row"} spacing={1.2}>
+                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                        {t("cancel")}
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleSaveDialog}
+                                        disabled={info.includes("medical_prescription") && state.length === 0}
+                                        startIcon={<SaveRoundedIcon/>}>
+                                        {t("save")}
+                                    </Button>
+                                </Stack>
+                            </Stack>
                         ) : null
                     }
                 />

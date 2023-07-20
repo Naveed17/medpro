@@ -198,6 +198,8 @@ function PreviewDialog({...props}) {
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                            if (state.birthdate)
+                                txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
@@ -404,7 +406,7 @@ function PreviewDialog({...props}) {
 
     return (
         <>
-            {pages.slice(0,nbPage ?1:pages.length).map((el, idx) => (
+            {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <PrescriptionA4 {...{
                         data,

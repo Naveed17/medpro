@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import { Card } from '@mui/material';
 const ConsultationDetailCardStyled = styled(Card)(({ theme }) => ({
     position: "relative",
-    minHeight:'48.9rem',
+    minHeight:'40rem',
     '& .card-header': {
         '& .react-svg': {
             marginRight: theme.spacing(1),
