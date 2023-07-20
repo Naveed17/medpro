@@ -2,7 +2,8 @@ import {Stack, styled} from "@mui/material";
 
 const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiContainer-root": {
-        padding: 0
+        padding: 0,
+        maxWidth: "1400px"
     },
     "& .MuiCardContent-root": {
         paddingBottom: 10

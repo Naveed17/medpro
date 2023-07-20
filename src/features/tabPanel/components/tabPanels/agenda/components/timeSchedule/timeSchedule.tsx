@@ -30,9 +30,9 @@ import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete,
-    DialogActions,
+    DialogActions, Divider,
     IconButton,
-    LinearProgress,
+    LinearProgress, Stack,
     TextField,
     useMediaQuery,
     useTheme
@@ -47,6 +47,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -158,10 +159,6 @@ function TimeSchedule({...props}) {
 
     const onChangeDatepicker = async (date: Date) => {
         setDate(date);
-    };
-
-    const onChangeLocation = (event: SelectChangeEvent) => {
-        setLocation(event.target.value as string);
     };
 
     const onMenuActions = (recurringDate: RecurringDateModel, action: string, index: number) => {
@@ -356,12 +353,16 @@ function TimeSchedule({...props}) {
                                 }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
-                                    <MenuItem
-                                        {...props}
-                                        value={option.uuid}
-                                        key={option.uuid ? option.uuid : "-1"}>
-                                        {option.name}
-                                    </MenuItem>
+                                    <Stack key={option.uuid ? option.uuid : "-1"}>
+                                        {!option.uuid && <Divider/>}
+                                        <MenuItem
+                                            {...props}
+                                            {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                            value={option.uuid}>
+                                            {!option.uuid && <AddOutlinedIcon/>}
+                                            {option.name}
+                                        </MenuItem>
+                                    </Stack>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
