@@ -8,7 +8,7 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
@@ -48,6 +48,8 @@ function CIPPatientHistoryCard({...props}) {
         isClose
     } = props;
     const router = useRouter();
+    const theme = useTheme();
+
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
@@ -324,7 +326,7 @@ function CIPPatientHistoryCard({...props}) {
                                         {!option.uuid && <Divider/>}
                                         <MenuItem
                                             {...props}
-                                            {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                            {...(!option.uuid && {sx: {color:theme.palette.error.main}})}
                                             value={option.uuid}>
                                             {!option.uuid && <AddOutlinedIcon/>}
                                             {option.name}
@@ -370,7 +372,7 @@ function CIPPatientHistoryCard({...props}) {
                             <TextField
                                 fullWidth
                                 multiline
-                                rows={10}
+                                rows={8}
                                 value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
@@ -406,7 +408,7 @@ function CIPPatientHistoryCard({...props}) {
                                 size="small"
                                 value={values.diagnosis}
                                 multiline={true}
-                                rows={10}
+                                rows={5}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({

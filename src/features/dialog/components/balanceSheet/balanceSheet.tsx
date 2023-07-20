@@ -412,7 +412,7 @@ function BalanceSheetDialog({...props}) {
                                                     },
                                                 }
                                             }
-                                            rows={5}
+                                            rows={3}
                                             value={item.note}
                                             onChange={event => {
                                                 let items = [...analysis];

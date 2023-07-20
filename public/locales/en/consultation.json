@@ -367,6 +367,7 @@
     "doctor": "Doctor",
     "doctor_placeholder": "Doctor name",
     "today": "Today",
+    "age": "age",
     "today_placeholder": "Today's date",
     "disease": "Disease",
     "noActiveFile": "No active consultation file",

@@ -98,11 +98,11 @@ function PersonalInfo({...props}) {
             lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
-            email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : "",
-            profession: !loading && patient.profession ? patient.profession : "",
-            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : "",
-            nationality: !loading && patient?.nationality ? patient.nationality.uuid : ""
+            email: !loading && patient.email && patient.email !== "null" ? patient.email : "",
+            cin: !loading && patient.idCard && patient.idCard !== "null" ? patient.idCard : "",
+            profession: !loading && patient.profession && patient.profession !== "null" ? patient.profession : "",
+            familyDoctor: !loading && patient.familyDoctor && patient.familyDoctor !== "null" ? patient.familyDoctor : "",
+            nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
 
         },
         validationSchema: RegisterPatientSchema,

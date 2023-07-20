@@ -520,6 +520,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
+                birthdate:patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -874,7 +875,7 @@ function ConsultationInProgress() {
                                             border: '1px solid #E0E0E0',
                                             overflow: 'hidden',
                                             borderRadius: 2,
-                                            height: {xs: "30vh", md: "48.9rem"},
+                                            height: {xs: "30vh", md: "40.3rem"},
                                             display: "flex",
                                             justifyContent: "center",
                                             alignItems: "center"
@@ -973,7 +974,7 @@ function ConsultationInProgress() {
                         ))}
                     </Stack>
                     <Box pt={8}>
-                        {!lock && !isHistory && (
+                        {!lock && (
                             <SubFooter>
                                 <Stack
                                     width={1}
