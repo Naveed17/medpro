@@ -150,7 +150,7 @@ function DashLayout({children}: LayoutProps) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
             data: params,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then((data) => {
+        }).then(() => {
             setLoading(false);
             dispatch(setDuplicated({openDialog: false}));
             dispatch(resetDuplicated());

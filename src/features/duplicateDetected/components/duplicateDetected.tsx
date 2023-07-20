@@ -18,9 +18,8 @@ function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;
     const dispatch = useAppDispatch();
     const {fields: duplicatedFields, duplicationSrc} = useAppSelector(duplicatedSelector);
-    const [selectedValue, setSelectedValue] = useState<string>("1");
     const [fields, setFields] = useState<string[]>(duplicatedFields as string[]);
-    const [duplicatedData, setDuplicatedData] = useState<any[]>(duplicatedPatients.map((patient: PatientModel) => ({
+    const [duplicatedData] = useState<any[]>(duplicatedPatients.map((patient: PatientModel) => ({
         ...patient,
         checked: false
     })));
@@ -35,17 +34,9 @@ function DuplicateDetected({...props}) {
 
     const {
         values,
-        errors,
-        touched,
         handleSubmit,
-        getFieldProps,
         setFieldValue,
-        resetForm
     } = formik;
-
-    const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
-        setSelectedValue(event.target.value);
-    };
 
     const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>, data: PatientModel) => {
         const {name, checked} = event.target;
