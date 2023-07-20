@@ -143,7 +143,7 @@ function DashLayout({children}: LayoutProps) {
         const params = new FormData();
         duplications && params.append('duplicatedPatients', duplications.map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), typeof object[1] !== "string" ? JSON.stringify(object[1]) : ""));
+            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
