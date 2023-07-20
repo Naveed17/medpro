@@ -212,7 +212,7 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
-                birthdate:patient,
+                birthdate:patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 createdAt: card.createdAt,
