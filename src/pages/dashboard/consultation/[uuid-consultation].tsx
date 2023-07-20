@@ -182,7 +182,6 @@ function ConsultationInProgress() {
     const [isClose, setIsClose] = useState<boolean>(false);
     const [closeExam, setCloseExam] = useState<boolean>(false);
     const [notes, setNotes] = useState<any[]>([]);
-    const [diagnostics, setDiagnostics] = useState<any[]>([]);
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [stateHistory, setStateHistory] = useState<any[]>([]);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -353,19 +352,15 @@ function ConsultationInProgress() {
 
             // Exam history
             let noteHistories: any[] = []
-            let diagnosticHistories: any[] = []
             appointment.latestAppointments.map((app: any) => {
                 const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
                 const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                if (note && note.value !== '') {
-                    noteHistories.push({data: app.appointment.dayDate, value: note.value})
+                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '') ) {
+                    noteHistories.push({data: app.appointment.dayDate, note: note.value,diagnostics: diagnostics.value})
                 }
-                if (diagnostics && diagnostics.value !== '') {
-                    diagnosticHistories.push({data: app.appointment.dayDate, value: diagnostics.value})
-                }
+
             })
             setNotes(noteHistories);
-            setDiagnostics(diagnosticHistories);
 
             //Acts
             let _acts: AppointmentActModel[] = [];
@@ -579,10 +574,6 @@ function ConsultationInProgress() {
     const seeHistory = () => {
         setOpenHistoryDialog(true);
         setStateHistory(notes)
-    }
-    const seeHistoryDiagnostic = () => {
-        setOpenHistoryDialog(true);
-        setStateHistory(diagnostics)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -909,9 +900,7 @@ function ConsultationInProgress() {
                                         medical_entity,
                                         session,
                                         notes,
-                                        diagnostics,
                                         seeHistory,
-                                        seeHistoryDiagnostic,
                                         router,
                                         closed: closeExam,
                                         setCloseExam,
