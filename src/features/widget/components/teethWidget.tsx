@@ -254,7 +254,7 @@ export default function TeethWidget({...props}) {
                 <Typography fontSize={12}>{t('traitements')}</Typography>
                 {
                     traitements.map((traitement, index) => (
-                        <Stack key={traitement.id} style={{border: `1px solid #E0E0E0`}} spacing={1}
+                        <Stack key={traitement.id} style={{border: `1px solid ${theme.palette.grey['A300']}`}} spacing={1}
                                padding={1} borderRadius={2}>
                             <Stack direction={"row"}
                                    justifyContent={"space-between"}

@@ -1,4 +1,4 @@
-import {CardContent, Stack, TextField, Typography} from "@mui/material";
+import {CardContent, Stack, TextField, Typography, useTheme} from "@mui/material";
 import React, {memo} from "react";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from "moment/moment";
@@ -13,10 +13,11 @@ MyTextInput.displayName = "TextField";
 function ObservationHistoryDialog({...props}) {
 
     const {data} = props;
+    const theme = useTheme();
     return (
         <>
             {data.stateHistory.map((act: any, index: number) => (
-                <CardContent style={{border: '1px solid #E0E0E0', marginBottom: 5, borderRadius: 10}}
+                <CardContent style={{border: `1px solid ${theme.palette.grey['A300']}`, marginBottom: 5, borderRadius: 10}}
                              key={`${index}-history-row`}>
                     <Stack spacing={1}>
                         <Stack

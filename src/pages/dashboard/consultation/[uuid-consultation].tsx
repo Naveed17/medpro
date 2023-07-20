@@ -863,7 +863,7 @@ function ConsultationInProgress() {
                                 {!loading && !selectedModel && (<CardContent
                                         sx={{
                                             bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                            border: '1px solid #E0E0E0',
+                                            border: `1px solid ${theme.palette.grey['A300']}`,
                                             overflow: 'hidden',
                                             borderRadius: 2,
                                             height: {xs: "30vh", md: "40.3rem"},
