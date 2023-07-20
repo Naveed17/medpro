@@ -343,6 +343,7 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
+                        birthdate:patient?.birthdate,
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         title: state.title,
@@ -430,7 +431,8 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`
+                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+                    brithdate: `${appointment.patient.birthdate}`
                 });
                 break;
             case "upload_document":
