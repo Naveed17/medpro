@@ -390,7 +390,7 @@ function PersonalInfo({...props}) {
                                                     value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
                                                     onChange={date => {
                                                         const dateInput = moment(date);
-                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
+                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
                                                         if (dateInput.isValid()) {
                                                             const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                             setFieldValue("old", old > 120 ? "" : old);
@@ -432,11 +432,9 @@ function PersonalInfo({...props}) {
                                                     mr={1}>{commonTranslation(`times.years`)}</Typography>}
                                                 readOnly={!editable}
                                                 error={Boolean(touched.email && errors.email)}
-                                                {...getFieldProps("old")}
                                                 value={values.old ?? ""}
                                                 onChange={event => {
                                                     const old = parseInt(event.target.value);
-                                                    console.log("old", old)
                                                     setFieldValue("old", old ? old : "");
                                                     if (old) {
                                                         setFieldValue("birthdate", (values.birthdate ?

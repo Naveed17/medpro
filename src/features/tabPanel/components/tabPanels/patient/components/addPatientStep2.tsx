@@ -42,6 +42,7 @@ import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
+import {agendaSelector} from "@features/calendar";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -75,7 +76,8 @@ function AddPatientStep2({...props}) {
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -140,6 +142,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const locations = agendaConfig?.locations;
 
     const formik = useFormik({
         initialValues: {
@@ -184,26 +187,21 @@ function AddPatientStep2({...props}) {
 
     const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors} = formik;
 
+    const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
+
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
+    const {data: httpProfessionalLocationResponse} = useRequest((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
 
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
-
-    useEffect(() => {
-        if (countries) {
-            const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
-            setCountriesData(countries.sort((country: CountryModel) =>
-                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-            setFieldValue("nationality", defaultCountry);
-            setFieldValue("country", defaultCountry);
-        }
-    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state;
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
@@ -294,6 +292,24 @@ function AddPatientStep2({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
+
+
+    useEffect(() => {
+        if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
+            setCountriesData(countries.sort((country: CountryModel) =>
+                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+            setFieldValue("nationality", defaultCountry);
+            setFieldValue("country", defaultCountry);
+        }
+    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (professionalState) {
+            setFieldValue("region", professionalState.uuid);
+        }
+    }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <FormikProvider value={formik}>
