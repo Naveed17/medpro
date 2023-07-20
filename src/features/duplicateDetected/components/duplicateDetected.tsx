@@ -66,8 +66,6 @@ function DuplicateDetected({...props}) {
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
-    console.log("duplicatedPatients", duplicatedPatients)
-    console.log("duplicationSrc", duplicationSrc)
     return (
         <RootStyled>
             <FormikProvider value={formik}>

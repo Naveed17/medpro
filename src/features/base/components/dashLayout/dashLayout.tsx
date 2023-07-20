@@ -141,9 +141,9 @@ function DashLayout({children}: LayoutProps) {
     const handleMergeDuplication = () => {
         setLoading(true);
         const params = new FormData();
-        duplications && params.append('duplicatedPatients', JSON.stringify(duplications.map(duplication => duplication.uuid).join(",")));
+        duplications && params.append('duplicatedPatients', duplications.map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), JSON.stringify(object[1] ?? "")));
+            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), typeof object[1] !== "string" ? JSON.stringify(object[1]) : ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
