@@ -21,7 +21,7 @@ const PanelCardStyled = styled(Card)(({theme}) => ({
     },
     "& .MuiAppBar-root": {
         border: "none",
-        borderBottom: "1px solid #E0E0E0",
+        borderBottom: `1px solid ${theme.palette.grey['A300']}`,
         height: 46,
         marginBottom: 12,
         "&.MuiTypography-root": {
