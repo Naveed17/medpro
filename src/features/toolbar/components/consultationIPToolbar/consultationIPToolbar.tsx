@@ -790,12 +790,15 @@ function ConsultationIPToolbar({...props}) {
                     })}
                     actionDialog={
                         action ? (
-                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"space-between"}>
-                                <Button startIcon={<AddIcon/>} onClick={() => {
-                                    dispatch(handleDrawerAction("addDrug"));
-                                }}>
-                                    {t("add_drug")}
-                                </Button>
+                            <Stack sx={{width: "100%"}}
+                                   direction={"row"}
+                                   justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                {info === "medical_prescription_cycle" &&
+                                    <Button startIcon={<AddIcon/>} onClick={() => {
+                                        dispatch(handleDrawerAction("addDrug"));
+                                    }}>
+                                        {t("add_drug")}
+                                    </Button>}
                                 <Stack direction={"row"} spacing={1.2}>
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("cancel")}
