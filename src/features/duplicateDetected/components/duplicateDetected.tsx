@@ -20,6 +20,10 @@ function DuplicateDetected({...props}) {
     const {fields: duplicatedFields, duplicationSrc} = useAppSelector(duplicatedSelector);
     const [selectedValue, setSelectedValue] = useState<string>("1");
     const [fields, setFields] = useState<string[]>(duplicatedFields as string[]);
+    const [duplicatedData, setDuplicatedData] = useState<any[]>(duplicatedPatients.map((patient: PatientModel) => ({
+        ...patient,
+        checked: false
+    })));
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -73,7 +77,7 @@ function DuplicateDetected({...props}) {
                     <Box className="modal-body">
                         <List className="list-main">
                             <DuplicatedRow {...{t, fields}} index={"init"} modalData={values}/>
-                            {duplicatedPatients.map((duplicated: any, index: number) =>
+                            {duplicatedData.map((duplicated: any, index: number) =>
                                 <DuplicatedRow {...{index, t, fields, handleChangeFiled}} key={index}
                                                modalData={duplicated}/>)}
                         </List>

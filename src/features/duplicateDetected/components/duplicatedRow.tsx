@@ -1,4 +1,4 @@
-import {Checkbox, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
+import {Checkbox, FormControlLabel, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import React from "react";
 
@@ -11,10 +11,19 @@ function DuplicatedRow({...props}) {
                 <ListSubheader
                     disableSticky
                     disableGutters
-                    className={`list-subheader ${index === "init" ? "first" : ""}`}>
-                    <Typography sx={{visibility: index !== "init" ? "hidden" : ""}}>
-                        {t("add-patient.dialog.selected")}
-                    </Typography>
+                    className={`list-subheader ${index === "init" ? "first" : "second"}`}>
+                    {index === "init" ?
+                        <Typography>{t("add-patient.dialog.selected")}</Typography> :
+                        <FormControlLabel sx={{padding: ".5rem"}}
+                                          label={t("add-patient.dialog.selected")} control={<Checkbox
+                            checked={modalData.checked}
+                            onChange={event => {
+                                const {checked} = event.target;
+                                modalData.checked = checked;
+                            }}
+                            name={`patient-${index}`}
+                        />}/>
+                    }
                 </ListSubheader>
 
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
