@@ -8,3 +8,4 @@ export {default as useAntecedentTypes} from "./useAntecedentTypes";
 export {default as useCountries} from "./useCountries";
 export {default as useAppointmentHistory} from "./useAppointmentHistory";
 export {default as useWidgetModels} from "./useWidgetModels";
+export {default as useDuplicatedDetect} from "./useDuplicatedDetect";

@@ -17,9 +17,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;
     const dispatch = useAppDispatch();
-    const {fields: duplicatedFields, duplicationSrc} = useAppSelector(duplicatedSelector);
-    const [selectedValue, setSelectedValue] = useState<string>("1");
+    const {fields: duplicatedFields, duplicationSrc, duplicationInit} = useAppSelector(duplicatedSelector);
     const [fields, setFields] = useState<string[]>(duplicatedFields as string[]);
+    const [duplicatedData, setDuplicatedData] = useState<any[]>(duplicatedPatients);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -31,17 +31,19 @@ function DuplicateDetected({...props}) {
 
     const {
         values,
-        errors,
-        touched,
         handleSubmit,
-        getFieldProps,
         setFieldValue,
-        resetForm
     } = formik;
 
-    const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
-        setSelectedValue(event.target.value);
-    };
+    const handleSelectedDuplication = (event: ChangeEvent<HTMLInputElement>, data: PatientModel) => {
+        const duplicatedDataUpdated = duplicatedData.map(duplicated => data.uuid === duplicated.uuid ? {
+            ...duplicated,
+            checked: event.target.checked
+        } : duplicated);
+
+        setDuplicatedData(duplicatedDataUpdated);
+        dispatch(setDuplicated({duplications: duplicatedDataUpdated}));
+    }
 
     const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>, data: PatientModel) => {
         const {name, checked} = event.target;
@@ -54,10 +56,16 @@ function DuplicateDetected({...props}) {
         setFields(updatedFields);
 
         let updatedPatient = values;
+        const updatedFieldName = name.split("-")[0];
         if (checked) {
-            const updatedFieldName = name.split("-")[0];
             setFieldValue(updatedFieldName, data[updatedFieldName as keyof typeof data]);
             updatedPatient = {...values, [updatedFieldName]: data[updatedFieldName as keyof typeof data]};
+        } else {
+            setFieldValue(updatedFieldName, (duplicationInit as PatientModel)[updatedFieldName as keyof typeof duplicationInit]);
+            updatedPatient = {
+                ...values,
+                [updatedFieldName]: (duplicationInit as PatientModel)[updatedFieldName as keyof typeof duplicationInit]
+            };
         }
         dispatch(setDuplicated({fields: updatedFields, duplicationSrc: updatedPatient}));
     };
@@ -73,8 +81,9 @@ function DuplicateDetected({...props}) {
                     <Box className="modal-body">
                         <List className="list-main">
                             <DuplicatedRow {...{t, fields}} index={"init"} modalData={values}/>
-                            {duplicatedPatients.map((duplicated: any, index: number) =>
-                                <DuplicatedRow {...{index, t, fields, handleChangeFiled}} key={index}
+                            {duplicatedData.map((duplicated: any, index: number) =>
+                                <DuplicatedRow {...{index, t, fields, handleChangeFiled, handleSelectedDuplication}}
+                                               key={index}
                                                modalData={duplicated}/>)}
                         </List>
                     </Box>

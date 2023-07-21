@@ -991,7 +991,8 @@ function Agenda() {
                                         refs,
                                         spinner: loading,
                                         t,
-                                        sortedData: sortedData.current
+                                        sortedData: sortedData.current,
+                                        mutate: refreshData
                                     }}
                                     OnInit={onLoadCalendar}
                                     OnAddAppointment={handleAddAppointment}

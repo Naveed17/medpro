@@ -7,7 +7,7 @@ import CalendarRowDetail from "@features/table/components/rows/calendarRowDetail
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
-    const {spinner, pendingData = null} = data;
+    const {spinner, pendingData = null, mutateAgenda} = data;
 
     const dispatch = useAppDispatch();
 
@@ -48,7 +48,7 @@ function CalendarRow({...props}) {
                 key={index}
                 {...{
                     index, data, pendingData,
-                    spinner, t, handleEvent
+                    spinner, t, handleEvent, mutateAgenda
                 }} />))}
         </>
     );

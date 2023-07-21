@@ -3,14 +3,14 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -41,6 +41,10 @@ export const ImportCardData = {
 };
 
 import {useSWRConfig} from 'swr';
+import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import IconUrl from "@themes/urlIcon";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -52,8 +56,17 @@ function DashLayout({children}: LayoutProps) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
+    const {
+        duplications,
+        duplicationSrc,
+        openDialog: duplicateDetectedDialog,
+        mutate: mutateDuplicationSource
+    } = useAppSelector(duplicatedSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+
+    const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
 
     const {data: httpUserResponse} = useRequest({
         method: "GET",
@@ -128,6 +141,30 @@ function DashLayout({children}: LayoutProps) {
             str = str.replace(/\d+$/, num.toString());
         }
         return str;
+    }
+
+    const getCheckedDuplications = () => {
+        return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
+    }
+
+    const handleMergeDuplication = () => {
+        setLoading(true);
+        const params = new FormData();
+        duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
+        Object.entries(duplicationSrc as PatientModel).forEach(
+            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
+
+        medicalEntityHasUser && mergeDuplicationsTrigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            dispatch(setDuplicated({openDialog: false}));
+            dispatch(resetDuplicated());
+            mutateDuplicationSource && mutateDuplicationSource();
+        })
     }
 
     useEffect(() => {
@@ -234,6 +271,62 @@ function DashLayout({children}: LayoutProps) {
                     setImportDataDialog(false);
                 }}
                 action={() => renderNoDataCard}/>
+
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340,
+                    },
+                }}
+                size={"lg"}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    dispatch(setDuplicated({openDialog: false}));
+                }}
+                action={() => <DuplicateDetected src={duplicationSrc} data={duplications}/>}
+                actionDialog={
+                    <DialogActions
+                        sx={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                            "& .MuiDialogActions-root": {
+                                div: {
+                                    width: "100%",
+                                },
+                            },
+                        }}>
+                        <Stack
+                            direction={"row"}
+                            justifyContent={"space-between"}
+                            sx={{width: "100%"}}>
+                            <Button
+                                onClick={() => dispatch(setDuplicated({openDialog: false}))}
+                                startIcon={<CloseIcon/>}>
+                                {t("dialogs.duplication-dialog.later")}
+                            </Button>
+                            <Box>
+                                <Button
+                                    sx={{marginRight: 1}}
+                                    color={"inherit"}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("dialogs.duplication-dialog.no-duplicates")}
+                                </Button>
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    onClick={handleMergeDuplication}
+                                    variant="contained"
+                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    {t("dialogs.duplication-dialog.save")}
+                                </LoadingButton>
+                            </Box>
+                        </Stack>
+                    </DialogActions>
+                }
+                open={duplicateDetectedDialog}
+                title={t(`dialogs.duplication-dialog.title`)}
+            />
         </SideBarMenu>
     );
 }

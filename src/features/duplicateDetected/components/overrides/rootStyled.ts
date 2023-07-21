@@ -55,7 +55,6 @@ const RootStyled = styled(Box)(({theme}) => ({
                     },
                     [theme.breakpoints.down("md")]: {
                         width: 150,
-
                         display: "none",
                     },
                 },
@@ -83,6 +82,10 @@ const RootStyled = styled(Box)(({theme}) => ({
                             color: theme.palette.common.white,
                             fontWeight: "normal",
                             fontFamily: "Roboto",
+                        },
+                        "&.second": {
+                            padding: "0 0 0.8px 4px",
+                            marginLeft: 1
                         },
                     },
                 },

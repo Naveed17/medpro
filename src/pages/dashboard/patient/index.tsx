@@ -437,7 +437,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -472,7 +472,7 @@ function Patient() {
                 <DesktopContainer>
                     <Box display={{xs: "none", md: "block"}}>
                         <Otable
-                            {...{t, insurances}}
+                            {...{t, insurances, mutatePatient: mutate}}
                             headers={headCells}
                             handleEvent={handleTableActions}
                             rows={(httpPatientsResponse as HttpResponse)?.data?.list}

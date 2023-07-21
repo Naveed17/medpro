@@ -17,6 +17,7 @@
   "search": "Vous cherchez ?",
   "stats": " Statistiques",
   "settings": "Paramètres",
+  "duplication": "Détection des doublons",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "loading-error": {
     "title": "Actualiser la page !",
@@ -307,6 +308,13 @@
       "title": "Consultation terminée avec",
       "sub-title": "Prix de la consultation",
       "reschedule": "Replanifier un contrôle"
+    },
+    "duplication-dialog": {
+      "title": "Duplicatas détectés",
+      "later": "Le faire plus tard",
+      "no-duplicates": "Ces patients ne sont pas doublons ",
+      "selected": "Patient sélectionné",
+      "save": "Enregistrer"
     },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",

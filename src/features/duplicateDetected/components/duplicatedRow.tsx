@@ -1,9 +1,9 @@
-import {Checkbox, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
+import {Checkbox, FormControlLabel, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import React from "react";
 
 function DuplicatedRow({...props}) {
-    const {modalData, index, t, fields, handleChangeFiled} = props;
+    const {modalData, index, t, fields, handleChangeFiled, handleSelectedDuplication} = props;
 
     return modalData && (
         <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
@@ -11,10 +11,16 @@ function DuplicatedRow({...props}) {
                 <ListSubheader
                     disableSticky
                     disableGutters
-                    className={`list-subheader ${index === "init" ? "first" : ""}`}>
-                    <Typography sx={{visibility: index !== "init" ? "hidden" : ""}}>
-                        {t("add-patient.dialog.selected")}
-                    </Typography>
+                    className={`list-subheader ${index === "init" ? "first" : "second"}`}>
+                    {index === "init" ?
+                        <Typography>{t("add-patient.dialog.selected")}</Typography> :
+                        <FormControlLabel sx={{padding: ".5rem"}}
+                                          label={t("add-patient.dialog.selected")} control={<Checkbox
+                            checked={modalData.checked ?? true}
+                            onChange={event => handleSelectedDuplication(event, modalData)}
+                            name={`patient-${index}`}
+                        />}/>
+                    }
                 </ListSubheader>
 
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
@@ -96,7 +102,7 @@ function DuplicatedRow({...props}) {
                     sx={{
                         borderBottom: 1,
                         borderColor: "divider",
-                        bgcolor: (theme) => theme.palette.error.lighter,
+                        //bgcolor: (theme) => theme.palette.error.lighter,
                         "& .react-svg": {ml: "auto"},
                     }}
                 >
@@ -123,7 +129,7 @@ function DuplicatedRow({...props}) {
                             <Typography>--</Typography>
                         )}
                     </Stack>
-                    <Icon path="danger"/>
+                    {/*<Icon path="danger"/>*/}
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
@@ -188,7 +194,7 @@ function DuplicatedRow({...props}) {
                             {t("add-patient.nationality")}
                         </Typography>
                         {modalData.nationality ? (
-                            <Typography>{modalData.nationality.name}</Typography>
+                            <Typography sx={{textTransform: "uppercase"}}>{modalData.nationality.code}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -233,12 +239,11 @@ function DuplicatedRow({...props}) {
                             gutterBottom>
                             {t("add-patient.assurance")}
                         </Typography>
-                        {(modalData.insurances && modalData.insurances.length > 0) ? (
-                            modalData.insurances.map((insuranceData: any, index: number) => (
-                                <Typography key={index}>{insuranceData.insurance?.name}</Typography>))
-                        ) : (
+                        {(modalData.insurances && modalData.insurances.length > 0) ?
+                            <Typography> {modalData.insurances.map((insuranceData: any) => insuranceData.insurance?.name).join(",")}</Typography>
+                            :
                             <Typography>--</Typography>
-                        )}
+                        }
                     </Stack>
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
