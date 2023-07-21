@@ -56,7 +56,12 @@ function DashLayout({children}: LayoutProps) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
-    const {duplications, duplicationSrc, openDialog: duplicateDetectedDialog} = useAppSelector(duplicatedSelector);
+    const {
+        duplications,
+        duplicationSrc,
+        openDialog: duplicateDetectedDialog,
+        mutate: mutateDuplicationSource
+    } = useAppSelector(duplicatedSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
@@ -138,10 +143,14 @@ function DashLayout({children}: LayoutProps) {
         return str;
     }
 
+    const getCheckedDuplications = () => {
+        return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
+    }
+
     const handleMergeDuplication = () => {
         setLoading(true);
         const params = new FormData();
-        duplications && params.append('duplicatedPatients', duplications.map(duplication => duplication.uuid).join(","));
+        duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
             object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
 
@@ -154,6 +163,7 @@ function DashLayout({children}: LayoutProps) {
             setLoading(false);
             dispatch(setDuplicated({openDialog: false}));
             dispatch(resetDuplicated());
+            mutateDuplicationSource && mutateDuplicationSource();
         })
     }
 

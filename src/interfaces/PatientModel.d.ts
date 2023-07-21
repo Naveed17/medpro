@@ -27,4 +27,5 @@ interface PatientModel {
     requestedAnalyses: [];
     requestedImaging: [];
     treatment?: [];
+    checked?: boolean;
 }

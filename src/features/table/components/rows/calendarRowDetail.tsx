@@ -24,7 +24,7 @@ import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 function CalendarRowDetail({...props}) {
     const {
         index, data, pendingData,
-        spinner, t, handleEvent
+        spinner, t, handleEvent, mutateAgenda
     } = props;
 
     const {data: session} = useSession();
@@ -191,7 +191,14 @@ function CalendarRowDetail({...props}) {
                             sx={{p: 0, ml: 1, borderRadius: 3}}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                dispatch(setDuplicated({duplications, duplicationSrc: data.patient, openDialog: true}));
+                                console.log("mutateAgenda", mutateAgenda);
+                                dispatch(setDuplicated({
+                                    duplications,
+                                    duplicationSrc: data.patient,
+                                    duplicationInit: data.patient,
+                                    openDialog: true,
+                                    mutate: mutateAgenda
+                                }));
                             }}>
                             <Label
                                 variant="filled"

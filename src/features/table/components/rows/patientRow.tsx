@@ -39,7 +39,7 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data} = props;
-    const {insurances} = data;
+    const {insurances, mutatePatient} = data;
     const dispatch = useAppDispatch();
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
     const {duplications} = useDuplicatedDetect({patientId: row?.hasDouble && row?.uuid});
@@ -150,7 +150,9 @@ function PatientRow({...props}) {
                                                     dispatch(setDuplicated({
                                                         duplications,
                                                         duplicationSrc: row,
-                                                        openDialog: true
+                                                        duplicationInit: row,
+                                                        openDialog: true,
+                                                        mutate: mutatePatient
                                                     }));
                                                 }}>
                                                 <Label

@@ -70,7 +70,8 @@ function Calendar({...props}) {
         OnSelectEvent,
         OnSelectDate,
         OnEventChange,
-        OnMenuActions
+        OnMenuActions,
+        mutate: mutateAgenda
     } = props;
 
     const dispatch = useAppDispatch();
@@ -305,7 +306,7 @@ function Calendar({...props}) {
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner, refs}}
+                                {...{spinner, refs, mutateAgenda}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
