@@ -10,6 +10,7 @@ import {
 } from "@features/tabPanel";
 import {useTheme} from "@mui/material";
 import dynamic from "next/dynamic";
+import {resetDuplicated} from "@features/duplicateDetected";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -19,11 +20,12 @@ function AddPatientStep3({...props}) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
 
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
     const {submitted} = useAppSelector(appointmentSelector);
     const {stepsData} = useAppSelector(addPatientSelector);
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+
     return (
         <SuccessCard
             data={{
@@ -70,6 +72,7 @@ function AddPatientStep3({...props}) {
                     case "onClose":
                         if (OnCustomAction) {
                             OnCustomAction("CLOSE");
+                            dispatch(resetDuplicated());
                         }
                         break;
                 }

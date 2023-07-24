@@ -1,9 +1,14 @@
 import React, {memo, useState} from "react";
-import {Stack, Typography} from "@mui/material";
+import {Button, Stack, Typography} from "@mui/material";
 import {Player} from "@lottiefiles/react-lottie-player";
 import IconUrl from "@themes/urlIcon";
 import {styled} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
+import {duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
+import {Label} from "@features/label";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useTranslation} from "next-i18next";
 
 const RootStyle = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.common.white,
@@ -21,6 +26,11 @@ LottiePlayer.displayName = "lottie-player";
 function SuccessCard({...props}) {
     const {onClickTextButton, data} = props;
     const {title, description, buttons} = data;
+    const dispatch = useAppDispatch();
+
+    const {t} = useTranslation("common");
+    const {duplications} = useAppSelector(duplicatedSelector);
+
     const [loading, setLoading] = useState<boolean>(false);
 
     return (
@@ -34,6 +44,27 @@ function SuccessCard({...props}) {
             <Typography variant="h6" gutterBottom sx={{my: 3}}>
                 {title}
             </Typography>
+            {(duplications && duplications.length > 0) && <Button
+                sx={{p: 0, ml: 1, borderRadius: 3}}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    dispatch(setDuplicated({openDialog: true}));
+                }}>
+                <Label
+                    variant="filled"
+                    sx={{
+                        p: "1rem",
+                        cursor: "pointer",
+                        "& .MuiSvgIcon-root": {
+                            width: 16,
+                            height: 16,
+                            pl: 0
+                        }
+                    }}
+                    color={"warning"}>
+                    <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                    <Typography sx={{fontSize: 12, fontWeight: "bold"}}> {t("duplication")}</Typography>
+                </Label></Button>}
             <Typography
                 variant="body1"
                 textAlign={{xs: "center", lg: "left"}}

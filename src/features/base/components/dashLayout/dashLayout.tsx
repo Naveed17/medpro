@@ -67,6 +67,7 @@ function DashLayout({children}: LayoutProps) {
     const [loading, setLoading] = useState(false);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
+    const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
 
     const {data: httpUserResponse} = useRequest({
         method: "GET",
@@ -147,12 +148,30 @@ function DashLayout({children}: LayoutProps) {
         return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
     }
 
+    const handleNoDuplication = () => {
+        setLoading(true);
+        const params = new FormData();
+        duplications && params.append('notDuplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
+
+        medicalEntityHasUser && noDuplicationsTrigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/no-duplications/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            dispatch(setDuplicated({openDialog: false}));
+            dispatch(resetDuplicated());
+            mutateDuplicationSource && mutateDuplicationSource();
+        })
+    }
+
     const handleMergeDuplication = () => {
         setLoading(true);
         const params = new FormData();
         duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
+            object => params.append(object[0] === "contact" ? "phone" : object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
@@ -306,12 +325,15 @@ function DashLayout({children}: LayoutProps) {
                                 {t("dialogs.duplication-dialog.later")}
                             </Button>
                             <Box>
-                                <Button
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    onClick={handleNoDuplication}
                                     sx={{marginRight: 1}}
                                     color={"inherit"}
                                     startIcon={<CloseIcon/>}>
                                     {t("dialogs.duplication-dialog.no-duplicates")}
-                                </Button>
+                                </LoadingButton>
                                 <LoadingButton
                                     {...{loading}}
                                     loadingPosition="start"

@@ -1,9 +1,17 @@
 import {Checkbox, FormControlLabel, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import React from "react";
+import {useAppSelector} from "@lib/redux/hooks";
+import {duplicatedSelector} from "@features/duplicateDetected";
 
 function DuplicatedRow({...props}) {
     const {modalData, index, t, fields, handleChangeFiled, handleSelectedDuplication} = props;
+    const {duplications} = useAppSelector(duplicatedSelector);
+
+    const similarField = (value: string | null, field: string, dups?: any[]) => {
+        const updatedDup = (dups ?? duplications)?.filter((data: any) => field?.length > 0 && data[field]).map((data: any) => data[field]) ?? [];
+        return updatedDup.some(item => item !== value);
+    }
 
     return modalData && (
         <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
@@ -23,7 +31,9 @@ function DuplicatedRow({...props}) {
                     }
                 </ListSubheader>
 
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...(similarField(modalData.gender, "gender") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`gender-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -48,7 +58,9 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...(similarField(modalData.firstName, "firstName") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`firstName-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -73,7 +85,9 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...(similarField(modalData.lastName, "lastName") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`lastName-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -99,13 +113,13 @@ function DuplicatedRow({...props}) {
                     </Stack>
                 </ListItem>
                 <ListItem
+                    {...(similarField(modalData.birthdate, "birthdate") && {secondaryAction: <Icon path="danger"/>})}
                     sx={{
                         borderBottom: 1,
                         borderColor: "divider",
                         //bgcolor: (theme) => theme.palette.error.lighter,
                         "& .react-svg": {ml: "auto"},
-                    }}
-                >
+                    }}>
                     <Checkbox
                         checked={fields.includes(`birthdate-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -129,9 +143,13 @@ function DuplicatedRow({...props}) {
                             <Typography>--</Typography>
                         )}
                     </Stack>
-                    {/*<Icon path="danger"/>*/}
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...((duplications && similarField(
+                        modalData?.contact?.map((data: ContactModel) => `${data.code}${data.value}`).join(","),
+                        "value",
+                        duplications?.map(dup => dup?.contact))) && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`contact-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -154,7 +172,9 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...(similarField(modalData.profession, "profession") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`profession-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -177,7 +197,12 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...((duplications && modalData?.nationality && similarField(
+                        modalData?.nationality.code,
+                        "code",
+                        duplications?.map(dup => dup?.nationality))) && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`nationality-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -200,7 +225,12 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...((duplications && similarField(
+                        modalData?.address?.map((data: AddressModel) => data.street).join(","),
+                        "street",
+                        duplications?.map(dup => dup?.address))) && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`address-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -217,14 +247,19 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.address")}
                         </Typography>
-                        {modalData.addresses && modalData.addresses.length > 0 ? (
-                            <Typography>{modalData.addresses[0].street}</Typography>
+                        {modalData.address && modalData.address.length > 0 ? (
+                            <Typography>{modalData.address[0]?.street?.length > 0 ? modalData.address[0].street : "--"}</Typography>
                         ) : (
                             <Typography>--</Typography>
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...((duplications && similarField(
+                        modalData?.insurances?.map((data: any) => data.insurance?.name).join(","),
+                        "name",
+                        duplications?.map(dup => dup?.insurances))) && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`insurances-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -246,7 +281,9 @@ function DuplicatedRow({...props}) {
                         }
                     </Stack>
                 </ListItem>
-                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                <ListItem
+                    {...(similarField(modalData.email, "email") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`email-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
@@ -269,7 +306,10 @@ function DuplicatedRow({...props}) {
                         )}
                     </Stack>
                 </ListItem>
-                <ListItem>
+                <ListItem
+                    {...(similarField(modalData.idCard, "idCard") && {
+                        secondaryAction: <Icon path="danger"/>
+                    })}>
                     <Checkbox
                         checked={fields.includes(`idCard-${index}`)}
                         onChange={event => handleChangeFiled(event, modalData)}
