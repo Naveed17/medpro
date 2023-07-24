@@ -43,6 +43,7 @@ import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
+import {setDuplicated} from "@features/duplicateDetected";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -246,14 +247,19 @@ function AddPatientStep2({...props}) {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
             data: form
-        }, TriggerWithoutValidation).then(
+        }).then(
             (res: any) => {
                 const {data} = res;
-                const {status} = data;
+                const {status, data: result} = data;
                 setLoading(false);
                 if (status === "success") {
                     mutateOnGoing && mutateOnGoing();
-                    dispatch(onSubmitPatient(data.data));
+                    dispatch(onSubmitPatient(result));
+                    dispatch(setDuplicated({
+                        duplications: result.duplicated,
+                        duplicationSrc: result.data,
+                        duplicationInit: result.data
+                    }));
                     onNext(2);
                 }
             }
