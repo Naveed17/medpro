@@ -1,3 +1,10 @@
+## [4.19.2](https://github.com/SmartMedSA/med-pro/compare/v4.19.1...v4.19.2) (2023-07-24)
+
+
+### Bug Fixes
+
+* fcm subscribe bugs ([97bfefd](https://github.com/SmartMedSA/med-pro/commit/97bfefd2f2b258f8e404f4f34e790872d790d112))
+
 ## [4.19.1](https://github.com/SmartMedSA/med-pro/compare/v4.19.0...v4.19.1) (2023-07-14)
 
 
