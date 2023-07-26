@@ -166,12 +166,23 @@ function DashLayout({children}: LayoutProps) {
         })
     }
 
+    const getPatientParams = (param: string) => {
+        switch (param) {
+            case "contact":
+                return "phone";
+            case "insurances":
+                return "insurance";
+            default:
+                return param
+        }
+    }
+
     const handleMergeDuplication = () => {
         setLoading(true);
         const params = new FormData();
         duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(object[0] === "contact" ? "phone" : object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
+            object => params.append(getPatientParams(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_")), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
