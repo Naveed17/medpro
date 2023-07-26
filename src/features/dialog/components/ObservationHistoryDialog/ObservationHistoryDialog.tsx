@@ -31,7 +31,7 @@ function ObservationHistoryDialog({...props}) {
                             }}>{moment(act.data, 'DD-MM-YYYY').format('DD/MM/YYYY')}</Typography>
                         </Stack>
                         <Typography
-                            fontSize={12}>{data.t("consultationIP.notes")} {act.note ? act.note : '-'}</Typography>
+                            fontSize={12}>{data.t("consultationIP.notes")} : {act.note ? act.note : '-'}</Typography>
                         <Typography
                             fontSize={12}>{data.t("consultationIP.diagnosis")} : {act.diagnostics ? act.diagnostics : '-'}</Typography>
                     </Stack>

@@ -342,7 +342,8 @@
       "allergic": "Allergies",
       "father": "Père",
       "mother": "Mère",
-      "both": "Les deux"
+      "both": "Les deux",
+      "disease": "Maladie"
     }
   },
   "background": {
