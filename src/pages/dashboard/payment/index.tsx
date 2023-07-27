@@ -1,39 +1,17 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {
-    Box,
-    Button,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Drawer,
-    LinearProgress,
-    List,
-    ListItem,
-    Stack,
-    TextField,
-    Theme,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
+import {Box, Button, Drawer, LinearProgress, Stack, Typography,} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {
-    onOpenPatientDrawer,
-    Otable,
-    tableActionSelector,
-} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
 import {useTranslation} from "next-i18next";
-import {Dialog, PatientDetail} from "@features/dialog";
+import {PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
-import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {useRequestMutation} from "@lib/axios";
@@ -42,17 +20,9 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {Label} from "@features/label";
-import {cashBoxSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, PaymentFilter} from "@features/leftActionBar";
 import {DefaultCountry} from "@lib/constants";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {
-    setInsurances,
-    setPaymentTypes,
-} from "@features/leftActionBar/components/payment/actions";
 import {EventDef} from "@fullcalendar/core/internal";
-import {PaymentFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {sendRequest, useInsurances} from "@lib/hooks/rest";
@@ -67,40 +37,6 @@ interface HeadCell {
     align: "left" | "right" | "center";
 }
 
-const headCheques: readonly HeadCell[] = [
-    {
-        id: "no",
-        numeric: false,
-        disablePadding: true,
-        label: "-",
-        sortable: false,
-        align: "center",
-    },
-    {
-        id: "nb-cheque",
-        numeric: false,
-        disablePadding: true,
-        label: "numcheque",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "date",
-        numeric: true,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: true,
-        label: "amount",
-        sortable: true,
-        align: "right",
-    },
-];
 const headCells: readonly HeadCell[] = [
     {
         id: "date",
@@ -170,10 +106,8 @@ const headCells: readonly HeadCell[] = [
 
 function Payment() {
     const {data: session} = useSession();
-    const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
 
@@ -185,7 +119,6 @@ function Payment() {
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {selectedBox, paymentTypes} = useAppSelector(cashBoxSelector);
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -195,8 +128,6 @@ function Payment() {
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
-    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
         cash: {
             amount: "",
@@ -216,45 +147,13 @@ function Payment() {
         ],
         selected: "",
     });
-    const [collapse, setCollapse] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [collapseDate] = useState<any>(null);
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
-    const [cheques] = useState<ChequeModel[]>([
-        {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
-        {uuid: "x", numero: "111111111", date: "23/21/2022", amount: 200},
-    ]);
     const [total, setTotal] = useState(0);
     let [select] = useState<any[]>([]);
     const [filter, setFilter] = useState(false);
-    let [collect, setCollect] = useState<any[]>([]);
-    let [collected, setCollected] = useState(0);
-    const [toReceive] = useState(0);
-    const [somme, setSomme] = useState(0);
-    const [freeTrans, setFreeTrans] = useState(0);
-    const [action, setAction] = useState("");
-    const [popoverActions, setPopoverActions] = useState([
-        {
-            title: "start_the_consultation",
-            icon: <PlayCircleIcon/>,
-            action: "onConsultationStart",
-        },
-        {
-            title: "leave_waiting_room",
-            icon: <IconUrl color={"white"} path="ic-salle"/>,
-            action: "onLeaveWaitingRoom",
-        },
-        {
-            title: "see_patient_form",
-            icon: (
-                <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
-            ),
-            action: "onPatientDetail",
-        },
-    ]);
 
-    const newVersion = process.env.NODE_ENV === "development";
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -263,82 +162,6 @@ function Payment() {
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
 
-    const handleCollapse = () => {
-        //setCollapseData(props);
-        setCollapse(true);
-    };
-
-    const handleCloseCollapse = () => setCollapse(false);
-
-    const handleCheques = (props: ChequeModel) => {
-        if (collect.indexOf(props) != -1) {
-            collect.splice(collect.indexOf(props), 1);
-        } else {
-            collect.push(props);
-        }
-        setCollect([...collect]);
-        let res = 0;
-        collect.map((val) => (res += val.amount));
-        setCollected(res + freeTrans);
-    };
-
-    const handleSubmit = () => {
-        const trans_data: TransactionDataModel[] = [];
-        selectedPayment.payments.map((sp: any) => {
-            console.log(sp);
-            trans_data.push({
-                payment_means: sp.payment_type[0].uuid,
-                //insurance: "value",
-                amount: sp.amount,
-                status_transaction: "1",
-                type_transaction: action === "btn_header_2" ? "IN" : "OUT",
-                payment_date: sp.date,
-                data: {label: sp.designation},
-            });
-        });
-        const form = new FormData();
-        form.append("type_transaction", action === "btn_header_2" ? "IN" : "OUT");
-        form.append("status_transaction", "1");
-        form.append("amount", "100");
-        form.append("rest_amount", "0");
-        form.append("transaction_data", JSON.stringify(trans_data));
-
-        trigger({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        });
-        setOpenPaymentDialog(false);
-    };
-
-    const resetDialog = () => {
-        setOpenPaymentDialog(false);
-        const actions = [...popoverActions];
-        actions.splice(
-            popoverActions.findIndex((data) => data.action === "onPay"),
-            1
-        );
-        setPopoverActions(actions);
-    };
-
-    const openPop = (ev: string) => {
-        setAction(ev);
-        setSelectedPayment({
-            uuid: "row?.uuid",
-            date: moment().format("DD-MM-YYYY"),
-            time: "row?.appointment_time",
-            patient: null,
-            insurance: "",
-            type: "row?.appointment_type.name",
-            amount: 0,
-            total: 0,
-            payments: [],
-        });
-        setOpenPaymentDialog(true);
-    };
 
     const handleTableActions = (data: any) => {
         switch (data.action) {
@@ -465,36 +288,6 @@ function Payment() {
     });
 
     useEffect(() => {
-        if (medicalProfessionalData) {
-            dispatch(setInsurances(medicalProfessionalData[0].insurances));
-            dispatch(setPaymentTypes(medicalProfessionalData[0].payments));
-
-            if (medicalProfessionalData[0].payments.length > 0) {
-                deals.selected = medicalProfessionalData[0].payments[0].slug;
-                setDeals({...deals});
-            }
-        }
-    }, [medicalProfessionalData]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    /*    useEffect(() => {
-              if (selectedBox) {
-                  setTotal(selectedBox.total);
-                  setToReceive(selectedBox.total_insurance);
-                  const filterQuery = generateFilter();
-
-                  trigger({
-                      method: "GET",
-                      url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
-                      headers: {
-                          Authorization: `Bearer ${session?.accessToken}`,
-                      },
-                  }).then((r: any) => {
-                      // console.log(r.data.data);
-                  });
-              }
-          }, [day, selectedBox]); // eslint-disable-line react-hooks/exhaustive-deps*/
-
-    useEffect(() => {
         const updatedDate = moment(currentDate.date).format("DD-MM-YYYY");
         setDay(updatedDate);
         getFilteredData(updatedDate);
@@ -527,69 +320,12 @@ function Payment() {
                         spacing={{xs: 1, md: 3}}
                         alignItems={{xs: "flex-start", md: "center"}}>
                         <Stack direction="row" spacing={2} alignItems="center">
-                            {newVersion && (
-                                <>
-                                    <Typography variant="subtitle2">{t("receive")}</Typography>
-                                    <Typography variant="h6">
-                                        {toReceive} {devise}
-                                    </Typography>
-                                    <Typography
-                                        variant="h6"
-                                        display={{xs: "none", md: "block"}}>
-                                        I
-                                    </Typography>
-                                </>
-                            )}
-
                             <Typography variant="subtitle2">{t("total")}</Typography>
                             <Typography variant="h6">
                                 {total} {devise}
                             </Typography>
                         </Stack>
-                        {newVersion && (
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                {!isMobile && <Typography variant="h6">I</Typography>}
 
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() => {
-                                        openPop("btn_header_1");
-                                    }}
-                                    {...(isMobile && {
-                                        size: "small",
-                                        sx: {minWidth: 40},
-                                    })}>
-                                    - {!isMobile && t("btn_header_1")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    {...(isMobile && {
-                                        size: "small",
-                                        sx: {minWidth: 40},
-                                    })}
-                                    onClick={() => {
-                                        openPop("btn_header_2");
-                                    }}>
-                                    + {!isMobile && t("btn_header_2")}
-                                </Button>
-                                <Typography variant="h6" display={{xs: "none", md: "block"}}>
-                                    I
-                                </Typography>
-                                <Button
-                                    variant="contained"
-                                    {...(isMobile && {
-                                        size: "small",
-                                        sx: {minWidth: 40},
-                                    })}
-                                    onClick={() => {
-                                        handleCollapse();
-                                    }}>
-                                    <KeyboardArrowDownIcon/> {!isMobile && t("Encaisser")}
-                                </Button>
-                            </Stack>
-                        )}
                     </Stack>
                 </Stack>
             </SubHeader>
@@ -658,221 +394,6 @@ function Payment() {
                 />
             </Drawer>
 
-            <Dialog
-                action={"payment_dialog"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380,
-                    },
-                }}
-                open={openPaymentDialog}
-                data={{
-                    selectedPayment,
-                    setSelectedPayment,
-                    deals,
-                    setDeals,
-                    paymentTypes,
-                    patient: null,
-                }}
-                size={"md"}
-                title={t(action)}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("config.cancel", {ns: "common"})}
-                        </Button>
-                        <Button
-                            disabled={
-                                selectedPayment && selectedPayment.payments.length === 0
-                            }
-                            variant="contained"
-                            onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("config.save", {ns: "common"})}
-                        </Button>
-                    </DialogActions>
-                }
-            />
-
-            <MuiDialog
-                PaperProps={{
-                    style: {
-                        margin: 4,
-                        width: "100%",
-                        paddingBottom: 16,
-                    },
-                }}
-                onClose={handleCloseCollapse}
-                open={collapse}>
-                <DialogTitle
-                    sx={{
-                        bgcolor: (theme) => theme.palette.primary.main,
-                        position: "relative",
-                    }}>
-                    {t("Encaisser")}
-                    <Button
-                        size="small"
-                        variant="contained"
-                        sx={{
-                            position: "absolute",
-                            right: 15,
-                            top: 15,
-                        }}
-                        color="warning"
-                        {...(isMobile && {
-                            fullWidth: true,
-                        })}>
-                        {t("total")}
-                        <Typography fontWeight={700} component="strong" mx={1}>
-                            {collected}
-                        </Typography>
-                        {devise}
-                    </Button>
-                </DialogTitle>
-                <DialogContent dividers={true}>
-                    <Stack
-                        direction={"row"}
-                        spacing={3}
-                        alignItems={"center"}
-                        padding={2}>
-                        <Typography variant={"body1"}>{t("somme")}</Typography>
-                        <TextField
-                            type="number"
-                            fullWidth
-                            style={{width: "150px", textAlign: "center"}}
-                            value={somme}
-                            onChange={(ev) => {
-                                setSomme(Number(ev.target.value));
-                                let updatedCollected = collected - freeTrans;
-                                updatedCollected = updatedCollected + Number(ev.target.value);
-                                setCollected(updatedCollected);
-                                setFreeTrans(Number(ev.target.value));
-                            }}
-                            InputProps={{
-                                style: {
-                                    width: "150px",
-                                    textAlign: "center",
-                                },
-                            }}
-                            placeholder={t("---")}
-                        />
-                        <Typography variant={"body1"} color={theme.palette.grey[700]}>
-                            {devise}
-                        </Typography>
-                    </Stack>
-                    <Box className="container">
-                        <DesktopContainer>
-                            <Otable
-                                headers={headCheques}
-                                rows={cheques}
-                                from={"chequesList"}
-                                t={t}
-                                select={collect}
-                                edit={handleCheques}
-                            />
-                        </DesktopContainer>
-                    </Box>
-                    <List sx={{pt: 3}}>
-                        {collapseDate?.map((col: any, idx: number) => (
-                            <ListItem
-                                key={idx}
-                                sx={{
-                                    "&:not(:last-child)": {
-                                        borderBottom: `1px solid ${theme.palette.divider}`,
-                                    },
-                                }}>
-                                <Stack
-                                    sx={{
-                                        ".react-svg svg": {
-                                            width: (theme) => theme.spacing(1.5),
-                                            path: {
-                                                fill: (theme) => theme.palette.text.primary,
-                                            },
-                                        },
-                                    }}
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="space-between"
-                                    width={1}>
-                                    <Stack spacing={0.5} direction="row" alignItems="center">
-                                        <IconUrl path="ic-agenda-jour"/>
-                                        <Typography fontWeight={600}>{col.date}</Typography>
-                                    </Stack>
-                                    <Stack spacing={0.5} direction="row" alignItems="center">
-                                        <IconUrl path="setting/ic-time"/>
-                                        <Typography fontWeight={600} className="date">
-                                            {col.time}
-                                        </Typography>
-                                    </Stack>
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        justifyContent="flex-start"
-                                        spacing={1}>
-                                        {col.payment_type?.map((type: any, i: number) => (
-                                            <Stack
-                                                key={i}
-                                                direction="row"
-                                                alignItems="center"
-                                                spacing={1}>
-                                                <IconUrl path={type.icon}/>
-                                                <Typography color="text.primary" variant="body2">
-                                                    {t("table." + type.name)}
-                                                </Typography>
-                                            </Stack>
-                                        ))}
-                                    </Stack>
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        justifyContent="flex-start"
-                                        spacing={2}>
-                                        {col.billing_status ? (
-                                            <Label
-                                                className="label"
-                                                variant="ghost"
-                                                color={
-                                                    col.billing_status === "yes" ? "success" : "error"
-                                                }>
-                                                {t("table." + col.billing_status)}
-                                            </Label>
-                                        ) : (
-                                            <Typography>--</Typography>
-                                        )}
-                                        <Typography
-                                            color={
-                                                (col.amount > 0 && "success.main") ||
-                                                (col.amount < 0 && "error.main") ||
-                                                "text.primary"
-                                            }
-                                            fontWeight={700}>
-                                            {col.amount}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            </ListItem>
-                        ))}
-                    </List>
-                </DialogContent>
-                <DialogActions style={{paddingBottom: 0}}>
-                    <Button
-                        onClick={() => {
-                            setCollapse(false);
-                        }}
-                        startIcon={<CloseIcon/>}>
-                        {t("config.cancel", {ns: "common"})}
-                    </Button>
-                    <Button
-                        disabled={selectedPayment && selectedPayment.payments.length === 0}
-                        variant="contained"
-                        onClick={handleSubmit}
-                        startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                        {t("config.save", {ns: "common"})}
-                    </Button>
-                </DialogActions>
-            </MuiDialog>
             <Button
                 startIcon={<IconUrl path="ic-filter"/>}
                 variant="filter"

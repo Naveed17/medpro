@@ -133,7 +133,7 @@ function PatientFile({...props}) {
                         <Text style={{
                             ...styles.info, color: "black"
                         }}>{patientData?.birthdate} - {moment().diff(moment(patientData.birthdate, "DD-MM-YYYY"), 'years')} ans</Text>}
-                    {patientData?.contact &&
+                    {patientData?.contact && patientData?.contact.length > 0 &&
                         <Text style={styles.info}>{patientData?.contact[0].code} {patientData?.contact[0].value}</Text>}
 
                     <View style={styles.separator}></View>

@@ -4,7 +4,7 @@ import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
-import {QsSidebarReducer, leftActionBarReducer, CashboxReducer} from "@features/leftActionBar";
+import {QsSidebarReducer, leftActionBarReducer} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
@@ -35,7 +35,6 @@ export const store = configureStore({
         tableState: tableReducer,
         qsSidebar: QsSidebarReducer,
         agenda: AgendaReducer,
-        cashBox: CashboxReducer,
         appointment: appointmentReducer,
         dialog: DialogReducer,
         dialogMove: dialogMoveAppointmentReducer,
