@@ -5,6 +5,7 @@ import {
     Badge,
     Box,
     Button,
+    Checkbox,
     Chip,
     IconButton,
     Skeleton,
@@ -13,12 +14,12 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import {onOpenPatientDrawer, TableRowStyled} from "@features/table";
+import {onOpenPatientDrawer, TableRowStyled, setSelectedRows, tableActionSelector} from "@features/table";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import {useAppDispatch} from "@lib/redux/hooks";
-import React, {Fragment} from "react";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import React, {Fragment, MouseEventHandler, useEffect} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
@@ -38,39 +39,61 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 }));
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, t, loading, handleEvent, data} = props;
+    const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
     const {insurances, mutatePatient} = data;
     const dispatch = useAppDispatch();
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
     const {duplications} = useDuplicatedDetect({patientId: row?.hasDouble && row?.uuid});
+    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
+
+    const handlePatientRowClick = (event: any) => {
+        event.stopPropagation();
+        dispatch(onOpenPatientDrawer({
+            patientId: row.uuid,
+            patientAction: "PATIENT_DETAILS",
+        }));
+        handleEvent("PATIENT_DETAILS", row);
+    }
+
+    const handleCheckItem = (isItemSelected: boolean, row: PatientModel) => {
+        if (isItemSelected) {
+            dispatch(setSelectedRows([...rowsSelected, row]))
+        } else {
+            dispatch(setSelectedRows(rowsSelected.filter((item: any) => item.uuid !== row.uuid)))
+        }
+    }
 
     return (
         <TableRowStyled
             hover
-            onClick={(event: any) => {
-                event.stopPropagation();
-                dispatch(
-                    onOpenPatientDrawer({
-                        patientId: row.uuid,
-                        patientAction: "PATIENT_DETAILS",
-                    })
-                );
-                handleEvent("PATIENT_DETAILS", row);
-            }}
             role="checkbox"
             aria-checked={isItemSelected}
             tabIndex={-1}
-            selected={isItemSelected}
-        >
+            selected={isItemSelected}>
+            <TableCell padding="checkbox">
+                {loading ? (
+                    <Skeleton variant="circular" width={28} height={28}/>
+                ) : (
+                    <Checkbox
+                        color="primary"
+                        checked={selected.some((uuid: any) => uuid === row.uuid)}
+                        inputProps={{
+                            "aria-labelledby": row.uuid,
+                        }}
+                        onChange={(ev) => {
+                            ev.stopPropagation();
+                            handleClick(row.uuid);
+                            handleCheckItem(ev.target.checked, row);
+                        }}
+                    />
+                )}
+            </TableCell>
             <TableCell
-                onClick={(event: any) => {
-                    event.stopPropagation();
-                }}>
+                onClick={handlePatientRowClick}>
                 <Box
                     display="flex"
                     alignItems="center"
-                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}
-                >
+                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}>
                     <Box ml={1}>
                         <Typography
                             variant="body1"

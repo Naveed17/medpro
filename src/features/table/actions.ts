@@ -6,3 +6,4 @@ export const addUser = createAction<any>("table/addUser");
 export const resetUser = createAction("table/resetUser");
 export const editUser = createAction<any>("table/editUser");
 export const importDataUpdate = createAction<any>("table/importDataUpdate");
+export const setSelectedRows = createAction<any>("table/setSelectedRows");
