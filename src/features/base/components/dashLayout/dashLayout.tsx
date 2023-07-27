@@ -8,9 +8,9 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {configSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {Box, Button, DialogActions, Stack, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, Typography, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -45,6 +45,7 @@ import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} f
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
+import {EventDef} from "@fullcalendar/core/internal";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -62,9 +63,11 @@ function DashLayout({children}: LayoutProps) {
         openDialog: duplicateDetectedDialog,
         mutate: mutateDuplicationSource
     } = useAppSelector(duplicatedSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [mergeDialog, setMergeDialog] = useState(false);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
     const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
@@ -231,6 +234,7 @@ function DashLayout({children}: LayoutProps) {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setLoading(false);
+            setMergeDialog(false);
             dispatch(setDuplicated({openDialog: false}));
             dispatch(resetDuplicated());
             mutateDuplicationSource && mutateDuplicationSource();
@@ -343,6 +347,47 @@ function DashLayout({children}: LayoutProps) {
                 action={() => renderNoDataCard}/>
 
             <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => {
+                    setMergeDialog(false);
+                }}
+                dir={direction}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t("dialogs.merge-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t("dialogs.merge-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={mergeDialog}
+                title={t("dialogs.merge-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => {
+                                setMergeDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialogs.merge-dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={handleMergeDuplication}
+                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            {t("dialogs.merge-dialog.confirm")}
+                        </LoadingButton>
+                    </>
+                }
+            />
+
+            <Dialog
                 {...{
                     sx: {
                         minHeight: 340,
@@ -391,7 +436,7 @@ function DashLayout({children}: LayoutProps) {
                                 <LoadingButton
                                     {...{loading}}
                                     loadingPosition="start"
-                                    onClick={handleMergeDuplication}
+                                    onClick={() => setMergeDialog(true)}
                                     variant="contained"
                                     startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
                                     {t("dialogs.duplication-dialog.save")}
