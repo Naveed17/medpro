@@ -22,7 +22,6 @@ function DuplicatedRow({...props}) {
     const {duplications} = useAppSelector(duplicatedSelector);
 
     const similarField = (value: string | null, field: string, dups?: any[]) => {
-        console.log(value, field, dups);
         const updatedDup = (dups ?? duplications)?.filter((data: any) => field?.length > 0 && data[field]).map((data: any) => data[field]) ?? [];
         return updatedDup.some(item => item !== value);
     }
