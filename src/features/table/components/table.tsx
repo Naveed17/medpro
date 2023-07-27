@@ -4,7 +4,8 @@ import {Box, Table, TableBody, TableContainer} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 import {Pagination} from "@features/pagination";
-
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {addRows} from "@features/table";
 function descendingComparator(a: any, b: any, orderBy: any) {
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -66,21 +67,23 @@ function Otable({...props}) {
     const [active, setActive] = useState([]);
     const [selected, setSelected] = React.useState<readonly string[]>(select);
     const tableRef = React.useRef<any>(null);
-
+    const dispatch = useAppDispatch();
+    const {tableState:{rowsSelected}} = useAppSelector((state) => state.tableState);
     const handleRequestSort = (event: any, property: SetStateAction<string>) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");
         setOrderBy(property);
     };
-
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
             if(handleChange)handleChange('allRows',rows)
             setSelected(newSelecteds);
+            dispatch(addRows(rows))
             return;
         }
         setSelected([]);
+        dispatch(addRows([]))
         if(handleChange)handleChange('allRows',[])
     };
     const handleClick = (id: any) => {
