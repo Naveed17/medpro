@@ -45,6 +45,7 @@ import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} f
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
+import {setSelectedRows} from "@features/table";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -234,6 +235,7 @@ function DashLayout({children}: LayoutProps) {
         }).then(() => {
             setLoading(false);
             setMergeDialog(false);
+            dispatch(setSelectedRows([]));
             dispatch(setDuplicated({openDialog: false}));
             dispatch(resetDuplicated());
             mutateDuplicationSource && mutateDuplicationSource();
@@ -348,9 +350,6 @@ function DashLayout({children}: LayoutProps) {
             <Dialog
                 color={theme.palette.error.main}
                 contrastText={theme.palette.error.contrastText}
-                dialogClose={() => {
-                    setMergeDialog(false);
-                }}
                 dir={direction}
                 action={() => {
                     return (
@@ -389,10 +388,7 @@ function DashLayout({children}: LayoutProps) {
             <Dialog
                 {...{
                     sx: {
-                        minHeight: 340,
-                        "& .MuiDialog-root": {
-                            zIndex: 1199
-                        },
+                        minHeight: 340
                     },
                 }}
                 size={"lg"}

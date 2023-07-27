@@ -191,7 +191,6 @@ function CalendarRowDetail({...props}) {
                             sx={{p: 0, ml: 1, borderRadius: 3}}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                console.log("mutateAgenda", mutateAgenda);
                                 dispatch(setDuplicated({
                                     duplications,
                                     duplicationSrc: data.patient,
