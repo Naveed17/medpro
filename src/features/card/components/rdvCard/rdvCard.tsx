@@ -18,10 +18,12 @@ import {ModelDot} from '@features/modelDot'
 import {useRouter} from "next/router";
 import {AppointmentStatus} from "@features/calendar";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;

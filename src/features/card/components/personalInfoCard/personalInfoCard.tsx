@@ -32,11 +32,13 @@ import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -96,11 +98,11 @@ function PersonalInfo({...props}) {
             lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
-            email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : "",
-            profession: !loading && patient.profession ? patient.profession : "",
-            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : "",
-            nationality: !loading && patient?.nationality ? patient.nationality.uuid : ""
+            email: !loading && patient.email && patient.email !== "null" ? patient.email : "",
+            cin: !loading && patient.idCard && patient.idCard !== "null" ? patient.idCard : "",
+            profession: !loading && patient.profession && patient.profession !== "null" ? patient.profession : "",
+            familyDoctor: !loading && patient.familyDoctor && patient.familyDoctor !== "null" ? patient.familyDoctor : "",
+            nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
 
         },
         validationSchema: RegisterPatientSchema,
@@ -388,7 +390,7 @@ function PersonalInfo({...props}) {
                                                     value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
                                                     onChange={date => {
                                                         const dateInput = moment(date);
-                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
+                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
                                                         if (dateInput.isValid()) {
                                                             const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                             setFieldValue("old", old > 120 ? "" : old);
@@ -430,11 +432,9 @@ function PersonalInfo({...props}) {
                                                     mr={1}>{commonTranslation(`times.years`)}</Typography>}
                                                 readOnly={!editable}
                                                 error={Boolean(touched.email && errors.email)}
-                                                {...getFieldProps("old")}
                                                 value={values.old ?? ""}
                                                 onChange={event => {
                                                     const old = parseInt(event.target.value);
-                                                    console.log("old", old)
                                                     setFieldValue("old", old ? old : "");
                                                     if (old) {
                                                         setFieldValue("birthdate", (values.birthdate ?

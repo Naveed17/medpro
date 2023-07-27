@@ -13,7 +13,10 @@ import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tab
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Dialog, dialogMoveSelector, setMoveDateTime} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -69,7 +72,7 @@ function NotificationPopover({...props}) {
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [pendingAppointments, setPendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
+    const [pendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
         ...appointment,
         dur: appointment.duration,
         avatar: `${appointment.patient.firstName.charAt(0).toUpperCase()}${appointment.patient.lastName.charAt(0).toUpperCase()}`,
@@ -89,7 +92,7 @@ function NotificationPopover({...props}) {
             }
         ]
     }))])
-    const [notifications, setNotifications] = useState<any[]>([
+    const [notifications] = useState<any[]>([
         ...pendingAppointments
         , ...(localNotifications ? localNotifications.map(data => ({
             ...data,
@@ -224,7 +227,7 @@ function NotificationPopover({...props}) {
 
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

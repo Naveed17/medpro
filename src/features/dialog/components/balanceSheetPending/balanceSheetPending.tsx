@@ -20,7 +20,10 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;

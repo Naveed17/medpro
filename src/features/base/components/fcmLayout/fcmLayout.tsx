@@ -233,6 +233,7 @@ function FcmLayout({...props}) {
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
     useEffect(() => {
         // Update notifications popup
         const localStorageNotifications = localStorage.getItem("notifications");

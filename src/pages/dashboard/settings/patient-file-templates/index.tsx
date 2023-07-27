@@ -13,7 +13,10 @@ import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequestMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";

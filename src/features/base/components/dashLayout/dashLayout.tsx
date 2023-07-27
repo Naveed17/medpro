@@ -3,14 +3,14 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
-import {useAppDispatch} from "@lib/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {configSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, Typography, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -41,6 +41,11 @@ export const ImportCardData = {
 };
 
 import {useSWRConfig} from 'swr';
+import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import IconUrl from "@themes/urlIcon";
+import {setSelectedRows} from "@features/table";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -52,8 +57,20 @@ function DashLayout({children}: LayoutProps) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t} = useTranslation('common');
+    const {
+        duplications,
+        duplicationSrc,
+        openDialog: duplicateDetectedDialog,
+        mutate: mutateDuplicationSource
+    } = useAppSelector(duplicatedSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+    const [mergeDialog, setMergeDialog] = useState(false);
+
+    const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
+    const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
 
     const {data: httpUserResponse} = useRequest({
         method: "GET",
@@ -128,6 +145,101 @@ function DashLayout({children}: LayoutProps) {
             str = str.replace(/\d+$/, num.toString());
         }
         return str;
+    }
+
+    const getCheckedDuplications = () => {
+        return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
+    }
+
+    const handleNoDuplication = () => {
+        setLoading(true);
+        const params = new FormData();
+        duplications && params.append('notDuplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
+
+        medicalEntityHasUser && noDuplicationsTrigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/no-duplications/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            dispatch(setDuplicated({openDialog: false}));
+            dispatch(resetDuplicated());
+            mutateDuplicationSource && mutateDuplicationSource();
+        })
+    }
+
+    const getPatientParamsKey = (param: string) => {
+        switch (param) {
+            case "contact":
+                return "phone";
+            case "insurances":
+                return "insurance";
+            default:
+                return param;
+        }
+    }
+
+    const getPatientParamsValue = (param: string, value: any) => {
+        switch (param) {
+            case "insurances":
+                return prepareInsurances(value)
+            case "gender":
+                return value === 'M' ? '1' : '2';
+            default:
+                return value;
+        }
+    }
+
+    const updateParam_ = (param: string) => {
+        return param.split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_");
+    }
+
+    const prepareInsurances = (insurances: any) => {
+        return insurances?.map((insurance: any) => ({
+            insurance_number: insurance.insuranceNumber,
+            insurance_uuid: insurance.insurance?.uuid,
+            ...(insurance.insuredPerson && {
+                insurance_social: {
+                    firstName: insurance.insuredPerson.firstName ?? "",
+                    lastName: insurance.insuredPerson.lastName ?? "",
+                    birthday: insurance.insuredPerson.birthday ?? null,
+                    ...(insurance.insuredPerson.contact && {
+                        phone: {
+                            code: insurance.insuredPerson.contact.code,
+                            value: insurance.insuredPerson.contact.value,
+                            type: "phone",
+                            is_public: false,
+                            is_support: false
+                        }
+                    })
+                }
+            }),
+            insurance_type: insurance.type ? insurance.type.toString() : "0",
+            expand: insurance.type ? insurance.type.toString() !== "0" : false
+        }))
+    }
+
+    const handleMergeDuplication = () => {
+        setLoading(true);
+        const params = new FormData();
+        duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
+        Object.entries(duplicationSrc as PatientModel).forEach(
+            object => params.append(getPatientParamsKey(updateParam_(object[0])), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(getPatientParamsValue(object[0], object[1])) : getPatientParamsValue(object[0], object[1]) ?? ""));
+
+        medicalEntityHasUser && mergeDuplicationsTrigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            setMergeDialog(false);
+            dispatch(setSelectedRows([]));
+            dispatch(setDuplicated({openDialog: false}));
+            dispatch(resetDuplicated());
+            mutateDuplicationSource && mutateDuplicationSource();
+        })
     }
 
     useEffect(() => {
@@ -234,6 +346,103 @@ function DashLayout({children}: LayoutProps) {
                     setImportDataDialog(false);
                 }}
                 action={() => renderNoDataCard}/>
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dir={direction}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t("dialogs.merge-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t("dialogs.merge-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={mergeDialog}
+                title={t("dialogs.merge-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => {
+                                setMergeDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialogs.merge-dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={handleMergeDuplication}
+                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            {t("dialogs.merge-dialog.confirm")}
+                        </LoadingButton>
+                    </>
+                }
+            />
+
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340
+                    },
+                }}
+                size={"lg"}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    dispatch(setDuplicated({openDialog: false}));
+                }}
+                action={() => <DuplicateDetected src={duplicationSrc} data={duplications}/>}
+                actionDialog={
+                    <DialogActions
+                        sx={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                            "& .MuiDialogActions-root": {
+                                div: {
+                                    width: "100%",
+                                },
+                            },
+                        }}>
+                        <Stack
+                            direction={"row"}
+                            justifyContent={"space-between"}
+                            sx={{width: "100%"}}>
+                            <Button
+                                onClick={() => dispatch(setDuplicated({openDialog: false}))}
+                                startIcon={<CloseIcon/>}>
+                                {t("dialogs.duplication-dialog.later")}
+                            </Button>
+                            <Box>
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    onClick={handleNoDuplication}
+                                    sx={{marginRight: 1}}
+                                    color={"inherit"}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("dialogs.duplication-dialog.no-duplicates")}
+                                </LoadingButton>
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    onClick={() => setMergeDialog(true)}
+                                    variant="contained"
+                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    {t("dialogs.duplication-dialog.save")}
+                                </LoadingButton>
+                            </Box>
+                        </Stack>
+                    </DialogActions>
+                }
+                open={duplicateDetectedDialog}
+                title={t(`dialogs.duplication-dialog.title`)}
+            />
         </SideBarMenu>
     );
 }

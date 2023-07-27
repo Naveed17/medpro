@@ -41,11 +41,14 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {AppointmentDetail, Dialog} from "@features/dialog";
+import {AppointmentDetail, Dialog, handleDrawerAction} from "@features/dialog";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
@@ -62,6 +65,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {useSWRConfig} from "swr";
+import AddIcon from "@mui/icons-material/Add";
 
 function a11yProps(index: number) {
     return {
@@ -501,7 +505,7 @@ function PatientDetail({...props}) {
                             setOpenDialog: setOpenDialog,
                             t: translate
                         }}
-                        size={"lg"}
+                        size={info && ["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                         dialogClose={handleCloseDialog}
                         {...(info === "document_detail" && {
                             sx: {p: 0},
@@ -527,19 +531,31 @@ function PatientDetail({...props}) {
                                     </Stack>
                                 </DialogTitle>
                             ),
-                            actionDialog: <DialogActions>
-                                <Button
-                                    onClick={handleCloseDialog}
-                                    startIcon={<CloseIcon/>}>
-                                    {translate("cancel")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSaveDialog}
-                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
-                                    startIcon={<SaveRoundedIcon/>}>
-                                    {translate("consultationIP.save")}
-                                </Button>
+                            actionDialog: <DialogActions sx={{width: "100%"}}>
+                                <Stack sx={{width: "100%"}}
+                                       direction={"row"}
+                                       justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                    {info === "medical_prescription_cycle" &&
+                                        <Button startIcon={<AddIcon/>} onClick={() => {
+                                            dispatch(handleDrawerAction("addDrug"));
+                                        }}>
+                                            {translate("consultationIP.add_drug")}
+                                        </Button>}
+                                    <Stack direction={"row"} spacing={1.2}>
+                                        <Button
+                                            onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                            {translate("cancel")}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            onClick={handleSaveDialog}
+                                            disabled={info === "medical_prescription_cycle" && state.length === 0}
+                                            startIcon={<SaveRoundedIcon/>}>
+                                            {translate("consultationIP.save")}
+                                        </Button>
+                                    </Stack>
+                                </Stack>
                             </DialogActions>,
                         })}
                     />

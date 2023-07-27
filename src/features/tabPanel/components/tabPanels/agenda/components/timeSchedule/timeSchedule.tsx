@@ -15,7 +15,10 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import moment from "moment-timezone";
 import {
     appointmentSelector, setAppointmentDate,
@@ -27,9 +30,9 @@ import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete,
-    DialogActions,
+    DialogActions, Divider,
     IconButton,
-    LinearProgress,
+    LinearProgress, Stack,
     TextField,
     useMediaQuery,
     useTheme
@@ -44,6 +47,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -111,7 +115,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         trigger(medicalEntityHasUser && medical_professional ? {
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -155,10 +159,6 @@ function TimeSchedule({...props}) {
 
     const onChangeDatepicker = async (date: Date) => {
         setDate(date);
-    };
-
-    const onChangeLocation = (event: SelectChangeEvent) => {
-        setLocation(event.target.value as string);
     };
 
     const onMenuActions = (recurringDate: RecurringDateModel, action: string, index: number) => {
@@ -254,7 +254,7 @@ function TimeSchedule({...props}) {
 
     useEffect(() => {
         if (locations && locations.length === 1) {
-            setLocation(locations[0].uuid)
+            setLocation(locations[0] as string)
         }
     }, [locations]);
 
@@ -353,12 +353,16 @@ function TimeSchedule({...props}) {
                                 }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
-                                    <MenuItem
-                                        {...props}
-                                        value={option.uuid}
-                                        key={option.uuid ? option.uuid : "-1"}>
-                                        {option.name}
-                                    </MenuItem>
+                                    <Stack key={option.uuid ? option.uuid : "-1"}>
+                                        {!option.uuid && <Divider/>}
+                                        <MenuItem
+                                            {...props}
+                                            {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                            value={option.uuid}>
+                                            {!option.uuid && <AddOutlinedIcon/>}
+                                            {option.name}
+                                        </MenuItem>
+                                    </Stack>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
@@ -380,31 +384,6 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {(locations && locations.length > 1) && <>
-                    <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                        {t("stepper-1.locations")}
-                    </Typography>
-                    <FormControl fullWidth size="small">
-                        <Select
-                            labelId="select-location"
-                            id="select-location"
-                            disabled={selectedReasons.length === 0}
-                            value={location}
-                            onChange={onChangeLocation}
-                            sx={{
-                                "& .MuiSelect-select svg": {
-                                    display: "none",
-                                },
-                            }}
-                        >
-                            {locations?.map((location) => (
-                                <MenuItem value={location.uuid} key={location.uuid}>
-                                    {location.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </>}
                 {(recurringDates.length === 0 || moreDate) &&
                     <>
                         <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>

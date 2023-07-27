@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, IconButton, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {
+    Autocomplete,
+    Box,
+    CardContent,
+    Divider,
+    IconButton,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography, useTheme
+} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -7,7 +17,6 @@ import {Form, FormikProvider, useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
-import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -19,6 +28,10 @@ import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import dynamic from "next/dynamic";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function CIPPatientHistoryCard({...props}) {
     const {
@@ -27,14 +40,14 @@ function CIPPatientHistoryCard({...props}) {
         setChanges,
         uuind,
         notes,
-        diagnostics,
         seeHistory,
-        seeHistoryDiagnostic,
         closed,
         handleClosePanel,
         isClose
     } = props;
     const router = useRouter();
+    const theme = useTheme();
+
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
@@ -210,7 +223,7 @@ function CIPPatientHistoryCard({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <ConsultationDetailCardStyled>
@@ -307,12 +320,16 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
-                                    <MenuItem
-                                        {...props}
-                                        key={option.uuid ? option.uuid : "-1"}
-                                        value={option.uuid}>
-                                        {option.name}
-                                    </MenuItem>
+                                    <Stack key={option.uuid ? option.uuid : "-1"}>
+                                        {!option.uuid && <Divider/>}
+                                        <MenuItem
+                                            {...props}
+                                            {...(!option.uuid && {sx: {color:theme.palette.error.main}})}
+                                            value={option.uuid}>
+                                            {!option.uuid && <AddOutlinedIcon/>}
+                                            {option.name}
+                                        </MenuItem>
+                                    </Stack>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
@@ -353,7 +370,7 @@ function CIPPatientHistoryCard({...props}) {
                             <TextField
                                 fullWidth
                                 multiline
-                                rows={10}
+                                rows={8}
                                 value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
@@ -377,9 +394,9 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {diagnostics.length > 0 &&
+                                {notes.length > 0 &&
                                     <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                        seeHistoryDiagnostic()
+                                        seeHistory()
                                     }}>{t('seeHistory')}</Typography>}
                             </Stack>
 
@@ -389,7 +406,7 @@ function CIPPatientHistoryCard({...props}) {
                                 size="small"
                                 value={values.diagnosis}
                                 multiline={true}
-                                rows={10}
+                                rows={5}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({

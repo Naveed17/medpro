@@ -2,7 +2,10 @@ import * as Sentry from "@sentry/nextjs";
 import type {NextPage} from "next";
 import type {ErrorProps} from "next/error";
 import NextErrorComponent from "next/error";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 
 const Error: NextPage<ErrorProps> = ({statusCode}) => {

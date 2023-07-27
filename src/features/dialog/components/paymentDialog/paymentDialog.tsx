@@ -24,7 +24,10 @@ import {DesktopContainer} from '@themes/desktopConainter';
 import {PaymentDialogMobileCard} from '@features/card';
 import {MobileContainer} from '@themes/mobileContainer';
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import AddIcon from "@mui/icons-material/Add";
 import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";

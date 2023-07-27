@@ -7,7 +7,10 @@ import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
 import SalleIcon from "@themes/overrides/icons/salleIcon";
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function RoomToolbar({...props}) {
     const {board, data, handleCollapse, openCalendar} = props;

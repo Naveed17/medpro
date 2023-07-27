@@ -16,9 +16,10 @@ import {
     Stack,
     TextField,
     Tooltip,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -36,6 +37,8 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function CertifDialog({...props}) {
     const {data} = props
@@ -64,9 +67,10 @@ function CertifDialog({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const contentBtns = [
-        {name: '{patient}', title: 'patient', desc: "Nom du patient"},
-        {name: '{doctor}', title: 'doctor', desc: "Nom du doctor"},
-        {name: '{aujourd\'hui}', title: 'today', desc: "Date aujourd'hui"},
+        {name: '{patient}', title: 'patient', show: true},
+        {name: '{doctor}', title: 'doctor', show: true},
+        {name: '{aujourd\'hui}', title: 'today', show: true},
+        {name: '{age}', title: 'age', show: data.state.brithdate},
     ];
 
     const {trigger} = useRequestMutation(null, "/certif-models");
@@ -182,7 +186,7 @@ function CertifDialog({...props}) {
 
     const {t, ready} = useTranslation("consultation");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <Box>
@@ -226,11 +230,12 @@ function CertifDialog({...props}) {
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                 mb={1}>{t('consultationIP.contenu')}</Typography>
-                                    {contentBtns.map(cb => (<Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
-                                        <Button onClick={() => {
-                                            addVal(cb.name)
-                                        }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
-                                    </Tooltip>))}
+                                    {contentBtns.filter(cb => cb.show).map(cb => (
+                                        <Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
+                                            <Button onClick={() => {
+                                                addVal(cb.name)
+                                            }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
+                                        </Tooltip>))}
                                 </Stack>
                                 <RecButton
                                     small
@@ -286,7 +291,8 @@ function CertifDialog({...props}) {
                         height: '21rem'
                     }}>
                         {models.map((item, index) => (
-                            <Box key={`models-${index}`} style={{opacity : selectedModel ? selectedModel.uuid === item.uuid ? 1:.7:1}}>
+                            <Box key={`models-${index}`}
+                                 style={{opacity: selectedModel ? selectedModel.uuid === item.uuid ? 1 : .7 : 1}}>
                                 <ListItem alignItems="flex-start">
                                     <ListItemAvatar>
                                         <Avatar sx={{

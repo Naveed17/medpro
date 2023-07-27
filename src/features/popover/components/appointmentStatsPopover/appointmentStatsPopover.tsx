@@ -2,7 +2,10 @@ import {Avatar, Box, List, ListItem, ListSubheader, Stack, Typography, useTheme}
 import {AppointmentStatus} from "@features/calendar";
 import React from "react";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function AppointmentStatsPopover() {
     const theme = useTheme();

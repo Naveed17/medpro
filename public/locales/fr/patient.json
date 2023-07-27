@@ -1,6 +1,7 @@
 {
   "sub-header": {
     "title": "Liste des patients",
+    "merge-patient": "Fusionner les patients",
     "add-patient": "Ajouter Patient"
   },
   "patient-details": {
@@ -52,6 +53,7 @@
   "config": {
     "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
+    "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",
     "doc_detail_title": "Document",
@@ -341,7 +343,8 @@
       "allergic": "Allergies",
       "father": "Père",
       "mother": "Mère",
-      "both": "Les deux"
+      "both": "Les deux",
+      "disease": "Maladie"
     }
   },
   "background": {

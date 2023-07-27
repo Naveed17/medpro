@@ -25,7 +25,10 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@lib/constants";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";

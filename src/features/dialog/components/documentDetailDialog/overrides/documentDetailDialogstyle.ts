@@ -5,6 +5,10 @@ const DocumentDetailDialogStyled = styled(Stack)(({ theme }) => ({
     backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     width: "100%",
+    ".zoombar":{
+       background:"white",
+       marginBottom: 10
+    },
     ".sidebar": {
         ".MuiList-root": {
             backgroundColor: theme.palette.background.paper,

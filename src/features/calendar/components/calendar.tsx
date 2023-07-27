@@ -70,7 +70,8 @@ function Calendar({...props}) {
         OnSelectEvent,
         OnSelectDate,
         OnEventChange,
-        OnMenuActions
+        OnMenuActions,
+        mutate: mutateAgenda
     } = props;
 
     const dispatch = useAppDispatch();
@@ -100,7 +101,7 @@ function Calendar({...props}) {
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
-    const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
+    const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const getSlotsFormat = (slot: number) => {
@@ -305,7 +306,7 @@ function Calendar({...props}) {
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner, refs}}
+                                {...{spinner, refs, mutateAgenda}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -365,7 +366,7 @@ function Calendar({...props}) {
                                     if (jsEvent.screenY > window.innerHeight) {
                                         setTimeout(() => {
                                             const popover = document.getElementsByClassName("fc-popover") as HTMLCollectionOf<HTMLElement>;
-                                            if (popover) {
+                                            if (popover && popover.length > 0) {
                                                 popover[0].style.bottom = "0";
                                                 popover[0].style.top = "auto";
                                                 popover[0].style.transition = "bottom 4s ease 0s";

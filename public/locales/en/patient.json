@@ -1,6 +1,7 @@
 {
   "sub-header": {
     "title": "List of patients",
+    "merge-patient": "Merge patients",
     "add-patient": "Add Patient"
   },
   "patient-details": {
@@ -341,7 +342,8 @@
       "allergic": "Allergies",
       "father": "Father",
       "mother": "Mother",
-      "both": "Both"
+      "both": "Both",
+      "disease": "Disease"
     }
   },
   "background": {

@@ -216,7 +216,7 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "48.9rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>

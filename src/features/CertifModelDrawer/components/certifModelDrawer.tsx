@@ -6,7 +6,10 @@ import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
 import {useRequestMutation} from "@lib/axios";

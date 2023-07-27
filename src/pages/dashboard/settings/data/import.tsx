@@ -22,7 +22,10 @@ import {
     Theme,
     styled,
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Form, FormikProvider, useFormik} from "formik";
 import {UploadFile} from "@features/uploadFile";
 import {SettingsTabs} from "@features/tabPanel";
@@ -31,7 +34,6 @@ import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import readXlsxFile from "read-excel-file";
 import {useAppSelector} from "@lib/redux/hooks";
-import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";

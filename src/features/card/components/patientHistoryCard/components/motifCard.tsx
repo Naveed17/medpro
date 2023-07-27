@@ -10,10 +10,10 @@ function MotifCard({...props}) {
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
-            const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
+            const desc = models.modal.structure[0]?.components.find((md: any) => md.key === key)?.description
             return desc ? desc : "";
         } else {
-            const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
+            const label = models.modal.structure[0]?.components.find((md: any) => md.key === key)?.label
             return label ? label : key;
         }
     }

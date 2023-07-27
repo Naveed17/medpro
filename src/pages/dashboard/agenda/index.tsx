@@ -18,9 +18,11 @@ import {
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
-import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
@@ -170,7 +172,7 @@ function Agenda() {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
-    const openingHours = agenda?.locations[0].openingHours[0].openingHours;
+    const openingHours = agenda?.openingHours[0];
 
     const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
@@ -179,7 +181,7 @@ function Agenda() {
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const getAppointmentBugs = useCallback((date: Date) => {
-        const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
+        const hasDayWorkHours: any = Object.entries(openingHours as OpeningHoursModel).find((openingHours: any) =>
             DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
@@ -249,7 +251,7 @@ function Agenda() {
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
         let localMaxSlot = 20; //20h
-        Object.entries(openingHours).forEach((openingHours: any) => {
+        Object.entries(openingHours as OpeningHoursModel).forEach((openingHours: any) => {
             openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
@@ -283,7 +285,7 @@ function Agenda() {
 
     useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
-            onConfirmAppointment(actionSet.event, true);
+            onConfirmAppointment(actionSet.event);
         }
     }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -589,7 +591,7 @@ function Agenda() {
         })
     }
 
-    const onConfirmAppointment = (event: EventDef, refreshBackground?: boolean) => {
+    const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
         updateAppointmentStatus({
             method: "PATCH",
@@ -989,7 +991,8 @@ function Agenda() {
                                         refs,
                                         spinner: loading,
                                         t,
-                                        sortedData: sortedData.current
+                                        sortedData: sortedData.current,
+                                        mutate: refreshData
                                     }}
                                     OnInit={onLoadCalendar}
                                     OnAddAppointment={handleAddAppointment}

@@ -1,5 +1,14 @@
 import {createReducer} from "@reduxjs/toolkit";
-import {onOpenPatientDrawer, addAmount, addBilling, addUser, editUser, resetUser, importDataUpdate} from "./actions";
+import {
+    onOpenPatientDrawer,
+    addAmount,
+    addBilling,
+    addUser,
+    editUser,
+    resetUser,
+    importDataUpdate,
+    setSelectedRows
+} from "./actions";
 import Table from "@interfaces/Table";
 
 export type MenuState = {
@@ -18,6 +27,7 @@ const initialState: MenuState = {
         addBilling: "",
         addUser: [],
         editUser: "",
+        rowsSelected: []
     },
     importData: {
         data: [],
@@ -41,5 +51,7 @@ export const tableReducer = createReducer(initialState, (builder) => {
         state.tableState.editUser = "";
     }).addCase(importDataUpdate, (state, action) => {
         state.importData = action.payload;
+    }).addCase(setSelectedRows, (state, action) => {
+        state.tableState.rowsSelected = action.payload
     });
 });

@@ -5,7 +5,10 @@ import { styled } from '@mui/material/styles';
 import React from "react";
 import { useTranslation } from "next-i18next";
 import { width } from "@mui/system";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const PaperStyled = styled(Form)(({ theme }) => ({
 

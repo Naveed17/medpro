@@ -2,7 +2,10 @@ import React from 'react'
 import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 interface Props {
     data: any;

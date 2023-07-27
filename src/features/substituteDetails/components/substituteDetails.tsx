@@ -6,7 +6,10 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider,TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const PaperStyled = styled(Form)(({ theme }) => ({
 

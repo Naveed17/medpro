@@ -34,7 +34,10 @@ import {
 } from "@lib/swr/swrProvider";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";

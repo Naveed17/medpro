@@ -5,7 +5,10 @@ import {Accordion} from '@features/accordion';
 import {useTranslation} from "next-i18next";
 import {AppointmentTypesFilter} from "@features/leftActionBar";
 import {useAppSelector} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {dashLayoutSelector} from "@features/base";
 
 function WaitingRoom() {

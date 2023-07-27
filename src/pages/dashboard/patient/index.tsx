@@ -53,7 +53,10 @@ import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/h
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -107,6 +110,14 @@ interface HeadCell {
 
 // table head data
 const headCells: readonly HeadCell[] = [
+    {
+        id: "select-all",
+        numeric: false,
+        disablePadding: true,
+        label: "name",
+        sortable: false,
+        align: "left",
+    },
     {
         id: "name",
         numeric: false,
@@ -434,7 +445,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -446,6 +457,7 @@ function Patient() {
                     },
                 }}>
                 <PatientToolbar
+                    {...{mutatePatient: mutate}}
                     onAddPatient={() => {
                         dispatch(onResetPatient());
                         setSelectedPatient(null);
@@ -469,7 +481,7 @@ function Patient() {
                 <DesktopContainer>
                     <Box display={{xs: "none", md: "block"}}>
                         <Otable
-                            {...{t, insurances}}
+                            {...{t, insurances, mutatePatient: mutate}}
                             headers={headCells}
                             handleEvent={handleTableActions}
                             rows={(httpPatientsResponse as HttpResponse)?.data?.list}

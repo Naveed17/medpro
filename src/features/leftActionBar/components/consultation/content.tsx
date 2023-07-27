@@ -31,7 +31,10 @@ import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -209,6 +212,7 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
+                birthdate:patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 createdAt: card.createdAt,

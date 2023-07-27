@@ -21,7 +21,6 @@ import {useTranslation} from "next-i18next";
 
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
-import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
 import {CropImage} from "@features/image";
@@ -37,6 +36,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;

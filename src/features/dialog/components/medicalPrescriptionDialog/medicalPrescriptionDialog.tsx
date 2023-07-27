@@ -34,7 +34,10 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
 import {useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";

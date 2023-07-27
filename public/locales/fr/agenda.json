@@ -287,13 +287,6 @@
     },
     "pending-dialog": {
       "title": "Rendez-vous en attente"
-    },
-    "duplication-dialog": {
-      "title": "Duplicatas détectés",
-      "later": "Le faire plus tard",
-      "no-duplicates": "Ces patients ne sont pas doublons ",
-      "selected": "Patient sélectionné",
-      "save": "Enregistrer"
     }
   },
   "alert": {

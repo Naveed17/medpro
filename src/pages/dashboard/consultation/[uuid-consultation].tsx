@@ -27,7 +27,10 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {
     ConsultationIPToolbar,
     consultationSelector,
@@ -179,7 +182,6 @@ function ConsultationInProgress() {
     const [isClose, setIsClose] = useState<boolean>(false);
     const [closeExam, setCloseExam] = useState<boolean>(false);
     const [notes, setNotes] = useState<any[]>([]);
-    const [diagnostics, setDiagnostics] = useState<any[]>([]);
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [stateHistory, setStateHistory] = useState<any[]>([]);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -350,19 +352,15 @@ function ConsultationInProgress() {
 
             // Exam history
             let noteHistories: any[] = []
-            let diagnosticHistories: any[] = []
             appointment.latestAppointments.map((app: any) => {
                 const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
                 const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                if (note && note.value !== '') {
-                    noteHistories.push({data: app.appointment.dayDate, value: note.value})
+                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '') ) {
+                    noteHistories.push({data: app.appointment.dayDate, note: note.value,diagnostics: diagnostics.value})
                 }
-                if (diagnostics && diagnostics.value !== '') {
-                    diagnosticHistories.push({data: app.appointment.dayDate, value: diagnostics.value})
-                }
+
             })
             setNotes(noteHistories);
-            setDiagnostics(diagnosticHistories);
 
             //Acts
             let _acts: AppointmentActModel[] = [];
@@ -517,6 +515,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
+                birthdate:patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -575,10 +574,6 @@ function ConsultationInProgress() {
     const seeHistory = () => {
         setOpenHistoryDialog(true);
         setStateHistory(notes)
-    }
-    const seeHistoryDiagnostic = () => {
-        setOpenHistoryDialog(true);
-        setStateHistory(diagnostics)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -868,10 +863,10 @@ function ConsultationInProgress() {
                                 {!loading && !selectedModel && (<CardContent
                                         sx={{
                                             bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                            border: '1px solid #E0E0E0',
+                                            border: `1px solid ${theme.palette.grey['A300']}`,
                                             overflow: 'hidden',
                                             borderRadius: 2,
-                                            height: {xs: "30vh", md: "48.9rem"},
+                                            height: {xs: "30vh", md: "40.3rem"},
                                             display: "flex",
                                             justifyContent: "center",
                                             alignItems: "center"
@@ -905,9 +900,7 @@ function ConsultationInProgress() {
                                         medical_entity,
                                         session,
                                         notes,
-                                        diagnostics,
                                         seeHistory,
-                                        seeHistoryDiagnostic,
                                         router,
                                         closed: closeExam,
                                         setCloseExam,
@@ -970,7 +963,7 @@ function ConsultationInProgress() {
                         ))}
                     </Stack>
                     <Box pt={8}>
-                        {!lock && !isHistory && (
+                        {!lock && (
                             <SubFooter>
                                 <Stack
                                     width={1}
