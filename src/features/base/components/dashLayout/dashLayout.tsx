@@ -166,15 +166,55 @@ function DashLayout({children}: LayoutProps) {
         })
     }
 
-    const getPatientParams = (param: string) => {
+    const getPatientParamsKey = (param: string) => {
         switch (param) {
             case "contact":
                 return "phone";
             case "insurances":
                 return "insurance";
             default:
-                return param
+                return param;
         }
+    }
+
+    const getPatientParamsValue = (param: string, value: any) => {
+        switch (param) {
+            case "insurances":
+                return prepareInsurances(value)
+            case "gender":
+                return value === 'M' ? '1' : '2';
+            default:
+                return value;
+        }
+    }
+
+    const updateParam_ = (param: string) => {
+        return param.split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_");
+    }
+
+    const prepareInsurances = (insurances: any) => {
+        return insurances?.map((insurance: any) => ({
+            insurance_number: insurance.insuranceNumber,
+            insurance_uuid: insurance.insurance?.uuid,
+            ...(insurance.insuredPerson && {
+                insurance_social: {
+                    firstName: insurance.insuredPerson.firstName ?? "",
+                    lastName: insurance.insuredPerson.lastName ?? "",
+                    birthday: insurance.insuredPerson.birthday ?? null,
+                    ...(insurance.insuredPerson.contact && {
+                        phone: {
+                            code: insurance.insuredPerson.contact.code,
+                            value: insurance.insuredPerson.contact.value,
+                            type: "phone",
+                            is_public: false,
+                            is_support: false
+                        }
+                    })
+                }
+            }),
+            insurance_type: insurance.type ? insurance.type.toString() : "0",
+            expand: insurance.type ? insurance.type.toString() !== "0" : false
+        }))
     }
 
     const handleMergeDuplication = () => {
@@ -182,7 +222,7 @@ function DashLayout({children}: LayoutProps) {
         const params = new FormData();
         duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(getPatientParams(object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_")), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
+            object => params.append(getPatientParamsKey(updateParam_(object[0])), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(getPatientParamsValue(object[0], object[1])) : getPatientParamsValue(object[0], object[1]) ?? ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
@@ -306,6 +346,9 @@ function DashLayout({children}: LayoutProps) {
                 {...{
                     sx: {
                         minHeight: 340,
+                        "& .MuiDialog-root": {
+                            zIndex: 1199
+                        },
                     },
                 }}
                 size={"lg"}

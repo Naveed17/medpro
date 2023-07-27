@@ -1,14 +1,28 @@
-import {Checkbox, FormControlLabel, List, ListItem, ListSubheader, Stack, Typography} from "@mui/material";
+import {
+    Checkbox,
+    FormControlLabel,
+    IconButton,
+    List,
+    ListItem,
+    ListSubheader,
+    Stack,
+    Typography,
+    useTheme
+} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import React from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {duplicatedSelector} from "@features/duplicateDetected";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 function DuplicatedRow({...props}) {
-    const {modalData, index, t, fields, handleChangeFiled, handleSelectedDuplication} = props;
+    const {modalData, index, t, fields, handleChangeFiled, handleSelectedDuplication, handlePatientRef} = props;
+    const theme = useTheme();
+
     const {duplications} = useAppSelector(duplicatedSelector);
 
     const similarField = (value: string | null, field: string, dups?: any[]) => {
+        console.log(value, field, dups);
         const updatedDup = (dups ?? duplications)?.filter((data: any) => field?.length > 0 && data[field]).map((data: any) => data[field]) ?? [];
         return updatedDup.some(item => item !== value);
     }
@@ -29,6 +43,17 @@ function DuplicatedRow({...props}) {
                             name={`patient-${index}`}
                         />}/>
                     }
+                    <IconButton
+                        onClick={event => {
+                            event.stopPropagation();
+                            handlePatientRef(modalData.uuid);
+                        }}
+                        sx={{position: "absolute", right: 1}}>
+                        <OpenInNewIcon style={{
+                            color: index === "init" ? "white" : theme.palette.text.secondary,
+                            fontSize: 20
+                        }}/>
+                    </IconButton>
                 </ListSubheader>
 
                 <ListItem
@@ -201,7 +226,9 @@ function DuplicatedRow({...props}) {
                     {...((duplications && modalData?.nationality && similarField(
                         modalData?.nationality.code,
                         "code",
-                        duplications?.map(dup => dup?.nationality))) && {secondaryAction: <Icon path="danger"/>})}
+                        duplications?.reduce((unique: any[], item) =>
+                                (!item?.nationality ? unique : [...unique, item]),
+                            []))) && {secondaryAction: <Icon path="danger"/>})}
                     sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
                         checked={fields.includes(`nationality-${index}`)}
