@@ -45,7 +45,6 @@ import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} f
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
-import {EventDef} from "@fullcalendar/core/internal";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
