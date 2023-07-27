@@ -307,6 +307,20 @@
       "sub-title": "Consultation Fee",
       "reschedule": "Reschedule Follow-up"
     },
+    "duplication-dialog": {
+      "title": "Duplicates detected",
+      "later": "Do it later",
+      "no-duplicates": "These patients are not duplicates",
+      "selected": "Patient selected",
+      "save": "Save"
+    },
+    "merge-dialog": {
+      "title": "Merge patient data",
+      "sub-title": "Do you really want to merge patients?",
+      "description": "You'll lose this patient's history and documents forever",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
     "alert": {
       "cancel-appointment": "The appointment has been successfully canceled",
       "delete-appointment": "The appointment has been successfully deleted",

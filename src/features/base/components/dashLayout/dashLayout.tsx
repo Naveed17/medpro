@@ -8,9 +8,9 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutState, setOngoing} from "@features/base";
+import {configSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {Box, Button, DialogActions, Stack, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, Typography, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -62,9 +62,11 @@ function DashLayout({children}: LayoutProps) {
         openDialog: duplicateDetectedDialog,
         mutate: mutateDuplicationSource
     } = useAppSelector(duplicatedSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [mergeDialog, setMergeDialog] = useState(false);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
     const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
@@ -166,12 +168,63 @@ function DashLayout({children}: LayoutProps) {
         })
     }
 
+    const getPatientParamsKey = (param: string) => {
+        switch (param) {
+            case "contact":
+                return "phone";
+            case "insurances":
+                return "insurance";
+            default:
+                return param;
+        }
+    }
+
+    const getPatientParamsValue = (param: string, value: any) => {
+        switch (param) {
+            case "insurances":
+                return prepareInsurances(value)
+            case "gender":
+                return value === 'M' ? '1' : '2';
+            default:
+                return value;
+        }
+    }
+
+    const updateParam_ = (param: string) => {
+        return param.split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_");
+    }
+
+    const prepareInsurances = (insurances: any) => {
+        return insurances?.map((insurance: any) => ({
+            insurance_number: insurance.insuranceNumber,
+            insurance_uuid: insurance.insurance?.uuid,
+            ...(insurance.insuredPerson && {
+                insurance_social: {
+                    firstName: insurance.insuredPerson.firstName ?? "",
+                    lastName: insurance.insuredPerson.lastName ?? "",
+                    birthday: insurance.insuredPerson.birthday ?? null,
+                    ...(insurance.insuredPerson.contact && {
+                        phone: {
+                            code: insurance.insuredPerson.contact.code,
+                            value: insurance.insuredPerson.contact.value,
+                            type: "phone",
+                            is_public: false,
+                            is_support: false
+                        }
+                    })
+                }
+            }),
+            insurance_type: insurance.type ? insurance.type.toString() : "0",
+            expand: insurance.type ? insurance.type.toString() !== "0" : false
+        }))
+    }
+
     const handleMergeDuplication = () => {
         setLoading(true);
         const params = new FormData();
         duplications && params.append('duplicatedPatients', getCheckedDuplications().map(duplication => duplication.uuid).join(","));
         Object.entries(duplicationSrc as PatientModel).forEach(
-            object => params.append(object[0] === "contact" ? "phone" : object[0].split(/(?=[A-Z])/).map((key: string) => key.toLowerCase()).join("_"), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(object[1]) : object[1] ?? ""));
+            object => params.append(getPatientParamsKey(updateParam_(object[0])), (object[1] !== null && typeof object[1] !== "string") ? JSON.stringify(getPatientParamsValue(object[0], object[1])) : getPatientParamsValue(object[0], object[1]) ?? ""));
 
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
@@ -180,6 +233,7 @@ function DashLayout({children}: LayoutProps) {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setLoading(false);
+            setMergeDialog(false);
             dispatch(setDuplicated({openDialog: false}));
             dispatch(resetDuplicated());
             mutateDuplicationSource && mutateDuplicationSource();
@@ -292,9 +346,53 @@ function DashLayout({children}: LayoutProps) {
                 action={() => renderNoDataCard}/>
 
             <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => {
+                    setMergeDialog(false);
+                }}
+                dir={direction}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t("dialogs.merge-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t("dialogs.merge-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={mergeDialog}
+                title={t("dialogs.merge-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => {
+                                setMergeDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialogs.merge-dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={handleMergeDuplication}
+                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            {t("dialogs.merge-dialog.confirm")}
+                        </LoadingButton>
+                    </>
+                }
+            />
+
+            <Dialog
                 {...{
                     sx: {
                         minHeight: 340,
+                        "& .MuiDialog-root": {
+                            zIndex: 1199
+                        },
                     },
                 }}
                 size={"lg"}
@@ -337,7 +435,7 @@ function DashLayout({children}: LayoutProps) {
                                 <LoadingButton
                                     {...{loading}}
                                     loadingPosition="start"
-                                    onClick={handleMergeDuplication}
+                                    onClick={() => setMergeDialog(true)}
                                     variant="contained"
                                     startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
                                     {t("dialogs.duplication-dialog.save")}
