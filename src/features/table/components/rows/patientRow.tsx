@@ -53,6 +53,7 @@ function PatientRow({...props}) {
             dispatch(addRows(rowsSelected.filter((item:any)=>item.uuid!==row.uuid)))
         
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[isItemSelected])
     return (
         <TableRowStyled
