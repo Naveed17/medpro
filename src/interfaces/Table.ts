@@ -5,5 +5,6 @@ interface Table {
   addBilling: any
   addUser:any
   editUser:any
+  rowsSelected: any;
 }
 export default Table;

@@ -110,6 +110,14 @@ interface HeadCell {
 
 // table head data
 const headCells: readonly HeadCell[] = [
+     {
+        id: "select-all",
+        numeric: false,
+        disablePadding: true,
+        label: "name",
+        sortable: false,
+        align: "left",
+    },
     {
         id: "name",
         numeric: false,
