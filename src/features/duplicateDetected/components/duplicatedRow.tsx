@@ -25,7 +25,7 @@ function DuplicatedRow({...props}) {
         const updatedDup = (dups ?? duplications)?.filter((data: any) => field?.length > 0 && data[field]).map((data: any) => data[field]) ?? [];
         return updatedDup.some(item => item !== value);
     }
-
+    console.log("modalData", modalData);
     return modalData && (
         <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
             <List className="child-list-main">
@@ -55,6 +55,31 @@ function DuplicatedRow({...props}) {
                     </IconButton>
                 </ListSubheader>
 
+                <ListItem
+                    {...(similarField(modalData.fiche_id, "fiche_id") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
+                    <Checkbox
+                        checked={fields.includes(`fiche_id-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`fiche_id-${index}`}
+                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
+                    />
+                    <Stack>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="p"
+                            gutterBottom
+                        >
+                            {t("add-patient.fiche")}
+                        </Typography>
+                        {modalData.fiche_id ? (
+                            <Typography>{modalData.fiche_id}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
+                    </Stack>
+                </ListItem>
                 <ListItem
                     {...(similarField(modalData.gender, "gender") && {secondaryAction: <Icon path="danger"/>})}
                     sx={{borderBottom: 1, borderColor: "divider"}}>

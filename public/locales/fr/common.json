@@ -319,7 +319,7 @@
     "merge-dialog": {
       "title": "Fusionner les données des patients",
       "sub-title": "Voulez-vous vraiment fusionner les patients?",
-      "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
+      "description": "la fusion n'est pas réversible et toutes les données seront fusionnées avec le patient principal.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
