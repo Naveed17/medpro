@@ -50,7 +50,7 @@ function PatientToolbar({...props}) {
                 </Typography>
                 {isDesktop && (
                     <Stack direction={"row"} spacing={1.2}>
-                        {rowsSelected.length > 1 && <Button
+                        {rowsSelected?.length > 1 && <Button
                             onClick={(event) => {
                                 event.stopPropagation();
                                 const duplications = [...rowsSelected];
