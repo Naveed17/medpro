@@ -37,7 +37,7 @@ const initialState: MenuState = {
 
 export const tableReducer = createReducer(initialState, (builder) => {
     builder.addCase(onOpenPatientDrawer, (state, action) => {
-        state.tableState = action.payload;
+        state.tableState = {...state.tableState, ...action.payload}
     }).addCase(addAmount, (state, action) => {
         state.tableState.addAmount = action.payload;
     }).addCase(addBilling, (state, action) => {

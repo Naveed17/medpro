@@ -44,8 +44,8 @@ import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import IconUrl from "@themes/urlIcon";
 import {setSelectedRows} from "@features/table";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -378,7 +378,7 @@ function DashLayout({children}: LayoutProps) {
                             variant="contained"
                             color={"error"}
                             onClick={handleMergeDuplication}
-                            startIcon={<Icon path="iconfinder"></Icon>}>
+                            startIcon={<ArchiveRoundedIcon/>}>
                             {t("dialogs.merge-dialog.confirm")}
                         </LoadingButton>
                     </>
@@ -433,7 +433,7 @@ function DashLayout({children}: LayoutProps) {
                                     loadingPosition="start"
                                     onClick={() => setMergeDialog(true)}
                                     variant="contained"
-                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    startIcon={<ArchiveRoundedIcon/>}>
                                     {t("dialogs.duplication-dialog.save")}
                                 </LoadingButton>
                             </Box>

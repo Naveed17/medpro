@@ -56,6 +56,31 @@ function DuplicatedRow({...props}) {
                 </ListSubheader>
 
                 <ListItem
+                    {...(similarField(modalData.fiche_id, "fiche_id") && {secondaryAction: <Icon path="danger"/>})}
+                    sx={{borderBottom: 1, borderColor: "divider"}}>
+                    <Checkbox
+                        checked={fields.includes(`fiche_id-${index}`)}
+                        onChange={event => handleChangeFiled(event, modalData)}
+                        name={`fiche_id-${index}`}
+                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
+                    />
+                    <Stack>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="p"
+                            gutterBottom
+                        >
+                            {t("add-patient.fiche")}
+                        </Typography>
+                        {modalData.fiche_id ? (
+                            <Typography>{modalData.fiche_id}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
+                    </Stack>
+                </ListItem>
+                <ListItem
                     {...(similarField(modalData.gender, "gender") && {secondaryAction: <Icon path="danger"/>})}
                     sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
