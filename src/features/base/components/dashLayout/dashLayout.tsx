@@ -44,7 +44,6 @@ import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import IconUrl from "@themes/urlIcon";
 import {setSelectedRows} from "@features/table";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 
