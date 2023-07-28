@@ -355,8 +355,12 @@ function ConsultationInProgress() {
             appointment.latestAppointments.map((app: any) => {
                 const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
                 const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '') ) {
-                    noteHistories.push({data: app.appointment.dayDate, note: note.value,diagnostics: diagnostics.value})
+                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '')) {
+                    noteHistories.push({
+                        data: app.appointment.dayDate,
+                        note: note.value,
+                        diagnostics: diagnostics.value
+                    })
                 }
 
             })
@@ -444,7 +448,7 @@ function ConsultationInProgress() {
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
             if (!isFree)
-                form.append("consultation_fees", consultationFees ? consultationFees.toString(): '0');
+                form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
             form.append("status", "5");
 
             trigger({
@@ -515,7 +519,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
-                birthdate:patient?.birthdate,
+                birthdate: patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -748,7 +752,7 @@ function ConsultationInProgress() {
 
     return (
         <>
-            {loading && <LinearProgress color={"warning"}/>}
+            {loading && <LinearProgress sx={{height: 6}} color={"warning"}/>}
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
