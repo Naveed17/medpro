@@ -478,12 +478,10 @@ function PatientRow({...props}) {
                                 size="small"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "PATIENT_DETAILS",
-                                        })
-                                    );
+                                    dispatch(onOpenPatientDrawer({
+                                        patientId: row.uuid,
+                                        patientAction: "PATIENT_DETAILS",
+                                    }));
                                     handleEvent("PATIENT_DETAILS", row);
                                 }}
                             >
