@@ -25,7 +25,7 @@ function DuplicatedRow({...props}) {
         const updatedDup = (dups ?? duplications)?.filter((data: any) => field?.length > 0 && data[field]).map((data: any) => data[field]) ?? [];
         return updatedDup.some(item => item !== value);
     }
-    console.log("modalData", modalData);
+
     return modalData && (
         <ListItem className={`list-item ${index !== "init" ? "except" + index : "first"}`}>
             <List className="child-list-main">
