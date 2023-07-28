@@ -317,7 +317,7 @@
     "merge-dialog": {
       "title": "Merge patient data",
       "sub-title": "Do you really want to merge patients?",
-      "description": "You'll lose this patient's history and documents forever",
+      "description": "the merger is not reversible and all data will be merged with the main patient.",
       "cancel": "Cancel",
       "confirm": "Confirm"
     },
