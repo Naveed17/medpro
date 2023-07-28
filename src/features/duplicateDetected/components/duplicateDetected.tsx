@@ -17,6 +17,7 @@ import {onOpenPatientDrawer} from "@features/table";
 import {configSelector} from "@features/base";
 import {dialogPatientDetailSelector, PatientDetail, resetDialog, setDialogData} from "@features/dialog";
 import {styled} from "@mui/material/styles";
+import ScrollContainer from 'react-indiana-drag-scroll';
 
 const PatientDrawer = styled(Drawer)(({theme}) => ({
     zIndex: 1350
@@ -95,21 +96,23 @@ function DuplicateDetected({...props}) {
             <FormikProvider value={formik}>
                 <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                     <Box className="modal-body">
-                        <List className="list-main">
-                            <DuplicatedRow {...{t, fields, handlePatientRef}} index={"init"} modalData={values}/>
-                            {duplicatedData.map((duplicated: any, index: number) =>
-                                <DuplicatedRow
-                                    {...{
-                                        index,
-                                        t,
-                                        fields,
-                                        handleChangeFiled,
-                                        handleSelectedDuplication,
-                                        handlePatientRef
-                                    }}
-                                    key={index}
-                                    modalData={duplicated}/>)}
-                        </List>
+                        <ScrollContainer className="scroll-container">
+                            <List className="list-main">
+                                <DuplicatedRow {...{t, fields, handlePatientRef}} index={"init"} modalData={values}/>
+                                {duplicatedData.map((duplicated: any, index: number) =>
+                                    <DuplicatedRow
+                                        {...{
+                                            index,
+                                            t,
+                                            fields,
+                                            handleChangeFiled,
+                                            handleSelectedDuplication,
+                                            handlePatientRef
+                                        }}
+                                        key={index}
+                                        modalData={duplicated}/>)}
+                            </List>
+                        </ScrollContainer>
                     </Box>
                 </Form>
             </FormikProvider>
