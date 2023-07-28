@@ -61,6 +61,7 @@
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
+    "select-all": "Sélectionner tout",
     "tabs": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",

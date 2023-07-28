@@ -17,7 +17,9 @@ import {
     TextField,
     useMediaQuery,
     Zoom,
-    Fab
+    Fab,
+    Checkbox,
+    FormControlLabel
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -25,6 +27,7 @@ import {
     onOpenPatientDrawer,
     Otable,
     tableActionSelector,
+    setSelectedRows
 } from "@features/table";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 // ________________________________
@@ -74,9 +77,11 @@ import {
     ActionBarState,
     setFilter,
 } from "@features/leftActionBar";
+import {selectCheckboxActionSelector,onSelectCheckbox}from '@features/selectCheckbox'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
+
 
 const humanizeDuration = require("humanize-duration");
 
@@ -208,6 +213,7 @@ function Patient() {
     const [loading] = useState<boolean>(status === "loading");
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
+    const {selectCheckboxState:{selectedCheckbox}} = useAppSelector(selectCheckboxActionSelector);
     const [dataPatient, setDataPatient] = useState([
         {
             heading: {
@@ -444,6 +450,18 @@ function Patient() {
     const onFilterPatient = (value: string) => {
         dispatch(setFilter({patient: {name: value}}));
     }
+    const rows = (httpPatientsResponse as HttpResponse)?.data?.list
+     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
+            dispatch(onSelectCheckbox(newSelecteds));
+            dispatch(setSelectedRows(rows));
+            return;
+        }
+        dispatch(onSelectCheckbox([]));
+        dispatch(setSelectedRows([]));
+        
+    };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -496,10 +514,21 @@ function Patient() {
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
+        <FormControlLabel
+        sx={{ml:0}}  
+          control={
+          <Checkbox onChange={handleSelectAll}
+                    indeterminate={ selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
+                    checked={selectedCheckbox?.length === rows?.length}/>}
+          label={t("select-all")}
+          
+        />
+                    
                     <PatientMobileCard
                         ready={ready}
                         handleEvent={handleTableActions}
                         PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        
                     />
                 </MobileContainer>
             </Box>
