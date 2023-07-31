@@ -88,6 +88,19 @@ const RootStyled = styled(Box)(({theme}) => ({
                             marginLeft: 1
                         },
                     },
+                    "& .alert-attribute-change": {
+                        width: 22,
+                        height: 22,
+                        opacity: 0.5,
+                        backgroundColor: theme.palette.error.main
+                    },
+                    "& .alert-appointments-change": {
+                        position: "absolute",
+                        right: "2.4rem",
+                        width: 22,
+                        height: 22,
+                        backgroundColor: theme.palette.error.main
+                    }
                 },
             },
         },

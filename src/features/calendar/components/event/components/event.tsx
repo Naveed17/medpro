@@ -34,7 +34,7 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(appointment.motif.length > 0 && {background: `linear-gradient(110deg, rgba(255,0,0,0) 80%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 20%`).join(",")})`}),
+                    ...(appointment.motif.length > 0 && {background: `linear-gradient(90deg, rgba(255,0,0,0) 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor,
                     },
