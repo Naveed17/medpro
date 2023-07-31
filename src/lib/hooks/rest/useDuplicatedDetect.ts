@@ -25,7 +25,7 @@ function useDuplicatedDetect({...props}) {
 
     useEffect(() => {
         if (httpPatientDuplicationResponse) {
-            setDuplications((httpPatientDuplicationResponse as HttpResponse).data as PatientModel[]);
+            setDuplications(httpPatientDuplicationResponse ? (httpPatientDuplicationResponse as HttpResponse).data as PatientModel[] : []);
         }
     }, [httpPatientDuplicationResponse])
 

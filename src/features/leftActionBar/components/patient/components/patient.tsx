@@ -49,6 +49,9 @@ function Patient() {
                                 icon: "ic-patient",
                                 title: "patient",
                             },
+                            hasDouble: {
+                                heading: "duplication"
+                            },
                             gender: {
                                 heading: "gender",
                                 genders: ["male", "female"],

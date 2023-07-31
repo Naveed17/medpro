@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton, Stack,
+    InputLabel, IconButton, Stack, Checkbox,
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -20,6 +20,8 @@ import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikHelpers, FormikProvider, useFormik} from "formik";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import {Label} from "@features/label";
 
 interface Lab {
     label: string;
@@ -45,7 +47,8 @@ function PatientFilter({...props}) {
         initialValues: {
             name: filter?.patient?.name ?? "",
             birthdate: filter?.patient?.birthdate ? moment(filter?.patient?.birthdate, "DD-MM-YYYY").toDate() : null,
-            gender: filter?.patient?.gender ?? null
+            gender: filter?.patient?.gender ?? null,
+            hasDouble: filter?.patient?.hasDouble ?? false,
         }
     });
 
@@ -77,6 +80,37 @@ function PatientFilter({...props}) {
     return (
         <FormikProvider value={formik}>
             <Box component="figure" sx={{m: 0}}>
+                {item.hasDouble && <FormControlLabel
+                    control={
+                        <Checkbox
+                            color="warning"
+                            size="small"
+                            checked={queryState.hasDouble}
+                            onChange={event => {
+                                setFieldValue("hasDouble", event.target.checked);
+                                OnSearch({
+                                    query: {
+                                        ...queryState,
+                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                        hasDouble: event.target.checked
+                                    }
+                                });
+                            }}
+                        />}
+                    label={<Label
+                        variant="filled"
+                        sx={{
+                            cursor: "pointer",
+                            "& .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16,
+                                pl: 0
+                            }
+                        }}
+                        color={"warning"}>
+                        <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                        <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
+                    </Label>}/>}
                 <Typography variant="body2" color="text.secondary">
                     {t(`${keyPrefix}${item.gender?.heading}`)}
                 </Typography>
@@ -213,7 +247,8 @@ function PatientFilter({...props}) {
                 )}
             </Box>
         </FormikProvider>
-    );
+    )
+        ;
 }
 
 export default PatientFilter;
