@@ -142,6 +142,7 @@ function PatientDetail({...props}) {
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
+    const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
     // mutate for patient details
     const {
         data: httpPatientDetailsResponse,
@@ -324,6 +325,9 @@ function PatientDetail({...props}) {
             children: <HistoryPanel {...{
                 t,
                 patient,
+                urlMedicalEntitySuffix,
+                triggerPrevious,
+                medicalEntityHasUser,
                 closePatientDialog
             }} />,
             permission: ["ROLE_PROFESSIONAL"]

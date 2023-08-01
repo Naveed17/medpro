@@ -1,8 +1,6 @@
 import {Box, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
 import React from 'react'
-
 import RootStled from './overrides/rootStyle';
-import CircleIcon from '@mui/icons-material/Circle';
 
 function MotifCard({...props}) {
     const {data, t} = props;
@@ -38,10 +36,6 @@ function MotifCard({...props}) {
                                 <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
                                     {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
                                         checkKey(ml) && <ListItem key={'modelData' + idx}>
-
-                                            <ListItemIcon>
-                                                <CircleIcon/>
-                                            </ListItemIcon>
                                             {getLabel(ml, 'label')} : <span style={{
                                             fontWeight: "bold",
                                             margin: '0 2px'
@@ -70,9 +64,6 @@ function MotifCard({...props}) {
                                     </Typography>
                                     <List style={{marginLeft: 20}}>
                                         <ListItem>
-                                            <ListItemIcon>
-                                                <CircleIcon/>
-                                            </ListItemIcon>
                                             {data.value ? data.value : '-'}
                                         </ListItem>
                                     </List>

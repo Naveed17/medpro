@@ -63,7 +63,8 @@ function ConsultationIPToolbar({...props}) {
         setDialog,
         setPatientShow,
         changes,
-        appointment
+        appointment,
+        lastestsAppointments
     } = props;
 
     const dispatch = useAppDispatch();
@@ -89,7 +90,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setActions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
-    const hasLatestAppointments = appointment.latestAppointments.length === 0;
+    const hasLatestAppointments = lastestsAppointments.length === 0;
     const [tabsData, setTabsData] = useState<any[]>([]);
 
     const {data: user} = session as Session;
