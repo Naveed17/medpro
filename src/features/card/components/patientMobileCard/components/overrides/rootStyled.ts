@@ -13,10 +13,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
       marginRight: theme.spacing(0.5),
     },
   },
-  "& .border-left-sec": {
-    marginTop: theme.spacing(1),
-    display: "flex",
-    ".btn-phone": {
+   ".btn-phone": {
       marginLeft: "auto",
       backgroundColor: theme.palette.primary.lighter,
       border: `1px solid ${theme.palette.success.main}`,
@@ -30,6 +27,10 @@ const RootStyled = styled(Box)(({ theme }) => ({
         },
       },
     },
+  "& .border-left-sec": {
+    marginTop: theme.spacing(1),
+    display: "flex",
+   
   },
   "& .phone-call": {
     textDecoration: "auto",
