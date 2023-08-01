@@ -1,6 +1,6 @@
-import {Box, Stack, Typography, useTheme} from '@mui/material'
+import {Box, Button, Stack, Typography, useTheme} from '@mui/material'
 import {HistoryContainer, NoDataCard, PatientHistoryNoDataCard} from '@features/card'
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
@@ -16,6 +16,9 @@ import {useAppointmentHistory} from "@lib/hooks/rest";
 function HistoryPanel({...props}) {
     const {
         patient,
+        medicalEntityHasUser,
+        urlMedicalEntitySuffix,
+        triggerPrevious,
         closePatientDialog
     } = props;
 
@@ -41,7 +44,9 @@ function HistoryPanel({...props}) {
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
     const [apps, setApps] = useState(previousAppointments);
+    const [totalPagesLa, setTotalPagesLa] = useState(0);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
+    const [pagesLa, setPagesLa] = useState(1);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -125,8 +130,9 @@ function HistoryPanel({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (previousAppointments) {
-            setApps([...previousAppointments]);
+        if (previousAppointments && previousAppointments.list) {
+            setApps([...previousAppointments.list]);
+            setTotalPagesLa(previousAppointments.totalPages);
         }
     }, [previousAppointments, dispatch]);
 
@@ -162,6 +168,19 @@ function HistoryPanel({...props}) {
                                 }}/>
                             </React.Fragment>))}
                     </Stack>
+                    {totalPagesLa > pagesLa && <Button style={{width:"fit-content"}} size={"small"} onClick={() => {
+                        if (medicalEntityHasUser) {
+                            triggerPrevious({
+                                method: "GET",
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`,
+                                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                            }).then((r: any) => {
+                                const res = r?.data.data;
+                                setApps([...apps, ...res.list])
+                            })
+                            setPagesLa(pagesLa + 1)
+                        }
+                    }}>{t('consultationIP.more')}</Button>}
                 </Box>
 
                 {info && (

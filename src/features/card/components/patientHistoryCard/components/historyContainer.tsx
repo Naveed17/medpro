@@ -42,7 +42,7 @@ function HistoryContainer({...props}) {
         patient,
         setSelectedTab,
         session,
-        medical_entity,
+        medical_entity
     } = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();

@@ -17,7 +17,6 @@ function HistoryTab({...props}) {
 
     const {
         patient,
-        appointment,
         t,
         direction,
         setInfo,
@@ -31,6 +30,8 @@ function HistoryTab({...props}) {
         session,
         mutate,
         dates, keys, modelData,
+        lastestsAppointments, setLastestsAppointments, trigger,
+        totalPagesLa, pagesLa, setPagesLa,
         router
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -49,11 +50,11 @@ function HistoryTab({...props}) {
     } : null);
 
     useEffect(() => {
-        setApps(appointment ? [...appointment.latestAppointments] : []);
-        if (appointment?.latestAppointments.length > 0) {
-            dispatch(SetSelectedApp(appointment.latestAppointments[0].appointment.uuid))
+        setApps(lastestsAppointments ? [...lastestsAppointments] : []);
+        if (lastestsAppointments.length > 0) {
+            dispatch(SetSelectedApp(lastestsAppointments[0].appointment.uuid))
         }
-    }, [appointment, appuuid, dispatch]);
+    }, [lastestsAppointments, appuuid, dispatch]);
 
     useEffect(() => {
         if (httpPatientDocumentsResponse) {
@@ -103,7 +104,9 @@ function HistoryTab({...props}) {
                                     <img
                                         src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
                                         alt={'img'}
-                                        onClick={()=>{showDoc(photo)}}
+                                        onClick={() => {
+                                            showDoc(photo)
+                                        }}
                                         style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
                                     />
 
@@ -173,9 +176,23 @@ function HistoryTab({...props}) {
                             setSelectedTab,
                             session,
                             medical_entity,
+                            totalPagesLa, pagesLa
                         }}/>
                     </React.Fragment>
                 ))}
+                {totalPagesLa > pagesLa && <Button style={{width:"fit-content"}} size={"small"} onClick={() => {
+                    if (medicalEntityHasUser) {
+                        trigger({
+                            method: "GET",
+                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`,
+                            headers: {Authorization: `Bearer ${session?.accessToken}`}
+                        }).then((r: any) => {
+                            const res = r?.data.data;
+                            setLastestsAppointments([...lastestsAppointments, ...res.list])
+                        })
+                        setPagesLa(pagesLa + 1)
+                    }
+                }}>{t('consultationIP.more')}</Button>}
             </Stack>
             <Drawer
                 anchor={"right"}
