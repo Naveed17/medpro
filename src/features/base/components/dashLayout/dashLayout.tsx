@@ -3,7 +3,7 @@ import {useRouter} from "next/router";
 import {motion} from "framer-motion";
 import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
@@ -19,6 +19,7 @@ import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
 import {isAppleDevise} from "@lib/hooks/isAppleDevise";
+
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -40,11 +41,13 @@ export const ImportCardData = {
     }]
 };
 
+const fetcher = (url: string) => instanceAxios({method: "GET", url}).then((res) => res);
 import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
+import { setCashBoxes, setPaymentTypesList, setSelectedBoxes } from "@features/leftActionBar/components/cashbox";
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -118,6 +121,16 @@ function DashLayout({children}: LayoutProps) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
+    const {data: httpBoxesResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+
+
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
     const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
     const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
@@ -260,9 +273,20 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (medicalProfessionalData) {
+            dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
             dispatch(setOngoing({medicalProfessionalData}));
         }
     }, [medicalProfessionalData, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpBoxesResponse) {
+            const cashboxes = (httpBoxesResponse as HttpResponse).data;
+            if (cashboxes.length > 0) {
+                dispatch(setCashBoxes(cashboxes));
+                dispatch(setSelectedBoxes([cashboxes[0]]));
+            }
+        }
+    }, [dispatch, httpBoxesResponse]);
 
     return (
         <SideBarMenu>

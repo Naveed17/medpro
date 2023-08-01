@@ -1,16 +1,12 @@
 import TableCell from "@mui/material/TableCell";
-import {
-    Typography,
-    Skeleton,
-    Stack, IconButton, useTheme
-} from "@mui/material";
+import {IconButton, Skeleton, Stack, Typography, useTheme} from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import React from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
-
+import moment from "moment";
 
 function PaymentDialogRow({...props}) {
     const {row, loading, handleEvent, t, key, index} = props;
@@ -39,13 +35,13 @@ function PaymentDialogRow({...props}) {
                         <Stack direction='row' spacing={.5} alignItems="center">
                             <Icon path="ic-agenda"/>
                             <Typography variant="body2">
-                                {row.date}
+                                {moment(row.date).format('DD-MM-YYYY')}
                             </Typography>
                         </Stack>
                         <Stack direction='row' spacing={.5} alignItems="center">
                             <Icon path="ic-time"/>
                             <Typography variant="body2">
-                                {row.time}
+                                {moment(row.date).format('HH:mm')}
                             </Typography>
                         </Stack>
                     </Stack>
@@ -65,20 +61,32 @@ function PaymentDialogRow({...props}) {
                         <Skeleton width={80}/>
                     ) :
                     <Stack direction={"row"} justifyContent={"flex-end"} spacing={2}>
-                        {row.payment_type.map((type: any, i: number) =>
-                            <Stack key={i} direction="row" alignItems="center"
+                        {
+                            row.payment_means && <Stack direction="row" alignItems="center"
+                                                       justifyContent={"flex-end"}
+                                                       spacing={1}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img width={10} src={row.payment_means.logoUrl.url}
+                                     alt={'payment means icon'}/>
+                                <Typography color="text.primary"
+                                            variant="body2">{t(row.payment_means.name)}</Typography>
+                            </Stack>
+                        }
+                        {row.insurance &&
+                            <Stack direction="row" alignItems="center"
                                    justifyContent={"flex-end"}
                                    spacing={1}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img width={10} src={type.logoUrl.url} alt={'payment means icon'}/>
+                                <img width={10} src={row.insurance?.logoUrl.url}
+                                     alt={'insurance icon'}/>
                                 <Typography color="text.primary"
-                                            variant="body2">{t(type.name)}</Typography>
+                                            variant="body2">{row.insurance?.name}</Typography>
                             </Stack>
-                        )}
+                        }
                         <IconButton
                             color={"error"}
                             size={"medium"}
-                            onClick={(e) => {
+                            onClick={() => {
                                 handleEvent("delete", index);
                             }}>
                             <Icon path="setting/icdelete" width={"16"} height={"16"} color={theme.palette.error.main}/>

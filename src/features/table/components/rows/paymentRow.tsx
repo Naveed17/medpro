@@ -26,6 +26,7 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {PaymentFeesPopover} from "@features/popover";
 import {ImageHandler} from "@features/image";
+import IconUrl from "@themes/urlIcon";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -101,6 +102,22 @@ function PaymentRow({...props}) {
         dispatch(addBilling(selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected]);
+
+    const openDialogDeleteCollapseDialog = (idCollapse: string) => {
+        /*setCollapseID(idCollapse)
+        setSelectedPayment({
+            uuid: row?.uuid,
+            date: moment().format("DD-MM-YYYY"),
+            time: row?.time,
+            patient: row?.patient,
+            insurance: row?.patient?.insurances,
+            type: row?.appointement_type,
+            amount: row?.amount,//wallet patient  ,
+            total: row?.amount + row?.rest, // consultation fees +- wallet patient,
+            payments: []
+        });
+        setOpenDeleteCollapseDialog(true)*/
+    }
 
     return (
         <>
@@ -527,6 +544,28 @@ function PaymentRow({...props}) {
                                                         {col.amount}
                                                     </Typography>
                                                 )}
+                                            </TableCell>
+                                            <TableCell align="left"
+                                                       style={{backgroundColor: 'transparent', border: 'none'}}>
+
+                                                {/* <IconButton
+                                                    size="small"
+
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openDialogEditTransactionDialog(col.uuid)
+                                                    }}>
+                                                    <IconUrl path="setting/edit"/>
+                                                </IconButton> */}
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openDialogDeleteCollapseDialog(col.uuid)
+                                                    }}>
+                                                    <IconUrl path="setting/icdelete"/>
+                                                </IconButton>
+
                                             </TableCell>
                                         </TableRow>
                                     );

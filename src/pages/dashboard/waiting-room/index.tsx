@@ -6,17 +6,7 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {
-    Alert,
-    Box,
-    Button,
-    DialogActions,
-    Drawer,
-    LinearProgress,
-    Menu,
-    MenuItem,
-    useTheme
-} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -37,19 +27,25 @@ import {toggleSideBar} from "@features/menu";
 import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
+import {
+    AddWaitingRoomCardData,
+    DefaultCountry,
+    TransactionStatus,
+    TransactionType,
+    WaitingHeadCells
+} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -69,6 +65,8 @@ function WaitingRoom() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -78,28 +76,10 @@ function WaitingRoom() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: ""
-        },
-        card: {
-            amount: ""
-        },
-        check: [{
-            amount: "",
-            carrier: "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }],
-        selected: null
-    });
     const [popoverActions, setPopoverActions] = useState([
         {
             title: "pre_consultation_data",
@@ -131,6 +111,7 @@ function WaitingRoom() {
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -165,22 +146,66 @@ function WaitingRoom() {
                 null,
         );
     };
-
     const handleClose = () => {
         setContextMenu(null);
     };
-
     const handleSubmit = () => {
-        console.log(selectedPayment.payments);
-    };
+        console.log(selectedPayment)
 
+        let payed_amount = 0
+        let transaction_data: any[] = [];
+        let insurances = [];
+
+        selectedPayment.payments.map((pay: any) => {
+                payed_amount += pay.amount
+                insurances.push(pay.insurance)
+                transaction_data.push({
+                    ...pay,
+                    payment_means: pay.payment_means ? pay.payment_means.uuid : "",
+                    insurance: pay.insurance ?  pay.insurance.uuid : "",
+                    status_transaction: TransactionStatus[1].value,
+                    type_transaction: TransactionType[2].value,
+                    data: {
+                        insurances: pay.insurance ? [{uuid:pay.insurance.uuid}] : "",
+                        rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
+                        total: selectedPayment.total,
+                        type: selectedPayment.appointment.appointment_type.name
+                    }
+                })
+            }
+        )
+
+        if (selectedBoxes.length > 0) {
+            const form = new FormData();
+            form.append("type_transaction", TransactionType[2].value);
+            form.append("status_transaction", TransactionStatus[1].value);
+            form.append("cash_box", selectedBoxes[0]?.uuid);
+            form.append("amount", selectedPayment.total.toString());
+            form.append("rest_amount", (selectedPayment.total - selectedPayment.payed_amount - payed_amount).toString());
+            form.append("appointment", selectedPayment.uuid);
+            form.append("transaction_data", JSON.stringify(transaction_data));
+            //if (selectedPayment.isNew) {
+                triggerPostTransaction({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/transactions/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                }).then(() => {
+                    enqueueSnackbar(t("addsuccess"), {variant: 'success'})
+                }).catch((error) => console.log("error ", error))
+           /* } else{
+                alert("updated")
+            }*/
+        }
+    };
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];
-        actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
+        // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
-
     const nextConsultation = (row: any) => {
         const form = new FormData();
         form.append('attribute', 'is_next');
@@ -197,7 +222,6 @@ function WaitingRoom() {
             setLoadingRequest(false);
         });
     }
-
     const startConsultation = (row: any) => {
         if (!isActive) {
             const event: any = {
@@ -234,7 +258,6 @@ function WaitingRoom() {
             setLoadingRequest(false);
         }
     }
-
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
@@ -262,24 +285,54 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
+                console.log(row);
+                console.log(row?.appointment_type.price);
+                console.log(row?.rest_amount);
+                let payed_amount = row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
+                //row?.transactions && row.transactions.map(transaction => payed_amount += transaction.amount)
                 setSelectedPayment({
                     uuid: row?.uuid,
+                    payments: [],
+                    payed_amount,
+                    appointment: row,
+                    total: row?.appointment_type.price,
+                    isNew: payed_amount === 0
+                    /*
                     date: moment().format("DD-MM-YYYY"),
                     time: row?.appointment_time,
                     patient: row?.patient,
-                    insurance: "",
+                    insurance: [],
                     type: row?.appointment_type.name,
-                    amount: 40,
-                    total: 60,
-                    payments: []
+                    amount: row?.patient.wallet,//wallet patient  ,
+                    total: row?.appointment_type.price, // consultation fees +- wallet patient,
+                    */
                 });
                 setOpenPaymentDialog(true);
                 break;
         }
         handleClose();
     }
-
     const handleTableActions = (data: any) => {
+        const menu = [{
+            title: "pre_consultation_data",
+            icon: <PendingIcon/>,
+            action: "onPreConsultation",
+        },
+            {
+                title: "start_the_consultation",
+                icon: <PlayCircleIcon/>,
+                action: "onConsultationStart",
+            },
+            {
+                title: "leave_waiting_room",
+                icon: <IconUrl color={"white"} path="ic-salle"/>,
+                action: "onLeaveWaitingRoom",
+            },
+            {
+                title: "see_patient_form",
+                icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+                action: "onPatientDetail",
+            }];
         setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
@@ -293,20 +346,20 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                if (!data.row.fees &&
-                    popoverActions.findIndex(data => data.action === "onPay") === -1 &&
-                    process.env.NODE_ENV === 'development') {
+                console.log(data.row)
+                if (data.row.rest_amount >= 0) {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
-                    }, ...popoverActions])
+                    }, ...menu])
+                } else {
+                    setPopoverActions([...menu])
                 }
                 handleContextMenu(data.event);
                 break;
         }
     }
-
     const submitPreConsultationData = () => {
         handlePreConsultationData({
             method: "PUT",
@@ -522,8 +575,7 @@ function WaitingRoom() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    deals, setDeals,
-                    patient: row?.patient
+                    appointment: row
                 }}
                 size={"md"}
                 title={t("payment_dialog_title")}

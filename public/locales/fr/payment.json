@@ -40,9 +40,15 @@
     "-": "#",
     "yes": "Oui",
     "no": "Non",
+    "NOT_PAID": "IMPAYÉ",
+    "PARTIAL_PAID": "PARTIEL PAYÉ",
+    "PAID": "PAYÉ",
     "credit_card": "Carte bancaire",
     "cheque": "Chéque",
-    "method": "Méthode"
+    "method": "Méthode",
+    "1": "Alimentation",
+    "2": "Dépenses",
+    "3": "Consultation"
   },
   "no-data": {
     "title": "Aucune transaction",

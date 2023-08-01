@@ -21,6 +21,7 @@ import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
 import {navBarReducer} from "@features/topNavBar";
 import {ProgressUIReducer} from "@features/progressUI";
+import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
 
 export const store = configureStore({
     reducer: {
@@ -35,6 +36,7 @@ export const store = configureStore({
         tableState: tableReducer,
         qsSidebar: QsSidebarReducer,
         agenda: AgendaReducer,
+        cashBox: CashboxReducer,
         appointment: appointmentReducer,
         dialog: DialogReducer,
         dialogMove: dialogMoveAppointmentReducer,
