@@ -24,7 +24,7 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import dynamic from "next/dynamic";
-import { SelectCheckbox } from "@features/selectCheckbox";
+import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -41,7 +41,7 @@ const CardSection = ({...props}) => {
     return (
         <Paper className="card-main">
             <Stack direction='row' spacing={1} alignItems='center'>
-            <SelectCheckbox row={data} isSmall/>
+            <SelectCheckboxCard row={data} isSmall/>
             <Grid container>
                 <Grid item xs={12} onClick={() => onOpenPatientDetails(data)}>
                     {loading ? (
@@ -161,7 +161,7 @@ const CardSection = ({...props}) => {
                                 {data.nextAppointment?.startTime || "-"}
                             </Typography>
                         )}
-                       
+
                     </Box>
                 </Grid>
             </Grid>
@@ -201,7 +201,7 @@ function PatientMobileCard({...props}) {
                             );
                             handleEvent("PATIENT_DETAILS", data);
                         }}
-                        
+
                     />
                 )
             )}

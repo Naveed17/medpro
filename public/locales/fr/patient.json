@@ -53,6 +53,7 @@
   "config": {
     "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
+    "merge-patient": "Fusionner les patients",
     "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",

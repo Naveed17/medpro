@@ -6,18 +6,6 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-
-interface Props {
-    data: any;
-    label?: string;
-    onChange: (v: any) => void;
-    translate: {
-        t: Function;
-        ready: boolean;
-    }
-
-}
-
 export default function SidebarCheckbox({...props}) {
     const {data, label = "text", onChange, translate, checkState = false} = props
     const {t, ready} = translate;

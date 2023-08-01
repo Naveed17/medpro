@@ -77,10 +77,12 @@ import {
     ActionBarState,
     setFilter,
 } from "@features/leftActionBar";
-import {selectCheckboxActionSelector,onSelectCheckbox}from '@features/selectCheckbox'
+import {selectCheckboxActionSelector, onSelectCheckbox} from 'src/features/selectCheckboxCard'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
+import {setDuplicated} from "@features/duplicateDetected";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 
 
 const humanizeDuration = require("humanize-duration");
@@ -186,7 +188,7 @@ function Patient() {
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {tableState} = useAppSelector(tableActionSelector);
+    const {tableState: {patientId, rowsSelected}} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
     const {submitted} = useAppSelector(appointmentSelector);
@@ -213,7 +215,7 @@ function Patient() {
     const [loading] = useState<boolean>(status === "loading");
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
-    const {selectCheckboxState:{selectedCheckbox}} = useAppSelector(selectCheckboxActionSelector);
+    const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
     const [dataPatient, setDataPatient] = useState([
         {
             heading: {
@@ -451,7 +453,7 @@ function Patient() {
         dispatch(setFilter({patient: {name: value}}));
     }
     const rows = (httpPatientsResponse as HttpResponse)?.data?.list
-     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
             dispatch(onSelectCheckbox(newSelecteds));
@@ -460,7 +462,7 @@ function Patient() {
         }
         dispatch(onSelectCheckbox([]));
         dispatch(setSelectedRows([]));
-        
+
     };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -514,21 +516,44 @@ function Patient() {
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
-        <FormControlLabel
-        sx={{ml:0}}  
-          control={
-          <Checkbox onChange={handleSelectAll}
-                    indeterminate={ selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
-                    checked={selectedCheckbox?.length === rows?.length}/>}
-          label={t("select-all")}
-          
-        />
-                    
+                    <Stack direction={"row"}>
+                        <FormControlLabel
+                            sx={{ml: 0}}
+                            control={
+                                <Checkbox onChange={handleSelectAll}
+                                          indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
+                                          checked={selectedCheckbox?.length === rows?.length}/>}
+                            label={t("select-all")}
+
+                        />
+
+                        {rowsSelected.length > 1 && <Button
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                const duplications = [...rowsSelected];
+                                const firstElement = duplications.shift();
+                                dispatch(setDuplicated({
+                                    duplications,
+                                    duplicationSrc: firstElement,
+                                    duplicationInit: firstElement,
+                                    openDialog: true,
+                                    mutate
+                                }));
+                            }}
+                            variant="contained"
+                            color="primary"
+                            sx={{ml: "auto"}}
+                            startIcon={<ArchiveRoundedIcon/>}>
+                            {t("sub-header.merge-patient")}
+                        </Button>}
+                    </Stack>
+
+
                     <PatientMobileCard
                         ready={ready}
                         handleEvent={handleTableActions}
                         PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
-                        
+
                     />
                 </MobileContainer>
             </Box>
@@ -712,7 +737,7 @@ function Patient() {
                     }
                 }}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId: tableState.patientId, mutate}}
+                    {...{isAddAppointment, patientId, mutate}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
