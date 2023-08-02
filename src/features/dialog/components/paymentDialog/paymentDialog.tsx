@@ -124,6 +124,7 @@ function PaymentDialog({...props}) {
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
+    const [byRate, setByRate] = useState(false);
     const [deals, setDeals] = React.useState<any>({
         cash: {
             amount: ""
@@ -266,10 +267,10 @@ function PaymentDialog({...props}) {
                                 {devise}
                             </Button>
 
-                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success":"error"}
+                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "error"}
                                     {...(isMobile && {
-                                fullWidth: true
-                            })}>
+                                        fullWidth: true
+                                    })}>
                                 {t("btn_remain")}
                                 <Typography
                                     fontWeight={700}
@@ -278,7 +279,7 @@ function PaymentDialog({...props}) {
                                 {devise}
                             </Button>
 
-                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success":"warning"}
+                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "warning"}
                                     {...(isMobile && {
                                         fullWidth: true
                                     })}>
@@ -397,7 +398,7 @@ function PaymentDialog({...props}) {
                                             </Stack>
 
                                             <Button color={"success"}
-                                                    disabled={values.cash.amount === ""}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
                                                     onClick={() => {
                                                         const newPayment = [...payments, {
                                                             amount: values.cash?.amount,
@@ -405,8 +406,8 @@ function PaymentDialog({...props}) {
                                                             status_transaction: TransactionStatus[1].value,
                                                             type_transaction: TransactionType[2].value,
                                                             payment_means: paymentTypesList.find((pt: {
-                                                                    slug: string;
-                                                                }) => pt.slug === deals.selected)
+                                                                slug: string;
+                                                            }) => pt.slug === deals.selected)
                                                         }]
                                                         setPayments(newPayment);
                                                         setLabel("");
@@ -563,22 +564,23 @@ function PaymentDialog({...props}) {
                                                 + {t("add_cheque")}
                                             </Button>
 
-                                            <Button onClick={() => {
-                                                let updatedPays: any[] = [];
-                                                values.check?.map((ck: any) => {
-                                                    updatedPays.push({
-                                                        payment_date: moment().format('DD-MM-YYYY HH:mm'),
-                                                        status_transaction: TransactionStatus[1].value,
-                                                        type_transaction: TransactionType[2].value,
-                                                        amount: ck.amount,
-                                                        payment_means: paymentTypesList.find((pt: {
-                                                            slug: string;
-                                                        }) => pt.slug === deals.selected)
-                                                    });
-                                                });
-                                                setPayments([...payments, ...updatedPays]);
-                                                resetForm();
-                                            }} color="success" variant='contained'
+                                            <Button disabled={true}
+                                                    onClick={() => {
+                                                        let updatedPays: any[] = [];
+                                                        values.check?.map((ck: any) => {
+                                                            updatedPays.push({
+                                                                payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                status_transaction: TransactionStatus[1].value,
+                                                                type_transaction: TransactionType[2].value,
+                                                                amount: ck.amount,
+                                                                payment_means: paymentTypesList.find((pt: {
+                                                                    slug: string;
+                                                                }) => pt.slug === deals.selected)
+                                                            });
+                                                        });
+                                                        setPayments([...payments, ...updatedPays]);
+                                                        resetForm();
+                                                    }} color="success" variant='contained'
                                                     sx={{alignSelf: "flex-end", mt: 2}}>
                                                 + {t("add")}
                                             </Button>
@@ -605,12 +607,34 @@ function PaymentDialog({...props}) {
                                                 </Typography>
                                             </Stack>
 
+                                            <Stack mt={1} direction={"row"} justifyContent={"center"}
+                                                   alignItems={"center"}>
+                                                <FormControlLabel control={<Checkbox checked={byRate} onChange={() => {
+                                                    setByRate(!byRate)
+                                                }}/>} label="Par taux"/>
+                                                {byRate &&
+                                                    <Stack direction={"row"} spacing={1} justifyContent={"center"}
+                                                           alignItems={"center"}>
+                                                        <TextField
+                                                            type='number'
+                                                            onChange={(ev) => {
+                                                                const res = ev.target.value;
+                                                                setFieldValue("cash.amount", Number(selectedPayment.total * Number(res) / 100).toFixed(3))
+                                                            }}
+                                                        />
+                                                        <Typography variant={"body1"}>
+                                                            %
+                                                        </Typography>
+                                                    </Stack>}
+
+                                            </Stack>
+
                                             <Button color={"success"}
-                                                    disabled={values.cash.amount === ""}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
                                                     onClick={() => {
-                                                        console.log("insurance", deals.selected)
+
                                                         const newPayment = [...payments, {
-                                                            amount: values.cash?.amount,
+                                                            amount: Number(values.cash?.amount),
                                                             payment_date: moment().format('DD-MM-YYYY HH:mm'),
                                                             status_transaction: TransactionStatus[1].value,
                                                             type_transaction: TransactionType[2].value,
@@ -624,7 +648,7 @@ function PaymentDialog({...props}) {
                                                         deals.selected = paymentTypesList[0].slug
                                                         setDeals(deals);
                                                         setFieldValue("selected", paymentTypesList[0].slug)
-
+                                                        setByRate(false);
                                                     }}
                                                     sx={{marginTop: 2}}
                                                     startIcon={<AddIcon/>}
