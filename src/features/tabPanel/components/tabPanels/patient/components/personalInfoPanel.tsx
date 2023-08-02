@@ -19,7 +19,6 @@ function PersonInfoPanel({...props}) {
         patientDetailContactCard: false
     });
 
-    console.log("editable", editable);
     return (
         <Stack spacing={2} className={"container"}>
             <PersonalInfoCard {...{
