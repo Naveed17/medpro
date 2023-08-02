@@ -8,7 +8,7 @@ import {onSelectCheckbox, selectCheckboxActionSelector} from "@features/selectCh
 function SelectCheckboxCard({...props}) {
     const {row, isSmall} = props;
     const dispatch = useAppDispatch();
-    const {tableState: {rowsSelected},} = useAppSelector(tableActionSelector);
+    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
 
     const handleChange = (id: any) => {

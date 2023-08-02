@@ -516,7 +516,7 @@ function Patient() {
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
-                    <Stack direction={"row"}>
+                    <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
                         <FormControlLabel
                             sx={{ml: 0}}
                             control={
@@ -542,9 +542,9 @@ function Patient() {
                             }}
                             variant="contained"
                             color="primary"
-                            sx={{ml: "auto"}}
+                            sx={{p: "4px 16px"}}
                             startIcon={<ArchiveRoundedIcon/>}>
-                            {t("sub-header.merge-patient")}
+                            {t("merge-patient")}
                         </Button>}
                     </Stack>
 
