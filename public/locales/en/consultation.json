@@ -117,6 +117,7 @@
     "add_reason": "Add a new reason",
     "close": "Close menu",
     "config": "Configure",
+    "more": "More...",
     "ureadbleFile": "The provided file is not compatible with MedLINK",
     "downloadnow": "Download now",
     "wait": "Verifying file...",

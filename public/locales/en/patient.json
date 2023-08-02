@@ -1,6 +1,7 @@
 {
   "sub-header": {
     "title": "List of patients",
+    "merge-patient": "Merge patients",
     "add-patient": "Add Patient"
   },
   "patient-details": {

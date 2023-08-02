@@ -25,12 +25,9 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
-import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
+import {sendRequest, useAppointmentHistory, useWidgetModels} from "@lib/hooks/rest";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {
     ConsultationIPToolbar,
     consultationSelector,
@@ -72,6 +69,8 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -187,7 +186,10 @@ function ConsultationInProgress() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const [total, setTotal] = useState<number>(0);
+    const [total, setTotal] = useState(0);
+    const [pagesLa, setPagesLa] = useState(1);
+    const [totalPagesLa, setTotalPagesLa] = useState(1);
+    const [lastestsAppointments, setLastestsAppointments] = useState<any[]>([]);
 
     //***** REQUEST ****//
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
@@ -244,6 +246,11 @@ function ConsultationInProgress() {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
+
+    const {
+        previousAppointmentsData: previousAppointments,
+    } = useAppointmentHistory({patientId: patient?.uuid});
+
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -351,16 +358,22 @@ function ConsultationInProgress() {
             dispatch(SetMutationDoc(mutateDoc));
 
             // Exam history
-            let noteHistories: any[] = []
-            appointment.latestAppointments.map((app: any) => {
-                const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-                const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '') ) {
-                    noteHistories.push({data: app.appointment.dayDate, note: note.value,diagnostics: diagnostics.value})
-                }
+            /*
+                        let noteHistories: any[] = []
+                        appointment.latestAppointments.map((app: any) => {
+                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                            const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
+                            if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '')) {
+                                noteHistories.push({
+                                    data: app.appointment.dayDate,
+                                    note: note.value,
+                                    diagnostics: diagnostics.value
+                                })
+                            }
 
-            })
-            setNotes(noteHistories);
+                        })
+                        setNotes(noteHistories);
+            */
 
             //Acts
             let _acts: AppointmentActModel[] = [];
@@ -444,7 +457,7 @@ function ConsultationInProgress() {
             form.append("consultation_reason", exam.motif.toString());
             form.append("fees", total.toString());
             if (!isFree)
-                form.append("consultation_fees", consultationFees ? consultationFees.toString(): '0');
+                form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
             form.append("status", "5");
 
             trigger({
@@ -492,6 +505,13 @@ function ConsultationInProgress() {
         setTotal(_total);
     }, [acts])
 
+    useEffect(() => {
+        if (previousAppointments) {
+            setTotalPagesLa(previousAppointments.totalPages)
+            setLastestsAppointments(previousAppointments.list)
+        }
+    }, [previousAppointments])
+
     //***** FUNCTIONS ****//
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
@@ -515,7 +535,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
-                birthdate:patient?.birthdate,
+                birthdate: patient?.birthdate,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -748,7 +768,7 @@ function ConsultationInProgress() {
 
     return (
         <>
-            {loading && <LinearProgress color={"warning"}/>}
+            {loading && <LinearProgress sx={{height: 6}} color={"warning"}/>}
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
@@ -798,6 +818,7 @@ function ConsultationInProgress() {
                         endingDocuments={setPendingDocuments}
                         selectedTab={value}
                         setSelectedTab={setValue}
+                        lastestsAppointments
                     />
                 )}
             </SubHeader>
@@ -835,7 +856,11 @@ function ConsultationInProgress() {
                                 setIsViewerOpen,
                                 locale: router.locale,
                                 setSelectedTab: setValue,
-                                appuuid: app_uuid
+                                appuuid: app_uuid,
+                                lastestsAppointments,
+                                setLastestsAppointments,
+                                totalPagesLa,pagesLa,
+                                setPagesLa, trigger
                             }}
                         />}
                     </TabPanel>

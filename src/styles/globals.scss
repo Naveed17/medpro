@@ -70,9 +70,11 @@ main {
   align-items: center;
 }
 
-.form-input-material{
+.form-input-material {
   display: grid !important;
-  width: fit-content;}
+  width: fit-content;
+}
+
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
@@ -157,6 +159,7 @@ main {
     margin: 0.4rem;
   }
 }
+
 .form-control-title {
   label {
     width: 6rem;
@@ -166,29 +169,35 @@ main {
     font-size: 12px;
     font-weight: bold;
   }
-  input{
+
+  input {
     visibility: hidden;
     height: 0;
     padding: 0;
     margin: 0;
   }
 }
-.checkbox-formio{
+
+.checkbox-formio {
   width: fit-content;
   margin: auto;
 }
-.formio-component-table{
-  .table{
+
+.formio-component-table {
+  .table {
     width: 100%;
   }
-  .sr-only{
+
+  .sr-only {
     visibility: hidden;
     height: 0;
   }
-  p{
+
+  p {
     font-size: 12px;
   }
 }
+
 .form-control-pregnancy {
   label {
     float: left;
@@ -423,7 +432,7 @@ fieldset {
   }
 }
 
-.note-container{
+.note-container {
   background: linear-gradient(181.14deg, #1B2746 41.55%, rgba(27, 39, 70, 0) 84.16%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

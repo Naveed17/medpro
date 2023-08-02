@@ -16,7 +16,7 @@ function useAppointmentHistory({...props}) {
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [previousAppointmentsData, setPreviousAppointmentsData] = useState<any[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`)?.data?.data?.data) ?? []);
+    const [previousAppointmentsData, setPreviousAppointmentsData] = useState<any>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`)?.data?.data?.data) ?? []);
 
     const {
         data: httpPatientHistoryResponse,
@@ -24,7 +24,7 @@ function useAppointmentHistory({...props}) {
         mutate: mutatePatientHis
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}?page=1&limit=5`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 

@@ -5,6 +5,7 @@ import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
+import {convertHexToRGBA} from "@lib/hooks";
 
 function Event({...props}) {
     const {event, view, t, isMobile} = props;
@@ -22,17 +23,18 @@ function Event({...props}) {
     };
 
     const isHorizontal = () => {
-        if(view === "timeGridDay")
+        if (view === "timeGridDay")
             return 'left';
         else if (moment(appointment.time).weekday() > 4)
             return -305;
-        else return  'right';
+        else return 'right';
     }
 
     return (
         <>
             <EventStyled
                 sx={{
+                    ...(appointment.motif.length > 0 && {background: `linear-gradient(90deg, rgba(255,0,0,0) 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor,
                     },
@@ -58,10 +60,11 @@ function Event({...props}) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        ...(appointment.isOnline && {width: "98%"})
+                        ...(appointment.isOnline && {width: "98%"}),
+                        ...(appointment.motif.length > 0 && {width: "60%"})
                     }
                 }} color="primary" noWrap>
-                    <>{event.event._def.title}</>
+                    <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
                             {appointment.patient?.contact.length > 0 && <>
