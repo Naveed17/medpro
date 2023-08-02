@@ -36,6 +36,7 @@ import {setUserId, setUserProperties} from "@firebase/analytics";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -222,12 +223,18 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (general_information) {
-            if (prodEnv) {
-                // identify smartlook user
-                smartlookClient.identify(general_information.uuid, {
-                    name: `${general_information.firstName} ${general_information.lastName}`,
-                    email: general_information.email,
-                    role: roles[0]
+            const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
+            if (prodEnv && remoteConfig) {
+                fetchAndActivate(remoteConfig).then(() => {
+                    const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                    if (config.smartlook) {
+                        // identify smartlook user
+                        smartlookClient.identify(general_information.uuid, {
+                            name: `${general_information.firstName} ${general_information.lastName}`,
+                            email: general_information.email,
+                            role: roles[0]
+                        });
+                    }
                 });
             }
         }
