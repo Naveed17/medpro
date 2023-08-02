@@ -21,6 +21,7 @@ import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
 import {navBarReducer} from "@features/topNavBar";
 import {ProgressUIReducer} from "@features/progressUI";
+import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 
 export const store = configureStore({
     reducer: {
@@ -47,7 +48,8 @@ export const store = configureStore({
         navBar: navBarReducer,
         progressUI: ProgressUIReducer,
         preConsultation: PreConsultationReducer,
-        prescription: PrescriptionReducer
+        prescription: PrescriptionReducer,
+        selectCheckbox: selectCheckboxReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
