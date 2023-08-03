@@ -14,8 +14,8 @@ function useLastPrescription() {
 
     useEffect(() => {
         let lastPrescription: any[] = []
-        if (previousAppointmentsData.length > 0) {
-            previousAppointmentsData.map((la: { documents: any[]; }) => {
+        if (previousAppointmentsData?.list?.length > 0) {
+            previousAppointmentsData.list.map((la: { documents: any[]; }) => {
                 const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
                 if (prescriptions.length > 0) {
                     lastPrescription = [...lastPrescription, ...prescriptions]
