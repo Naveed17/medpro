@@ -1,5 +1,5 @@
 // react
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useLayoutEffect, useState} from "react";
 // next
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
@@ -213,6 +213,8 @@ function Patient() {
     };
 
     const [loading] = useState<boolean>(status === "loading");
+    const [rows, setRows] = useState<any[]>([]);
+    const [page, setPage] = useState<any>(router.query.page || 1);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
@@ -296,7 +298,15 @@ function Patient() {
     } : null);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-
+    useEffect(() => {
+        if (httpPatientsResponse) {
+            const ids = rows.map(({ uuid }) => uuid);
+             const filtered = rows.filter(({ uuid }, index) => !ids.includes(uuid, index + 1)); 
+                setRows((prev) => [...filtered, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
+        }
+      
+    }, [httpPatientsResponse])
+    
     useEffect(() => {
         if (filter?.type || filter?.patient) {
             const query = prepareSearchKeys(filter as any);
@@ -452,7 +462,6 @@ function Patient() {
     const onFilterPatient = (value: string) => {
         dispatch(setFilter({patient: {name: value}}));
     }
-    const rows = (httpPatientsResponse as HttpResponse)?.data?.list
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
@@ -464,7 +473,12 @@ function Patient() {
         dispatch(setSelectedRows([]));
 
     };
+const scrollX = window.scrollX;
+const scrollY = window.scrollY;
 
+useLayoutEffect(() => {
+  window.scrollTo(scrollX, scrollY);
+})
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -547,14 +561,23 @@ function Patient() {
                             {t("merge-patient")}
                         </Button>}
                     </Stack>
-
-
                     <PatientMobileCard
                         ready={ready}
                         handleEvent={handleTableActions}
-                        PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        PatientData={rows}
+                        {...{insurances}}
 
                     />
+                    <Button 
+                     onClick={(event) => {
+                        setPage(page + 1);
+                        router.push({
+                            query: {page:page + 1}
+                        })
+                     }}
+                    >
+                        Load More
+                    </Button>
                 </MobileContainer>
             </Box>
             <Dialog

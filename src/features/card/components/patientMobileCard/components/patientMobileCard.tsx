@@ -5,6 +5,7 @@ import {useTranslation} from "next-i18next";
 // material
 import {
     Avatar,
+    AvatarGroup,
     Badge,
     Box,
     Button,
@@ -19,13 +20,16 @@ import {
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
+import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import dynamic from "next/dynamic";
 import {SelectCheckboxCard} from "@features/selectCheckboxCard";
-
+import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
+import {setMoveDateTime} from "@features/dialog";
+import { ImageHandler } from "@features/image";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
@@ -36,7 +40,7 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 }));
 
 const CardSection = ({...props}) => {
-    const {data, theme, onOpenPatientDetails, loading} = props;
+    const {data, theme, onOpenPatientDetails, loading,handleEvent,t,dispatch,insurances} = props;
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
     return (
         <Paper className="card-main">
@@ -105,6 +109,29 @@ const CardSection = ({...props}) => {
                                     </Stack>
                                 </Stack>
                             </Stack>
+                            {loading ? <Skeleton variant="text"/> : (
+                    <Stack direction={"row"} alignItems={"center"} ml={1}>
+                        {data.insurances.length > 0 ?
+                            <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
+                                {data.insurances.map((insuranceItem: any, index: number) =>
+                                    <Tooltip key={index} title={insuranceItem?.insurance.name}>
+                                        <Avatar variant={"circular"}>
+                                            {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                <ImageHandler
+                                                    alt={insuranceItem?.name}
+                                                    src={insurances.find(
+                                                        (insurance: any) =>
+                                                            insurance.uuid ===
+                                                            insuranceItem?.insurance.uuid
+                                                    ).logoUrl.url}
+                                                />}
+                                        </Avatar>
+                                    </Tooltip>
+                                )}
+                            </AvatarGroup>
+                            : ""}
+                    </Stack>
+                ) || "-"}
                              {!loading && (
                             <IconButton
                                 size="small"
@@ -121,46 +148,100 @@ const CardSection = ({...props}) => {
                     <Box
                         className="border-left-sec"
                         sx={{
+                        
                             borderLeft: `5px solid ${
                                 data?.isParent
                                     ? theme.palette.success.main
                                     : theme.palette.warning.main
                             }`,
                         }}>
-                        <Button
-                            size="small"
-                            className="button"
-                            startIcon={
-                                data?.isParent ? (
-                                    <IconUrl path="ic-agenda"/>
-                                ) : (
-                                    <IconUrl path="ic-historique"/>
-                                )
+                        <Stack>
+                    {loading ? (
+                        <Skeleton variant="text" width={140}/>
+                    ) : data.nextAppointment?.dayDate ? (
+                        <Stack direction={"row"} sx={{
+                            "& .MuiButtonBase-root": {
+                                height: "fit-content",
+                                
                             }
-                            sx={{
-                                color: data?.isParent ? "primary" : "text.secondary",
-                            }}>
-                            {loading ? (
-                                <Skeleton variant="text" width={100}/>
-                            ) : data.isParent ? (
-                                "Add Apointment"
-                            ) : (
-                                "Next Appointment"
-                            )}
-                        </Button>
-                        {!loading && !data.isParent && (
-                            <Typography
+                        }}>
+                            <IconButton
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    const appointment = {
+                                        title: `${data.lastName}  ${data.firstName}`,
+                                        publicId: data.nextAppointment.uuid,
+                                        extendedProps: {
+                                            time: moment(`${data.nextAppointment.dayDate} ${data.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                            patient: data,
+                                            motif: data.nextAppointment.consultationReasons,
+                                            description: "",
+                                            meeting: false,
+                                            dur: data.nextAppointment.duration,
+                                            status: AppointmentStatus[data.nextAppointment.status]
+                                        }
+                                    }
+                                    dispatch(setSelectedEvent(appointment as any));
+                                    const newDate = moment(appointment?.extendedProps.time);
+                                    dispatch(setMoveDateTime({
+                                        date: newDate,
+                                        time: newDate.format("HH:mm"),
+                                        action: "move",
+                                        selected: false
+                                    }));
+                                    handleEvent("APPOINTMENT_MOVE", appointment);
+                                }}
+                                size="small">
+                                <IconUrl path="ic-historique"/>
+                            </IconButton>
+
+                            <Box ml={1}>
+                                <Typography
                                 display="inline"
                                 variant="body2"
                                 color="text.primary"
                                 className="date-time-text"
                                 component="div">
                                 <IconUrl path="ic-agenda"/>
-                                {data.nextAppointment?.dayDate || "-"}
+                                {data.nextAppointment?.dayDate}
                                 <IconUrl path="ic-time"/>
-                                {data.nextAppointment?.startTime || "-"}
+                                {data.nextAppointment?.startTime}
+                            </Typography>
+                            </Box>
+                        </Stack>
+                    ) : (
+                        <Button
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleEvent("ADD_APPOINTMENT", data);
+                            }}
+                            variant="text"
+                            size="small"
+                            color="primary"
+                            startIcon={<IconUrl path="ic-agenda-+"/>}
+                            sx={{position: "relative",justifyContent: "flex-start",}}
+                        >
+                            {t("config.table.add-appointment")}
+                        </Button>
+                    )}
+                    {!loading && !data.isParent && (
+                            <Typography
+                            sx={{
+                                ml:data.nextAppointment?.dayDate ? 4.3:0, 
+                            }}
+                                display="inline"
+                                variant="body2"
+                                color="text.primary"
+                                className="date-time-text"
+                                component="div">
+                                <IconUrl path="ic-agenda"/>
+                                {data.previousAppointments?.dayDate || "-"}
+                                <IconUrl path="ic-time"/>
+                                {data.previousAppointments?.startTime || "-"}
                             </Typography>
                         )}
+                </Stack>
+                        
 
                     </Box>
                 </Grid>
@@ -171,7 +252,7 @@ const CardSection = ({...props}) => {
 };
 
 function PatientMobileCard({...props}) {
-    const {PatientData, handleEvent, loading,selected, setSelected} = props;
+    const {PatientData, handleEvent, loading,insurances} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {t, ready} = useTranslation("patient");
@@ -190,7 +271,7 @@ function PatientMobileCard({...props}) {
             {(loading ? Array.from(new Array(5)) : PatientData)?.map(
                 (data: any, index: number) => (
                     <CardSection
-                        {...{data, theme, loading}}
+                        {...{data, theme, loading,t,handleEvent,dispatch,insurances}}
                         key={index}
                         onOpenPatientDetails={(data: PatientModel) => {
                             dispatch(
