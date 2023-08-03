@@ -479,7 +479,7 @@ function DocumentDetailDialog({...props}) {
                                             </Card>}
 
                                             {isImg && <TransformWrapper initialScale={1}>
-                                                {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                                {({zoomIn, zoomOut, resetTransform}) => (
                                                     <React.Fragment>
                                                         <Stack justifyContent={"end"} mr={2}>
                                                             <ToggleButtonGroup className={"zoombar"} size="small"
@@ -517,7 +517,7 @@ function DocumentDetailDialog({...props}) {
                             <Box>
                                 {state.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
-                                        {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                        {({zoomIn, zoomOut, resetTransform}) => (
                                             <React.Fragment>
                                                 <Stack justifyContent={"end"} mr={2}>
                                                     <ToggleButtonGroup className={"zoombar"} size="small"
