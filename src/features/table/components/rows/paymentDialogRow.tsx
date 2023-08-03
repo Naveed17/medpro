@@ -7,9 +7,11 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import moment from "moment";
+import {useInsurances} from "@lib/hooks/rest";
 
 function PaymentDialogRow({...props}) {
-    const {row, loading, handleEvent, t, key, index} = props;
+    const {row, loading, handleEvent, t, key, index, data} = props;
+    const {patient} = data;
     const theme = useTheme();
     const {data: session} = useSession();
 
@@ -18,6 +20,14 @@ function PaymentDialogRow({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
+    const {insurances} = useInsurances();
+
+    let insurance = null;
+    const insuranceUUID = row.insurance ? patient.insurances.find((i: { uuid: string; }) => i.uuid === row.insurance).insurance.uuid : "";
+
+    if (insuranceUUID !== "") {
+        insurance = insurances.find(i => i.uuid === insuranceUUID);
+    }
     return (
         <TableRowStyled
             hover
@@ -63,8 +73,8 @@ function PaymentDialogRow({...props}) {
                     <Stack direction={"row"} justifyContent={"flex-end"} spacing={2}>
                         {
                             row.payment_means && <Stack direction="row" alignItems="center"
-                                                       justifyContent={"flex-end"}
-                                                       spacing={1}>
+                                                        justifyContent={"flex-end"}
+                                                        spacing={1}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img width={10} src={row.payment_means.logoUrl.url}
                                      alt={'payment means icon'}/>
@@ -72,15 +82,16 @@ function PaymentDialogRow({...props}) {
                                             variant="body2">{t(row.payment_means.name)}</Typography>
                             </Stack>
                         }
-                        {row.insurance &&
+                        {insurance &&
                             <Stack direction="row" alignItems="center"
                                    justifyContent={"flex-end"}
                                    spacing={1}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img width={10} src={row.insurance?.logoUrl.url}
+
+                                <img width={10} src={insurance?.logoUrl.url}
                                      alt={'insurance icon'}/>
+
                                 <Typography color="text.primary"
-                                            variant="body2">{row.insurance?.name}</Typography>
+                                            variant="body2">{insurance.name}</Typography>
                             </Stack>
                         }
                         <IconButton

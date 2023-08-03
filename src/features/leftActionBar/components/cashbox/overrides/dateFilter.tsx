@@ -36,8 +36,7 @@ function DateFilter({...props}) {
                                 setByPeriod(false);
                                 setStartDate(currentDate.date)
                                 setEndDate(new Date(currentDate.date))
-                            } else{
-                                console.log("search checkdate")
+                            } else {
                                 dispatch(setFilterCB({
                                     ...filterCB,
                                     start_date: moment(currentDate.date).format('DD/MM/yyyy'),
@@ -57,15 +56,13 @@ function DateFilter({...props}) {
                     <Checkbox
                         checked={byPeriod}
                         onChange={() => {
-                            if (!byPeriod){
-                                console.log("search checkdate")
+                            if (!byPeriod) {
                                 dispatch(setFilterCB({
                                     ...filterCB,
                                     start_date: moment(startDate).format('DD/MM/yyyy'),
                                     end_date: moment(endDate).format('DD/MM/yyyy')
                                 }));
-                            } else{
-                                console.log("search checkdate")
+                            } else {
                                 dispatch(setFilterCB({
                                     ...filterCB,
                                     start_date: moment(currentDate.date).format('DD/MM/yyyy'),
@@ -89,7 +86,6 @@ function DateFilter({...props}) {
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                                 if (moment(newValue).format('DD/MM/yyyy').length == 10 && moment(newValue).isValid()) {
-                                    console.log("search checkdate")
                                     dispatch(setFilterCB({
                                         ...filterCB,
                                         start_date: moment(newValue).format('DD/MM/yyyy')
@@ -107,13 +103,11 @@ function DateFilter({...props}) {
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                                 if (moment(newValue).format('DD/MM/yyyy').length == 10 && moment(newValue).isValid()) {
-                                    console.log("search checkdate")
                                     dispatch(setFilterCB({
                                         ...filterCB,
                                         end_date: moment(newValue).format('DD/MM/yyyy')
                                     }));
                                 }
-
                             }}
                         />
                     </LocalizationProvider>

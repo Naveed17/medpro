@@ -12,14 +12,12 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
             payed_amount += pay.amount
             insurances.push(pay.insurance)
             transaction_data.push({
-                //...pay,
                 amount:pay.amount,
                 payment_means: pay.payment_means ? pay.payment_means.uuid : "",
-                insurance: pay.insurance ? pay.insurance.uuid : "",
+                insurance: pay.insurance ? pay.insurance : "",
                 status_transaction: TransactionStatus[1].value,
                 type_transaction: TransactionType[2].value,
                 data: {
-                    insurances: pay.insurance ? [{uuid: pay.insurance.uuid}] : "",
                     rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
                     total: selectedPayment.total,
                     //type: selectedPayment.appointment.appointment_type.name,
@@ -38,9 +36,9 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
         form.append("rest_amount", (selectedPayment.total - selectedPayment.payed_amount - payed_amount).toString());
         form.append("appointment", selectedPayment.uuid);
         form.append("transaction_data", JSON.stringify(transaction_data));
-        //if (selectedPayment.isNew) {
         const method = selectedPayment.isNew ? "POST" : "PUT";
         const url = selectedPayment.isNew  ? `/api/medical-entity/${medical_entity_uuid}/transactions/${locale}` : `/api/medical-entity/${medical_entity_uuid}/transactions/${transactions?.uuid}/${locale}`;
+
         trigger({
             method,
             url,
@@ -50,6 +48,6 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
             },
         }).then(() => {
             //enqueueSnackbar(t("addsuccess"), {variant: 'success'})
-        }).catch((error: any) => console.log("error ", error))
+        })
     }
 };

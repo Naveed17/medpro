@@ -164,14 +164,6 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
-    /* useEffect(()=>{
-         console.log("values",values);
-     },[values])
-
-     useEffect(()=>{
-         console.log("selectedPayment",selectedPayment);
-     },[selectedPayment])
- */
     useEffect(() => {
         setSelectedPayment({
             ...selectedPayment,
@@ -340,35 +332,37 @@ function PaymentDialog({...props}) {
                             />
                     )}
 
-                    {appointment && insurances && appointment.patient.insurances.map((insurance: any) =>
-                        <FormControlLabel
-                            className={insurance.insurance.uuid === deals.selected ? "selected" : ''}
-                            onClick={() => {
-                                deals.selected = insurance.insurance.uuid
-                                setDeals(deals);
-                                setFieldValue("selected", insurance.insurance.uuid)
-                            }}
-                            key={insurance.insurance.name}
-                            control={
-                                <Checkbox checked={values.selected === insurance.insurance.uuid}
-                                          name={t(insurance.insurance.name)}/>
-                            }
-                            label={
-                                <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img style={{width: 16}}
-                                         src={insurances.find(i => i.uuid === insurance.insurance.uuid)?.logoUrl.url}
-                                         alt={'payment means'}/>
+                    {
+                        appointment && insurances && appointment.patient.insurances.map((insurance: any) =>
+                            <FormControlLabel
+                                className={insurance.uuid === deals.selected ? "selected" : ''}
+                                onClick={() => {
+                                    deals.selected = insurance.uuid
+                                    setDeals(deals);
+                                    setFieldValue("selected", insurance.uuid)
+                                }}
+                                key={insurance.insurance.name}
+                                control={
+                                    <Checkbox checked={values.selected === insurance.uuid}
+                                              name={t(insurance.insurance.name)}/>
+                                }
+                                label={
+                                    <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img style={{width: 16}}
+                                             src={insurances.find(i => i.uuid === insurance.insurance.uuid)?.logoUrl.url}
+                                             alt={'insurance logo'}/>
 
-                                    {
-                                        !isMobile && paymentTypesList.length !== 6 &&
-                                        <Typography>{t(insurance.insurance.name)}</Typography>
-                                    }
+                                        {
+                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            <Typography>{t(insurance.insurance.name)}</Typography>
+                                        }
 
-                                </Stack>
-                            }
-                        />
-                    )}
+                                    </Stack>
+                                }
+                            />
+                        )
+                    }
                 </FormGroup>
                 <AnimatePresence mode='wait'>
                     {(() => {
@@ -638,7 +632,7 @@ function PaymentDialog({...props}) {
                                                             payment_date: moment().format('DD-MM-YYYY HH:mm'),
                                                             status_transaction: TransactionStatus[1].value,
                                                             type_transaction: TransactionType[2].value,
-                                                            insurance: insurances.find(i => i.uuid === deals.selected),
+                                                            insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),
                                                         }]
                                                         setPayments(newPayment);
                                                         setLabel("");
@@ -666,7 +660,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t}}
+                                    {...{t,patient:appointment.patient}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

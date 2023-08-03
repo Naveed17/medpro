@@ -233,9 +233,6 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
-                console.log(row);
-                console.log(row?.appointment_type.price);
-                console.log(row?.rest_amount);
                 let payed_amount = row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
                 //row?.transactions && row.transactions.map(transaction => payed_amount += transaction.amount)
                 setSelectedPayment({
@@ -245,15 +242,6 @@ function WaitingRoom() {
                     appointment: row,
                     total: row?.appointment_type.price,
                     isNew: payed_amount === 0
-                    /*
-                    date: moment().format("DD-MM-YYYY"),
-                    time: row?.appointment_time,
-                    patient: row?.patient,
-                    insurance: [],
-                    type: row?.appointment_type.name,
-                    amount: row?.patient.wallet,//wallet patient  ,
-                    total: row?.appointment_type.price, // consultation fees +- wallet patient,
-                    */
                 });
                 setOpenPaymentDialog(true);
                 break;
@@ -294,7 +282,6 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                console.log(data.row)
                 if (data.row.rest_amount >= 0) {
                     setPopoverActions([{
                         title: "consultation_pay",

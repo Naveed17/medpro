@@ -75,9 +75,9 @@ function SecretaryConsultationDialog({...props}) {
         setOpenPaymentDialog(false);
     };
     const openDialogPayment = () => {
+        let payments: any[] = [];
         if (appointment.transactions) {
-            let payments: any[] = [];
-            appointment.transactions.transaction_data.map((td:any) => {
+            appointment.transactions.transaction_data.map((td: any) => {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
@@ -87,26 +87,23 @@ function SecretaryConsultationDialog({...props}) {
                     data: td.data
                 }
                 if (td.insurance)
-                    pay["insurance"] = insurances.find(i => i.uuid === td.insurance)
+                    pay["insurance"] = td.insurance.uuid
                 if (td.payment_means)
                     pay["payment_means"] = paymentTypesList.find((pt: {
                         slug: string;
                     }) => pt.slug === td.payment_means.slug)
                 payments.push(pay)
             })
-            setSelectedPayment({
-                uuid: app_uuid,
-                payments,
-                payed_amount: getTransactionAmountPayed(),
-                appointment,
-                total,
-                isNew: getTransactionAmountPayed() === 0
-            })
-        } else {
-            console.log("no trans")
         }
+        setSelectedPayment({
+            uuid: app_uuid,
+            payments,
+            payed_amount: getTransactionAmountPayed(),
+            appointment,
+            total,
+            isNew: getTransactionAmountPayed() === 0
+        })
         setOpenPaymentDialog(true);
-
     }
     const getTransactionAmountPayed = (): number => {
         if (appointment.transactions && appointment.transactions.rest_amount !== 0)
@@ -116,131 +113,7 @@ function SecretaryConsultationDialog({...props}) {
     };
 
     const handleOnGoingPaymentDialog = () => {
-        console.log(selectedPayment);
-        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid,appointment.transactions,triggerPostTransaction);
-
-        /*let amount = 0;
-        const trans_data: TransactionDataModel[] = [];
-        selectedPayment.payments.map((sp: any) => {
-            trans_data.push({
-                payment_means: sp.payment_type[0].uuid,
-                insurance: sp.selectedInsurances?.length === 0 ? "":sp.selectedInsurances.uuid,
-                amount: sp.amount,
-                type_transaction: TransactionType[2].value,
-                status_transaction: TransactionStatus[1].value,
-                payment_date: sp.date,
-                payment_type: sp.payment_type,
-                data: {
-                    patient: {uuid: onGoingAppointment?.patient_uuid, name: onGoingAppointment?.patient},
-                    insurances: sp.selectedInsurances,
-                    rest: selectedPayment.amount,
-                    total: sp.amount,
-                    type: selectedPayment.type,
-                    ...sp.data
-                },
-            });
-            amount += sp.amount;
-        });
-        const form = new FormData();
-        form.append("type_transaction", TransactionType[2].value);
-        form.append("status_transaction", TransactionStatus[1].value);
-        form.append("cash_box", selectedBoxes[0]?.uuid);
-        form.append("amount", amount.toString());
-        form.append("rest_amount", selectedPayment.amount);
-        form.append("appointment", onGoingAppointment?.uuid);
-        form.append("transaction_data", JSON.stringify(trans_data));
-        if (getTransactionID() === "") {
-            triggerPostTransaction({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                }
-            }).then(() => {
-                mutate(`${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`).then(data => console.log(data))
-                enqueueSnackbar(t("pay_added", {ns: "payment"}), {variant: 'success'})
-            });
-        } else {
-            let transactionsDataExisting = findTransactionByAppointment(TransactionsPatient, onGoingAppointment?.uuid)?.transaction_data;
-            let amountExistingTransaction = findTransactionByAppointment(TransactionsPatient, onGoingAppointment?.uuid)?.amount;
-            if (amountExistingTransaction === undefined) {
-                amountExistingTransaction = 0;
-            }
-            const transData = [];
-            for (const payment of transactionsDataExisting) {
-                const paymentData = {
-                    payment_means: payment.payment_means?.uuid,
-                    insurance: payment.data.insurances?.length === 0 ? "": payment.data.insurances[0].uuid,
-                    amount: payment.amount,
-                    status_transaction: TransactionStatus[1].value,
-                    type_transaction: TransactionType[2].value,
-                    payment_date: payment.payment_date.date,
-                    data: payment.data,
-                };
-
-                transData.push(paymentData);
-            }
-            selectedPayment.payments.map((sp: any) => {
-                transData.push({
-                    payment_means: sp.payment_type[0].uuid,
-                    insurance: sp.selectedInsurances?.length === 0 ? "":sp.selectedInsurances.uuid,
-                    amount: sp.amount,
-                    type_transaction: TransactionType[2].value,
-                    status_transaction: TransactionStatus[1].value,
-                    payment_date: sp.date,
-                    payment_type: sp.payment_type,
-                    data: {
-                        patient: {uuid: onGoingAppointment?.patient_uuid, name: onGoingAppointment?.patient},
-                        insurances: sp.selectedInsurances,
-                        rest: selectedPayment.amount,
-                        total: sp.amount,
-                        type: selectedPayment.type,
-                        ...sp.data
-                    },
-                });
-                amountExistingTransaction += sp.amount;
-            });
-            selectedPayment.insurance.map((si: any) => {
-                transData.push({
-                    payment_means: "",
-                    insurance: si.uuid,
-                    amount: si.amount.toString(),
-                    status_transaction: TransactionStatus[1].value,
-                    type_transaction: TransactionType[2].value,
-                    payment_date: "",
-                    data: {
-                        detail: si,
-                        //insurances:si.insurance,
-                        rest: selectedPayment.amount,
-                        total: si.amount,
-                        type: selectedPayment.type
-                    },
-                });
-            })
-            const totalAmountString = amountExistingTransaction?.toString() ?? "";
-            const formExistTransaction = new FormData();
-            formExistTransaction.append("type_transaction", TransactionType[2].value);
-            formExistTransaction.append("status_transaction", TransactionStatus[1].value);
-            formExistTransaction.append("cash_box", selectedBoxes[0]?.uuid);
-            formExistTransaction.append("amount", totalAmountString);
-            formExistTransaction.append("rest_amount", selectedPayment.amount);
-            formExistTransaction.append("appointment", onGoingAppointment?.uuid);
-            formExistTransaction.append("transaction_data", JSON.stringify(transData));
-
-            triggerPutTransaction({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/transactions/${transactionID}/${router.locale}`,
-                data: formExistTransaction,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }).then(() => {
-                mutate(`${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`).then(data => console.log(data))
-                enqueueSnackbar(t("pay_added", {ns: "payment"}), {variant: 'success'})
-            }).catch((error) => console.log(error))
-        }
-*/
+        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid, appointment.transactions, triggerPostTransaction);
         setOpenPaymentDialog(false);
     }
 
