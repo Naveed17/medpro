@@ -6,38 +6,244 @@ import {
     Card,
     CardContent,
     Checkbox,
+    DialogActions,
     Grid,
     IconButton,
     InputAdornment,
     InputBase,
     Stack,
     TextField,
+    Theme,
     Typography,
+    useMediaQuery,
 } from "@mui/material";
 import RootStyled from "./overrides/rootSyled";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CheckIcon from '@mui/icons-material/Check';
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import moment from "moment-timezone";
+import {useInsurances} from "@lib/hooks/rest";
+import {useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import CloseIcon from "@mui/icons-material/Close";
+import {Dialog} from "@features/dialog";
+import {configSelector} from "@features/base";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {useRouter} from "next/router";
+import {useRequestMutation} from "@lib/axios";
 
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext},
+        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext, appointment},
     } = props;
 
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
     const {data: session} = useSession();
+
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+
+    const router = useRouter();
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+
+    const {direction} = useAppSelector(configSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+
+    const {insurances} = useInsurances();
+    const {
+        paymentTypesList
+    } = useAppSelector(cashBoxSelector);
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+    };
+    const openDialogPayment = () => {
+        if (appointment.transactions) {
+            let payments: any[] = [];
+            appointment.transactions.transaction_data.map((td:any) => {
+                let pay: any = {
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data
+                }
+                if (td.insurance)
+                    pay["insurance"] = insurances.find(i => i.uuid === td.insurance)
+                if (td.payment_means)
+                    pay["payment_means"] = paymentTypesList.find((pt: {
+                        slug: string;
+                    }) => pt.slug === td.payment_means.slug)
+                payments.push(pay)
+            })
+            setSelectedPayment({
+                uuid: app_uuid,
+                payments,
+                payed_amount: getTransactionAmountPayed(),
+                appointment,
+                total,
+                isNew: getTransactionAmountPayed() === 0
+            })
+        } else {
+            console.log("no trans")
+        }
+        setOpenPaymentDialog(true);
+
+    }
+    const getTransactionAmountPayed = (): number => {
+        if (appointment.transactions && appointment.transactions.rest_amount !== 0)
+            return total - appointment.transactions.rest_amount
+        else
+            return 0
+    };
+
+    const handleOnGoingPaymentDialog = () => {
+        console.log(selectedPayment);
+        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid,appointment.transactions,triggerPostTransaction);
+
+        /*let amount = 0;
+        const trans_data: TransactionDataModel[] = [];
+        selectedPayment.payments.map((sp: any) => {
+            trans_data.push({
+                payment_means: sp.payment_type[0].uuid,
+                insurance: sp.selectedInsurances?.length === 0 ? "":sp.selectedInsurances.uuid,
+                amount: sp.amount,
+                type_transaction: TransactionType[2].value,
+                status_transaction: TransactionStatus[1].value,
+                payment_date: sp.date,
+                payment_type: sp.payment_type,
+                data: {
+                    patient: {uuid: onGoingAppointment?.patient_uuid, name: onGoingAppointment?.patient},
+                    insurances: sp.selectedInsurances,
+                    rest: selectedPayment.amount,
+                    total: sp.amount,
+                    type: selectedPayment.type,
+                    ...sp.data
+                },
+            });
+            amount += sp.amount;
+        });
+        const form = new FormData();
+        form.append("type_transaction", TransactionType[2].value);
+        form.append("status_transaction", TransactionStatus[1].value);
+        form.append("cash_box", selectedBoxes[0]?.uuid);
+        form.append("amount", amount.toString());
+        form.append("rest_amount", selectedPayment.amount);
+        form.append("appointment", onGoingAppointment?.uuid);
+        form.append("transaction_data", JSON.stringify(trans_data));
+        if (getTransactionID() === "") {
+            triggerPostTransaction({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                }
+            }).then(() => {
+                mutate(`${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`).then(data => console.log(data))
+                enqueueSnackbar(t("pay_added", {ns: "payment"}), {variant: 'success'})
+            });
+        } else {
+            let transactionsDataExisting = findTransactionByAppointment(TransactionsPatient, onGoingAppointment?.uuid)?.transaction_data;
+            let amountExistingTransaction = findTransactionByAppointment(TransactionsPatient, onGoingAppointment?.uuid)?.amount;
+            if (amountExistingTransaction === undefined) {
+                amountExistingTransaction = 0;
+            }
+            const transData = [];
+            for (const payment of transactionsDataExisting) {
+                const paymentData = {
+                    payment_means: payment.payment_means?.uuid,
+                    insurance: payment.data.insurances?.length === 0 ? "": payment.data.insurances[0].uuid,
+                    amount: payment.amount,
+                    status_transaction: TransactionStatus[1].value,
+                    type_transaction: TransactionType[2].value,
+                    payment_date: payment.payment_date.date,
+                    data: payment.data,
+                };
+
+                transData.push(paymentData);
+            }
+            selectedPayment.payments.map((sp: any) => {
+                transData.push({
+                    payment_means: sp.payment_type[0].uuid,
+                    insurance: sp.selectedInsurances?.length === 0 ? "":sp.selectedInsurances.uuid,
+                    amount: sp.amount,
+                    type_transaction: TransactionType[2].value,
+                    status_transaction: TransactionStatus[1].value,
+                    payment_date: sp.date,
+                    payment_type: sp.payment_type,
+                    data: {
+                        patient: {uuid: onGoingAppointment?.patient_uuid, name: onGoingAppointment?.patient},
+                        insurances: sp.selectedInsurances,
+                        rest: selectedPayment.amount,
+                        total: sp.amount,
+                        type: selectedPayment.type,
+                        ...sp.data
+                    },
+                });
+                amountExistingTransaction += sp.amount;
+            });
+            selectedPayment.insurance.map((si: any) => {
+                transData.push({
+                    payment_means: "",
+                    insurance: si.uuid,
+                    amount: si.amount.toString(),
+                    status_transaction: TransactionStatus[1].value,
+                    type_transaction: TransactionType[2].value,
+                    payment_date: "",
+                    data: {
+                        detail: si,
+                        //insurances:si.insurance,
+                        rest: selectedPayment.amount,
+                        total: si.amount,
+                        type: selectedPayment.type
+                    },
+                });
+            })
+            const totalAmountString = amountExistingTransaction?.toString() ?? "";
+            const formExistTransaction = new FormData();
+            formExistTransaction.append("type_transaction", TransactionType[2].value);
+            formExistTransaction.append("status_transaction", TransactionStatus[1].value);
+            formExistTransaction.append("cash_box", selectedBoxes[0]?.uuid);
+            formExistTransaction.append("amount", totalAmountString);
+            formExistTransaction.append("rest_amount", selectedPayment.amount);
+            formExistTransaction.append("appointment", onGoingAppointment?.uuid);
+            formExistTransaction.append("transaction_data", JSON.stringify(transData));
+
+            triggerPutTransaction({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/transactions/${transactionID}/${router.locale}`,
+                data: formExistTransaction,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(() => {
+                mutate(`${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`).then(data => console.log(data))
+                enqueueSnackbar(t("pay_added", {ns: "payment"}), {variant: 'success'})
+            }).catch((error) => console.log(error))
+        }
+*/
+        setOpenPaymentDialog(false);
+    }
+
 
     return (
         <RootStyled>
@@ -71,26 +277,40 @@ function SecretaryConsultationDialog({...props}) {
                                 ),
                             }}
                         />
-                        <Stack direction={"row"} alignItems={"center"}>
-                            <Typography mr={1}>Montant à payer : </Typography>
+                        {
+                            total - getTransactionAmountPayed() !== 0 &&
+                            <Stack direction={"row"} alignItems={"center"}>
+                                <Typography mr={1}>{t("amount_paid")}</Typography>
+                                <Label
+                                    variant="filled"
+                                    color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
+                                    sx={{color: (theme) => theme.palette.text.primary}}>
+                                    <Typography
+                                        color="text.primary"
+                                        variant="subtitle1"
+                                        mr={0.3}
+                                        fontWeight={600}>
+                                        {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                    </Typography>
+                                    {devise}
+                                </Label>
+                                <Button
+                                    variant="contained"
+                                    size={"small"}
+                                    style={{
+                                        marginLeft: 5
+                                    }}
+                                    {...(isMobile && {
 
-                            <Label
-                                variant="filled"
-                                color="success"
-                                sx={{color: (theme) => theme.palette.text.primary}}>
-                                <Typography
-                                    color="text.primary"
-                                    variant="subtitle1"
-                                    mr={0.3}
-                                    fontWeight={600}>
-                                    {total}
-                                </Typography>
-                                {devise}
-                            </Label>
-
-                        </Stack>
-
-
+                                        sx: {minWidth: 40},
+                                    })}
+                                    onClick={openDialogPayment}
+                                >
+                                    <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
+                                    <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
+                                </Button>
+                            </Stack>
+                        }
                         <Button
                             className="counter-btn"
                             disableRipple
@@ -186,6 +406,39 @@ function SecretaryConsultationDialog({...props}) {
                 </Grid>
 
             </Grid>
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    selectedPayment,
+                    setSelectedPayment,
+                    appointment
+                }}
+                size={"md"}
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "common"})}
+                        </Button>
+                        <Button
+                            // disabled={selectedPayment && selectedPayment.payments.length === 0}
+                            variant="contained"
+                            onClick={handleOnGoingPaymentDialog}
+                            startIcon={<Icon path="ic-dowlaodfile"/>}>
+                            {t("save", {ns: "common"})}
+                        </Button>
+                    </DialogActions>
+                }
+            />
 
         </RootStyled>
     );

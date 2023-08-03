@@ -30,13 +30,7 @@ import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {
-    AddWaitingRoomCardData,
-    DefaultCountry,
-    TransactionStatus,
-    TransactionType,
-    WaitingHeadCells
-} from "@lib/constants";
+import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
@@ -44,6 +38,7 @@ import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -150,56 +145,9 @@ function WaitingRoom() {
         setContextMenu(null);
     };
     const handleSubmit = () => {
-        console.log(selectedPayment)
-
-        let payed_amount = 0
-        let transaction_data: any[] = [];
-        let insurances = [];
-
-        selectedPayment.payments.map((pay: any) => {
-                payed_amount += pay.amount
-                insurances.push(pay.insurance)
-                transaction_data.push({
-                    ...pay,
-                    payment_means: pay.payment_means ? pay.payment_means.uuid : "",
-                    insurance: pay.insurance ?  pay.insurance.uuid : "",
-                    status_transaction: TransactionStatus[1].value,
-                    type_transaction: TransactionType[2].value,
-                    data: {
-                        insurances: pay.insurance ? [{uuid:pay.insurance.uuid}] : "",
-                        rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
-                        total: selectedPayment.total,
-                        type: selectedPayment.appointment.appointment_type.name
-                    }
-                })
-            }
-        )
-
-        if (selectedBoxes.length > 0) {
-            const form = new FormData();
-            form.append("type_transaction", TransactionType[2].value);
-            form.append("status_transaction", TransactionStatus[1].value);
-            form.append("cash_box", selectedBoxes[0]?.uuid);
-            form.append("amount", selectedPayment.total.toString());
-            form.append("rest_amount", (selectedPayment.total - selectedPayment.payed_amount - payed_amount).toString());
-            form.append("appointment", selectedPayment.uuid);
-            form.append("transaction_data", JSON.stringify(transaction_data));
-            //if (selectedPayment.isNew) {
-                triggerPostTransaction({
-                    method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/transactions/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then(() => {
-                    enqueueSnackbar(t("addsuccess"), {variant: 'success'})
-                }).catch((error) => console.log("error ", error))
-           /* } else{
-                alert("updated")
-            }*/
-        }
-    };
+        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid,row?.transactions,triggerPostTransaction);
+        enqueueSnackbar(t("addsuccess"), {variant: 'success'})
+    }
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];

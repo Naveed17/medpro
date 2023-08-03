@@ -1155,6 +1155,7 @@ function ConsultationInProgress() {
                         setMeeting,
                         checkedNext,
                         setCheckedNext,
+                        appointment
                     }}
                     size={"lg"}
                     color={
@@ -1218,6 +1219,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
                 "menu",
                 "common",
                 "agenda",
+                "payment",
                 "patient",
             ])),
         },

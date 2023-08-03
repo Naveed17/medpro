@@ -21,10 +21,18 @@
   "expiry_date": "Expiry date",
   "add_cheque": "Add a Check",
   "add": "Add",
+  "pay_added":"Payment added",
   "billing": "Billing",
   "receive": "Total to receive",
   "somme": "Sum",
   "more": "More",
+  "encashment": "Encashment",
+  "dialogs":{
+    "delete-dialog": {
+      "title":"Delete transaction",
+      "description":"Are you sure you want to delete this transaction ?"
+    }
+  },
   "table": {
     "date": "Date",
     "time": "Time",
@@ -35,6 +43,7 @@
     "numcheque": "Check Number",
     "billing_status": "Billing Status",
     "amount": "Amount",
+    "actions": "Actions",
     "consultation": "Consultation",
     "check": "Check",
     "-": "#",
@@ -77,5 +86,8 @@
     "date-range": "Periods",
     "startDate": "Start date",
     "endDate": "End date"
+  },
+  "alert": {
+    "transaction-deleted": "Transaction has been deleted"
   }
 }

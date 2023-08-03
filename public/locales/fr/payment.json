@@ -21,20 +21,35 @@
   "expiry_date": "Date de déchéance",
   "add_cheque": "Ajouter un Chéque",
   "add": "Ajouter",
+  "pay_added":"Payment ajouté",
+  "assured": "Assuré",
+  "insurance_total": "Assurance",
   "billing": "Facturer",
   "receive": "Total a réceptionner",
   "somme": "Somme",
   "more": "Plus",
+  "payment_dialog_title": "Ajouter une transaction",
+  "payment_edit_dialog_title": "Modifier une transaction",
+  "transactionAdded": "Transaction ajoutée",
+  "dialogs":{
+    "delete-dialog": {
+      "title":"Supprimer transaction",
+      "description":"Êtes-vous sûr de vouloir supprimer cette transaction ?"
+    }
+  },
+  "encaissed": "encaissés",
+  "encashment": "Encaissement",
   "table": {
     "date": "Date",
     "time": "Heure",
     "name": "Nom",
     "insurance": "Assurances",
     "type": "Type",
-    "payment_type": "Type de Paiement",
+    "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
     "billing_status": "Etat de Facturation",
     "amount": "Montant",
+    "actions": "Actions",
     "consultation": "Consultation",
     "check": "Control",
     "-": "#",
@@ -83,5 +98,8 @@
     "date-range": "Périodes",
     "startDate": "Date début",
     "endDate": "Date fin"
+  },
+  "alert": {
+    "transaction-deleted": "Transaction a été supprimé"
   }
 }

@@ -8,5 +8,5 @@ interface AppointmentDataModel {
     status:number;
     patient:PatientModel;
     type:AppointmentTypeModel;
-
+    transactions: any[]
 }
