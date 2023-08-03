@@ -10,7 +10,6 @@ function useLastPrescription() {
     const {previousAppointmentsData} = useAppointmentHistory({patientId: appointement?.patient?.uuid});
 
     const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
-    console.log("previousAppointmentsData", previousAppointmentsData);
 
     useEffect(() => {
         let lastPrescription: any[] = []
