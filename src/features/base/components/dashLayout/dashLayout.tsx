@@ -10,7 +10,7 @@ import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {Box, Button, DialogActions, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -59,6 +59,7 @@ function DashLayout({children}: LayoutProps) {
     const {closeSnackbar} = useSnackbar();
     const {cache} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {t} = useTranslation('common');
     const {
@@ -435,9 +436,9 @@ function DashLayout({children}: LayoutProps) {
                             },
                         }}>
                         <Stack
-                            direction={"row"}
+                            direction={isMobile ? "column" : "row"}
                             justifyContent={"space-between"}
-                            sx={{width: "100%"}}>
+                            sx={{width: "100%", textAlign: "center"}}>
                             <Button
                                 onClick={() => dispatch(setDuplicated({openDialog: false}))}
                                 startIcon={<CloseIcon/>}>

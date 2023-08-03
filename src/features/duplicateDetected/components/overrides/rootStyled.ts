@@ -55,7 +55,12 @@ const RootStyled = styled(Box)(({theme}) => ({
                     },
                     [theme.breakpoints.down("md")]: {
                         width: 150,
-                        display: "none",
+                        p: {
+                            width: 100,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis"
+                        }
                     },
                 },
                 "& .child-list-main": {

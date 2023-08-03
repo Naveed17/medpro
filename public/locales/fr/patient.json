@@ -53,6 +53,7 @@
   "config": {
     "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
+    "merge-patient": "Fusionner les patients",
     "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",
@@ -61,6 +62,7 @@
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
+    "select-all": "Sélectionner tout",
     "tabs": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",

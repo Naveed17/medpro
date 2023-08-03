@@ -24,6 +24,7 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import dynamic from "next/dynamic";
+import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -37,15 +38,16 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading} = props;
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
-
     return (
         <Paper className="card-main">
+            <Stack direction='row' spacing={1} alignItems='center'>
+            <SelectCheckboxCard row={data} isSmall/>
             <Grid container>
                 <Grid item xs={12} onClick={() => onOpenPatientDetails(data)}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
                     ) : (
-                        <Stack direction={"row"} justifyContent={"space-between"}>
+                        <Stack direction={"row"} justifyContent={"space-between"} alignItems='flex-start'>
                             <Stack direction={"row"} spacing={1.2}>
                                 <Badge
                                     overlap="circular"
@@ -103,32 +105,16 @@ const CardSection = ({...props}) => {
                                     </Stack>
                                 </Stack>
                             </Stack>
-                            {/* <Popover
-                open={openTooltip}
-                handleClose={() => setOpenTooltip(false)}
-                menuList={menuList}
-                className="agenda-rdv-details"
-                onClickItem={(itempopver: {
-                  title: string;
-                  icon: string;
-                  action: string;
-                }) => {
-                  setOpenTooltip(false);
-                  console.log(itempopver);
-                }}
-                button={
-                  <IconButton
-                    disableRipple
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      setOpenTooltip(true);
-                    }}
-                    sx={{ display: "block", ml: "auto" }}
-                    size="small">
-                    <Icon path="more-vert" />
-                  </IconButton>
-                }
-              />*/}
+                             {!loading && (
+                            <IconButton
+                                size="small"
+                                className="btn-phone"
+                                LinkComponent="a"
+                                href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}
+                                onClick={(event) => event.stopPropagation()}>
+                                <IconUrl path="ic-tel"/>
+                            </IconButton>
+                        )}
                         </Stack>
                     )}
 
@@ -175,25 +161,17 @@ const CardSection = ({...props}) => {
                                 {data.nextAppointment?.startTime || "-"}
                             </Typography>
                         )}
-                        {!loading && (
-                            <IconButton
-                                size="small"
-                                className="btn-phone"
-                                LinkComponent="a"
-                                href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}
-                                onClick={(event) => event.stopPropagation()}>
-                                <IconUrl path="ic-tel"/>
-                            </IconButton>
-                        )}
+
                     </Box>
                 </Grid>
             </Grid>
+            </Stack>
         </Paper>
     );
 };
 
 function PatientMobileCard({...props}) {
-    const {PatientData, handleEvent, loading} = props;
+    const {PatientData, handleEvent, loading,selected, setSelected} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {t, ready} = useTranslation("patient");
@@ -223,6 +201,7 @@ function PatientMobileCard({...props}) {
                             );
                             handleEvent("PATIENT_DETAILS", data);
                         }}
+
                     />
                 )
             )}
