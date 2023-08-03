@@ -492,7 +492,8 @@ function DocumentDetailDialog({...props}) {
                                                                               aria-label="left aligned">
                                                                     <ZoomOutIcon/>
                                                                 </ToggleButton>
-                                                                <ToggleButton onClick={() => resetTransform()} value="left"
+                                                                <ToggleButton onClick={() => resetTransform()}
+                                                                              value="left"
                                                                               aria-label="left aligned">
                                                                     <CenterFocusWeakIcon/>
                                                                 </ToggleButton>
