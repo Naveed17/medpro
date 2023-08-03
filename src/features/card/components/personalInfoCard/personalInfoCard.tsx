@@ -137,7 +137,6 @@ function PersonalInfo({...props}) {
             data: params,
         }).then(() => {
             setLoadingRequest(false);
-            setEditable({...defaultEditStatus, PersonalInfoCard: false});
             mutatePatientDetails && mutatePatientDetails();
             mutatePatientList && mutatePatientList();
             mutateAgenda && mutateAgenda();
@@ -214,9 +213,8 @@ function PersonalInfo({...props}) {
                                             {t('cancel')}
                                         </Button>
                                         <LoadingButton
-                                            onClick={() => handleUpdatePatient()}
+                                            onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
                                             disabled={Object.keys(errors).length > 0}
-                                            loading={loadingRequest}
                                             className='btn-add'
                                             sx={{margin: 'auto'}}
                                             size='small'
@@ -225,7 +223,9 @@ function PersonalInfo({...props}) {
                                         </LoadingButton>
                                     </Stack>
                                     :
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingRequest}
+                                        loadingPosition={"start"}
                                         disabled={disableActions}
                                         onClick={() => {
                                             setEditable({
@@ -239,7 +239,7 @@ function PersonalInfo({...props}) {
                                             path={"setting/edit"}/>}
                                         color="primary" size="small">
                                         {t("edit")}
-                                    </Button>
+                                    </LoadingButton>
                                 }
                             </Toolbar>
                         </AppBar>

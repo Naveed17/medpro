@@ -1,4 +1,3 @@
-// ______________________________
 import {
     PersonalInfoCard,
     PatientDetailContactCard,

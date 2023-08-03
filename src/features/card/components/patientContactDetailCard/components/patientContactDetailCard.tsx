@@ -182,7 +182,6 @@ function PatientContactDetailCard({...props}) {
             data: params
         }).then(() => {
             setLoadingRequest(false);
-            setEditable({...defaultEditStatus, patientDetailContactCard: false});
             mutatePatientContact();
             mutatePatientList && mutatePatientList();
             mutateAgenda && mutateAgenda();
@@ -258,8 +257,10 @@ function PatientContactDetailCard({...props}) {
                                                 {t('config.add-patient.cancel')}
                                             </Button>
                                             <LoadingButton
-                                                onClick={() => handleUpdatePatient()}
-                                                loading={loadingRequest}
+                                                onClick={() => setEditable({
+                                                    ...defaultEditStatus,
+                                                    patientDetailContactCard: false
+                                                })}
                                                 disabled={Object.keys(errors).length > 0}
                                                 className='btn-add'
                                                 sx={{margin: 'auto'}}
@@ -269,7 +270,9 @@ function PatientContactDetailCard({...props}) {
                                             </LoadingButton>
                                         </Stack>
                                         :
-                                        <Button
+                                        <LoadingButton
+                                            loading={loadingRequest}
+                                            loadingPosition={"start"}
                                             disabled={disableActions}
                                             onClick={() => {
                                                 setEditable({
@@ -283,7 +286,7 @@ function PatientContactDetailCard({...props}) {
                                                 path={"setting/edit"}/>}
                                             color="primary" size="small">
                                             {t("config.add-patient.edit")}
-                                        </Button>
+                                        </LoadingButton>
                                     }
                                 </Toolbar>
                             </AppBar>
