@@ -99,6 +99,7 @@ export const GREY = {
     900: "#161C24",
     A0: "#959CBD",
     A10: "#f8fafc",
+    A11: "#E4E4E4",
     A50: "#647F94",
     A60: "#7E7E7E",
     A100: "#E3EAEF",

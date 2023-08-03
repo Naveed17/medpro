@@ -35,7 +35,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         }
     },
     ".list-container": {
-        maxHeight: 300,
+        maxHeight: 360,
         paddingTop: 8,
         paddingBottom: 8,
         overflowY: 'scroll'
@@ -45,6 +45,20 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
     },
     "& .no-data-card .MuiTypography-body2": {
         paddingTop: 0
+    },
+    "& .chip-item": {
+        backgroundColor: theme.palette.grey["A11"],
+        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+        marginBottom: 6,
+        marginLeft: 6,
+        cursor: "move",
+        "&:active": {
+            boxShadow: "none",
+            outline: "none",
+        },
+        "& .MuiChip-deleteIcon": {
+            color: theme.palette.text.primary,
+        },
     }
 }));
 export default BalanceSheetDialogStyled;
