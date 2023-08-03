@@ -288,7 +288,16 @@ function PatientContactDetailCard({...props}) {
                                 </Toolbar>
                             </AppBar>
 
-                            <Grid container spacing={1.2}>
+                            <Grid container spacing={1.2}
+                                  onClick={() => {
+                                      if (!editable) {
+                                          setEditable({
+                                              personalInsuranceCard: false,
+                                              personalInfoCard: false,
+                                              patientDetailContactCard: true
+                                          });
+                                      }
+                                  }}>
                                 <Divider textAlign="left" sx={{width: "100%"}}>
                                     <Typography
                                         mt={-1}
@@ -300,15 +309,6 @@ function PatientContactDetailCard({...props}) {
                                 </Divider>
 
                                 <Grid item md={12} sm={12} xs={12}
-                                      onClick={() => {
-                                          if (!editable) {
-                                              setEditable({
-                                                  personalInsuranceCard: false,
-                                                  personalInfoCard: false,
-                                                  patientDetailContactCard: true
-                                              });
-                                          }
-                                      }}
                                       sx={{
                                           "& .MuiInputBase-readOnly": {
                                               ml: "0.3rem"
