@@ -638,6 +638,12 @@ useEffect(() => {
                         </Button>
                     </>
                 }
+                PaperProps={{
+                    sx:{
+                        width:{xs:'calc(100% - 24px)',sm:'calc(100% - 64px)'},
+                        margin:{xs:0,sm:4},
+                    }   
+                }}
             />
 
             <Dialog
