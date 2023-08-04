@@ -245,7 +245,6 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
-                console.log(row?.transactions);
                 let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
 
                 let payments: any[] = [];

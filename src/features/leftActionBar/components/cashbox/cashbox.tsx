@@ -289,7 +289,9 @@ function Cashbox() {
                             ),
                         }
                     ]}
-                    setData={()=>{console.log("ok")}}
+                    setData={()=>{
+
+                    }}
                 />
             }
 

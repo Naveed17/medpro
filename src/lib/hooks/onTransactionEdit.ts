@@ -20,7 +20,6 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
                 data: {
                     rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
                     total: selectedPayment.total,
-                    //type: selectedPayment.appointment.appointment_type.name,
                     ...pay.data
                 }
             })
