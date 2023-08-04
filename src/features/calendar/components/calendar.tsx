@@ -78,7 +78,7 @@ function Calendar({...props}) {
     const theme = useTheme();
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery("(max-width:768px)");
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 

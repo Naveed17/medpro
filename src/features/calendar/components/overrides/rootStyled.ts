@@ -99,7 +99,7 @@ const RootStyled = styled("div")(({theme}) => ({
             fontSize: 22,
             fontWeight: 400,
         },
-        [theme.breakpoints.down('sm')]: {
+        "@media (max-width: 768px)": {
             minHeight: 26,
             display: "block",
             "& .MuiTypography-root":{

@@ -1087,6 +1087,12 @@ function Agenda() {
                             setEvent(undefined);
                         }, 300);
                     }}
+                     PaperProps ={{
+                          sx:{
+                            minWidth: "29vw",
+                            maxWidth: "30rem",
+                          }
+                            }}
                 >
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
@@ -1120,6 +1126,7 @@ function Agenda() {
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
+                           
                         />}
                 </Drawer>
 
