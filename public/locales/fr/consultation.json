@@ -167,6 +167,8 @@
     "noRequest": "Aucune demande",
     "noDoc": "Aucun document",
     "noRequest-description": "Veuillez sélectionner vos demandes",
+    "drag-imagery": "Faites glisser l' imagerie médicale",
+    "drag-imagery-description": "Ou si vous préférez, vous pouvez cliquer dessus",
     "medical_procedures": "Note d'honoraires",
     "consultation": "Consultation",
     "seeRes": "Voir le résultat",

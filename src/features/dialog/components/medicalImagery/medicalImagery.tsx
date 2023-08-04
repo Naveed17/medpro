@@ -27,12 +27,6 @@ import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {ExpandMore} from "@features/buttons";
 
-export const MedicalPrescriptionCardData = {
-    mainIcon: "ic-soura",
-    title: "noRequest",
-    description: "noRequest-description"
-};
-
 function MedicalImageryDialog({...props}) {
     const {data} = props;
 
@@ -208,7 +202,7 @@ function MedicalImageryDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {!loading ? miList?.map((item, index) => (
+                                {!loading ? miList?.slice(0, 20).map((item, index) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
@@ -317,7 +311,11 @@ function MedicalImageryDialog({...props}) {
                                     <NoDataCard
                                         {...{t}}
                                         ns={"consultation"}
-                                        data={MedicalPrescriptionCardData}/>
+                                        data={{
+                                            mainIcon: "ic-soura",
+                                            title: "drag-imagery",
+                                            description: "drag-imagery-description"
+                                        }}/>
                                 </Stack>
                             </Card>
                         }

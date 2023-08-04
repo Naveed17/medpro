@@ -163,6 +163,8 @@
     "noRequest": "No request",
     "noDoc": "No document",
     "noRequest-description": "Please select your requests",
+    "drag-imagery": "Drag and drop medical imaging",
+    "drag-imagery-description": "Or if you prefer, you can click on it",
     "medical_procedures": "Fee Note",
     "consultation": "Consultation",
     "seeRes": "See result",
