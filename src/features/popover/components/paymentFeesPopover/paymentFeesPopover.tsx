@@ -44,7 +44,7 @@ function PaymentFeesPopover({...props}) {
                 <ListItemButton sx={{p: 0}} disableRipple disableGutters>
                     <ListItemText primary={`Consultation: ${appointment.consultation_fees} ${devise}`}/>
                 </ListItemButton>
-                {appointment.acts.map((act: any, index: number) => <ListItemButton sx={{p: 0}} key={index} disableRipple
+                {appointment.acts && appointment.acts.map((act: any, index: number) => <ListItemButton sx={{p: 0}} key={index} disableRipple
                                                                                    disableGutters>
                     <ListItemText primary={`${act.name}: ${act.qte} x ${act.price} ${devise}`}/>
                 </ListItemButton>)}

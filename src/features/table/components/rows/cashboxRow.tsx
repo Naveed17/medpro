@@ -6,6 +6,7 @@ import {
     DialogActions,
     IconButton,
     Link,
+    Menu,
     Stack,
     Table,
     TableRow,
@@ -36,6 +37,7 @@ import {useSnackbar} from "notistack";
 import {useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {PaymentFeesPopover} from "@features/popover";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -69,6 +71,10 @@ function PaymentRow({...props}) {
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
 
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
@@ -92,7 +98,6 @@ function PaymentRow({...props}) {
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     }
-
     const handleSubmit = () => {
         setLoadingRequest(true)
         OnTransactionEdit(selectedPayment,
@@ -112,7 +117,6 @@ function PaymentRow({...props}) {
         );
 
     }
-
     const deleteTransaction = () => {
         const form = new FormData();
         form.append("cash_box", selectedBoxes[0]?.uuid);
@@ -165,6 +169,20 @@ function PaymentRow({...props}) {
         setOpenPaymentDialog(true);
 
     }
+    const handleClose = () => {
+        setContextMenu(null);
+    };
+    const openFeesPopover = (event: React.MouseEvent<any>) => {
+        event.stopPropagation();
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : null
+        );
+    };
 
     useEffect(() => {
         dispatch(addBilling(selected));
@@ -238,7 +256,7 @@ function PaymentRow({...props}) {
                             sx={{cursor: "pointer"}}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row, event});
+                                handleEvent({action: "PATIENT_DETAILS", row: row.appointment, event});
                             }}
                             underline="none">
                             {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
@@ -271,7 +289,18 @@ function PaymentRow({...props}) {
                     </Stack>
                 </TableCell>
                 <TableCell align={"center"}>
-                    {row.type_transaction ? (
+                    {row.type_transaction ? row.appointment ? (
+                        <Link sx={{cursor: "pointer"}}
+                              onClick={(event) => {
+                                  event.stopPropagation();
+                                  router.push(`/dashboard/consultation/${row.appointment.uuid}`).then(() => {
+
+                                  })
+                              }}
+                              underline="none">
+                            {row.appointment.type.name}
+                        </Link>
+                    ) : (
                         <Typography variant="body2" color="text.primary">
                             {t('table.' + row.type_transaction)}
                         </Typography>
@@ -297,11 +326,34 @@ function PaymentRow({...props}) {
                 </TableCell>
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} spacing={1} justifyContent={"center"}>
-                        <Typography
-                            color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
-                            fontWeight={700}>
+                        <Typography onClick={(event) => {
+                            event.stopPropagation();
+                            openFeesPopover(event)
+                        }}
+                                    color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
+                                    fontWeight={700}>
                             {row.rest_amount > 0 ? `${row.amount - row.rest_amount} ${devise} / ${row.amount}` : row.amount} {devise}
                         </Typography>
+
+                        {row?.appointment && <Menu
+                            open={contextMenu !== null}
+                            onClose={handleClose}
+                            anchorReference="anchorPosition"
+                            anchorPosition={
+                                contextMenu !== null
+                                    ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                    : undefined
+                            }
+                            anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}>
+                            <PaymentFeesPopover uuid={row?.appointment.uuid}/>
+                        </Menu>}
 
                         <Stack direction={"row"}>
                             {row.rest_amount > 0 && <Tooltip title={t('encaisse')}>
@@ -311,7 +363,7 @@ function PaymentRow({...props}) {
                                     "&:hover": {
                                         background: theme.palette.expire.main
                                     },
-                                }: {}} onClick={(e) => {
+                                } : {}} onClick={(e) => {
                                     e.stopPropagation();
                                     openPutTransactionDialog()
                                 }}>
@@ -563,8 +615,6 @@ function PaymentRow({...props}) {
                     </Stack>
                 }
             />
-
-
         </>
     );
 }

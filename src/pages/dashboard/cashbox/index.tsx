@@ -383,7 +383,7 @@ function Cashbox() {
                                 onClick={() => {
 
                                 }}>
-                                {!isMobile && t("Encaisser")} {isMobile && <KeyboardArrowDownIcon/>}
+                                {!isMobile && t("cashout")} {isMobile && <KeyboardArrowDownIcon/>}
                             </Button>
                         </Stack>
 

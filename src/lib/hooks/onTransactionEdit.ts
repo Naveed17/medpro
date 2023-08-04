@@ -27,8 +27,6 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
         }
     )
 
-    console.log(selectedPayment);
-
     if (selectedBoxes.length > 0) {
         const form = new FormData();
         form.append("type_transaction", TransactionType[2].value);
