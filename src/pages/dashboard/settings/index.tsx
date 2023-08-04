@@ -13,7 +13,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 
 function Settings() {
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery("(max-width:768px)");
     const {t, ready} = useTranslation('settings');
     if (!isMobile) {
         return <Redirect to='/dashboard/settings/profil'/>
@@ -21,7 +21,7 @@ function Settings() {
     if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
-        <Box className="container">
+        <Box>
             <SettingsFilter/>
         </Box>
     )

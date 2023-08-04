@@ -180,7 +180,7 @@ function Patient() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery("(max-width:768px)");
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -499,7 +499,7 @@ function Patient() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-                    <Box display={{xs: "none", md: "block"}}>
+                    
                         <Otable
                             {...{t, insurances, mutatePatient: mutate}}
                             headers={headCells}
@@ -513,7 +513,7 @@ function Patient() {
                             pagination
                             loading={!Boolean(httpPatientsResponse)}
                         />
-                    </Box>
+                   
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>

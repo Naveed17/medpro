@@ -53,9 +53,7 @@ import {Session} from "next-auth";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const isMobile = useMediaQuery('(max-width:768px)');
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -218,7 +216,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
-                display={{xs: "none", sm: "block"}}
+                display={isMobile ? "none" : "block"}
                 component="nav"
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">

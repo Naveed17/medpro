@@ -21,7 +21,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
     },
     "& .btn": {
         marginRight: pxToRem(24),
-        [theme.breakpoints.down("sm")]: {
+        "@media (max-width: 768px)": {
             marginRight: 5,
         },
     },
@@ -56,7 +56,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
             "&:not(:last-child)": {
                 marginRight: 20,
             },
-            [theme.breakpoints.down("sm")]: {
+            "@media (max-width: 768px)": {
                 "&:not(:last-child)": {
                     marginRight: 0,
                 },
@@ -76,7 +76,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
     "& .nav-logo": {
         lineHeight: 0,
     },
-    [theme.breakpoints.up("sm")]: {
+    "@media (min-width: 769px)": {
         width: `calc(100% - ${pxToRem(84)})`,
         transition: "all ease-in-out 0.5s",
         marginLeft: pxToRem(84),
@@ -86,7 +86,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
             marginLeft: pxToRem(368),
         },
     },
-    [theme.breakpoints.down("sm")]: {
+    "@media (max-width: 768px)": {
         paddingTop: 10,
     },
 }));

@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 
 const MainMenuStyled = styled(Box)(({theme}) => ({
     display: "flex",
-    [theme.breakpoints.down("sm")]: {
+    "@media (max-width: 768px)": {
         flexDirection: "column",
     },
     "& .body-main": {
@@ -104,7 +104,7 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                 },
             },
         },
-        [theme.breakpoints.down("sm")]: {
+        "@media screen and (max-width: 768px)": {
             display: "none",
         },
     },

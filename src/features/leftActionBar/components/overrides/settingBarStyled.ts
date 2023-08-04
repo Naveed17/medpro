@@ -59,13 +59,13 @@ const SettingBarStyled = styled("div")(({theme}) => ({
             height: "auto",
             marginBottom: "2px",
         },
-        [theme.breakpoints.down("sm")]: {
+        "@media (max-width: 768px)": {
             "& .MuiListItemButton-root": {
                 borderRadius: 6,
             },
         },
     },
-    [theme.breakpoints.down("sm")]: {
+    "@media (max-width: 768px)": {
         position: "fixed",
         top: "60px",
         height: "100%",
