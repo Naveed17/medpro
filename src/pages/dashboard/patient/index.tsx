@@ -83,8 +83,7 @@ import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
-
-
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 const humanizeDuration = require("humanize-duration");
 
 const stepperData = [
@@ -295,14 +294,12 @@ function Patient() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null,isMobile ? SWRNoValidateConfig :"");
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
     useEffect(() => {
         if (httpPatientsResponse) {
-            const ids = rows.map(({ uuid }) => uuid);
-             const filtered = rows.filter(({ uuid }, index) => !ids.includes(uuid, index + 1)); 
-                setRows((prev) => [...filtered, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
+                setRows((prev) => [...prev, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
         }
       
     }, [httpPatientsResponse])
@@ -479,6 +476,12 @@ const scrollY = window.scrollY;
 useLayoutEffect(() => {
   window.scrollTo(scrollX, scrollY);
 })
+useEffect(() => {
+   //remove query params on load from url
+    router.replace(router.pathname, undefined, {shallow: true});
+  
+}, [])
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -531,7 +534,9 @@ useLayoutEffect(() => {
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
-                        <FormControlLabel
+                        {
+                            rows.length > 0 &&
+                            <FormControlLabel
                             sx={{ml: 0}}
                             control={
                                 <Checkbox onChange={handleSelectAll}
@@ -540,6 +545,8 @@ useLayoutEffect(() => {
                             label={t("select-all")}
 
                         />
+                        }
+                        
 
                         {rowsSelected.length > 1 && <Button
                             onClick={(event) => {
@@ -568,7 +575,11 @@ useLayoutEffect(() => {
                         {...{insurances}}
 
                     />
-                    <Button 
+                    {
+                    rows.length > 0 &&
+                    <Stack alignItems='center'>
+                    <LoadingButton
+                    loading={!Boolean(httpPatientsResponse)} 
                      onClick={(event) => {
                         setPage(page + 1);
                         router.push({
@@ -576,8 +587,10 @@ useLayoutEffect(() => {
                         })
                      }}
                     >
-                        Load More
-                    </Button>
+                        {t("load-more")}
+                    </LoadingButton>
+                    </Stack>
+                        }
                 </MobileContainer>
             </Box>
             <Dialog
