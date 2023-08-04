@@ -2,13 +2,10 @@ import {
     Autocomplete,
     Box,
     Button,
-    Card,
+    Card, Chip,
     DialogActions,
     Grid,
-    IconButton,
-    List,
-    ListItemButton,
-    ListItemText,
+    IconButton, InputAdornment,
     Menu,
     MenuItem,
     Skeleton,
@@ -23,7 +20,7 @@ import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, {useEffect, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -34,18 +31,15 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {NoDataCard} from "@features/card";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {NoDataCard, NoteCardCollapse} from "@features/card";
+import {arrayUniqueByKey, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-export const BalanceSheetCardData = {
-    mainIcon: "ic-analyse",
-    title: "noRequest",
-    description: "noRequest-description"
-};
+import {debounce} from "lodash";
+import SearchIcon from "@mui/icons-material/Search";
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
@@ -60,27 +54,42 @@ function BalanceSheetDialog({...props}) {
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const [balanceValue] = useState<AnalysisModel | null>(null);
+    const [balanceValue, setBalanceValue] = useState<AnalysisModel | null>(null);
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
+    const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
+    const [analysisListLocal, setAnalysisListLocal] = useState<AnalysisModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [name, setName] = useState('');
-
+    const [anchorElPopover, setAnchorElPopover] = useState<HTMLDivElement | null>(null);
+    const textFieldRef = createRef<HTMLDivElement>();
+    const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
+    const openPopover = Boolean(anchorElPopover);
     const open = Boolean(anchorEl);
 
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const {enqueueSnackbar} = useSnackbar();
 
+    const handleClickPopover = useCallback(() => {
+        setAnchorElPopover(textFieldRef.current);
+    }, [textFieldRef]);
+
+    const handleClosePopover = useCallback(() => {
+        setAnchorElPopover(null);
+    }, []);
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
-    };
+    }
+
     const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
         setAnalysis(item.analyses)
         data.setState(item.analyses)
         setSelectedModel(item)
         setAnchorEl(null);
-    };
+    }
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
@@ -95,7 +104,7 @@ function BalanceSheetDialog({...props}) {
         },
     });
 
-    const initialData = Array.from(new Array(20));
+    const initialData = Array.from(new Array(10));
 
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
@@ -109,18 +118,21 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const analysisList = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
     const {handleSubmit} = formik;
+
     const addAnalysis = (value: AnalysisModel) => {
-        setName('')
-        let copy = [...analysis]
-        copy.unshift({...value, note: ""});
-        setAnalysis([...copy]);
-        const recents = localStorage.getItem("balance-Sheet-recent") ?
-            JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...recents, ...copy.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]));
-        data.setState([...copy]);
+        if (analysis.findIndex(item => item.name === value.name) === -1) {
+            setName('')
+            let copy = [...analysis]
+            copy.unshift({...value, note: ""});
+            setAnalysis([...copy]);
+            const recent = localStorage.getItem("balance-Sheet-recent") ?
+                JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
+            localStorage.setItem("balance-Sheet-recent", JSON.stringify([...copy.filter(x => !recent.find((r: AnalysisModel) => r.uuid === x.uuid)), ...recent]));
+            data.setState([...copy]);
+        }
     }
+
     const saveModel = () => {
         const form = new FormData();
         form.append('globalNote', "");
@@ -139,6 +151,7 @@ function BalanceSheetDialog({...props}) {
             );
         })
     }
+
     const searchInAnalysis = (analysisName: string) => {
         setName(analysisName);
         if (analysisName.length >= 2) {
@@ -155,7 +168,7 @@ function BalanceSheetDialog({...props}) {
         }
     }
 
-    const deleteModel = () =>{
+    const deleteModel = () => {
         trigger({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
@@ -168,7 +181,8 @@ function BalanceSheetDialog({...props}) {
             });
         })
     }
-    const editModel = () =>{
+
+    const editModel = () => {
         const form = new FormData();
         form.append('globalNote', "");
         form.append('name', selectedModel.name);
@@ -185,24 +199,48 @@ function BalanceSheetDialog({...props}) {
         })
     }
 
+    const handleOnChange = (event: any, newValue: any) => {
+        if (typeof newValue === 'string' && newValue.length > 0) {
+            addAnalysis({
+                name: newValue,
+            });
+        } else if (newValue && newValue.inputValue) {
+            // Create a new value from the user input
+            addAnalysis({
+                name: newValue.inputValue,
+            });
+        } else if (newValue) {
+            const analysisItem = (newValue as AnalysisModel);
+            if (!analysis.find(item => item.uuid === analysisItem.uuid)) {
+                addAnalysis(newValue as AnalysisModel);
+            }
+        }
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 500);
+
     useEffect(() => {
         if (httpModelResponse)
             setModels((httpModelResponse as HttpResponse).data);
     }, [httpModelResponse]);
 
     useEffect(() => {
-        if (analysisList) {
-            setSearchAnalysis(analysisList);
+        if (httpAnalysisResponse) {
+            const analysisListData = (httpAnalysisResponse as HttpResponse)?.data as AnalysisModel[];
+            setAnalysisList(analysisListData);
+            setAnalysisListLocal(localStorage.getItem("balance-Sheet-recent") ?
+                JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : analysisListData);
+            setSearchAnalysis(analysisListData);
             setLoading(false);
         }
-    }, [analysisList]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpAnalysisResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <BalanceSheetDialogStyled>
             <Grid container spacing={5}>
-                <Grid item xs={12} md={7}>
+                <Grid item xs={12} md={8}>
                     <FormikProvider value={formik}>
                         <Stack
                             spacing={2}
@@ -255,100 +293,118 @@ function BalanceSheetDialog({...props}) {
                                         )}
                                     </Menu>
                                 </Stack>
-                                <Autocomplete
-                                    value={balanceValue}
-                                    onInputChange={(event, value) => searchInAnalysis(value)}
-                                    onChange={(event, newValue) => {
-                                        if (typeof newValue === 'string') {
-                                            addAnalysis({
-                                                name: newValue,
-                                            });
-                                        } else if (newValue && newValue.inputValue) {
-                                            // Create a new value from the user input
-                                            addAnalysis({
-                                                name: newValue.inputValue,
-                                            });
-                                        } else {
-                                            const analysisItem = (newValue as AnalysisModel);
-                                            if (!analysis.find(item => item.uuid === analysisItem.uuid)) {
-                                                addAnalysis(newValue as AnalysisModel);
+
+                                {openPopover ?
+                                    <Autocomplete
+                                        size={"small"}
+                                        value={balanceValue}
+                                        onInputChange={(event, value) => searchInAnalysis(value)}
+                                        onChange={(event, newValue) => {
+                                            setAnchorElPopover(null);
+                                            debouncedOnChange(event, newValue);
+                                        }}
+                                        filterOptions={(options, params) => {
+                                            const {inputValue} = params;
+                                            const filtered = options.filter(option =>
+                                                [option.name.toLowerCase(), option.abbreviation?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                            // Suggest the creation of a new value
+                                            const isExisting = options.some((option) => inputValue.toLowerCase() === option.name);
+                                            if (inputValue !== '' && !isExisting) {
+                                                filtered.push({
+                                                    inputValue,
+                                                    name: `${t('add_balance_sheet')} "${inputValue}"`,
+                                                });
                                             }
-                                        }
-                                    }}
-                                    filterOptions={(options, params) => {
-                                        const {inputValue} = params;
-                                        const filtered = options.filter(option =>
-                                            [option.name.toLowerCase(), option.abbreviation?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                        // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name);
-                                        if (inputValue !== '' && !isExisting) {
-                                            filtered.push({
-                                                inputValue,
-                                                name: `${t('add_balance_sheet')} "${inputValue}"`,
-                                            });
-                                        }
-                                        return filtered;
-                                    }}
-                                    selectOnFocus
-                                    clearOnEscape
-                                    handleHomeEndKeys
-                                    id="sheet-solo-balance"
-                                    options={searchAnalysis}
-                                    getOptionLabel={(option) => {
-                                        // Value selected with enter, right from the input
-                                        if (typeof option === 'string') {
-                                            return option;
-                                        }
-                                        // Add "xxx" option created dynamically
-                                        if (option.inputValue) {
-                                            return option.inputValue;
-                                        }
-                                        // Regular option
-                                        return option.name;
-                                    }}
-                                    renderOption={(props, option) =>
-                                        <li {...props}
-                                            key={option.uuid ? option.uuid : "-1"}>{option.name} {option.abbreviation ? `(${option.abbreviation})` : ""}</li>}
-                                    freeSolo
-                                    renderInput={(params) => (
-                                        <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
-                                    )}
-                                />
+                                            return filtered;
+                                        }}
+                                        selectOnFocus
+                                        clearOnEscape
+                                        handleHomeEndKeys
+                                        freeSolo
+                                        id="sheet-solo-balance"
+                                        options={arrayUniqueByKey("name", searchAnalysis)}
+                                        getOptionLabel={(option) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === 'string') {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        renderOption={(props, option) =>
+                                            <li {...props}
+                                                key={option.uuid ? option.uuid : "-1"}>{option.name} {option.abbreviation ? `(${option.abbreviation})` : ""}</li>}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                autoFocus
+                                                inputRef={autocompleteTextFieldRef}
+                                                label={t('placeholder_balance_sheet_name')}/>
+                                        )}
+                                    />
+                                    :
+                                    <TextField
+                                        className={"MuiInputBase-input-hidden"}
+                                        size={"small"}
+                                        ref={textFieldRef}
+                                        onClick={handleClickPopover}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">
+                                                <SearchIcon/>
+                                            </InputAdornment>,
+                                        }}
+                                        placeholder={t('placeholder_balance_sheet_name')}
+                                        fullWidth/>}
                             </Stack>
-                            <Typography>
-                                {t('recent-search')}
+                            <Typography color={"gray"} fontSize={12}>
+                                {t('recent-search-balance-sheet')}
                             </Typography>
-                            {!loading ?
-                                <List className='items-list'>
-                                    {(localStorage.getItem("balance-Sheet-recent") ?
-                                        JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : analysisList)?.map((analysisItem: AnalysisModel, index: number) => (
-                                            <ListItemButton
-                                                disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
+
+                            <Box>
+                                {!loading ? (analysisListLocal?.map((analysisItem: AnalysisModel, index: number) => (
+                                            <Chip
+                                                className={"chip-item"}
                                                 key={index}
+                                                id={analysisItem.uuid}
                                                 onClick={() => {
                                                     addAnalysis(analysisItem)
-                                                }}>
-                                                <ListItemText primary={analysisItem.name}/>
-                                            </ListItemButton>
+                                                }}
+                                                onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
+                                                onDelete={() => console.log("delete")}
+                                                disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
+                                                label={analysisItem.name}
+                                                color="default"
+                                                clickable
+                                                draggable="true"
+                                                deleteIcon={<AddIcon/>}
+                                            />
                                         )
-                                    )}
-                                </List> : <List className='items-list'>
-                                    {initialData.map((item, index) => (
-                                            <ListItemButton key={index}>
-                                                <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                          variant="rectangular"/>
-                                            </ListItemButton>
-                                        )
-                                    )}
-                                </List>
-                            }
+                                    )) :
+                                    initialData.map((item, index) => (
+                                        <Chip
+                                            className={"chip-item"}
+                                            key={index}
+                                            label={""}
+                                            color="default"
+                                            clickable
+                                            draggable="true"
+                                            avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
+                                                              variant="text"/>}
+                                            deleteIcon={<AddIcon/>}
+                                        />))
+                                }
+                            </Box>
                         </Stack>
                     </FormikProvider>
                 </Grid>
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={4}>
                     <Stack direction="row" alignItems="center">
-                        {selectedModel === null &&<Typography gutterBottom>{t('balance_sheet_list')}</Typography>}
-                        {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev)=>{
+                        {selectedModel === null && <Typography gutterBottom>{t('balance_sheet_list')}</Typography>}
+                        {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev) => {
                             selectedModel.name = ev.target.value;
                             setSelectedModel({...selectedModel})
                         }} value={selectedModel.name}></TextField>}
@@ -378,60 +434,60 @@ function BalanceSheetDialog({...props}) {
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t('close_template')}>
-                                <IconButton size="small" onClick={()=>{setAnalysis([]);setSelectedModel(null)}}><CloseRoundedIcon/>
+                                <IconButton size="small" onClick={() => {
+                                    setAnalysis([]);
+                                    setSelectedModel(null)
+                                }}><CloseRoundedIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Stack>}
                     </Stack>
-                    <Box className="list-container">
+                    <Box className="list-container"
+                         sx={{minHeight: 300, pr: 1}}
+                         onDragOver={event => event.preventDefault()}
+                         onDrop={(event) => {
+                             event.preventDefault();
+                             const data = event.dataTransfer.getData("Text");
+                             addAnalysis(analysisListLocal.find(item => item.uuid === data) as AnalysisModel);
+                         }}>
                         {analysis.length > 0 ?
                             analysis.map((item, index) => (
-                                <Card key={index}>
-                                    <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
-                                        <Typography>{item.name}</Typography>
-                                        <IconButton size="small"
-                                                    onClick={() => {
-                                                        const copy = [...analysis]
-                                                        copy.splice(index, 1);
-                                                        setAnalysis([...copy])
-                                                        data.setState([...copy])
-                                                    }}>
-                                            <Icon path="setting/icdelete"/>
-                                        </IconButton>
-                                    </Stack>
-                                    <Box padding={1} pt={0}>
-                                        <TextField
-                                            fullWidth
-                                            placeholder={t("note")}
-                                            multiline={true}
-                                            style={{backgroundColor: "white", borderRadius: 5}}
-                                            inputProps={
-                                                {
-                                                    style: {
-                                                        padding: 3
-                                                    },
-                                                }
-                                            }
-                                            rows={3}
-                                            value={item.note}
-                                            onChange={event => {
-                                                let items = [...analysis];
-                                                let x = {...analysis[index]};
-                                                x.note = event.target.value;
-                                                items[index] = x;
-                                                setAnalysis([...items])
-                                                data.setState([...items])
-                                            }}
-                                        />
-                                    </Box>
-                                </Card>
+                                <NoteCardCollapse
+                                    key={index}
+                                    {...{item, t}}
+                                    onExpandHandler={(event: any) => {
+                                        event.stopPropagation();
+                                        setAnalysis([
+                                            ...analysis.slice(0, index),
+                                            {...analysis[index], expanded: !item.expanded},
+                                            ...analysis.slice(index + 1)
+                                        ]);
+                                    }}
+                                    onDeleteItem={() => {
+                                        const copy = [...analysis]
+                                        copy.splice(index, 1);
+                                        setAnalysis([...copy])
+                                        data.setState([...copy])
+                                    }}
+                                    onNoteChange={(event: any) => {
+                                        let items = [...analysis];
+                                        let x = {...analysis[index]};
+                                        x.note = event.target.value;
+                                        items[index] = x;
+                                        setAnalysis([...items])
+                                        data.setState([...items])
+                                    }}/>
                             ))
                             : <Card className='loading-card'>
                                 <Stack spacing={2}>
                                     <NoDataCard
                                         {...{t}}
                                         ns={"consultation"}
-                                        data={BalanceSheetCardData}
+                                        data={{
+                                            mainIcon: "ic-analyse",
+                                            title: "drag-balance-sheet",
+                                            description: "drag-description"
+                                        }}
                                     />
                                 </Stack>
                             </Card>
