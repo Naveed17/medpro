@@ -1,8 +1,7 @@
 import {
     Box,
-    Card, Chip, Collapse,
-    Grid,
-    IconButton, InputAdornment,
+    Card, Chip,
+    Grid, InputAdornment,
     Skeleton,
     Stack,
     TextField,
@@ -11,7 +10,6 @@ import {
 import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from '../balanceSheet/overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
-import Icon from '@themes/urlIcon'
 import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
@@ -20,12 +18,10 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {NoDataCard} from "@features/card";
+import {NoDataCard, NoteCardCollapse} from "@features/card";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {ExpandMore} from "@features/buttons";
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
@@ -70,7 +66,6 @@ function MedicalImageryDialog({...props}) {
 
     const handleChange = (ev: { target: { value: string; }; }) => {
         searchInMedicalImagery(ev.target.value);
-
     }
 
     const searchInMedicalImagery = (medicalImagery: string) => {
@@ -115,7 +110,7 @@ function MedicalImageryDialog({...props}) {
     return (
         <BalanceSheetDialogStyled>
             <Grid container spacing={5}>
-                <Grid item xs={12} md={7}>
+                <Grid item xs={12} md={8}>
                     <FormikProvider value={formik}>
                         <Stack
                             spacing={2}
@@ -129,6 +124,8 @@ function MedicalImageryDialog({...props}) {
                                 </Stack>
 
                                 <TextField
+                                    size={"small"}
+                                    className={"MuiInputBase-input-hidden"}
                                     id="balance_sheet_name"
                                     value={name}
                                     placeholder={t('placeholder_medical_imagery')}
@@ -138,64 +135,6 @@ function MedicalImageryDialog({...props}) {
                                         </InputAdornment>,
                                     }}
                                     onChange={handleChange}/>
-                                {/*<Autocomplete
-                                    value={imageryValue}
-                                    onInputChange={(event, value) => searchInMedicalImagery(value)}
-                                    onChange={(event, newValue) => {
-                                        if (typeof newValue === 'string') {
-                                            addImage({
-                                                name: newValue,
-                                            });
-                                        } else if (newValue && newValue.inputValue) {
-                                            // Create a new value from the user input
-                                            addImage({
-                                                name: newValue.inputValue,
-                                            });
-                                        } else {
-                                            const medicalImagery = (newValue as MIModel);
-                                            if (!mi.find(item => item.uuid === medicalImagery.uuid)) {
-                                                addImage(newValue as MIModel);
-                                            }
-                                        }
-                                        sortMedicalImagery();
-                                    }}
-                                    filterOptions={(options, params) => {
-                                        const filtered = filter(options, params);
-                                        const {inputValue} = params;
-                                        // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue === option.name);
-                                        if (inputValue !== '' && !isExisting) {
-                                            filtered.push({
-                                                inputValue,
-                                                name: `${t('add_medical_imagery')} "${inputValue}"`,
-                                            });
-                                        }
-
-                                        return filtered;
-                                    }}
-                                    selectOnFocus
-                                    clearOnEscape
-                                    handleHomeEndKeys
-                                    id="sheet-solo-balance"
-                                    options={miList ? miList : []}
-                                    getOptionLabel={(option) => {
-                                        // Value selected with enter, right from the input
-                                        if (typeof option === 'string') {
-                                            return option;
-                                        }
-                                        // Add "xxx" option created dynamically
-                                        if (option.inputValue) {
-                                            return option.inputValue;
-                                        }
-                                        // Regular option
-                                        return option.name;
-                                    }}
-                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
-                                    freeSolo
-                                    renderInput={(params) => (
-                                        <TextField {...params} label={t('placeholder_medical_imagery')}/>
-                                    )}
-                                />*/}
                             </Stack>
                             <Typography color={"gray"} fontSize={12}>
                                 {t('recent-search')}
@@ -236,7 +175,7 @@ function MedicalImageryDialog({...props}) {
                         </Stack>
                     </FormikProvider>
                 </Grid>
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={4}>
                     <Stack direction="row" alignItems="center">
                         <Typography gutterBottom>{t('medical_imagery_list')}</Typography>
                     </Stack>
@@ -250,61 +189,30 @@ function MedicalImageryDialog({...props}) {
                          }}>
                         {mi.length > 0 ?
                             mi.map((item, index) => (
-                                <Card key={index}>
-                                    <Stack p={2} pt={1} pb={1} direction='row' alignItems="center"
-                                           justifyContent='space-between'>
-                                        <Typography>{item.name}</Typography>
-                                        <ExpandMore
-                                            expand={item.expanded as boolean}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setMi([
-                                                    ...mi.slice(0, index),
-                                                    {...mi[index], expanded: !item.expanded,},
-                                                    ...mi.slice(index + 1)
-                                                ]);
-                                            }}
-                                            aria-expanded={item.expanded}
-                                            aria-label="show more"
-                                        >
-                                            <ExpandMoreIcon/>
-                                        </ExpandMore>
-                                        <IconButton size="small" onClick={() => {
-                                            mi.splice(index, 1);
-                                            setMi([...mi])
-                                            data.setState([...mi])
-                                        }}>
-                                            <Icon path="setting/icdelete"/>
-                                        </IconButton>
-                                    </Stack>
-                                    <Collapse in={item.expanded} timeout="auto" unmountOnExit>
-                                        <Box padding={1} pt={0}>
-                                            <TextField
-                                                fullWidth
-                                                placeholder={t("note")}
-                                                multiline={true}
-                                                style={{backgroundColor: "white", borderRadius: 5}}
-                                                inputProps={
-                                                    {
-                                                        style: {
-                                                            padding: 3
-                                                        },
-                                                    }
-                                                }
-                                                rows={5}
-                                                value={item.note}
-                                                onChange={event => {
-                                                    let items = [...mi];
-                                                    let x = {...mi[index]};
-                                                    x.note = event.target.value;
-                                                    items[index] = x;
-                                                    setMi([...items])
-                                                    data.setState([...items])
-                                                }}
-                                            />
-                                        </Box>
-                                    </Collapse>
-                                </Card>
+                                <NoteCardCollapse
+                                    key={index}
+                                    {...{item, t}}
+                                    onExpandHandler={(event: any) => {
+                                        event.stopPropagation();
+                                        setMi([
+                                            ...mi.slice(0, index),
+                                            {...mi[index], expanded: !item.expanded},
+                                            ...mi.slice(index + 1)
+                                        ]);
+                                    }}
+                                    onDeleteItem={() => {
+                                        mi.splice(index, 1);
+                                        setMi([...mi])
+                                        data.setState([...mi])
+                                    }}
+                                    onNoteChange={(event: any) => {
+                                        let items = [...mi];
+                                        let x = {...mi[index]};
+                                        x.note = event.target.value;
+                                        items[index] = x;
+                                        setMi([...items])
+                                        data.setState([...items])
+                                    }}/>
                             ))
                             : <Card className='loading-card'>
                                 <Stack spacing={2}>
@@ -314,7 +222,7 @@ function MedicalImageryDialog({...props}) {
                                         data={{
                                             mainIcon: "ic-soura",
                                             title: "drag-imagery",
-                                            description: "drag-imagery-description"
+                                            description: "drag-description"
                                         }}/>
                                 </Stack>
                             </Card>
