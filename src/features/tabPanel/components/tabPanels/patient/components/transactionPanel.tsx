@@ -4,18 +4,16 @@ import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {onOpenPatientDrawer, Otable} from "@features/table";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import moment from "moment-timezone";
+import {useRequest} from "@lib/axios";
+import {Otable} from "@features/table";
+import {useAppSelector} from "@lib/redux/hooks";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {DefaultCountry} from "@lib/constants";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
-import {MobileContainer} from '@themes/mobileContainer';
-import {PaymentMobileCard} from '@features/card';
-import { useInsurances } from '@lib/hooks/rest';
+import {useInsurances} from '@lib/hooks/rest';
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {dashLayoutSelector} from "@features/base";
 
 const headCells = [
     {
@@ -83,19 +81,20 @@ const headCells = [
          align: "center",
      },*/
 ];
+
 function TransactionPanel({...props}) {
     const {patient, router} = props;
 
     const {t} = useTranslation(["payment", "common"]);
     const {data: session} = useSession();
     const {insurances} = useInsurances();
-    const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const [loading, setLoading] = useState(true);
     const [pmList, setPmList] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
+    const [wallet, setWallet] = useState(0);
     const [toReceive, setToReceive] = useState(0);
 
     const {data: user} = session as Session;
@@ -104,7 +103,13 @@ function TransactionPanel({...props}) {
     const devise = doctor_country.currency?.name;
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
+    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
@@ -112,18 +117,17 @@ function TransactionPanel({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest( {
+    const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    } , SWRNoValidateConfig);
+    });
 
     useEffect(() => {
         if (httpTransactionsResponse) {
             const data = (httpTransactionsResponse as HttpResponse)?.data
-            console.log(data.transactions)
             setTotal(data.total_amount)
             setToReceive(data.total_insurance_amount);
             if (data.transactions)
@@ -140,6 +144,12 @@ function TransactionPanel({...props}) {
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (httpPatientWallet) {
+            setWallet((httpPatientWallet as HttpResponse).data[0])
+        }
+    }, [httpPatientWallet])
+
 
     return (
         <PanelStyled>
@@ -147,11 +157,10 @@ function TransactionPanel({...props}) {
             {!loading && <Box className="files-panel">
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
                     <Button size='small'
-                            variant='contained'
-                            color={"warning"}>
-                        {t("wallet")}
+                            variant='contained'>
+                        {t("total")}
                         <Typography fontWeight={700} component='strong'
-                                    mx={1}>{patient?.wallet ? patient?.wallet : 0}</Typography>
+                                    mx={1}>{total}</Typography>
                         {devise}
                     </Button>
                     <Button size='small'
@@ -163,17 +172,17 @@ function TransactionPanel({...props}) {
                     </Button>
                     <Button size='small'
                             variant='contained'
-                            color={"success"}>
-                        {t("total")}
+                            color={wallet >= 0 ? "success" : "error"}>
+                        {t("wallet")}
                         <Typography fontWeight={700} component='strong'
-                                    mx={1}>{total}</Typography>
+                                    mx={1}>{wallet}</Typography>
                         {devise}
                     </Button>
 
                 </Stack>
                 <DesktopContainer>
                     {!loading && <Otable
-                        {...{rows, t, insurances, pmList, mutateTransctions,hideName:true}}
+                        {...{rows, t, insurances, pmList, mutateTransctions, hideName: true}}
                         headers={headCells}
                         from={"cashbox"}
                     />}

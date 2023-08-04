@@ -34,7 +34,6 @@ import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/con
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
@@ -50,7 +49,6 @@ function WaitingRoom() {
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
-    const {mutate} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
@@ -126,10 +124,8 @@ function WaitingRoom() {
     });
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
-
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
-        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
@@ -148,9 +144,9 @@ function WaitingRoom() {
             router.locale,
             session,
             medical_entity.uuid,
-            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0]: null,
+            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
             triggerPostTransaction,
-            ()=>{
+            () => {
                 mutateWaitingRoom().then(() => {
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});
                     setOpenPaymentDialog(false);
@@ -341,7 +337,6 @@ function WaitingRoom() {
         } as any).then(() => {
             localStorage.removeItem(`Modeldata${row?.uuid}`);
             setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 

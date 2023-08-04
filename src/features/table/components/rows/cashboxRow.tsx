@@ -30,7 +30,7 @@ import {Label} from "@features/label";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
@@ -38,6 +38,7 @@ import {useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
+import {useSWRConfig} from "swr";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -50,8 +51,6 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
 
-    console.log(props)
-
     const {insurances, mutateTransctions, pmList,hideName} = data;
     const {data: session} = useSession();
 
@@ -61,6 +60,8 @@ function PaymentRow({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+
+    const {mutate} = useSWRConfig();
 
 
     const router = useRouter();
@@ -81,6 +82,7 @@ function PaymentRow({...props}) {
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
@@ -100,6 +102,9 @@ function PaymentRow({...props}) {
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     }
+    const mutatePatientWallet = () => {
+        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
+    }
     const handleSubmit = () => {
         setLoadingRequest(true)
         OnTransactionEdit(selectedPayment,
@@ -111,6 +116,7 @@ function PaymentRow({...props}) {
             triggerPostTransaction,
             () => {
                 mutateTransctions().then(() => {
+                    mutatePatientWallet()
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});
                     setOpenPaymentDialog(false);
                     setLoadingRequest(false);
@@ -131,6 +137,7 @@ function PaymentRow({...props}) {
 
         }).then(() => {
             mutateTransctions()
+            mutatePatientWallet()
             setLoadingDeleteTransaction(false);
             setOpenDeleteTransactionDialog(false);
         });
