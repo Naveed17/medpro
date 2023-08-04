@@ -1,6 +1,8 @@
 {
   "path": "Caisse",
   "total": "Total",
+  "wallet": "Portefeuille",
+  "insurance": "Assurance",
   "btn_header_1": "Dépense",
   "btn_header_2": "Alimenter",
   "cancel": "Annuler",
@@ -31,6 +33,11 @@
   "payment_dialog_title": "Paiement",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
+  "settlement": "Règlement",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "addsuccess": "Paiement ajouté",
+  "cashout": "Encaissement",
   "dialogs":{
     "delete-dialog": {
       "title":"Supprimer transaction",
@@ -56,7 +63,7 @@
     "yes": "Oui",
     "no": "Non",
     "NOT_PAID": "IMPAYÉ",
-    "PARTIAL_PAID": "PARTIEL PAYÉ",
+    "PARTIAL_PAID": "PARTIEL",
     "PAID": "PAYÉ",
     "credit_card": "Carte bancaire",
     "cheque": "Chéque",

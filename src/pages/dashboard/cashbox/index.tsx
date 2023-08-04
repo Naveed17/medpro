@@ -47,7 +47,7 @@ interface HeadCell {
     align: "left" | "right" | "center";
 }
 
-const headCells: readonly HeadCell[] = [
+export const headCells: readonly HeadCell[] = [
     {
         id: "date",
         numeric: false,

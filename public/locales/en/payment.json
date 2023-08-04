@@ -1,6 +1,8 @@
 {
   "path": "Checkout",
   "total": "Total",
+  "wallet": "Wallet",
+  "insurance": "Insurance",
   "btn_header_1": "Expense",
   "btn_header_2": "Replenish",
   "cancel": "Cancel",
@@ -27,6 +29,11 @@
   "somme": "Sum",
   "more": "More",
   "encashment": "Encashment",
+  "settlement": "Settlement",
+  "edit": "Edit",
+  "delete": "Remove",
+  "addsuccess": "Payment added",
+  "cashout": "Cash out",
   "dialogs":{
     "delete-dialog": {
       "title":"Delete transaction",

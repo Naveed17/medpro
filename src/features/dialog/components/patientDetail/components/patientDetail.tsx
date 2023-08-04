@@ -25,7 +25,7 @@ import {
     setAppointmentPatient,
     setOpenUploadDialog,
     TabPanel,
-    TimeSchedule
+    TimeSchedule, TransactionPanel
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -350,6 +350,13 @@ function PatientDetail({...props}) {
                 mutatePatientDetails,
                 loadingRequest,
                 setLoadingRequest
+            }} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.transactions",
+            children: <TransactionPanel {...{
+                patient,router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },

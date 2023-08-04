@@ -50,7 +50,9 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
 
-    const {insurances, mutateTransctions, pmList} = data;
+    console.log(props)
+
+    const {insurances, mutateTransctions, pmList,hideName} = data;
     const {data: session} = useSession();
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -250,7 +252,7 @@ function PaymentRow({...props}) {
                     </Stack>
 
                 </TableCell>
-                <TableCell>
+                {!hideName && <TableCell>
                     {row.appointment ? (
                         <Link
                             sx={{cursor: "pointer"}}
@@ -264,7 +266,7 @@ function PaymentRow({...props}) {
                     ) : (
                         <Link underline="none">{row.transaction_data[0].data.label}</Link>
                     )}
-                </TableCell>
+                </TableCell>}
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
                         {
@@ -332,7 +334,7 @@ function PaymentRow({...props}) {
                         }}
                                     color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                                     fontWeight={700}>
-                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} ${devise} / ${row.amount}` : row.amount} {devise}
+                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span style={{fontSize:10}}>{devise}</span>
                         </Typography>
 
                         {row?.appointment && <Menu
@@ -356,7 +358,7 @@ function PaymentRow({...props}) {
                         </Menu>}
 
                         <Stack direction={"row"}>
-                            {row.rest_amount > 0 && <Tooltip title={t('encaisse')}>
+                            {row.rest_amount > 0 && <Tooltip title={t('settlement')}>
                                 <IconButton sx={!isItemSelected ? {
                                     background: theme.palette.expire.main,
                                     borderRadius: 1,
@@ -535,7 +537,7 @@ function PaymentRow({...props}) {
                                                         "text.primary"
                                                     }
                                                     fontWeight={700}>
-                                                    {col.amount} {devise}
+                                                    {col.amount} <span style={{fontSize:10}}>{devise}</span>
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left"
