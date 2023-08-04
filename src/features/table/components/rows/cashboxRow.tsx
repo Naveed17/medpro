@@ -575,7 +575,7 @@ function PaymentRow({...props}) {
                     appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
                 }}
                 size={"md"}
-                title={t('action')}
+                title={t('payment_dialog_title')}
                 dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>

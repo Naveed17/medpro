@@ -21,7 +21,6 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import moment from "moment-timezone";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -32,7 +31,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
@@ -146,6 +144,7 @@ function Cashbox() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [actionDialog, setActionDialog] = useState("");
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
@@ -153,25 +152,6 @@ function Cashbox() {
     const [pmList, setPmList] = useState([]);
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
-    const [popoverActions, setPopoverActions] = useState([
-        {
-            title: "start_the_consultation",
-            icon: <PlayCircleIcon/>,
-            action: "onConsultationStart",
-        },
-        {
-            title: "leave_waiting_room",
-            icon: <IconUrl color={"white"} path="ic-salle"/>,
-            action: "onLeaveWaitingRoom",
-        },
-        {
-            title: "see_patient_form",
-            icon: (
-                <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
-            ),
-            action: "onPatientDetail",
-        },
-    ]);
 
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
@@ -248,21 +228,16 @@ function Cashbox() {
         setAction(ev);
         setSelectedPayment({
             uuid: "",
-            payments:[],
+            payments: [],
             payed_amount: 0,
             total: 0,
             isNew: true
         });
+        setActionDialog("payment_dialog")
         setOpenPaymentDialog(true);
     };
     const resetDialog = () => {
         setOpenPaymentDialog(false);
-        const actions = [...popoverActions];
-        actions.splice(
-            popoverActions.findIndex((data) => data.action === "onPay"),
-            1
-        );
-        setPopoverActions(actions);
     };
     const handleSubmit = () => {
         let amount = 0
@@ -381,7 +356,9 @@ function Cashbox() {
                                     sx: {minWidth: 40},
                                 })}
                                 onClick={() => {
-
+                                    setAction("cashout");
+                                    setActionDialog("cashout")
+                                    setOpenPaymentDialog(true);
                                 }}>
                                 {!isMobile && t("cashout")} {isMobile && <KeyboardArrowDownIcon/>}
                             </Button>
@@ -399,7 +376,7 @@ function Cashbox() {
                     <React.Fragment>
                         <DesktopContainer>
                             {!loading && <Otable
-                                {...{rows, t, insurances, pmList,mutateTransctions}}
+                                {...{rows, t, insurances, pmList, mutateTransctions}}
                                 headers={headCells}
                                 from={"cashbox"}
                                 handleEvent={handleTableActions}
@@ -454,7 +431,7 @@ function Cashbox() {
             </Drawer>
 
             <Dialog
-                action={"payment_dialog"}
+                action={actionDialog}
                 {...{
                     direction,
                     sx: {
@@ -464,9 +441,10 @@ function Cashbox() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment,
-                    setSelectedPayment
+                    setSelectedPayment,
+                    pmList
                 }}
-                size={"md"}
+                size={"lg"}
                 title={t(action)}
                 dialogClose={resetDialog}
                 actionDialog={
