@@ -39,6 +39,7 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {LoadingButton} from "@mui/lab";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -61,7 +62,7 @@ function WaitingRoom() {
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -134,19 +135,30 @@ function WaitingRoom() {
                 ? {
                     mouseX: event.clientX + 2,
                     mouseY: event.clientY - 6,
-                }
-                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                // Other native context menus might behave different.
-                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-                null,
+                } : null,
         );
     };
     const handleClose = () => {
         setContextMenu(null);
     };
     const handleSubmit = () => {
-        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid,row?.transactions,triggerPostTransaction);
-        enqueueSnackbar(t("addsuccess"), {variant: 'success'})
+        setLoadingRequest(true)
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            session,
+            medical_entity.uuid,
+            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0]: null,
+            triggerPostTransaction,
+            ()=>{
+                mutateWaitingRoom().then(() => {
+                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
+                    setOpenPaymentDialog(false);
+                    setLoadingRequest(false);
+                })
+            }
+        );
+
     }
     const resetDialog = () => {
         setOpenPaymentDialog(false);
@@ -233,11 +245,35 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
-                let payed_amount = row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
-                //row?.transactions && row.transactions.map(transaction => payed_amount += transaction.amount)
+                console.log(row?.transactions);
+                let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
+
+                let payments: any[] = [];
+
+                row?.transactions && row.transactions.map(transaction => {
+                    payed_amount += transaction.amount - transaction.rest_amount;
+
+                    transaction.transaction_data.map((td: any) => {
+                        let pay: any = {
+                            uuid: td.uuid,
+                            amount: td.amount,
+                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                            status_transaction: td.status_transaction_data,
+                            type_transaction: td.type_transaction_data,
+                            data: td.data
+                        }
+                        if (td.insurance)
+                            pay["insurance"] = td.insurance.uuid
+                        if (td.payment_means)
+                            pay["payment_means"] = paymentTypesList.find((pt: {
+                                slug: string;
+                            }) => pt.slug === td.payment_means.slug)
+                        payments.push(pay)
+                    })
+                })
                 setSelectedPayment({
                     uuid: row?.uuid,
-                    payments: [],
+                    payments,
                     payed_amount,
                     appointment: row,
                     total: row?.appointment_type.price,
@@ -520,13 +556,14 @@ function WaitingRoom() {
                         <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
-                        <Button
+                        <LoadingButton
                             disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
+                            loading={loadingRequest}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
-                        </Button>
+                        </LoadingButton>
                     </DialogActions>
                 }
             />

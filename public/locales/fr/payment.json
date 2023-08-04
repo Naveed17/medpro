@@ -28,7 +28,7 @@
   "receive": "Total a réceptionner",
   "somme": "Somme",
   "more": "Plus",
-  "payment_dialog_title": "Ajouter une transaction",
+  "payment_dialog_title": "Paiement",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
   "dialogs":{

@@ -11,7 +11,6 @@ import {
     Theme,
     Typography,
     useMediaQuery,
-    useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
@@ -27,9 +26,8 @@ import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {appLockSelector} from "@features/appLock";
 import {Dialog, PatientDetail} from "@features/dialog";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
@@ -133,40 +131,28 @@ const noCardData = {
 function Cashbox() {
 
     const {data: session} = useSession();
-    const theme = useTheme() as Theme;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
-    const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
-    const {filterCB, selectedBoxes, insurancesList} = useAppSelector(cashBoxSelector);
+    const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
 
     // ******** States ********
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
-    //const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [collapse, setCollapse] = useState<boolean>(false);
-    const [collapseDate, setCollapseData] = useState<any>(null);
     const [rows, setRows] = useState<any[]>([]);
-    const [totalCash, setTotalCash] = useState(0);
-    const [cheques, setCheques] = useState<ChequeModel[]>([]);
     const [total, setTotal] = useState(0);
-    let [collect, setCollect] = useState<any[]>([]);
-    let [collected, setCollected] = useState(0);
     const [toReceive, setToReceive] = useState(0);
-    const [somme, setSomme] = useState(0);
-    const [freeTrans, setFreeTrans] = useState(0);
     const [pmList, setPmList] = useState([]);
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
-    const [encaissementSelect, setEncaissementSelect] = useState('cash');
     const [popoverActions, setPopoverActions] = useState([
         {
             title: "start_the_consultation",
@@ -197,7 +183,6 @@ function Cashbox() {
     const filterQuery: string = generateFilter({filterCB});
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox/post");
-    const {trigger: triggerGetTransaction} = useRequestMutation(null, "/payment/cashbox/get");
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
@@ -263,20 +248,12 @@ function Cashbox() {
         setAction(ev);
         setSelectedPayment({
             uuid: "",
-            date: moment().format("DD-MM-YYYY"),
-            time: moment().format("HH:mm"),
-            patient: null,
-            insurance: "",
-            type: "",
-            amount: 0,
+            payments:[],
+            payed_amount: 0,
             total: 0,
-            payments: [],
+            isNew: true
         });
         setOpenPaymentDialog(true);
-    };
-    const handleCollapse = (props: any) => {
-        setCollapseData(props);
-        setCollapse(true);
     };
     const resetDialog = () => {
         setOpenPaymentDialog(false);
@@ -290,48 +267,45 @@ function Cashbox() {
     const handleSubmit = () => {
         let amount = 0
         const trans_data: TransactionDataModel[] = [];
-        console.log(selectedPayment)
-        /*        selectedPayment.payments.map((sp: any) => {
+        selectedPayment.payments.map((sp: any) => {
+            trans_data.push({
+                payment_means: sp.payment_means.uuid,
+                insurance: "",
+                amount: sp.amount,
+                status_transaction: TransactionStatus[0].value,
+                type_transaction: action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value,
+                payment_date: sp.date,
+                data: {label: sp.designation, ...sp.data},
+            });
+            amount += sp.amount;
+        });
 
-                    trans_data.push({
-                        payment_means: sp.payment_means.uuid,
-                        insurance: "",
-                        amount: sp.amount,
-                        status_transaction: TransactionStatus[0].value,
-                        type_transaction: action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value,
-                        payment_date: sp.date,
-                        data: {label: sp.designation, ...sp.data},
-                    });
-                    amount += sp.amount;
-                });
+        const form = new FormData();
+        form.append("type_transaction", action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value);
+        form.append("status_transaction", TransactionStatus[0].value);
+        form.append("cash_box", selectedBoxes[0].uuid);
+        form.append("amount", amount.toString());
+        form.append("rest_amount", "0");
+        form.append("transaction_data", JSON.stringify(trans_data));
 
-                const form = new FormData();
-                form.append("type_transaction", action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value);
-                form.append("status_transaction", TransactionStatus[0].value);
-                form.append("cash_box", selectedBoxes[0].uuid);
-                form.append("amount", amount.toString());
-                form.append("rest_amount", "0");
-                form.append("transaction_data", JSON.stringify(trans_data));
-
-                triggerPostTransaction({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                }).then(() => {
-                    enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
-                    mutateTransctions();
-                    /!*
-                                getEncaissementsTransaction((pmList.find((pl: {
-                                    slug: string;
-                                }) => pl.slug === 'check') as any)?.uuid, 'check');
-                                getEncaissementsTransaction((pmList.find((pl: {
-                                    slug: string;
-                                }) => pl.slug === 'cash') as any)?.uuid, 'cash');
-                    *!/
-                });*/
+        triggerPostTransaction({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
+            mutateTransctions().then(() => {
+                /* getEncaissementsTransaction((pmList.find((pl: {
+                slug: string;
+            }) => pl.slug === 'check') as any)?.uuid, 'check');
+            getEncaissementsTransaction((pmList.find((pl: {
+                slug: string;
+            }) => pl.slug === 'cash') as any)?.uuid, 'cash');*/
+            });
+        });
         setOpenPaymentDialog(false);
 
     };
@@ -407,7 +381,7 @@ function Cashbox() {
                                     sx: {minWidth: 40},
                                 })}
                                 onClick={() => {
-                                    handleCollapse(null);
+
                                 }}>
                                 {!isMobile && t("Encaisser")} {isMobile && <KeyboardArrowDownIcon/>}
                             </Button>
@@ -425,7 +399,7 @@ function Cashbox() {
                     <React.Fragment>
                         <DesktopContainer>
                             {!loading && <Otable
-                                {...{rows, t, insurances, pmList}}
+                                {...{rows, t, insurances, pmList,mutateTransctions}}
                                 headers={headCells}
                                 from={"cashbox"}
                                 handleEvent={handleTableActions}
@@ -490,8 +464,7 @@ function Cashbox() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment,
-                    setSelectedPayment,
-                    patient: null,
+                    setSelectedPayment
                 }}
                 size={"md"}
                 title={t(action)}

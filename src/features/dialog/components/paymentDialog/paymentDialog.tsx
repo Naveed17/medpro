@@ -199,7 +199,7 @@ function PaymentDialog({...props}) {
     const calculRest = () => {
         let paymentTotal = 0
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
-        return selectedPayment.total - selectedPayment.payed_amount - paymentTotal
+        return selectedPayment.total - paymentTotal
     }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -396,6 +396,7 @@ function PaymentDialog({...props}) {
                                                     onClick={() => {
                                                         const newPayment = [...payments, {
                                                             amount: values.cash?.amount,
+                                                            designation: label,
                                                             payment_date: moment().format('DD-MM-YYYY HH:mm'),
                                                             status_transaction: TransactionStatus[1].value,
                                                             type_transaction: TransactionType[2].value,
@@ -564,6 +565,7 @@ function PaymentDialog({...props}) {
                                                         values.check?.map((ck: any) => {
                                                             updatedPays.push({
                                                                 payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                designation: label,
                                                                 status_transaction: TransactionStatus[1].value,
                                                                 type_transaction: TransactionType[2].value,
                                                                 amount: ck.amount,
@@ -629,6 +631,7 @@ function PaymentDialog({...props}) {
 
                                                         const newPayment = [...payments, {
                                                             amount: Number(values.cash?.amount),
+                                                            designation: label,
                                                             payment_date: moment().format('DD-MM-YYYY HH:mm'),
                                                             status_transaction: TransactionStatus[1].value,
                                                             type_transaction: TransactionType[2].value,
@@ -660,7 +663,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t,patient:appointment.patient}}
+                                    {...{t,patient:appointment ?appointment.patient : null}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

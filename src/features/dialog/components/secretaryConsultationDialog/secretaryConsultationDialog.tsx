@@ -28,7 +28,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import moment from "moment-timezone";
-import {useInsurances} from "@lib/hooks/rest";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import CloseIcon from "@mui/icons-material/Close";
@@ -37,6 +36,8 @@ import {configSelector} from "@features/base";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
+import {consultationSelector} from "@features/toolbar";
+import {LoadingButton} from "@mui/lab";
 
 const limit = 255;
 
@@ -53,6 +54,7 @@ function SecretaryConsultationDialog({...props}) {
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -63,10 +65,10 @@ function SecretaryConsultationDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {mutate} = useAppSelector(consultationSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
-    const {insurances} = useInsurances();
     const {
         paymentTypesList
     } = useAppSelector(cashBoxSelector);
@@ -106,15 +108,28 @@ function SecretaryConsultationDialog({...props}) {
         setOpenPaymentDialog(true);
     }
     const getTransactionAmountPayed = (): number => {
-        if (appointment.transactions && appointment.transactions.rest_amount !== 0)
-            return total - appointment.transactions.rest_amount
-        else
-            return 0
-    };
+        let payed_amount = 0;
+        if (appointment.transactions)
+            appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
+        return payed_amount;
+    }
 
     const handleOnGoingPaymentDialog = () => {
-        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale, session, medical_entity.uuid, appointment.transactions, triggerPostTransaction);
-        setOpenPaymentDialog(false);
+        setLoading(true);
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            session,
+            medical_entity.uuid,
+            appointment.transactions,
+            triggerPostTransaction,
+            () => {
+                mutate().then(() => {
+                    setOpenPaymentDialog(false);
+                    setLoading(false)
+                })
+            });
+
     }
 
 
@@ -302,13 +317,14 @@ function SecretaryConsultationDialog({...props}) {
                         <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
-                        <Button
+                        <LoadingButton
                             // disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
+                            loading={loading}
                             onClick={handleOnGoingPaymentDialog}
                             startIcon={<Icon path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
-                        </Button>
+                        </LoadingButton>
                     </DialogActions>
                 }
             />

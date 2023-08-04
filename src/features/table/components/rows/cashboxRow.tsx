@@ -1,9 +1,23 @@
 import TableCell from "@mui/material/TableCell";
-import {Avatar, Collapse, Link, Stack, Table, TableRow, Tooltip, Typography,} from "@mui/material";
+import {
+    Avatar,
+    Button,
+    Collapse,
+    DialogActions,
+    IconButton,
+    Link,
+    Stack,
+    Table,
+    TableRow,
+    Tooltip,
+    Typography,
+    useTheme,
+} from "@mui/material";
 import {addBilling, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {alpha, Theme} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
@@ -12,6 +26,16 @@ import {DefaultCountry, TransactionStatus} from "@lib/constants";
 import moment from "moment-timezone";
 import {ImageHandler} from "@features/image";
 import {Label} from "@features/label";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import {configSelector} from "@features/base";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {useRouter} from "next/router";
+import {useSnackbar} from "notistack";
+import {useRequestMutation} from "@lib/axios";
+import {LoadingButton} from "@mui/lab";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -23,15 +47,35 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
-    const {insurances, pmList} = data;
+
+    const {insurances, mutateTransctions, pmList} = data;
     const {data: session} = useSession();
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
+
+    const router = useRouter();
+    const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
+
     const [selected, setSelected] = useState<any>([]);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly string[] = [];
@@ -45,13 +89,87 @@ function PaymentRow({...props}) {
         }
         setSelected(newSelected);
     };
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+    }
+
+    const handleSubmit = () => {
+        setLoadingRequest(true)
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            session,
+            medical_entity.uuid,
+            row,
+            triggerPostTransaction,
+            () => {
+                mutateTransctions().then(() => {
+                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
+                    setOpenPaymentDialog(false);
+                    setLoadingRequest(false);
+                })
+            }
+        );
+
+    }
+
+    const deleteTransaction = () => {
+        const form = new FormData();
+        form.append("cash_box", selectedBoxes[0]?.uuid);
+
+        triggerPostTransaction({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
+
+        }).then(() => {
+            mutateTransctions()
+            setLoadingDeleteTransaction(false);
+            setOpenDeleteTransactionDialog(false);
+        });
+
+    }
+    const openPutTransactionDialog = () => {
+
+        let payments: any[] = [];
+        let payed_amount = 0
+
+        row.transaction_data.map((td: any) => {
+            payed_amount += td.amount;
+            let pay: any = {
+                uuid: td.uuid,
+                amount: td.amount,
+                payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                status_transaction: td.status_transaction_data,
+                type_transaction: td.type_transaction_data,
+                data: td.data
+            }
+            if (td.insurance)
+                pay["insurance"] = td.insurance.uuid
+            if (td.payment_means)
+                pay["payment_means"] = paymentTypesList.find((pt: {
+                    slug: string;
+                }) => pt.slug === td.payment_means.slug)
+            payments.push(pay)
+        })
+
+        setSelectedPayment({
+            uuid: row.appointment.uuid,
+            payments,
+            payed_amount,
+            appointment: row.appointment,
+            total: row?.amount,
+            isNew: false
+        });
+        setOpenPaymentDialog(true);
+
+    }
 
     useEffect(() => {
         dispatch(addBilling(selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected]);
-
-    console.log(row);
 
     return (
         <>
@@ -67,8 +185,7 @@ function PaymentRow({...props}) {
                     bgcolor: (theme: Theme) =>
                         alpha(
                             (row.type_transaction === 2 && theme.palette.error.main) ||
-
-                            (row.rest_amount > 0 && theme.palette.warning.main) ||
+                            (row.rest_amount > 0 && theme.palette.expire.main) ||
                             (row.rest_amount <= 0 && theme.palette.success.main) ||
                             theme.palette.background.paper, 0.1),
                     cursor: row.collapse ? "pointer" : "default",
@@ -127,7 +244,7 @@ function PaymentRow({...props}) {
                             {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
                         </Link>
                     ) : (
-                        <Link underline="none">+</Link>
+                        <Link underline="none">{row.transaction_data[0].data.label}</Link>
                     )}
                 </TableCell>
                 <TableCell align={"center"}>
@@ -175,26 +292,54 @@ function PaymentRow({...props}) {
                                                          slug: string;
                                                      }) => pm.slug == td.payment_means.slug).logoUrl.url}
                                                      alt={"payment means icon"}/>
-
                         ))}
                     </Stack>
-
-                    {/* <Stack
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="center"
-                            spacing={1}>
-                            {row.payment_type.map((type: string, i: number) => (
-                                <Icon key={i} path={type}/>
-                            ))}
-                        </Stack>*/}
                 </TableCell>
                 <TableCell align="center">
-                    <Typography
-                        color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "black.main" : "success.main"}
-                        fontWeight={700}>
-                        {row.rest_amount > 0 ? `${row.amount - row.rest_amount} ${devise} / ${row.amount}` : row.amount} {devise}
-                    </Typography>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1} justifyContent={"center"}>
+                        <Typography
+                            color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
+                            fontWeight={700}>
+                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} ${devise} / ${row.amount}` : row.amount} {devise}
+                        </Typography>
+
+                        <Stack direction={"row"}>
+                            {row.rest_amount > 0 && <Tooltip title={t('encaisse')}>
+                                <IconButton sx={!isItemSelected ? {
+                                    background: theme.palette.expire.main,
+                                    borderRadius: 1,
+                                    "&:hover": {
+                                        background: theme.palette.expire.main
+                                    },
+                                }: {}} onClick={(e) => {
+                                    e.stopPropagation();
+                                    openPutTransactionDialog()
+                                }}>
+                                    <Icon path={"ic-argent"}/>
+                                </IconButton>
+                            </Tooltip>}
+                            {isItemSelected && <Tooltip title={t('edit')}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        openPutTransactionDialog()
+                                    }}>
+                                    <IconUrl path="setting/edit"/>
+                                </IconButton>
+                            </Tooltip>}
+                            {isItemSelected && <Tooltip title={t('delete')}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDeleteTransactionDialog(true);
+                                    }}>
+                                    <IconUrl path="setting/icdelete"/>
+                                </IconButton>
+                            </Tooltip>}
+                        </Stack>
+                    </Stack>
                 </TableCell>
             </TableRowStyled>
             {row.transaction_data && (
@@ -353,6 +498,73 @@ function PaymentRow({...props}) {
                     </TableCell>
                 </TableRow>
             )}
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380,
+                    },
+                }}
+                open={openPaymentDialog}
+                data={{
+                    selectedPayment,
+                    setSelectedPayment,
+                    appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
+                }}
+                size={"md"}
+                title={t('action')}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            disabled={
+                                selectedPayment && selectedPayment.payments.length === 0
+                            }
+                            loading={loadingRequest}
+                            variant="contained"
+                            onClick={handleSubmit}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("config.save", {ns: "common"})}
+                        </LoadingButton>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                action="delete-transaction"
+                title={t("dialogs.delete-dialog.title")}
+                open={openDeleteTransactionDialog}
+                size="sm"
+                data={{t}}
+                color={theme.palette.error.main}
+                actionDialog={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoadingDeleteTransaction(false);
+                                setOpenDeleteTransactionDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loadingDeleteTransaction}
+                            color="error"
+                            onClick={deleteTransaction}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
+
+
         </>
     );
 }

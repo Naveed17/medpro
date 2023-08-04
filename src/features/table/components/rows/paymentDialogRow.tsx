@@ -10,7 +10,7 @@ import moment from "moment";
 import {useInsurances} from "@lib/hooks/rest";
 
 function PaymentDialogRow({...props}) {
-    const {row, loading, handleEvent, t, key, index, data} = props;
+    const {row, loading, handleEvent, t, index, data} = props;
     const {patient} = data;
     const theme = useTheme();
     const {data: session} = useSession();
@@ -23,7 +23,7 @@ function PaymentDialogRow({...props}) {
     const {insurances} = useInsurances();
 
     let insurance = null;
-    const insuranceUUID = row.insurance ? patient.insurances.find((i: { uuid: string; }) => i.uuid === row.insurance).insurance.uuid : "";
+    const insuranceUUID = row.insurance && patient ? patient.insurances.find((i: { uuid: string; }) => i.uuid === row.insurance).insurance.uuid : "";
 
     if (insuranceUUID !== "") {
         insurance = insurances.find(i => i.uuid === insuranceUUID);
@@ -87,6 +87,7 @@ function PaymentDialogRow({...props}) {
                                    justifyContent={"flex-end"}
                                    spacing={1}>
 
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img width={10} src={insurance?.logoUrl.url}
                                      alt={'insurance icon'}/>
 
