@@ -1,4 +1,3 @@
-// ______________________________
 import {
     PersonalInfoCard,
     PatientDetailContactCard,
@@ -13,19 +12,20 @@ function PersonInfoPanel({...props}) {
     const {contacts} = useContactType();
     const {countries: countries_api} = useCountries("nationality=true");
 
-    const [editable, setEditable] = useState(false);
-    const [currentSection, setCurrentSection] = useState("");
+    const [editable, setEditable] = useState({
+        personalInfoCard: false,
+        personalInsuranceCard: false,
+        patientDetailContactCard: false
+    });
 
     return (
         <Stack spacing={2} className={"container"}>
             <PersonalInfoCard {...{
-                editable, setEditable, countries_api,
-                currentSection, setCurrentSection, ...props
+                editable, setEditable, countries_api, ...props
             }} />
             <PersonalInsuranceCard {...{editable, contacts, ...props}} />
             <PatientDetailContactCard {...{
-                editable, setEditable, contacts, countries_api,
-                currentSection, setCurrentSection, ...props
+                editable, setEditable, contacts, countries_api, ...props
             }} />
             <AntecedentsCard {...props} />
         </Stack>

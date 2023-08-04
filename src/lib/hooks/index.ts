@@ -15,6 +15,8 @@ export * from "./capitalizeFirst";
 export * from "./convertHexToRGBA";
 export * from "./getDiffDuration";
 export * from "./checkNotification";
+export * from "./flattenObject";
+export * from "./checkObjectChange";
 export * from "./rest/useAppointment";
 export * from './rest/useContactType'
 

@@ -247,9 +247,7 @@ function ConsultationInProgress() {
         },
     } : null, SWRNoValidateConfig);
 
-    const {
-        previousAppointmentsData: previousAppointments,
-    } = useAppointmentHistory({patientId: patient?.uuid});
+    const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
@@ -507,6 +505,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (previousAppointments) {
+            console.log("previousAppointments", previousAppointments);
             setTotalPagesLa(previousAppointments.totalPages)
             setLastestsAppointments(previousAppointments.list)
         }
@@ -859,7 +858,7 @@ function ConsultationInProgress() {
                                 appuuid: app_uuid,
                                 lastestsAppointments,
                                 setLastestsAppointments,
-                                totalPagesLa,pagesLa,
+                                totalPagesLa, pagesLa,
                                 setPagesLa, trigger
                             }}
                         />}

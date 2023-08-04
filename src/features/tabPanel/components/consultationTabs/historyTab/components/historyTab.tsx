@@ -30,7 +30,9 @@ function HistoryTab({...props}) {
         session,
         mutate,
         dates, keys, modelData,
-        lastestsAppointments, setLastestsAppointments, trigger,
+        lastestsAppointments,
+        setLastestsAppointments,
+        trigger,
         totalPagesLa, pagesLa, setPagesLa,
         router
     } = props;
@@ -180,7 +182,7 @@ function HistoryTab({...props}) {
                         }}/>
                     </React.Fragment>
                 ))}
-                {totalPagesLa > pagesLa && <Button style={{width:"fit-content"}} size={"small"} onClick={() => {
+                {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
                     if (medicalEntityHasUser) {
                         trigger({
                             method: "GET",

@@ -1,11 +1,8 @@
 import {
     Box,
-    Card,
+    Card, Chip, Collapse,
     Grid,
     IconButton, InputAdornment,
-    List,
-    ListItemButton,
-    ListItemText,
     Skeleton,
     Stack,
     TextField,
@@ -26,6 +23,10 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {NoDataCard} from "@features/card";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {ExpandMore} from "@features/buttons";
+
 export const MedicalPrescriptionCardData = {
     mainIcon: "ic-soura",
     title: "noRequest",
@@ -53,7 +54,7 @@ function MedicalImageryDialog({...props}) {
         },
     });
 
-    const initialData = Array.from(new Array(20));
+    const initialData = Array.from(new Array(10));
 
     const router = useRouter();
     const {data: session} = useSession();
@@ -62,7 +63,7 @@ function MedicalImageryDialog({...props}) {
         method: "GET",
         url: "/api/private/medical-imaging/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    },SWRNoValidateConfig);
+    }, SWRNoValidateConfig);
 
     const addImage = (value: MIModel) => {
         setName('')
@@ -104,7 +105,9 @@ function MedicalImageryDialog({...props}) {
             setDefaultMiList(res)
             setMiList([
                 ...recent,
-                ...res.filter((x: { uuid: string | undefined; }) => !recent.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+                ...res.filter((x: {
+                    uuid: string | undefined;
+                }) => !recent.find((r: AnalysisModel) => r.uuid === x.uuid))]);
             setTimeout(() => {
                 setLoading(false);
             }, 1000)
@@ -113,7 +116,7 @@ function MedicalImageryDialog({...props}) {
 
     const {handleSubmit} = formik;
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <BalanceSheetDialogStyled>
@@ -203,36 +206,39 @@ function MedicalImageryDialog({...props}) {
                             <Typography color={"gray"} fontSize={12}>
                                 {t('recent-search')}
                             </Typography>
-                            {!loading ?
-                                <List className='items-list'>
-                                    {miList.length === 0 && name.length > 0 && <ListItemButton
-                                        onClick={() => {
-                                            addImage({name})
-                                        }}>
-                                        <ListItemText primary={`Ajouter « ${name} »`}/>
-                                    </ListItemButton>
-                                    }
-                                    {miList?.map((item, index) => (
-                                            <ListItemButton
-                                                disabled={!!mi.find(an => an.uuid === item.uuid)}
-                                                key={index}
-                                                onClick={() => {
-                                                    addImage(item)
-                                                }}>
-                                                <ListItemText primary={item.name}/>
-                                            </ListItemButton>
-                                        )
+
+                            <Box>
+                                {!loading ? miList?.map((item, index) => (
+                                        <Chip
+                                            className={"chip-item"}
+                                            key={index}
+                                            id={item.uuid}
+                                            onClick={() => addImage(item)}
+                                            onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
+                                            onDelete={() => console.log("delete")}
+                                            disabled={!!mi.find(an => an.uuid === item.uuid)}
+                                            label={item.name}
+                                            color="default"
+                                            clickable
+                                            draggable="true"
+                                            deleteIcon={<AddIcon/>}
+                                        />
+                                    ))
+                                    :
+                                    initialData.map((item, index) => (
+                                        <Chip
+                                            className={"chip-item"}
+                                            key={index}
+                                            label={""}
+                                            color="default"
+                                            clickable
+                                            draggable="true"
+                                            avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
+                                                              variant="text"/>}
+                                            deleteIcon={<AddIcon/>}
+                                        />)
                                     )}
-                                </List> : <List className='items-list'>
-                                    {initialData.map((item, index) => (
-                                            <ListItemButton key={index}>
-                                                <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                          variant="rectangular"/>
-                                            </ListItemButton>
-                                        )
-                                    )}
-                                </List>
-                            }
+                            </Box>
                         </Stack>
                     </FormikProvider>
                 </Grid>
@@ -240,12 +246,35 @@ function MedicalImageryDialog({...props}) {
                     <Stack direction="row" alignItems="center">
                         <Typography gutterBottom>{t('medical_imagery_list')}</Typography>
                     </Stack>
-                    <Box className="list-container">
+                    <Box className="list-container"
+                         sx={{minHeight: 300, pr: 1}}
+                         onDragOver={event => event.preventDefault()}
+                         onDrop={(event) => {
+                             event.preventDefault();
+                             const data = event.dataTransfer.getData("Text");
+                             addImage(miList.find(item => item.uuid === data) as MIModel);
+                         }}>
                         {mi.length > 0 ?
                             mi.map((item, index) => (
                                 <Card key={index}>
-                                    <Stack p={2} pt={1} pb={1} direction='row' alignItems="center" justifyContent='space-between'>
+                                    <Stack p={2} pt={1} pb={1} direction='row' alignItems="center"
+                                           justifyContent='space-between'>
                                         <Typography>{item.name}</Typography>
+                                        <ExpandMore
+                                            expand={item.expanded as boolean}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setMi([
+                                                    ...mi.slice(0, index),
+                                                    {...mi[index], expanded: !item.expanded,},
+                                                    ...mi.slice(index + 1)
+                                                ]);
+                                            }}
+                                            aria-expanded={item.expanded}
+                                            aria-label="show more"
+                                        >
+                                            <ExpandMoreIcon/>
+                                        </ExpandMore>
                                         <IconButton size="small" onClick={() => {
                                             mi.splice(index, 1);
                                             setMi([...mi])
@@ -254,31 +283,33 @@ function MedicalImageryDialog({...props}) {
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
-                                    <Box padding={1} pt={0}>
-                                        <TextField
-                                            fullWidth
-                                            placeholder={t("note")}
-                                            multiline={true}
-                                            style={{backgroundColor:"white",borderRadius:5}}
-                                            inputProps={
-                                                {
-                                                    style: {
-                                                        padding: 3
-                                                    },
+                                    <Collapse in={item.expanded} timeout="auto" unmountOnExit>
+                                        <Box padding={1} pt={0}>
+                                            <TextField
+                                                fullWidth
+                                                placeholder={t("note")}
+                                                multiline={true}
+                                                style={{backgroundColor: "white", borderRadius: 5}}
+                                                inputProps={
+                                                    {
+                                                        style: {
+                                                            padding: 3
+                                                        },
+                                                    }
                                                 }
-                                            }
-                                            rows={5}
-                                            value={item.note}
-                                            onChange={event => {
-                                                let items = [...mi];
-                                                let x = {...mi[index]};
-                                                x.note = event.target.value;
-                                                items[index] = x;
-                                                setMi([...items])
-                                                data.setState([...items])
-                                            }}
-                                        />
-                                    </Box>
+                                                rows={5}
+                                                value={item.note}
+                                                onChange={event => {
+                                                    let items = [...mi];
+                                                    let x = {...mi[index]};
+                                                    x.note = event.target.value;
+                                                    items[index] = x;
+                                                    setMi([...items])
+                                                    data.setState([...items])
+                                                }}
+                                            />
+                                        </Box>
+                                    </Collapse>
                                 </Card>
                             ))
                             : <Card className='loading-card'>
