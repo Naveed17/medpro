@@ -84,6 +84,8 @@ import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 const humanizeDuration = require("humanize-duration");
 
 const stepperData = [
@@ -290,20 +292,20 @@ function Patient() {
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null,isMobile ? SWRNoValidateConfig :"");
+    } : null, isMobile ? SWRNoValidateConfig : "");
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
     useEffect(() => {
         if (httpPatientsResponse) {
-                setRows((prev) => [...prev, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
+            setRows((prev) => [...prev, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
         }
-      
+
     }, [httpPatientsResponse])
-    
+
     useEffect(() => {
         if (filter?.type || filter?.patient) {
             const query = prepareSearchKeys(filter as any);
@@ -470,17 +472,17 @@ function Patient() {
         dispatch(setSelectedRows([]));
 
     };
-const scrollX = window.scrollX;
-const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
 
-useLayoutEffect(() => {
-  window.scrollTo(scrollX, scrollY);
-})
-useEffect(() => {
-   //remove query params on load from url
-    router.replace(router.pathname, undefined, {shallow: true});
-  
-}, [])
+    useLayoutEffect(() => {
+        window.scrollTo(scrollX, scrollY);
+    })
+    useEffect(() => {
+        //remove query params on load from url
+        router.replace(router.pathname, undefined, {shallow: true});
+
+    }, [])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -537,16 +539,16 @@ useEffect(() => {
                         {
                             rows.length > 0 &&
                             <FormControlLabel
-                            sx={{ml: 0}}
-                            control={
-                                <Checkbox onChange={handleSelectAll}
-                                          indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
-                                          checked={selectedCheckbox?.length === rows?.length}/>}
-                            label={t("select-all")}
+                                sx={{ml: 0}}
+                                control={
+                                    <Checkbox onChange={handleSelectAll}
+                                              indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
+                                              checked={selectedCheckbox?.length === rows?.length}/>}
+                                label={t("select-all")}
 
-                        />
+                            />
                         }
-                        
+
 
                         {rowsSelected.length > 1 && <Button
                             onClick={(event) => {
@@ -575,22 +577,23 @@ useEffect(() => {
                         {...{insurances}}
 
                     />
-                    {
-                    rows.length > 0 &&
-                    <Stack alignItems='center'>
-                    <LoadingButton
-                    loading={!Boolean(httpPatientsResponse)} 
-                     onClick={(event) => {
-                        setPage(page + 1);
-                        router.push({
-                            query: {page:page + 1}
-                        })
-                     }}
-                    >
-                        {t("load-more")}
-                    </LoadingButton>
-                    </Stack>
-                        }
+                    {rows.length === 10 &&
+                        <Stack alignItems='center'>
+                            <LoadingButton
+                                loading={isLoading}
+                                loadingPosition={"start"}
+                                startIcon={<RefreshIcon/>}
+                                onClick={(event) => {
+                                    setPage(page + 1);
+                                    router.push({
+                                        query: {page: page + 1}
+                                    })
+                                }}
+                            >
+                                {t("load-more")}
+                            </LoadingButton>
+                        </Stack>
+                    }
                 </MobileContainer>
             </Box>
             <Dialog
@@ -639,10 +642,10 @@ useEffect(() => {
                     </>
                 }
                 PaperProps={{
-                    sx:{
-                        width:{xs:'calc(100% - 24px)',sm:'calc(100% - 64px)'},
-                        margin:{xs:0,sm:4},
-                    }   
+                    sx: {
+                        width: {xs: 'calc(100% - 24px)', sm: 'calc(100% - 64px)'},
+                        margin: {xs: 0, sm: 4},
+                    }
                 }}
             />
 
