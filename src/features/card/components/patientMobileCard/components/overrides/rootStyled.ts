@@ -29,7 +29,6 @@ const RootStyled = styled(Box)(({ theme }) => ({
     },
   "& .border-left-sec": {
     marginTop: theme.spacing(1),
-    display: "flex",
    
   },
   "& .phone-call": {

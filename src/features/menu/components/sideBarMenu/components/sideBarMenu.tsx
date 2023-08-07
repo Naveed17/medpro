@@ -143,6 +143,11 @@ function SideBarMenu({children}: LayoutProps) {
                                     <Badge
                                         badgeContent={item.badge}
                                         color="warning"
+                                        sx={{
+                                            '.MuiBadge-badge':{
+                                                right:8
+                                            }
+                                        }}
                                     />
                                 )}
                             </ListItem>
