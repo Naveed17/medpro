@@ -28,7 +28,7 @@ export const siteHeader = {
         {
             icon: "ic-payment",
             name: "payment",
-            href: '/dashboard/cashbox'
+            href: '/dashboard/payment'
         },
         // {
         //     icon: "ic-messanger-lite",

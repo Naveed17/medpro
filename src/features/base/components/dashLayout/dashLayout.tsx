@@ -289,6 +289,7 @@ function DashLayout({children}: LayoutProps) {
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
                 import_data: calendarStatus.import_data,
+                newCashBox:localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') ==="1" : false,
                 next: calendarStatus.next ? calendarStatus.next : null,
                 last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ongoing: calendarStatus.ongoing ? calendarStatus.ongoing : null
