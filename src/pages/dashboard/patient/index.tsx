@@ -814,6 +814,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
             "consultation",
             "menu",
             "common",
+            'payment'
         ])),
     },
 });

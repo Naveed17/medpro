@@ -6,6 +6,7 @@ export type dashLayoutState = {
     waiting_room?: number;
     allowNotification?: boolean;
     import_data?: string[];
+    newCashBox?: boolean;
     medicalEntityHasUser?: MedicalEntityHasUsersModel[];
     medicalProfessionalData?: MedicalProfessionalDataModel[];
     appointmentTypes?: AppointmentTypeModel[];
@@ -35,6 +36,7 @@ const initialState: dashLayoutState = {
     last_fiche_id: "0",
     mutate: null,
     ongoing: null,
+    newCashBox: false,
     next: null
 };
 

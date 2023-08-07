@@ -17,24 +17,26 @@ import {
     useMediaQuery
 } from '@mui/material'
 import IconUrl from '@themes/urlIcon';
-import {Otable} from '@features/table';
-import {DatePicker} from "@features/datepicker";
 import {AnimatePresence, motion} from 'framer-motion';
-import {DesktopContainer} from '@themes/desktopConainter';
-import {PaymentDialogMobileCard} from '@features/card';
-import {MobileContainer} from '@themes/mobileContainer';
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-import AddIcon from "@mui/icons-material/Add";
-import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import AddIcon from "@mui/icons-material/Add";
+import {MobileContainer} from "@themes/mobileContainer";
+import {PaymentDialogMobileCard} from "@features/card";
+import {Otable} from "@features/table";
+import {DesktopContainer} from "@themes/desktopConainter";
+import moment from "moment-timezone";
+import {useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {DatePicker} from "@features/datepicker";
+import {useInsurances} from "@lib/hooks/rest";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 
 interface HeadCell {
@@ -112,25 +114,47 @@ function PaymentDialog({...props}) {
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
 
-    const {patient, selectedPayment, setSelectedPayment, deals, setDeals, paymentTypes} = data;
+    const {
+        paymentTypesList
+    } = useAppSelector(cashBoxSelector);
+    const {insurances} = useInsurances();
+
+    const {appointment, selectedPayment, setSelectedPayment} = data;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
+    const [byRate, setByRate] = useState(false);
+    const [deals, setDeals] = React.useState<any>({
+        cash: {
+            amount: ""
+        },
+        card: {
+            amount: ""
+        },
+        check: [{
+            amount: "",
+            carrier: "",
+            bank: "",
+            check_number: '',
+            payment_date: new Date(),
+            expiry_date: new Date(),
+        }],
+        selected: paymentTypesList && paymentTypesList.length > 0 ? paymentTypesList[0].slug : null
+    });
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
     const validationSchema = Yup.object().shape({
-        totalToPay: Yup.number(),
-        /*cash: Yup.object().shape({
-            amount: Yup.number().integer().lessThan(Yup.ref('totalToPay'), `amount-error ${Yup.ref('totalToPay')}`)
-        })*/
+        totalToPay: Yup.number()
     });
 
     const formik = useFormik({
         initialValues: {
             ...deals,
-            totalToPay: selectedPayment.total - selectedPayment.amount
+            totalToPay: selectedPayment.total - selectedPayment.payed_amount
         },
         validationSchema,
         onSubmit: values => {
@@ -164,72 +188,111 @@ function PaymentDialog({...props}) {
         setFieldValue("check", filter);
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    const calculInsurance = () => {
+        let total = 0
+        payments.map((pay: { insurance: string; amount: number; }) => {
+            if (pay.insurance) total += pay.amount
+        })
+        return total
+    }
+    const checkCheques = () => {
+        let total = 0;
+        let hasEmpty = false;
+        values.check.map((check: { amount: number }) => {
+            if (check.amount.toString() === "")
+                hasEmpty = true;
+            else total += check.amount;
+        });
+        return hasEmpty ? hasEmpty : total > calculRest();
+    }
+    const calculRest = () => {
+        let paymentTotal = 0
+        selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
+        return selectedPayment.total - paymentTotal
+    }
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
             <PaymentDialogStyled>
-                {patient &&
+                {appointment &&
                     <Stack spacing={2}
-                           direction={{xs: patient ? 'column' : 'row', md: 'row'}}
+                           direction={{xs: appointment.patient ? 'column' : 'row', md: 'row'}}
                            alignItems='center'
-                           justifyContent={patient ? 'space-between' : 'flex-end'}>
+                           justifyContent={appointment.patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
                             <Avatar sx={{width: 26, height: 26}}
-                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                                    src={`/static/icons/${appointment.patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
                             <Stack>
                                 <Stack direction="row" spacing={0.5} alignItems="center">
                                     <Typography color="primary">
-                                        {patient.firstName} {patient.lastName}
+                                        {appointment.patient.firstName} {appointment.patient.lastName}
                                     </Typography>
                                 </Stack>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <IconUrl path="ic-anniverssaire"/>
-                                    <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                        {patient.birthdate}
-                                    </Typography>
-                                </Stack>
+                                <Typography variant='body2' color="text.secondary" alignItems='center'>
+                                    Portefeuille: {appointment.patient.wallet} {devise}
+                                </Typography>
+                                {appointment.patient.birthdate &&
+                                    <Stack direction="row" spacing={0.5} alignItems="center">
+                                        <IconUrl path="ic-anniverssaire"/>
+                                        <Typography variant='body2' color="text.secondary" alignItems='center'>
+                                            {appointment.patient.birthdate}
+                                        </Typography>
+                                    </Stack>}
                             </Stack>
                         </Stack>
+
                         <Stack
                             direction={{xs: 'column', md: 'row'}}
                             alignItems="center"
                             justifyContent={{xs: 'center', md: 'flex-start'}}
                             sx={{
                                 "& .MuiButtonBase-root": {
-                                    fontWeight: "bold",
-                                    fontSize: 16
+
+                                    fontSize: 13
                                 }
                             }}
                             spacing={1}>
-                            {(selectedPayment && selectedPayment.amount) &&
-                                <Button size='small' variant='contained' color="error"
-                                        {...(isMobile && {
-                                            fullWidth: true
-                                        })}
-                                >
-                                    {t("btn_remain")}
-                                    <Typography
-                                        fontWeight={700}
-                                        component='strong'
-                                        mx={1}>{values.totalToPay}</Typography>
-                                    {devise}
-                                </Button>
-                            }
 
-                            <Button size='small' variant='contained' color="warning"
+                            <Button size='small' variant='contained' color="primary"
                                     {...(isMobile && {
                                         fullWidth: true
                                     })}
                             >
+                                {t("insurance_total")}
+                                <Typography
+                                    fontWeight={700}
+                                    component='strong'
+                                    mx={1}>{calculInsurance()}</Typography>
+                                {devise}
+                            </Button>
+
+                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "error"}
+                                    {...(isMobile && {
+                                        fullWidth: true
+                                    })}>
+                                {t("btn_remain")}
+                                <Typography
+                                    fontWeight={700}
+                                    component='strong'
+                                    mx={1}>{calculRest()}</Typography>
+                                {devise}
+                            </Button>
+
+                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "warning"}
+                                    {...(isMobile && {
+                                        fullWidth: true
+                                    })}>
                                 {t("total")}
                                 <Typography fontWeight={700} component='strong'
-                                            mx={1}>{selectedPayment ? selectedPayment.total : 0}</Typography>
+                                            mx={1}>{selectedPayment.total}</Typography>
                                 {devise}
                             </Button>
                         </Stack>
                     </Stack>}
-                {!patient && <Box>
+
+                {!appointment && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
                     <TextField
                         value={label}
@@ -238,7 +301,6 @@ function PaymentDialog({...props}) {
                             setLabel(ev.target.value)
                         }}/>
                     <Typography style={{color: "gray"}} fontSize={12} mb={0} mt={3}>{t('paymentMean')}</Typography>
-
                 </Box>}
 
                 <FormGroup
@@ -249,31 +311,67 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {paymentTypes && paymentTypes.map((method: { slug: any; name: string; logoUrl: { url: string | undefined; }; }) =>
-                        <FormControlLabel
-                            className={method.slug === deals.selected ? "selected" : ''}
-                            onClick={() => {
-                                deals.selected = method.slug
-                                setDeals(deals);
-                                setFieldValue("selected", method.slug)
-                            }}
-                            key={method.name}
-                            control={
-                                <Checkbox checked={values.selected === method.slug} name={t(method.name)}/>
-                            }
-                            label={
-                                <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
-                                    {
-                                        !isMobile && paymentTypes.length !== 6 &&
-                                        <Typography>{t(method.name)}</Typography>
-                                    }
+                    {paymentTypesList && paymentTypesList.map((method: {
+                            slug: any;
+                            name: string;
+                            logoUrl: { url: string | undefined; };
+                        }) =>
+                            <FormControlLabel
+                                className={method.slug === deals.selected ? "selected" : ''}
+                                onClick={() => {
+                                    deals.selected = method.slug
+                                    setDeals(deals);
+                                    setFieldValue("selected", method.slug)
+                                }}
+                                key={method.name}
+                                control={
+                                    <Checkbox checked={values.selected === method.slug} name={t(method.name)}/>
+                                }
+                                label={
+                                    <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
+                                        {
+                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            <Typography>{t(method.name)}</Typography>
+                                        }
 
-                                </Stack>
-                            }
-                        />
+                                    </Stack>
+                                }
+                            />
                     )}
+
+                    {
+                        appointment && insurances && appointment.patient.insurances.map((insurance: any) =>
+                            <FormControlLabel
+                                className={insurance.uuid === deals.selected ? "selected" : ''}
+                                onClick={() => {
+                                    deals.selected = insurance.uuid
+                                    setDeals(deals);
+                                    setFieldValue("selected", insurance.uuid)
+                                }}
+                                key={insurance.insurance.name}
+                                control={
+                                    <Checkbox checked={values.selected === insurance.uuid}
+                                              name={t(insurance.insurance.name)}/>
+                                }
+                                label={
+                                    <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img style={{width: 16}}
+                                             src={insurances.find(i => i.uuid === insurance.insurance.uuid)?.logoUrl.url}
+                                             alt={'insurance logo'}/>
+
+                                        {
+                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            <Typography>{t(insurance.insurance.name)}</Typography>
+                                        }
+
+                                    </Stack>
+                                }
+                            />
+                        )
+                    }
                 </FormGroup>
                 <AnimatePresence mode='wait'>
                     {(() => {
@@ -303,18 +401,22 @@ function PaymentDialog({...props}) {
                                             </Stack>
 
                                             <Button color={"success"}
-                                                    disabled={values.cash.amount === ""}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
                                                     onClick={() => {
-                                                        setPayments([...payments, {
-                                                            date: moment().format("DD-MM-YYYY"),
-                                                            time: moment().format("HH:mm"),
-                                                            patient: patient,
+                                                        const newPayment = [...payments, {
+                                                            amount: values.cash?.amount,
                                                             designation: label,
-                                                            payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
-                                                            amount: values.cash?.amount
-                                                        }]);
+                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                            status_transaction: TransactionStatus[1].value,
+                                                            type_transaction: TransactionType[2].value,
+                                                            payment_means: paymentTypesList.find((pt: {
+                                                                slug: string;
+                                                            }) => pt.slug === deals.selected)
+                                                        }]
+                                                        setPayments(newPayment);
                                                         setLabel("");
                                                         resetForm();
+                                                        calculRest()
                                                     }}
                                                     sx={{marginTop: 2}}
                                                     startIcon={<AddIcon/>}
@@ -352,7 +454,7 @@ function PaymentDialog({...props}) {
                                                                         required
                                                                     />
                                                                     <Typography>
-                                                                        TND
+                                                                        {devise}
                                                                     </Typography>
                                                                 </Stack>
                                                             </Grid>
@@ -466,25 +568,101 @@ function PaymentDialog({...props}) {
                                                 + {t("add_cheque")}
                                             </Button>
 
-                                            <Button onClick={() => {
-                                                let updatedPays: any[] = [];
-                                                values.check?.map((ck: any) => {
-                                                    updatedPays.push({
-                                                        date: moment().format("DD-MM-YYYY"),
-                                                        time: moment().format("HH:mm"),
-                                                        patient: patient,
-                                                        payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
-                                                        amount: ck.amount
-                                                    });
-                                                });
-                                                setPayments([...payments, ...updatedPays]);
-                                                resetForm();
-                                            }} color="success" variant='contained'
+                                            <Button disabled={checkCheques()}
+                                                    onClick={() => {
+                                                        let updatedPays: any[] = [];
+                                                        values.check?.map((ck: any) => {
+                                                            updatedPays.push({
+                                                                payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                designation: label,
+                                                                status_transaction: TransactionStatus[1].value,
+                                                                type_transaction: TransactionType[2].value,
+                                                                amount: ck.amount,
+                                                                data: ck,
+                                                                payment_means: paymentTypesList.find((pt: {
+                                                                    slug: string;
+                                                                }) => pt.slug === deals.selected)
+                                                            });
+                                                        });
+                                                        setPayments([...payments, ...updatedPays]);
+                                                        resetForm();
+                                                    }} color="success" variant='contained'
                                                     sx={{alignSelf: "flex-end", mt: 2}}>
                                                 + {t("add")}
                                             </Button>
                                         </Stack>
 
+                                    </Stack>
+                                </TabPanel>
+                            default:
+                                return <TabPanel index={0}>
+                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                        <Box width={1}>
+                                            <Typography gutterBottom>
+                                                {t('enter_the_amount')}
+                                            </Typography>
+                                            <Stack direction='row' spacing={2} alignItems="center">
+                                                <TextField
+                                                    type='number'
+                                                    fullWidth
+                                                    {...getFieldProps("cash.amount")}
+                                                    error={Boolean(touched.cash && errors.cash)}
+                                                />
+                                                <Typography variant={"body1"}>
+                                                    {devise}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack mt={1} direction={"row"} justifyContent={"center"}
+                                                   alignItems={"center"}>
+                                                <FormControlLabel control={<Checkbox checked={byRate} onChange={() => {
+                                                    setByRate(!byRate)
+                                                }}/>} label="Par taux"/>
+                                                {byRate &&
+                                                    <Stack direction={"row"} spacing={1} justifyContent={"center"}
+                                                           alignItems={"center"}>
+                                                        <TextField
+                                                            type='number'
+                                                            onChange={(ev) => {
+                                                                const res = ev.target.value;
+                                                                setFieldValue("cash.amount", Number(selectedPayment.total * Number(res) / 100).toFixed(3))
+                                                            }}
+                                                        />
+                                                        <Typography variant={"body1"}>
+                                                            %
+                                                        </Typography>
+                                                    </Stack>}
+
+                                            </Stack>
+
+                                            <Button color={"success"}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
+                                                    onClick={() => {
+
+                                                        const newPayment = [...payments, {
+                                                            amount: Number(values.cash?.amount),
+                                                            designation: label,
+                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                            status_transaction: TransactionStatus[1].value,
+                                                            type_transaction: TransactionType[2].value,
+                                                            insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),
+                                                        }]
+                                                        setPayments(newPayment);
+                                                        setLabel("");
+
+                                                        resetForm();
+
+                                                        deals.selected = paymentTypesList[0].slug
+                                                        setDeals(deals);
+                                                        setFieldValue("selected", paymentTypesList[0].slug)
+                                                        setByRate(false);
+                                                    }}
+                                                    sx={{marginTop: 2}}
+                                                    startIcon={<AddIcon/>}
+                                                    variant={"contained"}>
+                                                <Typography> {t('add')}</Typography>
+                                            </Button>
+                                        </Box>
                                     </Stack>
                                 </TabPanel>
                         }
@@ -495,7 +673,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t}}
+                                    {...{t, patient: appointment ? appointment.patient : null}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

@@ -244,6 +244,13 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },  {
+    action: "cashout",
+    component: dynamic((): any =>
+      import("@features/dialog/components/cashOutDialog/cashOutDialog").then(
+        (mod) => mod
+      )
+    ),
   },
   {
     action: "write_certif",
