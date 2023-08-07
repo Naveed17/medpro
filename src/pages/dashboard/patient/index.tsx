@@ -481,8 +481,7 @@ function Patient() {
     useEffect(() => {
         //remove query params on load from url
         router.replace(router.pathname, undefined, {shallow: true});
-
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -583,7 +582,7 @@ function Patient() {
                                 loading={isLoading}
                                 loadingPosition={"start"}
                                 startIcon={<RefreshIcon/>}
-                                onClick={(event) => {
+                                onClick={() => {
                                     setPage(page + 1);
                                     router.push({
                                         query: {page: page + 1}
