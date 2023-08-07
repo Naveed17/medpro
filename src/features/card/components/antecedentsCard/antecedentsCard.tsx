@@ -28,7 +28,7 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient, antecedentsData, mutateAntecedents} = props;
+    const {loading, patient, antecedentsData, mutateAntecedents, setEditable} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -80,6 +80,11 @@ function AntecedentsCard({...props}) {
     };
 
     const handleOpen = (action: string) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         if (action === "consultation") {
             dispatch(openDrawer({type: "add", open: true}));
             return;
@@ -120,7 +125,7 @@ function AntecedentsCard({...props}) {
             else return '-';
         else return '-';
     }
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <RootStyled>

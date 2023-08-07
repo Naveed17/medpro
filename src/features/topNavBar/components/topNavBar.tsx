@@ -47,6 +47,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
+import { MobileContainer } from "@lib/constants";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -61,7 +62,7 @@ function TopNavBar({...props}) {
     const {mutate} = useSWRConfig();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -265,8 +266,9 @@ function TopNavBar({...props}) {
                     className={`top-bar ${opened ? "openedSidebar" : ""}`}
                     color="inherit">
                     <Toolbar>
-                        <Hidden smUp>
-                            {settingHas ? (
+                            {
+                                isMobile ? 
+                                settingHas ? (
                                 <IconButton
                                     color={"inherit"}
                                     edge="start"
@@ -282,18 +284,16 @@ function TopNavBar({...props}) {
                                     onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
                                     <Icon path="ic-toggle"/>
                                 </IconButton>
-                            )}
-                        </Hidden>
-                        <Hidden smDown>
-                            <IconButton
+                            ):
+(                              <IconButton
                                 disabled={lock}
                                 color="primary"
                                 edge="start"
                                 className="btn"
                                 onClick={() => dispatch(toggleSideBar(opened))}>
                                 <Icon path="ic-toggle"/>
-                            </IconButton>
-                        </Hidden>
+                            </IconButton>)
+                            }
 
                         <Hidden mdDown>
                             <IconButton

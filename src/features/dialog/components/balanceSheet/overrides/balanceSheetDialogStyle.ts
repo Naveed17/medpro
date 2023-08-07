@@ -11,6 +11,11 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
             marginBottom: theme.spacing(1),
         },
     },
+    "& .MuiInputBase-input-hidden": {
+        ".MuiInputBase-input": {
+            padding: "2.5px 4px 2.5px 6px"
+        }
+    },
     ".items-list": {
         background: "#EEF2F6",
         borderRadius: 4,

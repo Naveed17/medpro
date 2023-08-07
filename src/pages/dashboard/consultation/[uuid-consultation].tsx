@@ -505,7 +505,6 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (previousAppointments) {
-            console.log("previousAppointments", previousAppointments);
             setTotalPagesLa(previousAppointments.totalPages)
             setLastestsAppointments(previousAppointments.list)
         }
