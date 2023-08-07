@@ -117,13 +117,14 @@ function CashOutDialog({...props}) {
     useEffect(() => {
         if (httpCheckResponse) {
             const transactions = (httpCheckResponse as HttpResponse).data.transactions;
-            let checks:any[] = [];
-            console.log(transactions);
-            transactions.forEach((transaction: { transaction_data: any[]; }) => {
-                transaction.transaction_data.filter(td => td.payment_means.slug === "check").map(td => checks.push(td))
-            })
-            if (transactions)
+            let checks: any[] = [];
+            if (transactions) {
+                transactions.forEach((transaction: { transaction_data: any[]; }) => {
+                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").map(td => checks.push(td))
+                })
                 setCheques(checks);
+            }
+
         }
     }, [httpCheckResponse])
 
@@ -132,7 +133,7 @@ function CashOutDialog({...props}) {
             const transactions = (httpCashResponse as HttpResponse).data.transactions;
             let cash = 0
             if (transactions) {
-                transactions.map((transaction: { amount: number; }) => cash +=transaction.amount)
+                transactions.map((transaction: { amount: number; }) => cash += transaction.amount)
                 setTotalCash(cash);
             }
 
