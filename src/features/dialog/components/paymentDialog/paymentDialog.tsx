@@ -119,7 +119,10 @@ function PaymentDialog({...props}) {
     } = useAppSelector(cashBoxSelector);
     const {insurances} = useInsurances();
 
-    const {appointment, selectedPayment, setSelectedPayment} = data;
+    const {appointment, selectedPayment, setSelectedPayment,patient} = data;
+
+    console.log(patient)
+
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
@@ -170,7 +173,6 @@ function PaymentDialog({...props}) {
             payments
         });
     }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const handleAddStep = () => {
         const step = [...values.check, {
             amount: "",
@@ -182,12 +184,10 @@ function PaymentDialog({...props}) {
         }];
         setFieldValue("check", step);
     };
-
     const handleDeleteStep = (props: any) => {
         const filter = values.check.filter((item: any) => item !== props)
         setFieldValue("check", filter);
     }
-
     const calculInsurance = () => {
         let total = 0
         payments.map((pay: { insurance: string; amount: number; }) => {
@@ -216,40 +216,37 @@ function PaymentDialog({...props}) {
     return (
         <FormikProvider value={formik}>
             <PaymentDialogStyled>
-                {appointment &&
+                {patient &&
                     <Stack spacing={2}
-                           direction={{xs: appointment.patient ? 'column' : 'row', md: 'row'}}
+                           direction={{xs: patient ? 'column' : 'row', md: 'row'}}
                            alignItems='center'
-                           justifyContent={appointment.patient ? 'space-between' : 'flex-end'}>
+                           justifyContent={patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
                             <Avatar sx={{width: 26, height: 26}}
-                                    src={`/static/icons/${appointment.patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
                             <Stack>
                                 <Stack direction="row" spacing={0.5} alignItems="center">
                                     <Typography color="primary">
-                                        {appointment.patient.firstName} {appointment.patient.lastName}
+                                        {patient.firstName} {patient.lastName}
                                     </Typography>
                                 </Stack>
-                                <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                    Portefeuille: {appointment.patient.wallet} {devise}
-                                </Typography>
-                                {appointment.patient.birthdate &&
+
+                                {patient.birthdate &&
                                     <Stack direction="row" spacing={0.5} alignItems="center">
                                         <IconUrl path="ic-anniverssaire"/>
                                         <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                            {appointment.patient.birthdate}
+                                            {patient.birthdate}
                                         </Typography>
                                     </Stack>}
                             </Stack>
                         </Stack>
 
-                        <Stack
+                        {appointment && <Stack
                             direction={{xs: 'column', md: 'row'}}
                             alignItems="center"
                             justifyContent={{xs: 'center', md: 'flex-start'}}
                             sx={{
                                 "& .MuiButtonBase-root": {
-
                                     fontSize: 13
                                 }
                             }}
@@ -289,10 +286,10 @@ function PaymentDialog({...props}) {
                                             mx={1}>{selectedPayment.total}</Typography>
                                 {devise}
                             </Button>
-                        </Stack>
+                        </Stack>}
                     </Stack>}
 
-                {!appointment && <Box>
+                {!patient && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
                     <TextField
                         value={label}
@@ -342,7 +339,7 @@ function PaymentDialog({...props}) {
                     )}
 
                     {
-                        appointment && insurances && appointment.patient.insurances.map((insurance: any) =>
+                        appointment && insurances && patient.insurances.map((insurance: any) =>
                             <FormControlLabel
                                 className={insurance.uuid === deals.selected ? "selected" : ''}
                                 onClick={() => {
@@ -401,7 +398,7 @@ function PaymentDialog({...props}) {
                                             </Stack>
 
                                             <Button color={"success"}
-                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
+                                                    disabled={appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())}
                                                     onClick={() => {
                                                         const newPayment = [...payments, {
                                                             amount: values.cash?.amount,
@@ -673,7 +670,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t, patient: appointment ? appointment.patient : null}}
+                                    {...{t, patient: patient ? patient : null}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

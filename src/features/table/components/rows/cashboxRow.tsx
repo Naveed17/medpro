@@ -173,6 +173,7 @@ function PaymentRow({...props}) {
             payments,
             payed_amount,
             appointment: row.appointment,
+            patient:row.appointment.patient,
             total: row?.amount,
             isNew: false
         });
@@ -574,6 +575,7 @@ function PaymentRow({...props}) {
                     selectedPayment,
                     setSelectedPayment,
                     appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
+                    patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
                 }}
                 size={"md"}
                 title={t('payment_dialog_title')}

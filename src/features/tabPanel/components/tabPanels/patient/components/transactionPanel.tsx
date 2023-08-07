@@ -1,19 +1,24 @@
-import {Box, Button, LinearProgress, Stack, Typography} from '@mui/material'
+import {Box, Button, DialogActions, LinearProgress, Stack, Typography} from '@mui/material'
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
 import {useInsurances} from '@lib/hooks/rest';
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import IconUrl from "@themes/urlIcon";
+import {useSnackbar} from "notistack";
 
 const headCells = [
     {
@@ -85,9 +90,12 @@ const headCells = [
 function TransactionPanel({...props}) {
     const {patient, router} = props;
 
+    const {trigger} = useRequestMutation(null, "/patient/wallet");
+
     const {t} = useTranslation(["payment", "common"]);
     const {data: session} = useSession();
     const {insurances} = useInsurances();
+    const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const [loading, setLoading] = useState(true);
@@ -95,7 +103,11 @@ function TransactionPanel({...props}) {
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
     const [wallet, setWallet] = useState(0);
+    const [rest, setRest] = useState(0);
     const [toReceive, setToReceive] = useState(0);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -103,9 +115,10 @@ function TransactionPanel({...props}) {
     const devise = doctor_country.currency?.name;
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientWallet,mutate:walletMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -146,9 +159,52 @@ function TransactionPanel({...props}) {
 
     useEffect(() => {
         if (httpPatientWallet) {
-            setWallet((httpPatientWallet as HttpResponse).data[0])
+            setWallet((httpPatientWallet as HttpResponse).data.wallet)
+            setRest((httpPatientWallet as HttpResponse).data.rest_amount)
         }
     }, [httpPatientWallet])
+
+    const handleSubmit = ()=>{
+
+        console.log(selectedPayment)
+        let amount = 0
+        const data: TransactionDataModel[] = [];
+        selectedPayment.payments.map((sp: any) => {
+            data.push({
+                payment_means: sp.payment_means.uuid,
+                insurance: "",
+                amount: sp.amount,
+                status_transaction: TransactionStatus[0].value,
+                type_transaction: TransactionType[4].value,
+                payment_date: sp.date,
+                data: {label: sp.designation, ...sp.data},
+            });
+            amount += sp.amount;
+        });
+
+        const form = new FormData();
+        form.append("type_transaction",  TransactionType[4].value);
+        form.append("status_transaction", TransactionStatus[0].value);
+        form.append("cash_box", selectedBoxes[0].uuid);
+        form.append("amount", amount.toString());
+        form.append("rest_amount", "0");
+        form.append("patient", patient.uuid);
+        form.append("transaction_data", JSON.stringify(data));
+
+        trigger({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
+            mutateTransctions().then(() => {
+                walletMutate()
+            });
+        });
+    }
 
 
     return (
@@ -171,11 +227,30 @@ function TransactionPanel({...props}) {
                         {devise}
                     </Button>
                     <Button size='small'
+                            onClick={()=>{
+                                setSelectedPayment({
+                                    uuid: "",
+                                    payments: [],
+                                    payed_amount: 0,
+                                    total: 0,
+                                    patient: patient.uuid,
+                                    isNew: true
+                                });
+                                setOpenPaymentDialog(true)
+                            }}
                             variant='contained'
-                            color={wallet >= 0 ? "success" : "error"}>
+                            color={"success"}>
                         {t("wallet")}
                         <Typography fontWeight={700} component='strong'
-                                    mx={1}>{wallet}</Typography>
+                                    mx={1}>+ {wallet}</Typography>
+                        {devise}
+                    </Button>
+                    <Button size='small'
+                            variant='contained'
+                            color={"error" }>
+                        {t("credit")}
+                        <Typography fontWeight={700} component='strong'
+                                    mx={1}>- {rest}</Typography>
                         {devise}
                     </Button>
 
@@ -189,6 +264,42 @@ function TransactionPanel({...props}) {
                 </DesktopContainer>
 
             </Box>}
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380,
+                    },
+                }}
+                open={openPaymentDialog}
+                data={{
+                    selectedPayment,
+                    setSelectedPayment,
+                    patient,
+                }}
+                size={"md"}
+                title={t('payment_dialog_title')}
+                dialogClose={()=>{setOpenPaymentDialog(false)}}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={()=>{setOpenPaymentDialog(false)}} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            disabled={
+                                selectedPayment && selectedPayment.payments.length === 0
+                            }
+                            loading={loadingRequest}
+                            variant="contained"
+                            onClick={handleSubmit}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("config.save", {ns: "common"})}
+                        </LoadingButton>
+                    </DialogActions>
+                }
+            />
         </PanelStyled>
     )
 }
