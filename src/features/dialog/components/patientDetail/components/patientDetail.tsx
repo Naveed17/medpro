@@ -135,6 +135,11 @@ function PatientDetail({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [patient, setPatient] = useState<null | PatientModel>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`)?.data?.data?.data) ?? null);
+    const [editable, setEditable] = useState({
+        personalInfoCard: false,
+        personalInsuranceCard: false,
+        patientDetailContactCard: false
+    });
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -316,7 +321,9 @@ function PatientDetail({...props}) {
                 mutatePatientList,
                 antecedentsData,
                 mutateAntecedents,
-                mutateAgenda
+                mutateAgenda,
+                editable,
+                setEditable
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -404,7 +411,8 @@ function PatientDetail({...props}) {
                             onConsultationStart,
                             patientPhoto,
                             mutatePatientList,
-                            mutateAgenda
+                            mutateAgenda,
+                            setEditableSection: setEditable
                         }}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>

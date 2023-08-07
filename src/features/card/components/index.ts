@@ -47,3 +47,4 @@ export * from "./fileTemplateMobileCard";
 export * from "./actfeesMobileCard";
 export * from './userMobileCard';
 export * from './trashCard';
+export * from './noteCardCollapse';

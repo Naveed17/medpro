@@ -111,6 +111,7 @@
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
+    "recent-search-balance-sheet": "Sélectionner le bilan demandée",
     "reason_for_consultation": "Motif de consultation",
     "patient_history": "Fiche d'historique",
     "title": "Titre",
@@ -167,6 +168,9 @@
     "noRequest": "Aucune demande",
     "noDoc": "Aucun document",
     "noRequest-description": "Veuillez sélectionner vos demandes",
+    "drag-imagery": "Faites glisser l'imagerie médicale",
+    "drag-balance-sheet": "Faites glisser le bilan",
+    "drag-description": "Ou si vous préférez, vous pouvez cliquer dessus",
     "medical_procedures": "Note d'honoraires",
     "consultation": "Consultation",
     "seeRes": "Voir le résultat",

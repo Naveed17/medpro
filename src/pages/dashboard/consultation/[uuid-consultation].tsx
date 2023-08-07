@@ -247,9 +247,7 @@ function ConsultationInProgress() {
         },
     } : null, SWRNoValidateConfig);
 
-    const {
-        previousAppointmentsData: previousAppointments,
-    } = useAppointmentHistory({patientId: patient?.uuid});
+    const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
@@ -859,7 +857,7 @@ function ConsultationInProgress() {
                                 appuuid: app_uuid,
                                 lastestsAppointments,
                                 setLastestsAppointments,
-                                totalPagesLa,pagesLa,
+                                totalPagesLa, pagesLa,
                                 setPagesLa, trigger
                             }}
                         />}

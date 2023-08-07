@@ -44,7 +44,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function PersonalInsuranceCard({...props}) {
     const {
         patient, mutatePatientList = null, contacts,
-        mutateAgenda = null, loading, editable
+        mutateAgenda = null, loading, editable, setEditable
     } = props;
 
     const {data: session} = useSession();
@@ -171,6 +171,11 @@ function PersonalInsuranceCard({...props}) {
     }
 
     const handleDeleteInsurance = (insurance: InsuranceModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
@@ -188,6 +193,11 @@ function PersonalInsuranceCard({...props}) {
 
 
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         const insurances = [prepareInsuranceInstance(insurance)]
         setRequestAction("PUT");
         setFieldValue("insurances", insurances);
@@ -405,7 +415,7 @@ function PersonalInsuranceCard({...props}) {
                                                             </Stack>
                                                         </Grid>}
                                                 </Grid>
-                                                {(values.insurances.length - 1) !== index &&
+                                                {(patientInsurances.length - 1) !== index &&
                                                     <Divider sx={{marginBottom: 1}}/>}
                                             </>
                                         )}

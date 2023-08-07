@@ -479,7 +479,7 @@ function DocumentDetailDialog({...props}) {
                                             </Card>}
 
                                             {isImg && <TransformWrapper initialScale={1}>
-                                                {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                                {({zoomIn, zoomOut, resetTransform}) => (
                                                     <React.Fragment>
                                                         <Stack justifyContent={"end"} mr={2}>
                                                             <ToggleButtonGroup className={"zoombar"} size="small"
@@ -492,7 +492,8 @@ function DocumentDetailDialog({...props}) {
                                                                               aria-label="left aligned">
                                                                     <ZoomOutIcon/>
                                                                 </ToggleButton>
-                                                                <ToggleButton onClick={() => resetTransform()} value="left"
+                                                                <ToggleButton onClick={() => resetTransform()}
+                                                                              value="left"
                                                                               aria-label="left aligned">
                                                                     <CenterFocusWeakIcon/>
                                                                 </ToggleButton>
@@ -516,7 +517,7 @@ function DocumentDetailDialog({...props}) {
                             <Box>
                                 {state.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
-                                        {({zoomIn, zoomOut, resetTransform, ...rest}) => (
+                                        {({zoomIn, zoomOut, resetTransform}) => (
                                             <React.Fragment>
                                                 <Stack justifyContent={"end"} mr={2}>
                                                     <ToggleButtonGroup className={"zoombar"} size="small"

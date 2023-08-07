@@ -22,6 +22,7 @@ import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSWRConfig} from "swr";
+
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
