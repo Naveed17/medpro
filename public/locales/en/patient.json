@@ -68,6 +68,7 @@
       "recap": "Summary",
       "appointment": "Appointment",
       "documents": "Documents",
+      "transactions": "Payments",
       "add-appo": "Add Appointment",
       "import": "Import a Document",
       "time-slot": "Time Slot",

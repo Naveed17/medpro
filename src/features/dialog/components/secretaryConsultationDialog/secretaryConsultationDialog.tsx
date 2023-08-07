@@ -6,38 +6,137 @@ import {
     Card,
     CardContent,
     Checkbox,
+    DialogActions,
     Grid,
     IconButton,
     InputAdornment,
     InputBase,
     Stack,
     TextField,
+    Theme,
     Typography,
+    useMediaQuery,
 } from "@mui/material";
 import RootStyled from "./overrides/rootSyled";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CheckIcon from '@mui/icons-material/Check';
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import moment from "moment-timezone";
+import {useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import CloseIcon from "@mui/icons-material/Close";
+import {Dialog} from "@features/dialog";
+import {configSelector} from "@features/base";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {useRouter} from "next/router";
+import {useRequestMutation} from "@lib/axios";
+import {consultationSelector} from "@features/toolbar";
+import {LoadingButton} from "@mui/lab";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext},
+        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext, appointment},
     } = props;
 
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
     const {data: session} = useSession();
+
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+
+    const router = useRouter();
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+
+    const {direction} = useAppSelector(configSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {mutate} = useAppSelector(consultationSelector);
+
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+
+    const {
+        paymentTypesList
+    } = useAppSelector(cashBoxSelector);
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+    };
+    const openDialogPayment = () => {
+        let payments: any[] = [];
+        if (appointment.transactions) {
+            appointment.transactions.transaction_data.map((td: any) => {
+                let pay: any = {
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data
+                }
+                if (td.insurance)
+                    pay["insurance"] = td.insurance.uuid
+                if (td.payment_means)
+                    pay["payment_means"] = paymentTypesList.find((pt: {
+                        slug: string;
+                    }) => pt.slug === td.payment_means.slug)
+                payments.push(pay)
+            })
+        }
+        setSelectedPayment({
+            uuid: app_uuid,
+            payments,
+            payed_amount: getTransactionAmountPayed(),
+            appointment,
+            total,
+            isNew: getTransactionAmountPayed() === 0
+        })
+        setOpenPaymentDialog(true);
+    }
+    const getTransactionAmountPayed = (): number => {
+        let payed_amount = 0;
+        if (appointment.transactions)
+            appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
+        return payed_amount;
+    }
+
+    const handleOnGoingPaymentDialog = () => {
+        setLoading(true);
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            session,
+            medical_entity.uuid,
+            appointment.transactions,
+            triggerPostTransaction,
+            urlMedicalEntitySuffix,
+            () => {
+                mutate().then(() => {
+                    setOpenPaymentDialog(false);
+                    setLoading(false)
+                })
+            });
+
+    }
+
 
     return (
         <RootStyled>
@@ -71,26 +170,40 @@ function SecretaryConsultationDialog({...props}) {
                                 ),
                             }}
                         />
-                        <Stack direction={"row"} alignItems={"center"}>
-                            <Typography mr={1}>Montant à payer : </Typography>
+                        {
+                            total - getTransactionAmountPayed() !== 0 &&
+                            <Stack direction={"row"} alignItems={"center"}>
+                                <Typography mr={1}>{t("amount_paid")}</Typography>
+                                <Label
+                                    variant="filled"
+                                    color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
+                                    sx={{color: (theme) => theme.palette.text.primary}}>
+                                    <Typography
+                                        color="text.primary"
+                                        variant="subtitle1"
+                                        mr={0.3}
+                                        fontWeight={600}>
+                                        {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                    </Typography>
+                                    {devise}
+                                </Label>
+                                <Button
+                                    variant="contained"
+                                    size={"small"}
+                                    style={{
+                                        marginLeft: 5
+                                    }}
+                                    {...(isMobile && {
 
-                            <Label
-                                variant="filled"
-                                color="success"
-                                sx={{color: (theme) => theme.palette.text.primary}}>
-                                <Typography
-                                    color="text.primary"
-                                    variant="subtitle1"
-                                    mr={0.3}
-                                    fontWeight={600}>
-                                    {total}
-                                </Typography>
-                                {devise}
-                            </Label>
-
-                        </Stack>
-
-
+                                        sx: {minWidth: 40},
+                                    })}
+                                    onClick={openDialogPayment}
+                                >
+                                    <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
+                                    <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
+                                </Button>
+                            </Stack>
+                        }
                         <Button
                             className="counter-btn"
                             disableRipple
@@ -186,6 +299,40 @@ function SecretaryConsultationDialog({...props}) {
                 </Grid>
 
             </Grid>
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    selectedPayment,
+                    setSelectedPayment,
+                    appointment
+                }}
+                size={"md"}
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            // disabled={selectedPayment && selectedPayment.payments.length === 0}
+                            variant="contained"
+                            loading={loading}
+                            onClick={handleOnGoingPaymentDialog}
+                            startIcon={<Icon path="ic-dowlaodfile"/>}>
+                            {t("save", {ns: "common"})}
+                        </LoadingButton>
+                    </DialogActions>
+                }
+            />
 
         </RootStyled>
     );

@@ -62,7 +62,7 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room,newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
@@ -184,7 +184,13 @@ function SideBarMenu({children}: LayoutProps) {
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
+
     });
+
+    useEffect(()=>{
+        menuItems[3].href= localStorage.getItem('newCash') === "1" ?"/dashboard/cashbox":"/dashboard/payment";
+        setMenuItems([...menuItems])
+    },[newCashBox]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const currentDay = sortedData.find((event) => event.date === moment().format("DD-MM-YYYY"));
