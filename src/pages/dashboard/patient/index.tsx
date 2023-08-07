@@ -83,7 +83,7 @@ import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
-import { MobileContainer as MobileWidth } from "@lib/constants";
+import {MobileContainer as MobileWidth} from "@lib/constants";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -297,28 +297,9 @@ function Patient() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, isMobile ? SWRNoValidateConfig : "");
+    } : null, isMobile && SWRNoValidateConfig);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-    useEffect(() => {
-        if (httpPatientsResponse) {
-            setRows((prev) => [...prev, ...(httpPatientsResponse as HttpResponse)?.data?.list]);
-        }
-
-    }, [httpPatientsResponse])
-
-    useEffect(() => {
-        if (filter?.type || filter?.patient) {
-            const query = prepareSearchKeys(filter as any);
-            setLocalFilter(query);
-        }
-    }, [filter]);
-
-    useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const submitStepper = (index: number) => {
         if (index === 2) {
@@ -462,6 +443,7 @@ function Patient() {
     const onFilterPatient = (value: string) => {
         dispatch(setFilter({patient: {name: value}}));
     }
+
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
@@ -478,7 +460,32 @@ function Patient() {
 
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
-    })
+    });
+
+    useEffect(() => {
+        if (httpPatientsResponse) {
+            const patients = (httpPatientsResponse as HttpResponse)?.data?.list as PatientModel[];
+            if (isMobile && localFilter?.length > 0) {
+                setRows(patients)
+            } else {
+                setRows((prev) => [...prev, ...patients]);
+            }
+        }
+    }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (filter?.type || filter?.patient) {
+            const query = prepareSearchKeys(filter as any);
+            setLocalFilter(query);
+        }
+    }, [filter]);
+
+    useEffect(() => {
+        if (isMounted.current && !lock) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         //remove query params on load from url
         router.replace(router.pathname, undefined, {shallow: true});
@@ -519,19 +526,19 @@ function Patient() {
             <Box className="container">
                 <DesktopContainer>
 
-                        <Otable
-                            {...{t, insurances, mutatePatient: mutate}}
-                            headers={headCells}
-                            handleEvent={handleTableActions}
-                            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
-                            total={(httpPatientsResponse as HttpResponse)?.data?.total}
-                            totalPages={
-                                (httpPatientsResponse as HttpResponse)?.data?.totalPages
-                            }
-                            from={"patient"}
-                            pagination
-                            loading={!Boolean(httpPatientsResponse)}
-                        />
+                    <Otable
+                        {...{t, insurances, mutatePatient: mutate}}
+                        headers={headCells}
+                        handleEvent={handleTableActions}
+                        rows={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        total={(httpPatientsResponse as HttpResponse)?.data?.total}
+                        totalPages={
+                            (httpPatientsResponse as HttpResponse)?.data?.totalPages
+                        }
+                        from={"patient"}
+                        pagination
+                        loading={!Boolean(httpPatientsResponse)}
+                    />
 
                 </DesktopContainer>
                 <MobileContainer>
