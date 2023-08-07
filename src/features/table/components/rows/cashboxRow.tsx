@@ -114,6 +114,7 @@ function PaymentRow({...props}) {
             medical_entity.uuid,
             row,
             triggerPostTransaction,
+            urlMedicalEntitySuffix,
             () => {
                 mutateTransctions().then(() => {
                     mutatePatientWallet()

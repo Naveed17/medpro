@@ -2,13 +2,14 @@ import React, {useEffect, useState} from 'react'
 import {Box, Button, Stack, TextField, Typography, useTheme} from '@mui/material'
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry,UrlMedicalEntitySuffix} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PaymentDialogStyled from "@features/dialog/components/paymentDialog/overrides/paymentDialogStyle";
 import {Otable} from "@features/table";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -79,6 +80,9 @@ function CashOutDialog({...props}) {
 
     const {t, ready} = useTranslation("payment");
 
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+
     const [encaissementSelect, setEncaissementSelect] = useState('cash');
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
@@ -101,14 +105,14 @@ function CashOutDialog({...props}) {
 
     const {data: httpCheckResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
+        url: `${UrlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     });
     const {data: httpCashResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`,
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },

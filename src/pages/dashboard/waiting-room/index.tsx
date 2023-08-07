@@ -146,6 +146,7 @@ function WaitingRoom() {
             medical_entity.uuid,
             row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
             triggerPostTransaction,
+            urlMedicalEntitySuffix,
             () => {
                 mutateWaitingRoom().then(() => {
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});

@@ -38,6 +38,7 @@ import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 const limit = 255;
 
@@ -72,6 +73,9 @@ function SecretaryConsultationDialog({...props}) {
     const {
         paymentTypesList
     } = useAppSelector(cashBoxSelector);
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
 
     const resetDialog = () => {
         setOpenPaymentDialog(false);
@@ -123,6 +127,7 @@ function SecretaryConsultationDialog({...props}) {
             medical_entity.uuid,
             appointment.transactions,
             triggerPostTransaction,
+            urlMedicalEntitySuffix,
             () => {
                 mutate().then(() => {
                     setOpenPaymentDialog(false);
