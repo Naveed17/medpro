@@ -195,7 +195,16 @@ function PaymentDialog({...props}) {
         })
         return total
     }
-
+    const checkCheques = () => {
+        let total = 0;
+        let hasEmpty = false;
+        values.check.map((check: { amount: number }) => {
+            if (check.amount.toString() === "")
+                hasEmpty = true;
+            else total += check.amount;
+        });
+        return hasEmpty ? hasEmpty : total > calculRest();
+    }
     const calculRest = () => {
         let paymentTotal = 0
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
@@ -559,7 +568,7 @@ function PaymentDialog({...props}) {
                                                 + {t("add_cheque")}
                                             </Button>
 
-                                            <Button disabled={true}
+                                            <Button disabled={checkCheques()}
                                                     onClick={() => {
                                                         let updatedPays: any[] = [];
                                                         values.check?.map((ck: any) => {
@@ -569,6 +578,7 @@ function PaymentDialog({...props}) {
                                                                 status_transaction: TransactionStatus[1].value,
                                                                 type_transaction: TransactionType[2].value,
                                                                 amount: ck.amount,
+                                                                data: ck,
                                                                 payment_means: paymentTypesList.find((pt: {
                                                                     slug: string;
                                                                 }) => pt.slug === deals.selected)
@@ -663,7 +673,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t,patient:appointment ?appointment.patient : null}}
+                                    {...{t, patient: appointment ? appointment.patient : null}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

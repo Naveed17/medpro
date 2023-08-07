@@ -39,6 +39,22 @@ const headCheques: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "carrier",
+        numeric: false,
+        disablePadding: true,
+        label: "carrier",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "bank",
+        numeric: false,
+        disablePadding: true,
+        label: "bank",
+        sortable: true,
+        align: "left",
+    },
+    {
         id: "date",
         numeric: true,
         disablePadding: true,
@@ -101,8 +117,13 @@ function CashOutDialog({...props}) {
     useEffect(() => {
         if (httpCheckResponse) {
             const transactions = (httpCheckResponse as HttpResponse).data.transactions;
+            let checks:any[] = [];
+            console.log(transactions);
+            transactions.forEach((transaction: { transaction_data: any[]; }) => {
+                transaction.transaction_data.filter(td => td.payment_means.slug === "check").map(td => checks.push(td))
+            })
             if (transactions)
-                setCheques(transactions)
+                setCheques(checks);
         }
     }, [httpCheckResponse])
 

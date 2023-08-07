@@ -240,48 +240,47 @@ function Cashbox() {
         setOpenPaymentDialog(false);
     };
     const handleSubmit = () => {
-        let amount = 0
-        const trans_data: TransactionDataModel[] = [];
-        selectedPayment.payments.map((sp: any) => {
-            trans_data.push({
-                payment_means: sp.payment_means.uuid,
-                insurance: "",
-                amount: sp.amount,
-                status_transaction: TransactionStatus[0].value,
-                type_transaction: action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value,
-                payment_date: sp.date,
-                data: {label: sp.designation, ...sp.data},
+        if (actionDialog ==='payment_dialog'){
+            let amount = 0
+            const trans_data: TransactionDataModel[] = [];
+            selectedPayment.payments.map((sp: any) => {
+                trans_data.push({
+                    payment_means: sp.payment_means.uuid,
+                    insurance: "",
+                    amount: sp.amount,
+                    status_transaction: TransactionStatus[0].value,
+                    type_transaction: action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value,
+                    payment_date: sp.date,
+                    data: {label: sp.designation, ...sp.data},
+                });
+                amount += sp.amount;
             });
-            amount += sp.amount;
-        });
 
-        const form = new FormData();
-        form.append("type_transaction", action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value);
-        form.append("status_transaction", TransactionStatus[0].value);
-        form.append("cash_box", selectedBoxes[0].uuid);
-        form.append("amount", amount.toString());
-        form.append("rest_amount", "0");
-        form.append("transaction_data", JSON.stringify(trans_data));
+            const form = new FormData();
+            form.append("type_transaction", action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value);
+            form.append("status_transaction", TransactionStatus[0].value);
+            form.append("cash_box", selectedBoxes[0].uuid);
+            form.append("amount", amount.toString());
+            form.append("rest_amount", "0");
+            form.append("transaction_data", JSON.stringify(trans_data));
 
-        triggerPostTransaction({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
-            mutateTransctions().then(() => {
-                /* getEncaissementsTransaction((pmList.find((pl: {
-                slug: string;
-            }) => pl.slug === 'check') as any)?.uuid, 'check');
-            getEncaissementsTransaction((pmList.find((pl: {
-                slug: string;
-            }) => pl.slug === 'cash') as any)?.uuid, 'cash');*/
+            triggerPostTransaction({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(() => {
+                enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
+                mutateTransctions().then(() => {
+                });
             });
-        });
-        setOpenPaymentDialog(false);
+            setOpenPaymentDialog(false);
+        } else {
+            console.log('cashout please')
+        }
+
 
     };
 
