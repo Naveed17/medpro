@@ -339,7 +339,6 @@ function ActFees() {
 
     if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
-    console.log(localStorage.getItem('newCash'))
     return (
         <>
             <SubHeader>
@@ -400,7 +399,6 @@ function ActFees() {
                             <Checkbox
                                 checked={isChecked}
                                 onChange={() =>{
-                                    console.log(localStorage.getItem('newCash'))
                                     dispatch(setOngoing({newCashBox: !isChecked}));
                                     localStorage.setItem('newCash',!isChecked ? '1':'0')
                                     setIsChecked(!isChecked);

@@ -206,7 +206,6 @@ function Cashbox() {
         const data = (httpTransResponse as HttpResponse)?.data
         setTotal(data.total_amount)
         setToReceive(data.total_insurance_amount);
-        console.log(data)
         if (data.transactions)
             setRows(data.transactions.reverse());
         if (filterQuery.includes('cashboxes'))
@@ -214,7 +213,6 @@ function Cashbox() {
 
     }
     const handleTableActions = (data: any) => {
-        console.log(data);
         switch (data.action) {
             case "PATIENT_DETAILS":
                 if (data.row?.patient?.uuid) {
@@ -278,7 +276,7 @@ function Cashbox() {
             });
             setOpenPaymentDialog(false);
         } else {
-            console.log('cashout please')
+            // traitement cashout ( in progress )
         }
 
 
