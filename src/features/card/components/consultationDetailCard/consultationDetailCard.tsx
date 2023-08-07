@@ -370,7 +370,7 @@ function CIPPatientHistoryCard({...props}) {
                             <TextField
                                 fullWidth
                                 multiline
-                                rows={8}
+                                maxRows={8}
                                 value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
@@ -405,8 +405,8 @@ function CIPPatientHistoryCard({...props}) {
                                 id={"diagnosis"}
                                 size="small"
                                 value={values.diagnosis}
-                                multiline={true}
-                                rows={5}
+                                multiline
+                                maxRows={8}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
