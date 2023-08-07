@@ -278,8 +278,6 @@ function Cashbox() {
         } else {
             // traitement cashout ( in progress )
         }
-
-
     };
 
     return (

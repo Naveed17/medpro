@@ -41,7 +41,6 @@ export const ImportCardData = {
     }]
 };
 
-const fetcher = (url: string) => instanceAxios({method: "GET", url}).then((res) => res);
 import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
