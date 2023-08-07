@@ -42,8 +42,6 @@ function Cashbox() {
         filterCB
     } = useAppSelector(cashBoxSelector);
 
-    const newVersion = process.env.NODE_ENV === 'development';
-
     useEffect(() => {
         let boxes = '';
         selectedBoxes.map((box: { uuid: any; }, index: number) => {
@@ -107,194 +105,191 @@ function Cashbox() {
                 {...{notes, disabled: !filterDate || byPeriod}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
 
-            {
-                newVersion && <Accordion
-                    translate={{
-                        t: t,
-                        ready: ready,
-                    }}
-                    defaultValue={""}
-                    data={[
-                        {
-                            heading: {
-                                id: "date",
-                                icon: "ic-agenda-jour",
-                                title: "date",
-                            },
-                            expanded: true,
-                            children: (
-                                <DateFilter {...{
-                                    filterDate,
-                                    setFilterDate,
-                                    byPeriod,
-                                    setByPeriod,
-                                    startDate,
-                                    currentDate,
-                                    setStartDate,
-                                    filterCB,
-                                    setFilterCB,
-                                    endDate,
-                                    setEndDate
-                                }}/>
-                            ),
+            <Accordion
+                translate={{
+                    t: t,
+                    ready: ready,
+                }}
+                defaultValue={""}
+                data={[
+                    {
+                        heading: {
+                            id: "date",
+                            icon: "ic-agenda-jour",
+                            title: "date",
                         },
-                        {
-                            heading: {
-                                id: "boxes",
-                                icon: "ic-invoice",
-                                title: "boxes",
-                            },
-                            expanded: true,
-                            children: (
-                                <BoxesFilter/>
-                            ),
+                        expanded: true,
+                        children: (
+                            <DateFilter {...{
+                                filterDate,
+                                setFilterDate,
+                                byPeriod,
+                                setByPeriod,
+                                startDate,
+                                currentDate,
+                                setStartDate,
+                                filterCB,
+                                setFilterCB,
+                                endDate,
+                                setEndDate
+                            }}/>
+                        ),
+                    },
+                    {
+                        heading: {
+                            id: "boxes",
+                            icon: "ic-invoice",
+                            title: "boxes",
                         },
-                        {
-                            heading: {
-                                id: "facturation",
-                                icon: "ic-invoice",
-                                title: "facturationState",
-                            },
-                            expanded: true,
-                            children: (
-                                <Stack direction={"row"}>
-                                    <FormControlLabel
-                                        label={t('yes')}
-                                        control={
-                                            <Checkbox
-                                                checked={filterCB.status_transaction === '1'}
-                                                onChange={(ev) => {
-                                                    dispatch(setFilterCB({
-                                                        ...filterCB,
-                                                        status_transaction: ev.target.checked ? '1' : ''
-                                                    }));
-                                                }}
-                                            />
-                                        }
-                                    />
-                                    <FormControlLabel
-                                        label={t('no')}
-                                        control={
-                                            <Checkbox
-                                                checked={filterCB.status_transaction === '2'}
-                                                onChange={(ev) => {
-                                                    dispatch(setFilterCB({
-                                                        ...filterCB,
-                                                        status_transaction: ev.target.checked ? '2' : ''
-                                                    }));
-                                                }
-                                                }
-                                            />
-                                        }
-                                    />
-                                </Stack>
-                            ),
+                        expanded: true,
+                        children: (
+                            <BoxesFilter/>
+                        ),
+                    },
+                    {
+                        heading: {
+                            id: "facturation",
+                            icon: "ic-invoice",
+                            title: "facturationState",
                         },
-                        {
-                            heading: {
-                                id: "paymentType",
-                                icon: "ic-argent",
-                                title: "paymentType",
-                            },
-                            expanded: true,
-                            children: (
-                                <Box>
-                                    {paymentTypesList.map((item: any, index: number) => (
-                                        <ItemCheckbox
-                                            key={`pt${index}`}
-                                            data={item}
-                                            checked={paymentTypes.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
-                                            onChange={() => {
-                                                const index = paymentTypes.findIndex((sb: {
-                                                    uuid: any;
-                                                }) => sb.uuid === item.uuid)
-                                                let boxes = [...paymentTypes]
-                                                if (index >= 0) {
-                                                    boxes.splice(index, 1)
-                                                } else {
-                                                    boxes.push(item);
-                                                }
-                                                dispatch(setPaymentTypes(boxes));
+                        expanded: true,
+                        children: (
+                            <Stack direction={"row"}>
+                                <FormControlLabel
+                                    label={t('yes')}
+                                    control={
+                                        <Checkbox
+                                            checked={filterCB.status_transaction === '1'}
+                                            onChange={(ev) => {
+                                                dispatch(setFilterCB({
+                                                    ...filterCB,
+                                                    status_transaction: ev.target.checked ? '1' : ''
+                                                }));
                                             }}
-                                        ></ItemCheckbox>))}
-                                    {paymentTypesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
-                                                                                  color={"gray"}>{t('nopaymentMeans')}</Typography>}
-                                </Box>
-                            ),
+                                        />
+                                    }
+                                />
+                                <FormControlLabel
+                                    label={t('no')}
+                                    control={
+                                        <Checkbox
+                                            checked={filterCB.status_transaction === '2'}
+                                            onChange={(ev) => {
+                                                dispatch(setFilterCB({
+                                                    ...filterCB,
+                                                    status_transaction: ev.target.checked ? '2' : ''
+                                                }));
+                                            }
+                                            }
+                                        />
+                                    }
+                                />
+                            </Stack>
+                        ),
+                    },
+                    {
+                        heading: {
+                            id: "paymentType",
+                            icon: "ic-argent",
+                            title: "paymentType",
                         },
-                        {
-                            heading: {
-                                id: "insurance",
-                                icon: "ic-assurance",
-                                title: "insurance",
-                            },
-                            expanded: true,
-                            children: (
-                                <Box>
-                                    {insurancesList && insurancesList.map((item: any, index: number) => (
-                                        <ItemCheckbox
-                                            key={index}
-                                            data={item}
-                                            checked={insurances.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
-                                            onChange={() => {
-                                                const index = insurances.findIndex((sb: {
-                                                    uuid: any;
-                                                }) => sb.uuid === item.uuid)
-                                                let boxes = [...insurances]
-                                                if (index >= 0) {
-                                                    boxes.splice(index, 1)
-                                                } else {
-                                                    boxes.push(item);
-                                                }
-                                                dispatch(setInsurances(boxes));
-                                            }}
-                                        ></ItemCheckbox>))}
-                                    {insurancesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
-                                                                                color={"gray"}>{t('noInsurance')}</Typography>}
-                                </Box>
-                            ),
-                        },
-                        {
-                            heading: {
-                                id: "patient",
-                                icon: "ic-patient",
-                                title: "patient",
-                            },
-                            expanded: true,
-                            children: (
-                                <FilterRootStyled>
-                                    <PatientFilter
-                                        OnSearch={(data: { query: ActionBarState }) => {
-                                            dispatch(setFilterCB({
-                                                ...filterCB, ...data.query
-                                            }));
+                        expanded: true,
+                        children: (
+                            <Box>
+                                {paymentTypesList.map((item: any, index: number) => (
+                                    <ItemCheckbox
+                                        key={`pt${index}`}
+                                        data={item}
+                                        checked={paymentTypes.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
+                                        onChange={() => {
+                                            const index = paymentTypes.findIndex((sb: {
+                                                uuid: any;
+                                            }) => sb.uuid === item.uuid)
+                                            let boxes = [...paymentTypes]
+                                            if (index >= 0) {
+                                                boxes.splice(index, 1)
+                                            } else {
+                                                boxes.push(item);
+                                            }
+                                            dispatch(setPaymentTypes(boxes));
                                         }}
-                                        item={{
-                                            heading: {
-                                                icon: "ic-patient",
-                                                title: "patient",
-                                            },
-                                            gender: {
-                                                heading: "gender",
-                                                genders: ["male", "female"],
-                                            },
-                                            textField: {
-                                                labels: [
-                                                    {label: "name", placeholder: "search"},
-                                                    {label: "birthdate", placeholder: "--/--/----"}
-                                                ],
-                                            },
-                                        }} t={t}/>
-                                </FilterRootStyled>
-                            ),
-                        }
-                    ]}
-                    setData={()=>{
+                                    ></ItemCheckbox>))}
+                                {paymentTypesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
+                                                                              color={"gray"}>{t('nopaymentMeans')}</Typography>}
+                            </Box>
+                        ),
+                    },
+                    {
+                        heading: {
+                            id: "insurance",
+                            icon: "ic-assurance",
+                            title: "insurance",
+                        },
+                        expanded: true,
+                        children: (
+                            <Box>
+                                {insurancesList && insurancesList.map((item: any, index: number) => (
+                                    <ItemCheckbox
+                                        key={index}
+                                        data={item}
+                                        checked={insurances.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
+                                        onChange={() => {
+                                            const index = insurances.findIndex((sb: {
+                                                uuid: any;
+                                            }) => sb.uuid === item.uuid)
+                                            let boxes = [...insurances]
+                                            if (index >= 0) {
+                                                boxes.splice(index, 1)
+                                            } else {
+                                                boxes.push(item);
+                                            }
+                                            dispatch(setInsurances(boxes));
+                                        }}
+                                    ></ItemCheckbox>))}
+                                {insurancesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
+                                                                            color={"gray"}>{t('noInsurance')}</Typography>}
+                            </Box>
+                        ),
+                    },
+                    {
+                        heading: {
+                            id: "patient",
+                            icon: "ic-patient",
+                            title: "patient",
+                        },
+                        expanded: true,
+                        children: (
+                            <FilterRootStyled>
+                                <PatientFilter
+                                    OnSearch={(data: { query: ActionBarState }) => {
+                                        dispatch(setFilterCB({
+                                            ...filterCB, ...data.query
+                                        }));
+                                    }}
+                                    item={{
+                                        heading: {
+                                            icon: "ic-patient",
+                                            title: "patient",
+                                        },
+                                        gender: {
+                                            heading: "gender",
+                                            genders: ["male", "female"],
+                                        },
+                                        textField: {
+                                            labels: [
+                                                {label: "name", placeholder: "search"},
+                                                {label: "birthdate", placeholder: "--/--/----"}
+                                            ],
+                                        },
+                                    }} t={t}/>
+                            </FilterRootStyled>
+                        ),
+                    }
+                ]}
+                setData={() => {
 
-                    }}
-                />
-            }
-
+                }}
+            />
         </BoxStyled>
     )
 }
