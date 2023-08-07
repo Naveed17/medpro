@@ -39,10 +39,10 @@ function Settings() {
 
     return (
         <SettingBarStyled>
-            <Typography variant="h6" className="heading">
+            <Box sx={{width: "100%", bgcolor: "background.paper",height:'100vh'}}>
+                  <Typography variant="h6" className="heading" mb={2}>
                 {t('menu.' + settingsData.title)}
             </Typography>
-            <Box sx={{width: "100%", bgcolor: "background.paper"}}>
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData.data.map((v: any) => (

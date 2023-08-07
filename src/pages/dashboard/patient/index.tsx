@@ -83,6 +83,7 @@ import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+import { MobileContainer as MobileWidth } from "@lib/constants";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -181,7 +182,7 @@ function Patient() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -517,7 +518,7 @@ function Patient() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-                    <Box display={{xs: "none", md: "block"}}>
+
                         <Otable
                             {...{t, insurances, mutatePatient: mutate}}
                             headers={headCells}
@@ -531,7 +532,7 @@ function Patient() {
                             pagination
                             loading={!Boolean(httpPatientsResponse)}
                         />
-                    </Box>
+
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
