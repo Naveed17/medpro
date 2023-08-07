@@ -8,12 +8,13 @@ import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
 import {Redirect} from "@features/redirect";
 import dynamic from "next/dynamic";
+import { MobileContainer } from "@lib/constants";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 
 function Settings() {
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const {t, ready} = useTranslation('settings');
     if (!isMobile) {
         return <Redirect to='/dashboard/settings/profil'/>
@@ -21,7 +22,7 @@ function Settings() {
     if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
 
     return (
-        <Box className="container">
+        <Box>
             <SettingsFilter/>
         </Box>
     )

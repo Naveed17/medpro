@@ -196,3 +196,5 @@ export const TransactionStatus = [
         value: "3",
     },
 ];
+
+export const MobileContainer:number = 768
