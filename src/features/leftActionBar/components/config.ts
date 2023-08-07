@@ -27,6 +27,14 @@ const LeftActionsData = [
     ),
   },
   {
+    pathname: path(ROOTS.app, "/cashbox"),
+    component: dynamic((): any =>
+        import(
+            "@features/leftActionBar/components/cashbox/cashbox"
+            ).then((mod) => mod)
+    ),
+  },
+  {
     pathname: path(ROOTS.app, "/consultation"),
     component: dynamic((): any =>
       import(

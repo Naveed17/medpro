@@ -1,11 +1,10 @@
 interface TransactionDataModel {
-  payment_means: string;
-  insurance?: string;
-  amount: number;
-  status_transaction: string;
-  payment_type?:any;
-  payment_date: string;
+  amount: number
+  data:any
+  insurance: string
+  payment_date:string
+  payment_means: {uuid: string, name: string, slug: string, logoUrl: string}
+  status_transaction:string
   type_transaction:string
-  data: any;
-  designation?:string;
+  uuid?:string
 }

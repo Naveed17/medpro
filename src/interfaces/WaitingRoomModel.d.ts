@@ -7,4 +7,6 @@ interface WaitingRoomModel {
     "appointment_type": AppointmentTypeModel
     "patient": PatientModel
     "fees": string
+    "rest_amount":number
+    "transactions": null | any[]
 }

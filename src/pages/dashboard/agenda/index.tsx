@@ -1407,7 +1407,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(context.locale as string,
-            ['common', 'menu', 'agenda', 'patient', 'consultation']))
+            ['common', 'menu', 'agenda', 'patient', 'consultation','payment']))
     }
 })
 

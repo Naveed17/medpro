@@ -10,6 +10,7 @@ import React, {useState} from 'react';
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import moment from "moment-timezone";
 
 function ChequeRow({...props}) {
     const {row, isItemSelected, t, labelId, loading, editMotif} = props;
@@ -75,7 +76,24 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.numero}
+                            {row.data.check_number}
+                        </Typography>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell><TableCell >
+                    {row ? (
+                        <Typography className="name" variant="body1" color="text.primary">
+                            {row.data.carrier}
+                        </Typography>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell>
+                <TableCell >
+                    {row ? (
+                        <Typography className="name" variant="body1" color="text.primary">
+                            {row.data.bank}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -100,7 +118,7 @@ function ChequeRow({...props}) {
                             }
                         }}>
                             <Icon path="ic-agenda"/>
-                            <Typography variant="body2">{row.date}</Typography>
+                            <Typography variant="body2">{moment(row.data.payment_date).format('DD/MM/YYYY')}</Typography>
                         </Stack>
                     )}
                 </TableCell>
