@@ -2,6 +2,7 @@
 import {styled} from "@mui/material/styles";
 import {AppBar} from "@mui/material";
 import {pxToRem} from "@themes/formatFontSize";
+import { MobileContainer } from "@lib/constants";
 
 const NavbarStyled = styled(AppBar)(({theme}) => ({
     borderWidth: "0 0 1px 0",
@@ -21,7 +22,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
     },
     "& .btn": {
         marginRight: pxToRem(24),
-        "@media (max-width: 768px)": {
+        [`@media (max-width: ${MobileContainer}px)`]: {
             marginRight: 5,
         },
     },
@@ -56,7 +57,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
             "&:not(:last-child)": {
                 marginRight: 20,
             },
-            "@media (max-width: 768px)": {
+            [`@media (max-width: ${MobileContainer}px)`]: {
                 "&:not(:last-child)": {
                     marginRight: 0,
                 },
@@ -76,7 +77,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
     "& .nav-logo": {
         lineHeight: 0,
     },
-    "@media (min-width: 769px)": {
+    [`@media (min-width: ${MobileContainer + 1}px)`]: {
         width: `calc(100% - ${pxToRem(84)})`,
         transition: "all ease-in-out 0.5s",
         marginLeft: pxToRem(84),
@@ -86,7 +87,7 @@ const NavbarStyled = styled(AppBar)(({theme}) => ({
             marginLeft: pxToRem(368),
         },
     },
-    "@media (max-width: 768px)": {
+    [`@media (max-width: ${MobileContainer}px)`]: {
         paddingTop: 10,
     },
 }));

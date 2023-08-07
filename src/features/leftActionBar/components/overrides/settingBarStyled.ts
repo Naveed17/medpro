@@ -1,3 +1,4 @@
+import { MobileContainer } from "@lib/constants";
 import {styled} from "@mui/material/styles";
 
 const SettingBarStyled = styled("div")(({theme}) => ({
@@ -59,13 +60,13 @@ const SettingBarStyled = styled("div")(({theme}) => ({
             height: "auto",
             marginBottom: "2px",
         },
-        "@media (max-width: 768px)": {
+        [`@media (max-width: ${MobileContainer}px)`]: {
             "& .MuiListItemButton-root": {
                 borderRadius: 6,
             },
         },
     },
-    "@media (max-width: 768px)": {
+    [`@media (max-width: ${MobileContainer}px)`]: {
         position: "fixed",
         top: "60px",
         height: "100%",

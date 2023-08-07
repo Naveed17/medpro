@@ -158,3 +158,5 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 export const MedicalFormUnit = data;
 
 export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+
+export const MobileContainer:number = 768

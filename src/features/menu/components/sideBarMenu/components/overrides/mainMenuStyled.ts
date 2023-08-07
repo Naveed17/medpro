@@ -1,9 +1,10 @@
 import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
+import { MobileContainer } from "@lib/constants";
 
 const MainMenuStyled = styled(Box)(({theme}) => ({
     display: "flex",
-    "@media (max-width: 768px)": {
+    [`@media (max-width: ${MobileContainer}px)`]: {
         flexDirection: "column",
     },
     "& .body-main": {
@@ -104,7 +105,7 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                 },
             },
         },
-        "@media screen and (max-width: 768px)": {
+        [`@media (max-width: ${MobileContainer}px)`]: {
             display: "none",
         },
     },

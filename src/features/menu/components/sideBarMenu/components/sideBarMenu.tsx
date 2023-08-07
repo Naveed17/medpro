@@ -50,10 +50,10 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
-
+import { MobileContainer } from "@lib/constants";
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery('(max-width:768px)');
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const dispatch = useAppDispatch();
 

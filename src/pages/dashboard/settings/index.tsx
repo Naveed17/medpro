@@ -8,12 +8,13 @@ import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
 import {Redirect} from "@features/redirect";
 import dynamic from "next/dynamic";
+import { MobileContainer } from "@lib/constants";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 
 function Settings() {
-    const isMobile = useMediaQuery("(max-width:768px)");
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const {t, ready} = useTranslation('settings');
     if (!isMobile) {
         return <Redirect to='/dashboard/settings/profil'/>

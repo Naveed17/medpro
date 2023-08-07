@@ -47,6 +47,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
+import { MobileContainer } from "@lib/constants";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -61,8 +62,7 @@ function TopNavBar({...props}) {
     const {mutate} = useSWRConfig();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery('(max-width:768px)');
-    console.log(isMobile)
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

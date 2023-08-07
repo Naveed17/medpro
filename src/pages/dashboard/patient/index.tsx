@@ -83,7 +83,7 @@ import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
-
+import { MobileContainer as MobileWidth } from "@lib/constants";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -180,7 +180,7 @@ function Patient() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery("(max-width:768px)");
+    const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
