@@ -47,7 +47,7 @@ import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
-
+import { MobileContainer} from "@lib/constants";
 const Otable = dynamic(() => import('@features/table/components/table'));
 
 function Calendar({...props}) {
@@ -78,7 +78,7 @@ function Calendar({...props}) {
     const theme = useTheme();
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
-    const isMobile = useMediaQuery("(max-width:768px)");
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 

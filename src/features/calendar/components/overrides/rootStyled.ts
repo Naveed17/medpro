@@ -1,5 +1,5 @@
 import {styled} from "@mui/material/styles";
-
+import {MobileContainer} from "@lib/constants";
 const RootStyled = styled("div")(({theme}) => ({
     "& .fc-theme-standard .fc-scrollgrid": {
         border: "none",
@@ -99,7 +99,7 @@ const RootStyled = styled("div")(({theme}) => ({
             fontSize: 22,
             fontWeight: 400,
         },
-        "@media (max-width: 768px)": {
+         [`@media (max-width: ${MobileContainer}px)`] : {
             minHeight: 26,
             display: "block",
             "& .MuiTypography-root":{
