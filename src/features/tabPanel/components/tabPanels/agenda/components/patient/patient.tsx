@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 
@@ -34,6 +34,7 @@ function Patient({...props}) {
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
+    const [patients, setPatients] = useState<PatientModel[]>([]);
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
@@ -44,8 +45,6 @@ function Patient({...props}) {
     } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
-
-    if (!ready) return (<LoadingScreen/>);
 
     const handleOnClick = () => {
         setAddPatient(true);
@@ -128,6 +127,14 @@ function Patient({...props}) {
         });
     }
 
+    useEffect(() => {
+        if (httpPatientResponse) {
+            setPatients((httpPatientResponse as HttpResponse)?.data as PatientModel[]);
+        }
+    }, [httpPatientResponse]);
+
+    if (!ready) return (<LoadingScreen/>);
+
     return (
         <div>
             {!addPatient ? <>
@@ -144,7 +151,7 @@ function Patient({...props}) {
                             OnOpenSelect={handlePatientSearch}
                             translation={t}
                             loading={isValidating}
-                            data={(httpPatientResponse as HttpResponse)?.data}/>
+                            data={patients}/>
                     </Box>
                     {!select && <Paper
                         sx={{
