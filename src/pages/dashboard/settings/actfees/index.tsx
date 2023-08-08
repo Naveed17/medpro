@@ -394,7 +394,7 @@ function ActFees() {
 
             <Card style={{margin:20,marginBottom: 0,paddingLeft: 10}}>
                     <FormControlLabel
-                        label={t('betaversion')}
+                        label={t('betav')}
                         control={
                             <Checkbox
                                 checked={isChecked}
