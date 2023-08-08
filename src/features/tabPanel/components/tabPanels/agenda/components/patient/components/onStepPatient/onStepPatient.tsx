@@ -154,12 +154,12 @@ function OnStepPatient({...props}) {
             month: Yup.string(),
             year: Yup.string()
         }),
-        region: Yup.string().when(['address'], {
-            is: (address: string) => address && address.length > 0,
-            then: Yup.string().required(t("region-error"))
-        }),
         country: Yup.string(),
         address: Yup.string(),
+        region: Yup.string().when('address', {
+            is: (val: string) => val && val.length > 0,
+            then: (schema) => schema.required(t("region-error"))
+        }),
         insurance: Yup.array().of(
             Yup.object().shape({
                 insurance_number: Yup.string()

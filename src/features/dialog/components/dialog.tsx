@@ -39,8 +39,7 @@ function Dialogs({...props}) {
                 scroll="paper"
                 dir={direction}
                 aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description"
-            >
+                aria-describedby="scroll-dialog-description">
                 {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color

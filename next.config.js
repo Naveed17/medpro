@@ -12,6 +12,11 @@ const withPWA = require("next-pwa")({
 
 plugins.push(withPWA);
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
+
+plugins.push(withBundleAnalyzer);
 /**
  * @type {{}}
  */
