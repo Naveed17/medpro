@@ -153,7 +153,7 @@ function PaymentDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-    const maxLength =patient.insurances.length + paymentTypesList.length;
+    const maxLength = patient && patient.insurances ? patient.insurances.length + paymentTypesList.length : 1;
 
     const validationSchema = Yup.object().shape({
         totalToPay: Yup.number()
@@ -401,7 +401,7 @@ function PaymentDialog({...props}) {
                         )
                     }
 
-                    <FormControlLabel
+                    {appointment && wallet > 0 && <FormControlLabel
                         className={deals.selected === "wallet" ? "selected" : ''}
                         onClick={() => {
                             deals.selected = "wallet"
@@ -424,7 +424,7 @@ function PaymentDialog({...props}) {
 
                             </Stack>
                         }
-                    />
+                    />}
                 </FormGroup>
                 <AnimatePresence mode='wait'>
                     {(() => {
