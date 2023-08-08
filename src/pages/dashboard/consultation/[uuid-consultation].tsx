@@ -468,7 +468,6 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-
                 if (!appointment?.transactions && app_uuid){
                     const form = new FormData();
                     form.append("type_transaction", TransactionType[2].value);
