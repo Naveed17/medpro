@@ -165,8 +165,6 @@ function TransactionPanel({...props}) {
     }, [httpPatientWallet])
 
     const handleSubmit = ()=>{
-
-        console.log(selectedPayment)
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
