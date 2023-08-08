@@ -468,25 +468,7 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
-                if (!appointment?.transactions && app_uuid){
-                    const form = new FormData();
-                    form.append("type_transaction", TransactionType[2].value);
-                    form.append("status_transaction", TransactionStatus[1].value);
-                    form.append("cash_box", selectedBoxes[0]?.uuid);
-                    form.append("amount", total.toString());
-                    form.append("rest_amount", total.toString());
-                    form.append("appointment", app_uuid.toString());
-                    form.append("transaction_data", JSON.stringify([]));
-
-                    trigger({
-                        method: "POST",
-                        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                        data: form,
-                        headers: {
-                            Authorization: `Bearer ${session?.accessToken}`,
-                        },
-                    }).then(r => console.log(r))
-                }
+                checkTransactions()
 
                 if (appointment?.status !== 5) {
                     dispatch(resetTimer());
@@ -509,13 +491,12 @@ function ConsultationInProgress() {
                         setRequestLoad(false);
                     }
                     appointment?.status !== 5 && sendNotification();
-
-
                 });
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
     useEffect(() => {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
@@ -786,6 +767,28 @@ function ConsultationInProgress() {
 
         setActs([...acts])
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
+    }
+
+    const checkTransactions = ()=>{
+        if (!appointment?.transactions && app_uuid){
+            const form = new FormData();
+            form.append("type_transaction", TransactionType[2].value);
+            form.append("status_transaction", TransactionStatus[1].value);
+            form.append("cash_box", selectedBoxes[0]?.uuid);
+            form.append("amount", total.toString());
+            form.append("rest_amount", total.toString());
+            form.append("appointment", app_uuid.toString());
+            form.append("transaction_data", JSON.stringify([]));
+
+            trigger({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(r => console.log(r))
+        }
     }
 
     return (
