@@ -201,7 +201,7 @@ function TransactionPanel({...props}) {
         }).then(() => {
             enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
             mutateTransctions().then(() => {
-                walletMutate()
+                walletMutate().then(() => setOpenPaymentDialog(false))
             });
         });
     }

@@ -267,12 +267,22 @@ function PaymentRow({...props}) {
                             sx={{cursor: "pointer"}}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.appointment, event});
+                                handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
                             }}
                             underline="none">
                             {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
                         </Link>
-                    ) : (
+                    ) :row.patient ? (
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                                }}
+                                underline="none">
+                                {`${row.patient.firstName} ${row.patient.lastName}`}
+                            </Link>
+                        ): (
                         <Link underline="none">{row.transaction_data[0].data.label}</Link>
                     )}
                 </TableCell>}
@@ -509,6 +519,11 @@ function PaymentRow({...props}) {
                                                             color="text.primary"
                                                             variant="body2">
                                                             {col.insurance.insurance.name}
+                                                        </Typography>}
+                                                        {!col.payment_means && !col.insurance && <Typography
+                                                            color="text.primary"
+                                                            variant="body2">
+                                                            {t('wallet')}
                                                         </Typography>}
                                                     </Stack>
 

@@ -313,7 +313,8 @@ function SecretaryConsultationDialog({...props}) {
                 data={{
                     selectedPayment,
                     setSelectedPayment,
-                    appointment
+                    appointment,
+                    patient:appointment.patient
                 }}
                 size={"md"}
                 title={t("payment_dialog_title", {ns: "payment"})}

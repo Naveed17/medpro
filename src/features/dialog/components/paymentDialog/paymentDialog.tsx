@@ -35,9 +35,12 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {DatePicker} from "@features/datepicker";
 import {useInsurances} from "@lib/hooks/rest";
+import {useRequest} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useRouter} from "next/router";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 
 interface HeadCell {
     disablePadding: boolean;
@@ -114,20 +117,21 @@ function PaymentDialog({...props}) {
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
 
-    const {
-        paymentTypesList
-    } = useAppSelector(cashBoxSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
     const {insurances} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
 
-    const {appointment, selectedPayment, setSelectedPayment,patient} = data;
-
-    console.log(patient)
+    const {appointment, selectedPayment, setSelectedPayment, patient} = data;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
     const [byRate, setByRate] = useState(false);
+    const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
             amount: ""
@@ -149,6 +153,7 @@ function PaymentDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const maxLength =patient.insurances.length + paymentTypesList.length;
 
     const validationSchema = Yup.object().shape({
         totalToPay: Yup.number()
@@ -167,12 +172,26 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
+    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+
     useEffect(() => {
         setSelectedPayment({
             ...selectedPayment,
             payments
         });
     }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpPatientWallet) {
+            const w = (httpPatientWallet as HttpResponse).data.wallet
+            setWallet(w)
+        }
+    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
     const handleAddStep = () => {
         const step = [...values.check, {
             amount: "",
@@ -252,6 +271,18 @@ function PaymentDialog({...props}) {
                             }}
                             spacing={1}>
 
+                            {wallet > 0 && <Button size='small' variant='contained' color="success"
+                                                   {...(isMobile && {
+                                                       fullWidth: true
+                                                   })}
+                            >
+                                {t("wallet")}
+                                <Typography
+                                    fontWeight={700}
+                                    component='strong'
+                                    mx={1}>{wallet}</Typography>
+                                {devise}
+                            </Button>}
                             <Button size='small' variant='contained' color="primary"
                                     {...(isMobile && {
                                         fullWidth: true
@@ -329,7 +360,7 @@ function PaymentDialog({...props}) {
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
                                         {
-                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            !isMobile && maxLength < 5 &&
                                             <Typography>{t(method.name)}</Typography>
                                         }
 
@@ -360,7 +391,7 @@ function PaymentDialog({...props}) {
                                              alt={'insurance logo'}/>
 
                                         {
-                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            !isMobile && maxLength < 5 &&
                                             <Typography>{t(insurance.insurance.name)}</Typography>
                                         }
 
@@ -369,6 +400,31 @@ function PaymentDialog({...props}) {
                             />
                         )
                     }
+
+                    <FormControlLabel
+                        className={deals.selected === "wallet" ? "selected" : ''}
+                        onClick={() => {
+                            deals.selected = "wallet"
+                            setDeals(deals);
+                            setFieldValue("selected", "wallet")
+                        }}
+                        control={
+                            <Checkbox checked={values.selected === "wallet"}
+                                      name={t("wallet")}/>
+                        }
+                        label={
+                            <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <IconUrl path={'ic-payment'}/>
+
+                                {
+                                    !isMobile && maxLength < 5 &&
+                                    <Typography>{t("wallet")}</Typography>
+                                }
+
+                            </Stack>
+                        }
+                    />
                 </FormGroup>
                 <AnimatePresence mode='wait'>
                     {(() => {
@@ -589,6 +645,55 @@ function PaymentDialog({...props}) {
                                             </Button>
                                         </Stack>
 
+                                    </Stack>
+                                </TabPanel>
+                            case 'wallet':
+                                return <TabPanel index={0}>
+                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                        <Box width={1}>
+                                            <Typography gutterBottom>
+                                                {t('enter_the_amount')}
+                                            </Typography>
+                                            <Stack direction='row' spacing={2} alignItems="center">
+                                                <TextField
+                                                    type='number'
+                                                    fullWidth
+                                                    {...getFieldProps("cash.amount")}
+                                                    error={Boolean(touched.cash && errors.cash)}
+                                                />
+                                                <Typography variant={"body1"}>
+                                                    {devise}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Button color={"success"}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest() || Number(values.cash?.amount) > wallet}
+                                                    onClick={() => {
+                                                        const newPayment = [...payments, {
+                                                            amount: Number(values.cash?.amount),
+                                                            designation: label,
+                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                            status_transaction: TransactionStatus[1].value,
+                                                            type_transaction: TransactionType[4].value,
+                                                            wallet: true
+                                                        }]
+                                                        setPayments(newPayment);
+                                                        setLabel("");
+                                                        resetForm();
+
+                                                        setWallet(wallet - Number(values.cash?.amount));
+
+                                                        deals.selected = paymentTypesList[0].slug
+                                                        setDeals(deals);
+                                                        setFieldValue("selected", paymentTypesList[0].slug)
+                                                        setByRate(false);
+                                                    }}
+                                                    sx={{marginTop: 2}}
+                                                    startIcon={<AddIcon/>}
+                                                    variant={"contained"}>
+                                                <Typography> {t('add')}</Typography>
+                                            </Button>
+                                        </Box>
                                     </Stack>
                                 </TabPanel>
                             default:
