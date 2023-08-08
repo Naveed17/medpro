@@ -2,7 +2,7 @@ import {TextIconRadio} from "@features/buttons";
 import {
     Box, Collapse,
     FormControlLabel,
-    LinearProgress, List, ListItemButton, ListItemText, ListSubheader,
+    LinearProgress, List, ListItemButton, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -160,7 +160,7 @@ function EventType({...props}) {
                                             </Stack>
                                         );
                                     }}>
-                                    {appointmentTypes?.map((type, index) => (
+                                    {appointmentTypes?.map((type) => (
                                         <MenuItem
                                             sx={{display: "flex"}}
                                             className="text-inner"

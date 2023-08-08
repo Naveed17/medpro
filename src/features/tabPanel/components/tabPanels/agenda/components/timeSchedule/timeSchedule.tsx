@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, IconsTypes, setStepperIndex} from "@features/calendar";
+import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
@@ -29,7 +29,7 @@ import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {
-    Autocomplete, Avatar, Badge, Collapse,
+    Autocomplete, Badge, Collapse,
     DialogActions, Divider,
     IconButton,
     LinearProgress, List, ListItemButton, ListItemText, Stack,
@@ -48,8 +48,6 @@ import {dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {NotifBadgeStyled} from "@features/popover";
-import {ModelDot} from "@features/modelDot";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
