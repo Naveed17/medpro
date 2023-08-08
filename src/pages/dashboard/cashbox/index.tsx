@@ -176,7 +176,7 @@ function Cashbox() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     useEffect(() => {
         if (httpTransactionsResponse) {
