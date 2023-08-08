@@ -37,8 +37,8 @@ import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {LoadingButton} from "@mui/lab";
+import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -272,6 +272,7 @@ function WaitingRoom() {
                     payments,
                     payed_amount,
                     appointment: row,
+                    patient:row?.patient,
                     total: row?.appointment_type.price,
                     isNew: payed_amount === 0
                 });
@@ -541,7 +542,8 @@ function WaitingRoom() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    appointment: row
+                    appointment: row,
+                    patient: row?.patient
                 }}
                 size={"md"}
                 title={t("payment_dialog_title")}

@@ -191,19 +191,9 @@ function Cashbox() {
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        // to be verified
-        /*if (pmList && pmList.length > 0) {
-            getEncaissementsTransaction((pmList.find((pl: {
-                slug: string;
-            }) => pl.slug === 'check') as any)?.uuid, 'check');
-            getEncaissementsTransaction((pmList.find((pl: {
-                slug: string;
-            }) => pl.slug === 'cash') as any)?.uuid, 'cash');
-        }*/
-    }, [pmList]); // eslint-disable-line react-hooks/exhaustive-deps
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data
+        console.log(data);
         setTotal(data.total_amount)
         setToReceive(data.total_insurance_amount);
         if (data.transactions)
@@ -215,8 +205,8 @@ function Cashbox() {
     const handleTableActions = (data: any) => {
         switch (data.action) {
             case "PATIENT_DETAILS":
-                if (data.row?.patient?.uuid) {
-                    dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
+                if (data.row?.uuid) {
+                    dispatch(onOpenPatientDrawer({patientId: data.row.uuid}));
                     setPatientDetailDrawer(true);
                 }
                 break;

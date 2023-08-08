@@ -70,7 +70,9 @@
     "method": "Méthode",
     "1": "Alimentation",
     "2": "Dépenses",
-    "3": "Consultation"
+    "3": "Consultation",
+    "4": "Encaissement",
+    "5": "ALIM COMPTE"
   },
   "no-data": {
     "title": "Aucune transaction",

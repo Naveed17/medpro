@@ -180,6 +180,10 @@ export const TransactionType = [
         key: "ENC",
         value: "4",
     },
+    {
+        key: "WAL",
+        value: "5",
+    },
 ];
 
 export const TransactionStatus = [
