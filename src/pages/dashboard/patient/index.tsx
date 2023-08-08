@@ -291,6 +291,9 @@ function Patient() {
         },
     ]);
 
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
@@ -455,8 +458,6 @@ function Patient() {
         dispatch(setSelectedRows([]));
 
     };
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
 
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
@@ -525,7 +526,6 @@ function Patient() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-
                     <Otable
                         {...{t, insurances, mutatePatient: mutate}}
                         headers={headCells}
@@ -539,7 +539,6 @@ function Patient() {
                         pagination
                         loading={!Boolean(httpPatientsResponse)}
                     />
-
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
