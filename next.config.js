@@ -12,6 +12,11 @@ const withPWA = require("next-pwa")({
 
 plugins.push(withPWA);
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
+
+plugins.push(withBundleAnalyzer);
 /**
  * @type {{}}
  */
@@ -24,7 +29,7 @@ const nextConfig = withTM({
     sentry: {
         hideSourceMaps: process.env.NODE_ENV !== 'development'
     },
-    webpack: (config, {nextRuntime}) => {
+    webpack: (config) => {
         config.module.rules.push({
             test: /\.svg$/,
             use: ["@svgr/webpack", "url-loader"]
