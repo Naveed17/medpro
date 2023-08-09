@@ -34,6 +34,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
+
 export default Settings
 
 Settings.auth = true

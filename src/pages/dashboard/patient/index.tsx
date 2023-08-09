@@ -86,7 +86,6 @@ import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import axios from "axios";
 
 const humanizeDuration = require("humanize-duration");
 
