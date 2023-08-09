@@ -419,6 +419,11 @@ function Cashbox() {
                 action={actionDialog}
                 {...{
                     direction,
+                    PaperProps:{
+                        sx:{
+                            display:"none"
+                        }
+                    },
                     sx: {
                         minHeight: 380,
                     },
@@ -448,13 +453,6 @@ function Cashbox() {
                         </Button>
                     </DialogActions>
                 }
-                
-                    PaperProps={{
-   sx:{
-    display:'none'
-   }
-  }}
-                
             />
 
         </>
