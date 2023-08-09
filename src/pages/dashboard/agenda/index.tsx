@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -907,10 +907,10 @@ function Agenda() {
         }).then((value: any) => {
             setLoading(false);
             if (value?.data.status === 'success') {
+                refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setQuickAddAppointment(false);
-                refreshData();
             }
         });
     }
@@ -1224,9 +1224,11 @@ function Agenda() {
                             {...{loading}}
                             variant="contained"
                             color={"primary"}
-                            onClick={handleAddAppointmentRequest}
-                            disabled={recurringDates.length === 0 || type === "" || !patient}
-                        >
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleAddAppointmentRequest();
+                            }}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                         </LoadingButton>
                     </Paper>
@@ -1418,13 +1420,22 @@ function Agenda() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async (context) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(context.locale as string,
-            ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    // `getStaticProps` is executed on the server side.
+    const {data: countries} = await instanceAxios({
+        url: `/api/public/places/countries/${locale}?nationality=true`,
+        method: "GET"
+    });
+
+    return {
+        props: {
+            fallback: {
+                [`/api/public/places/countries/${locale}?nationality=true`]: countries
+            },
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+        }
     }
-})
+}
 
 export default Agenda
 
