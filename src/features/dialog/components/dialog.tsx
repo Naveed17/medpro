@@ -4,12 +4,13 @@ import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,} fro
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 
 function Dialogs({...props}) {
     const {
         action,
+        PaperProps={},
         data,
         contrastText,
         open,
@@ -28,13 +29,18 @@ function Dialogs({...props}) {
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth] = useState(true);
     const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
+    const [paperStyle,setPaperStyle] = useState(PaperProps);
     const Component: any = selected ? selected.component : action;
-
+    useEffect(() => {
+        setPaperStyle({...PaperProps})
+    
+    },[PaperProps])
     return (
         <>
             <Dialog
-                {...rest}
                 {...{open, maxWidth, fullWidth}}
+                {...rest}
+                PaperProps={paperStyle}
                 onClose={dialogClose}
                 scroll="paper"
                 dir={direction}

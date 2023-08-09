@@ -448,6 +448,13 @@ function Cashbox() {
                         </Button>
                     </DialogActions>
                 }
+                
+                    PaperProps={{
+   sx:{
+    display:'none'
+   }
+  }}
+                
             />
 
         </>
