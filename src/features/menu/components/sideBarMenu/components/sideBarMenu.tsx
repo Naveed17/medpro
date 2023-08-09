@@ -50,12 +50,10 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
-
+import { MobileContainer } from "@lib/constants";
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -143,6 +141,11 @@ function SideBarMenu({children}: LayoutProps) {
                                     <Badge
                                         badgeContent={item.badge}
                                         color="warning"
+                                        sx={{
+                                            '.MuiBadge-badge':{
+                                                right:8
+                                            }
+                                        }}
                                     />
                                 )}
                             </ListItem>
@@ -224,7 +227,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
-                display={{xs: "none", sm: "block"}}
+                display={isMobile ? "none" : "block"}
                 component="nav"
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">

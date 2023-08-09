@@ -47,6 +47,7 @@ import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
+import {MobileContainer} from "@lib/constants";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -78,7 +79,7 @@ function Calendar({...props}) {
     const theme = useTheme();
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
@@ -385,9 +386,11 @@ function Calendar({...props}) {
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
-                                    setTimeout(() => {
+                                    OnAddAppointment("add-quick");
+                                    OnSelectDate(info);
+                                    /*setTimeout(() => {
                                         setSlotInfoPopover(true);
-                                    }, isMobile ? 100 : 0);
+                                    }, isMobile ? 100 : 0);*/
                                 }}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}

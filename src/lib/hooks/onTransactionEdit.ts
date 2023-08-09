@@ -15,8 +15,8 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
                 amount:pay.amount,
                 payment_means: pay.payment_means ? pay.payment_means.uuid : "",
                 insurance: pay.insurance ? pay.insurance : "",
-                status_transaction: TransactionStatus[1].value,
-                type_transaction: TransactionType[2].value,
+                status_transaction: pay.status_transaction,
+                type_transaction: pay.type_transaction,
                 data: {
                     rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
                     total: selectedPayment.total,

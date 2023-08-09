@@ -95,6 +95,18 @@ function PaymentDialogRow({...props}) {
                                             variant="body2">{insurance.name}</Typography>
                             </Stack>
                         }
+                        {!row.payment_means && !insurance &&
+                            <Stack direction="row" alignItems="center"
+                                   justifyContent={"flex-end"}
+                                   spacing={1}>
+
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <Icon path={'ic-payment'} alt={'insurance icon'}/>
+
+                                <Typography color="text.primary"
+                                            variant="body2">{t('wallet')}</Typography>
+                            </Stack>
+                        }
                         <IconButton
                             color={"error"}
                             size={"medium"}

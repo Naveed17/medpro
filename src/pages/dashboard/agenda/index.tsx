@@ -158,6 +158,7 @@ function Agenda() {
     const [event, setEvent] = useState<EventDef | null>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
+    const [openingHours, setOpeningHours] = useState<OpeningHoursModel | undefined>(undefined);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
@@ -172,7 +173,6 @@ function Agenda() {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
-    const openingHours = agenda?.openingHours[0];
 
     const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
@@ -309,6 +309,12 @@ function Agenda() {
             getAppointments(queryPath, view);
         }
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (agenda?.openingHours[0]) {
+            setOpeningHours(agenda.openingHours[0]);
+        }
+    }, [agenda])
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         // dispatch(resetFilterPatient());
@@ -815,7 +821,6 @@ function Agenda() {
         }
     }
 
-
     const submitStepper = (index: number) => {
         const steps: any = eventStepper.map((stepper) => ({...stepper}));
         if (eventStepper.length !== index) {
@@ -911,7 +916,9 @@ function Agenda() {
     }
 
     const handleOpenFab = () => setOpenFabAdd(true);
+
     const handleCloseFab = () => setOpenFabAdd(false);
+
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
@@ -1087,6 +1094,12 @@ function Agenda() {
                             setEvent(undefined);
                         }, 300);
                     }}
+                    PaperProps={{
+                        sx: {
+                            minWidth: "29vw",
+                            maxWidth: "30rem",
+                        }
+                    }}
                 >
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
@@ -1120,6 +1133,7 @@ function Agenda() {
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
+
                         />}
                 </Drawer>
 
@@ -1184,6 +1198,7 @@ function Agenda() {
                     }}
                 >
                     <QuickAddAppointment
+                        {...{t}}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
@@ -1407,7 +1422,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(context.locale as string,
-            ['common', 'menu', 'agenda', 'patient', 'consultation','payment']))
+            ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
     }
 })
 

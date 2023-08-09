@@ -33,12 +33,12 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
 
 const limit = 255;
 
@@ -106,6 +106,7 @@ function SecretaryConsultationDialog({...props}) {
             payments,
             payed_amount: getTransactionAmountPayed(),
             appointment,
+            patient:appointment.patient,
             total,
             isNew: getTransactionAmountPayed() === 0
         })
@@ -312,7 +313,8 @@ function SecretaryConsultationDialog({...props}) {
                 data={{
                     selectedPayment,
                     setSelectedPayment,
-                    appointment
+                    appointment,
+                    patient:appointment.patient
                 }}
                 size={"md"}
                 title={t("payment_dialog_title", {ns: "payment"})}

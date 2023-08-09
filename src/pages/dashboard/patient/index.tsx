@@ -1,5 +1,5 @@
 // react
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useLayoutEffect, useState} from "react";
 // next
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
@@ -83,7 +83,9 @@ import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
-
+import {MobileContainer as MobileWidth} from "@lib/constants";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const humanizeDuration = require("humanize-duration");
 
@@ -180,7 +182,7 @@ function Patient() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -213,6 +215,8 @@ function Patient() {
     };
 
     const [loading] = useState<boolean>(status === "loading");
+    const [rows, setRows] = useState<any[]>([]);
+    const [page, setPage] = useState<any>(router.query.page || 1);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
@@ -287,28 +291,18 @@ function Patient() {
         },
     ]);
 
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
-    const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, isMobile && SWRNoValidateConfig);
 
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-
-    useEffect(() => {
-        if (filter?.type || filter?.patient) {
-            const query = prepareSearchKeys(filter as any);
-            setLocalFilter(query);
-        }
-    }, [filter]);
-
-    useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const submitStepper = (index: number) => {
         if (index === 2) {
@@ -452,7 +446,7 @@ function Patient() {
     const onFilterPatient = (value: string) => {
         dispatch(setFilter({patient: {name: value}}));
     }
-    const rows = (httpPatientsResponse as HttpResponse)?.data?.list
+
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
@@ -464,6 +458,39 @@ function Patient() {
         dispatch(setSelectedRows([]));
 
     };
+
+    useLayoutEffect(() => {
+        window.scrollTo(scrollX, scrollY);
+    });
+
+    useEffect(() => {
+        if (httpPatientsResponse) {
+            const patients = (httpPatientsResponse as HttpResponse)?.data?.list as PatientModel[];
+            if (isMobile && localFilter?.length > 0) {
+                setRows(patients)
+            } else {
+                setRows((prev) => [...prev, ...patients]);
+            }
+        }
+    }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (filter?.type || filter?.patient) {
+            const query = prepareSearchKeys(filter as any);
+            setLocalFilter(query);
+        }
+    }, [filter]);
+
+    useEffect(() => {
+        if (isMounted.current && !lock) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //remove query params on load from url
+        router.replace(router.pathname, undefined, {shallow: true});
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -499,33 +526,35 @@ function Patient() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-                    <Box display={{xs: "none", md: "block"}}>
-                        <Otable
-                            {...{t, insurances, mutatePatient: mutate}}
-                            headers={headCells}
-                            handleEvent={handleTableActions}
-                            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
-                            total={(httpPatientsResponse as HttpResponse)?.data?.total}
-                            totalPages={
-                                (httpPatientsResponse as HttpResponse)?.data?.totalPages
-                            }
-                            from={"patient"}
-                            pagination
-                            loading={!Boolean(httpPatientsResponse)}
-                        />
-                    </Box>
+                    <Otable
+                        {...{t, insurances, mutatePatient: mutate}}
+                        headers={headCells}
+                        handleEvent={handleTableActions}
+                        rows={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        total={(httpPatientsResponse as HttpResponse)?.data?.total}
+                        totalPages={
+                            (httpPatientsResponse as HttpResponse)?.data?.totalPages
+                        }
+                        from={"patient"}
+                        pagination
+                        loading={!Boolean(httpPatientsResponse)}
+                    />
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
-                        <FormControlLabel
-                            sx={{ml: 0}}
-                            control={
-                                <Checkbox onChange={handleSelectAll}
-                                          indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
-                                          checked={selectedCheckbox?.length === rows?.length}/>}
-                            label={t("select-all")}
+                        {
+                            rows.length > 0 &&
+                            <FormControlLabel
+                                sx={{ml: 0}}
+                                control={
+                                    <Checkbox onChange={handleSelectAll}
+                                              indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
+                                              checked={selectedCheckbox?.length === rows?.length}/>}
+                                label={t("select-all")}
 
-                        />
+                            />
+                        }
+
 
                         {rowsSelected.length > 1 && <Button
                             onClick={(event) => {
@@ -547,14 +576,30 @@ function Patient() {
                             {t("merge-patient")}
                         </Button>}
                     </Stack>
-
-
                     <PatientMobileCard
                         ready={ready}
                         handleEvent={handleTableActions}
-                        PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        PatientData={rows}
+                        {...{insurances}}
 
                     />
+                    {rows.length === 10 &&
+                        <Stack alignItems='center'>
+                            <LoadingButton
+                                loading={isLoading}
+                                loadingPosition={"start"}
+                                startIcon={<RefreshIcon/>}
+                                onClick={() => {
+                                    setPage(page + 1);
+                                    router.push({
+                                        query: {page: page + 1}
+                                    })
+                                }}
+                            >
+                                {t("load-more")}
+                            </LoadingButton>
+                        </Stack>
+                    }
                 </MobileContainer>
             </Box>
             <Dialog
@@ -602,6 +647,12 @@ function Patient() {
                         </Button>
                     </>
                 }
+                PaperProps={{
+                    sx: {
+                        width: {xs: 'calc(100% - 24px)', sm: 'calc(100% - 64px)'},
+                        margin: {xs: 0, sm: 4},
+                    }
+                }}
             />
 
             <Dialog

@@ -23,7 +23,6 @@ const initialState: any = {
         cashboxes: '',
         start_date: '',
         end_date: '',
-
         gender: '',
         birthdate: '',
         name: ''
@@ -48,11 +47,9 @@ export const CashboxReducer = createReducer(initialState, builder => {
         .addCase(setCashBoxes, (state, action) => {
             state.cashboxes = action.payload;
         })
-
         .addCase(setInsurancesList, (state, action) => {
             state.insurancesList = action.payload;
         })
-
         .addCase(setPaymentTypesList, (state, action) => {
             state.paymentTypesList = action.payload;
         })

@@ -35,9 +35,12 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {DatePicker} from "@features/datepicker";
 import {useInsurances} from "@lib/hooks/rest";
+import {useRequest} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useRouter} from "next/router";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 
 interface HeadCell {
     disablePadding: boolean;
@@ -114,17 +117,21 @@ function PaymentDialog({...props}) {
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
 
-    const {
-        paymentTypesList
-    } = useAppSelector(cashBoxSelector);
-    const {insurances} = useInsurances();
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {appointment, selectedPayment, setSelectedPayment} = data;
+    const {insurances} = useInsurances();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
+
+    const {appointment, selectedPayment, setSelectedPayment, patient} = data;
+
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
     const [byRate, setByRate] = useState(false);
+    const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
             amount: ""
@@ -146,6 +153,7 @@ function PaymentDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const maxLength = patient && patient.insurances ? patient.insurances.length + paymentTypesList.length : 1;
 
     const validationSchema = Yup.object().shape({
         totalToPay: Yup.number()
@@ -164,6 +172,13 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
+    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+
     useEffect(() => {
         setSelectedPayment({
             ...selectedPayment,
@@ -171,6 +186,12 @@ function PaymentDialog({...props}) {
         });
     }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (httpPatientWallet) {
+            const w = (httpPatientWallet as HttpResponse).data.wallet
+            setWallet(w)
+        }
+    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
     const handleAddStep = () => {
         const step = [...values.check, {
             amount: "",
@@ -182,12 +203,10 @@ function PaymentDialog({...props}) {
         }];
         setFieldValue("check", step);
     };
-
     const handleDeleteStep = (props: any) => {
         const filter = values.check.filter((item: any) => item !== props)
         setFieldValue("check", filter);
     }
-
     const calculInsurance = () => {
         let total = 0
         payments.map((pay: { insurance: string; amount: number; }) => {
@@ -216,45 +235,54 @@ function PaymentDialog({...props}) {
     return (
         <FormikProvider value={formik}>
             <PaymentDialogStyled>
-                {appointment &&
+                {patient &&
                     <Stack spacing={2}
-                           direction={{xs: appointment.patient ? 'column' : 'row', md: 'row'}}
+                           direction={{xs: patient ? 'column' : 'row', md: 'row'}}
                            alignItems='center'
-                           justifyContent={appointment.patient ? 'space-between' : 'flex-end'}>
+                           justifyContent={patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
                             <Avatar sx={{width: 26, height: 26}}
-                                    src={`/static/icons/${appointment.patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
                             <Stack>
                                 <Stack direction="row" spacing={0.5} alignItems="center">
                                     <Typography color="primary">
-                                        {appointment.patient.firstName} {appointment.patient.lastName}
+                                        {patient.firstName} {patient.lastName}
                                     </Typography>
                                 </Stack>
-                                <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                    Portefeuille: {appointment.patient.wallet} {devise}
-                                </Typography>
-                                {appointment.patient.birthdate &&
+
+                                {patient.birthdate &&
                                     <Stack direction="row" spacing={0.5} alignItems="center">
                                         <IconUrl path="ic-anniverssaire"/>
                                         <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                            {appointment.patient.birthdate}
+                                            {patient.birthdate}
                                         </Typography>
                                     </Stack>}
                             </Stack>
                         </Stack>
 
-                        <Stack
+                        {appointment && <Stack
                             direction={{xs: 'column', md: 'row'}}
                             alignItems="center"
                             justifyContent={{xs: 'center', md: 'flex-start'}}
                             sx={{
                                 "& .MuiButtonBase-root": {
-
                                     fontSize: 13
                                 }
                             }}
                             spacing={1}>
 
+                            {wallet > 0 && <Button size='small' variant='contained' color="success"
+                                                   {...(isMobile && {
+                                                       fullWidth: true
+                                                   })}
+                            >
+                                {t("wallet")}
+                                <Typography
+                                    fontWeight={700}
+                                    component='strong'
+                                    mx={1}>{wallet}</Typography>
+                                {devise}
+                            </Button>}
                             <Button size='small' variant='contained' color="primary"
                                     {...(isMobile && {
                                         fullWidth: true
@@ -289,10 +317,10 @@ function PaymentDialog({...props}) {
                                             mx={1}>{selectedPayment.total}</Typography>
                                 {devise}
                             </Button>
-                        </Stack>
+                        </Stack>}
                     </Stack>}
 
-                {!appointment && <Box>
+                {!patient && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
                     <TextField
                         value={label}
@@ -332,7 +360,7 @@ function PaymentDialog({...props}) {
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
                                         {
-                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            !isMobile && maxLength < 5 &&
                                             <Typography>{t(method.name)}</Typography>
                                         }
 
@@ -342,7 +370,7 @@ function PaymentDialog({...props}) {
                     )}
 
                     {
-                        appointment && insurances && appointment.patient.insurances.map((insurance: any) =>
+                        appointment && insurances && patient.insurances.map((insurance: any) =>
                             <FormControlLabel
                                 className={insurance.uuid === deals.selected ? "selected" : ''}
                                 onClick={() => {
@@ -363,7 +391,7 @@ function PaymentDialog({...props}) {
                                              alt={'insurance logo'}/>
 
                                         {
-                                            !isMobile && paymentTypesList.length !== 6 &&
+                                            !isMobile && maxLength < 5 &&
                                             <Typography>{t(insurance.insurance.name)}</Typography>
                                         }
 
@@ -372,6 +400,31 @@ function PaymentDialog({...props}) {
                             />
                         )
                     }
+
+                    {appointment && wallet > 0 && <FormControlLabel
+                        className={deals.selected === "wallet" ? "selected" : ''}
+                        onClick={() => {
+                            deals.selected = "wallet"
+                            setDeals(deals);
+                            setFieldValue("selected", "wallet")
+                        }}
+                        control={
+                            <Checkbox checked={values.selected === "wallet"}
+                                      name={t("wallet")}/>
+                        }
+                        label={
+                            <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <IconUrl path={'ic-payment'}/>
+
+                                {
+                                    !isMobile && maxLength < 5 &&
+                                    <Typography>{t("wallet")}</Typography>
+                                }
+
+                            </Stack>
+                        }
+                    />}
                 </FormGroup>
                 <AnimatePresence mode='wait'>
                     {(() => {
@@ -401,7 +454,7 @@ function PaymentDialog({...props}) {
                                             </Stack>
 
                                             <Button color={"success"}
-                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
+                                                    disabled={appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())}
                                                     onClick={() => {
                                                         const newPayment = [...payments, {
                                                             amount: values.cash?.amount,
@@ -594,6 +647,55 @@ function PaymentDialog({...props}) {
 
                                     </Stack>
                                 </TabPanel>
+                            case 'wallet':
+                                return <TabPanel index={0}>
+                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                        <Box width={1}>
+                                            <Typography gutterBottom>
+                                                {t('enter_the_amount')}
+                                            </Typography>
+                                            <Stack direction='row' spacing={2} alignItems="center">
+                                                <TextField
+                                                    type='number'
+                                                    fullWidth
+                                                    {...getFieldProps("cash.amount")}
+                                                    error={Boolean(touched.cash && errors.cash)}
+                                                />
+                                                <Typography variant={"body1"}>
+                                                    {devise}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Button color={"success"}
+                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest() || Number(values.cash?.amount) > wallet}
+                                                    onClick={() => {
+                                                        const newPayment = [...payments, {
+                                                            amount: Number(values.cash?.amount),
+                                                            designation: label,
+                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                            status_transaction: TransactionStatus[1].value,
+                                                            type_transaction: TransactionType[4].value,
+                                                            wallet: true
+                                                        }]
+                                                        setPayments(newPayment);
+                                                        setLabel("");
+                                                        resetForm();
+
+                                                        setWallet(wallet - Number(values.cash?.amount));
+
+                                                        deals.selected = paymentTypesList[0].slug
+                                                        setDeals(deals);
+                                                        setFieldValue("selected", paymentTypesList[0].slug)
+                                                        setByRate(false);
+                                                    }}
+                                                    sx={{marginTop: 2}}
+                                                    startIcon={<AddIcon/>}
+                                                    variant={"contained"}>
+                                                <Typography> {t('add')}</Typography>
+                                            </Button>
+                                        </Box>
+                                    </Stack>
+                                </TabPanel>
                             default:
                                 return <TabPanel index={0}>
                                     <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
@@ -673,7 +775,7 @@ function PaymentDialog({...props}) {
                         <Box mt={4}>
                             <DesktopContainer>
                                 <Otable
-                                    {...{t, patient: appointment ? appointment.patient : null}}
+                                    {...{t, patient: patient ? patient : null}}
                                     headers={headCells}
                                     rows={payments}
                                     handleEvent={(action: string, payIndex: number) => {

@@ -180,6 +180,10 @@ export const TransactionType = [
         key: "ENC",
         value: "4",
     },
+    {
+        key: "WAL",
+        value: "5",
+    },
 ];
 
 export const TransactionStatus = [
@@ -196,3 +200,5 @@ export const TransactionStatus = [
         value: "3",
     },
 ];
+
+export const MobileContainer:number = 768

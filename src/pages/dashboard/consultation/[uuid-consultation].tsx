@@ -24,7 +24,7 @@ import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {sendRequest, useAppointmentHistory, useWidgetModels} from "@lib/hooks/rest";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import dynamic from "next/dynamic";
@@ -69,6 +69,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -81,6 +82,7 @@ function ConsultationInProgress() {
     const dispatch = useAppDispatch();
     const {t, ready} = useTranslation("consultation");
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -466,6 +468,8 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
+                checkTransactions()
+
                 if (appointment?.status !== 5) {
                     dispatch(resetTimer());
                     // refresh on going api
@@ -492,6 +496,7 @@ function ConsultationInProgress() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
     useEffect(() => {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
@@ -762,6 +767,28 @@ function ConsultationInProgress() {
 
         setActs([...acts])
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
+    }
+
+    const checkTransactions = ()=>{
+        if (!appointment?.transactions && app_uuid){
+            const form = new FormData();
+            form.append("type_transaction", TransactionType[2].value);
+            form.append("status_transaction", TransactionStatus[1].value);
+            form.append("cash_box", selectedBoxes[0]?.uuid);
+            form.append("amount", total.toString());
+            form.append("rest_amount", total.toString());
+            form.append("appointment", app_uuid.toString());
+            form.append("transaction_data", JSON.stringify([]));
+
+            trigger({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(r => console.log(r))
+        }
     }
 
     return (
