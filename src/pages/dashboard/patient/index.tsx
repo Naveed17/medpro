@@ -35,7 +35,7 @@ import {PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequest, useRequestMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -86,6 +86,7 @@ import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import axios from "axios";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -856,19 +857,41 @@ function Patient() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(locale as string, [
-            "patient",
-            "agenda",
-            "consultation",
-            "menu",
-            "common",
-            'payment'
-        ])),
-    },
-});
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    // `getStaticProps` is executed on the server side.
+    const {data: countries} = await instanceAxios({
+        url: `/api/public/places/countries/${locale}?nationality=true`,
+        method: "GET"
+    });
+
+    const {data: insurances} = await instanceAxios({
+        url: `/api/public/insurances/${locale}`,
+        method: "GET"
+    });
+
+    const {data: contactTypes} = await instanceAxios({
+        url: `/api/public/contact-type/${locale}`,
+        method: "GET"
+    });
+
+    return {
+        props: {
+            fallback: {
+                [`/api/public/places/countries/${locale}?nationality=true`]: countries,
+                [`/api/public/insurances/${locale}`]: insurances,
+                [`/api/public/contact-type/${locale}`]: contactTypes
+            },
+            ...(await serverSideTranslations(locale as string, [
+                "patient",
+                "agenda",
+                "consultation",
+                "menu",
+                "common",
+                'payment'
+            ])),
+        },
+    }
+}
 
 export default Patient;
 
