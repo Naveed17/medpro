@@ -30,7 +30,7 @@ import {EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {useRouter} from "next/router";
 import {firebaseCloudSdk} from "@lib/firebase";
-import {fetchAndActivate, getRemoteConfig, getString, getValue} from "firebase/remote-config";
+import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
