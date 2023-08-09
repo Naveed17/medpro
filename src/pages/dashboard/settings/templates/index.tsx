@@ -16,9 +16,6 @@ import {
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
@@ -38,8 +35,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import moment from "moment-timezone";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -159,7 +156,7 @@ function TemplatesConfig() {
         setOpenDialog(true);
     }
     const handleCloseDialog = () => {
-        if (info === 'balance_sheet_request'){
+        if (info === 'balance_sheet_request') {
             mutateAnalyses()
         }
         setOpenDialog(false);
@@ -530,8 +527,10 @@ function TemplatesConfig() {
                                         </IconButton>
                                         <IconButton size="small" onClick={() => {
 
-                                            let _analysis:AnalysisModel[] = [];
-                                            card.info.map((info: { analysis: AnalysisModel; })=>{_analysis.push(info.analysis)})
+                                            let _analysis: AnalysisModel[] = [];
+                                            card.info.map((info: { analysis: AnalysisModel; }) => {
+                                                _analysis.push(info.analysis)
+                                            })
                                             setState(_analysis);
                                             setModel(card)
                                             setInfo('balance_sheet_request');
@@ -634,7 +633,7 @@ function TemplatesConfig() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t: tConsultation, setOpenDialog,model}}
+                    data={{state, setState, t: tConsultation, setOpenDialog, model}}
                     size={["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
