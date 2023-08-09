@@ -907,10 +907,10 @@ function Agenda() {
         }).then((value: any) => {
             setLoading(false);
             if (value?.data.status === 'success') {
+                refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setQuickAddAppointment(false);
-                refreshData();
             }
         });
     }
@@ -1224,9 +1224,11 @@ function Agenda() {
                             {...{loading}}
                             variant="contained"
                             color={"primary"}
-                            onClick={handleAddAppointmentRequest}
-                            disabled={recurringDates.length === 0 || type === "" || !patient}
-                        >
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleAddAppointmentRequest();
+                            }}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                         </LoadingButton>
                     </Paper>
