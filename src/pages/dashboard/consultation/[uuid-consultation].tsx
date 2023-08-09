@@ -529,7 +529,6 @@ function ConsultationInProgress() {
         if (appointment && !(appointment.patient.birthdate && moment().diff(moment(appointment.patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = appointment && appointment.patient.gender === "F" ? "Mme " : appointment.patient.gender === "U" ? "" : "Mr "
         if (card.documentType === "medical-certificate") {
-            console.log(appointment);
             setInfo("document_detail");
             setState({
                 uuid: card.uuid,
