@@ -365,9 +365,10 @@ function Widget({...props}) {
             </ConsultationModalStyled>
             <Dialog
                 open={openTeeth !== ""}
+                fullWidth
                 onClose={handleClose}
                 scroll={"paper"}
-                maxWidth={"lg"}>
+                maxWidth={"sm"}>
                 <DialogTitle style={{
                     marginBottom: 15,
                     borderBottom: "1px solid #eeeff1",
@@ -377,14 +378,15 @@ function Widget({...props}) {
                     {t('title')}
                     <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{t('subtitle')}</Typography>
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent style={{overflow:"hidden"}}>
                     <TeethWidget {...{
                         acts,
                         setActs,
                         t,
                         of: openTeeth,
                         previousData,
-                        appuuid
+                        appuuid,
+                        local:router.locale
                     }}/>
                 </DialogContent>
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>

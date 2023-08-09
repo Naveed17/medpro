@@ -200,6 +200,8 @@ function PreviewDialog({...props}) {
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             if (state.birthdate)
                                 txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
+                            if (state.cin)
+                                txt = txt.replaceAll('{cin}', state.cin)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
