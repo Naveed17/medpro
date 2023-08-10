@@ -48,3 +48,4 @@ export * from "./actfeesMobileCard";
 export * from './userMobileCard';
 export * from './trashCard';
 export * from './noteCardCollapse';
+export * from './cashBoxMobileCard'

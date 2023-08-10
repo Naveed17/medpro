@@ -18,7 +18,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard} from "@features/card";
+import {CashBoxMobileCard, NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -138,6 +138,7 @@ function Cashbox() {
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const [idsSelected,setIdsSelected]= useState<string[]>([])
 
     // ******** States ********
 
@@ -193,7 +194,6 @@ function Cashbox() {
 
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data
-        console.log(data);
         setTotal(data.total_amount)
         setToReceive(data.total_insurance_amount);
         if (data.transactions)
@@ -268,6 +268,19 @@ function Cashbox() {
         } else {
             // traitement cashout ( in progress )
         }
+    };
+    const handleIdsSelect = (id: any) => {
+        const selectedIndex = idsSelected.indexOf(id);
+        let newSelected: string[] = [];
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(idsSelected, id);
+        } else {
+            newSelected = newSelected.concat(
+                idsSelected.slice(0, selectedIndex),
+                idsSelected.slice(selectedIndex + 1)
+            );
+        }
+        setIdsSelected(newSelected);
     };
 
     return (
@@ -368,20 +381,22 @@ function Cashbox() {
                             />}
                         </DesktopContainer>
                         <MobileContainer>
-                            {/*<Stack spacing={2}>
+                            <Stack spacing={2}>
                                 {rows.map((card, idx) => (
                                     <React.Fragment key={idx}>
-                                        <PaymentMobileCard
-                                            data={card}
-                                            t={t}
-                                            insurances={insurances}
-                                            getCollapseData={handleCollapse}
+                                        <CashBoxMobileCard 
+                                        data={card}
+                                        handleEvent={handleTableActions}
+                                        t={t}
+                                        insurances={insurances}
+                                        pmList={pmList}
+                                        mutateTransctions={mutateTransctions}
+                                        {...{idsSelected}}
+                                        handleIdsSelect={(v:string) =>handleIdsSelect(v)}
                                         />
                                     </React.Fragment>
                                 ))}
                             </Stack>
-                            <Box pb={6}/>*/}
-                            in progress
                         </MobileContainer>
                     </React.Fragment>
                 ) : (
