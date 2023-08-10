@@ -1,8 +1,7 @@
 import React from 'react'
-import {ListItem, Checkbox, ListItemText, ListItemIcon} from '@mui/material'
+import {Checkbox, ListItem, ListItemIcon, ListItemText} from '@mui/material'
 import {styled} from '@mui/material/styles';
 import IconUrl from "@themes/urlIcon";
-import {ImageHandler} from "@features/image";
 
 const RootStyled = styled(ListItem)(({theme,}) => {
     return {
@@ -59,7 +58,10 @@ function ItemCheckbox({...props}) {
                 (props.data.icon || props.data.logoUrl) &&
                 <ListItemIcon>
                     {props.data?.icon && <IconUrl path={props.data?.icon}/>}
-                    {props.data?.logoUrl && <ImageHandler
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {props.data?.logoUrl && <img
+                        width={20}
+                        height={20}
                         alt={props.data[label]}
                         src={props.data?.logoUrl.url}
                     />}

@@ -193,7 +193,6 @@ function Cashbox() {
 
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data
-        console.log(data);
         setTotal(data.total_amount)
         setToReceive(data.total_insurance_amount);
         if (data.transactions)
@@ -340,6 +339,7 @@ function Cashbox() {
                                     size: "small",
                                     sx: {minWidth: 40},
                                 })}
+                                disabled={true}
                                 onClick={() => {
                                     setAction("cashout");
                                     setActionDialog("cashout")

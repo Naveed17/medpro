@@ -401,7 +401,7 @@ function PaymentRow({...props}) {
                                     <IconUrl path="setting/edit"/>
                                 </IconButton>
                             </Tooltip>}
-                            {isItemSelected && <Tooltip title={t('delete')}>
+                            {/*{isItemSelected && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -410,7 +410,7 @@ function PaymentRow({...props}) {
                                     }}>
                                     <IconUrl path="setting/icdelete"/>
                                 </IconButton>
-                            </Tooltip>}
+                            </Tooltip>}*/}
                         </Stack>
                     </Stack>
                 </TableCell>
