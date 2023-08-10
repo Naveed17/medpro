@@ -179,6 +179,7 @@ function TemplatesConfig() {
             }
         } as any).then(() => {
             mutatePrescription().then(() => {
+                enqueueSnackbar(t("updated"), {variant: "success"});
                 setOpenDialog(false);
                 setInfo(null);
                 dispatch(SetSelectedDialog(null))
