@@ -51,7 +51,7 @@ function PersonalInfo({...props}) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
         mutateAgenda = null, countries_api,
-        loading, editable: defaultEditStatus, setEditable
+        loading = false, editable: defaultEditStatus, setEditable
     } = props;
 
     const dispatch = useAppDispatch();
@@ -104,6 +104,7 @@ function PersonalInfo({...props}) {
         nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
     };
     const flattenedObject = flattenObject(initialValue);
+    console.log("patient", initialValue);
 
     const formik = useFormik({
         enableReinitialize: true,

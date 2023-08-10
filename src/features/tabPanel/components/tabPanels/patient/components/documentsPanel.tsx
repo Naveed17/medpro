@@ -163,7 +163,6 @@ function DocumentsPanel({...props}) {
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
-
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
