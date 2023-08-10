@@ -51,7 +51,7 @@ function PersonalInfo({...props}) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
         mutateAgenda = null, countries_api,
-        loading, editable: defaultEditStatus, setEditable
+        loading = false, editable: defaultEditStatus, setEditable
     } = props;
 
     const dispatch = useAppDispatch();

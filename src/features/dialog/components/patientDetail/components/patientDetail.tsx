@@ -92,7 +92,7 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate, cache} = useSWRConfig();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -134,7 +134,8 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [patient, setPatient] = useState<null | PatientModel>(null);
+    const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
+    const [patient, setPatient] = useState<PatientModel | null>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,
@@ -165,8 +166,6 @@ function PatientDetail({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     } : null, SWRNoValidateConfig);
-
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -310,8 +309,6 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
-    const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
-
     const tabsContent = [
         {
             title: "tabs.personal-info",
@@ -332,9 +329,7 @@ function PatientDetail({...props}) {
             children: <HistoryPanel {...{
                 t,
                 patient,
-                urlMedicalEntitySuffix,
                 triggerPrevious,
-                medicalEntityHasUser,
                 closePatientDialog
             }} />,
             permission: ["ROLE_PROFESSIONAL"]
@@ -347,7 +342,6 @@ function PatientDetail({...props}) {
         {
             title: "tabs.documents",
             children: <DocumentsPanel {...{
-                documents,
                 roles,
                 documentViewIndex,
                 patient, patientId,
@@ -363,7 +357,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.transactions",
             children: <TransactionPanel {...{
-                patient,router
+                patient, router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -394,9 +388,16 @@ function PatientDetail({...props}) {
 
     useEffect(() => {
         if (httpPatientDetailsResponse) {
-            setPatient((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel);
+            const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+            setPatient(patientData);
         }
     }, [httpPatientDetailsResponse]);
+
+    useEffect(() => {
+        if (httpAntecedentsResponse) {
+            setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
+        }
+    }, [httpAntecedentsResponse])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
