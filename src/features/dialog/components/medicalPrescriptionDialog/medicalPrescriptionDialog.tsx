@@ -61,7 +61,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [model, setModel] = useState<string>('');
     const [parentModels, setParentModels] = useState<any[]>([]);
     const [models, setModels] = useState<any[]>([]);
-    const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
+    const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(data.model);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
 

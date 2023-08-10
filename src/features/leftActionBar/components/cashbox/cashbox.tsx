@@ -30,7 +30,6 @@ function Cashbox() {
     const [loadingPM, setLoadingPM] = useState(true);
     const {currentDate} = useAppSelector(agendaSelector);
 
-    const locations = agendaConfig?.locations;
     const hours = agendaConfig?.openingHours[0];
     const dispatch = useAppDispatch();
     const {
