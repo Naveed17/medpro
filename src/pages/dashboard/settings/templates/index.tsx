@@ -35,6 +35,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -66,6 +69,7 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -90,6 +94,7 @@ function TemplatesConfig() {
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
+
     const closeDraw = () => {
         setOpen(false);
     };
@@ -163,6 +168,24 @@ function TemplatesConfig() {
         setInfo(null);
         dispatch(SetSelectedDialog(null))
     };
+    const editPrescriptionModel = () => {
+        triggerEditPrescriptionModel({
+            method: "PUT",
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${model?.uuid}/${router.locale}`,
+            data: {
+                drugs: JSON.stringify(state),
+                name: model?.name,
+                parent: model?.parent
+            }
+        } as any).then(() => {
+            mutatePrescription().then(() => {
+                setOpenDialog(false);
+                setInfo(null);
+                dispatch(SetSelectedDialog(null))
+            });
+        })
+    }
+
     useEffect(() => {
         if (httpDocumentHeader) {
             const dcs = (httpDocumentHeader as HttpResponse).data;
@@ -197,6 +220,7 @@ function TemplatesConfig() {
                     _prescriptions.push({
                         uuid: pm.uuid,
                         name: pm.name,
+                        parent: p.uuid,
                         prescriptionModalHasDrugs: _pmhd
                     })
                 })
@@ -395,6 +419,7 @@ function TemplatesConfig() {
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
                         setInfo(getPrescriptionUI());
+                        setModel(null);
                         setOpenDialog(true);
                     }} style={{
                         marginTop: 25,
@@ -441,6 +466,16 @@ function TemplatesConfig() {
                                         setAction("showPrescription")
                                     }}>
                                         <IconUrl path="setting/ic-voir"/>
+                                    </IconButton>
+
+                                    <IconButton size="small" onClick={() => {
+                                        console.log(card);
+                                        setModel(card)
+                                        setState(card.prescriptionModalHasDrugs);
+                                        setInfo(getPrescriptionUI());
+                                        setOpenDialog(true);
+                                    }}>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
 
                                     <IconButton size="small" onClick={() => {
@@ -672,6 +707,11 @@ function TemplatesConfig() {
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("close")}
                                     </Button>
+                                    {info === getPrescriptionUI() && model && <Button onClick={() => {
+                                        editPrescriptionModel()
+                                    }} startIcon={<SaveRoundedIcon/>}>
+                                        {t("save")}
+                                    </Button>}
                                 </Stack>
                             </Stack>
                         </DialogActions>
