@@ -14,7 +14,7 @@ function useCountries(params?: string) {
 
     useEffect(() => {
         if (httpCountriesResponse) {
-            setCountries((httpCountriesResponse as HttpResponse)?.data);
+            setCountries(Array.isArray(httpCountriesResponse) ? httpCountriesResponse : (httpCountriesResponse as HttpResponse).data);
         }
     }, [httpCountriesResponse]);
 

@@ -51,8 +51,7 @@ import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
-
-const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+import {CountrySelect} from "@features/countrySelect";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -121,6 +120,7 @@ function OnStepPatient({...props}) {
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -209,7 +209,6 @@ function OnStepPatient({...props}) {
             }))
     });
     const address = selectedPatient && selectedPatient.address ? selectedPatient.address : [];
-    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
     const formik = useFormik({
         initialValues: {
@@ -663,7 +662,7 @@ function OnStepPatient({...props}) {
                                     sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
-                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                    getOptionLabel={(option: any) => option?.nationality ?? ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
                                     renderOption={(props, option) => (
                                         <MenuItem
@@ -748,7 +747,7 @@ function OnStepPatient({...props}) {
                                         sx={{color: "text.secondary"}}
                                         options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
-                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        getOptionLabel={(option: any) => option?.name ?? ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
                                             <MenuItem
@@ -819,7 +818,7 @@ function OnStepPatient({...props}) {
                                                 sx={{color: "text.secondary"}}
                                                 options={states ? states : []}
                                                 loading={states?.length === 0}
-                                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                getOptionLabel={(option) => option?.name ?? ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                 renderOption={(props, option) => (
                                                     <MenuItem
@@ -926,7 +925,7 @@ function OnStepPatient({...props}) {
                                                                 options={socialInsurances}
                                                                 groupBy={(option: any) => option.grouped}
                                                                 sx={{minWidth: 500}}
-                                                                getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                                getOptionLabel={(option: any) => option?.label ?? ""}
                                                                 isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                                 renderGroup={(params) => {
                                                                     return (
@@ -964,7 +963,7 @@ function OnStepPatient({...props}) {
                                                                     }}
                                                                     id={"assurance"}
                                                                     options={insurances ? insurances : []}
-                                                                    getOptionLabel={option => option?.name ? option.name : ""}
+                                                                    getOptionLabel={option => option?.name ?? ""}
                                                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                                     renderOption={(params, insuranceItem) => (
                                                                         <MenuItem

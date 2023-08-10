@@ -10,12 +10,12 @@ function useInsurances() {
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
-        url: "/api/public/insurances/" + router.locale,
+        url: `/api/public/insurances/${router.locale}`,
     }, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpInsuranceResponse) {
-            setInsurances((httpInsuranceResponse as HttpResponse)?.data);
+            setInsurances(Array.isArray(httpInsuranceResponse) ? httpInsuranceResponse : (httpInsuranceResponse as HttpResponse).data);
         }
     }, [httpInsuranceResponse]);
 
