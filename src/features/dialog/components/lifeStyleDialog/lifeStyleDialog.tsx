@@ -7,7 +7,10 @@ import {
     Checkbox,
     FormControlLabel,
     FormGroup,
-    InputAdornment, List, ListItem, ListSubheader,
+    InputAdornment,
+    List,
+    ListItem,
+    ListSubheader,
     Skeleton,
     Stack,
     TextField,
@@ -19,11 +22,10 @@ import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 import SearchIcon from "@mui/icons-material/Search";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function LifeStyleDialog({...props}) {
 
@@ -87,7 +89,7 @@ function LifeStyleDialog({...props}) {
             ]);
         }
     };
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <LifeStyleDialogStyled display='block'>
@@ -324,12 +326,20 @@ function LifeStyleDialog({...props}) {
                                         Authorization: `Bearer ${session?.accessToken}`
                                     }
                                 }, {revalidate: true, populateCache: true}).then((data) => {
+                                    const res = (data?.data as HttpResponse).data;
                                     antecedents.push({
                                         name: value,
                                         type: allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid,
-                                        uuid: (data?.data as HttpResponse).data.uuid,
+                                        uuid: res.uuid,
                                         value_type: -1
                                     })
+                                    setState([...state, {
+                                        endDate: "",
+                                        name: res.name,
+                                        res: "",
+                                        startDate: "",
+                                        uuid: res.uuid,
+                                    }])
                                     setAntecedents([...antecedents])
                                 });
                             }}
