@@ -19,7 +19,7 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {Fragment, MouseEventHandler, useEffect} from "react";
+import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
