@@ -25,14 +25,12 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
-import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";
+import {a11yProps} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {useAppointmentHistory} from "@lib/hooks/rest";
-import {useRequest} from "@lib/axios";
-import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 
@@ -67,7 +65,6 @@ function DocumentsPanel({...props}) {
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {previousAppointmentsData} = useAppointmentHistory({patientId: patient?.uuid});
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     // translation
@@ -252,7 +249,7 @@ function DocumentsPanel({...props}) {
 
     useEffect(() => {
         if (previousAppointmentsData) {
-            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any, currentIndex: number) => {
+            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any) => {
                 const documents = currentValue.documents.map((doc: any) => ({
                     ...doc,
                     appUuid: currentValue.appointment.uuid

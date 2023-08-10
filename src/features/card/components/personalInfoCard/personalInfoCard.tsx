@@ -104,7 +104,6 @@ function PersonalInfo({...props}) {
         nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
     };
     const flattenedObject = flattenObject(initialValue);
-    console.log("patient", initialValue);
 
     const formik = useFormik({
         enableReinitialize: true,

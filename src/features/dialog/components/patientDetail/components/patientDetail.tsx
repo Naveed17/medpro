@@ -39,7 +39,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import dynamic from "next/dynamic";
 
@@ -92,7 +92,7 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate, cache} = useSWRConfig();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
