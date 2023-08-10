@@ -16,9 +16,6 @@ import {
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
@@ -38,7 +35,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -64,7 +62,8 @@ function TemplatesConfig() {
     const [action, setAction] = useState("");
     const [info, setInfo] = useState<null | string>("");
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [state, setState] = useState<any>([]);
+    const [state, setState] = useState<any[]>([]);
+    const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
@@ -157,11 +156,13 @@ function TemplatesConfig() {
         setOpenDialog(true);
     }
     const handleCloseDialog = () => {
+        if (info === 'balance_sheet_request') {
+            mutateAnalyses()
+        }
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
     };
-
     useEffect(() => {
         if (httpDocumentHeader) {
             const dcs = (httpDocumentHeader as HttpResponse).data;
@@ -525,6 +526,19 @@ function TemplatesConfig() {
                                             <IconUrl path="setting/ic-voir"/>
                                         </IconButton>
                                         <IconButton size="small" onClick={() => {
+
+                                            let _analysis: AnalysisModel[] = [];
+                                            card.info.map((info: { analysis: AnalysisModel; }) => {
+                                                _analysis.push(info.analysis)
+                                            })
+                                            setState(_analysis);
+                                            setModel(card)
+                                            setInfo('balance_sheet_request');
+                                            setOpenDialog(true);
+                                        }}>
+                                            <IconUrl path="setting/edit"/>
+                                        </IconButton>
+                                        <IconButton size="small" onClick={() => {
                                             removeAnalyses(card.uuid);
                                         }}>
                                             <IconUrl path="setting/icdelete"/>
@@ -619,7 +633,7 @@ function TemplatesConfig() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t: tConsultation, setOpenDialog}}
+                    data={{state, setState, t: tConsultation, setOpenDialog, model}}
                     size={["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
