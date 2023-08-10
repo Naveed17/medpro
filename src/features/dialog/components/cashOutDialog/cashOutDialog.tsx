@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Box, Button, Stack, TextField, Typography, useTheme} from '@mui/material'
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-import {DefaultCountry,UrlMedicalEntitySuffix} from "@lib/constants";
+import {DefaultCountry, UrlMedicalEntitySuffix} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PaymentDialogStyled from "@features/dialog/components/paymentDialog/overrides/paymentDialogStyle";
@@ -124,7 +124,7 @@ function CashOutDialog({...props}) {
             let checks: any[] = [];
             if (transactions) {
                 transactions.forEach((transaction: { transaction_data: any[]; }) => {
-                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").map(td => checks.push(td))
+                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach(td => checks.push(td))
                 })
                 setCheques(checks);
             }
@@ -203,9 +203,10 @@ function CashOutDialog({...props}) {
                         onChange={(ev) => {
                             if (Number(ev.target.value) <= totalCash) {
                                 setSomme(Number(ev.target.value));
-                                collected -= freeTrans;
-                                collected += Number(ev.target.value);
-                                setCollected(collected);
+                                let balance = 0;
+                                balance -= freeTrans;
+                                balance += Number(ev.target.value);
+                                setCollected(balance);
                                 setFreeTrans(Number(ev.target.value));
                             }
                         }}

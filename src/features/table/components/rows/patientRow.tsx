@@ -30,6 +30,7 @@ import {ImageHandler} from "@features/image";
 import {setDuplicated} from "@features/duplicateDetected";
 import {Label} from "@features/label";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -453,55 +454,19 @@ function PatientRow({...props}) {
                             >
                                 {t("table.see-card")}
                             </Button>
-                            {/*                            <Button
-                                size="small"
-                                sx={{
-                                    ml: 0.6
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "EDIT_PATIENT",
-                                        })
-                                    );
-                                    handleEvent("EDIT_PATIENT", row);
-                                }}
-                                startIcon={<Icon color={theme.palette.primary.main} path="setting/edit"/>}
-                            >
-                                {t("table.edit")}
-                            </Button>*/}
                         </Box>
                         <Box className="lg-up">
-                            <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(onOpenPatientDrawer({
-                                        patientId: row.uuid,
-                                        patientAction: "PATIENT_DETAILS",
-                                    }));
-                                    handleEvent("PATIENT_DETAILS", row);
-                                }}
-                            >
-                                <IconUrl path="/ic-voir"/>
-                            </IconButton>
-                            {/*                         <IconButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "EDIT_PATIENT",
-                                        })
-                                    );
-                                    handleEvent("EDIT_PATIENT", row);
-                                }}
-                                size="small"
-                            >
-                                <Icon color={theme.palette.primary.main} path="setting/edit"/>
-                            </IconButton>*/}
+                            <Tooltip title={t('more')}>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        handleEvent("OPEN-POPOVER", row, event);
+                                    }}
+                                    size="small">
+                                    <MoreVertIcon/>
+                                </IconButton>
+                            </Tooltip>
                         </Box>
                     </>
                 )}
