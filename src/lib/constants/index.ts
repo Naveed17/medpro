@@ -201,4 +201,4 @@ export const TransactionStatus = [
     },
 ];
 
-export const MobileContainer:number = 768
+export const MobileContainer:number = 820

@@ -134,7 +134,7 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [patient, setPatient] = useState<null | PatientModel>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`)?.data?.data?.data) ?? null);
+    const [patient, setPatient] = useState<null | PatientModel>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,

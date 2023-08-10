@@ -393,7 +393,7 @@ function Payment() {
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
-
+              <MobileContainer>     
             <Button
                 startIcon={<IconUrl path="ic-filter"/>}
                 variant="filter"
@@ -404,10 +404,11 @@ function Payment() {
                     transform: "translateX(-50%)",
                     left: "50%",
                     zIndex: 999,
-                    display: {xs: "flex", md: "none"},
+                    
                 }}>
                 Filtrer (0)
             </Button>
+            </MobileContainer> 
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}

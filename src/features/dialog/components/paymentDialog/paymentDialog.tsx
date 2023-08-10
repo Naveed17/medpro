@@ -374,8 +374,7 @@ function PaymentDialog({...props}) {
                             <FormControlLabel
                                 className={insurance.uuid === deals.selected ? "selected" : ''}
                                 onClick={() => {
-                                    deals.selected = insurance.uuid
-                                    setDeals(deals);
+                                    setDeals({...deals, selected: insurance.uuid});
                                     setFieldValue("selected", insurance.uuid)
                                 }}
                                 key={insurance.insurance.name}
@@ -404,8 +403,7 @@ function PaymentDialog({...props}) {
                     {appointment && wallet > 0 && <FormControlLabel
                         className={deals.selected === "wallet" ? "selected" : ''}
                         onClick={() => {
-                            deals.selected = "wallet"
-                            setDeals(deals);
+                            setDeals({...deals, selected: "wallet"});
                             setFieldValue("selected", "wallet")
                         }}
                         control={
@@ -683,8 +681,7 @@ function PaymentDialog({...props}) {
 
                                                         setWallet(wallet - Number(values.cash?.amount));
 
-                                                        deals.selected = paymentTypesList[0].slug
-                                                        setDeals(deals);
+                                                        setDeals({...deals, selected: paymentTypesList[0].slug});
                                                         setFieldValue("selected", paymentTypesList[0].slug)
                                                         setByRate(false);
                                                     }}
@@ -754,8 +751,7 @@ function PaymentDialog({...props}) {
 
                                                         resetForm();
 
-                                                        deals.selected = paymentTypesList[0].slug
-                                                        setDeals(deals);
+                                                        setDeals({...deals, selected: paymentTypesList[0].slug});
                                                         setFieldValue("selected", paymentTypesList[0].slug)
                                                         setByRate(false);
                                                     }}

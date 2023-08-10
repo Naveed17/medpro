@@ -172,7 +172,7 @@ export default function TeethWidget({...props}) {
         traitements[traitement].acts = typeof value === 'string' ? value.split(',') : value;
 
         let _acts = [...acts]
-        _acts.map(act => {
+        _acts.forEach(act => {
             if (act.teeth) {
                 act.teeth = false;
                 act.selected = false
