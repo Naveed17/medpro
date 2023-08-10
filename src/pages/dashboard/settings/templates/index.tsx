@@ -469,7 +469,6 @@ function TemplatesConfig() {
                                     </IconButton>
 
                                     <IconButton size="small" onClick={() => {
-                                        console.log(card);
                                         setModel(card)
                                         setState(card.prescriptionModalHasDrugs);
                                         setInfo(getPrescriptionUI());
