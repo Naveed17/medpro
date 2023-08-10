@@ -441,7 +441,7 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 filterOptions={(options, params) => {
                                     const {inputValue} = params;
-                                    if (inputValue.length > 0) options.push(inputValue)
+                                    if (inputValue.length > 0) options.unshift(inputValue)
                                     return options
                                 }}
                                 sx={{color: "text.secondary"}}
