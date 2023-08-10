@@ -436,39 +436,17 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={60}/>
                     </>
                 ) : (
-                    <>
-                        <Box className="lg-down">
-                            <Button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "PATIENT_DETAILS",
-                                        })
-                                    );
-                                    handleEvent("PATIENT_DETAILS", row);
-                                }}
-                                size="small"
-                                startIcon={<IconUrl path="/ic-voir"/>}
-                            >
-                                {t("table.see-card")}
-                            </Button>
-                        </Box>
-                        <Box className="lg-up">
-                            <Tooltip title={t('more')}>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={event => {
-                                        event.stopPropagation();
-                                        handleEvent("OPEN-POPOVER", row, event);
-                                    }}
-                                    size="small">
-                                    <MoreVertIcon/>
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
-                    </>
+                    <Tooltip title={t('more')}>
+                        <IconButton
+                            disabled={loading}
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleEvent("OPEN-POPOVER", row, event);
+                            }}
+                            size="small">
+                            <MoreVertIcon/>
+                        </IconButton>
+                    </Tooltip>
                 )}
             </TableCell>
         </TableRowStyled>
