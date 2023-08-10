@@ -54,10 +54,6 @@ function AddTreatmentDialog({...props}) {
         setDrug(null)
     }
 
-    useEffect(() => {
-        console.log(traitments);
-    }, [traitments])
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <Stack spacing={1}>
