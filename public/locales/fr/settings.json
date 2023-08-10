@@ -679,7 +679,13 @@
       "asDefault": "Sélectionnez-le comme modèle par défaut",
       "modifier": "Modifier",
       "close": "Terminer",
-      "analyses": "Analyses"
+      "analyses": "Analyses",
+      "year": "ans",
+      "day": "jour(s)",
+      "month": "mois",
+      "years": "Ans",
+      "months": "Mois",
+      "days": "Jours"
     }
   }
 }

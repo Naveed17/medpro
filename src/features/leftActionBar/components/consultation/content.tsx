@@ -22,7 +22,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -32,9 +32,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -43,6 +40,8 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const Content = ({...props}) => {
     const {id, patient, patientAntecedents, allAntecedents, analyses, mi} = props;
@@ -185,6 +184,8 @@ const Content = ({...props}) => {
 
         setInfo(action);
         setInfoDynamic(action)
+        if (action === 'add_traitment')
+            setSize("sm");
         setSize("sm");
         handleClickDialog();
     };
@@ -212,8 +213,8 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
-                birthdate:patient?.birthdate,
-                cin:patient?.cin,
+                birthdate: patient?.birthdate,
+                cin: patient?.idCard,
                 days: card.days,
                 description: card.description,
                 createdAt: card.createdAt,
@@ -854,6 +855,7 @@ const Content = ({...props}) => {
                 <Dialog
                     action={info}
                     open={openDialog}
+                    fullWidth
                     data={{
                         state: state,
                         setState: setState,

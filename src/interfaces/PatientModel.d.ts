@@ -11,7 +11,6 @@ interface PatientModel {
     profession: string;
     familyDoctor: string;
     nationality: any;
-    cin?:string;
     note: string;
     insurances: PatientInsuranceModel[];
     contact: ContactModel[];

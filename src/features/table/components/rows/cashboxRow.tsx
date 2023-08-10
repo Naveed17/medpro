@@ -401,7 +401,7 @@ function PaymentRow({...props}) {
                                     <IconUrl path="setting/edit"/>
                                 </IconButton>
                             </Tooltip>}
-                            {isItemSelected && <Tooltip title={t('delete')}>
+                            {/*{isItemSelected && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -410,7 +410,7 @@ function PaymentRow({...props}) {
                                     }}>
                                     <IconUrl path="setting/icdelete"/>
                                 </IconButton>
-                            </Tooltip>}
+                            </Tooltip>}*/}
                         </Stack>
                     </Stack>
                 </TableCell>
@@ -530,6 +530,7 @@ function PaymentRow({...props}) {
                                                 </Stack>
 
                                             </TableCell>
+{/*
                                             <TableCell
                                                 align="left"
                                                 style={{
@@ -549,6 +550,7 @@ function PaymentRow({...props}) {
                                                     <Typography>--</Typography>
                                                 )}
                                             </TableCell>
+*/}
                                             <TableCell
                                                 style={{
                                                     backgroundColor: "transparent",
@@ -560,13 +562,12 @@ function PaymentRow({...props}) {
                                                         (col.amount < 0 && "error.main") ||
                                                         "text.primary"
                                                     }
+                                                    textAlign={"center"}
                                                     fontWeight={700}>
                                                     {col.amount} <span style={{fontSize:10}}>{devise}</span>
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell align="left"
-                                                       style={{backgroundColor: 'transparent', border: 'none'}}>
-                                            </TableCell>
+
                                         </TableRow>
                                         </tbody>
                                     );

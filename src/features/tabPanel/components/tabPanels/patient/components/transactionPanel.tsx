@@ -210,7 +210,7 @@ function TransactionPanel({...props}) {
             {loading && <LinearProgress/>}
             {!loading && <Box className="files-panel">
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
-                    <Button size='small'
+                    {/*<Button size='small'
                             variant='contained'>
                         {t("total")}
                         <Typography fontWeight={700} component='strong'
@@ -223,7 +223,7 @@ function TransactionPanel({...props}) {
                         <Typography fontWeight={700} component='strong'
                                     mx={1}>{toReceive}</Typography>
                         {devise}
-                    </Button>
+                    </Button>*/}
                     <Button size='small'
                             onClick={()=>{
                                 setSelectedPayment({
