@@ -1,8 +1,8 @@
 import {TextIconRadio} from "@features/buttons";
 import {
-    Box,
+    Box, Collapse,
     FormControlLabel,
-    LinearProgress,
+    LinearProgress, List, ListItemButton, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -23,6 +23,8 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {dashLayoutSelector} from "@features/base";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import ExpandLess from "@mui/icons-material/ExpandLess";
 
 function EventType({...props}) {
     const {onNext, OnAction, select, defaultType = null} = props;
@@ -34,17 +36,16 @@ function EventType({...props}) {
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
 
     const [typeEvent, setTypeEvent] = useState(type);
+    const [typeData, setTypeData] = useState<AppointmentTypeModel | null>(null);
+    const [openType, setOpenType] = useState(!!defaultType);
 
-    useEffect(() => {
-        if (appointmentTypes && defaultType !== null) {
-            const type = appointmentTypes[defaultType];
-            setTypeEvent(type.uuid);
-            dispatch(setAppointmentType(type.uuid));
-        }
-    }, [appointmentTypes, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    const handleClickType = () => {
+        setOpenType(!openType);
+    };
 
     const handleTypeChange = (type: string) => {
         setTypeEvent(type);
+        appointmentTypes && setTypeData(appointmentTypes[appointmentTypes.findIndex(item => item.uuid === type)]);
         dispatch(setAppointmentType(type));
         if (!select) {
             onNextStep();
@@ -56,8 +57,16 @@ function EventType({...props}) {
         onNext(1);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    useEffect(() => {
+        if (appointmentTypes && defaultType !== null) {
+            const type = appointmentTypes[defaultType];
+            setTypeEvent(type.uuid);
+            setTypeData(type);
+            dispatch(setAppointmentType(type.uuid));
+        }
+    }, [appointmentTypes, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -67,22 +76,15 @@ function EventType({...props}) {
                 }}
                 color="warning"
             />
-            <Box className="inner-section type-time-slot">
-                <Typography px={2} variant="h6" color="text.primary">
-                    {t("stepper-0.title")}
-                </Typography>
+
+            <Box className="inner-section type-time-slot" sx={{width: "100%"}}>
                 <FormControlStyled
-                    sx={{
-                        padding: `16px ${!select ? "16px" : "0"} ${
-                            !select ? "32px" : "16px"
-                        } ${!select ? "16px" : "0"}`,
-                    }}
+                    sx={{padding: 0}}
                     fullWidth
                     size="small">
                     {!select ? (
                         <RadioGroup
                             aria-labelledby="type-group-label"
-                            defaultValue="female"
                             name="radio-buttons-group">
                             {appointmentTypes?.map((type, index) => (
                                 <FormControlLabel
@@ -93,9 +95,7 @@ function EventType({...props}) {
                                             item={type}
                                             color={type.color}
                                             selectedValue={typeEvent}
-                                            onChangeValue={(event: string) =>
-                                                handleTypeChange(event)
-                                            }
+                                            onChangeValue={(event: string) => handleTypeChange(event)}
                                             title={type.name}
                                             icon={IconsTypes[type.icon]}
                                         />
@@ -105,57 +105,81 @@ function EventType({...props}) {
                             ))}
                         </RadioGroup>
                     ) : (
-                        <Select
-                            id={"duration"}
-                            value={type}
-                            displayEmpty
-                            sx={{
-                                "& .MuiSelect-select": {
-                                    display: "flex",
-                                },
-                            }}
-                            onChange={(event) => {
-                                handleTypeChange(event.target.value as string);
-                            }}
-                            renderValue={(selected) => {
-                                if (selected.length === 0) {
-                                    return <em>{t("stepper-0.type-placeholder")}</em>;
-                                }
-
-                                const type = appointmentTypes?.find(
-                                    (itemType) => itemType.uuid === selected
-                                );
-                                return (
-                                    <Stack direction={"row"} alignItems={"center"}>
-                                        <ModelDot
-                                            icon={type && IconsTypes[type.icon]}
-                                            color={type?.color}
-                                            selected={false}
-                                            marginRight={10}></ModelDot>
-                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>
-                                            {type?.name}
+                        <List
+                            sx={{width: '100%', p: 0}}
+                            component="nav">
+                            <ListItemButton disableRipple onClick={handleClickType} sx={{pl: 0}}>
+                                <ListItemText primary={
+                                    <Stack direction={"row"} alignItems={"center"} className="inner-section">
+                                        <Typography pr={2} variant="h6" color="text.primary">
+                                            {t("stepper-0.title")} :
                                         </Typography>
-                                    </Stack>
-                                );
-                            }}>
-                            {appointmentTypes?.map((type) => (
-                                <MenuItem
-                                    sx={{display: "flex"}}
-                                    className="text-inner"
-                                    value={type.uuid}
-                                    key={type.uuid}>
-                                    <ModelDot
-                                        icon={type && IconsTypes[type.icon]}
-                                        color={type?.color}
-                                        selected={false}
-                                        marginRight={10}></ModelDot>
-                                    <Typography sx={{fontSize: "16px"}}>
-                                        {type.name}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    )}
+                                        <Stack direction={"row"} alignItems={"center"}>
+                                            <ModelDot
+                                                icon={typeData && IconsTypes[typeData.icon]}
+                                                color={typeData?.color}
+                                                selected={false}
+                                                marginRight={10}></ModelDot>
+                                            <Typography sx={{fontSize: "16px"}}>
+                                                {typeData?.name}
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>}/>
+                                {openType ? <ExpandLess/> : <ExpandMore/>}
+                            </ListItemButton>
+                            <Collapse in={openType} timeout="auto" unmountOnExit>
+                                <Select
+                                    id={"duration"}
+                                    value={type}
+                                    displayEmpty
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiSelect-select": {
+                                            display: "flex",
+                                        },
+                                    }}
+                                    onChange={(event) => handleTypeChange(event.target.value as string)}
+                                    renderValue={(selected) => {
+                                        if (selected.length === 0) {
+                                            return <em>{t("stepper-0.type-placeholder")}</em>;
+                                        }
+
+                                        const type = appointmentTypes?.find(
+                                            (itemType) => itemType.uuid === selected
+                                        );
+                                        return (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <ModelDot
+                                                    icon={type && IconsTypes[type.icon]}
+                                                    color={type?.color}
+                                                    selected={false}
+                                                    marginRight={10}></ModelDot>
+                                                <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>
+                                                    {type?.name}
+                                                </Typography>
+                                            </Stack>
+                                        );
+                                    }}>
+                                    {appointmentTypes?.map((type) => (
+                                        <MenuItem
+                                            sx={{display: "flex"}}
+                                            className="text-inner"
+                                            value={type.uuid}
+                                            key={type.uuid}>
+                                            <ModelDot
+                                                icon={type && IconsTypes[type.icon]}
+                                                color={type?.color}
+                                                selected={false}
+                                                marginRight={10}></ModelDot>
+                                            <Typography sx={{fontSize: "16px"}}>
+                                                {type.name}
+                                            </Typography>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+
+                            </Collapse>
+                        </List>)}
                 </FormControlStyled>
             </Box>
 

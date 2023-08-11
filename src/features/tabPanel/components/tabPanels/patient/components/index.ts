@@ -8,3 +8,4 @@ export {default as AddRDVStep2} from "./addRDVStep2";
 export {default as AddRDVStep3} from "./addRDVStep3";
 export {default as HistoryPanel} from './historyPanel';
 export {default as NotesPanel} from './notesPanel';
+export {default as TransactionPanel} from './transactionPanel';

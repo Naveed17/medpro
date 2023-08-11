@@ -24,13 +24,10 @@ import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {Session} from "next-auth";
-import {DefaultCountry} from "@lib/constants";
-import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {sendRequest, useAppointmentHistory, useWidgetModels} from "@lib/hooks/rest";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {
     ConsultationIPToolbar,
     consultationSelector,
@@ -72,6 +69,9 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -82,6 +82,7 @@ function ConsultationInProgress() {
     const dispatch = useAppDispatch();
     const {t, ready} = useTranslation("consultation");
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -187,7 +188,10 @@ function ConsultationInProgress() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
-    const [total, setTotal] = useState<number>(0);
+    const [total, setTotal] = useState(0);
+    const [pagesLa, setPagesLa] = useState(1);
+    const [totalPagesLa, setTotalPagesLa] = useState(1);
+    const [lastestsAppointments, setLastestsAppointments] = useState<any[]>([]);
 
     //***** REQUEST ****//
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
@@ -244,6 +248,9 @@ function ConsultationInProgress() {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
+
+    const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
+
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -351,20 +358,22 @@ function ConsultationInProgress() {
             dispatch(SetMutationDoc(mutateDoc));
 
             // Exam history
-            let noteHistories: any[] = []
-            appointment.latestAppointments.map((app: any) => {
-                const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-                const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '')) {
-                    noteHistories.push({
-                        data: app.appointment.dayDate,
-                        note: note.value,
-                        diagnostics: diagnostics.value
-                    })
-                }
+            /*
+                        let noteHistories: any[] = []
+                        appointment.latestAppointments.map((app: any) => {
+                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
+                            const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
+                            if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '')) {
+                                noteHistories.push({
+                                    data: app.appointment.dayDate,
+                                    note: note.value,
+                                    diagnostics: diagnostics.value
+                                })
+                            }
 
-            })
-            setNotes(noteHistories);
+                        })
+                        setNotes(noteHistories);
+            */
 
             //Acts
             let _acts: AppointmentActModel[] = [];
@@ -459,6 +468,8 @@ function ConsultationInProgress() {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }).then(() => {
+                checkTransactions()
+
                 if (appointment?.status !== 5) {
                     dispatch(resetTimer());
                     // refresh on going api
@@ -485,6 +496,7 @@ function ConsultationInProgress() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
     useEffect(() => {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
@@ -495,6 +507,13 @@ function ConsultationInProgress() {
         acts.filter(act => act.selected).forEach(act => _total += act.fees * act.qte)
         setTotal(_total);
     }, [acts])
+
+    useEffect(() => {
+        if (previousAppointments) {
+            setTotalPagesLa(previousAppointments.totalPages)
+            setLastestsAppointments(previousAppointments.list)
+        }
+    }, [previousAppointments])
 
     //***** FUNCTIONS ****//
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -520,6 +539,7 @@ function ConsultationInProgress() {
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
                 birthdate: patient?.birthdate,
+                cin: patient?.idCard,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -750,6 +770,28 @@ function ConsultationInProgress() {
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
     }
 
+    const checkTransactions = ()=>{
+        if (!appointment?.transactions && app_uuid){
+            const form = new FormData();
+            form.append("type_transaction", TransactionType[2].value);
+            form.append("status_transaction", TransactionStatus[1].value);
+            form.append("cash_box", selectedBoxes[0]?.uuid);
+            form.append("amount", total.toString());
+            form.append("rest_amount", total.toString());
+            form.append("appointment", app_uuid.toString());
+            form.append("transaction_data", JSON.stringify([]));
+
+            trigger({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(r => console.log(r))
+        }
+    }
+
     return (
         <>
             {loading && <LinearProgress sx={{height: 6}} color={"warning"}/>}
@@ -802,6 +844,7 @@ function ConsultationInProgress() {
                         endingDocuments={setPendingDocuments}
                         selectedTab={value}
                         setSelectedTab={setValue}
+                        lastestsAppointments
                     />
                 )}
             </SubHeader>
@@ -839,7 +882,11 @@ function ConsultationInProgress() {
                                 setIsViewerOpen,
                                 locale: router.locale,
                                 setSelectedTab: setValue,
-                                appuuid: app_uuid
+                                appuuid: app_uuid,
+                                lastestsAppointments,
+                                setLastestsAppointments,
+                                totalPagesLa, pagesLa,
+                                setPagesLa, trigger
                             }}
                         />}
                     </TabPanel>
@@ -1134,6 +1181,7 @@ function ConsultationInProgress() {
                         setMeeting,
                         checkedNext,
                         setCheckedNext,
+                        appointment
                     }}
                     size={"lg"}
                     color={
@@ -1197,6 +1245,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
                 "menu",
                 "common",
                 "agenda",
+                "payment",
                 "patient",
             ])),
         },

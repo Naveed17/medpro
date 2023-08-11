@@ -16,9 +16,6 @@ import {
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
@@ -38,7 +35,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import useSWRMutation from "swr/mutation";
+import {sendRequest} from "@lib/hooks/rest";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function TemplatesConfig() {
     const router = useRouter();
@@ -64,9 +65,11 @@ function TemplatesConfig() {
     const [action, setAction] = useState("");
     const [info, setInfo] = useState<null | string>("");
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [state, setState] = useState<any>([]);
+    const [state, setState] = useState<any[]>([]);
+    const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -91,6 +94,7 @@ function TemplatesConfig() {
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
+
     const closeDraw = () => {
         setOpen(false);
     };
@@ -157,10 +161,31 @@ function TemplatesConfig() {
         setOpenDialog(true);
     }
     const handleCloseDialog = () => {
+        if (info === 'balance_sheet_request') {
+            mutateAnalyses()
+        }
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
     };
+    const editPrescriptionModel = () => {
+        triggerEditPrescriptionModel({
+            method: "PUT",
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${model?.uuid}/${router.locale}`,
+            data: {
+                drugs: JSON.stringify(state),
+                name: model?.name,
+                parent: model?.parent
+            }
+        } as any).then(() => {
+            mutatePrescription().then(() => {
+                enqueueSnackbar(t("updated"), {variant: "success"});
+                setOpenDialog(false);
+                setInfo(null);
+                dispatch(SetSelectedDialog(null))
+            });
+        })
+    }
 
     useEffect(() => {
         if (httpDocumentHeader) {
@@ -196,6 +221,7 @@ function TemplatesConfig() {
                     _prescriptions.push({
                         uuid: pm.uuid,
                         name: pm.name,
+                        parent: p.uuid,
                         prescriptionModalHasDrugs: _pmhd
                     })
                 })
@@ -394,6 +420,7 @@ function TemplatesConfig() {
                 <TemplateStyled>
                     <div className={"portraitA4"} onClick={() => {
                         setInfo(getPrescriptionUI());
+                        setModel(null);
                         setOpenDialog(true);
                     }} style={{
                         marginTop: 25,
@@ -440,6 +467,15 @@ function TemplatesConfig() {
                                         setAction("showPrescription")
                                     }}>
                                         <IconUrl path="setting/ic-voir"/>
+                                    </IconButton>
+
+                                    <IconButton size="small" onClick={() => {
+                                        setModel(card)
+                                        setState(card.prescriptionModalHasDrugs);
+                                        setInfo(getPrescriptionUI());
+                                        setOpenDialog(true);
+                                    }}>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
 
                                     <IconButton size="small" onClick={() => {
@@ -523,6 +559,19 @@ function TemplatesConfig() {
                                             setAction("showAnalyses")
                                         }}>
                                             <IconUrl path="setting/ic-voir"/>
+                                        </IconButton>
+                                        <IconButton size="small" onClick={() => {
+
+                                            let _analysis: AnalysisModel[] = [];
+                                            card.info.map((info: { analysis: AnalysisModel; }) => {
+                                                _analysis.push(info.analysis)
+                                            })
+                                            setState(_analysis);
+                                            setModel(card)
+                                            setInfo('balance_sheet_request');
+                                            setOpenDialog(true);
+                                        }}>
+                                            <IconUrl path="setting/edit"/>
                                         </IconButton>
                                         <IconButton size="small" onClick={() => {
                                             removeAnalyses(card.uuid);
@@ -619,7 +668,7 @@ function TemplatesConfig() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t: tConsultation, setOpenDialog}}
+                    data={{state, setState, t: tConsultation, setOpenDialog, model}}
                     size={["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -658,6 +707,11 @@ function TemplatesConfig() {
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("close")}
                                     </Button>
+                                    {info === getPrescriptionUI() && model && <Button onClick={() => {
+                                        editPrescriptionModel()
+                                    }} startIcon={<SaveRoundedIcon/>}>
+                                        {t("save")}
+                                    </Button>}
                                 </Stack>
                             </Stack>
                         </DialogActions>

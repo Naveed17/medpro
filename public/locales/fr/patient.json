@@ -53,6 +53,8 @@
   "config": {
     "reason_for_consultation": "Motif de consultation",
     "keyword": "Mot clé",
+    "more": "Plus",
+    "merge-patient": "Fusionner les patients",
     "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",
@@ -61,6 +63,13 @@
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
+    "select-all": "Sélectionner tout",
+    "load-more": "En savoir plus",
+    "popover-action": {
+      "view_patient_data": "Voir les détails du patient",
+      "check_duplication_data": "Vérifier les doublons",
+      "delete_patient_data": "Supprimer le patient"
+    },
     "tabs": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",
@@ -69,6 +78,7 @@
       "recap": "Résumé",
       "appointment": "RDV",
       "documents": "Documents",
+      "transactions": "Paiements",
       "add-appo": "Ajouter RDV",
       "import": "Importer un document",
       "time-slot": "Créneau horaire",
@@ -277,11 +287,19 @@
         "alert-msg-duration": "le rendez-vous a été modifié avec succès",
         "cancel": "Annuler",
         "confirm": "Confirmer"
+      },
+      "delete-dialog": {
+        "title": "Supprimer Patient",
+        "sub-title": "Voulez-vous vraiment supprimer ce patient?",
+        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
       }
     },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",
       "delete-appointment": "le rendez-vous a été supprimé avec succès",
+      "delete-patient": "le patient a été supprimé avec succès",
       "leave-waiting-room": "le patient a quitté la salle d'attente",
       "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
       "patient-no-show": "le rendez-vous a été modifié avec succès",

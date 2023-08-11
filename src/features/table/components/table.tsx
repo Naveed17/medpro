@@ -93,7 +93,6 @@ function Otable({...props}) {
     const handleClick = (id: any) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly string[] = [];
-
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {

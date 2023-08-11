@@ -41,7 +41,15 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
+    const {
+        patient,
+        patientPhoto,
+        onConsultation,
+        mutatePatientList,
+        mutateAgenda,
+        loading = false,
+        setEditableSection
+    } = props;
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
@@ -116,6 +124,15 @@ function PatientDetailsCard({...props}) {
                 }
             });
         }
+    }
+
+    const handleUpdateFicheID = () => {
+        setEditableSection({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
+        setEditable(true);
     }
 
     const uploadPatientPhoto = () => {
@@ -397,14 +414,14 @@ function PatientDetailsCard({...props}) {
                                                                     </>)
                                                                 :
                                                                 (isMobile ?
-                                                                    <IconButton onClick={() => setEditable(true)}>
+                                                                    <IconButton onClick={() => handleUpdateFicheID()}>
                                                                         <IconUrl color={theme.palette.primary.main}
                                                                                  path='ic-duotone'/>
                                                                     </IconButton>
                                                                     :
                                                                     <Button size="small"
                                                                             color={"primary"}
-                                                                            onClick={() => setEditable(true)}
+                                                                            onClick={() => handleUpdateFicheID()}
                                                                             startIcon={<IconUrl
                                                                                 color={theme.palette.primary.main}
                                                                                 path='ic-duotone'/>

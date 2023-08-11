@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Button,
-    DialogActions,
     MenuItem,
     Stack,
     Tab,
@@ -63,7 +62,8 @@ function ConsultationIPToolbar({...props}) {
         setDialog,
         setPatientShow,
         changes,
-        appointment
+        appointment,
+        lastestsAppointments
     } = props;
 
     const dispatch = useAppDispatch();
@@ -89,7 +89,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setActions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
-    const hasLatestAppointments = appointment.latestAppointments.length === 0;
+    const hasLatestAppointments = lastestsAppointments.length === 0;
     const [tabsData, setTabsData] = useState<any[]>([]);
 
     const {data: user} = session as Session;
@@ -343,7 +343,8 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
-                        birthdate:patient?.birthdate,
+                        birthdate: patient?.birthdate,
+                        cin: patient?.idCard,
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         title: state.title,
@@ -432,7 +433,8 @@ function ConsultationIPToolbar({...props}) {
                     content: '',
                     title: 'Rapport médical',
                     patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
-                    brithdate: `${appointment.patient.birthdate}`
+                    brithdate: `${appointment.patient.birthdate}`,
+                    cin: appointment.patient.idCard ?`${appointment.patient.idCard}`:""
                 });
                 break;
             case "upload_document":
@@ -765,7 +767,7 @@ function ConsultationIPToolbar({...props}) {
                     action={info}
                     open={openDialog}
                     data={{appuuid, state, setState, t, setOpenDialog}}
-                    size={info === "add_vaccin" ? "sm" : ["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
+                    size={info === "add_vaccin" ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: 400}}
                     {...(info === "document_detail" && {

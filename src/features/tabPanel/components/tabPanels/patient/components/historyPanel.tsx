@@ -1,10 +1,10 @@
-import {Box, Stack, Typography, useTheme} from '@mui/material'
+import {Box, Button, Stack, Typography, useTheme} from '@mui/material'
 import {HistoryContainer, NoDataCard, PatientHistoryNoDataCard} from '@features/card'
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -12,10 +12,12 @@ import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {useAppointmentHistory} from "@lib/hooks/rest";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function HistoryPanel({...props}) {
     const {
         patient,
+        triggerPrevious,
         closePatientDialog
     } = props;
 
@@ -27,10 +29,12 @@ function HistoryPanel({...props}) {
         previousAppointmentsData: previousAppointments,
         isLoading
     } = useAppointmentHistory({patientId: patient?.uuid});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
+    const {t} = useTranslation(["consultation", "patient"]);
     const {direction} = useAppSelector(configSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
-    const {t} = useTranslation(["consultation", "patient"]);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -40,8 +44,10 @@ function HistoryPanel({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [dialogAction, setDialogAction] = useState<boolean>(false);
-    const [apps, setApps] = useState(previousAppointments);
+    const [apps, setApps] = useState(previousAppointments?.list);
+    const [totalPagesLa, setTotalPagesLa] = useState(0);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
+    const [pagesLa, setPagesLa] = useState(1);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -125,8 +131,9 @@ function HistoryPanel({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (previousAppointments) {
-            setApps([...previousAppointments]);
+        if (previousAppointments && previousAppointments.list) {
+            setApps([...previousAppointments.list]);
+            setTotalPagesLa(previousAppointments.totalPages);
         }
     }, [previousAppointments, dispatch]);
 
@@ -162,6 +169,19 @@ function HistoryPanel({...props}) {
                                 }}/>
                             </React.Fragment>))}
                     </Stack>
+                    {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
+                        if (medicalEntityHasUser) {
+                            triggerPrevious({
+                                method: "GET",
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`,
+                                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                            }).then((r: any) => {
+                                const res = r?.data.data;
+                                setApps([...apps, ...res.list])
+                            })
+                            setPagesLa(pagesLa + 1)
+                        }
+                    }}>{t('consultationIP.more')}</Button>}
                 </Box>
 
                 {info && (

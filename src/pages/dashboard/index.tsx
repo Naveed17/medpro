@@ -1,28 +1,25 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement} from "react";
 import {DashLayout} from "@features/base";
 import {Redirect} from "@features/redirect";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 
-function Dashborad() {
-
+function Dashboard() {
     return (
         <Redirect to='/dashboard/agenda'/>
     )
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
-    return {
-        props: {
-            fallback: false,
-            ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
-        }
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, ['menu']))
     }
-}
+})
 
-Dashborad.auth = true
+Dashboard.auth = true
 
-Dashborad.getLayout = function getLayout(page: ReactElement) {
+Dashboard.getLayout = function getLayout(page: ReactElement) {
     return (
         <DashLayout>
             {page}
@@ -30,4 +27,4 @@ Dashborad.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
-export default Dashborad
+export default Dashboard

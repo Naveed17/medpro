@@ -244,19 +244,18 @@ const dialogData = [
         (mod) => mod
       )
     ),
-  },
-  {
-    action: "write_certif",
+  },  {
+    action: "cashout",
     component: dynamic((): any =>
-      import("@features/dialog/components/certifDialog/certifDialog").then(
+      import("@features/dialog/components/cashOutDialog/cashOutDialog").then(
         (mod) => mod
       )
     ),
   },
   {
-    action: "write_report",
+    action: "write_certif",
     component: dynamic((): any =>
-      import("@features/dialog/components/reportDialog/reportDialog").then(
+      import("@features/dialog/components/certifDialog/certifDialog").then(
         (mod) => mod
       )
     ),

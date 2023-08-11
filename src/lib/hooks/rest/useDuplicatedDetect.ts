@@ -24,9 +24,7 @@ function useDuplicatedDetect({...props}) {
     } : null, SWRNoValidateConfig);
 
     useEffect(() => {
-        if (httpPatientDuplicationResponse) {
-            setDuplications((httpPatientDuplicationResponse as HttpResponse).data as PatientModel[]);
-        }
+        setDuplications(httpPatientDuplicationResponse ? (httpPatientDuplicationResponse as HttpResponse).data as PatientModel[] : []);
     }, [httpPatientDuplicationResponse])
 
     return {duplications, isLoading}

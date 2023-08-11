@@ -44,7 +44,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function PersonalInsuranceCard({...props}) {
     const {
         patient, mutatePatientList = null, contacts,
-        mutateAgenda = null, loading, editable
+        mutateAgenda = null, loading, editable, setEditable
     } = props;
 
     const {data: session} = useSession();
@@ -171,6 +171,11 @@ function PersonalInsuranceCard({...props}) {
     }
 
     const handleDeleteInsurance = (insurance: InsuranceModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
@@ -188,6 +193,11 @@ function PersonalInsuranceCard({...props}) {
 
 
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         const insurances = [prepareInsuranceInstance(insurance)]
         setRequestAction("PUT");
         setFieldValue("insurances", insurances);
@@ -313,7 +323,7 @@ function PersonalInsuranceCard({...props}) {
                                     </Typography>
                                 </Box>
                                 <LoadingButton
-                                    disabled={editable}
+                                    disabled={editable.personalInfoCard || editable.patientDetailContactCard}
                                     loading={loadingRequest}
                                     className='btn-add'
                                     onClick={() => {
@@ -376,35 +386,36 @@ function PersonalInsuranceCard({...props}) {
                                                             </Typography>
                                                         </Stack>
                                                     </Grid>
-                                                    {!editable && <Grid pt={.5} pb={.5} item xs={6} md={4}>
-                                                        <Stack direction={"row"} alignItems={"start"} spacing={1}
-                                                               justifyContent={"flex-end"}>
-                                                            <IconButton
-                                                                disabled={loadingRequest}
-                                                                className='btn-add'
-                                                                onClick={() => handleEditInsurance(insurance)}
-                                                                size="small">
-                                                                <IconUrl path={"setting/edit"}/>
-                                                            </IconButton>
-                                                            <IconButton
-                                                                disabled={loadingRequest}
-                                                                className='icon-button'
-                                                                color={"error"}
-                                                                sx={{
-                                                                    paddingTop: .4,
-                                                                    "& svg": {
-                                                                        width: 18,
-                                                                        height: 18
-                                                                    },
-                                                                }}
-                                                                onClick={() => handleDeleteInsurance(insurance)}
-                                                                size="small">
-                                                                <DeleteIcon/>
-                                                            </IconButton>
-                                                        </Stack>
-                                                    </Grid>}
+                                                    {!editable.personalInsuranceCard &&
+                                                        <Grid pt={.5} pb={.5} item xs={6} md={4}>
+                                                            <Stack direction={"row"} alignItems={"start"} spacing={1}
+                                                                   justifyContent={"flex-end"}>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    className='btn-add'
+                                                                    onClick={() => handleEditInsurance(insurance)}
+                                                                    size="small">
+                                                                    <IconUrl path={"setting/edit"}/>
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    className='icon-button'
+                                                                    color={"error"}
+                                                                    sx={{
+                                                                        paddingTop: .4,
+                                                                        "& svg": {
+                                                                            width: 18,
+                                                                            height: 18
+                                                                        },
+                                                                    }}
+                                                                    onClick={() => handleDeleteInsurance(insurance)}
+                                                                    size="small">
+                                                                    <DeleteIcon/>
+                                                                </IconButton>
+                                                            </Stack>
+                                                        </Grid>}
                                                 </Grid>
-                                                {(values.insurances.length - 1) !== index &&
+                                                {(patientInsurances.length - 1) !== index &&
                                                     <Divider sx={{marginBottom: 1}}/>}
                                             </>
                                         )}

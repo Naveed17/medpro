@@ -1,6 +1,9 @@
 {
   "path": "Caisse",
   "total": "Total",
+  "wallet": "Portefeuille",
+  "credit": "Reste à payer",
+  "insurance": "Assurance",
   "btn_header_1": "Dépense",
   "btn_header_2": "Alimenter",
   "cancel": "Annuler",
@@ -21,28 +24,56 @@
   "expiry_date": "Date de déchéance",
   "add_cheque": "Ajouter un Chéque",
   "add": "Ajouter",
+  "pay_added":"Payment ajouté",
+  "assured": "Assuré",
+  "insurance_total": "Assurance",
   "billing": "Facturer",
-  "receive": "Total a réceptionner",
+  "receive": "Assurance",
   "somme": "Somme",
   "more": "Plus",
+  "payment_dialog_title": "Paiement",
+  "payment_edit_dialog_title": "Modifier une transaction",
+  "transactionAdded": "Transaction ajoutée",
+  "settlement": "Règlement",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "addsuccess": "Paiement ajouté",
+  "cashout": "Encaissement",
+  "dialogs":{
+    "delete-dialog": {
+      "title":"Supprimer transaction",
+      "description":"Êtes-vous sûr de vouloir supprimer cette transaction ?"
+    }
+  },
+  "encaissed": "encaissés",
+  "encashment": "Encaissement",
   "table": {
     "date": "Date",
     "time": "Heure",
     "name": "Nom",
     "insurance": "Assurances",
     "type": "Type",
-    "payment_type": "Type de Paiement",
+    "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
     "billing_status": "Etat de Facturation",
     "amount": "Montant",
+    "actions": "Actions",
     "consultation": "Consultation",
     "check": "Control",
     "-": "#",
     "yes": "Oui",
     "no": "Non",
+    "NOT_PAID": "IMPAYÉ",
+    "PARTIAL_PAID": "PARTIEL",
+    "PAID": "PAYÉ",
     "credit_card": "Carte bancaire",
     "cheque": "Chéque",
-    "method": "Méthode"
+    "method": "Méthode",
+    "1": "Alimentation",
+    "2": "Dépenses",
+    "3": "Consultation",
+    "4": "Encaissement",
+    "5": "ALIM COMPTE"
   },
   "no-data": {
     "title": "Aucune transaction",
@@ -77,5 +108,8 @@
     "date-range": "Périodes",
     "startDate": "Date début",
     "endDate": "Date fin"
+  },
+  "alert": {
+    "transaction-deleted": "Transaction a été supprimé"
   }
 }

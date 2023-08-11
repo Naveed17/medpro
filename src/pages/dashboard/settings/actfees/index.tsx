@@ -20,7 +20,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions,
+    DialogActions, CardContent, Checkbox, FormControlLabel, Card,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -108,6 +108,7 @@ function ActFees() {
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
+    const [isChecked, setIsChecked] = useState(localStorage.getItem('newCash') ? localStorage.getItem('newCash') === '1': false);
     const [newFees, setNewFees] = useState<{
         act: ActModel | string | null;
         fees: string;
@@ -390,6 +391,22 @@ function ActFees() {
                     </Stack>
                 )}
             </SubHeader>
+
+            <Card style={{margin:20,marginBottom: 0,paddingLeft: 10}}>
+                    <FormControlLabel
+                        label={t('betav')}
+                        control={
+                            <Checkbox
+                                checked={isChecked}
+                                onChange={() =>{
+                                    dispatch(setOngoing({newCashBox: !isChecked}));
+                                    localStorage.setItem('newCash',!isChecked ? '1':'0')
+                                    setIsChecked(!isChecked);
+                                }}
+                            />
+                        }
+                    />
+            </Card>
 
             {isMobile && (
                 <Box padding={2}>

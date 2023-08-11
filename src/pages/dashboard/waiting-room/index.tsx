@@ -6,17 +6,7 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {
-    Alert,
-    Box,
-    Button,
-    DialogActions,
-    Drawer,
-    LinearProgress,
-    Menu,
-    MenuItem,
-    useTheme
-} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem, useTheme} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -37,9 +27,6 @@ import {toggleSideBar} from "@features/menu";
 import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -47,9 +34,14 @@ import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/con
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {LoadingButton} from "@mui/lab";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {ActionMenu} from "@features/menu";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -58,7 +50,6 @@ function WaitingRoom() {
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
-    const {mutate} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
@@ -69,6 +60,8 @@ function WaitingRoom() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -78,28 +71,10 @@ function WaitingRoom() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: ""
-        },
-        card: {
-            amount: ""
-        },
-        check: [{
-            amount: "",
-            carrier: "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }],
-        selected: null
-    });
     const [popoverActions, setPopoverActions] = useState([
         {
             title: "pre_consultation_data",
@@ -131,6 +106,7 @@ function WaitingRoom() {
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -149,20 +125,14 @@ function WaitingRoom() {
     });
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
-
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
-        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
                     mouseX: event.clientX + 2,
                     mouseY: event.clientY - 6,
-                }
-                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                // Other native context menus might behave different.
-                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-                null,
+                } : null,
         );
     };
 
@@ -171,16 +141,31 @@ function WaitingRoom() {
     };
 
     const handleSubmit = () => {
-        console.log(selectedPayment.payments);
-    };
+        setLoadingRequest(true)
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            session,
+            medical_entity.uuid,
+            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
+            triggerPostTransaction,
+            urlMedicalEntitySuffix,
+            () => {
+                mutateWaitingRoom().then(() => {
+                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
+                    setOpenPaymentDialog(false);
+                    setLoadingRequest(false);
+                })
+            }
+        );
 
+    }
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];
-        actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
+        // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
-
     const nextConsultation = (row: any) => {
         const form = new FormData();
         form.append('attribute', 'is_next');
@@ -197,7 +182,6 @@ function WaitingRoom() {
             setLoadingRequest(false);
         });
     }
-
     const startConsultation = (row: any) => {
         if (!isActive) {
             const event: any = {
@@ -234,7 +218,6 @@ function WaitingRoom() {
             setLoadingRequest(false);
         }
     }
-
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
@@ -262,24 +245,67 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
+                let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
+
+                let payments: any[] = [];
+
+                row?.transactions && row.transactions.map(transaction => {
+                    payed_amount += transaction.amount - transaction.rest_amount;
+
+                    transaction.transaction_data.map((td: any) => {
+                        let pay: any = {
+                            uuid: td.uuid,
+                            amount: td.amount,
+                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                            status_transaction: td.status_transaction_data,
+                            type_transaction: td.type_transaction_data,
+                            data: td.data
+                        }
+                        if (td.insurance)
+                            pay["insurance"] = td.insurance.uuid
+                        if (td.payment_means)
+                            pay["payment_means"] = paymentTypesList.find((pt: {
+                                slug: string;
+                            }) => pt.slug === td.payment_means.slug)
+                        payments.push(pay)
+                    })
+                })
                 setSelectedPayment({
                     uuid: row?.uuid,
-                    date: moment().format("DD-MM-YYYY"),
-                    time: row?.appointment_time,
+                    payments,
+                    payed_amount,
+                    appointment: row,
                     patient: row?.patient,
-                    insurance: "",
-                    type: row?.appointment_type.name,
-                    amount: 40,
-                    total: 60,
-                    payments: []
+                    total: row?.appointment_type.price,
+                    isNew: payed_amount === 0
                 });
                 setOpenPaymentDialog(true);
                 break;
         }
         handleClose();
     }
-
     const handleTableActions = (data: any) => {
+        const menu = [
+            {
+                title: "pre_consultation_data",
+                icon: <PendingIcon/>,
+                action: "onPreConsultation",
+            },
+            {
+                title: "start_the_consultation",
+                icon: <PlayCircleIcon/>,
+                action: "onConsultationStart",
+            },
+            {
+                title: "leave_waiting_room",
+                icon: <IconUrl color={"white"} path="ic-salle"/>,
+                action: "onLeaveWaitingRoom",
+            },
+            {
+                title: "see_patient_form",
+                icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+                action: "onPatientDetail",
+            }];
         setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
@@ -293,14 +319,14 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                if (!data.row.fees &&
-                    popoverActions.findIndex(data => data.action === "onPay") === -1 &&
-                    process.env.NODE_ENV === 'development') {
+                if (data.row.rest_amount >= 0) {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
-                    }, ...popoverActions])
+                    }, ...menu])
+                } else {
+                    setPopoverActions([...menu])
                 }
                 handleContextMenu(data.event);
                 break;
@@ -318,7 +344,6 @@ function WaitingRoom() {
         } as any).then(() => {
             localStorage.removeItem(`Modeldata${row?.uuid}`);
             setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 
@@ -423,61 +448,23 @@ function WaitingRoom() {
                                             data={AddWaitingRoomCardData}/>
                                     }
 
-                                    <Menu
-                                        open={contextMenu !== null}
-                                        onClose={handleClose}
-                                        anchorReference="anchorPosition"
-                                        slotProps={{
-                                            paper: {
-                                                elevation: 0,
-                                                sx: {
-                                                    backgroundColor: theme.palette.text.primary,
-                                                    "& .popover-item": {
-                                                        padding: theme.spacing(2),
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        svg: {
-                                                            color: "#fff",
-                                                            marginRight: theme.spacing(1),
-                                                            fontSize: 20
-                                                        },
-                                                        cursor: "pointer",
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                        anchorPosition={
-                                            contextMenu !== null
-                                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                                : undefined
-                                        }
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                    >
-                                        {
-                                            popoverActions.map(
-                                                (v: any, index) => (
-                                                    <MenuItem
-                                                        key={index}
-                                                        className="popover-item"
-                                                        onClick={() => {
-                                                            OnMenuActions(v.action);
-                                                        }}
-                                                    >
-                                                        {v.icon}
-                                                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                            {t(`${v.title}`)}
-                                                        </Typography>
-                                                    </MenuItem>
-                                                )
-                                            )}
-                                    </Menu>
+                                    <ActionMenu {...{contextMenu, handleClose}}>
+                                        {popoverActions.map(
+                                            (v: any, index) => (
+                                                <MenuItem
+                                                    key={index}
+                                                    className="popover-item"
+                                                    onClick={() => {
+                                                        OnMenuActions(v.action);
+                                                    }}>
+                                                    {v.icon}
+                                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                        {t(`${v.title}`)}
+                                                    </Typography>
+                                                </MenuItem>
+                                            )
+                                        )}
+                                    </ActionMenu>
                                 </>
                             }
                         </Box>
@@ -522,7 +509,7 @@ function WaitingRoom() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    deals, setDeals,
+                    appointment: row,
                     patient: row?.patient
                 }}
                 size={"md"}
@@ -533,13 +520,14 @@ function WaitingRoom() {
                         <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
-                        <Button
+                        <LoadingButton
                             disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
+                            loading={loadingRequest}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
-                        </Button>
+                        </LoadingButton>
                     </DialogActions>
                 }
             />

@@ -10,7 +10,7 @@ import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-import {Box, Button, DialogActions, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -19,6 +19,13 @@ import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
 import {isAppleDevise} from "@lib/hooks/isAppleDevise";
+import {useSWRConfig} from 'swr';
+import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {setSelectedRows} from "@features/table";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -26,26 +33,7 @@ const variants = {
     hidden: {opacity: 0},
     enter: {opacity: 1},
     exit: {opacity: 0},
-};
-
-export const ImportCardData = {
-    mainIcon: <Icon path={"ic-upload"} width={"100"} height={"100"}/>,
-    title: "import_data.sub_title",
-    description: "import_data.description",
-    buttons: [{
-        text: "import_data.button",
-        icon: <Icon path={"ic-upload"} width={"18"} height={"18"}/>,
-        variant: "expire",
-        color: "white"
-    }]
-};
-
-import {useSWRConfig} from 'swr';
-import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
-import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
-import {setSelectedRows} from "@features/table";
-import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+}
 
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
@@ -55,6 +43,7 @@ function DashLayout({children}: LayoutProps) {
     const {closeSnackbar} = useSnackbar();
     const {cache} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {t} = useTranslation('common');
     const {
@@ -68,6 +57,13 @@ function DashLayout({children}: LayoutProps) {
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [mergeDialog, setMergeDialog] = useState(false);
+    const [medicalEntityHasUser, setMedicalEntityHasUser] = useState<MedicalEntityHasUsersModel[] | null>(null);
+    const [agendasData, setAgendasData] = useState<AgendaConfigurationModel[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`)?.data?.data?.data) ?? null);
+    const [agenda, setAgenda] = useState<AgendaConfigurationModel | null>(null);
+
+    const {data: user} = session as Session;
+    const general_information = (user as UserDataResponse).general_information;
+    const permission = !isAppleDevise() ? checkNotification() : false; // Check notification permission
 
     const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
     const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
@@ -78,10 +74,6 @@ function DashLayout({children}: LayoutProps) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const medicalEntityHasUser = (httpUserResponse as HttpResponse)?.data as MedicalEntityHasUsersModel[];
-    const [agendasData, setAgendasData] = useState<AgendaConfigurationModel[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`)?.data?.data?.data) ?? null);
-    const [agenda, setAgenda] = useState<AgendaConfigurationModel | null>(null);
-
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
@@ -89,9 +81,6 @@ function DashLayout({children}: LayoutProps) {
             Authorization: `Bearer ${session?.accessToken}`
         }
     } : null, SWRNoValidateConfig);
-
-    // Check notification permission
-    const permission = !isAppleDevise() ? checkNotification() : false;
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
@@ -119,12 +108,11 @@ function DashLayout({children}: LayoutProps) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: user} = session as Session;
-    const general_information = (user as UserDataResponse).general_information;
-    const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
-    const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
-    const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
-    const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
+    const {data: httpBoxesResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -134,7 +122,17 @@ function DashLayout({children}: LayoutProps) {
                 setImportDataDialog(false);
             });
         }}
-        data={ImportCardData}/>
+        data={{
+            mainIcon: <Icon path={"ic-upload"} width={"100"} height={"100"}/>,
+            title: "import_data.sub_title",
+            description: "import_data.description",
+            buttons: [{
+                text: "import_data.button",
+                icon: <Icon path={"ic-upload"} width={"18"} height={"18"}/>,
+                variant: "expire",
+                color: "white"
+            }]
+        }}/>
 
     const justNumbers = (str: string) => {
         const res = str.match(/\d+$/); // Find the last numeric digit
@@ -254,14 +252,24 @@ function DashLayout({children}: LayoutProps) {
     }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (pendingAppointments) {
-            dispatch(setPendingAppointments(pendingAppointments));
+        if (httpUserResponse) {
+            const medicalEnUser = (httpUserResponse as HttpResponse).data as MedicalEntityHasUsersModel[];
+            setMedicalEntityHasUser(medicalEnUser);
+            dispatch(setOngoing({medicalEntityHasUser: medicalEnUser}));
         }
-    }, [pendingAppointments, dispatch]);
+    }, [httpUserResponse, dispatch]);
 
     useEffect(() => {
-        if (calendarStatus) {
-            if (calendarStatus.import_data?.length === 0) {
+        if (httpPendingAppointmentResponse) {
+            const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
+            dispatch(setPendingAppointments(pendingAppointments));
+        }
+    }, [httpPendingAppointmentResponse, dispatch]);
+
+    useEffect(() => {
+        if (httpOngoingResponse) {
+            const calendarData = (httpOngoingResponse as HttpResponse).data as dashLayoutState;
+            if (calendarData.import_data?.length === 0) {
                 localStorage.removeItem("import-data");
                 localStorage.removeItem("import-data-progress");
                 closeSnackbar();
@@ -272,14 +280,15 @@ function DashLayout({children}: LayoutProps) {
 
             dispatch(setOngoing({
                 mutate,
-                waiting_room: calendarStatus.waiting_room,
-                import_data: calendarStatus.import_data,
-                next: calendarStatus.next ? calendarStatus.next : null,
-                last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
-                ongoing: calendarStatus.ongoing ? calendarStatus.ongoing : null
+                waiting_room: calendarData.waiting_room,
+                import_data: calendarData.import_data,
+                newCashBox: localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === "1" : false,
+                next: calendarData.next ? calendarData.next : null,
+                last_fiche_id: justNumbers(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
+                ongoing: calendarData.ongoing ? calendarData.ongoing : null
             }));
         }
-    }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpOngoingResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (session?.error === "RefreshAccessTokenError") {
@@ -303,22 +312,29 @@ function DashLayout({children}: LayoutProps) {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (medicalEntityHasUser) {
-            dispatch(setOngoing({medicalEntityHasUser}));
-        }
-    }, [dispatch, medicalEntityHasUser])
-
-    useEffect(() => {
-        if (appointmentTypes) {
+        if (httpAppointmentTypesResponse) {
+            const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
             dispatch(setOngoing({appointmentTypes}));
         }
-    }, [dispatch, appointmentTypes])
+    }, [dispatch, httpAppointmentTypesResponse])
 
     useEffect(() => {
-        if (medicalProfessionalData) {
+        if (httpProfessionalsResponse) {
+            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
+            dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
             dispatch(setOngoing({medicalProfessionalData}));
         }
-    }, [medicalProfessionalData, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpBoxesResponse) {
+            const cashboxes = (httpBoxesResponse as HttpResponse).data;
+            if (cashboxes.length > 0) {
+                dispatch(setCashBoxes(cashboxes));
+                dispatch(setSelectedBoxes([cashboxes[0]]));
+            }
+        }
+    }, [dispatch, httpBoxesResponse]);
 
     return (
         <SideBarMenu>
@@ -410,9 +426,9 @@ function DashLayout({children}: LayoutProps) {
                             },
                         }}>
                         <Stack
-                            direction={"row"}
+                            direction={isMobile ? "column" : "row"}
                             justifyContent={"space-between"}
-                            sx={{width: "100%"}}>
+                            sx={{width: "100%", textAlign: "center"}}>
                             <Button
                                 onClick={() => dispatch(setDuplicated({openDialog: false}))}
                                 startIcon={<CloseIcon/>}>

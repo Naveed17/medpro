@@ -1,10 +1,7 @@
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -20,6 +17,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Patient({...props}) {
     const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
@@ -34,18 +32,17 @@ function Patient({...props}) {
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
+    const [patients, setPatients] = useState<PatientModel[]>([]);
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
     const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
-
-    if (!ready) return (<LoadingScreen/>);
 
     const handleOnClick = () => {
         setAddPatient(true);
@@ -128,6 +125,14 @@ function Patient({...props}) {
         });
     }
 
+    useEffect(() => {
+        if (httpPatientResponse) {
+            setPatients((httpPatientResponse as HttpResponse)?.data as PatientModel[]);
+        }
+    }, [httpPatientResponse]);
+
+    if (!ready) return (<LoadingScreen/>);
+
     return (
         <div>
             {!addPatient ? <>
@@ -144,7 +149,7 @@ function Patient({...props}) {
                             OnOpenSelect={handlePatientSearch}
                             translation={t}
                             loading={isValidating}
-                            data={(httpPatientResponse as HttpResponse)?.data}/>
+                            data={patients}/>
                     </Box>
                     {!select && <Paper
                         sx={{

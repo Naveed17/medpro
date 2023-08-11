@@ -63,7 +63,6 @@ export default function MobileTable({...props}) {
                                 component="span"
                             >
                                 <Icon path="ic-video"/>
-                                Pattren
                             </Typography>
                         )}
 

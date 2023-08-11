@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -73,6 +73,8 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
+import { MobileContainer } from "@themes/mobileContainer";
+import { DrawerBottom } from "@features/drawerBottom";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -87,6 +89,7 @@ function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const [filterBottom,setFilterBottom] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
@@ -158,6 +161,7 @@ function Agenda() {
     const [event, setEvent] = useState<EventDef | null>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
+    const [openingHours, setOpeningHours] = useState<OpeningHoursModel | undefined>(undefined);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
@@ -172,7 +176,6 @@ function Agenda() {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
-    const openingHours = agenda?.openingHours[0];
 
     const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
@@ -309,6 +312,12 @@ function Agenda() {
             getAppointments(queryPath, view);
         }
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (agenda?.openingHours[0]) {
+            setOpeningHours(agenda.openingHours[0]);
+        }
+    }, [agenda])
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         // dispatch(resetFilterPatient());
@@ -815,7 +824,6 @@ function Agenda() {
         }
     }
 
-
     const submitStepper = (index: number) => {
         const steps: any = eventStepper.map((stepper) => ({...stepper}));
         if (eventStepper.length !== index) {
@@ -902,16 +910,18 @@ function Agenda() {
         }).then((value: any) => {
             setLoading(false);
             if (value?.data.status === 'success') {
+                refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setQuickAddAppointment(false);
-                refreshData();
             }
         });
     }
 
     const handleOpenFab = () => setOpenFabAdd(true);
+
     const handleCloseFab = () => setOpenFabAdd(false);
+
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
@@ -1087,6 +1097,12 @@ function Agenda() {
                             setEvent(undefined);
                         }, 300);
                     }}
+                    PaperProps={{
+                        sx: {
+                            minWidth: "29vw",
+                            maxWidth: "30rem",
+                        }
+                    }}
                 >
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
@@ -1120,6 +1136,7 @@ function Agenda() {
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
+
                         />}
                 </Drawer>
 
@@ -1184,6 +1201,7 @@ function Agenda() {
                     }}
                 >
                     <QuickAddAppointment
+                        {...{t}}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
@@ -1209,9 +1227,11 @@ function Agenda() {
                             {...{loading}}
                             variant="contained"
                             color={"primary"}
-                            onClick={handleAddAppointmentRequest}
-                            disabled={recurringDates.length === 0 || type === "" || !patient}
-                        >
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleAddAppointmentRequest();
+                            }}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                         </LoadingButton>
                     </Paper>
@@ -1398,18 +1418,49 @@ function Agenda() {
                         </>
                     }
                 />
+                <MobileContainer>     
+            <Button
+                startIcon={<IconUrl path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilterBottom(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    
+                }}>
+                {t("filter.title")} (0)
+            </Button>
+            </MobileContainer> 
+            <DrawerBottom
+                handleClose={() => setFilterBottom(false)}
+                open={filterBottom}
+                title={t("filter.title")}>
+                <AgendaFilter/>
+            </DrawerBottom>
             </Box>
         </div>
     )
 }
 
-export const getStaticProps: GetStaticProps = async (context) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(context.locale as string,
-            ['common', 'menu', 'agenda', 'patient', 'consultation']))
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    // `getStaticProps` is executed on the server side.
+    const {data: countries} = await instanceAxios({
+        url: `/api/public/places/countries/${locale}?nationality=true`,
+        method: "GET"
+    });
+
+    return {
+        props: {
+            fallback: {
+                [`/api/public/places/countries/${locale}?nationality=true`]: countries
+            },
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+        }
     }
-})
+}
 
 export default Agenda
 

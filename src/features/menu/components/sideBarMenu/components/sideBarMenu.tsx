@@ -50,12 +50,10 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
-
+import { MobileContainer } from "@lib/constants";
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -64,7 +62,7 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room,newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
@@ -143,6 +141,11 @@ function SideBarMenu({children}: LayoutProps) {
                                     <Badge
                                         badgeContent={item.badge}
                                         color="warning"
+                                        sx={{
+                                            '.MuiBadge-badge':{
+                                                right:8
+                                            }
+                                        }}
                                     />
                                 )}
                             </ListItem>
@@ -181,7 +184,13 @@ function SideBarMenu({children}: LayoutProps) {
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
+
     });
+
+    useEffect(()=>{
+        menuItems[3].href= localStorage.getItem('newCash') === "1" ?"/dashboard/cashbox":"/dashboard/payment";
+        setMenuItems([...menuItems])
+    },[newCashBox]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const currentDay = sortedData.find((event) => event.date === moment().format("DD-MM-YYYY"));
@@ -218,7 +227,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
-                display={{xs: "none", sm: "block"}}
+                display={isMobile ? "none" : "block"}
                 component="nav"
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">

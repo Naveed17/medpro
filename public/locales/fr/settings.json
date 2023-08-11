@@ -460,6 +460,7 @@
     "add_act": "Nouveau act",
     "placeholder_act": "Ex: le nom de l'acte",
     "name": "Nom",
+    "betav":"Utiliser la nouvelle version de la caisse (bêta)",
     "price": "Prix",
     "cancel": "Annuler",
     "table": {
@@ -678,7 +679,13 @@
       "asDefault": "Sélectionnez-le comme modèle par défaut",
       "modifier": "Modifier",
       "close": "Terminer",
-      "analyses": "Analyses"
+      "analyses": "Analyses",
+      "year": "ans",
+      "day": "jour(s)",
+      "month": "mois",
+      "years": "Ans",
+      "months": "Mois",
+      "days": "Jours"
     }
   }
 }

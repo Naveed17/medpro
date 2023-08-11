@@ -55,7 +55,12 @@ const RootStyled = styled(Box)(({theme}) => ({
                     },
                     [theme.breakpoints.down("md")]: {
                         width: 150,
-                        display: "none",
+                        p: {
+                            width: 100,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis"
+                        }
                     },
                 },
                 "& .child-list-main": {
@@ -88,6 +93,19 @@ const RootStyled = styled(Box)(({theme}) => ({
                             marginLeft: 1
                         },
                     },
+                    "& .alert-attribute-change": {
+                        width: 22,
+                        height: 22,
+                        opacity: 0.5,
+                        backgroundColor: theme.palette.error.main
+                    },
+                    "& .alert-appointments-change": {
+                        position: "absolute",
+                        right: "2.4rem",
+                        width: 22,
+                        height: 22,
+                        backgroundColor: theme.palette.error.main
+                    }
                 },
             },
         },

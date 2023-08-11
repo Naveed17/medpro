@@ -53,6 +53,7 @@
   "config": {
     "reason_for_consultation": "Reason for Consultation",
     "keyword": "Keyword",
+    "more": "More",
     "patient": "Patient",
     "place": "Place",
     "doc_detail_title": "Document",
@@ -60,6 +61,13 @@
     "documents": "Documents",
     "bal_sheet_req": "Balance sheet request",
     "upload_document": "Upload a document",
+    "select-all": "Select all",
+    "load-more": "Read more",
+    "popover-action": {
+      "view_patient_data": "View patient details",
+      "check_duplication_data": "Check for duplicates",
+      "delete_patient_data": "Delete patient"
+    },
     "tabs": {
       "personal-info": "Personal Information",
       "additional-information": "Additional Information",
@@ -68,6 +76,7 @@
       "recap": "Summary",
       "appointment": "Appointment",
       "documents": "Documents",
+      "transactions": "Payments",
       "add-appo": "Add Appointment",
       "import": "Import a Document",
       "time-slot": "Time Slot",
@@ -276,11 +285,19 @@
         "alert-msg-duration": "The appointment has been successfully modified",
         "cancel": "Cancel",
         "confirm": "Confirm"
+      },
+      "delete-dialog": {
+        "title": "Delete Patient",
+        "sub-title": "Do you really want to delete this patient?",
+        "description": "You lose the patient's history and documents forever",
+        "cancel": "Cancel",
+        "confirm": "Delete"
       }
     },
     "alert": {
       "cancel-appointment": "The appointment has been successfully canceled",
       "delete-appointment": "The appointment has been successfully deleted",
+      "delete-patient": "The patient has been successfully deleted",
       "leave-waiting-room": "The patient has left the waiting room",
       "on-waiting-room": "The patient has been added to the waiting room",
       "patient-no-show": "The appointment has been marked as a patient no-show",
