@@ -1,0 +1,48 @@
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="12" height="12" fill="#A4A4A4"/>
+<g id="Frame 481546">
+<g id="Rectangle 1951" filter="url(#filter0_d_0_1)">
+<rect x="-16" y="-182" width="368" height="826" fill="#FBEADA"/>
+</g>
+<g id="Frame 7207">
+<g id="Frame 7766">
+<g id="Frame 7805">
+<g id="Frame 7802">
+<rect x="-8" y="-70" width="352" height="157.514" rx="8" fill="white"/>
+<g id="Frame 7838">
+<g id="Frame 7837">
+<g id="Group 1316">
+<g id="Frame 7833">
+<g id="Frame 7831">
+<g id="Group">
+<g id="ic-calendar">
+<g id="Core">
+<g id="today">
+<path id="Shape" fill-rule="evenodd" clip-rule="evenodd" d="M9.72477 1.56979H9.11697V0.458984H7.90137V1.56979H3.03899V0.458984H1.82339V1.56979H1.2156C0.547018 1.56979 0 2.06966 0 2.6806V10.4563C0 11.0672 0.547018 11.5671 1.2156 11.5671H9.72477C10.3933 11.5671 10.9404 11.0672 10.9404 10.4563V2.6806C10.9404 2.06966 10.3933 1.56979 9.72477 1.56979ZM9.72477 10.4563H1.2156V4.34682H9.72477V10.4563Z" fill="#1B2746"/>
+<path id="Rectangle path" d="M5.47014 5.45703H2.43115V8.23405H5.47014V5.45703Z" fill="#1B2746"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_1" x="-47" y="-194" width="420" height="878" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="-5" dy="14"/>
+<feGaussianBlur stdDeviation="13"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0.588235 0 0 0 0 0.839216 0 0 0 0.37 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+</filter>
+</defs>
+</svg>

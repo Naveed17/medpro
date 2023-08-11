@@ -401,16 +401,17 @@ function PaymentRow({...props}) {
                                     <IconUrl path="setting/edit"/>
                                 </IconButton>
                             </Tooltip>}
-                            {/*{isItemSelected && <Tooltip title={t('delete')}>
+                            {isItemSelected && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenDeleteTransactionDialog(true);
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        //setOpenDeleteTransactionDialog(true);
+                                        handleEvent({action: "PATIENT_PAYMENT", row: row, event});
                                     }}>
                                     <IconUrl path="setting/icdelete"/>
                                 </IconButton>
-                            </Tooltip>}*/}
+                            </Tooltip>}
                         </Stack>
                     </Stack>
                 </TableCell>
