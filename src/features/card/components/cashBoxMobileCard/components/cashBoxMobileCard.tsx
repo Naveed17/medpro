@@ -545,7 +545,8 @@ function CashBoxMobileCard({ ...props }) {
           </Stack>
         </CardContent>
       </CardStyled>
-      <Collapse in={isItemSelected} timeout="auto" unmountOnExit sx={{ pl: 6 }}>
+      
+      <Collapse in={isItemSelected && data.transaction_data.length > 0} timeout="auto" unmountOnExit sx={{ pl: 6 }}>
         <StyledList>
           {data.transaction_data.map((col: any, idx: number) => {
             return (
@@ -558,7 +559,7 @@ function CashBoxMobileCard({ ...props }) {
                   "&::before": {
                     ...(idx > 0 && {
                       height: "calc(100% + 11px)",
-                      top: "-31px !important",
+                      top: "-29px !important",
                     }),
                   },
                 }}

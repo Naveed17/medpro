@@ -29,12 +29,13 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
+import { DrawerBottom } from "@features/drawerBottom";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -139,7 +140,7 @@ function Cashbox() {
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     const [idsSelected,setIdsSelected]= useState<string[]>([])
-
+    const [filter,setFilter] = useState<boolean>(false)
     // ******** States ********
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -466,7 +467,28 @@ function Cashbox() {
                     </DialogActions>
                 }
             />
-
+ <MobileContainer>     
+            <Button
+                startIcon={<IconUrl path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilter(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    
+                }}>
+                {t("filter.title",{ns:'common'})} (0)
+            </Button>
+            </MobileContainer> 
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title",{ns:'common'})}>
+                <CashboxFilter/>
+            </DrawerBottom>
         </>
     )
 }
