@@ -41,7 +41,15 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading, setEditableSection} = props;
+    const {
+        patient,
+        patientPhoto,
+        onConsultation,
+        mutatePatientList,
+        mutateAgenda,
+        loading = false,
+        setEditableSection
+    } = props;
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();

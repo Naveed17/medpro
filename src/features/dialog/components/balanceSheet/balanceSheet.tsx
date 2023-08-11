@@ -2,10 +2,12 @@ import {
     Autocomplete,
     Box,
     Button,
-    Card, Chip,
+    Card,
+    Chip,
     DialogActions,
     Grid,
-    IconButton, InputAdornment,
+    IconButton,
+    InputAdornment,
     Menu,
     MenuItem,
     Skeleton,
@@ -28,18 +30,17 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {NoDataCard, NoteCardCollapse} from "@features/card";
 import {arrayUniqueByKey, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
@@ -60,7 +61,7 @@ function BalanceSheetDialog({...props}) {
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
     const [analysisListLocal, setAnalysisListLocal] = useState<AnalysisModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [selectedModel, setSelectedModel] = useState<any>(null);
+    const [selectedModel, setSelectedModel] = useState<any>(data.model);
     const [name, setName] = useState('');
     const [anchorElPopover, setAnchorElPopover] = useState<HTMLDivElement | null>(null);
     const textFieldRef = createRef<HTMLDivElement>();
@@ -74,11 +75,6 @@ function BalanceSheetDialog({...props}) {
     const handleClickPopover = useCallback(() => {
         setAnchorElPopover(textFieldRef.current);
     }, [textFieldRef]);
-
-    const handleClosePopover = useCallback(() => {
-        setAnchorElPopover(null);
-    }, []);
-
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     }
@@ -402,13 +398,13 @@ function BalanceSheetDialog({...props}) {
                     </FormikProvider>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <Stack direction="row" alignItems="center">
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"}>
                         {selectedModel === null && <Typography gutterBottom>{t('balance_sheet_list')}</Typography>}
                         {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev) => {
                             selectedModel.name = ev.target.value;
                             setSelectedModel({...selectedModel})
                         }} value={selectedModel.name}></TextField>}
-                        {analysis.length > 0 && <Button
+                        {analysis.length > 0 && !selectedModel && <Button
                             size={"small"}
                             sx={{ml: 'auto'}}
                             onClick={() => {
@@ -423,7 +419,8 @@ function BalanceSheetDialog({...props}) {
                             <Tooltip title={t('edit_template')}>
                                 <IconButton
                                     size="small"
-                                    onClick={editModel}><EditRoundedIcon/>
+                                    color={"primary"}
+                                    onClick={editModel}><SaveRoundedIcon/>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t('delete_template')}>

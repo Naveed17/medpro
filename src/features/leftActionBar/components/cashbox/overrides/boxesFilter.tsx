@@ -1,5 +1,4 @@
-import {Box, Button, Checkbox, DialogActions, FormControlLabel, IconButton, Stack, useTheme} from "@mui/material";
-import IconUrl from "@themes/urlIcon";
+import {Box, Button, Checkbox, DialogActions, FormControlLabel, Stack} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import React, {useState} from "react";
@@ -24,7 +23,6 @@ function BoxsesFilter() {
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
     const {mutate} = useSWRConfig();
 
-    const theme = useTheme();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
@@ -34,18 +32,18 @@ function BoxsesFilter() {
 
     const {trigger} = useRequestMutation(null, "/payment/cashbox", {revalidate: true, populateCache: false});
 
-    const removeCash = (uuid: string) => {
-        trigger({
-            method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/cash-boxes/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            setOpenDialog(false);
-            mutate(`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`).then(() => setCashName(''));
-        });
-    }
+    /*    const removeCash = (uuid: string) => {
+            trigger({
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/cash-boxes/${uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(() => {
+                setOpenDialog(false);
+                mutate(`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`).then(() => setCashName(''));
+            });
+        }*/
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
@@ -89,23 +87,23 @@ function BoxsesFilter() {
                             />
                         }
                     />
-                    <IconButton size={"small"} onClick={() => {
+                    {/*<IconButton size={"small"} onClick={() => {
                         removeCash(cb.uuid)
                     }} style={{width: 25, height: 25}}>
                         <IconUrl path='icdelete' width={15} height={15}
                                  color={theme.palette.error.main}/>
-                    </IconButton>
+                    </IconButton>*/}
                 </Stack>
 
             ))}
-            <Button
+            {selectedBoxes.length === 0 && <Button
                 onClick={() => {
                     setOpenDialog(true);
                 }}
                 size="small"
                 startIcon={<Add/>}>
                 {t('add')}
-            </Button>
+            </Button>}
 
             <Dialog action={'createCashBox'}
                     open={openDialog}

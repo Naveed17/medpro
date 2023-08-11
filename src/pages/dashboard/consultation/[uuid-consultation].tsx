@@ -539,6 +539,7 @@ function ConsultationInProgress() {
                     appointment?.patient.firstName
                 } ${appointment?.patient.lastName}`,
                 birthdate: patient?.birthdate,
+                cin: patient?.idCard,
                 days: card.days,
                 description: card.description,
                 title: card.title,

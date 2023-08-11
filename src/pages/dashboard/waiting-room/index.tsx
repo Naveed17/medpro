@@ -6,7 +6,7 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem, useTheme} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -38,7 +38,8 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
-import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {ActionMenu} from "@features/menu";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -134,9 +135,11 @@ function WaitingRoom() {
                 } : null,
         );
     };
+
     const handleClose = () => {
         setContextMenu(null);
     };
+
     const handleSubmit = () => {
         setLoadingRequest(true)
         OnTransactionEdit(selectedPayment,
@@ -272,7 +275,7 @@ function WaitingRoom() {
                     payments,
                     payed_amount,
                     appointment: row,
-                    patient:row?.patient,
+                    patient: row?.patient,
                     total: row?.appointment_type.price,
                     isNew: payed_amount === 0
                 });
@@ -282,11 +285,12 @@ function WaitingRoom() {
         handleClose();
     }
     const handleTableActions = (data: any) => {
-        const menu = [{
-            title: "pre_consultation_data",
-            icon: <PendingIcon/>,
-            action: "onPreConsultation",
-        },
+        const menu = [
+            {
+                title: "pre_consultation_data",
+                icon: <PendingIcon/>,
+                action: "onPreConsultation",
+            },
             {
                 title: "start_the_consultation",
                 icon: <PlayCircleIcon/>,
@@ -328,6 +332,7 @@ function WaitingRoom() {
                 break;
         }
     }
+
     const submitPreConsultationData = () => {
         handlePreConsultationData({
             method: "PUT",
@@ -443,61 +448,23 @@ function WaitingRoom() {
                                             data={AddWaitingRoomCardData}/>
                                     }
 
-                                    <Menu
-                                        open={contextMenu !== null}
-                                        onClose={handleClose}
-                                        anchorReference="anchorPosition"
-                                        slotProps={{
-                                            paper: {
-                                                elevation: 0,
-                                                sx: {
-                                                    backgroundColor: theme.palette.text.primary,
-                                                    "& .popover-item": {
-                                                        padding: theme.spacing(2),
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        svg: {
-                                                            color: "#fff",
-                                                            marginRight: theme.spacing(1),
-                                                            fontSize: 20
-                                                        },
-                                                        cursor: "pointer",
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                        anchorPosition={
-                                            contextMenu !== null
-                                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                                : undefined
-                                        }
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                    >
-                                        {
-                                            popoverActions.map(
-                                                (v: any, index) => (
-                                                    <MenuItem
-                                                        key={index}
-                                                        className="popover-item"
-                                                        onClick={() => {
-                                                            OnMenuActions(v.action);
-                                                        }}
-                                                    >
-                                                        {v.icon}
-                                                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                            {t(`${v.title}`)}
-                                                        </Typography>
-                                                    </MenuItem>
-                                                )
-                                            )}
-                                    </Menu>
+                                    <ActionMenu {...{contextMenu, handleClose}}>
+                                        {popoverActions.map(
+                                            (v: any, index) => (
+                                                <MenuItem
+                                                    key={index}
+                                                    className="popover-item"
+                                                    onClick={() => {
+                                                        OnMenuActions(v.action);
+                                                    }}>
+                                                    {v.icon}
+                                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                        {t(`${v.title}`)}
+                                                    </Typography>
+                                                </MenuItem>
+                                            )
+                                        )}
+                                    </ActionMenu>
                                 </>
                             }
                         </Box>

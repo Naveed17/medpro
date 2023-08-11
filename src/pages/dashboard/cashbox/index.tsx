@@ -198,6 +198,7 @@ function Cashbox() {
         setToReceive(data.total_insurance_amount);
         if (data.transactions)
             setRows(data.transactions.reverse());
+        else setRows([])
         if (filterQuery.includes('cashboxes'))
             setLoading(false);
 
@@ -353,6 +354,7 @@ function Cashbox() {
                                     size: "small",
                                     sx: {minWidth: 40},
                                 })}
+                                disabled={true}
                                 onClick={() => {
                                     setAction("cashout");
                                     setActionDialog("cashout")

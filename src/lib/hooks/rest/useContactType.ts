@@ -14,7 +14,7 @@ function useContactType() {
 
     useEffect(() => {
         if (httpContactsResponse) {
-            setContacts((httpContactsResponse as HttpResponse)?.data);
+            setContacts(Array.isArray(httpContactsResponse) ? httpContactsResponse : (httpContactsResponse as HttpResponse).data);
         }
     }, [httpContactsResponse]);
 
