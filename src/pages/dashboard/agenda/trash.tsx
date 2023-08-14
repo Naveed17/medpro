@@ -76,13 +76,12 @@ function Trash() {
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [event, setEvent] = useState<EventModal | null>();
 
-    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment"], sendRequest as any);
 
     const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`
     } : null, {revalidateOnFocus: false});
 
     const handleDeleteTrashAppointment = (uuid: string) => {

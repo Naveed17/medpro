@@ -32,8 +32,7 @@ function CalendarPickers({...props}) {
 
     const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`
     } : null, SWRNoValidateConfig);
 
     const handleDateChange = (date: Date | null) => {

@@ -106,8 +106,7 @@ function PfTemplateDetail({...props}) {
 
     const {data: jsonWidgetsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/json-widgets/specialities/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/private/json-widgets/specialities/${router.locale}`
     }, SWRNoValidateConfig);
 
     const widgets = (jsonWidgetsResponse as HttpResponse)?.data;
@@ -180,8 +179,7 @@ function PfTemplateDetail({...props}) {
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
                 url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${data.uuid}` : ""}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => {
                 refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
                 mutate();

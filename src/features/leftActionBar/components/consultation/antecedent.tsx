@@ -76,11 +76,7 @@ function Antecedent({...props}) {
                                             name2: "",
                                             request: {
                                                 method: "DELETE",
-                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
-                                                headers: {
-                                                    ContentType: "multipart/form-data",
-                                                    Authorization: `Bearer ${session?.accessToken}`,
-                                                },
+                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`
                                             }
                                         })
                                         setOpenRemove(true);

@@ -51,8 +51,7 @@ function ModelPrescriptionList({...props}) {
         triggerPrescriptionEdit({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`));
         setTreeData(newTree);
     }
@@ -73,8 +72,7 @@ function ModelPrescriptionList({...props}) {
         setLoading(true);
         triggerDeleteModel({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`
         }).then(() => {
             setSelectedModel(null);
             mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`).then(

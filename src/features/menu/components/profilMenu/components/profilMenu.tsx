@@ -71,8 +71,7 @@ function ProfilMenu() {
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
         medicalEntityHasUser && trigger({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`
         }).then(() => {
             setLoading(true);
             router.reload();

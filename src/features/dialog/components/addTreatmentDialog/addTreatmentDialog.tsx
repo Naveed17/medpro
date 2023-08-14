@@ -41,8 +41,8 @@ function AddTreatmentDialog({...props}) {
     const handleInputChange = (value: string) => {
         const drg = drugsList.find(drug => drug.commercial_name === value)
         if (drg !== undefined)
-                setDrug(drg);
-         else
+            setDrug(drg);
+        else
             setDrug({uuid: '', commercial_name: value, isVerified: false});
 
     }
@@ -50,7 +50,7 @@ function AddTreatmentDialog({...props}) {
     const addTraitment = () => {
         setTraitments([...traitments, (drug as DrugModel)]);
         if (drug)
-            data.setState([...data.state,{uuid: drug.uuid, name: drug.commercial_name, isVerified: drug.isVerified}])
+            data.setState([...data.state, {uuid: drug.uuid, name: drug.commercial_name, isVerified: drug.isVerified}])
         setDrug(null)
     }
 
@@ -71,8 +71,7 @@ function AddTreatmentDialog({...props}) {
                                                             if (ev.target.value.length >= 2) {
                                                                 trigger({
                                                                     method: "GET",
-                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`
                                                                 }).then((cnx) => {
                                                                     if (cnx?.data as HttpResponse)
                                                                         setDrugsList((cnx?.data as HttpResponse).data)
@@ -107,7 +106,9 @@ function AddTreatmentDialog({...props}) {
                                     <Typography>{traitment.commercial_name}</Typography>
                                     <IconButton size="small" onClick={() => {
                                         setTraitments([...traitments.filter(t => t.uuid !== traitment.uuid)])
-                                        data.setState([...data.state.filter((t: { uuid: string}) => t.uuid !== traitment.uuid)])
+                                        data.setState([...data.state.filter((t: {
+                                            uuid: string
+                                        }) => t.uuid !== traitment.uuid)])
                                     }}>
                                         <Icon path="setting/icdelete"/>
                                     </IconButton>

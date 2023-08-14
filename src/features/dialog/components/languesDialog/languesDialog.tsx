@@ -16,14 +16,9 @@ function LanguesDialog(info:any) {
 
     const router = useRouter();
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
     const { data } = useRequest({
         method: "GET",
-        url: "/api/public/languages/"+router.locale,
-        headers
+        url: `/api/public/languages/${router.locale}`
     });
 
     useEffect(() => {

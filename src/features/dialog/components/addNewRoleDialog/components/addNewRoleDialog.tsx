@@ -115,8 +115,7 @@ function AddNewRoleDialog({...props}) {
                 trigger({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/profile/${selected.uuid}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    data: form
                 }).then(() => {
                     enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
                     handleMutate();
@@ -131,8 +130,7 @@ function AddNewRoleDialog({...props}) {
                 trigger({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/profile`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    data: form
                 }).then(() => {
                     enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
                     handleMutate();

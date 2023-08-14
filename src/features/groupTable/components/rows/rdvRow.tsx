@@ -45,15 +45,14 @@ function RDVRow({...props}) {
 
     const [appointmentData, setAppointmentData] = useState<any>(null);
 
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
 
     const {
         data: httpPatientHistoryResponse,
         isLoading
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`
     } : null);
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);

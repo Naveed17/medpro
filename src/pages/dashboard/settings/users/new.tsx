@@ -75,10 +75,7 @@ function NewUser() {
     ]);
     const {data: httpProfilesResponse,} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
     useEffect(() => {
         if (httpProfilesResponse) {
@@ -181,8 +178,7 @@ function NewUser() {
             trigger({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => {
                 enqueueSnackbar(t("users.alert.success"), {variant: "success"});
                 setLoading(false)

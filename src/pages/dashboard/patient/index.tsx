@@ -316,14 +316,13 @@ function Patient() {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
     const {trigger: triggerDeletePatient} = useRequestMutation(null, "/patient/delete");
 
     const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`
     } : null, isMobile && SWRNoValidateConfig);
 
     const submitStepper = (index: number) => {
@@ -351,10 +350,7 @@ function Patient() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: params
         }).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(
@@ -488,8 +484,7 @@ function Patient() {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`
         }).then(() => {
             setLoadingRequest(false);
             setDeleteDialog(false);

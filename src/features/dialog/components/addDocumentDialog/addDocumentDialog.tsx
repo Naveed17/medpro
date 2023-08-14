@@ -27,11 +27,7 @@ function AddDocumentDialog({...props}) {
 
     const {data: httpTypeResponse} = useRequest({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/private/document/types/${router.locale}`
     });
 
     useEffect(() => {

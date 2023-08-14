@@ -217,12 +217,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const handleAddDrug = () => {
@@ -327,8 +326,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         triggerPrescriptionModel({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateParentModel().then(() => {
             setInitialOpenData([modelParent]);
             setPrescriptionTabIndex(1);
@@ -343,8 +341,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         triggerPrescriptionParent({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => {
             mutateParentModel().then((result) => {
                 const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
@@ -509,8 +506,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             if (ev.target.value.length >= 2) {
                                                                                                 triggerDrugList({
                                                                                                     method: "GET",
-                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`
                                                                                                 }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
                                                                                             }
                                                                                         }}

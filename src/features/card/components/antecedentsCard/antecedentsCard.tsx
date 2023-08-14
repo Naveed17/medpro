@@ -67,10 +67,7 @@ function AntecedentsCard({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             setOpenDialog(false);
             setInfo("");

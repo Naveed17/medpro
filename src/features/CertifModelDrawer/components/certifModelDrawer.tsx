@@ -34,7 +34,7 @@ function CertifModelDrawer({...props}) {
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
-    const loading=false;
+    const loading = false;
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', desc: "Nom du patient"},
@@ -68,10 +68,6 @@ function CertifModelDrawer({...props}) {
                 method: data ? "PUT" : "POST",
                 url,
                 data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then(() => {
                 props.closeDraw();
                 props.mutate();

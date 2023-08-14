@@ -10,21 +10,14 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 
 function ModeRegDialog(info:any) {
-
-    const { data: session, status } = useSession();
     const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
     const router = useRouter();
 
-    const { data, error } = useRequest({
+    const { data } = useRequest({
         method: "GET",
-        url: "/api/public/payment-means/"+router.locale,
-        headers
+        url: `/api/public/payment-means/${router.locale}`
     });
 
     useEffect(() => {

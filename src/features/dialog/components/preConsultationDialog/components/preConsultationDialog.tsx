@@ -59,14 +59,12 @@ function PreConsultationDialog({...props}) {
 
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
     } : null);
 
     const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const models = (httpModelResponse as HttpResponse)?.data as ModalModel[];

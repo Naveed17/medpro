@@ -60,8 +60,7 @@ function MedicalImageryDialog({...props}) {
 
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
-        url: "/api/private/medical-imaging/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: "/api/private/medical-imaging/" + router.locale
     }, SWRNoValidateConfig);
 
     const addImage = (value: MIModel) => {
@@ -84,8 +83,7 @@ function MedicalImageryDialog({...props}) {
         if (medicalImagery.length >= 2) {
             trigger({
                 method: "GET",
-                url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data;
                 setMiList(res)

@@ -89,7 +89,7 @@ function DocsConfig() {
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: {url:''}},
+        background: {show: false, content: {url: ''}},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 900, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
@@ -114,17 +114,12 @@ function DocsConfig() {
 
     const {data: httpDocumentHeader, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpTypeResponse} = useRequest({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}?is_active=0`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/private/document/types/${router.locale}?is_active=0`
     });
 
     const formik = useFormik({
@@ -219,10 +214,7 @@ function DocsConfig() {
         trigger({
             method: uuid === 'new' ? "POST" : "PUT",
             url,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then(() => {
             mutate().then(() => {
                 router.back();
@@ -242,10 +234,7 @@ function DocsConfig() {
             // data: props,
             request: {
                 method: "DELETE",
-                url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
+                url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
             }
         })
     }
@@ -324,7 +313,7 @@ function DocsConfig() {
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

@@ -98,21 +98,11 @@ function HistoryContainer({...props}) {
         const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
-        trigger(
-            {
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {
-                revalidate: true,
-                populateCache: true
-            }
-        ).then(() => {
+        trigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
+            data: form,
+        }).then(() => {
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`);
         });
     }

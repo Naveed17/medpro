@@ -42,14 +42,8 @@ function MedicalImagingDialog({...props}) {
                 {
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
+                    data: form
+                }).then(() => {
                 let selectedFile = files.findIndex(f => f.uuid === uuid)
                 files[selectedFile].nb += 1
                 setFiles([...files])
@@ -57,7 +51,7 @@ function MedicalImagingDialog({...props}) {
             });
         })
     };
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <BalanceSheetPendingStyled>

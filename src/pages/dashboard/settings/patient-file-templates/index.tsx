@@ -130,8 +130,7 @@ function PatientFileTemplates() {
         trigger({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`))
     }
 
@@ -164,10 +163,7 @@ function PatientFileTemplates() {
         setLoading(true);
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`
         }).then(() => {
             enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
             setLoading(false);

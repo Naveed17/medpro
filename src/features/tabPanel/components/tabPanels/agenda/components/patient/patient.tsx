@@ -38,8 +38,7 @@ function Patient({...props}) {
 
     const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
     } : null);
 
     const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
@@ -101,9 +100,6 @@ function Patient({...props}) {
         medicalEntityHasUser && trigger({
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
             data: form
         }).then((res: any) => {
             const {data: patient} = res;

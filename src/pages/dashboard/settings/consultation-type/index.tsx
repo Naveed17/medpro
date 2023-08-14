@@ -109,18 +109,14 @@ function ConsultationType() {
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }`
     } : null);
 
     const removeAppointmentType = (uuid: any) => {
         setLoading(true)
         medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`
         }).then(() => {
             enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
             setLoading(false)

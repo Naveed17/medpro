@@ -47,10 +47,7 @@ function LifeStyleDialog({...props}) {
         method: "GET",
         url: `/api/private/antecedents/${allAntecedents?.find((ant: {
             slug: any;
-        }) => ant.slug === action).uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        }) => ant.slug === action).uuid}/${router.locale}`
     });
 
     useEffect(() => {
@@ -320,12 +317,8 @@ function LifeStyleDialog({...props}) {
                                 trigger({
                                     method: "POST",
                                     url: `/api/private/antecedents/${router.locale}`,
-                                    data: form,
-                                    headers: {
-                                        ContentType: 'multipart/form-data',
-                                        Authorization: `Bearer ${session?.accessToken}`
-                                    }
-                                }, {revalidate: true, populateCache: true}).then((data) => {
+                                    data: form
+                                }).then((data) => {
                                     const res = (data?.data as HttpResponse).data;
                                     antecedents.push({
                                         name: value,

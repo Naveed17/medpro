@@ -117,9 +117,6 @@ function Consultation() {
             triggerPatientUpdate({
                 method: "PUT",
                 url,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
                 data: params,
             }).then(() => cache.delete(url));
         }

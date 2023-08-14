@@ -82,10 +82,7 @@ function DocsConfig() {
 
     const {data: httpData, mutate: mutateDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        }
+        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const handlePrint = useReactToPrint({
@@ -164,10 +161,7 @@ function DocsConfig() {
         trigger({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then(() => {
             mutateDocumentHeader();
         })

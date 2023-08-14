@@ -34,9 +34,8 @@ function DocumentsTab({...props}) {
     const removeDoc = () => {
         trigger({
             method: "DELETE",
-            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(() => {
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
+        }).then(() => {
             setSelectedAudio(null)
             mutateDoc()
         });

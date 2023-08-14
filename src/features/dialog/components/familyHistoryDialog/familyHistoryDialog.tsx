@@ -66,10 +66,9 @@ function FamilyHistoryDialog({...props}) {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/private/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `/api/private/antecedents/${allAntecedents.find((ant: {
+            slug: any;
+        }) => ant.slug === 'family_antecedents').uuid}/${router.locale}`
     });
 
     useEffect(() => {
@@ -84,7 +83,7 @@ function FamilyHistoryDialog({...props}) {
         setValue(e.target.value);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
@@ -273,20 +272,20 @@ function FamilyHistoryDialog({...props}) {
                                                size='small'
                                                onClick={() => {
                                                    const form = new FormData();
-                                                   form.append('type', allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid);
+                                                   form.append('type', allAntecedents.find((ant: {
+                                                       slug: any;
+                                                   }) => ant.slug === 'family_antecedents').uuid);
                                                    form.append('name', value);
                                                    trigger({
                                                        method: "POST",
                                                        url: `/api/private/antecedents/${router.locale}`,
-                                                       data: form,
-                                                       headers: {
-                                                           ContentType: 'multipart/form-data',
-                                                           Authorization: `Bearer ${session?.accessToken}`
-                                                       }
-                                                   }, {revalidate: true, populateCache: true}).then((data) => {
+                                                       data: form
+                                                   }).then((data) => {
                                                        antecedents.push({
                                                            name: value,
-                                                           type: allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid,
+                                                           type: allAntecedents.find((ant: {
+                                                               slug: any;
+                                                           }) => ant.slug === 'family_antecedents').uuid,
                                                            uuid: (data?.data as HttpResponse).data.uuid,
                                                            value_type: -1
                                                        })

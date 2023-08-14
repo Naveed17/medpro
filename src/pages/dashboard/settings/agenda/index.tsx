@@ -46,8 +46,7 @@ function Agenda() {
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null);
 
     const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : undefined;

@@ -105,8 +105,7 @@ function Data() {
 
     const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`
     }, SWRNoValidateConfig);
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
@@ -151,8 +150,7 @@ function Data() {
         setLoading(true);
         triggerDeleteImportData({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`
         }).then((value) => {
             if ((value?.data as any).status === "success") {
                 setDeleteDialog(false);

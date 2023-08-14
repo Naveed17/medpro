@@ -36,9 +36,6 @@ function NotesPanel({...props}) {
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
                 data: params,
             }).then(() => {
                 setRequestLoading(false);

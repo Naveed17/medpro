@@ -59,8 +59,7 @@ function DefaultViewMenu() {
         triggerViewChange({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/users/edit/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             // update the session, without reloading the page
             update({agenda_default_view: view});

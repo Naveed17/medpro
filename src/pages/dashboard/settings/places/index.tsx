@@ -88,8 +88,7 @@ function Lieux() {
 
     const {data, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/locations/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/locations/${router.locale}`
     });
 
     const {trigger} = useRequestMutation(null, "/settings/places");
@@ -128,7 +127,6 @@ function Lieux() {
             trigger({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
                 data: form
             });
         } else if (event === 'remove') {
@@ -141,8 +139,7 @@ function Lieux() {
                 data: props,
                 request: {
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`
                 }
             })
             setOpen(true);

@@ -78,8 +78,7 @@ function CertifDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
@@ -98,8 +97,7 @@ function CertifDialog({...props}) {
         trigger({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }, {
             revalidate: true,
             populateCache: true
@@ -143,11 +141,7 @@ function CertifDialog({...props}) {
         trigger({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${selectedModel.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
+            data: form
         }).then(() => {
             mutate().then(() => {
                 enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
@@ -333,11 +327,7 @@ function CertifDialog({...props}) {
                                                                 name2: t('consultationIP.model'),
                                                                 request: {
                                                                     method: "DELETE",
-                                                                    url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`,
-                                                                    headers: {
-                                                                        ContentType: 'application/x-www-form-urlencoded',
-                                                                        Authorization: `Bearer ${session?.accessToken}`
-                                                                    },
+                                                                    url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`
                                                                 }
                                                             })
                                                             setOpenRemove(true);

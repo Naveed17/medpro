@@ -74,14 +74,12 @@ function CIPPatientHistoryCard({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
     } : null, SWRNoValidateConfig);
 
     const {data: httpAppointmentDataResponse} = useRequest(patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/appointment-data/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/appointment-data/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
@@ -163,8 +161,7 @@ function CIPPatientHistoryCard({...props}) {
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => mutateReasonsData().then((result: any) => {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
@@ -178,8 +175,7 @@ function CIPPatientHistoryCard({...props}) {
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
-            url: `/api/private/diseases/${router.locale}?name=${name}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `/api/private/diseases/${router.locale}?name=${name}`
         }).then(res => {
             let resultats: any[] = [];
             (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {

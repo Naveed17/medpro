@@ -61,8 +61,7 @@ function ImportDataRow({...props}) {
         setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`
         }).then((value: any) => {
             const {data} = value?.data;
             if (value?.data.status === 'success') {

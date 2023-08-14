@@ -80,17 +80,11 @@ function ModifyUser() {
 
     const {data: httpProfilesResponse,} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/profile`
     });
     const {data: httpUserResponse, error} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
     });
 
     useEffect(() => {
@@ -193,8 +187,7 @@ function ModifyUser() {
             trigger({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => {
                 enqueueSnackbar(t("users.alert.update"), {variant: "error"});
                 setLoading(false)

@@ -104,8 +104,7 @@ function PatientFile({...props}) {
 
     const {data: httpPatientDetailsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`
     } : null);
 
     const checkKey = (key: string) => {

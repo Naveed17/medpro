@@ -180,8 +180,8 @@ function Agenda() {
     const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours as OpeningHoursModel).find((openingHours: any) =>
@@ -208,8 +208,7 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
         }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
@@ -693,10 +692,7 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
@@ -719,10 +715,7 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
@@ -905,8 +898,7 @@ function Agenda() {
         addAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then((value: any) => {
             setLoading(false);
             if (value?.data.status === 'success') {
@@ -1418,7 +1410,7 @@ function Agenda() {
                         </>
                     }
                 />
-                <MobileContainer>     
+                <MobileContainer>
             <Button
                 startIcon={<IconUrl path="ic-filter"/>}
                 variant="filter"
@@ -1429,11 +1421,11 @@ function Agenda() {
                     transform: "translateX(-50%)",
                     left: "50%",
                     zIndex: 999,
-                    
+
                 }}>
                 {t("filter.title")} (0)
             </Button>
-            </MobileContainer> 
+            </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilterBottom(false)}
                 open={filterBottom}

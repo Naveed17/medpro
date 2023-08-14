@@ -82,7 +82,7 @@ function TopNavBar({...props}) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -143,8 +143,7 @@ function TopNavBar({...props}) {
         updateTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             // refresh on going api
             mutateOnGoing && mutateOnGoing();
@@ -267,7 +266,7 @@ function TopNavBar({...props}) {
                     color="inherit">
                     <Toolbar>
                             {
-                                isMobile ? 
+                                isMobile ?
                                 settingHas ? (
                                 <IconButton
                                     color={"inherit"}

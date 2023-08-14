@@ -65,7 +65,7 @@ function NotificationPopover({...props}) {
         time: moveDialogTime
     } = useAppSelector(dialogMoveSelector);
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);

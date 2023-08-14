@@ -131,9 +131,6 @@ function PersonalInfo({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params,
         }).then(() => {
             setLoadingRequest(false);

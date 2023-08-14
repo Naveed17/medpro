@@ -104,24 +104,18 @@ function WaitingRoom() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`
     });
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
@@ -173,8 +167,7 @@ function WaitingRoom() {
         updateTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             mutateWaitingRoom();
             // refresh on going api

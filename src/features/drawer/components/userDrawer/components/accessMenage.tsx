@@ -38,10 +38,7 @@ function AccessMenage({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data: httpProfilesResponse, mutate,} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
 
     useEffect(() => {
@@ -67,8 +64,7 @@ function AccessMenage({...props}) {
         setLoading(true);
         trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`
         }).then(() => {
             setLoading(false);
             setDeleteDialog(false);
@@ -97,7 +93,7 @@ function AccessMenage({...props}) {
         </Stack>
       </Toolbar>
       {profiles?.length === 0 && !mainLoading ?
-      <Stack height={1} alignItems="center" justifyContent="center"> 
+      <Stack height={1} alignItems="center" justifyContent="center">
          <NoDataCard t={t} ns={"settings"} data={CardData}/>
          </Stack>
          :
@@ -149,7 +145,7 @@ function AccessMenage({...props}) {
           sx:{py:0},
           dialogClose: () => setOpen(false),
         })}
-        
+
       />
         <Dialog PaperProps={{sx:{
         width: "100%"

@@ -159,14 +159,12 @@ function PlacesDetail() {
     const {trigger} = useRequestMutation(null, "/settings/place");
     const {data, mutate} = useRequest(uuind !== "new" ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`
     } : null);
 
     const {data: httpStateResponse} = useRequest({
         method: "GET",
-        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`
     });
 
     const [row, setRow] = useState<any>();
@@ -252,11 +250,7 @@ function PlacesDetail() {
             trigger({
                     method,
                     data: form,
-                    url,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    url
                 },
                 {revalidate: true, populateCache: true}
             ).then((r: any) => {
@@ -280,34 +274,20 @@ function PlacesDetail() {
     } = formik;
 
     const getCities = (state: string) => {
-        trigger(
-            {
-                method: "GET",
-                url: `/api/public/places/state/${state}/cities/${router.locale}`,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {revalidate: true, populateCache: true}
-        ).then((r: any) => {
+        trigger({
+            method: "GET",
+            url: `/api/public/places/state/${state}/cities/${router.locale}`
+        }).then((r: any) => {
             setCities(r.data.data);
         });
     };
 
     const initialCites = useCallback(
         (adr: any) => {
-            trigger(
-                {
-                    method: "GET",
-                    url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then((r: any) => {
+            trigger({
+                method: "GET",
+                url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+            }).then((r: any) => {
                 setCities(r.data.data);
                 setFieldValue("city", adr.address.city.uuid);
             });

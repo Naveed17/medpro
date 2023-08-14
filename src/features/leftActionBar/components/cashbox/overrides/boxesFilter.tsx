@@ -35,10 +35,7 @@ function BoxsesFilter() {
     /*    const removeCash = (uuid: string) => {
             trigger({
                 method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/cash-boxes/${uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                url: `${urlMedicalEntitySuffix}/cash-boxes/${uuid}/${router.locale}`
             }).then(() => {
                 setOpenDialog(false);
                 mutate(`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`).then(() => setCashName(''));
@@ -54,10 +51,7 @@ function BoxsesFilter() {
         trigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             setOpenDialog(false);
             mutate(`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`).then(() => setCashName(''));

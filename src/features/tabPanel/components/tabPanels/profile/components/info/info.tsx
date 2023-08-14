@@ -83,18 +83,12 @@ function Info({...props}) {
 
     const {data: httpResponse, error} = useRequest({
         method: "GET",
-        url: `/api/public/specialties/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/public/specialties/${router.locale}`
     });
 
     const {data: httpResponseLang, error: errorLang} = useRequest({
         method: "GET",
-        url: `/api/public/languages/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/public/languages/${router.locale}`
     });
 
     if (error || errorLang) return <div>failed to load</div>;
