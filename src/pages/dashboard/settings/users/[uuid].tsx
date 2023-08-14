@@ -63,7 +63,6 @@ function ModifyUser() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("settings");
-    const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
     const [profiles, setProfiles] = useState<any[]>([]);
@@ -193,7 +192,7 @@ function ModifyUser() {
                 setLoading(false)
                 dispatch(addUser({...values}));
                 router.push("/dashboard/settings/users");
-            }).catch((error) => {
+            }).catch(() => {
                 setLoading(false);
                 enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
             })

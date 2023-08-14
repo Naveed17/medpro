@@ -51,7 +51,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {motion, AnimatePresence} from "framer-motion";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
@@ -72,7 +71,6 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
-    const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));

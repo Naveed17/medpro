@@ -4,7 +4,6 @@ import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography,} 
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -20,7 +19,6 @@ import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperS
 
 
 function CertifModelDrawer({...props}) {
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 

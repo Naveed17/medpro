@@ -26,7 +26,6 @@ function DocumentsTab({...props}) {
         mutateDoc,
         showDoc,
         router,
-        session,
         t, trigger
     } = props;
 

@@ -9,7 +9,6 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {useSWRConfig} from "swr";
 import {cashBoxSelector, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 
@@ -23,7 +22,6 @@ function BoxsesFilter() {
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
     const {mutate} = useSWRConfig();
 
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const router = useRouter();

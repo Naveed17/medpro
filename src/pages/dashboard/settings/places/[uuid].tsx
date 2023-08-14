@@ -291,9 +291,7 @@ function PlacesDetail() {
                 setCities(r.data.data);
                 setFieldValue("city", adr.address.city.uuid);
             });
-        },
-        [router, session, setFieldValue, trigger]
-    );
+        }, [router, setFieldValue, trigger]);
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)

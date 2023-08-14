@@ -49,7 +49,7 @@ interface MyFormProps {
 
 function Info({...props}) {
     const {onSubmit} = props;
-    const {data: session, status} = useSession();
+    const {status} = useSession();
     const loading = status === "loading";
     const router = useRouter();
     const {t, ready} = useTranslation("editProfile", {

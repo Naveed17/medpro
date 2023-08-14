@@ -29,7 +29,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingButton} from "@mui/lab";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -43,7 +42,6 @@ function ImportDataRow({...props}) {
     } = props;
     const {setPatientDetailDrawer, setDuplicatedData, setDuplicateDetectedDialog} = data;
     const router = useRouter();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

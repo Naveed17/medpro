@@ -5,7 +5,6 @@ import Zoom from "react-medium-image-zoom";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
@@ -22,7 +21,6 @@ import PreConsultationDialogStyled from "./overrides/preConsultationDialogStyled
 function PreConsultationDialog({...props}) {
     const {data} = props;
     const {patient, uuid} = data;
-    const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();

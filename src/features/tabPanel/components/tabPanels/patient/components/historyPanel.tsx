@@ -109,15 +109,6 @@ function HistoryPanel({...props}) {
         }
     }
 
-    const handleSwitchUI = () => {
-        //close the current dialog
-        setOpenDialog(false);
-        setInfo(null);
-        // switch UI and open dialog
-        setInfo(getPrescriptionUI());
-        setOpenDialog(true);
-    }
-
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
             switch (selectedDialog.action) {

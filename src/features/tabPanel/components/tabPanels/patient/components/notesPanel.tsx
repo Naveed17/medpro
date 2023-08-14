@@ -5,7 +5,6 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import IconUrl from "@themes/urlIcon";
 import React, {useState} from "react";
 import PanelCardStyled from "./overrides/panelCardStyled";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -14,7 +13,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

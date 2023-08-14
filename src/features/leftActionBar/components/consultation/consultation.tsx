@@ -33,7 +33,6 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition,} from "react-speech-recognition";
@@ -47,7 +46,6 @@ import {useSWRConfig} from "swr";
 import {ImageHandler} from "@features/image";
 
 function Consultation() {
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {transcript, listening, resetTranscript} = useSpeechRecognition();

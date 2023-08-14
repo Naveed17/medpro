@@ -5,7 +5,6 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 // material components
 import {
     Box,
@@ -182,7 +181,6 @@ const headCells: readonly HeadCell[] = [
 
 function Patient() {
     const dispatch = useAppDispatch();
-    const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);

@@ -8,7 +8,6 @@ import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -17,7 +16,6 @@ function AutoCompleteButton({...props}) {
     const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

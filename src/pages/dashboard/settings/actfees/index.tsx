@@ -9,7 +9,6 @@ import {
     Box,
     Button,
     createFilterOptions,
-    IconButton,
     InputAdornment,
     Stack,
     TextField,
@@ -20,7 +19,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions, CardContent, Checkbox, FormControlLabel, Card,
+    DialogActions, Checkbox, FormControlLabel, Card,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -32,7 +31,6 @@ import {
     SWRNoValidateConfig,
     TriggerWithoutValidation,
 } from "@lib/swr/swrProvider";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 

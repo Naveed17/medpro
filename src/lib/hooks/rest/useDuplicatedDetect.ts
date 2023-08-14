@@ -3,13 +3,11 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useSession} from "next-auth/react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function useDuplicatedDetect({...props}) {
     const {patientId} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

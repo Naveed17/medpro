@@ -4,7 +4,6 @@ import React, {useEffect, useState} from 'react';
 import {Badge, Card, CircularProgress, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -30,7 +29,6 @@ function MedicalImagingDialog({...props}) {
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {trigger} = useRequestMutation(null, "/medicalImaging");
-    const {data: session} = useSession();
     const router = useRouter();
     const handleChange = (ev: any, uuid: string) => {
         const filesUploaded = ev.target.files;

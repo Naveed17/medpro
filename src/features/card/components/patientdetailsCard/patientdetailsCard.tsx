@@ -25,7 +25,6 @@ import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
 import {CropImage} from "@features/image";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
@@ -51,7 +50,6 @@ function PatientDetailsCard({...props}) {
         setEditableSection
     } = props;
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const ref = useRef(null);

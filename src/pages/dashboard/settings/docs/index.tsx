@@ -3,7 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -47,7 +46,6 @@ import {Editor} from '@tinymce/tinymce-react';
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function DocsConfig() {
-    const {data: session} = useSession();
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
     const theme = useTheme();

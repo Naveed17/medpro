@@ -15,7 +15,6 @@ import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -29,7 +28,6 @@ import {configSelector} from "@features/base";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();

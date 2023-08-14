@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -62,7 +61,6 @@ const TableHead = [
 ];
 
 function Trash() {
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();

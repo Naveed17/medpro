@@ -1,7 +1,5 @@
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {useEffect, useState} from "react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -9,7 +7,6 @@ import {dashLayoutSelector} from "@features/base";
 function useAppointmentHistory({...props}) {
     const {patientId = null, page = 1, limit = 5} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);

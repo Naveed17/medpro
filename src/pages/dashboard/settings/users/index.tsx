@@ -30,7 +30,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from "notistack";
@@ -101,7 +100,6 @@ const headCells = [
 function Users() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});

@@ -18,7 +18,6 @@ function Antecedent({...props}) {
         t,
         patient,
         setSelected,
-        session,
         handleOpen,
         setOpenRemove,
         index,

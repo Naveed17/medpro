@@ -23,7 +23,6 @@ import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import IconUrl from "@themes/urlIcon";
@@ -43,7 +42,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function CertifDialog({...props}) {
     const {data} = props
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {

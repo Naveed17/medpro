@@ -21,7 +21,6 @@ import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -43,7 +42,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function TemplatesConfig() {
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
     const theme = useTheme();

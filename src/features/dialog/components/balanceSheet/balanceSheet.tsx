@@ -24,7 +24,6 @@ import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Dialog} from "@features/dialog";
@@ -46,7 +45,6 @@ function BalanceSheetDialog({...props}) {
     const {data} = props;
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
-    const {data: session} = useSession();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})

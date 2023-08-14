@@ -11,7 +11,6 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -32,7 +31,6 @@ function Agenda() {
         buttonIcon: "ic-agenda-+",
         buttonVariant: "warning",
     };
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

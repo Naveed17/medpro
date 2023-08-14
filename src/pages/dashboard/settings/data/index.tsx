@@ -38,7 +38,6 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 
 const PatientDetail = dynamic(
     () =>
@@ -94,7 +93,6 @@ function Data() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);

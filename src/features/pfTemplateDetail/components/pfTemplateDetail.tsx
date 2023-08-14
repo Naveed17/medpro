@@ -17,7 +17,6 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import dynamic from "next/dynamic";
@@ -78,7 +77,6 @@ const PaperStyled = styled(Form)(({theme}) => ({
 
 function PfTemplateDetail({...props}) {
     const {data, closeDraw, action, mutate, refresh} = props
-    const {data: session} = useSession();
     const router = useRouter();
 
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();

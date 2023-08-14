@@ -41,7 +41,6 @@ function HistoryContainer({...props}) {
         showDoc,
         patient,
         setSelectedTab,
-        session,
         medical_entity
     } = props;
     const router = useRouter();

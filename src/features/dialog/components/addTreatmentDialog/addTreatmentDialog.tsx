@@ -4,14 +4,13 @@ import {
     Button,
     Card,
     CardContent,
-    Grid,
     IconButton,
     Stack,
     TextField,
     Typography
 } from '@mui/material'
 import {useTranslation} from 'next-i18next'
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import dynamic from "next/dynamic";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -30,11 +29,8 @@ function AddTreatmentDialog({...props}) {
     const [traitments, setTraitments] = useState<DrugModel[]>([]);
 
     const router = useRouter();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {trigger} = useRequestMutation(null, "/drugs");
-
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 

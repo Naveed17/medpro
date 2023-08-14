@@ -10,7 +10,6 @@ import HelpIcon from "@mui/icons-material/Help";
 import IconUrl from "@themes/urlIcon";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 type ChipColors = OverridableStringUnion<
@@ -29,7 +28,6 @@ function ImportDataMobileCard({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
 
     const [expanded, setExpanded] = useState(false);
     const [expandData, setExpandData] = useState([]);

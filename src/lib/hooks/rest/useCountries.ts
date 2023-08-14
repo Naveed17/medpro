@@ -10,7 +10,7 @@ function useCountries(params?: string) {
         url: `/api/public/places/countries/${router.locale}${params ? `?${params}` : ""}`
     }, SWRNoValidateConfig);
 
-    return {countries: Array.isArray(httpCountriesResponse) ? httpCountriesResponse : ((httpCountriesResponse as HttpResponse)?.data ?? [])}
+    return {countries: (Array.isArray(httpCountriesResponse) ? httpCountriesResponse : ((httpCountriesResponse as HttpResponse)?.data ?? [])) as ContactModel[]}
 }
 
 export default useCountries;

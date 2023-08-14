@@ -7,7 +7,6 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {PDFViewer} from "@react-pdf/renderer";
 
 Font.register({
@@ -96,7 +95,6 @@ const styles = StyleSheet.create({
 
 function PatientFile({...props}) {
     const {patient, antecedentsData, t, allAntecedents} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

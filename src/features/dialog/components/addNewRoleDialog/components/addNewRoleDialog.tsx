@@ -16,7 +16,6 @@ import {
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
@@ -28,7 +27,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 function AddNewRoleDialog({...props}) {
     const {data: {selected, handleMutate, handleClose}} = props;
     const {enqueueSnackbar} = useSnackbar();
-    const {data: session} = useSession();
     const {permissions: allPermissions} = usePermissions();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -227,7 +225,7 @@ function AddNewRoleDialog({...props}) {
         });
         const checkedData = updatedData.map((item: any) => {
             if (item.children.length > 0) {
-                item.value = item.children.every((child: any) => child.value === true) ? true : false
+                item.value = !!item.children.every((child: any) => child.value === true)
             }
             return item;
         });

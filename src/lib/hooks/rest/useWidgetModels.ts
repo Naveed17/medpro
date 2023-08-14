@@ -2,11 +2,9 @@ import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 
 function useWidgetModel({...props}) {
     const router = useRouter();
-    const {data: session} = useSession();
 
     const {filter = ''} = props
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();

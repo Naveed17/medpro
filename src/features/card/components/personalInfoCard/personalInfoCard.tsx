@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
@@ -55,7 +54,6 @@ function PersonalInfo({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();

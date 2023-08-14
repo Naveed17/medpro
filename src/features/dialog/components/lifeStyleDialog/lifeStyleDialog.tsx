@@ -17,7 +17,6 @@ import {
     Typography
 } from '@mui/material'
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
@@ -35,7 +34,7 @@ function LifeStyleDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
     const setState = props.data.setState;
-    const {data: session} = useSession();
+    
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
     const [loading, setLoading] = useState(true);

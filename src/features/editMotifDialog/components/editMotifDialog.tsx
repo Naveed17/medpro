@@ -18,7 +18,6 @@ import React from "react";
 import {useTranslation} from "next-i18next";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 
@@ -78,7 +77,6 @@ const colors = [
 
 function EditMotifDialog({...props}) {
     const {mutateEvent} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();

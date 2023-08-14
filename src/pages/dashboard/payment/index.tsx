@@ -115,7 +115,7 @@ function Payment() {
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);

@@ -6,7 +6,7 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem, useTheme} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -46,7 +46,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
-    const theme = useTheme();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();

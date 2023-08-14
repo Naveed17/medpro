@@ -22,7 +22,6 @@ import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -41,7 +40,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 function ConsultationType() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const {data: session} = useSession();
     const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();

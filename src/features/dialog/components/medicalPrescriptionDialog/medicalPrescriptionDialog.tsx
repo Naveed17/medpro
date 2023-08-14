@@ -26,7 +26,6 @@ import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -44,7 +43,6 @@ import {useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();

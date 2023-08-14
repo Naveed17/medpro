@@ -21,7 +21,6 @@ import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
@@ -49,7 +48,6 @@ function CIPPatientHistoryCard({...props}) {
     const theme = useTheme();
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 

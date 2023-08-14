@@ -12,8 +12,7 @@ import {
     Stack,
     TextField,
     Typography
-} from '@mui/material'
-import {useSession} from "next-auth/react";
+} from '@mui/material';
 import {useRouter} from "next/router";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import CodeIcon from "@mui/icons-material/Code";
@@ -22,11 +21,12 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-
 function FamilyHistoryDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: FamilyAntecedentsModel[] = props.data.state;
     const setState = props.data.setState;
+    const router = useRouter();
+
     const [value, setValue] = useState("");
     const [loading, setLoading] = useState(true);
     const initalData = Array.from(new Array(20));
@@ -47,9 +47,6 @@ function FamilyHistoryDialog({...props}) {
             ]);
         }
     };
-
-    const {data: session} = useSession();
-    const router = useRouter();
 
     useEffect(() => {
         if (state && antecedents.length > 0) {
