@@ -26,8 +26,8 @@ export * from "./rest/useAppointment";
 export * from './rest/useContactType'
 
 
-Array.prototype.group = (items, fn) => {
-    return items.reduce((prev: any, next: any) => {
+Array.prototype.group = function (fn) {
+    return this?.reduce((prev: any, next: any) => {
             const prop = fn(next);
             return {
                 ...prev,

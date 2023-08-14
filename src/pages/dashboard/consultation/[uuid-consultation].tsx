@@ -182,7 +182,6 @@ function ConsultationInProgress() {
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [isClose, setIsClose] = useState<boolean>(false);
     const [closeExam, setCloseExam] = useState<boolean>(false);
-    const [notes, setNotes] = useState<any[]>([]);
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [stateHistory, setStateHistory] = useState<any[]>([]);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -595,9 +594,19 @@ function ConsultationInProgress() {
     const getExamSize = () => {
         return isClose ? 11 : closeExam ? 1 : 7;
     }
-    const seeHistory = () => {
+    const seeHistory = (appointmentDataHistory: any) => {
+        const groupsDiagnostics: any = appointmentDataHistory.diagnostics.group((diag: any) => diag.date);
+        const groupsNotes: any = appointmentDataHistory.notes.group((diag: any) => diag.date);
+        let notes: any[] = [];
+        Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {...notes[diag[0]], diagnostics: diag[1]});
+        Object.entries(groupsNotes).forEach((note:any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
+
+        setStateHistory(Object.entries(notes).map((data) => ({
+            data: data[0],
+            note: data[1]?.note,
+            diagnostics: data[1]?.diagnostics
+        })));
         setOpenHistoryDialog(true);
-        setStateHistory(notes)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -770,8 +779,8 @@ function ConsultationInProgress() {
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
     }
 
-    const checkTransactions = ()=>{
-        if (!appointment?.transactions && app_uuid){
+    const checkTransactions = () => {
+        if (!appointment?.transactions && app_uuid) {
             const form = new FormData();
             form.append("type_transaction", TransactionType[2].value);
             form.append("status_transaction", TransactionStatus[1].value);
@@ -944,15 +953,9 @@ function ConsultationInProgress() {
                                         changes,
                                         setChanges,
                                         uuind: app_uuid,
-                                        agenda: agenda?.uuid,
                                         exam: sheetExam,
-                                        appointment,
-                                        mutateDoc,
-                                        medical_entity,
-                                        session,
-                                        notes,
+                                        patient,
                                         seeHistory,
-                                        router,
                                         closed: closeExam,
                                         setCloseExam,
                                         isClose
