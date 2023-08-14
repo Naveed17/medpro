@@ -597,7 +597,7 @@ function ConsultationInProgress() {
     const seeHistory = (appointmentDataHistory: any) => {
         const groupsDiagnostics: any = appointmentDataHistory.diagnostics.group((diag: any) => diag.date);
         const groupsNotes: any = appointmentDataHistory.notes.group((diag: any) => diag.date);
-        let notes = [];
+        let notes: any[] = [];
         Object.entries(groupsDiagnostics).forEach(diag => notes[diag[0]] = {...notes[diag[0]], diagnostics: diag[1]});
         Object.entries(groupsNotes).forEach(note => notes[note[0]] = {...notes[note[0]], note: note[1]});
 
