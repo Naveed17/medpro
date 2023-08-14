@@ -259,7 +259,7 @@ function PaymentDialog({...props}) {
                         </Stack>
 
                         {appointment && <Stack
-                           
+
                             direction={{xs: 'column', sm: 'row'}}
                             alignItems="center"
                             justifyContent={{xs: 'center', sm: 'flex-start'}}
@@ -268,12 +268,12 @@ function PaymentDialog({...props}) {
                                     fontSize: 13
                                 }
                             }}
-                             {...(wallet > 0 && {
-                                        sx:{
-                                            flexWrap:'wrap',
-                                           
-                                        }
-                                    })}
+                            {...(wallet > 0 && {
+                                sx: {
+                                    flexWrap: 'wrap',
+
+                                }
+                            })}
                             spacing={1}>
 
                             {wallet > 0 && <Button size='small' variant='contained' color="success"
@@ -318,13 +318,13 @@ function PaymentDialog({...props}) {
                                         fullWidth: true
                                     })}
                                     {...(wallet > 0 && {
-                                        sx:{
-                                            flexWrap:'wrap',
-                                            ml: {xs:'0 !important',md:'8px !important'},
-                                            mt:{xs:'8px !important',md:'0 !important',}
+                                        sx: {
+                                            flexWrap: 'wrap',
+                                            ml: {xs: '0 !important', md: '8px !important'},
+                                            mt: {xs: '8px !important', md: '0 !important',}
                                         }
                                     })}
-                                    >
+                            >
                                 {t("total")}
                                 <Typography fontWeight={700} component='strong'
                                             mx={1}>{selectedPayment.total}</Typography>
@@ -360,8 +360,7 @@ function PaymentDialog({...props}) {
                             <FormControlLabel
                                 className={method.slug === deals.selected ? "selected" : ''}
                                 onClick={() => {
-                                    deals.selected = method.slug
-                                    setDeals(deals);
+                                    setDeals({...deals, selected: method.slug});
                                     setFieldValue("selected", method.slug)
                                 }}
                                 key={method.name}
