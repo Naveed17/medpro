@@ -505,7 +505,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                                 triggerDrugList({
                                                                                                     method: "GET",
                                                                                                     url: `/api/drugs/${router.locale}?name=${ev.target.value}`
-                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
+                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? []));
                                                                                             }
                                                                                         }}
                                                                                         placeholder={t('placeholder_drug_name')}/>}/>
