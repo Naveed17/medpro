@@ -8,7 +8,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
 
 function useAppointmentHistory({...props}) {
-    const {patientId = null} = props;
+    const {patientId = null, page = 1, limit = 5} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -24,7 +24,7 @@ function useAppointmentHistory({...props}) {
         mutate: mutatePatientHis
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}?page=1&limit=5`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}?page=${page}&limit=${limit}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
