@@ -35,6 +35,7 @@ import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
+import moment from "moment/moment";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -152,6 +153,7 @@ function Cashbox() {
     const [pmList, setPmList] = useState([]);
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
+    let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
 
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
@@ -267,6 +269,60 @@ function Cashbox() {
             setOpenPaymentDialog(false);
         } else {
             // traitement cashout ( in progress )
+            console.log(checksToCashout);
+            //const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
+            // Adding first object cash
+            /*const transData = somme === 0 ? [] : [{
+                payment_means: pmCash?.uuid,
+                amount: somme.toString(),
+                status_transaction: TransactionStatus[2].value.toString(),
+                type_transaction: TransactionType[3].value.toString(),
+                payment_date: moment().format('DD-MM-YYYY'),
+                data: {label: t('encashment')}
+            }];*/
+
+            let cheques=''; const transData:any[] = [];
+            let totalChequeAmount = 0;
+            checksToCashout.forEach(chq => {
+                console.log(chq)
+                cheques += chq.uuid + ',' ;
+                totalChequeAmount += chq.amount ;
+                transData.push({
+                    payment_means: chq.transaction_data[0].payment_means.uuid,
+                    amount: chq.amount.toString(),
+                    status_transaction: TransactionStatus[2].value.toString(),
+                    type_transaction: TransactionType[3].value.toString(),
+                    payment_date: moment(chq.date_transaction, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
+                    data: {label: t('encashment'),
+                        ...chq
+                    }
+                });
+            });
+            let totalAmount = (totalChequeAmount).toString() ;
+            cheques = cheques.slice(0, -1);
+            const form = new FormData();
+            form.append("cash_box", selectedBoxes[0].uuid);
+            form.append("type_transaction", TransactionType[3].value.toString());
+            form.append("status_transaction", TransactionStatus[2].value.toString());
+            form.append("amount", totalAmount);
+            form.append("rest_amount", "0");
+            form.append("transaction_data", JSON.stringify(transData));
+            form.append("transactions_data", cheques);
+
+            triggerPostTransaction({
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/transactions/encashment/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then(() => {
+                mutateTransctions();
+                enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
+                setChecksToCashout([])
+                //mutateHttpDataResponse()
+            });
+            setOpenPaymentDialog(false);
         }
     };
 
@@ -287,7 +343,6 @@ function Cashbox() {
                         spacing={{xs: 1, md: 3}}
                         alignItems={{xs: "flex-start", md: "center"}}>
                         <Stack direction="row" spacing={2} alignItems="center">
-
                             <>
                                 <Typography variant="subtitle2">{t("receive")}</Typography>
                                 <Typography variant="h6">
@@ -340,7 +395,6 @@ function Cashbox() {
                                     size: "small",
                                     sx: {minWidth: 40},
                                 })}
-                                disabled={true}
                                 onClick={() => {
                                     setAction("cashout");
                                     setActionDialog("cashout")
@@ -428,7 +482,8 @@ function Cashbox() {
                 data={{
                     selectedPayment,
                     setSelectedPayment,
-                    pmList
+                    pmList,
+                    checksToCashout, setChecksToCashout
                 }}
                 size={"lg"}
                 title={t(action)}

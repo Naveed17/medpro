@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Box, Button, Stack, TextField, Typography, useTheme} from '@mui/material'
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-import {DefaultCountry, UrlMedicalEntitySuffix} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PaymentDialogStyled from "@features/dialog/components/paymentDialog/overrides/paymentDialogStyle";
@@ -83,13 +83,10 @@ function CashOutDialog({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
 
-    const [encaissementSelect, setEncaissementSelect] = useState('cash');
-    let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
     const [somme, setSomme] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [freeTrans, setFreeTrans] = useState(0);
-    const [collapseDate, setCollapseData] = useState<any>(null);
     const [cheques, setCheques] = useState<ChequeModel[]>([]);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -99,13 +96,13 @@ function CashOutDialog({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {pmList} = data;
+    const {pmList, checksToCashout, setChecksToCashout} = data;
     const checkuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'check').uuid
     const cashuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'cash').uuid
 
     const {data: httpCheckResponse} = useRequest({
         method: "GET",
-        url: `${UrlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
@@ -144,14 +141,14 @@ function CashOutDialog({...props}) {
         }
     }, [httpCashResponse])
     const handleCheques = (props: ChequeModel) => {
-        if (collect.indexOf(props) != -1) {
-            collect.splice(collect.indexOf(props), 1);
+        if (checksToCashout.indexOf(props) != -1) {
+            checksToCashout.splice(checksToCashout.indexOf(props), 1);
         } else {
-            collect.push(props);
+            checksToCashout.push(props);
         }
-        setCollect([...collect]);
+        setChecksToCashout([...checksToCashout]);
         let res = 0;
-        collect.map((val) => (res += val.amount));
+        checksToCashout.map((val: { amount: number; }) => (res += val.amount));
         setCollected(res + freeTrans);
     };
 
@@ -228,7 +225,7 @@ function CashOutDialog({...props}) {
                 rows={cheques}
                 from={"chequesList"}
                 t={t}
-                select={collect}
+                select={checksToCashout}
                 edit={handleCheques}
             />
         </Box>

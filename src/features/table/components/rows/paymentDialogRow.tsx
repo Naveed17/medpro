@@ -48,14 +48,16 @@ function PaymentDialogRow({...props}) {
                                 {moment(row.date).format('DD-MM-YYYY')}
                             </Typography>
                         </Stack>
-                        <Stack direction='row' spacing={.5} alignItems="center">
-                            <Icon path="ic-time"/>
-                            <Typography variant="body2">
-                                {moment(row.date).format('HH:mm')}
-                            </Typography>
-                        </Stack>
                     </Stack>
                 )}
+            </TableCell>
+            <TableCell>
+                <Stack direction='row' spacing={.5} alignItems="center">
+                    <Icon path="ic-time"/>
+                    <Typography variant="body2">
+                        {moment(row.date).format('HH:mm')}
+                    </Typography>
+                </Stack>
             </TableCell>
             <TableCell>
                 {loading ? (

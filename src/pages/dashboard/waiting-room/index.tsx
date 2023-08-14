@@ -512,7 +512,8 @@ function WaitingRoom() {
                     appointment: row,
                     patient: row?.patient
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t("payment_dialog_title")}
                 dialogClose={resetDialog}
                 actionDialog={

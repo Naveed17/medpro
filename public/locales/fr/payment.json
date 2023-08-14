@@ -55,6 +55,8 @@
     "type": "Type",
     "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
+    "bank": "Banque",
+    "carrier": "Carrier",
     "billing_status": "Etat de Facturation",
     "amount": "Montant",
     "actions": "Actions",
