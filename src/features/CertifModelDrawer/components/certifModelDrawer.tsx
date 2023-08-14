@@ -4,7 +4,6 @@ import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography,} 
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -20,7 +19,6 @@ import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperS
 
 
 function CertifModelDrawer({...props}) {
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
@@ -34,7 +32,7 @@ function CertifModelDrawer({...props}) {
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
-    const loading=false;
+    const loading = false;
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', desc: "Nom du patient"},
@@ -68,10 +66,6 @@ function CertifModelDrawer({...props}) {
                 method: data ? "PUT" : "POST",
                 url,
                 data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }, {
-                revalidate: true,
-                populateCache: true
             }).then(() => {
                 props.closeDraw();
                 props.mutate();

@@ -4,7 +4,6 @@ import React, {useEffect, useState} from 'react';
 import {Badge, Card, CircularProgress, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -30,7 +29,6 @@ function MedicalImagingDialog({...props}) {
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {trigger} = useRequestMutation(null, "/medicalImaging");
-    const {data: session} = useSession();
     const router = useRouter();
     const handleChange = (ev: any, uuid: string) => {
         const filesUploaded = ev.target.files;
@@ -42,14 +40,8 @@ function MedicalImagingDialog({...props}) {
                 {
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
+                    data: form
+                }).then(() => {
                 let selectedFile = files.findIndex(f => f.uuid === uuid)
                 files[selectedFile].nb += 1
                 setFiles([...files])
@@ -57,7 +49,7 @@ function MedicalImagingDialog({...props}) {
             });
         })
     };
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <BalanceSheetPendingStyled>

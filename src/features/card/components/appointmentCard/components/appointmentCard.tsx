@@ -54,8 +54,7 @@ function AppointmentCard({...props}) {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
     } : null, SWRNoValidateConfig);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
@@ -85,8 +84,7 @@ function AppointmentCard({...props}) {
         updateAppointmentTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => {
             if (onDataUpdated) {
                 onDataUpdated();
@@ -94,7 +92,7 @@ function AppointmentCard({...props}) {
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
             }
         });
-    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, session?.accessToken, updateAppointmentTrigger, urlMedicalEntitySuffix]);
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
@@ -115,8 +113,7 @@ function AppointmentCard({...props}) {
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => mutateConsultReason().then((result: any) => {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];

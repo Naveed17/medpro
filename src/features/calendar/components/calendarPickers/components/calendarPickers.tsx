@@ -10,7 +10,6 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -19,7 +18,6 @@ function CalendarPickers({...props}) {
     const {disabled} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -32,8 +30,7 @@ function CalendarPickers({...props}) {
 
     const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`
     } : null, SWRNoValidateConfig);
 
     const handleDateChange = (date: Date | null) => {

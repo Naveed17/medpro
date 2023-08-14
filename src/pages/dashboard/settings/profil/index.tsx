@@ -179,8 +179,7 @@ function Profil() {
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/qualifications/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateMedicalProfessionalData());
     };
 
@@ -190,8 +189,7 @@ function Profil() {
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/insurance/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateMedicalProfessionalData());
     };
 
@@ -201,8 +199,7 @@ function Profil() {
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/languages/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateMedicalProfessionalData());
     };
 
@@ -212,8 +209,7 @@ function Profil() {
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/paymentMeans/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateMedicalProfessionalData());
     };
 

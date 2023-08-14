@@ -136,7 +136,7 @@ function ConsultationInProgress() {
 
     //***** TRIGGERS ****//
     const {trigger} = useRequestMutation(null, "consultation/end");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
 
     //***** STATES ****//
     const [secretary, setSecretary] = useState("");
@@ -182,7 +182,6 @@ function ConsultationInProgress() {
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [isClose, setIsClose] = useState<boolean>(false);
     const [closeExam, setCloseExam] = useState<boolean>(false);
-    const [notes, setNotes] = useState<any[]>([]);
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [stateHistory, setStateHistory] = useState<any[]>([]);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -196,57 +195,43 @@ function ConsultationInProgress() {
     //***** REQUEST ****//
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/users`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/users`
     } : null, SWRNoValidateConfig);
 
     const {data: httpPreviousResponse} = useRequest(medical_entity && agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`
     } : null);
 
     const {data: httpAppResponse, mutate} = useRequest(medical_professional_uuid && agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/professionals/${medical_professional_uuid}/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/professionals/${medical_professional_uuid}/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`,},
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null);
 
     //***** PATIENT DATA ****//
     const {data: httpPatientAntecedents} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpPatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpPatientMI} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(medical_professional_uuid && agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
@@ -328,8 +313,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         medicalEntityHasUser && patient && trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/consultation-sheet/history/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/consultation-sheet/history/${router.locale}`
         }).then((r: any) => {
             const res = r?.data.data;
             let dates: string[] = [];
@@ -463,10 +447,7 @@ function ConsultationInProgress() {
             trigger({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             }).then(() => {
                 checkTransactions()
 
@@ -595,9 +576,19 @@ function ConsultationInProgress() {
     const getExamSize = () => {
         return isClose ? 11 : closeExam ? 1 : 7;
     }
-    const seeHistory = () => {
+    const seeHistory = (appointmentDataHistory: any) => {
+        const groupsDiagnostics: any = appointmentDataHistory.diagnostics.group((diag: any) => diag.date);
+        const groupsNotes: any = appointmentDataHistory.notes.group((diag: any) => diag.date);
+        let notes: any[] = [];
+        Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {...notes[diag[0]], diagnostics: diag[1]});
+        Object.entries(groupsNotes).forEach((note:any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
+
+        setStateHistory(Object.entries(notes).map((data) => ({
+            data: data[0],
+            note: data[1]?.note,
+            diagnostics: data[1]?.diagnostics
+        })));
         setOpenHistoryDialog(true);
-        setStateHistory(notes)
     }
     const openDialogue = (item: any) => {
         switch (item.id) {
@@ -751,10 +742,7 @@ function ConsultationInProgress() {
             trigger({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/professionals/${secretary}/notification/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             });
         }
     };
@@ -770,8 +758,8 @@ function ConsultationInProgress() {
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
     }
 
-    const checkTransactions = ()=>{
-        if (!appointment?.transactions && app_uuid){
+    const checkTransactions = () => {
+        if (!appointment?.transactions && app_uuid) {
             const form = new FormData();
             form.append("type_transaction", TransactionType[2].value);
             form.append("status_transaction", TransactionStatus[1].value);
@@ -784,10 +772,7 @@ function ConsultationInProgress() {
             trigger({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             }).then(r => console.log(r))
         }
     }
@@ -944,15 +929,9 @@ function ConsultationInProgress() {
                                         changes,
                                         setChanges,
                                         uuind: app_uuid,
-                                        agenda: agenda?.uuid,
                                         exam: sheetExam,
-                                        appointment,
-                                        mutateDoc,
-                                        medical_entity,
-                                        session,
-                                        notes,
+                                        patient,
                                         seeHistory,
-                                        router,
                                         closed: closeExam,
                                         setCloseExam,
                                         isClose

@@ -21,7 +21,6 @@ import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {RecButton} from "@features/buttons";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
@@ -38,8 +37,8 @@ function CIPPatientHistoryCard({...props}) {
         exam: defaultExam,
         changes,
         setChanges,
+        patient,
         uuind,
-        notes,
         seeHistory,
         closed,
         handleClosePanel,
@@ -49,7 +48,6 @@ function CIPPatientHistoryCard({...props}) {
     const theme = useTheme();
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -63,6 +61,8 @@ function CIPPatientHistoryCard({...props}) {
     let [diseases, setDiseases] = useState<string[]>([]);
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
+    const [appointmentDataHistory, setAppointmentDataHistory] = useState<any>(null);
+    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
@@ -72,8 +72,12 @@ function CIPPatientHistoryCard({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
+    } : null, SWRNoValidateConfig);
+
+    const {data: httpAppointmentDataResponse} = useRequest(patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/appointment-data/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
@@ -155,8 +159,7 @@ function CIPPatientHistoryCard({...props}) {
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => mutateReasonsData().then((result: any) => {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
@@ -166,11 +169,11 @@ function CIPPatientHistoryCard({...props}) {
             setLoadingReq(false);
         }));
     }
+
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
-            url: `/api/private/diseases/${router.locale}?name=${name}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `/api/private/diseases/${router.locale}?name=${name}`
         }).then(res => {
             let resultats: any[] = [];
             (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
@@ -221,7 +224,17 @@ function CIPPatientHistoryCard({...props}) {
         setChanges([...changes])
     }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+    useEffect(() => {
+        if (httpAppointmentDataResponse) {
+            setAppointmentDataHistory((httpAppointmentDataResponse as HttpResponse)?.data);
+        }
+    }, [httpAppointmentDataResponse])
+
+    useEffect(() => {
+        if (httpConsultReasonResponse) {
+            setReasons((httpConsultReasonResponse as HttpResponse)?.data);
+        }
+    }, [httpConsultReasonResponse])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -324,7 +337,7 @@ function CIPPatientHistoryCard({...props}) {
                                         {!option.uuid && <Divider/>}
                                         <MenuItem
                                             {...props}
-                                            {...(!option.uuid && {sx: {color:theme.palette.error.main}})}
+                                            {...(!option.uuid && {sx: {color: theme.palette.error.main}})}
                                             value={option.uuid}>
                                             {!option.uuid && <AddOutlinedIcon/>}
                                             {option.name}
@@ -355,10 +368,12 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes?.length > 0 &&
-                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                                seeHistory()
-                                            }}>{t('seeHistory')}</Typography>}
+                                        {(appointmentDataHistory?.hasOwnProperty('notes') || appointmentDataHistory?.hasOwnProperty('diagnostics')) &&
+                                            <Typography
+                                                color={"primary"} style={{cursor: "pointer"}}
+                                                onClick={() => seeHistory(appointmentDataHistory)}>
+                                                {t('seeHistory')}
+                                            </Typography>}
                                     </>}
                                     <RecButton
                                         small
@@ -395,9 +410,9 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {notes.length > 0 &&
+                                {(appointmentDataHistory?.hasOwnProperty('notes') || appointmentDataHistory?.hasOwnProperty('diagnostics')) &&
                                     <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                        seeHistory()
+                                        seeHistory(appointmentDataHistory)
                                     }}>{t('seeHistory')}</Typography>}
                             </Stack>
 

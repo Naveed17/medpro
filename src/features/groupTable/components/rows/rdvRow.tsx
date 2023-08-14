@@ -24,15 +24,12 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -45,15 +42,14 @@ function RDVRow({...props}) {
 
     const [appointmentData, setAppointmentData] = useState<any>(null);
 
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
 
     const {
         data: httpPatientHistoryResponse,
         isLoading
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`
     } : null);
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);

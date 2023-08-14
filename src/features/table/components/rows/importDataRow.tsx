@@ -29,7 +29,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingButton} from "@mui/lab";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -43,7 +42,6 @@ function ImportDataRow({...props}) {
     } = props;
     const {setPatientDetailDrawer, setDuplicatedData, setDuplicateDetectedDialog} = data;
     const router = useRouter();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -61,8 +59,7 @@ function ImportDataRow({...props}) {
         setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`
         }).then((value: any) => {
             const {data} = value?.data;
             if (value?.data.status === 'success') {

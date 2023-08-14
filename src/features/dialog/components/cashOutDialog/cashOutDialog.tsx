@@ -105,17 +105,11 @@ function CashOutDialog({...props}) {
 
     const {data: httpCheckResponse} = useRequest({
         method: "GET",
-        url: `${UrlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${UrlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`
     });
     const {data: httpCashResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`
     });
 
     useEffect(() => {

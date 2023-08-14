@@ -11,7 +11,6 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
 import dynamic from "next/dynamic";
 
@@ -30,7 +29,6 @@ import {useWidgetModels} from "@lib/hooks/rest";
 import {useRefreshMutation} from "@lib/axios/useRefreshMutation";
 
 function PatientFileTemplates() {
-    const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery("(max-width:669px)");
@@ -130,8 +128,7 @@ function PatientFileTemplates() {
         trigger({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/modals/${props.uuid}/activity/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`))
     }
 
@@ -164,10 +161,7 @@ function PatientFileTemplates() {
         setLoading(true);
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `${urlMedicalProfessionalSuffix}/modals/${uuid}/${router.locale}`
         }).then(() => {
             enqueueSnackbar(t("alert.modal-deleted"), {variant: "success"});
             setLoading(false);

@@ -13,7 +13,6 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
@@ -30,7 +29,6 @@ const emptyObject = {
 function AntecedentsCard({...props}) {
     const {loading, patient, antecedentsData, mutateAntecedents, setEditable} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents: antecedentsType} = useAntecedentTypes();
@@ -67,10 +65,7 @@ function AntecedentsCard({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             setOpenDialog(false);
             setInfo("");
@@ -140,8 +135,7 @@ function AntecedentsCard({...props}) {
                 )}
             </Typography>
             <Grid container spacing={2}>
-                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
-                    (antecedent, idx: number) => (
+                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map((antecedent: any, idx: number) => (
                         <React.Fragment key={idx}>
                             {antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" &&
                                 <Grid item md={6} sm={12} xs={12}>

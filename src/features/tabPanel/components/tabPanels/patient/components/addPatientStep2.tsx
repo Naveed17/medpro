@@ -27,7 +27,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -197,8 +197,7 @@ function AddPatientStep2({...props}) {
 
     const {data: httpProfessionalLocationResponse} = useRequest((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
@@ -243,9 +242,6 @@ function AddPatientStep2({...props}) {
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
             data: form
         }).then(
             (res: any) => {

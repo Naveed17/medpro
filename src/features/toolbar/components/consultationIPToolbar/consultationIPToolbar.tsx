@@ -126,10 +126,7 @@ function ConsultationIPToolbar({...props}) {
     const uploadRecord = (file: File) => {
         trigger({
             method: "GET",
-            url: `/api/private/document/types/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `/api/private/document/types/${router.locale}`
         }).then((res) => {
             const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
             if (audios.length > 0) {
@@ -138,10 +135,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then(() => {
                     mutateDoc();
                 });
@@ -173,11 +167,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method: method,
                     url: url,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then((r: any) => {
                     mutateDoc();
                     mutate();
@@ -219,11 +209,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method: method,
                     url: url,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then((r: any) => {
                     mutateDoc();
                     mutate();
@@ -265,11 +251,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method,
                     url,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then((r: any) => {
                     mutateDoc();
                     mutate();
@@ -308,10 +290,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then(() => {
                     mutateDoc();
                 });
@@ -332,10 +311,7 @@ function ConsultationIPToolbar({...props}) {
                 trigger({
                     method: method,
                     url: url,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 }).then(() => {
                     mutateDoc();
                     setInfo("document_detail");

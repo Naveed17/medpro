@@ -31,8 +31,7 @@ function PaymentFeesPopover({...props}) {
     const {data: httpAppointmentResponse} = useRequest(
         medical_professional && agenda ? {
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/professionals/${medical_professional?.uuid}/${router.locale}`
         } : null);
 
     const appointment = (httpAppointmentResponse as HttpResponse)?.data as any;
