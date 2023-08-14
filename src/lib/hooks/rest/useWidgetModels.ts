@@ -14,7 +14,10 @@ function useWidgetModel({...props}) {
         url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}${filter}`
     } : null, SWRNoValidateConfig);
 
-    return {models: (httpModelsResponse as HttpResponse)?.data ?? [], modelsMutate}
+    return {
+        models: ((httpModelsResponse as HttpResponse)?.data ?? []) as (ModalModel[] | ModalModelPagination),
+        modelsMutate
+    }
 }
 
 export default useWidgetModel;

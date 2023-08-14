@@ -10,7 +10,7 @@ function useInsurances() {
         url: `/api/public/insurances/${router.locale}`,
     }, SWRNoValidateConfig);
 
-    return {insurances: (Array.isArray(httpInsuranceResponse) ? httpInsuranceResponse : ((httpInsuranceResponse as HttpResponse)?.data ?? [])) as InsurancesModel[]}
+    return {insurances: (Array.isArray(httpInsuranceResponse) ? httpInsuranceResponse : ((httpInsuranceResponse as HttpResponse)?.data ?? [])) as InsuranceModel[]}
 }
 
 export default useInsurances;

@@ -135,8 +135,7 @@ function AntecedentsCard({...props}) {
                 )}
             </Typography>
             <Grid container spacing={2}>
-                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
-                    (antecedent, idx: number) => (
+                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map((antecedent: any, idx: number) => (
                         <React.Fragment key={idx}>
                             {antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" &&
                                 <Grid item md={6} sm={12} xs={12}>

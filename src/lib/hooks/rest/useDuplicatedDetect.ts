@@ -17,7 +17,7 @@ function useDuplicatedDetect({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/duplications/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    return {duplications: (httpPatientDuplicationResponse as HttpResponse)?.data ?? [], isLoading}
+    return {duplications: ((httpPatientDuplicationResponse as HttpResponse)?.data ?? []) as PatientModel[], isLoading}
 }
 
 export default useDuplicatedDetect;

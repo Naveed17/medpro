@@ -21,7 +21,7 @@ function useAppointmentHistory({...props}) {
     } : null);
 
     return {
-        previousAppointmentsData: (httpPatientHistoryResponse as HttpResponse)?.data ?? [],
+        previousAppointmentsData: (httpPatientHistoryResponse as HttpResponse)?.data ?? [] as any[],
         mutatePatientHis,
         isLoading
     }

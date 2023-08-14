@@ -21,7 +21,7 @@ function useDocumentsPatient({...props}) {
     } : null);
 
     return {
-        patientDocuments: (httpPatientDocumentsResponse as HttpResponse)?.data ?? [],
+        patientDocuments: ((httpPatientDocumentsResponse as HttpResponse)?.data ?? []) as any[],
         mutatePatientDocuments,
         isLoading
     }

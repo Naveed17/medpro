@@ -11,7 +11,7 @@ function useContactType() {
     }, SWRNoValidateConfig);
 
 
-    return {contacts: Array.isArray(httpContactsResponse) ? httpContactsResponse : ((httpContactsResponse as HttpResponse)?.data ?? [])}
+    return {contacts: (Array.isArray(httpContactsResponse) ? httpContactsResponse : ((httpContactsResponse as HttpResponse)?.data ?? [])) as ContactModel[]}
 }
 
 export default useContactType;

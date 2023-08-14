@@ -11,7 +11,7 @@ function useAntecedentTypes() {
     }, SWRNoValidateConfig);
 
 
-    return {allAntecedents: (httpAntecedentType as HttpResponse)?.data ?? []}
+    return {allAntecedents: (httpAntecedentType as HttpResponse)?.data ?? [] as AntecedentsTypeModel[]}
 }
 
 export default useAntecedentTypes;
