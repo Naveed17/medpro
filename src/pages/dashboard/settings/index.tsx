@@ -24,7 +24,7 @@ function Settings() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['settings']))
+        ...(await serverSideTranslations(locale as string, ['menu', 'settings']))
     }
 })
 
