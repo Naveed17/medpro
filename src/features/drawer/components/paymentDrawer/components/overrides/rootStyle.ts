@@ -12,8 +12,10 @@ const RootStyled = styled(Paper)(({ theme }) => ({
       },
     },
     ".MuiListItem-root": {
-      justifyContent: "space-between",
       borderTop: `1.5px solid ${theme.palette.divider}`,
+      "& > *": {
+        width: "100%",
+      },
     },
   },
   ".btn-group": {

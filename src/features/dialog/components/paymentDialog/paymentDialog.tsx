@@ -229,7 +229,7 @@ function PaymentDialog({...props}) {
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
         return selectedPayment.total - paymentTotal
     }
-
+console.log(patient)
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (

@@ -165,6 +165,7 @@ function Cashbox() {
   const [action, setAction] = useState("");
   const [loading, setLoading] = useState(true);
   const [paymentDrawer, setPaymentDrawer] = useState<boolean>(false);
+  const [selectedCashBox, setCashbox] = useState<any>(null);
   const { enqueueSnackbar } = useSnackbar();
   const { insurances } = useInsurances();
 
@@ -235,6 +236,7 @@ function Cashbox() {
         break;
       case "PATIENT_PAYMENT":
         setPaymentDrawer(true);
+        setCashbox(data.row);
         break;
     }
   };
@@ -469,7 +471,18 @@ function Cashbox() {
           },
         }}
       >
-        <PaymentDrawer handleClose={() => setPaymentDrawer(false)} t={t} />
+        <PaymentDrawer
+          handleClose={() => setPaymentDrawer(false)}
+          data={selectedCashBox}
+          {...{ 
+            pmList, t, 
+            setAction,
+            setActionDialog,
+            setOpenPaymentDialog,
+            setSelectedPayment,
+            
+           }}
+        />
       </Drawer>
       <Dialog
         action={actionDialog}
@@ -481,6 +494,8 @@ function Cashbox() {
           selectedPayment,
           setSelectedPayment,
           pmList,
+          appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
+          patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
         }}
         size={"lg"}
         title={t(action)}
