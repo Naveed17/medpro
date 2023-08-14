@@ -413,6 +413,11 @@ function Cashbox() {
                 action={actionDialog}
                 {...{
                     direction,
+                    PaperProps:{
+                        sx:{
+                            display:"none"
+                        }
+                    },
                     sx: {
                         minHeight: 380,
                     },
