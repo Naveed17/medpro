@@ -103,7 +103,7 @@ function PaymentRow({...props}) {
         setOpenPaymentDialog(false);
     }
     const mutatePatientWallet = () => {
-        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
+        medicalEntityHasUser && row.appointment && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
     }
     const handleSubmit = () => {
         setLoadingRequest(true)
@@ -167,18 +167,16 @@ function PaymentRow({...props}) {
                 }) => pt.slug === td.payment_means.slug)
             payments.push(pay)
         })
-
         setSelectedPayment({
-            uuid: row.appointment.uuid,
+            uuid: row.uuid,
             payments,
             payed_amount,
             appointment: row.appointment,
-            patient:row.appointment.patient,
+            patient:row.patient,
             total: row?.amount,
             isNew: false
         });
         setOpenPaymentDialog(true);
-
     }
     const handleClose = () => {
         setContextMenu(null);
@@ -391,7 +389,7 @@ function PaymentRow({...props}) {
                                     <Icon path={"ic-argent"}/>
                                 </IconButton>
                             </Tooltip>}
-                            {isItemSelected && <Tooltip title={t('edit')}>
+                            {isItemSelected && row.appointment && <Tooltip title={t('edit')}>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -401,7 +399,7 @@ function PaymentRow({...props}) {
                                     <IconUrl path="setting/edit"/>
                                 </IconButton>
                             </Tooltip>}
-                            {/*{isItemSelected && <Tooltip title={t('delete')}>
+                            {isItemSelected && !row.appointment && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -410,7 +408,7 @@ function PaymentRow({...props}) {
                                     }}>
                                     <IconUrl path="setting/icdelete"/>
                                 </IconButton>
-                            </Tooltip>}*/}
+                            </Tooltip>}
                         </Stack>
                     </Stack>
                 </TableCell>
