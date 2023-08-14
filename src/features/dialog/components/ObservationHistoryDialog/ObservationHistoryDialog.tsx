@@ -13,7 +13,6 @@ MyTextInput.displayName = "TextField";
 function ObservationHistoryDialog({...props}) {
     const {data: {stateHistory, t}} = props;
     const theme = useTheme();
-    console.log('stateHistory', stateHistory);
 
     return (
         <>

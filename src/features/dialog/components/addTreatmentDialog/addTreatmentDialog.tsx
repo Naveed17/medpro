@@ -68,10 +68,7 @@ function AddTreatmentDialog({...props}) {
                                                                 trigger({
                                                                     method: "GET",
                                                                     url: `/api/drugs/${router.locale}?name=${ev.target.value}`
-                                                                }).then((cnx) => {
-                                                                    if (cnx?.data as HttpResponse)
-                                                                        setDrugsList((cnx?.data as HttpResponse).data)
-                                                                })
+                                                                }).then((cnx) => cnx?.data && setDrugsList((cnx.data as HttpResponse)?.data ?? []))
                                                             }
                                                         }}
                                                         onBlur={(ev) => handleInputChange(ev.target.value)}

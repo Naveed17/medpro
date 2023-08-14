@@ -18,7 +18,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard} from "@features/card";
+import {CashBoxMobileCard, NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -29,12 +29,13 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
+import { DrawerBottom } from "@features/drawerBottom";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -138,7 +139,8 @@ function Cashbox() {
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
-
+    const [idsSelected,setIdsSelected]= useState<string[]>([])
+    const [filter,setFilter] = useState<boolean>(false)
     // ******** States ********
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -262,6 +264,19 @@ function Cashbox() {
             // traitement cashout ( in progress )
         }
     };
+    const handleIdsSelect = (id: any) => {
+        const selectedIndex = idsSelected.indexOf(id);
+        let newSelected: string[] = [];
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(idsSelected, id);
+        } else {
+            newSelected = newSelected.concat(
+                idsSelected.slice(0, selectedIndex),
+                idsSelected.slice(selectedIndex + 1)
+            );
+        }
+        setIdsSelected(newSelected);
+    };
 
     return (
         <>
@@ -362,20 +377,22 @@ function Cashbox() {
                             />}
                         </DesktopContainer>
                         <MobileContainer>
-                            {/*<Stack spacing={2}>
+                            <Stack spacing={2}>
                                 {rows.map((card, idx) => (
                                     <React.Fragment key={idx}>
-                                        <PaymentMobileCard
-                                            data={card}
-                                            t={t}
-                                            insurances={insurances}
-                                            getCollapseData={handleCollapse}
+                                        <CashBoxMobileCard 
+                                        data={card}
+                                        handleEvent={handleTableActions}
+                                        t={t}
+                                        insurances={insurances}
+                                        pmList={pmList}
+                                        mutateTransctions={mutateTransctions}
+                                        {...{idsSelected}}
+                                        handleIdsSelect={(v:string) =>handleIdsSelect(v)}
                                         />
                                     </React.Fragment>
                                 ))}
                             </Stack>
-                            <Box pb={6}/>*/}
-                            in progress
                         </MobileContainer>
                     </React.Fragment>
                 ) : (
@@ -413,6 +430,11 @@ function Cashbox() {
                 action={actionDialog}
                 {...{
                     direction,
+                    PaperProps:{
+                        sx:{
+                            display:"none"
+                        }
+                    },
                     sx: {
                         minHeight: 380,
                     },
@@ -443,7 +465,28 @@ function Cashbox() {
                     </DialogActions>
                 }
             />
-
+ <MobileContainer>     
+            <Button
+                startIcon={<IconUrl path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilter(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    
+                }}>
+                {t("filter.title",{ns:'common'})} (0)
+            </Button>
+            </MobileContainer> 
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title",{ns:'common'})}>
+                <CashboxFilter/>
+            </DrawerBottom>
         </>
     )
 }
