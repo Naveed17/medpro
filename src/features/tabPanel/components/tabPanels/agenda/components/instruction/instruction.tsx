@@ -122,8 +122,7 @@ function Instruction({...props}) {
         trigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then((value: any) => {
             if (value?.data.status === 'success') {
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));

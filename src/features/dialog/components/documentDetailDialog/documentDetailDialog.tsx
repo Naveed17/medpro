@@ -181,8 +181,7 @@ function DocumentDetailDialog({...props}) {
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -320,9 +319,8 @@ function DocumentDetailDialog({...props}) {
         trigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/documents/${state.uuid}/${router.locale}`,
-            data: form,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(() => {
+            data: form
+        }).then(() => {
             state.mutate()
             state.mutateDetails && state.mutateDetails()
             //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
@@ -338,8 +336,7 @@ function DocumentDetailDialog({...props}) {
         setLoadingRequest && setLoadingRequest(true);
         medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`
         }).then(() => {
             state.mutate && state.mutate();
             state.mutateDetails && state.mutateDetails()

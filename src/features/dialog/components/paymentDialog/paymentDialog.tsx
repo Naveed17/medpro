@@ -174,8 +174,7 @@ function PaymentDialog({...props}) {
 
     const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
 

@@ -4,14 +4,13 @@ import {
     Button,
     Card,
     CardContent,
-    Grid,
     IconButton,
     Stack,
     TextField,
     Typography
 } from '@mui/material'
 import {useTranslation} from 'next-i18next'
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import dynamic from "next/dynamic";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -30,19 +29,16 @@ function AddTreatmentDialog({...props}) {
     const [traitments, setTraitments] = useState<DrugModel[]>([]);
 
     const router = useRouter();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {trigger} = useRequestMutation(null, "/drugs");
-
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const handleInputChange = (value: string) => {
         const drg = drugsList.find(drug => drug.commercial_name === value)
         if (drg !== undefined)
-                setDrug(drg);
-         else
+            setDrug(drg);
+        else
             setDrug({uuid: '', commercial_name: value, isVerified: false});
 
     }
@@ -50,7 +46,7 @@ function AddTreatmentDialog({...props}) {
     const addTraitment = () => {
         setTraitments([...traitments, (drug as DrugModel)]);
         if (drug)
-            data.setState([...data.state,{uuid: drug.uuid, name: drug.commercial_name, isVerified: drug.isVerified}])
+            data.setState([...data.state, {uuid: drug.uuid, name: drug.commercial_name, isVerified: drug.isVerified}])
         setDrug(null)
     }
 
@@ -71,8 +67,7 @@ function AddTreatmentDialog({...props}) {
                                                             if (ev.target.value.length >= 2) {
                                                                 trigger({
                                                                     method: "GET",
-                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`
                                                                 }).then((cnx) => {
                                                                     if (cnx?.data as HttpResponse)
                                                                         setDrugsList((cnx?.data as HttpResponse).data)
@@ -107,7 +102,9 @@ function AddTreatmentDialog({...props}) {
                                     <Typography>{traitment.commercial_name}</Typography>
                                     <IconButton size="small" onClick={() => {
                                         setTraitments([...traitments.filter(t => t.uuid !== traitment.uuid)])
-                                        data.setState([...data.state.filter((t: { uuid: string}) => t.uuid !== traitment.uuid)])
+                                        data.setState([...data.state.filter((t: {
+                                            uuid: string
+                                        }) => t.uuid !== traitment.uuid)])
                                     }}>
                                         <Icon path="setting/icdelete"/>
                                     </IconButton>

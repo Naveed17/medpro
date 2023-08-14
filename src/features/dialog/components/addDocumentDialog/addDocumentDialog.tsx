@@ -21,17 +21,11 @@ function AddDocumentDialog({...props}) {
     const [load, setLoad] = useState(false);
     const {data} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const theme = useTheme() as Theme;
-    const [progress, setProgress] = useState(0);
 
     const {data: httpTypeResponse} = useRequest({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/private/document/types/${router.locale}`
     });
 
     useEffect(() => {

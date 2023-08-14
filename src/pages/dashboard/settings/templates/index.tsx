@@ -21,7 +21,6 @@ import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -43,7 +42,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function TemplatesConfig() {
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
     const theme = useTheme();
@@ -69,30 +67,26 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
 
     const {data: httpModelResponse, mutate: mutateCertif} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
 
     const {data: httpPrescriptionResponse, mutate: mutatePrescription} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null);
 
     const {data: httpAnalysesResponse, mutate: mutateAnalyses} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
     } : null);
 
     const closeDraw = () => {
@@ -115,8 +109,7 @@ function TemplatesConfig() {
     const removeDoc = (res: CertifModel) => {
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`
         }, {
             revalidate: true,
             populateCache: true
@@ -129,11 +122,7 @@ function TemplatesConfig() {
     const removePrescription = (uuid: string) => {
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${uuid}/${router.locale}`
         }).then(() => {
             mutatePrescription().then(() => {
                 enqueueSnackbar(t("removed"), {variant: "error"});
@@ -143,11 +132,7 @@ function TemplatesConfig() {
     const removeAnalyses = (uuid: string) => {
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${uuid}/${router.locale}`
         }).then(() => {
             mutateAnalyses().then(() => {
                 enqueueSnackbar(t("removed"), {variant: "error"});

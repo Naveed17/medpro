@@ -63,7 +63,6 @@ function ModifyUser() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("settings");
-    const {tableState} = useAppSelector(tableActionSelector);
     const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
     const [profiles, setProfiles] = useState<any[]>([]);
@@ -80,17 +79,11 @@ function ModifyUser() {
 
     const {data: httpProfilesResponse,} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/profile`
     });
     const {data: httpUserResponse, error} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
     });
 
     useEffect(() => {
@@ -193,14 +186,13 @@ function ModifyUser() {
             trigger({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => {
                 enqueueSnackbar(t("users.alert.update"), {variant: "error"});
                 setLoading(false)
                 dispatch(addUser({...values}));
                 router.push("/dashboard/settings/users");
-            }).catch((error) => {
+            }).catch(() => {
                 setLoading(false);
                 enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
             })

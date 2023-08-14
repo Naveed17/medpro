@@ -102,8 +102,7 @@ function TimeSchedule({...props}) {
         mutate: mutateReasonsData
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
     } : null, SWRNoValidateConfig);
 
     const {trigger} = useRequestMutation(null, "/calendar/slots");
@@ -122,8 +121,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         trigger(medicalEntityHasUser && medical_professional ? {
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
             const slots = weekTimeSlots.find(slot => slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
@@ -236,8 +234,7 @@ function TimeSchedule({...props}) {
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => mutateReasonsData().then((result: any) => {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];

@@ -24,7 +24,6 @@ import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Dialog} from "@features/dialog";
@@ -46,7 +45,6 @@ function BalanceSheetDialog({...props}) {
     const {data} = props;
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
-    const {data: session} = useSession();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -104,14 +102,12 @@ function BalanceSheetDialog({...props}) {
 
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
-        url: `/api/private/analysis/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `/api/private/analysis/${router.locale}`
     });
 
     const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
     } : null);
 
     const {handleSubmit} = formik;
@@ -137,8 +133,7 @@ function BalanceSheetDialog({...props}) {
         trigger({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             setOpenDialog(false);
             setModel("")
@@ -153,8 +148,7 @@ function BalanceSheetDialog({...props}) {
         if (analysisName.length >= 2) {
             trigger({
                 method: "GET",
-                url: `/api/private/analysis/${router.locale}?name=${analysisName}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                url: `/api/private/analysis/${router.locale}?name=${analysisName}`
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data;
                 setSearchAnalysis(res.length > 0 ? res : analysisList);
@@ -167,8 +161,7 @@ function BalanceSheetDialog({...props}) {
     const deleteModel = () => {
         trigger({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`
         }).then(() => {
             mutate().then(() => {
                 setSelectedModel(null)
@@ -186,8 +179,7 @@ function BalanceSheetDialog({...props}) {
         trigger({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             mutate().then(() => {
                 enqueueSnackbar(t("updated"), {variant: 'success'})

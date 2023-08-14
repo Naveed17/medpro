@@ -166,16 +166,12 @@ function Cashbox() {
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
-        url: "/api/public/payment-means/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/public/payment-means/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest(filterQuery ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`
     } : null);
 
     useEffect(() => {
@@ -255,10 +251,7 @@ function Cashbox() {
             triggerPostTransaction({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             }).then(() => {
                 enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
                 mutateTransctions().then(() => {

@@ -17,7 +17,6 @@ import {
     Typography
 } from '@mui/material'
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
@@ -35,7 +34,7 @@ function LifeStyleDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
     const setState = props.data.setState;
-    const {data: session} = useSession();
+    
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
     const [loading, setLoading] = useState(true);
@@ -47,10 +46,7 @@ function LifeStyleDialog({...props}) {
         method: "GET",
         url: `/api/private/antecedents/${allAntecedents?.find((ant: {
             slug: any;
-        }) => ant.slug === action).uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        }) => ant.slug === action).uuid}/${router.locale}`
     });
 
     useEffect(() => {
@@ -320,12 +316,8 @@ function LifeStyleDialog({...props}) {
                                 trigger({
                                     method: "POST",
                                     url: `/api/private/antecedents/${router.locale}`,
-                                    data: form,
-                                    headers: {
-                                        ContentType: 'multipart/form-data',
-                                        Authorization: `Bearer ${session?.accessToken}`
-                                    }
-                                }, {revalidate: true, populateCache: true}).then((data) => {
+                                    data: form
+                                }).then((data) => {
                                     const res = (data?.data as HttpResponse).data;
                                     antecedents.push({
                                         name: value,

@@ -23,7 +23,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
-import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
@@ -48,7 +47,6 @@ function a11yProps(index: number) {
 
 function NotificationPopover({...props}) {
     const {onClose} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
@@ -65,7 +63,7 @@ function NotificationPopover({...props}) {
         time: moveDialogTime
     } = useAppSelector(dialogMoveSelector);
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
