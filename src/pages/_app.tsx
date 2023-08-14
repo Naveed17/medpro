@@ -9,7 +9,6 @@ import {AnimatePresence} from "framer-motion";
 import {SnackbarProvider, useSnackbar} from "notistack";
 // import global style
 import "@styles/globals.scss";
-import '@styles/leaflet.css';
 import 'react-medium-image-zoom/dist/styles.css';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
