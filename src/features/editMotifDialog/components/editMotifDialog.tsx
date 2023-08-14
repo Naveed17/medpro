@@ -18,7 +18,6 @@ import React from "react";
 import {useTranslation} from "next-i18next";
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 
@@ -78,7 +77,6 @@ const colors = [
 
 function EditMotifDialog({...props}) {
     const {mutateEvent} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -131,8 +129,7 @@ function EditMotifDialog({...props}) {
                 medicalEntityHasUser && trigger({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.data.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    data: form
                 }).then(() => {
                     mutateEvent();
                     enqueueSnackbar(t("motif.config.alert.updated"), {variant: "success"});
@@ -141,8 +138,7 @@ function EditMotifDialog({...props}) {
                 medicalEntityHasUser && trigger({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    data: form
                 }).then(() => {
                     enqueueSnackbar(t("motif.config.alert.add"), {variant: "success"});
                     mutateEvent();

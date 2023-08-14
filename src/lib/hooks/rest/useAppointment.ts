@@ -5,8 +5,7 @@ function useAppointment(agenda: AgendaConfigurationModel, medical_entity_uuid: s
 
     const {data: httpAppointmentResponse, error: errorHttpAppointment, trigger, isMutating} = useRequestMutation(agenda ? {
         method: "GET",
-        url: `${UrlMedicalEntitySuffix}${medical_entity_uuid}/agendas/${agenda.uuid}/appointments/${locale}?start_date=${start}&end_date=${end}&format=week`,
-        headers: {Authorization: `Bearer ${accessToken}`}
+        url: `${UrlMedicalEntitySuffix}${medical_entity_uuid}/agendas/${agenda.uuid}/appointments/${locale}?start_date=${start}&end_date=${end}&format=week`
     } : null);
 
     return {

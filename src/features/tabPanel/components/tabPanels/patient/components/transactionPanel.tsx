@@ -118,24 +118,19 @@ function TransactionPanel({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientWallet,mutate:walletMutate} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientWallet, mutate: walletMutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
-        url: "/api/public/payment-means/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/public/payment-means/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`
     });
 
     useEffect(() => {
@@ -164,7 +159,7 @@ function TransactionPanel({...props}) {
         }
     }, [httpPatientWallet])
 
-    const handleSubmit = ()=>{
+    const handleSubmit = () => {
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
@@ -181,7 +176,7 @@ function TransactionPanel({...props}) {
         });
 
         const form = new FormData();
-        form.append("type_transaction",  TransactionType[4].value);
+        form.append("type_transaction", TransactionType[4].value);
         form.append("status_transaction", TransactionStatus[0].value);
         form.append("cash_box", selectedBoxes[0].uuid);
         form.append("amount", amount.toString());
@@ -192,10 +187,7 @@ function TransactionPanel({...props}) {
         trigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
             mutateTransctions().then(() => {
@@ -225,7 +217,7 @@ function TransactionPanel({...props}) {
                         {devise}
                     </Button>*/}
                     <Button size='small'
-                            onClick={()=>{
+                            onClick={() => {
                                 setSelectedPayment({
                                     uuid: "",
                                     payments: [],
@@ -245,7 +237,7 @@ function TransactionPanel({...props}) {
                     </Button>
                     <Button size='small'
                             variant='contained'
-                            color={"error" }>
+                            color={"error"}>
                         {t("credit")}
                         <Typography fontWeight={700} component='strong'
                                     mx={1}>- {rest}</Typography>
@@ -280,10 +272,14 @@ function TransactionPanel({...props}) {
                 size={"lg"}
                 fullWidth
                 title={t('payment_dialog_title')}
-                dialogClose={()=>{setOpenPaymentDialog(false)}}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
+                }}
                 actionDialog={
                     <DialogActions>
-                        <Button onClick={()=>{setOpenPaymentDialog(false)}} startIcon={<CloseIcon/>}>
+                        <Button onClick={() => {
+                            setOpenPaymentDialog(false)
+                        }} startIcon={<CloseIcon/>}>
                             {t("config.cancel", {ns: "common"})}
                         </Button>
                         <LoadingButton

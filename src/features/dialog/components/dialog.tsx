@@ -4,7 +4,7 @@ import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,} fro
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
-import React, {useState} from "react";
+import React, { useState} from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 
 function Dialogs({...props}) {
@@ -33,8 +33,8 @@ function Dialogs({...props}) {
     return (
         <>
             <Dialog
-                {...rest}
                 {...{open, maxWidth, fullWidth}}
+                {...rest}
                 onClose={dialogClose}
                 scroll="paper"
                 dir={direction}

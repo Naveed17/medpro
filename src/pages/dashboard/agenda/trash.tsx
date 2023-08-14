@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -62,7 +61,6 @@ const TableHead = [
 ];
 
 function Trash() {
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -76,13 +74,12 @@ function Trash() {
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [event, setEvent] = useState<EventModal | null>();
 
-    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment"], sendRequest as any);
 
     const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`
     } : null, {revalidateOnFocus: false});
 
     const handleDeleteTrashAppointment = (uuid: string) => {

@@ -13,7 +13,6 @@ import BalanceSheetDialogStyled from '../balanceSheet/overrides/balanceSheetDial
 import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import dynamic from "next/dynamic";
 
@@ -28,6 +27,7 @@ import {arrayUniqueByKey} from "@lib/hooks";
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
+    const router = useRouter();
 
     const [miList, setMiList] = useState<MIModel[]>([]);
     const [miListLocal, setMiListLocal] = useState<MIModel[]>([]);
@@ -55,13 +55,9 @@ function MedicalImageryDialog({...props}) {
 
     const initialData = Array.from(new Array(10));
 
-    const router = useRouter();
-    const {data: session} = useSession();
-
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
-        url: "/api/private/medical-imaging/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: "/api/private/medical-imaging/" + router.locale
     }, SWRNoValidateConfig);
 
     const addImage = (value: MIModel) => {
@@ -84,8 +80,7 @@ function MedicalImageryDialog({...props}) {
         if (medicalImagery.length >= 2) {
             trigger({
                 method: "GET",
-                url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data;
                 setMiList(res)

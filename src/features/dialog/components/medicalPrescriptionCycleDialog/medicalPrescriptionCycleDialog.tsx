@@ -51,7 +51,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {motion, AnimatePresence} from "framer-motion";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
@@ -72,7 +71,6 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
-    const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -217,12 +215,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const handleAddDrug = () => {
@@ -327,8 +324,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         triggerPrescriptionModel({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutateParentModel().then(() => {
             setInitialOpenData([modelParent]);
             setPrescriptionTabIndex(1);
@@ -343,8 +339,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         triggerPrescriptionParent({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => {
             mutateParentModel().then((result) => {
                 const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
@@ -509,9 +504,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             if (ev.target.value.length >= 2) {
                                                                                                 triggerDrugList({
                                                                                                     method: "GET",
-                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
+                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`
+                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? []));
                                                                                             }
                                                                                         }}
                                                                                         placeholder={t('placeholder_drug_name')}/>}/>

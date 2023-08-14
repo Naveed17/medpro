@@ -55,17 +55,13 @@ function Acts() {
     const {data} = useRequest(isProfile ? {
         method: "GET",
         url: `/api/public/acts/${router.locale}`,
-        params: specialities,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        params: specialities
     } : null);
 
     const removeFees = (uuid: string) => {
         triggerDeleteAct({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
         }, TriggerWithoutValidation)
     }
 
@@ -76,8 +72,7 @@ function Acts() {
         triggerAddAct({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`));
     }, [medical_entity.uuid, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 

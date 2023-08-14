@@ -7,7 +7,6 @@ function useHorsWorkDays() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
-    const locations = agendaConfig?.locations;
     const openingHours = agendaConfig?.openingHours[0];
 
     useEffect(() => {

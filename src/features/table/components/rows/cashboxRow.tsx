@@ -23,10 +23,9 @@ import {alpha, Theme} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry, TransactionStatus} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import moment from "moment-timezone";
 import {ImageHandler} from "@features/image";
-import {Label} from "@features/label";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -50,8 +49,8 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
+    const {insurances, mutateTransctions, pmList, hideName} = data;
 
-    const {insurances, mutateTransctions, pmList,hideName} = data;
     const {data: session} = useSession();
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -133,9 +132,7 @@ function PaymentRow({...props}) {
         triggerPostTransaction({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
             data: form
-
         }).then(() => {
             mutateTransctions()
             mutatePatientWallet()
@@ -259,7 +256,9 @@ function PaymentRow({...props}) {
                     </Stack>
 
                 </TableCell>
-                {!hideName && <TableCell>
+                {!hideName &&
+
+                <TableCell>
                     {row.appointment ? (
                         <Link
                             sx={{cursor: "pointer"}}
@@ -270,17 +269,17 @@ function PaymentRow({...props}) {
                             underline="none">
                             {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
                         </Link>
-                    ) :row.patient ? (
-                            <Link
-                                sx={{cursor: "pointer"}}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
-                                }}
-                                underline="none">
-                                {`${row.patient.firstName} ${row.patient.lastName}`}
-                            </Link>
-                        ): (
+                    ) : row.patient ? (
+                        <Link
+                            sx={{cursor: "pointer"}}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                            }}
+                            underline="none">
+                            {`${row.patient.firstName} ${row.patient.lastName}`}
+                        </Link>
+                    ) : (
                         <Link underline="none">{row.transaction_data[0].data.label}</Link>
                     )}
                 </TableCell>}
@@ -351,7 +350,8 @@ function PaymentRow({...props}) {
                         }}
                                     color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                                     fontWeight={700}>
-                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span style={{fontSize:10}}>{devise}</span>
+                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
+                            style={{fontSize: 10}}>{devise}</span>
                         </Typography>
 
                         {row?.appointment && <Menu
@@ -443,6 +443,13 @@ function PaymentRow({...props}) {
                                             sx={{
                                                 bgcolor: (theme: Theme) =>
                                                     theme.palette.background.paper,
+                                                    "&::before":{
+                                                    ...(idx > 0 && {
+                                                        height:"calc(100% + 8px)",
+                                                        top:'-70%'
+
+                                                    })
+                                                }
                                             }}>
                                             <TableCell style={{
                                                 backgroundColor: "transparent",
@@ -528,7 +535,7 @@ function PaymentRow({...props}) {
                                                 </Stack>
 
                                             </TableCell>
-{/*
+                                            {/*
                                             <TableCell
                                                 align="left"
                                                 style={{
@@ -562,7 +569,7 @@ function PaymentRow({...props}) {
                                                     }
                                                     textAlign={"center"}
                                                     fontWeight={700}>
-                                                    {col.amount} <span style={{fontSize:10}}>{devise}</span>
+                                                    {col.amount} <span style={{fontSize: 10}}>{devise}</span>
                                                 </Typography>
                                             </TableCell>
 

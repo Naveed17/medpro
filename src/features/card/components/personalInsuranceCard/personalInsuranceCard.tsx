@@ -72,8 +72,7 @@ function PersonalInsuranceCard({...props}) {
         mutate: mutatePatientInsurances
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const RegisterPatientSchema = Yup.object().shape({
@@ -179,10 +178,7 @@ function PersonalInsuranceCard({...props}) {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
         }).then(() => {
             setLoadingRequest(false);
             mutatePatientInsurances();
@@ -273,9 +269,6 @@ function PersonalInsuranceCard({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params
         }).then(() => {
             setLoadingRequest(false);

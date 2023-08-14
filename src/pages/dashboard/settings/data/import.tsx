@@ -151,8 +151,7 @@ function ImportData() {
 
     const {data: httpFileResponse} = useRequest({
         method: "GET",
-        url: `/api/public/med-link/patient/file/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/public/med-link/patient/file/${router.locale}`
     });
 
     useEffect(() => {
@@ -211,8 +210,7 @@ function ImportData() {
         triggerImportData({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: params
         }).then(
             (value: any) => {
                 if (value?.data.status === "success") {

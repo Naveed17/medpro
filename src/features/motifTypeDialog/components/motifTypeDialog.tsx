@@ -156,8 +156,7 @@ function EditMotifDialog({...props}) {
                 medicalEntityHasUser && trigger({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    data: form
                 }).then(() => {
                     enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
                     mutateEvent();
@@ -170,8 +169,7 @@ function EditMotifDialog({...props}) {
                     {
                         method: "POST",
                         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
-                        data: form,
-                        headers: {Authorization: `Bearer ${session?.accessToken}`},
+                        data: form
                     }).then(() => {
                     enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
                     mutateEvent();

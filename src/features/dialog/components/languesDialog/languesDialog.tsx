@@ -8,33 +8,26 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-function LanguesDialog(info:any) {
-
-    const { data: session } = useSession();
+function LanguesDialog(info: any) {
     const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const router = useRouter();
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
-    const { data } = useRequest({
+    const {data} = useRequest({
         method: "GET",
-        url: "/api/public/languages/"+router.locale,
-        headers
+        url: `/api/public/languages/${router.locale}`
     });
 
     useEffect(() => {
-        if (data !== undefined){
+        if (data !== undefined) {
             setItems((data as any).data);
             setLoading(false);
         }
-    },[data]);
+    }, [data]);
 
     const {t, ready} = useTranslation("settings");
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <CheckList items={items}
@@ -44,4 +37,5 @@ function LanguesDialog(info:any) {
                    search={t('dialogs.search_lang')}/>
     )
 }
+
 export default LanguesDialog
