@@ -49,8 +49,8 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
-
     const {insurances, mutateTransctions, pmList, hideName} = data;
+  
     const {data: session} = useSession();
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -258,7 +258,9 @@ function PaymentRow({...props}) {
                     </Stack>
 
                 </TableCell>
-                {!hideName && <TableCell>
+                {!hideName &&
+                
+                <TableCell>
                     {row.appointment ? (
                         <Link
                             sx={{cursor: "pointer"}}
@@ -443,6 +445,13 @@ function PaymentRow({...props}) {
                                             sx={{
                                                 bgcolor: (theme: Theme) =>
                                                     theme.palette.background.paper,
+                                                    "&::before":{
+                                                    ...(idx > 0 && {
+                                                        height:"calc(100% + 8px)",
+                                                        top:'-70%'
+
+                                                    })
+                                                }
                                             }}>
                                             <TableCell style={{
                                                 backgroundColor: "transparent",
