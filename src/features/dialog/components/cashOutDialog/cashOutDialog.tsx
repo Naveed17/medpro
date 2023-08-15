@@ -114,8 +114,8 @@ function CashOutDialog({...props}) {
             const transactions = (httpCheckResponse as HttpResponse).data.transactions;
             let checks: any[] = [];
             if (transactions) {
-                transactions.forEach((transaction: { transaction_data: any[]; }) => {
-                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach(td => checks.push(td))
+                transactions.forEach((transaction: { transaction_data: any[]; uuid: string; }) => {
+                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach((td: any) => checks.push({transaction_uuid:transaction.uuid, transaction_data: td}))
                 })
                 setCheques(checks);
             }

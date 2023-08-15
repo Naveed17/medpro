@@ -445,7 +445,7 @@ function PaymentDialog({...props}) {
                     />}
                 </FormGroup>
                 <Grid container alignItems="center">
-                    <Grid item xs={12} lg={payments.length > 0 ?7: 12}>
+                    <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
                         <AnimatePresence mode='wait'>
                             {(() => {
                                 switch (values.selected) {
@@ -509,57 +509,48 @@ function PaymentDialog({...props}) {
                                                     {values.check.map((step: any, idx: number) =>
                                                         <Paper key={idx}>
                                                             <Stack spacing={1} alignItems="flex-start">
-                                                                <Grid container alignItems="center">
 
-                                                                    <Grid item xs={12} lg={6}>
-                                                                        <Stack direction='row' alignItems="center"
-                                                                               spacing={1}>
-                                                                            <TextField
-                                                                                variant="outlined"
-                                                                                placeholder={t("amount")}
-                                                                                {...getFieldProps(`check[${idx}].amount`)}
-                                                                                fullWidth
-                                                                                type="number"
-                                                                                required
-                                                                            />
-                                                                            <Typography>
-                                                                                {devise}
-                                                                            </Typography>
-                                                                        </Stack>
-                                                                    </Grid>
-                                                                    <Grid item xs={12} lg={6}>
+                                                                    <Stack direction='row' alignItems="center"
+                                                                           spacing={1}>
                                                                         <TextField
                                                                             variant="outlined"
-                                                                            placeholder={t("carrier")}
-                                                                            fullWidth
-                                                                            type="text"
-                                                                            {...getFieldProps(`check[${idx}].carrier`)}
-                                                                            required
-                                                                        />
-                                                                    </Grid>
-                                                                </Grid>
-                                                                <Grid container alignItems="center">
-                                                                    <Grid item xs={12} lg={6}>
-                                                                        <TextField
-                                                                            variant="outlined"
-                                                                            placeholder={t("bank")}
-                                                                            fullWidth
-                                                                            type="text"
-                                                                            {...getFieldProps(`check[${idx}].bank`)}
-                                                                            required
-                                                                        />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} lg={6}>
-                                                                        <TextField
-                                                                            variant="outlined"
-                                                                            placeholder={t("check_number")}
+                                                                            placeholder={t("amount")}
+                                                                            {...getFieldProps(`check[${idx}].amount`)}
                                                                             fullWidth
                                                                             type="number"
-                                                                            {...getFieldProps(`check[${idx}].check_number`)}
                                                                             required
                                                                         />
-                                                                    </Grid>
-                                                                </Grid>
+                                                                        <Typography>
+                                                                            {devise}
+                                                                        </Typography>
+
+                                                                    <TextField
+                                                                        variant="outlined"
+                                                                        placeholder={t("carrier")}
+                                                                        fullWidth
+                                                                        type="text"
+                                                                        {...getFieldProps(`check[${idx}].carrier`)}
+                                                                        required
+                                                                    />
+                                                                    <TextField
+                                                                        variant="outlined"
+                                                                        placeholder={t("bank")}
+                                                                        fullWidth
+                                                                        type="text"
+                                                                        {...getFieldProps(`check[${idx}].bank`)}
+                                                                        required
+                                                                    />
+                                                                </Stack>
+
+                                                                <TextField
+                                                                    variant="outlined"
+                                                                    placeholder={t("check_number")}
+                                                                    fullWidth
+                                                                    type="number"
+                                                                    {...getFieldProps(`check[${idx}].check_number`)}
+                                                                    required
+                                                                />
+
                                                                 <Grid container alignItems="center">
                                                                     <Grid item xs={12} lg={2}>
                                                                         <Typography color="text.secondary"
@@ -572,7 +563,7 @@ function PaymentDialog({...props}) {
                                                                         <Grid container alignItems='cetner' spacing={1}>
                                                                             <Grid item xs={12} lg={4}>
                                                                                 <DatePicker
-                                                                                    value={values[`check[${idx}].payment_date`]}
+                                                                                    value={values.check[idx].payment_date}
                                                                                     onChange={(newValue: any) => {
                                                                                         setFieldValue(`check[${idx}].payment_date`, new Date(newValue));
                                                                                     }}
@@ -594,10 +585,9 @@ function PaymentDialog({...props}) {
                                                                                         {t("expiry_date")}
                                                                                     </Typography>
                                                                                     <DatePicker
-                                                                                        value={values[`check[${idx}].expiry_date`]}
+                                                                                        value={values.check[idx].expiry_date}
                                                                                         onChange={(newValue: any) => {
-                                                                                            console.log(new Date(newValue))
-                                                                                            setFieldValue(`check[${idx}].expiry_date`, new Date(newValue));
+                                                                                            setFieldValue(`check[${idx}].expiry_date`, newValue);
                                                                                         }}
                                                                                     />
                                                                                 </Stack>

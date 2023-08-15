@@ -263,8 +263,6 @@ function Cashbox() {
             });
             setOpenPaymentDialog(false);
         } else {
-            // traitement cashout ( in progress )
-            console.log(checksToCashout);
             //const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
             // Adding first object cash
             /*const transData = somme === 0 ? [] : [{
@@ -280,7 +278,7 @@ function Cashbox() {
             let totalChequeAmount = 0;
             checksToCashout.forEach(chq => {
                 console.log(chq)
-                cheques += chq.uuid + ',' ;
+                cheques += chq.transaction_data[0].uuid + ',' ;
                 totalChequeAmount += chq.amount ;
                 transData.push({
                     payment_means: chq.transaction_data[0].payment_means.uuid,
@@ -484,11 +482,6 @@ function Cashbox() {
                 action={actionDialog}
                 {...{
                     direction,
-                    PaperProps:{
-                        sx:{
-                            display:"none"
-                        }
-                    },
                     sx: {
                         minHeight: 380,
                     },

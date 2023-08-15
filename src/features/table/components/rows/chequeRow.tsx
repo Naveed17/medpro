@@ -84,7 +84,7 @@ function ChequeRow({...props}) {
                 </TableCell><TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.carrier}
+                            {row.transaction_data.data.carrier}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -93,7 +93,7 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.bank}
+                            {row.transaction_data.data.bank}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -118,14 +118,14 @@ function ChequeRow({...props}) {
                             }
                         }}>
                             <Icon path="ic-agenda"/>
-                            <Typography variant="body2">{moment(row.data.payment_date).format('DD/MM/YYYY')}</Typography>
+                            <Typography variant="body2">{moment(row.transaction_data.data.payment_date).format('DD/MM/YYYY')}</Typography>
                         </Stack>
                     )}
                 </TableCell>
                 <TableCell align={"right"}>
                     {row ? (
                         <Typography  variant="body1" color="text.primary">
-                            {row.amount} {devise}
+                            {row.transaction_data.amount} {devise}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -211,7 +211,7 @@ function ChequeRow({...props}) {
                                                         }
                                                     }}>
                                                         <Icon path="ic-time"/>
-                                                        <Typography variant="body2">{row.time}</Typography>
+                                                        <Typography variant="body2">{row.transaction_data.time}</Typography>
                                                     </Stack>
 
                                                 )}

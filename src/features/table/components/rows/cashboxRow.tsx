@@ -350,7 +350,7 @@ function PaymentRow({...props}) {
                         }}
                                     color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                                     fontWeight={700}>
-                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
+                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
                             style={{fontSize: 10}}>{devise}</span>
                         </Typography>
 
