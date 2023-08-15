@@ -474,10 +474,10 @@ function PatientDetail({...props}) {
                             mt: 'auto',
                             textAlign: "right",
                             display: {md: "block", xs: "none"},
-                        }}
-                    >
+                        }}>
                         <LoadingButton
                             loading={loadingRequest}
+                            disabled={!patient}
                             loadingPosition="start"
                             onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
@@ -487,6 +487,7 @@ function PatientDetail({...props}) {
                         <Button
                             size="medium"
                             variant="contained"
+                            disabled={!patient}
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
