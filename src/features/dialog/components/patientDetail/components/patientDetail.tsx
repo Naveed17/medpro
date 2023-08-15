@@ -145,7 +145,7 @@ function PatientDetail({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
@@ -476,13 +476,15 @@ function PatientDetail({...props}) {
                             display: {md: "block", xs: "none"},
                         }}>
                         <LoadingButton
+                            variant={"text"}
+                            color={"black"}
                             loading={loadingRequest}
                             disabled={!patient}
                             loadingPosition="start"
                             onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
-                            style={{color: "black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</LoadingButton>
+                            startIcon={<Icon path="ic-doc"
+                                             color={!patient ? "white" : "black"}/>}>{t('upload_document')}</LoadingButton>
 
                         <Button
                             size="medium"
