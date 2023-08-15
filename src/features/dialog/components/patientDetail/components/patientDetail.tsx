@@ -629,6 +629,7 @@ function PatientDetail({...props}) {
                         modal={"patient"}
                         OnSubmitStepper={submitStepper}
                         OnAction={(action: string, event: EventDef) => {
+                            console.log("CustomStepper", action, event);
                             switch (action) {
                                 case "close":
                                     if (patientId) {

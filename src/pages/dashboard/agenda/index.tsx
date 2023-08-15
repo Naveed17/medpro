@@ -442,6 +442,7 @@ function Agenda() {
     }
 
     const onMenuActions = (action: string, event: EventDef) => {
+        console.log("onMenuActions", action, event);
         switch (action) {
             case "onCancel":
                 setEvent(event);
@@ -795,7 +796,7 @@ function Agenda() {
     }
 
     const handleStepperActions = (action: string, event: EventDef) => {
-        console.log(action, event);
+        console.log("handleStepperActions", action, event);
         switch (action) {
             case "onDetailPatient":
                 setEvent(event);
@@ -1172,7 +1173,7 @@ function Agenda() {
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 onConsultation={() => onMenuActions('onConsultationView', event)}
-                                onConsultationStart={() => onMenuActions('onConsultationDetail', event)}
+                                onConsultationStart={(eventData: any) => onMenuActions('onConsultationDetail', eventData)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>

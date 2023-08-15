@@ -168,6 +168,7 @@ function Instruction({...props}) {
                 };
                 break;
             case "onConsultationStart" :
+                console.log("submitted", submitted);
                 defEvent = {
                     publicId: submitted?.uuids[0],
                     extendedProps: {
@@ -179,7 +180,7 @@ function Instruction({...props}) {
         OnAction(action, defEvent);
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
