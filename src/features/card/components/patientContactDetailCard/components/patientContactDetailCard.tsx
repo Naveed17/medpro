@@ -101,8 +101,7 @@ function PatientContactDetailCard({...props}) {
         mutate: mutatePatientContact
     } = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
@@ -176,9 +175,6 @@ function PatientContactDetailCard({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/contact/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params
         }).then(() => {
             setLoadingRequest(false);

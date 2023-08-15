@@ -5,7 +5,6 @@ import Zoom from "react-medium-image-zoom";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
@@ -22,7 +21,6 @@ import PreConsultationDialogStyled from "./overrides/preConsultationDialogStyled
 function PreConsultationDialog({...props}) {
     const {data} = props;
     const {patient, uuid} = data;
-    const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -59,14 +57,12 @@ function PreConsultationDialog({...props}) {
 
     const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
     } : null);
 
     const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const models = (httpModelResponse as HttpResponse)?.data as ModalModel[];

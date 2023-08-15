@@ -26,7 +26,6 @@ import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -44,7 +43,6 @@ import {useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
@@ -71,8 +69,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null);
 
     const handleSaveDialog = () => {
@@ -83,8 +80,7 @@ function MedicalPrescriptionDialog({...props}) {
         trigger({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then((cnx) => {
             mutate().then(() => {
                 setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -103,8 +99,7 @@ function MedicalPrescriptionDialog({...props}) {
             trigger({
                 method: "PUT",
                 url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -120,8 +115,7 @@ function MedicalPrescriptionDialog({...props}) {
         if (selectedModel) {
             trigger({
                 method: "DELETE",
-                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`
             }).then((cnx) => {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
@@ -248,7 +242,7 @@ function MedicalPrescriptionDialog({...props}) {
             setTouchedFileds({name: true, duration: true})
     }, [errors]);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <MedicalPrescriptionDialogStyled>
@@ -333,12 +327,8 @@ function MedicalPrescriptionDialog({...props}) {
                                                                             if (ev.target.value.length >= 2) {
                                                                                 trigger({
                                                                                     method: "GET",
-                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
-                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }).then((cnx) => {
-                                                                                    if (cnx?.data as HttpResponse)
-                                                                                        setDrugsList((cnx?.data as HttpResponse).data)
-                                                                                })
+                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value
+                                                                                }).then((cnx) => cnx?.data && setDrugsList((cnx?.data as HttpResponse)?.data ?? []))
                                                                             }
                                                                         }}
                                                                         onBlur={(ev) => handleInputChange(ev.target.value)}

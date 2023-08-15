@@ -47,8 +47,7 @@ function HistoryTab({...props}) {
 
     const {data: httpPatientDocumentsResponse} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`
     } : null);
 
     useEffect(() => {
@@ -186,8 +185,7 @@ function HistoryTab({...props}) {
                     if (medicalEntityHasUser) {
                         trigger({
                             method: "GET",
-                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`,
-                            headers: {Authorization: `Bearer ${session?.accessToken}`}
+                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
                         }).then((r: any) => {
                             const res = r?.data.data;
                             setLastestsAppointments([...lastestsAppointments, ...res.list])

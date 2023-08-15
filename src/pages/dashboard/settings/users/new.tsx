@@ -26,7 +26,7 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {addUser, tableActionSelector} from "@features/table";
+import {addUser} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import dynamic from "next/dynamic";
@@ -57,35 +57,29 @@ function NewUser() {
     const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
     const dispatch = useAppDispatch();
-    const {tableState} = useAppSelector(tableActionSelector);
-    const [loading, setLoading] = useState(false);
-    const {agendas} = useAppSelector(agendaSelector);
-    const [profiles, setProfiles] = useState<any[]>([]);
     const {data: session} = useSession();
-    const {data: userSession} = session as Session;
-    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {t, ready} = useTranslation("settings");
+    const {agendas} = useAppSelector(agendaSelector);
+
+    const [loading, setLoading] = useState(false);
+    const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState(agendas);
-    const [user] = useState(tableState.editUser);
-    const {data: userData} = session as Session;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const {trigger} = useRequestMutation(null, "/users");
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
+
+    const {data: userSession} = session as Session;
+    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+
+    const {trigger} = useRequestMutation(null, "/users");
+
     const {data: httpProfilesResponse,} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
-    useEffect(() => {
-        if (httpProfilesResponse) {
-            setProfiles((httpProfilesResponse as HttpResponse)?.data)
-        }
-    }, [httpProfilesResponse])
-    const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -181,8 +175,7 @@ function NewUser() {
             trigger({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => {
                 enqueueSnackbar(t("users.alert.success"), {variant: "success"});
                 setLoading(false)
@@ -195,6 +188,13 @@ function NewUser() {
 
         },
     });
+
+
+    useEffect(() => {
+        if (httpProfilesResponse) {
+            setProfiles((httpProfilesResponse as HttpResponse)?.data)
+        }
+    }, [httpProfilesResponse])
 
     const {
         values,

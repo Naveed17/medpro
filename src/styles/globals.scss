@@ -20,6 +20,7 @@ main {
 
   &.active-right-actionbar {
     width: calc(100% - 208px);
+
     @media (max-width: 600px) {
       width: 100%;
     }
@@ -51,6 +52,7 @@ main {
   .sm-d-block {
     display: block !important;
   }
+
   .MuiAppBar-root {
     border: none !important;
   }
@@ -273,14 +275,16 @@ fieldset {
   &::before {
     content: '';
     position: absolute;
-    width: 18px;
+    width: 15px;
     height: 100%;
     border: 1px solid #ddd;
     left: -15px;
     z-index: -1;
     border-right: none;
     top: -46%;
-    border-radius: 6px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
   }
 }
 
@@ -328,6 +332,7 @@ fieldset {
     margin: 0;
     box-shadow: none;
   }
+
   .portraitA4 {
     margin: 0;
     box-shadow: none;
@@ -367,23 +372,28 @@ fieldset {
   -webkit-box-orient: vertical;
 }
 
-.zoom, .zoom-list {
+.zoom,
+.zoom-list {
   margin: 0 auto;
 }
 
 .zoom:hover {
   z-index: 2;
   margin-left: 2rem;
-  -ms-transform: scale(3); /* IE 9 */
-  -webkit-transform: scale(3); /* Safari 3-8 */
+  -ms-transform: scale(3);
+  /* IE 9 */
+  -webkit-transform: scale(3);
+  /* Safari 3-8 */
   transform: scale(3);
 }
 
 .zoom-list:hover {
   z-index: 100;
   margin-left: 1rem;
-  -ms-transform: scale(2.4); /* IE 9 */
-  -webkit-transform: scale(2.4); /* Safari 3-8 */
+  -ms-transform: scale(2.4);
+  /* IE 9 */
+  -webkit-transform: scale(2.4);
+  /* Safari 3-8 */
   transform: scale(2.4);
 }
 
@@ -414,7 +424,8 @@ fieldset {
       .MuiTypography-root {
         color: #00234B
       }
-    ;
+
+      ;
 
       svg {
         path {

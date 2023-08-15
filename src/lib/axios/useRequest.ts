@@ -3,6 +3,7 @@ import {AxiosResponse, AxiosError} from "axios";
 import {instanceAxios} from "../axios";
 import {GetRequest} from "../axios/config";
 import {Fetcher} from "swr/_internal";
+import {useSession} from "next-auth/react";
 
 interface Return<Data, Error>
     extends Pick<
@@ -25,6 +26,8 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
     fallbackData,
     ...config
 }: any = {}): Return<Data, Error> {
+    const {data: session} = useSession();
+
     const {
         data: response,
         error,
@@ -33,7 +36,7 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
         mutate,
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && request.url,
-        () => instanceAxios.request<Data>(request!),
+        () => instanceAxios.request<Data>({...request, ...(!request?.url?.includes("/api/public") && {headers: {Authorization: `Bearer ${session?.accessToken}`}})}!),
         {
             ...config,
             fallbackData: fallbackData && {

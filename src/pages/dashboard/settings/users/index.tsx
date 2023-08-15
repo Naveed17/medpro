@@ -30,7 +30,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from "notistack";
@@ -101,17 +100,13 @@ const headCells = [
 function Users() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
 
     const {data: httpUsersResponse, mutate} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
     });
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
@@ -128,8 +123,7 @@ function Users() {
         trigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/edit/user/${props.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => {
             mutate();
             enqueueSnackbar(t("updated"), {variant: "success"});
@@ -147,8 +141,7 @@ function Users() {
         setLoading(true);
         trigger({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/users/${selected.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/users/${selected.uuid}/${router.locale}`
         }).then(() => {
             enqueueSnackbar(t("delete_success"), {variant: 'success'})
             setLoading(false);

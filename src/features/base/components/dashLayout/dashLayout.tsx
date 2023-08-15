@@ -70,49 +70,38 @@ function DashLayout({children}: LayoutProps) {
 
     const {data: httpUserResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`
     }, SWRNoValidateConfig);
 
     const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpBoxesResponse} = useRequest({
+    const {data: httpBoxesResponse} = useRequest(httpOngoingResponse ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
+    } : null, SWRNoValidateConfig);
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -157,8 +146,7 @@ function DashLayout({children}: LayoutProps) {
         medicalEntityHasUser && noDuplicationsTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/no-duplications/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => {
             setLoading(false);
             dispatch(setDuplicated({openDialog: false}));
@@ -228,8 +216,7 @@ function DashLayout({children}: LayoutProps) {
         medicalEntityHasUser && mergeDuplicationsTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => {
             setLoading(false);
             setMergeDialog(false);

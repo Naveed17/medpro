@@ -3,6 +3,7 @@ import {AxiosError, AxiosResponse} from "axios";
 import {GetRequest} from "../axios/config";
 import {instanceAxios} from "../axios";
 import {Key, SWRResponse} from "swr";
+import {useSession} from "next-auth/react";
 
 interface SWRMutationResponse<Data = any, Error = any, SWRMutationKey extends Key = Key, ExtraArg = never> extends Pick<SWRResponse<Data, Error>, 'data' | 'error'> {
     /**
@@ -32,6 +33,7 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
     key?: string,
     {fallbackData, ...config}: any = {}
 ): ReturnMutation<DataMutation, Error> {
+    const {data: session} = useSession();
 
     const {
         data: response,
@@ -41,7 +43,7 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
         reset
     } = useSWRMutation<AxiosResponse<DataMutation>, AxiosError<Error>>(
         key ? key : request?.url,
-        (key: string, requestConfig: any) => instanceAxios.request<DataMutation>(requestConfig!.arg),
+        (key: string, requestConfig: any) => instanceAxios.request<DataMutation>({...requestConfig.arg, ...(!requestConfig?.arg?.url?.includes("/api/public") && {headers: {Authorization: `Bearer ${session?.accessToken}`}})}!),
         {...config}
     )
 

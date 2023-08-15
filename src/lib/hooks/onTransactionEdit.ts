@@ -2,7 +2,7 @@ import {TransactionStatus, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
 
 // @ts-ignore
-export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, locale: string | undefined, session: Session | null, medical_entity_uuid: string,transactions: any, trigger,urlMedicalEntitySuffix,successFn) => {
+export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, locale: string | undefined, session: Session | null, medical_entity_uuid: string, transactions: any, trigger, urlMedicalEntitySuffix, successFn) => {
 
     let payed_amount = 0
     let transaction_data: any[] = [];
@@ -12,7 +12,7 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
             payed_amount += pay.amount
             insurances.push(pay.insurance)
             transaction_data.push({
-                amount:pay.amount,
+                amount: pay.amount,
                 payment_means: pay.payment_means ? pay.payment_means.uuid : "",
                 insurance: pay.insurance ? pay.insurance : "",
                 status_transaction: pay.status_transaction,
@@ -36,15 +36,12 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
         form.append("appointment", selectedPayment.uuid);
         form.append("transaction_data", JSON.stringify(transaction_data));
         const method = selectedPayment.isNew ? "POST" : "PUT";
-        const url = selectedPayment.isNew  ? `${urlMedicalEntitySuffix}/transactions/${locale}` : `${urlMedicalEntitySuffix}/transactions/${transactions?.uuid}/${locale}`;
+        const url = selectedPayment.isNew ? `${urlMedicalEntitySuffix}/transactions/${locale}` : `${urlMedicalEntitySuffix}/transactions/${transactions?.uuid}/${locale}`;
 
         trigger({
             method,
             url,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             successFn();
         })
