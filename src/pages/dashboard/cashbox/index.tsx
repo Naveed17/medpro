@@ -36,8 +36,8 @@ import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
-import moment from "moment/moment";
 import {PaymentDrawer} from "@features/drawer";
+import moment from "moment/moment";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -308,7 +308,6 @@ function Cashbox() {
                 mutateTransctions().then(() => {
                 });
             });
-            setOpenPaymentDialog(false);
         } else {
             //const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
             // Adding first object cash
@@ -321,19 +320,20 @@ function Cashbox() {
                 data: {label: t('encashment')}
             }];*/
 
+            console.log(checksToCashout)
             let cheques = '';
             const transData: any[] = [];
             let totalChequeAmount = 0;
             checksToCashout.forEach(chq => {
                 console.log(chq)
-                cheques += chq.transaction_data[0].uuid + ',';
-                totalChequeAmount += chq.amount;
+                cheques += chq.transaction_data.uuid + ',';
+                totalChequeAmount += chq.transaction_data.amount;
                 transData.push({
-                    payment_means: chq.transaction_data[0].payment_means.uuid,
-                    amount: chq.amount.toString(),
+                    payment_means: chq.transaction_data.payment_means.uuid,
+                    amount: chq.transaction_data.amount.toString(),
                     status_transaction: TransactionStatus[2].value.toString(),
                     type_transaction: TransactionType[3].value.toString(),
-                    payment_date: moment(chq.date_transaction, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
+                    payment_date: moment(chq.transaction_data.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
                     data: {
                         label: t('encashment'),
                         ...chq
@@ -362,10 +362,9 @@ function Cashbox() {
                 mutateTransctions();
                 enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
                 setChecksToCashout([])
-                //mutateHttpDataResponse()
             });
-            setOpenPaymentDialog(false);
         }
+        setOpenPaymentDialog(false);
     };
 
     return (
@@ -439,7 +438,6 @@ function Cashbox() {
                                     size: "small",
                                     sx: {minWidth: 40},
                                 })}
-                                disabled={true}
                                 onClick={() => {
                                     setAction("cashout");
                                     setActionDialog("cashout");
