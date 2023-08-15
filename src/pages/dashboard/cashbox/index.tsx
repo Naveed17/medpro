@@ -10,8 +10,7 @@ import {
     Stack,
     Theme,
     Typography,
-    useMediaQuery,
-    alpha,
+    useMediaQuery
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";

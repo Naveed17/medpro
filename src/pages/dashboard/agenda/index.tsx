@@ -1161,8 +1161,7 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={cleanDrawData}
-                >
+                    onClose={cleanDrawData}>
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
@@ -1171,7 +1170,10 @@ function Agenda() {
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 onConsultation={() => onMenuActions('onConsultationView', event)}
-                                onConsultationStart={(eventData: any) => onMenuActions('onConsultationDetail', eventData)}
+                                onConsultationStart={(eventData: any) => {
+                                    onMenuActions('onConsultationDetail', eventData);
+                                    dispatch(openDrawer({type: "patient", open: false}));
+                                }}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
