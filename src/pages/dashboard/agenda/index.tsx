@@ -442,7 +442,6 @@ function Agenda() {
     }
 
     const onMenuActions = (action: string, event: EventDef) => {
-        console.log("onMenuActions", action, event);
         switch (action) {
             case "onCancel":
                 setEvent(event);
@@ -796,7 +795,6 @@ function Agenda() {
     }
 
     const handleStepperActions = (action: string, event: EventDef) => {
-        console.log("handleStepperActions", action, event);
         switch (action) {
             case "onDetailPatient":
                 setEvent(event);

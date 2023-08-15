@@ -168,7 +168,6 @@ function Instruction({...props}) {
                 };
                 break;
             case "onConsultationStart" :
-                console.log("submitted", submitted);
                 defEvent = {
                     publicId: submitted?.uuids[0],
                     extendedProps: {
