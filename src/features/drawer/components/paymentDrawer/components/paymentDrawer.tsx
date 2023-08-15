@@ -27,6 +27,7 @@ function PaymentDrawer({ ...props }) {
   const { handleClose, t, data, pmList ,setAction,setActionDialog,setOpenPaymentDialog,setSelectedPayment} = props;
   const status = AppointmentStatus[data?.appointment?.status];
   const theme = useTheme<Theme>();
+  console.log(data)
   const {paymentTypesList} = useAppSelector(cashBoxSelector);
   const openPutTransactionDialog = () => {
         let payments: any[] = [];
