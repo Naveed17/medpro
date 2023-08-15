@@ -49,10 +49,10 @@ function ChequeRow({...props}) {
                 sx={{
                     bgcolor: (theme: Theme) => alpha(
                         (row.pending && theme.palette.warning.darker)
-                        || (row.amount > 0 && theme.palette.success.main)
-                        || (row.amount < 0 && theme.palette.error.main)
+                        || (row.transaction_data.amount > 0 && theme.palette.success.main)
+                        || (row.transaction_data.amount < 0 && theme.palette.error.main)
                         || theme.palette.background.paper,
-                        row.amount === 0 ? 1 : 0.1),
+                        row.transaction_data.amount === 0 ? 1 : 0.1),
                     cursor: row.collapse ? 'pointer' : 'default'
                 }}>
                 <TableCell padding="checkbox">
@@ -76,7 +76,7 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.check_number}
+                            {row.transaction_data.data.check_number}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>

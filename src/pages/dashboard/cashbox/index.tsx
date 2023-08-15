@@ -439,6 +439,7 @@ function Cashbox() {
                                     size: "small",
                                     sx: {minWidth: 40},
                                 })}
+                                disabled={true}
                                 onClick={() => {
                                     setAction("cashout");
                                     setActionDialog("cashout");
