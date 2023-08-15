@@ -38,13 +38,14 @@ import {
 } from "@lib/constants";
 import { useMedicalEntitySuffix } from "@lib/hooks";
 import { useInsurances } from "@lib/hooks/rest";
-import { cashBoxSelector } from "@features/leftActionBar/components/cashbox";
+import { CashboxFilter, cashBoxSelector } from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useSnackbar } from "notistack";
 import { generateFilter } from "@lib/hooks/generateFilter";
 import { SWRNoValidateConfig } from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import { PaymentDrawer } from "@features/drawer";
+import { DrawerBottom } from "@features/drawerBottom";
 
 interface HeadCell {
   disablePadding: boolean;
@@ -156,6 +157,7 @@ function Cashbox() {
     useState<boolean>(false);
   const isAddAppointment = false;
   const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+  const [filter,setFilter] = useState<boolean>(false);
   const [actionDialog, setActionDialog] = useState("");
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [rows, setRows] = useState<any[]>([]);
@@ -520,6 +522,28 @@ function Cashbox() {
           </DialogActions>
         }
       />
+      <MobileContainer>     
+            <Button
+                startIcon={<IconUrl path="ic-filter"/>}
+                variant="filter"
+                onClick={() => setFilter(true)}
+                sx={{
+                    position: "fixed",
+                    bottom: 50,
+                    transform: "translateX(-50%)",
+                    left: "50%",
+                    zIndex: 999,
+                    
+                }}>
+                {t("filter.title",{ns:'common'})} (0)
+            </Button>
+            </MobileContainer> 
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title",{ns:'common'})}>
+                <CashboxFilter/>
+            </DrawerBottom>
     </>
   );
 }
