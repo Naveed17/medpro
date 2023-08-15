@@ -525,8 +525,7 @@ function Calendar({...props}) {
                                                 OnMenuActions(v.action, event);
                                                 handleClose();
                                             }}
-                                            className="popover-item"
-                                        >
+                                            className="popover-item">
                                             {v.icon}
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
                                                 {translation(`${v.title}`, {ns: 'common'})}

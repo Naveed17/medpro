@@ -22,6 +22,7 @@ import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -203,6 +204,11 @@ export const CalendarContextMenu = [
         title: "pre_consultation_data",
         icon: <CoPresentOutlinedIcon/>,
         action: "onPreConsultation",
+    },
+    {
+        title: "import_document",
+        icon: <UploadFileOutlinedIcon/>,
+        action: "addConsultationDocuments",
     },
     {
         title: "confirm_appointment",
