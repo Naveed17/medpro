@@ -23,7 +23,7 @@ import {
 import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { NoDataCard } from "@features/card";
+import { CashBoxMobileCard, NoDataCard } from "@features/card";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
 import { useRequest, useRequestMutation } from "@lib/axios";
@@ -410,21 +410,23 @@ function Cashbox() {
               )}
             </DesktopContainer>
             <MobileContainer>
-              {/*<Stack spacing={2}>
+                            <Stack spacing={2}>
                                 {rows.map((card, idx) => (
                                     <React.Fragment key={idx}>
-                                        <PaymentMobileCard
-                                            data={card}
-                                            t={t}
-                                            insurances={insurances}
-                                            getCollapseData={handleCollapse}
+                                        <CashBoxMobileCard 
+                                        data={card}
+                                        handleEvent={handleTableActions}
+                                        t={t}
+                                        insurances={insurances}
+                                        pmList={pmList}
+                                        mutateTransctions={mutateTransctions}
+                                        {...{idsSelected}}
+                                        handleIdsSelect={(v:string) =>handleIdsSelect(v)}
                                         />
                                     </React.Fragment>
                                 ))}
                             </Stack>
-                            <Box pb={6}/>*/}
-              in progress
-            </MobileContainer>
+                        </MobileContainer>
           </React.Fragment>
         ) : (
           <Box
