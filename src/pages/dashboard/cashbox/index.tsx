@@ -420,8 +420,8 @@ function Cashbox() {
                                         insurances={insurances}
                                         pmList={pmList}
                                         mutateTransctions={mutateTransctions}
-                                        {...{idsSelected}}
-                                        handleIdsSelect={(v:string) =>handleIdsSelect(v)}
+                                       
+                                        
                                         />
                                     </React.Fragment>
                                 ))}
