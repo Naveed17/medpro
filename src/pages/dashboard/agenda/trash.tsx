@@ -26,6 +26,7 @@ import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {MobileContainer} from "@themes/mobileContainer";
 import moment from "moment-timezone";
+import {useSession} from "next-auth/react";
 
 const TableHead = [
     {
@@ -64,6 +65,7 @@ function Trash() {
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t} = useTranslation(['agenda', 'common']);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -74,7 +76,7 @@ function Trash() {
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [event, setEvent] = useState<EventModal | null>();
 
-    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment"], sendRequest as any);
 
     const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {

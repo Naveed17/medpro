@@ -77,7 +77,7 @@ function TimeSchedule({...props}) {
 
     const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
-    const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
+    const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [recurringDates, setRecurringDates] = useState<RecurringDateModel[]>(initRecurringDates);
@@ -184,8 +184,8 @@ function TimeSchedule({...props}) {
         }
         let h = minutes / 60 | 0,
             m = minutes % 60 | 0;
-        return (h !== 0 ? `${h} ${t("stepper-1.duration.hours")}, ` : "") +
-            (m !== 0 ? `${m} ${t("stepper-1.duration.minutes")}` : "");
+        return (h !== 0 ? `${h} ${t("stepper-1.duration.hours")}` : "") +
+            (m !== 0 ? `${h !== 0 ? ',' : ""} ${m} ${t("stepper-1.duration.minutes")}` : "");
     }
 
     const onNextStep = () => {

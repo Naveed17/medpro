@@ -26,7 +26,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Dialog, PatientDetail} from "@features/dialog";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {DefaultCountry, TransactionStatus, TransactionType,} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
@@ -35,8 +35,9 @@ import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
-import { DrawerBottom } from "@features/drawerBottom";
+import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
+import {PaymentDrawer} from "@features/drawer";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -97,13 +98,13 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
     /*{
-          id: "billing_status",
-          numeric: true,
-          disablePadding: false,
-          label: "billing_status",
-          sortable: true,
-          align: "center",
-      },*/
+            id: "billing_status",
+            numeric: true,
+            disablePadding: false,
+            label: "billing_status",
+            sortable: true,
+            align: "center",
+        },*/
     {
         id: "amount",
         numeric: true,
@@ -113,13 +114,13 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
     /* {
-         id: "actions",
-         numeric: true,
-         disablePadding: false,
-         label: "actions",
-         sortable: true,
-         align: "center",
-     },*/
+           id: "actions",
+           numeric: true,
+           disablePadding: false,
+           label: "actions",
+           sortable: true,
+           align: "center",
+       },*/
 ];
 
 const noCardData = {
@@ -129,22 +130,25 @@ const noCardData = {
 };
 
 function Cashbox() {
-
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
+    const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
-    const [idsSelected,setIdsSelected]= useState<string[]>([])
-    const [filter,setFilter] = useState<boolean>(false)
-    // ******** States ********
 
-    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    // ******** States ********
+    const [filter, setFilter] = useState<boolean>(false)
+    const [patientDetailDrawer, setPatientDetailDrawer] =
+        useState<boolean>(false);
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("");
@@ -156,27 +160,45 @@ function Cashbox() {
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
     let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
-
-    const {enqueueSnackbar} = useSnackbar();
-    const {insurances} = useInsurances();
+    const [paymentDrawer, setPaymentDrawer] = useState<boolean>(false);
+    const [selectedCashBox, setCashbox] = useState<any>(null);
+    const [idsSelected, setIdsSelected] = useState<string[]>([])
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const medical_entity = (user as UserDataResponse)
+        .medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country
+        ? medical_entity.country
+        : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox/post");
+    const {trigger: triggerPostTransaction} = useRequestMutation(
+        null,
+        "/payment/cashbox/post"
+    );
 
-    const {data: paymentMeansHttp} = useRequest({
-        method: "GET",
-        url: `/api/public/payment-means/${router.locale}`
-    }, SWRNoValidateConfig);
+    const {data: paymentMeansHttp} = useRequest(
+        {
+            method: "GET",
+            url: "/api/public/payment-means/" + router.locale,
+            headers: {Authorization: `Bearer ${session?.accessToken}`},
+        },
+        SWRNoValidateConfig
+    );
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest(filterQuery ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`
-    } : null);
+    const {data: httpTransactionsResponse, mutate: mutateTransctions} =
+        useRequest(
+            filterQuery
+                ? {
+                    method: "GET",
+                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                }
+                : null
+        );
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -186,22 +208,19 @@ function Cashbox() {
 
     useEffect(() => {
         if (paymentMeansHttp) {
-            const pList = (paymentMeansHttp as HttpResponse).data
+            const pList = (paymentMeansHttp as HttpResponse).data;
             setPmList(pList);
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getData = (httpTransResponse: any) => {
-        const data = (httpTransResponse as HttpResponse)?.data
-        setTotal(data.total_amount)
+        const data = (httpTransResponse as HttpResponse)?.data;
+        setTotal(data.total_amount);
         setToReceive(data.total_insurance_amount);
-        if (data.transactions)
-            setRows(data.transactions.reverse());
-        else setRows([])
-        if (filterQuery.includes('cashboxes'))
-            setLoading(false);
-
-    }
+        if (data.transactions) setRows(data.transactions.reverse());
+        else setRows([]);
+        if (filterQuery.includes("cashboxes")) setLoading(false);
+    };
     const handleTableActions = (data: any) => {
         switch (data.action) {
             case "PATIENT_DETAILS":
@@ -210,8 +229,12 @@ function Cashbox() {
                     setPatientDetailDrawer(true);
                 }
                 break;
+            case "PATIENT_PAYMENT":
+                setPaymentDrawer(true);
+                setCashbox(data.row);
+                break;
         }
-    }
+    };
     const openPop = (ev: string) => {
         setAction(ev);
         setSelectedPayment({
@@ -219,17 +242,30 @@ function Cashbox() {
             payments: [],
             payed_amount: 0,
             total: 0,
-            isNew: true
+            isNew: true,
         });
-        setActionDialog("payment_dialog")
+        setActionDialog("payment_dialog");
         setOpenPaymentDialog(true);
     };
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
+    const handleIdsSelect = (id: any) => {
+        const selectedIndex = idsSelected.indexOf(id);
+        let newSelected: string[] = [];
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(idsSelected, id);
+        } else {
+            newSelected = newSelected.concat(
+                idsSelected.slice(0, selectedIndex),
+                idsSelected.slice(selectedIndex + 1)
+            );
+        }
+        setIdsSelected(newSelected);
+    };
     const handleSubmit = () => {
-        if (actionDialog ==='payment_dialog'){
-            let amount = 0
+        if (actionDialog === "payment_dialog") {
+            let amount = 0;
             const trans_data: TransactionDataModel[] = [];
             selectedPayment.payments.map((sp: any) => {
                 trans_data.push({
@@ -237,7 +273,10 @@ function Cashbox() {
                     insurance: "",
                     amount: sp.amount,
                     status_transaction: TransactionStatus[0].value,
-                    type_transaction: action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value,
+                    type_transaction:
+                        action === "btn_header_2"
+                            ? TransactionType[0].value
+                            : TransactionType[1].value,
                     payment_date: sp.date,
                     data: {label: sp.designation, ...sp.data},
                 });
@@ -245,7 +284,12 @@ function Cashbox() {
             });
 
             const form = new FormData();
-            form.append("type_transaction", action === "btn_header_2" ? TransactionType[0].value : TransactionType[1].value);
+            form.append(
+                "type_transaction",
+                action === "btn_header_2"
+                    ? TransactionType[0].value
+                    : TransactionType[1].value
+            );
             form.append("status_transaction", TransactionStatus[0].value);
             form.append("cash_box", selectedBoxes[0].uuid);
             form.append("amount", amount.toString());
@@ -255,9 +299,12 @@ function Cashbox() {
             triggerPostTransaction({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
             }).then(() => {
-                enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
+                enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
                 mutateTransctions().then(() => {
                 });
             });
@@ -274,24 +321,26 @@ function Cashbox() {
                 data: {label: t('encashment')}
             }];*/
 
-            let cheques=''; const transData:any[] = [];
+            let cheques = '';
+            const transData: any[] = [];
             let totalChequeAmount = 0;
             checksToCashout.forEach(chq => {
                 console.log(chq)
-                cheques += chq.transaction_data[0].uuid + ',' ;
-                totalChequeAmount += chq.amount ;
+                cheques += chq.transaction_data[0].uuid + ',';
+                totalChequeAmount += chq.amount;
                 transData.push({
                     payment_means: chq.transaction_data[0].payment_means.uuid,
                     amount: chq.amount.toString(),
                     status_transaction: TransactionStatus[2].value.toString(),
                     type_transaction: TransactionType[3].value.toString(),
                     payment_date: moment(chq.date_transaction, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
-                    data: {label: t('encashment'),
+                    data: {
+                        label: t('encashment'),
                         ...chq
                     }
                 });
             });
-            let totalAmount = (totalChequeAmount).toString() ;
+            let totalAmount = (totalChequeAmount).toString();
             cheques = cheques.slice(0, -1);
             const form = new FormData();
             form.append("cash_box", selectedBoxes[0].uuid);
@@ -318,19 +367,6 @@ function Cashbox() {
             setOpenPaymentDialog(false);
         }
     };
-    const handleIdsSelect = (id: any) => {
-        const selectedIndex = idsSelected.indexOf(id);
-        let newSelected: string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(idsSelected, id);
-        } else {
-            newSelected = newSelected.concat(
-                idsSelected.slice(0, selectedIndex),
-                idsSelected.slice(selectedIndex + 1)
-            );
-        }
-        setIdsSelected(newSelected);
-    };
 
     return (
         <>
@@ -340,23 +376,23 @@ function Cashbox() {
                     width={1}
                     justifyContent="space-between"
                     py={1}
-                    alignItems={{xs: "flex-start", md: "center"}}>
+                    alignItems={{xs: "flex-start", md: "center"}}
+                >
                     <Typography>
                         <b></b>
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
                         spacing={{xs: 1, md: 3}}
-                        alignItems={{xs: "flex-start", md: "center"}}>
+                        alignItems={{xs: "flex-start", md: "center"}}
+                    >
                         <Stack direction="row" spacing={2} alignItems="center">
                             <>
                                 <Typography variant="subtitle2">{t("receive")}</Typography>
                                 <Typography variant="h6">
                                     {toReceive} {devise}
                                 </Typography>
-                                <Typography
-                                    variant="h6"
-                                    display={{xs: "none", md: "block"}}>
+                                <Typography variant="h6" display={{xs: "none", md: "block"}}>
                                     I
                                 </Typography>
                             </>
@@ -377,7 +413,8 @@ function Cashbox() {
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
-                                })}>
+                                })}
+                            >
                                 - {!isMobile && t("btn_header_1")}
                             </Button>
                             <Button
@@ -389,7 +426,8 @@ function Cashbox() {
                                 })}
                                 onClick={() => {
                                     openPop("btn_header_2");
-                                }}>
+                                }}
+                            >
                                 + {!isMobile && t("btn_header_2")}
                             </Button>
                             <Typography variant="h6" display={{xs: "none", md: "block"}}>
@@ -403,44 +441,49 @@ function Cashbox() {
                                 })}
                                 onClick={() => {
                                     setAction("cashout");
-                                    setActionDialog("cashout")
+                                    setActionDialog("cashout");
                                     setOpenPaymentDialog(true);
-                                }}>
-                                {!isMobile && t("cashout")} {isMobile && <KeyboardArrowDownIcon/>}
+                                }}
+                            >
+                                {!isMobile && t("cashout")}{" "}
+                                {isMobile && <KeyboardArrowDownIcon/>}
                             </Button>
                         </Stack>
-
                     </Stack>
                 </Stack>
             </SubHeader>
-            {loading && <Box sx={{width: '100%'}}>
-                <LinearProgress/>
-            </Box>}
+            {loading && (
+                <Box sx={{width: "100%"}}>
+                    <LinearProgress/>
+                </Box>
+            )}
 
             <Box className="container">
                 {rows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
-                            {!loading && <Otable
-                                {...{rows, t, insurances, pmList, mutateTransctions}}
-                                headers={headCells}
-                                from={"cashbox"}
-                                handleEvent={handleTableActions}
-                            />}
+                            {!loading && (
+                                <Otable
+                                    {...{rows, t, insurances, pmList, mutateTransctions}}
+                                    headers={headCells}
+                                    from={"cashbox"}
+                                    handleEvent={handleTableActions}
+                                />
+                            )}
                         </DesktopContainer>
                         <MobileContainer>
                             <Stack spacing={2}>
                                 {rows.map((card, idx) => (
                                     <React.Fragment key={idx}>
                                         <CashBoxMobileCard
-                                        data={card}
-                                        handleEvent={handleTableActions}
-                                        t={t}
-                                        insurances={insurances}
-                                        pmList={pmList}
-                                        mutateTransctions={mutateTransctions}
-                                        {...{idsSelected}}
-                                        handleIdsSelect={(v:string) =>handleIdsSelect(v)}
+                                            data={card}
+                                            handleEvent={handleTableActions}
+                                            t={t}
+                                            insurances={insurances}
+                                            pmList={pmList}
+                                            mutateTransctions={mutateTransctions}
+                                            {...{idsSelected}}
+                                            handleIdsSelect={(v: string) => handleIdsSelect(v)}
                                         />
                                     </React.Fragment>
                                 ))}
@@ -454,7 +497,8 @@ function Cashbox() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                        }}>
+                        }}
+                    >
                         <NoDataCard t={t} ns={"payment"} data={noCardData}/>
                     </Box>
                 )}
@@ -475,9 +519,35 @@ function Cashbox() {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                />
             </Drawer>
+            <Drawer
+                anchor={"right"}
+                open={paymentDrawer}
+                dir={direction}
+                onClose={() => {
+                    setPaymentDrawer(false);
+                }}
+                PaperProps={{
+                    sx: {
+                        width: {xs: "100% !important", sm: "368px !important"},
+                    },
+                }}
+            >
+                <PaymentDrawer
+                    handleClose={() => setPaymentDrawer(false)}
+                    data={selectedCashBox}
+                    {...{
+                        pmList, t,
+                        setAction,
+                        setActionDialog,
+                        setOpenPaymentDialog,
+                        setSelectedPayment,
 
+                    }}
+                />
+            </Drawer>
             <Dialog
                 action={actionDialog}
                 {...{
@@ -490,8 +560,10 @@ function Cashbox() {
                 data={{
                     selectedPayment,
                     setSelectedPayment,
+                    checksToCashout, setChecksToCashout,
                     pmList,
-                    checksToCashout, setChecksToCashout
+                    appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
+                    patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
                 }}
                 size={"lg"}
                 title={t(action)}
@@ -507,36 +579,37 @@ function Cashbox() {
                             }
                             variant="contained"
                             onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                        >
                             {t("config.save", {ns: "common"})}
                         </Button>
                     </DialogActions>
                 }
             />
- <MobileContainer>
-            <Button
-                startIcon={<IconUrl path="ic-filter"/>}
-                variant="filter"
-                onClick={() => setFilter(true)}
-                sx={{
-                    position: "fixed",
-                    bottom: 50,
-                    transform: "translateX(-50%)",
-                    left: "50%",
-                    zIndex: 999,
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
 
-                }}>
-                {t("filter.title",{ns:'common'})} (0)
-            </Button>
+                    }}>
+                    {t("filter.title", {ns: 'common'})} (0)
+                </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}
-                title={t("filter.title",{ns:'common'})}>
+                title={t("filter.title", {ns: 'common'})}>
                 <CashboxFilter/>
             </DrawerBottom>
         </>
-    )
+    );
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {

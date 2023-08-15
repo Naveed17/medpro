@@ -73,8 +73,8 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
-import { MobileContainer } from "@themes/mobileContainer";
-import { DrawerBottom } from "@features/drawerBottom";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DrawerBottom} from "@features/drawerBottom";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -89,7 +89,7 @@ function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const [filterBottom,setFilterBottom] = useState<boolean>(false)
+    const [filterBottom, setFilterBottom] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
@@ -161,7 +161,6 @@ function Agenda() {
     const [event, setEvent] = useState<EventDef | null>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
-    const [openingHours, setOpeningHours] = useState<OpeningHoursModel | undefined>(undefined);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
@@ -180,11 +179,12 @@ function Agenda() {
     const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
 
     const getAppointmentBugs = useCallback((date: Date) => {
-        const hasDayWorkHours: any = Object.entries(openingHours as OpeningHoursModel).find((openingHours: any) =>
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
+        const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
             DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
@@ -198,7 +198,7 @@ function Agenda() {
             return hasError.every(error => error);
         }
         return true;
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [agenda]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
@@ -253,7 +253,8 @@ function Agenda() {
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
         let localMaxSlot = 20; //20h
-        Object.entries(openingHours as OpeningHoursModel).forEach((openingHours: any) => {
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
+        Object.entries(openingHours).forEach((openingHours: any) => {
             openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
@@ -311,12 +312,6 @@ function Agenda() {
             getAppointments(queryPath, view);
         }
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (agenda?.openingHours[0]) {
-            setOpeningHours(agenda.openingHours[0]);
-        }
-    }, [agenda])
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         // dispatch(resetFilterPatient());
@@ -1176,7 +1171,7 @@ function Agenda() {
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 onConsultation={() => onMenuActions('onConsultationView', event)}
-                                onConsultationStart={() => onMenuActions('onConsultationDetail', event)}
+                                onConsultationStart={(eventData: any) => onMenuActions('onConsultationDetail', eventData)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
@@ -1411,27 +1406,27 @@ function Agenda() {
                     }
                 />
                 <MobileContainer>
-            <Button
-                startIcon={<IconUrl path="ic-filter"/>}
-                variant="filter"
-                onClick={() => setFilterBottom(true)}
-                sx={{
-                    position: "fixed",
-                    bottom: 50,
-                    transform: "translateX(-50%)",
-                    left: "50%",
-                    zIndex: 999,
+                    <Button
+                        startIcon={<IconUrl path="ic-filter"/>}
+                        variant="filter"
+                        onClick={() => setFilterBottom(true)}
+                        sx={{
+                            position: "fixed",
+                            bottom: 50,
+                            transform: "translateX(-50%)",
+                            left: "50%",
+                            zIndex: 999,
 
-                }}>
-                {t("filter.title")} (0)
-            </Button>
-            </MobileContainer>
-            <DrawerBottom
-                handleClose={() => setFilterBottom(false)}
-                open={filterBottom}
-                title={t("filter.title")}>
-                <AgendaFilter/>
-            </DrawerBottom>
+                        }}>
+                        {t("filter.title")} (0)
+                    </Button>
+                </MobileContainer>
+                <DrawerBottom
+                    handleClose={() => setFilterBottom(false)}
+                    open={filterBottom}
+                    title={t("filter.title")}>
+                    <AgendaFilter/>
+                </DrawerBottom>
             </Box>
         </div>
     )

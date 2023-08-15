@@ -88,6 +88,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
+import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -188,6 +189,7 @@ function Patient() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {data: session} = useSession();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -314,7 +316,7 @@ function Patient() {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
     const {trigger: triggerDeletePatient} = useRequestMutation(null, "/patient/delete");
 

@@ -80,13 +80,13 @@ function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {t, ready} = useTranslation("consultation");
-    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models, modelsMutate} = useWidgetModels({filter: ""})
+
+    const {t, ready} = useTranslation("consultation");
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     useLeavePageConfirm(() => {
         setLoading(true);
@@ -136,7 +136,7 @@ function ConsultationInProgress() {
 
     //***** TRIGGERS ****//
     const {trigger} = useRequestMutation(null, "consultation/end");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     //***** STATES ****//
     const [secretary, setSecretary] = useState("");
@@ -562,8 +562,11 @@ function ConsultationInProgress() {
         const groupsDiagnostics: any = appointmentDataHistory.diagnostics.group((diag: any) => diag.date);
         const groupsNotes: any = appointmentDataHistory.notes.group((diag: any) => diag.date);
         let notes: any[] = [];
-        Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {...notes[diag[0]], diagnostics: diag[1]});
-        Object.entries(groupsNotes).forEach((note:any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
+        Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {
+            ...notes[diag[0]],
+            diagnostics: diag[1]
+        });
+        Object.entries(groupsNotes).forEach((note: any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
 
         setStateHistory(Object.entries(notes).map((data) => ({
             data: data[0],
