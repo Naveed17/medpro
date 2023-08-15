@@ -27,6 +27,7 @@ import {useSnackbar} from "notistack";
 import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -53,6 +54,7 @@ function NotificationPopover({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments: localPendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
@@ -63,7 +65,7 @@ function NotificationPopover({...props}) {
         time: moveDialogTime
     } = useAppSelector(dialogMoveSelector);
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status"], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
