@@ -153,8 +153,7 @@ function Cashbox() {
 
   // ******** States ********
 
-  const [patientDetailDrawer, setPatientDetailDrawer] =
-    useState<boolean>(false);
+  const [patientDetailDrawer, setPatientDetailDrawer]=useState<boolean>(false);
   const isAddAppointment = false;
   const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
   const [filter,setFilter] = useState<boolean>(false);
