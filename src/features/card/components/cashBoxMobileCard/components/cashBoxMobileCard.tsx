@@ -53,12 +53,8 @@ function CashBoxMobileCard({...props}) {
         insurances,
         t,
         mutateTransctions,
-        idsSelected,
-        handleIdsSelect,
         pmList,
     } = props;
-    const isSelected = (id: any) => idsSelected.indexOf(id) !== -1;
-    const isItemSelected = isSelected(data?.uuid as string);
     const theme = useTheme<Theme>();
     const router = useRouter();
     const {data: session} = useSession();
@@ -99,19 +95,7 @@ function CashBoxMobileCard({...props}) {
         "/payment/cashbox"
     );
 
-    const handleChildSelect = (id: any) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
-    };
+    
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
@@ -213,7 +197,6 @@ function CashBoxMobileCard({...props}) {
     return (
         <>
             <CardStyled
-                onClick={() => handleIdsSelect(data.uuid)}
                 sx={{
                     position: "relative",
                     bgcolor: (theme: Theme) =>
@@ -229,7 +212,7 @@ function CashBoxMobileCard({...props}) {
             >
                 <CardContent>
                     <Stack direction="row" alignItems="center">
-                        <Stack spacing={1}>
+                        <Stack spacing={1.5}>
                             <Stack
                                 direction="row"
                                 alignItems="center"
@@ -493,17 +476,7 @@ function CashBoxMobileCard({...props}) {
                             {data.rest_amount > 0 && (
                                 <Tooltip title={t("settlement")}>
                                     <IconButton
-                                        sx={
-                                            !isItemSelected
-                                                ? {
-                                                    background: theme.palette.expire.main,
-                                                    borderRadius: 1,
-                                                    "&:hover": {
-                                                        background: theme.palette.expire.main,
-                                                    },
-                                                }
-                                                : {}
-                                        }
+                                       
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             openPutTransactionDialog();
@@ -513,7 +486,17 @@ function CashBoxMobileCard({...props}) {
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            {isItemSelected && (
+                            <Tooltip title={t("more")}>
+                                    <IconButton
+                                       
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                             handleEvent({action: "PATIENT_PAYMENT", row: data, e});
+                                        }}
+                                    >
+                                        <Icon path={"setting/ic-voir"}/>
+                                    </IconButton>
+                                </Tooltip>
                                 <Tooltip title={t("edit")}>
                                     <IconButton
                                         size="small"
@@ -525,8 +508,8 @@ function CashBoxMobileCard({...props}) {
                                         <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Tooltip>
-                            )}
-                            {isItemSelected && (
+                            
+                            
                                 <Tooltip title={t("delete")}>
                                     <IconButton
                                         size="small"
@@ -538,141 +521,10 @@ function CashBoxMobileCard({...props}) {
                                         <IconUrl path="setting/icdelete"/>
                                     </IconButton>
                                 </Tooltip>
-                            )}
                         </Stack>
                     </Stack>
                 </CardContent>
             </CardStyled>
-
-            <Collapse in={isItemSelected && data.transaction_data.length > 0} timeout="auto" unmountOnExit sx={{pl: 6}}>
-                <StyledList>
-                    {data.transaction_data.map((col: any, idx: number) => {
-                        return (
-                            <ListItem
-                                onClick={() => handleChildSelect(col)}
-                                key={idx}
-                                className="collapse-row"
-                                sx={{
-                                    bgcolor: (theme: Theme) => theme.palette.background.paper,
-                                    "&::before": {
-                                        ...(idx > 0 && {
-                                            height: "calc(100% + 11px)",
-                                            top: "-29px !important",
-                                        }),
-                                    },
-                                }}
-                            >
-                                <Stack
-                                    width={1}
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="space-between"
-                                    mb={1}
-                                    spacing={1}
-                                >
-                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                        {/*<Icon path={type.icon}/>*/}
-                                        {col.payment_means && (
-                                            <Typography color="text.primary" variant="body2">
-                                                {t(col.payment_means.name)}
-                                            </Typography>
-                                        )}
-
-                                        {!col.payment_means && col.insurance && (
-                                            <Typography color="text.primary" variant="body2">
-                                                {col.insurance.insurance.name}
-                                            </Typography>
-                                        )}
-                                        {!col.payment_means && !col.insurance && (
-                                            <Typography color="text.primary" variant="body2">
-                                                {t("wallet")}
-                                            </Typography>
-                                        )}
-                                    </Stack>
-                                    {col.status_transaction_data ? (
-                                        <Label
-                                            className="label"
-                                            variant="ghost"
-                                            color={
-                                                col.status_transaction_data === 3
-                                                    ? "success"
-                                                    : col.status_transaction_data === 2
-                                                        ? "warning"
-                                                        : "error"
-                                            }
-                                        >
-                                            {t(
-                                                "table." +
-                                                TransactionStatus.find(
-                                                    (ts) => ts.value == col.status_transaction_data
-                                                )?.key
-                                            )}
-                                        </Label>
-                                    ) : (
-                                        <Typography>--</Typography>
-                                    )}
-                                    <Typography
-                                        color={
-                                            (col.amount > 0 && "success.main") ||
-                                            (col.amount < 0 && "error.main") ||
-                                            "text.primary"
-                                        }
-                                        fontWeight={700}
-                                    >
-                                        {col.amount} <span style={{fontSize: 10}}>{devise}</span>
-                                    </Typography>
-                                </Stack>
-
-                                <Stack direction="row" alignItems="center" spacing={2}>
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        spacing={1}
-                                        sx={{
-                                            ".react-svg": {
-                                                svg: {
-                                                    width: 11,
-                                                    height: 11,
-                                                    path: {
-                                                        fill: (theme) => theme.palette.text.primary,
-                                                    },
-                                                },
-                                            },
-                                        }}
-                                    >
-                                        <Icon path="ic-agenda"/>
-                                        <Typography variant="body2">
-                                            {moment(col.payment_date.date).format("DD-MM-YYYY")}
-                                        </Typography>
-                                    </Stack>
-
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        spacing={1}
-                                        sx={{
-                                            ".react-svg": {
-                                                svg: {
-                                                    width: 11,
-                                                    height: 11,
-                                                    path: {
-                                                        fill: (theme) => theme.palette.text.primary,
-                                                    },
-                                                },
-                                            },
-                                        }}
-                                    >
-                                        <Icon path="ic-time"/>
-                                        <Typography variant="body2">
-                                            {moment(data.date_transaction).format("HH:mm")}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            </ListItem>
-                        );
-                    })}
-                </StyledList>
-            </Collapse>
             <Dialog
                 action={"payment_dialog"}
                 {...{
