@@ -156,6 +156,7 @@ function Cashbox() {
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
     const [toReceive, setToReceive] = useState(0);
+    const [collected, setCollected] = useState(0);
     const [pmList, setPmList] = useState([]);
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
@@ -181,8 +182,7 @@ function Cashbox() {
     const {data: paymentMeansHttp} = useRequest(
         {
             method: "GET",
-            url: "/api/public/payment-means/" + router.locale,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            url: "/api/public/payment-means/" + router.locale
         },
         SWRNoValidateConfig
     );
@@ -192,10 +192,7 @@ function Cashbox() {
             filterQuery
                 ? {
                     method: "GET",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`
                 }
                 : null
         );
@@ -217,6 +214,7 @@ function Cashbox() {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
         setToReceive(data.total_insurance_amount);
+        setCollected(data.total_collected);
         if (data.transactions) setRows(data.transactions.reverse());
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
@@ -248,6 +246,7 @@ function Cashbox() {
         setOpenPaymentDialog(true);
     };
     const resetDialog = () => {
+        setChecksToCashout([])
         setOpenPaymentDialog(false);
     };
     const handleIdsSelect = (id: any) => {
@@ -299,10 +298,7 @@ function Cashbox() {
             triggerPostTransaction({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             }).then(() => {
                 enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
                 mutateTransctions().then(() => {
@@ -320,12 +316,10 @@ function Cashbox() {
                 data: {label: t('encashment')}
             }];*/
 
-            console.log(checksToCashout)
             let cheques = '';
             const transData: any[] = [];
             let totalChequeAmount = 0;
             checksToCashout.forEach(chq => {
-                console.log(chq)
                 cheques += chq.transaction_data.uuid + ',';
                 totalChequeAmount += chq.transaction_data.amount;
                 transData.push({
@@ -354,10 +348,7 @@ function Cashbox() {
             triggerPostTransaction({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/transactions/encashment/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             }).then(() => {
                 mutateTransctions();
                 enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
@@ -387,17 +378,17 @@ function Cashbox() {
                     >
                         <Stack direction="row" spacing={2} alignItems="center">
                             <>
-                                <Typography variant="subtitle2">{t("receive")}</Typography>
+                                <Typography>{t("receive")}</Typography>
                                 <Typography variant="h6">
-                                    {toReceive} {devise}
+                                    {toReceive}  <span style={{fontSize:10}}>{devise}</span>
                                 </Typography>
                                 <Typography variant="h6" display={{xs: "none", md: "block"}}>
                                     I
                                 </Typography>
                             </>
-                            <Typography variant="subtitle2">{t("total")}</Typography>
+                            <Typography>{t("total")}</Typography>
                             <Typography variant="h6">
-                                {total} {devise}
+                                {total} <span style={{fontSize:10}}>{devise}</span>
                             </Typography>
                         </Stack>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -406,6 +397,7 @@ function Cashbox() {
                             <Button
                                 variant="contained"
                                 color="error"
+                                size="small"
                                 onClick={() => {
                                     openPop("btn_header_1");
                                 }}
@@ -419,6 +411,7 @@ function Cashbox() {
                             <Button
                                 variant="contained"
                                 color="success"
+                                size="small"
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
@@ -434,6 +427,7 @@ function Cashbox() {
                             </Typography>
                             <Button
                                 variant="contained"
+                                size="small"
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
@@ -444,7 +438,7 @@ function Cashbox() {
                                     setOpenPaymentDialog(true);
                                 }}
                             >
-                                {!isMobile && t("cashout")}{" "}
+                                {!isMobile && `${t("cashout")} ( ${collected} ${devise} )` }{" "}
                                 {isMobile && <KeyboardArrowDownIcon/>}
                             </Button>
                         </Stack>

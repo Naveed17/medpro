@@ -83,10 +83,9 @@ function CashOutDialog({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
 
-    let [collected, setCollected] = useState(0);
-    const [somme, setSomme] = useState(0);
+    let [collectedCash, setCollectedCash] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
-    const [freeTrans, setFreeTrans] = useState(0);
+    const [totalCheck, setTotalCheck] = useState(0);
     const [cheques, setCheques] = useState<ChequeModel[]>([]);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -115,7 +114,10 @@ function CashOutDialog({...props}) {
             let checks: any[] = [];
             if (transactions) {
                 transactions.forEach((transaction: { transaction_data: any[]; uuid: string; }) => {
-                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach((td: any) => checks.push({transaction_uuid:transaction.uuid, transaction_data: td}))
+                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach((td: any) => checks.push({
+                        transaction_uuid: transaction.uuid,
+                        transaction_data: td
+                    }))
                 })
                 setCheques(checks);
             }
@@ -142,8 +144,8 @@ function CashOutDialog({...props}) {
         }
         setChecksToCashout([...checksToCashout]);
         let res = 0;
-        checksToCashout.map((val: { amount: number; }) => (res += val.amount));
-        setCollected(res + freeTrans);
+        checksToCashout.map((val: { transaction_data: { amount: number; }; }) => (res += val.transaction_data.amount))
+        setTotalCheck(res)
     };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -155,15 +157,16 @@ function CashOutDialog({...props}) {
                         variant='contained'>
                     {t("cash")}
                     <Typography fontWeight={700} component='strong'
-                                mx={1}>{somme}</Typography>
+                                mx={1}>{collectedCash}</Typography>
                     {devise}
                 </Button>
                 <Button size='small'
                         color={"warning"}
                         variant='contained'>
                     {t("check")}
-                    <Typography fontWeight={700} component='strong'
-                                mx={1}>{"0"}</Typography>
+                    <Typography fontWeight={700}
+                                component='strong'
+                                mx={1}>{totalCheck}</Typography>
                     {devise}
                 </Button>
                 <Button size='small'
@@ -190,15 +193,10 @@ function CashOutDialog({...props}) {
                     <TextField
                         fullWidth
                         style={{width: "150px", textAlign: "center"}}
-                        value={somme}
+                        value={collectedCash}
                         onChange={(ev) => {
                             if (Number(ev.target.value) <= totalCash) {
-                                setSomme(Number(ev.target.value));
-                                let balance = 0;
-                                balance -= freeTrans;
-                                balance += Number(ev.target.value);
-                                setCollected(balance);
-                                setFreeTrans(Number(ev.target.value));
+                                setCollectedCash(Number(ev.target.value));
                             }
                         }}
                         InputProps={{

@@ -151,7 +151,7 @@ function PaymentRow({...props}) {
             let pay: any = {
                 uuid: td.uuid,
                 amount: td.amount,
-                payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                payment_date: td.payment_date,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data
@@ -496,7 +496,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(row.date_transaction).format('HH:mm')}</Typography>
+                                                        variant="body2">{moment(col.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm')}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell
