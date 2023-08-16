@@ -10,6 +10,8 @@ import {Otable} from "@features/table";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -81,9 +83,11 @@ function CashOutDialog({...props}) {
     const {t, ready} = useTranslation("payment");
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {
+        selectedBoxes
+    } = useAppSelector(cashBoxSelector);
 
 
-    let [collectedCash, setCollectedCash] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
     const [cheques, setCheques] = useState<ChequeModel[]>([]);
@@ -95,47 +99,20 @@ function CashOutDialog({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {pmList, checksToCashout, setChecksToCashout} = data;
-    const checkuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'check').uuid
-    const cashuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'cash').uuid
+    const {checksToCashout, setChecksToCashout,collectedCash, setCollectedCash} = data;
 
-    const {data: httpCheckResponse} = useRequest({
+    const {data: httpCollectResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`,
-    });
-    const {data: httpCashResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/collect/${router.locale}`
     });
 
     useEffect(() => {
-        if (httpCheckResponse) {
-            const transactions = (httpCheckResponse as HttpResponse).data.transactions;
-            let checks: any[] = [];
-            if (transactions) {
-                transactions.forEach((transaction: { transaction_data: any[]; uuid: string; }) => {
-                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach((td: any) => checks.push({
-                        transaction_uuid: transaction.uuid,
-                        transaction_data: td
-                    }))
-                })
-                setCheques(checks);
-            }
-
+        if (httpCollectResponse) {
+            const res = (httpCollectResponse as HttpResponse).data;
+            setTotalCash(res.cash)
+            setCheques(res.list)
         }
-    }, [httpCheckResponse])
-
-    useEffect(() => {
-        if (httpCashResponse) {
-            const transactions = (httpCashResponse as HttpResponse).data.transactions;
-            let cash = 0
-            if (transactions) {
-                transactions.map((transaction: { amount: number; }) => cash += transaction.amount)
-                setTotalCash(cash);
-            }
-
-        }
-    }, [httpCashResponse])
+    }, [httpCollectResponse])
     const handleCheques = (props: ChequeModel) => {
         if (checksToCashout.indexOf(props) != -1) {
             checksToCashout.splice(checksToCashout.indexOf(props), 1);
@@ -144,7 +121,7 @@ function CashOutDialog({...props}) {
         }
         setChecksToCashout([...checksToCashout]);
         let res = 0;
-        checksToCashout.map((val: { transaction_data: { amount: number; }; }) => (res += val.transaction_data.amount))
+        checksToCashout.map((val: { amount: number; }) => (res += val.amount))
         setTotalCheck(res)
     };
 

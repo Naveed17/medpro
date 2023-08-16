@@ -49,10 +49,10 @@ function ChequeRow({...props}) {
                 sx={{
                     bgcolor: (theme: Theme) => alpha(
                         (row.pending && theme.palette.warning.darker)
-                        || (row.transaction_data.amount > 0 && theme.palette.success.main)
-                        || (row.transaction_data.amount < 0 && theme.palette.error.main)
+                        || (row.amount > 0 && theme.palette.success.main)
+                        || (row.amount < 0 && theme.palette.error.main)
                         || theme.palette.background.paper,
-                        row.transaction_data.amount === 0 ? 1 : 0.1),
+                        row.amount === 0 ? 1 : 0.1),
                     cursor: row.collapse ? 'pointer' : 'default'
                 }}>
                 <TableCell padding="checkbox">
@@ -76,7 +76,7 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.transaction_data.data.check_number}
+                            {row.data.check_number}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -84,7 +84,7 @@ function ChequeRow({...props}) {
                 </TableCell><TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.transaction_data.data.carrier}
+                            {row.data.carrier}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -93,7 +93,7 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.transaction_data.data.bank}
+                            {row.data.bank}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -118,14 +118,14 @@ function ChequeRow({...props}) {
                             }
                         }}>
                             <Icon path="ic-agenda"/>
-                            <Typography variant="body2">{moment(row.transaction_data.data.payment_date).format('DD/MM/YYYY')}</Typography>
+                            <Typography variant="body2">{moment(row.data.payment_date).format('DD/MM/YYYY')}</Typography>
                         </Stack>
                     )}
                 </TableCell>
                 <TableCell align={"right"}>
                     {row ? (
                         <Typography  variant="body1" color="text.primary">
-                            {row.transaction_data.amount} {devise}
+                            {row.amount} {devise}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -211,7 +211,7 @@ function ChequeRow({...props}) {
                                                         }
                                                     }}>
                                                         <Icon path="ic-time"/>
-                                                        <Typography variant="body2">{row.transaction_data.time}</Typography>
+                                                        <Typography variant="body2">{row.time}</Typography>
                                                     </Stack>
 
                                                 )}

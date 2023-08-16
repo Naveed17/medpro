@@ -29,13 +29,15 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry, TransactionStatus, TransactionType,} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import {PaymentDrawer} from "@features/drawer";
+import {DrawerBottom} from "@features/drawerBottom";
+import moment from "moment/moment";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -159,7 +161,7 @@ function Cashbox() {
     let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
     const [paymentDrawer, setPaymentDrawer] = useState<boolean>(false);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    const [idsSelected, setIdsSelected] = useState<string[]>([])
+    let [collectedCash, setCollectedCash] = useState(0);
 
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
@@ -245,21 +247,9 @@ function Cashbox() {
         setOpenPaymentDialog(true);
     };
     const resetDialog = () => {
-        setChecksToCashout([])
+        setChecksToCashout([]);
+        setCollectedCash(0)
         setOpenPaymentDialog(false);
-    };
-    const handleIdsSelect = (id: any) => {
-        const selectedIndex = idsSelected.indexOf(id);
-        let newSelected: string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(idsSelected, id);
-        } else {
-            newSelected = newSelected.concat(
-                idsSelected.slice(0, selectedIndex),
-                idsSelected.slice(selectedIndex + 1)
-            );
-        }
-        setIdsSelected(newSelected);
     };
     const handleSubmit = () => {
         if (actionDialog === "payment_dialog") {
@@ -304,36 +294,34 @@ function Cashbox() {
                 });
             });
         } else {
-            //const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
-            // Adding first object cash
-            /*const transData = somme === 0 ? [] : [{
+            let cheques = '';
+            let totalChequeAmount = 0;
+            const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
+            const transData = collectedCash === 0 ? [] : [{
                 payment_means: pmCash?.uuid,
-                amount: somme.toString(),
+                amount: collectedCash.toString(),
                 status_transaction: TransactionStatus[2].value.toString(),
                 type_transaction: TransactionType[3].value.toString(),
                 payment_date: moment().format('DD-MM-YYYY'),
                 data: {label: t('encashment')}
-            }];*/
+            }];
 
-            let cheques = '';
-            const transData: any[] = [];
-            let totalChequeAmount = 0;
             checksToCashout.forEach(chq => {
-                cheques += chq.transaction_data.uuid + ',';
-                totalChequeAmount += chq.transaction_data.amount;
+                cheques += chq.uuid + ',';
+                totalChequeAmount += chq.amount;
                 transData.push({
-                    payment_means: chq.transaction_data.payment_means.uuid,
-                    amount: chq.transaction_data.amount.toString(),
+                    payment_means: chq.payment_means.uuid,
+                    amount: chq.amount.toString(),
                     status_transaction: TransactionStatus[2].value.toString(),
                     type_transaction: TransactionType[3].value.toString(),
-                    payment_date: moment(chq.transaction_data.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
+                    payment_date: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
                     data: {
                         label: t('encashment'),
                         ...chq
                     }
                 });
             });
-            let totalAmount = (totalChequeAmount).toString();
+            let totalAmount = (totalChequeAmount+collectedCash).toString();
             cheques = cheques.slice(0, -1);
             const form = new FormData();
             form.append("cash_box", selectedBoxes[0].uuid);
@@ -349,9 +337,11 @@ function Cashbox() {
                 url: `/api/medical-entity/${medical_entity.uuid}/transactions/encashment/${router.locale}`,
                 data: form
             }).then(() => {
-                mutateTransctions();
-                enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
-                setChecksToCashout([])
+                mutateTransctions().then(() => {
+                    enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
+                    setChecksToCashout([]);
+                    setCollectedCash(0);
+                });
             });
         }
         setOpenPaymentDialog(false);
@@ -396,7 +386,6 @@ function Cashbox() {
                             <Button
                                 variant="contained"
                                 color="error"
-                                size="small"
                                 onClick={() => {
                                     openPop("btn_header_1");
                                 }}
@@ -410,7 +399,6 @@ function Cashbox() {
                             <Button
                                 variant="contained"
                                 color="success"
-                                size="small"
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
@@ -426,7 +414,6 @@ function Cashbox() {
                             </Typography>
                             <Button
                                 variant="contained"
-                                size="small"
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
@@ -553,6 +540,7 @@ function Cashbox() {
                     selectedPayment,
                     setSelectedPayment,
                     checksToCashout, setChecksToCashout,
+                    collectedCash, setCollectedCash,
                     pmList,
                     appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
                     patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
