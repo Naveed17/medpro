@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Box, Button, Stack, TextField, Typography, useTheme} from '@mui/material'
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-import {DefaultCountry, UrlMedicalEntitySuffix} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PaymentDialogStyled from "@features/dialog/components/paymentDialog/overrides/paymentDialogStyle";
@@ -10,6 +10,8 @@ import {Otable} from "@features/table";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -81,15 +83,13 @@ function CashOutDialog({...props}) {
     const {t, ready} = useTranslation("payment");
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {
+        selectedBoxes
+    } = useAppSelector(cashBoxSelector);
 
 
-    const [encaissementSelect, setEncaissementSelect] = useState('cash');
-    let [collect, setCollect] = useState<any[]>([]);
-    let [collected, setCollected] = useState(0);
-    const [somme, setSomme] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
-    const [freeTrans, setFreeTrans] = useState(0);
-    const [collapseDate, setCollapseData] = useState<any>(null);
+    const [totalCheck, setTotalCheck] = useState(0);
     const [cheques, setCheques] = useState<ChequeModel[]>([]);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -99,54 +99,30 @@ function CashOutDialog({...props}) {
     const router = useRouter();
     const theme = useTheme();
 
-    const {pmList} = data;
-    const checkuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'check').uuid
-    const cashuuid = pmList.find((pm: { slug: string; }) => pm.slug === 'cash').uuid
+    const {checksToCashout, setChecksToCashout,collectedCash, setCollectedCash} = data;
 
-    const {data: httpCheckResponse} = useRequest({
+    const {data: httpCollectResponse} = useRequest({
         method: "GET",
-        url: `${UrlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${checkuuid}&&type_transaction=3&&status_transaction=3`
-    });
-    const {data: httpCashResponse} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?payment_means=${cashuuid}&&type_transaction=3&&status_transaction=3`
+        url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/collect/${router.locale}`
     });
 
     useEffect(() => {
-        if (httpCheckResponse) {
-            const transactions = (httpCheckResponse as HttpResponse).data.transactions;
-            let checks: any[] = [];
-            if (transactions) {
-                transactions.forEach((transaction: { transaction_data: any[]; }) => {
-                    transaction.transaction_data.filter(td => td.payment_means.slug === "check").forEach(td => checks.push(td))
-                })
-                setCheques(checks);
-            }
-
+        if (httpCollectResponse) {
+            const res = (httpCollectResponse as HttpResponse).data;
+            setTotalCash(res.cash)
+            setCheques(res.list)
         }
-    }, [httpCheckResponse])
-
-    useEffect(() => {
-        if (httpCashResponse) {
-            const transactions = (httpCashResponse as HttpResponse).data.transactions;
-            let cash = 0
-            if (transactions) {
-                transactions.map((transaction: { amount: number; }) => cash += transaction.amount)
-                setTotalCash(cash);
-            }
-
-        }
-    }, [httpCashResponse])
+    }, [httpCollectResponse])
     const handleCheques = (props: ChequeModel) => {
-        if (collect.indexOf(props) != -1) {
-            collect.splice(collect.indexOf(props), 1);
+        if (checksToCashout.indexOf(props) != -1) {
+            checksToCashout.splice(checksToCashout.indexOf(props), 1);
         } else {
-            collect.push(props);
+            checksToCashout.push(props);
         }
-        setCollect([...collect]);
+        setChecksToCashout([...checksToCashout]);
         let res = 0;
-        collect.map((val) => (res += val.amount));
-        setCollected(res + freeTrans);
+        checksToCashout.map((val: { amount: number; }) => (res += val.amount))
+        setTotalCheck(res)
     };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -158,15 +134,16 @@ function CashOutDialog({...props}) {
                         variant='contained'>
                     {t("cash")}
                     <Typography fontWeight={700} component='strong'
-                                mx={1}>{somme}</Typography>
+                                mx={1}>{collectedCash}</Typography>
                     {devise}
                 </Button>
                 <Button size='small'
                         color={"warning"}
                         variant='contained'>
                     {t("check")}
-                    <Typography fontWeight={700} component='strong'
-                                mx={1}>{"0"}</Typography>
+                    <Typography fontWeight={700}
+                                component='strong'
+                                mx={1}>{totalCheck}</Typography>
                     {devise}
                 </Button>
                 <Button size='small'
@@ -193,15 +170,10 @@ function CashOutDialog({...props}) {
                     <TextField
                         fullWidth
                         style={{width: "150px", textAlign: "center"}}
-                        value={somme}
+                        value={collectedCash}
                         onChange={(ev) => {
                             if (Number(ev.target.value) <= totalCash) {
-                                setSomme(Number(ev.target.value));
-                                let balance = 0;
-                                balance -= freeTrans;
-                                balance += Number(ev.target.value);
-                                setCollected(balance);
-                                setFreeTrans(Number(ev.target.value));
+                                setCollectedCash(Number(ev.target.value));
                             }
                         }}
                         InputProps={{
@@ -222,7 +194,7 @@ function CashOutDialog({...props}) {
                 rows={cheques}
                 from={"chequesList"}
                 t={t}
-                select={collect}
+                select={checksToCashout}
                 edit={handleCheques}
             />
         </Box>

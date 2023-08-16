@@ -38,7 +38,7 @@
   "edit": "Modifier",
   "delete": "Supprimer",
   "addsuccess": "Paiement ajouté",
-  "cashout": "Encaissement",
+  "cashout": "Collect",
   "dialogs":{
     "delete-dialog": {
       "title":"Delete transaction",

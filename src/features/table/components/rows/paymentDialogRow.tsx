@@ -45,17 +45,19 @@ function PaymentDialogRow({...props}) {
                         <Stack direction='row' spacing={.5} alignItems="center">
                             <Icon path="ic-agenda"/>
                             <Typography variant="body2">
-                                {moment(row.date).format('DD-MM-YYYY')}
-                            </Typography>
-                        </Stack>
-                        <Stack direction='row' spacing={.5} alignItems="center">
-                            <Icon path="ic-time"/>
-                            <Typography variant="body2">
-                                {moment(row.date).format('HH:mm')}
+                                {moment(row.payment_date,'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
                             </Typography>
                         </Stack>
                     </Stack>
                 )}
+            </TableCell>
+            <TableCell>
+                <Stack direction='row' spacing={.5} alignItems="center">
+                    <Icon path="ic-time"/>
+                    <Typography variant="body2">
+                        {moment(row.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm')}
+                    </Typography>
+                </Stack>
             </TableCell>
             <TableCell>
                 {loading ? (

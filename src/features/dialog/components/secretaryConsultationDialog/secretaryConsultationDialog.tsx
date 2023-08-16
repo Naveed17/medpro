@@ -316,7 +316,8 @@ function SecretaryConsultationDialog({...props}) {
                     appointment,
                     patient:appointment.patient
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t("payment_dialog_title", {ns: "payment"})}
                 dialogClose={resetDialog}
                 actionDialog={
