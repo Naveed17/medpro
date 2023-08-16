@@ -135,7 +135,7 @@ function PaymentMobileCard({...props}) {
                                     <Skeleton width={100}/>
                                 </Stack>
                             ) : data.patient.insurances &&
-                            data.patient.insurances.length > 0 ? (
+                            data.patient.insurances?.length > 0 ? (
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <AvatarGroup
                                         max={3}

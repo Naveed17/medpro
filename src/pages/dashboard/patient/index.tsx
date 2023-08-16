@@ -180,6 +180,19 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
+const menuPopoverData = [
+    {
+        title: "view_patient_data",
+        icon: <IconUrl color={"white"} path="/ic-voir"/>,
+        action: "onPatientView",
+    },
+    {
+        title: "check_duplication_data",
+        icon: <PeopleOutlineIcon/>,
+        action: "onCheckPatientDuplication",
+    }
+];
+
 function Patient() {
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -219,23 +232,7 @@ function Patient() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [popoverActions] = useState([
-        {
-            title: "view_patient_data",
-            icon: <IconUrl color={"white"} path="/ic-voir"/>,
-            action: "onPatientView",
-        },
-        {
-            title: "check_duplication_data",
-            icon: <PeopleOutlineIcon/>,
-            action: "onCheckPatientDuplication",
-        },
-        {
-            title: "delete_patient_data",
-            icon: <DeleteOutlineRoundedIcon/>,
-            action: "onDeletePatient",
-        }
-    ]);
+    const [popoverActions, setPopoverActions] = useState(menuPopoverData);
     const [loading] = useState<boolean>(status === "loading");
     const [rows, setRows] = useState<PatientModel[]>([]);
     const [patientData, setPatientData] = useState<any>(null);
@@ -457,6 +454,16 @@ function Patient() {
             case "OPEN-POPOVER":
                 setSelectedPatient(event);
                 mouseEvent.preventDefault();
+                if (!event.nextAppointment && !event.previousAppointments) {
+                    setPopoverActions([...menuPopoverData, {
+                        title: "delete_patient_data",
+                        icon: <DeleteOutlineRoundedIcon/>,
+                        action: "onDeletePatient",
+                    }]);
+                } else {
+                    setPopoverActions(menuPopoverData);
+                }
+
                 setContextMenu(
                     contextMenu === null
                         ? {
