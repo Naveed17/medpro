@@ -61,6 +61,14 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "time",
+        numeric: false,
+        disablePadding: true,
+        label: "time",
+        sortable: true,
+        align: "left",
+    },
+    {
         id: "amount",
         numeric: true,
         disablePadding: false,
@@ -126,7 +134,7 @@ function PaymentDialog({...props}) {
 
     const {appointment, selectedPayment, setSelectedPayment, patient} = data;
 
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
@@ -174,8 +182,7 @@ function PaymentDialog({...props}) {
 
     const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
 
@@ -229,7 +236,6 @@ function PaymentDialog({...props}) {
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
         return selectedPayment.total - paymentTotal
     }
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -237,7 +243,7 @@ function PaymentDialog({...props}) {
             <PaymentDialogStyled>
                 {patient &&
                     <Stack spacing={2}
-                           direction={{xs: patient ? 'column' : 'row', md: 'row'}}
+                           direction={{xs: patient ? 'column' : 'row', sm: 'row'}}
                            alignItems='center'
                            justifyContent={patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
@@ -261,14 +267,21 @@ function PaymentDialog({...props}) {
                         </Stack>
 
                         {appointment && <Stack
-                            direction={{xs: 'column', md: 'row'}}
+
+                            direction={{xs: 'column', sm: 'row'}}
                             alignItems="center"
-                            justifyContent={{xs: 'center', md: 'flex-start'}}
+                            justifyContent={{xs: 'center', sm: 'flex-start'}}
                             sx={{
                                 "& .MuiButtonBase-root": {
                                     fontSize: 13
                                 }
                             }}
+                            {...(wallet > 0 && {
+                                sx: {
+                                    flexWrap: 'wrap',
+
+                                }
+                            })}
                             spacing={1}>
 
                             {wallet > 0 && <Button size='small' variant='contained' color="success"
@@ -311,7 +324,15 @@ function PaymentDialog({...props}) {
                             <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "warning"}
                                     {...(isMobile && {
                                         fullWidth: true
-                                    })}>
+                                    })}
+                                    {...(wallet > 0 && {
+                                        sx: {
+                                            flexWrap: 'wrap',
+                                            ml: {xs: '0 !important', md: '8px !important'},
+                                            mt: {xs: '8px !important', md: '0 !important',}
+                                        }
+                                    })}
+                            >
                                 {t("total")}
                                 <Typography fontWeight={700} component='strong'
                                             mx={1}>{selectedPayment.total}</Typography>
@@ -347,8 +368,7 @@ function PaymentDialog({...props}) {
                             <FormControlLabel
                                 className={method.slug === deals.selected ? "selected" : ''}
                                 onClick={() => {
-                                    deals.selected = method.slug
-                                    setDeals(deals);
+                                    setDeals({...deals, selected: method.slug});
                                     setFieldValue("selected", method.slug)
                                 }}
                                 key={method.name}
@@ -424,136 +444,104 @@ function PaymentDialog({...props}) {
                         }
                     />}
                 </FormGroup>
-                <AnimatePresence mode='wait'>
-                    {(() => {
-                        switch (values.selected) {
-                            case 'cash':
-                            case 'online':
-                            case 'promissory_note':
-                            case 'transfert':
-                            case 'card':
-                            case 'credit_card':
-                                return <TabPanel index={0}>
-                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
-                                        <Box width={1}>
-                                            <Typography gutterBottom>
-                                                {t('enter_the_amount')}
-                                            </Typography>
-                                            <Stack direction='row' spacing={2} alignItems="center">
-                                                <TextField
-                                                    type='number'
-                                                    fullWidth
-                                                    {...getFieldProps("cash.amount")}
-                                                    error={Boolean(touched.cash && errors.cash)}
-                                                />
-                                                <Typography variant={"body1"}>
-                                                    {devise}
-                                                </Typography>
-                                            </Stack>
+                <Grid container alignItems="center">
+                    <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
+                        <AnimatePresence mode='wait'>
+                            {(() => {
+                                switch (values.selected) {
+                                    case 'cash':
+                                    case 'online':
+                                    case 'promissory_note':
+                                    case 'transfert':
+                                    case 'card':
+                                    case 'credit_card':
+                                        return <TabPanel index={0}>
+                                            <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                                <Box width={1}>
+                                                    <Typography gutterBottom>
+                                                        {t('enter_the_amount')}
+                                                    </Typography>
+                                                    <Stack direction='row' spacing={2} alignItems="center">
+                                                        <TextField
+                                                            type='number'
+                                                            fullWidth
+                                                            {...getFieldProps("cash.amount")}
+                                                            error={Boolean(touched.cash && errors.cash)}
+                                                        />
+                                                        <Typography variant={"body1"}>
+                                                            {devise}
+                                                        </Typography>
+                                                    </Stack>
 
-                                            <Button color={"success"}
-                                                    disabled={appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())}
-                                                    onClick={() => {
-                                                        const newPayment = [...payments, {
-                                                            amount: values.cash?.amount,
-                                                            designation: label,
-                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
-                                                            status_transaction: TransactionStatus[1].value,
-                                                            type_transaction: TransactionType[2].value,
-                                                            payment_means: paymentTypesList.find((pt: {
-                                                                slug: string;
-                                                            }) => pt.slug === deals.selected)
-                                                        }]
-                                                        setPayments(newPayment);
-                                                        setLabel("");
-                                                        resetForm();
-                                                        calculRest()
-                                                    }}
-                                                    sx={{marginTop: 2}}
-                                                    startIcon={<AddIcon/>}
-                                                    variant={"contained"}>
-                                                <Typography> {t('add')}</Typography>
-                                            </Button>
-                                        </Box>
-                                    </Stack>
-                                </TabPanel>
-                            case 'check':
-                                return <TabPanel index={0}>
-                                    <Stack p={4} minHeight={200} justifyContent="center">
-                                        <Typography gutterBottom>
-                                            {t('enter_the_amount')}
-                                        </Typography>
-                                        <Stack spacing={1}>
-                                            {values.check.map((step: any, idx: number) =>
-                                                <Paper key={idx}>
-                                                    <Stack spacing={1} alignItems="flex-start">
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs={12} lg={2}>
-                                                                <Typography color="text.secondary" variant='body2'
-                                                                            fontWeight={400}>
-                                                                    {t("amount")}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={10}>
-                                                                <Stack direction='row' alignItems="center" spacing={1}>
+                                                    <Button color={"success"}
+                                                            disabled={appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())}
+                                                            onClick={() => {
+                                                                const newPayment = [...payments, {
+                                                                    amount: values.cash?.amount,
+                                                                    designation: label,
+                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    status_transaction: TransactionStatus[1].value,
+                                                                    type_transaction: TransactionType[2].value,
+                                                                    payment_means: paymentTypesList.find((pt: {
+                                                                        slug: string;
+                                                                    }) => pt.slug === deals.selected)
+                                                                }]
+                                                                setPayments(newPayment);
+                                                                setLabel("");
+                                                                resetForm();
+                                                                calculRest()
+                                                            }}
+                                                            sx={{marginTop: 2}}
+                                                            startIcon={<AddIcon/>}
+                                                            variant={"contained"}>
+                                                        <Typography> {t('add')}</Typography>
+                                                    </Button>
+                                                </Box>
+                                            </Stack>
+                                        </TabPanel>
+                                    case 'check':
+                                        return <TabPanel index={0}>
+                                            <Stack p={4} minHeight={200} justifyContent="center">
+                                                <Typography gutterBottom>
+                                                    {t('enter_the_amount')}
+                                                </Typography>
+                                                <Stack spacing={1}>
+                                                    {values.check.map((step: any, idx: number) =>
+                                                        <Paper key={idx}>
+                                                            <Stack spacing={1} alignItems="flex-start">
+
+                                                                    <Stack direction='row' alignItems="center"
+                                                                           spacing={1}>
+                                                                        <TextField
+                                                                            variant="outlined"
+                                                                            placeholder={t("amount")}
+                                                                            {...getFieldProps(`check[${idx}].amount`)}
+                                                                            fullWidth
+                                                                            type="number"
+                                                                            required
+                                                                        />
+                                                                        <Typography>
+                                                                            {devise}
+                                                                        </Typography>
+
                                                                     <TextField
                                                                         variant="outlined"
-                                                                        placeholder={t("amount")}
-                                                                        {...getFieldProps(`check[${idx}].amount`)}
+                                                                        placeholder={t("carrier")}
                                                                         fullWidth
-                                                                        type="number"
+                                                                        type="text"
+                                                                        {...getFieldProps(`check[${idx}].carrier`)}
                                                                         required
                                                                     />
-                                                                    <Typography>
-                                                                        {devise}
-                                                                    </Typography>
+                                                                    <TextField
+                                                                        variant="outlined"
+                                                                        placeholder={t("bank")}
+                                                                        fullWidth
+                                                                        type="text"
+                                                                        {...getFieldProps(`check[${idx}].bank`)}
+                                                                        required
+                                                                    />
                                                                 </Stack>
-                                                            </Grid>
-                                                        </Grid>
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs={12} lg={2}>
-                                                                <Typography color="text.secondary" variant='body2'
-                                                                            fontWeight={400}>
-                                                                    {t("carrier")}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={10}>
-                                                                <TextField
-                                                                    variant="outlined"
-                                                                    placeholder={t("carrier")}
-                                                                    fullWidth
-                                                                    type="text"
-                                                                    {...getFieldProps(`check[${idx}].carrier`)}
-                                                                    required
-                                                                />
-                                                            </Grid>
-                                                        </Grid>
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs={12} lg={2}>
-                                                                <Typography color="text.secondary" variant='body2'
-                                                                            fontWeight={400}>
-                                                                    {t("bank")}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={10}>
-                                                                <TextField
-                                                                    variant="outlined"
-                                                                    placeholder={t("bank")}
-                                                                    fullWidth
-                                                                    type="text"
-                                                                    {...getFieldProps(`check[${idx}].bank`)}
-                                                                    required
-                                                                />
-                                                            </Grid>
-                                                        </Grid>
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs={12} lg={2}>
-                                                                <Typography color="text.secondary" variant='body2'
-                                                                            fontWeight={400}>
-                                                                    {t("check_number")}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={10}>
+
                                                                 <TextField
                                                                     variant="outlined"
                                                                     placeholder={t("check_number")}
@@ -562,233 +550,255 @@ function PaymentDialog({...props}) {
                                                                     {...getFieldProps(`check[${idx}].check_number`)}
                                                                     required
                                                                 />
-                                                            </Grid>
-                                                        </Grid>
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs={12} lg={2}>
-                                                                <Typography color="text.secondary" variant='body2'
-                                                                            fontWeight={400}>
-                                                                    {t("payment_date")}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={10}>
-                                                                <Grid container alignItems='cetner' spacing={1}>
-                                                                    <Grid item xs={12} lg={4}>
-                                                                        <DatePicker
-                                                                            {...getFieldProps(`check[${idx}].payment_date`)}
-                                                                        />
+
+                                                                <Grid container alignItems="center">
+                                                                    <Grid item xs={12} lg={2}>
+                                                                        <Typography color="text.secondary"
+                                                                                    variant='body2'
+                                                                                    fontWeight={400}>
+                                                                            {t("payment_date")}
+                                                                        </Typography>
                                                                     </Grid>
-                                                                    <Grid item xs={12} lg={8}>
-                                                                        <Stack direction={{xs: 'column', lg: 'row'}}
-                                                                               alignItems={{
-                                                                                   lg: 'center',
-                                                                                   xs: 'flex-start'
-                                                                               }}
-                                                                               spacing={{xs: 0, lg: 4}}>
-                                                                            <Typography color="text.secondary"
-                                                                                        variant='body2'
-                                                                                        fontWeight={400}>
-                                                                                {t("expiry_date")}
-                                                                            </Typography>
-                                                                            <DatePicker
-                                                                                {...getFieldProps(`check[${idx}].expiry_date`)}
-                                                                            />
-                                                                        </Stack>
+                                                                    <Grid item xs={12} lg={10}>
+                                                                        <Grid container alignItems='cetner' spacing={1}>
+                                                                            <Grid item xs={12} lg={4}>
+                                                                                <DatePicker
+                                                                                    value={values.check[idx].payment_date}
+                                                                                    onChange={(newValue: any) => {
+                                                                                        setFieldValue(`check[${idx}].payment_date`, new Date(newValue));
+                                                                                    }}
+                                                                                />
+                                                                            </Grid>
+                                                                            <Grid item xs={12} lg={8}>
+                                                                                <Stack direction={{
+                                                                                    xs: 'column',
+                                                                                    lg: 'row'
+                                                                                }}
+                                                                                       alignItems={{
+                                                                                           lg: 'center',
+                                                                                           xs: 'flex-start'
+                                                                                       }}
+                                                                                       spacing={{xs: 0, lg: 4}}>
+                                                                                    <Typography color="text.secondary"
+                                                                                                variant='body2'
+                                                                                                fontWeight={400}>
+                                                                                        {t("expiry_date")}
+                                                                                    </Typography>
+                                                                                    <DatePicker
+                                                                                        value={values.check[idx].expiry_date}
+                                                                                        onChange={(newValue: any) => {
+                                                                                            setFieldValue(`check[${idx}].expiry_date`, newValue);
+                                                                                        }}
+                                                                                    />
+                                                                                </Stack>
+                                                                            </Grid>
+                                                                        </Grid>
+
                                                                     </Grid>
                                                                 </Grid>
+                                                            </Stack>
+                                                            <Stack alignItems='flex-end' mt={2}>
+                                                                {
+                                                                    values.check.length > 1 &&
+                                                                    <IconButton size="small"
+                                                                                onClick={() => handleDeleteStep(step)}>
+                                                                        <IconUrl path="setting/icdelete"/>
+                                                                    </IconButton>
+                                                                }
 
-                                                            </Grid>
-                                                        </Grid>
-                                                    </Stack>
-                                                    <Stack alignItems='flex-end' mt={2}>
-                                                        {
-                                                            values.check.length > 1 &&
-                                                            <IconButton size="small"
-                                                                        onClick={() => handleDeleteStep(step)}>
-                                                                <IconUrl path="setting/icdelete"/>
-                                                            </IconButton>
-                                                        }
+                                                            </Stack>
+                                                        </Paper>
+                                                    )}
+                                                </Stack>
+                                                <Stack direction={"row"} justifyContent="space-between">
+                                                    <Button onClick={() => handleAddStep()}
+                                                            sx={{alignSelf: "flex-end", mt: 2}}>
+                                                        + {t("add_cheque")}
+                                                    </Button>
 
-                                                    </Stack>
-                                                </Paper>
-                                            )}
-                                        </Stack>
-                                        <Stack direction={"row"} justifyContent="space-between">
-                                            <Button onClick={() => handleAddStep()}
-                                                    sx={{alignSelf: "flex-end", mt: 2}}>
-                                                + {t("add_cheque")}
-                                            </Button>
+                                                    <Button disabled={checkCheques()}
+                                                            onClick={() => {
+                                                                let updatedPays: any[] = [];
+                                                                values.check?.map((ck: any) => {
+                                                                    updatedPays.push({
+                                                                        payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                        designation: label,
+                                                                        status_transaction: TransactionStatus[1].value,
+                                                                        type_transaction: TransactionType[2].value,
+                                                                        amount: ck.amount,
+                                                                        data: ck,
+                                                                        payment_means: paymentTypesList.find((pt: {
+                                                                            slug: string;
+                                                                        }) => pt.slug === deals.selected)
+                                                                    });
+                                                                });
+                                                                setPayments([...payments, ...updatedPays]);
+                                                                resetForm();
+                                                            }} color="success" variant='contained'
+                                                            sx={{alignSelf: "flex-end", mt: 2}}>
+                                                        + {t("add")}
+                                                    </Button>
+                                                </Stack>
 
-                                            <Button disabled={checkCheques()}
-                                                    onClick={() => {
-                                                        let updatedPays: any[] = [];
-                                                        values.check?.map((ck: any) => {
-                                                            updatedPays.push({
-                                                                payment_date: moment().format('DD-MM-YYYY HH:mm'),
-                                                                designation: label,
-                                                                status_transaction: TransactionStatus[1].value,
-                                                                type_transaction: TransactionType[2].value,
-                                                                amount: ck.amount,
-                                                                data: ck,
-                                                                payment_means: paymentTypesList.find((pt: {
-                                                                    slug: string;
-                                                                }) => pt.slug === deals.selected)
-                                                            });
-                                                        });
-                                                        setPayments([...payments, ...updatedPays]);
-                                                        resetForm();
-                                                    }} color="success" variant='contained'
-                                                    sx={{alignSelf: "flex-end", mt: 2}}>
-                                                + {t("add")}
-                                            </Button>
-                                        </Stack>
-
-                                    </Stack>
-                                </TabPanel>
-                            case 'wallet':
-                                return <TabPanel index={0}>
-                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
-                                        <Box width={1}>
-                                            <Typography gutterBottom>
-                                                {t('enter_the_amount')}
-                                            </Typography>
-                                            <Stack direction='row' spacing={2} alignItems="center">
-                                                <TextField
-                                                    type='number'
-                                                    fullWidth
-                                                    {...getFieldProps("cash.amount")}
-                                                    error={Boolean(touched.cash && errors.cash)}
-                                                />
-                                                <Typography variant={"body1"}>
-                                                    {devise}
-                                                </Typography>
                                             </Stack>
-
-                                            <Button color={"success"}
-                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest() || Number(values.cash?.amount) > wallet}
-                                                    onClick={() => {
-                                                        const newPayment = [...payments, {
-                                                            amount: Number(values.cash?.amount),
-                                                            designation: label,
-                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
-                                                            status_transaction: TransactionStatus[1].value,
-                                                            type_transaction: TransactionType[4].value,
-                                                            wallet: true
-                                                        }]
-                                                        setPayments(newPayment);
-                                                        setLabel("");
-                                                        resetForm();
-
-                                                        setWallet(wallet - Number(values.cash?.amount));
-
-                                                        setDeals({...deals, selected: paymentTypesList[0].slug});
-                                                        setFieldValue("selected", paymentTypesList[0].slug)
-                                                        setByRate(false);
-                                                    }}
-                                                    sx={{marginTop: 2}}
-                                                    startIcon={<AddIcon/>}
-                                                    variant={"contained"}>
-                                                <Typography> {t('add')}</Typography>
-                                            </Button>
-                                        </Box>
-                                    </Stack>
-                                </TabPanel>
-                            default:
-                                return <TabPanel index={0}>
-                                    <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
-                                        <Box width={1}>
-                                            <Typography gutterBottom>
-                                                {t('enter_the_amount')}
-                                            </Typography>
-                                            <Stack direction='row' spacing={2} alignItems="center">
-                                                <TextField
-                                                    type='number'
-                                                    fullWidth
-                                                    {...getFieldProps("cash.amount")}
-                                                    error={Boolean(touched.cash && errors.cash)}
-                                                />
-                                                <Typography variant={"body1"}>
-                                                    {devise}
-                                                </Typography>
-                                            </Stack>
-
-                                            <Stack mt={1} direction={"row"} justifyContent={"center"}
-                                                   alignItems={"center"}>
-                                                <FormControlLabel control={<Checkbox checked={byRate} onChange={() => {
-                                                    setByRate(!byRate)
-                                                }}/>} label="Par taux"/>
-                                                {byRate &&
-                                                    <Stack direction={"row"} spacing={1} justifyContent={"center"}
-                                                           alignItems={"center"}>
+                                        </TabPanel>
+                                    case 'wallet':
+                                        return <TabPanel index={0}>
+                                            <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                                <Box width={1}>
+                                                    <Typography gutterBottom>
+                                                        {t('enter_the_amount')}
+                                                    </Typography>
+                                                    <Stack direction='row' spacing={2} alignItems="center">
                                                         <TextField
                                                             type='number'
-                                                            onChange={(ev) => {
-                                                                const res = ev.target.value;
-                                                                setFieldValue("cash.amount", Number(selectedPayment.total * Number(res) / 100).toFixed(3))
-                                                            }}
+                                                            fullWidth
+                                                            {...getFieldProps("cash.amount")}
+                                                            error={Boolean(touched.cash && errors.cash)}
                                                         />
                                                         <Typography variant={"body1"}>
-                                                            %
+                                                            {devise}
                                                         </Typography>
-                                                    </Stack>}
+                                                    </Stack>
 
+                                                    <Button color={"success"}
+                                                            disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest() || Number(values.cash?.amount) > wallet}
+                                                            onClick={() => {
+                                                                const newPayment = [...payments, {
+                                                                    amount: Number(values.cash?.amount),
+                                                                    designation: label,
+                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    status_transaction: TransactionStatus[1].value,
+                                                                    type_transaction: TransactionType[4].value,
+                                                                    wallet: true
+                                                                }]
+                                                                setPayments(newPayment);
+                                                                setLabel("");
+                                                                resetForm();
+
+                                                                setWallet(wallet - Number(values.cash?.amount));
+
+                                                                setDeals({
+                                                                    ...deals,
+                                                                    selected: paymentTypesList[0].slug
+                                                                });
+                                                                setFieldValue("selected", paymentTypesList[0].slug)
+                                                                setByRate(false);
+                                                            }}
+                                                            sx={{marginTop: 2}}
+                                                            startIcon={<AddIcon/>}
+                                                            variant={"contained"}>
+                                                        <Typography> {t('add')}</Typography>
+                                                    </Button>
+                                                </Box>
                                             </Stack>
+                                        </TabPanel>
+                                    default:
+                                        return <TabPanel index={0}>
+                                            <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
+                                                <Box width={1}>
+                                                    <Typography gutterBottom>
+                                                        {t('enter_the_amount')}
+                                                    </Typography>
+                                                    <Stack direction='row' spacing={2} alignItems="center">
+                                                        <TextField
+                                                            type='number'
+                                                            fullWidth
+                                                            {...getFieldProps("cash.amount")}
+                                                            error={Boolean(touched.cash && errors.cash)}
+                                                        />
+                                                        <Typography variant={"body1"}>
+                                                            {devise}
+                                                        </Typography>
+                                                    </Stack>
 
-                                            <Button color={"success"}
-                                                    disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
-                                                    onClick={() => {
+                                                    <Stack mt={1} direction={"row"} justifyContent={"center"}
+                                                           alignItems={"center"}>
+                                                        <FormControlLabel
+                                                            control={<Checkbox checked={byRate} onChange={() => {
+                                                                setByRate(!byRate)
+                                                            }}/>} label="Par taux"/>
+                                                        {byRate &&
+                                                            <Stack direction={"row"} spacing={1}
+                                                                   justifyContent={"center"}
+                                                                   alignItems={"center"}>
+                                                                <TextField
+                                                                    type='number'
+                                                                    onChange={(ev) => {
+                                                                        const res = ev.target.value;
+                                                                        setFieldValue("cash.amount", Number(selectedPayment.total * Number(res) / 100).toFixed(3))
+                                                                    }}
+                                                                />
+                                                                <Typography variant={"body1"}>
+                                                                    %
+                                                                </Typography>
+                                                            </Stack>}
 
-                                                        const newPayment = [...payments, {
-                                                            amount: Number(values.cash?.amount),
-                                                            designation: label,
-                                                            payment_date: moment().format('DD-MM-YYYY HH:mm'),
-                                                            status_transaction: TransactionStatus[1].value,
-                                                            type_transaction: TransactionType[2].value,
-                                                            insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),
-                                                        }]
-                                                        setPayments(newPayment);
-                                                        setLabel("");
+                                                    </Stack>
 
-                                                        resetForm();
+                                                    <Button color={"success"}
+                                                            disabled={values.cash.amount === "" || Number(values.cash?.amount) > calculRest()}
+                                                            onClick={() => {
 
-                                                        setDeals({...deals, selected: paymentTypesList[0].slug});
-                                                        setFieldValue("selected", paymentTypesList[0].slug)
-                                                        setByRate(false);
-                                                    }}
-                                                    sx={{marginTop: 2}}
-                                                    startIcon={<AddIcon/>}
-                                                    variant={"contained"}>
-                                                <Typography> {t('add')}</Typography>
-                                            </Button>
-                                        </Box>
-                                    </Stack>
-                                </TabPanel>
-                        }
-                    })()}
-                </AnimatePresence>
-                <AnimatePresence mode='wait'>
-                    {payments.length > 0 &&
-                        <Box mt={4}>
-                            <DesktopContainer>
-                                <Otable
-                                    {...{t, patient: patient ? patient : null}}
-                                    headers={headCells}
-                                    rows={payments}
-                                    handleEvent={(action: string, payIndex: number) => {
-                                        const paymentsUpdated = [...payments];
-                                        paymentsUpdated.splice(payIndex, 1);
-                                        setPayments(paymentsUpdated);
-                                    }}
-                                    from={"payment_dialog"}
-                                    sx={{tableLayout: 'fixed'}}
-                                />
-                            </DesktopContainer>
-                            <MobileContainer>
-                                <PaymentDialogMobileCard data={payments} t={t}/>
-                            </MobileContainer>
-                        </Box>
+                                                                const newPayment = [...payments, {
+                                                                    amount: Number(values.cash?.amount),
+                                                                    designation: label,
+                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    status_transaction: TransactionStatus[1].value,
+                                                                    type_transaction: TransactionType[2].value,
+                                                                    insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),
+                                                                }]
+                                                                setPayments(newPayment);
+                                                                setLabel("");
+
+                                                                resetForm();
+
+                                                                setDeals({
+                                                                    ...deals,
+                                                                    selected: paymentTypesList[0].slug
+                                                                });
+                                                                setFieldValue("selected", paymentTypesList[0].slug)
+                                                                setByRate(false);
+                                                            }}
+                                                            sx={{marginTop: 2}}
+                                                            startIcon={<AddIcon/>}
+                                                            variant={"contained"}>
+                                                        <Typography> {t('add')}</Typography>
+                                                    </Button>
+                                                </Box>
+                                            </Stack>
+                                        </TabPanel>
+                                }
+                            })()}
+                        </AnimatePresence>
+                    </Grid>
+                    {payments.length > 0 && <Grid item xs={12} lg={5}>
+                        <AnimatePresence mode='wait'>
+
+                            <Box ml={1}>
+                                <DesktopContainer>
+                                    <Otable
+                                        {...{t, patient: patient ? patient : null}}
+                                        headers={headCells}
+                                        rows={payments}
+                                        handleEvent={(action: string, payIndex: number) => {
+                                            const paymentsUpdated = [...payments];
+                                            paymentsUpdated.splice(payIndex, 1);
+                                            setPayments(paymentsUpdated);
+                                        }}
+                                        from={"payment_dialog"}
+                                        sx={{tableLayout: 'fixed'}}
+                                    />
+                                </DesktopContainer>
+                                <MobileContainer>
+                                    <PaymentDialogMobileCard data={payments} t={t}/>
+                                </MobileContainer>
+                            </Box>
+                        </AnimatePresence>
+                    </Grid>
                     }
-                </AnimatePresence>
+
+                </Grid>
             </PaymentDialogStyled>
         </FormikProvider>
     )

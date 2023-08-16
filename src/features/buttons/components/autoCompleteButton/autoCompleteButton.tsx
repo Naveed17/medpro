@@ -8,7 +8,6 @@ import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -17,7 +16,6 @@ function AutoCompleteButton({...props}) {
     const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -36,10 +34,7 @@ function AutoCompleteButton({...props}) {
     const onEditPatient = () => {
         medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            }
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`
         }).then((result: any) => {
             const {status} = result?.data;
             const patient = (result?.data as HttpResponse)?.data;

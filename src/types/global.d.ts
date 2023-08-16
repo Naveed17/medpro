@@ -11,6 +11,10 @@ declare global {
         session?: any;
         sx?: any;
     };
+
+    interface Array<T> {
+        group(o: T, fn: Function): Array<T>;
+    }
 }
 
 declare module "next-auth" {

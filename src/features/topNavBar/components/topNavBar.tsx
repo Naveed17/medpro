@@ -29,7 +29,6 @@ import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
-import {Theme} from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
@@ -143,8 +142,7 @@ function TopNavBar({...props}) {
         updateTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             // refresh on going api
             mutateOnGoing && mutateOnGoing();
@@ -267,7 +265,7 @@ function TopNavBar({...props}) {
                     color="inherit">
                     <Toolbar>
                             {
-                                isMobile ? 
+                                isMobile ?
                                 settingHas ? (
                                 <IconButton
                                     color={"inherit"}

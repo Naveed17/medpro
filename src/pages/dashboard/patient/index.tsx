@@ -5,7 +5,6 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 // material components
 import {
     Box,
@@ -89,6 +88,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
+import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -180,9 +180,21 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
+const menuPopoverData = [
+    {
+        title: "view_patient_data",
+        icon: <IconUrl color={"white"} path="/ic-voir"/>,
+        action: "onPatientView",
+    },
+    {
+        title: "check_duplication_data",
+        icon: <PeopleOutlineIcon/>,
+        action: "onCheckPatientDuplication",
+    }
+];
+
 function Patient() {
     const dispatch = useAppDispatch();
-    const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
@@ -190,6 +202,7 @@ function Patient() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {data: session} = useSession();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -219,23 +232,7 @@ function Patient() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [popoverActions] = useState([
-        {
-            title: "view_patient_data",
-            icon: <IconUrl color={"white"} path="/ic-voir"/>,
-            action: "onPatientView",
-        },
-        {
-            title: "check_duplication_data",
-            icon: <PeopleOutlineIcon/>,
-            action: "onCheckPatientDuplication",
-        },
-        {
-            title: "delete_patient_data",
-            icon: <DeleteOutlineRoundedIcon/>,
-            action: "onDeletePatient",
-        }
-    ]);
+    const [popoverActions, setPopoverActions] = useState(menuPopoverData);
     const [loading] = useState<boolean>(status === "loading");
     const [rows, setRows] = useState<PatientModel[]>([]);
     const [patientData, setPatientData] = useState<any>(null);
@@ -322,8 +319,7 @@ function Patient() {
 
     const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`
     } : null, isMobile && SWRNoValidateConfig);
 
     const submitStepper = (index: number) => {
@@ -351,10 +347,7 @@ function Patient() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: params
         }).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(
@@ -461,6 +454,16 @@ function Patient() {
             case "OPEN-POPOVER":
                 setSelectedPatient(event);
                 mouseEvent.preventDefault();
+                if (!event.nextAppointment && !event.previousAppointments) {
+                    setPopoverActions([...menuPopoverData, {
+                        title: "delete_patient_data",
+                        icon: <DeleteOutlineRoundedIcon/>,
+                        action: "onDeletePatient",
+                    }]);
+                } else {
+                    setPopoverActions(menuPopoverData);
+                }
+
                 setContextMenu(
                     contextMenu === null
                         ? {
@@ -488,8 +491,7 @@ function Patient() {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`
         }).then(() => {
             setLoadingRequest(false);
             setDeleteDialog(false);

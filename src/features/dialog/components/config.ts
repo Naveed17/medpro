@@ -320,6 +320,14 @@ const dialogData = [
       ).then((mod) => mod)
     ),
   },
+  {
+    action: "delete-transaction",
+    component: dynamic((): any =>
+        import(
+            "@features/dialog/components/deleteModalDialog/components/deleteTransactionDialog"
+            ).then((mod) => mod)
+    ),
+  }
 ];
 
 export default dialogData;

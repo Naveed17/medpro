@@ -15,7 +15,6 @@ import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSWRConfig} from "swr";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -29,7 +28,6 @@ import {configSelector} from "@features/base";
 
 function ModelPrescriptionList({...props}) {
     const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {mutate} = useSWRConfig();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
@@ -51,8 +49,7 @@ function ModelPrescriptionList({...props}) {
         triggerPrescriptionEdit({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`));
         setTreeData(newTree);
     }
@@ -73,8 +70,7 @@ function ModelPrescriptionList({...props}) {
         setLoading(true);
         triggerDeleteModel({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`
         }).then(() => {
             setSelectedModel(null);
             mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`).then(

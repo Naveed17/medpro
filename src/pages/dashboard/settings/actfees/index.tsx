@@ -9,7 +9,6 @@ import {
     Box,
     Button,
     createFilterOptions,
-    IconButton,
     InputAdornment,
     Stack,
     TextField,
@@ -20,7 +19,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions, CardContent, Checkbox, FormControlLabel, Card,
+    DialogActions, Checkbox, FormControlLabel, Card,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -32,7 +31,6 @@ import {
     SWRNoValidateConfig,
     TriggerWithoutValidation,
 } from "@lib/swr/swrProvider";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 
@@ -128,8 +126,7 @@ function ActFees() {
         params: {
             ["specialities[0]"]:
             medical_professional.specialities[0].speciality.uuid,
-        },
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }
     } : null);
 
     const {data: httpProfessionalsActs, mutate:mutateActs} = useRequest(medical_professional ? {
@@ -138,8 +135,7 @@ function ActFees() {
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }`
     } : null, SWRNoValidateConfig);
 
 
@@ -182,10 +178,7 @@ function ActFees() {
             {
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                data: form
             },
             TriggerWithoutValidation
         ).then(() => enqueueSnackbar(t("alert.updated"), {variant: "success"}));
@@ -196,10 +189,7 @@ function ActFees() {
         trigger(
             {
                 method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
             },
             TriggerWithoutValidation
         ).then(() => {
@@ -238,10 +228,7 @@ function ActFees() {
                 {
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/new-acts/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
+                    data: form
                 },
                 TriggerWithoutValidation
             ).then(() => {
@@ -264,8 +251,7 @@ function ActFees() {
             triggerAddAct({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
+                data: form
             }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,10 +272,7 @@ function ActFees() {
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${v.act?.uuid}/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            data: form
         }).then(() => {
             mutateActs().then(() => {
                 enqueueSnackbar(t("alert.updated"), {variant: "success"});

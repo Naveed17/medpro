@@ -23,7 +23,6 @@ import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
-import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
@@ -43,7 +42,6 @@ const MotifListMobile = lazy(
 );
 
 function Motif() {
-    const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -76,8 +74,7 @@ function Motif() {
             !isMobile
                 ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
                 : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        }`
     } : null, SWRNoValidateConfig);
 
     const closeDraw = () => {
@@ -165,8 +162,7 @@ function Motif() {
         medicalEntityHasUser && trigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
+            data: form
         }).then(() => {
             mutateConsultReason();
             enqueueSnackbar(t("updated"), {variant: "success"});
@@ -201,10 +197,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && trigger({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
         }).then(() => {
             enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
             setLoading(false);

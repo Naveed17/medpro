@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import {useRequest} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -27,6 +26,7 @@ import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {MobileContainer} from "@themes/mobileContainer";
 import moment from "moment-timezone";
+import {useSession} from "next-auth/react";
 
 const TableHead = [
     {
@@ -62,10 +62,10 @@ const TableHead = [
 ];
 
 function Trash() {
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t} = useTranslation(['agenda', 'common']);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -81,8 +81,7 @@ function Trash() {
 
     const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`
     } : null, {revalidateOnFocus: false});
 
     const handleDeleteTrashAppointment = (uuid: string) => {

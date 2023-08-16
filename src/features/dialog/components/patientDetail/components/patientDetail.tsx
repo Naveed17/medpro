@@ -155,16 +155,14 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
     const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const handleOpenFab = () => setOpenFabAdd(true);
@@ -226,8 +224,7 @@ function PatientDetail({...props}) {
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then(() => {
             mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
             setLoadingRequest(false);
@@ -246,10 +243,7 @@ function PatientDetail({...props}) {
                 triggerUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/appointments/${selectedDialog.appUuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`
-                    },
+                    data: form
                 }).then((result: any) => {
                     medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
                     medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
@@ -479,20 +473,25 @@ function PatientDetail({...props}) {
                             p: 2,
                             mt: 'auto',
                             textAlign: "right",
-                            display: {md: "block", xs: "none"},
-                        }}
-                    >
+                            display: {md: "block", xs: "none"}
+                        }}>
                         <LoadingButton
+                            variant={"text"}
+                            color={"black"}
                             loading={loadingRequest}
+                            disabled={!patient}
                             loadingPosition="start"
                             onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
-                            style={{color: "black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</LoadingButton>
+                            startIcon={<Icon
+                                path="ic-doc"
+                                color={!patient ? "white" : "black"}/>}>{t('upload_document')}
+                        </LoadingButton>
 
                         <Button
                             size="medium"
                             variant="contained"
+                            disabled={!patient}
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
@@ -504,8 +503,7 @@ function PatientDetail({...props}) {
                                 dispatch(resetAppointment());
                                 dispatch(setAppointmentPatient(patient as any));
                                 setIsAdd(!isAdd);
-                            }}
-                        >
+                            }}>
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>

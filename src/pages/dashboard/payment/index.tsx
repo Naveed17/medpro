@@ -115,7 +115,7 @@ function Payment() {
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
@@ -211,10 +211,7 @@ function Payment() {
             }
             trigger({
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
             }).then((result) => {
                 let amout = 0;
                 const r: any[] = [];
@@ -251,7 +248,7 @@ function Payment() {
                                         .includes(insur)
                             );
                             return (
-                                row.patient.insurances.length > 0 &&
+                                row.patient.insurances?.length > 0 &&
                                 updatedData &&
                                 updatedData.length > 0
                             );
@@ -393,7 +390,7 @@ function Payment() {
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
-              <MobileContainer>     
+              <MobileContainer>
             <Button
                 startIcon={<IconUrl path="ic-filter"/>}
                 variant="filter"
@@ -404,11 +401,11 @@ function Payment() {
                     transform: "translateX(-50%)",
                     left: "50%",
                     zIndex: 999,
-                    
+
                 }}>
                 Filtrer (0)
             </Button>
-            </MobileContainer> 
+            </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}

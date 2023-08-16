@@ -24,7 +24,7 @@
   "expiry_date": "Date de déchéance",
   "add_cheque": "Ajouter un Chéque",
   "add": "Ajouter",
-  "pay_added":"Payment ajouté",
+  "pay_added": "Payment ajouté",
   "assured": "Assuré",
   "insurance_total": "Assurance",
   "billing": "Facturer",
@@ -38,11 +38,13 @@
   "edit": "Modifier",
   "delete": "Supprimer",
   "addsuccess": "Paiement ajouté",
-  "cashout": "Encaissement",
-  "dialogs":{
+  "cashout": "Encaisser",
+  "appointment_date": "Date du RDV",
+  "remainder_to_pay": "Reste a payé",
+  "dialogs": {
     "delete-dialog": {
-      "title":"Supprimer transaction",
-      "description":"Êtes-vous sûr de vouloir supprimer cette transaction ?"
+      "title": "Supprimer transaction",
+      "description": "Êtes-vous sûr de vouloir supprimer cette transaction ?"
     }
   },
   "encaissed": "encaissés",
@@ -55,6 +57,8 @@
     "type": "Type",
     "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
+    "bank": "Banque",
+    "carrier": "Carrier",
     "billing_status": "Etat de Facturation",
     "amount": "Montant",
     "actions": "Actions",

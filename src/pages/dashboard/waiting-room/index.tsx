@@ -6,7 +6,7 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem, useTheme} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -46,7 +46,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
-    const theme = useTheme();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
@@ -110,18 +109,12 @@ function WaitingRoom() {
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, SWRNoValidateConfig);
 
     const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`
     });
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
@@ -173,8 +166,7 @@ function WaitingRoom() {
         updateTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: form
         }).then(() => {
             mutateWaitingRoom();
             // refresh on going api
@@ -512,7 +504,8 @@ function WaitingRoom() {
                     appointment: row,
                     patient: row?.patient
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t("payment_dialog_title")}
                 dialogClose={resetDialog}
                 actionDialog={

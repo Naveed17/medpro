@@ -23,11 +23,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
-import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
+import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -48,13 +48,13 @@ function a11yProps(index: number) {
 
 function NotificationPopover({...props}) {
     const {onClose} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments: localPendingAppointments, selectedEvent} = useAppSelector(agendaSelector);

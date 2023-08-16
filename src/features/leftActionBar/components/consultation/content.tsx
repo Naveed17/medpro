@@ -96,18 +96,12 @@ const Content = ({...props}) => {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
             medicalEntityHasUser && trigger({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
-                        slug: any;
-                    }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "multipart/form-data",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                    slug: any;
+                }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                data: form
+            }).then(() => {
                 mutateInfo();
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
@@ -119,14 +113,8 @@ const Content = ({...props}) => {
                 {
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
+                    data: form
+                }).then(() => {
                 mutateInfo();
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
                 setState([]);
@@ -140,14 +128,8 @@ const Content = ({...props}) => {
                     url: `${urlMedicalEntitySuffix}/appointments/${
                         router.query["uuid-consultation"]
                     }/requested-analysis/${(state as any).uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
+                    data: form
+                }).then(() => {
                 mutateInfo();
                 medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
             });
@@ -304,12 +286,7 @@ const Content = ({...props}) => {
                                                         name2: `${list.duration ? list.duration : ''} ${list.durationType ? t(list.durationType) : ''}`,
                                                         request: {
                                                             method: "PATCH",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -344,12 +321,7 @@ const Content = ({...props}) => {
                                                         name2: `${list.duration} ${t(list.durationType)}`,
                                                         request: {
                                                             method: "PATCH",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -521,12 +493,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -609,12 +576,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -736,12 +698,7 @@ const Content = ({...props}) => {
                                                         ).format("MMM DD/YYYY"),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);

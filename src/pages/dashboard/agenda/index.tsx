@@ -46,7 +46,7 @@ import {
     Instruction,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates, setAppointmentSubmit,
+    setAppointmentRecurringDates, setAppointmentSubmit, setOpenUploadDialog,
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
@@ -73,8 +73,9 @@ import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
-import { MobileContainer } from "@themes/mobileContainer";
-import { DrawerBottom } from "@features/drawerBottom";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DrawerBottom} from "@features/drawerBottom";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -89,14 +90,14 @@ function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const [filterBottom,setFilterBottom] = useState<boolean>(false)
+    const [filterBottom, setFilterBottom] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
-    const {t, ready} = useTranslation(['agenda', 'common']);
+    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -131,6 +132,9 @@ function Agenda() {
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [loadingRequest, setLoadingRequest] = useState(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
@@ -161,7 +165,6 @@ function Agenda() {
     const [event, setEvent] = useState<EventDef | null>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
-    const [openingHours, setOpeningHours] = useState<OpeningHoursModel | undefined>(undefined);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
@@ -182,9 +185,11 @@ function Agenda() {
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
 
     const getAppointmentBugs = useCallback((date: Date) => {
-        const hasDayWorkHours: any = Object.entries(openingHours as OpeningHoursModel).find((openingHours: any) =>
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
+        const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
             DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
             const interval = calendarIntervalSlot();
@@ -198,7 +203,7 @@ function Agenda() {
             return hasError.every(error => error);
         }
         return true;
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [agenda]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
@@ -208,8 +213,7 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
         }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
@@ -254,7 +258,8 @@ function Agenda() {
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
         let localMaxSlot = 20; //20h
-        Object.entries(openingHours as OpeningHoursModel).forEach((openingHours: any) => {
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
+        Object.entries(openingHours).forEach((openingHours: any) => {
             openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
@@ -312,12 +317,6 @@ function Agenda() {
             getAppointments(queryPath, view);
         }
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (agenda?.openingHours[0]) {
-            setOpeningHours(agenda.openingHours[0]);
-        }
-    }, [agenda])
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         // dispatch(resetFilterPatient());
@@ -555,6 +554,10 @@ function Agenda() {
                 setEvent(event);
                 setOpenPreConsultationDialog(true);
                 break;
+            case "onAddConsultationDocuments":
+                setEvent(event);
+                setOpenUploadDialog(true);
+                break;
         }
     }
 
@@ -693,10 +696,7 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
@@ -719,10 +719,7 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            data: form
         }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
@@ -845,6 +842,7 @@ function Agenda() {
     }
 
     const submitPreConsultationData = () => {
+        setLoadingRequest(true);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
@@ -853,6 +851,7 @@ function Agenda() {
                 "modal_data": localStorage.getItem(`Modeldata${event?.publicId}`) as string
             }
         } as any).then(() => {
+            setLoadingRequest(false);
             localStorage.removeItem(`Modeldata${event?.publicId}`);
             setOpenPreConsultationDialog(false);
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
@@ -889,6 +888,22 @@ function Agenda() {
         }
     }
 
+    const handleUploadDocuments = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`files[${file.type}][]`, file.file, file.name);
+        });
+        medicalEntityHasUser && triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
+            data: params
+        }).then(() => {
+            setLoadingRequest(false);
+            setOpenUploadDialog(false);
+        });
+    }
+
     const handleAddAppointmentRequest = () => {
         setLoading(true);
         const params = new FormData();
@@ -905,8 +920,7 @@ function Agenda() {
         addAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            data: params
         }).then((value: any) => {
             setLoading(false);
             if (value?.data.status === 'success') {
@@ -1174,8 +1188,7 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={cleanDrawData}
-                >
+                    onClose={cleanDrawData}>
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
@@ -1184,7 +1197,10 @@ function Agenda() {
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 onConsultation={() => onMenuActions('onConsultationView', event)}
-                                onConsultationStart={() => onMenuActions('onConsultationDetail', event)}
+                                onConsultationStart={(eventData: any) => {
+                                    onMenuActions('onConsultationDetail', eventData);
+                                    dispatch(openDrawer({type: "patient", open: false}));
+                                }}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
@@ -1357,12 +1373,51 @@ function Agenda() {
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
-                                {...{loading}}
+                                loading={loadingRequest}
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                 {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
+                <Dialog
+                    action={"add_a_document"}
+                    open={openUploadDialog}
+                    data={{
+                        t,
+                        state: documentConfig,
+                        setState: setDocumentConfig
+                    }}
+                    size={"md"}
+                    direction={"ltr"}
+                    sx={{minHeight: 400}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    dialogClose={() => {
+                        setOpenUploadDialog(false);
+                    }}
+                    onClose={() => {
+                        setOpenUploadDialog(false);
+                    }}
+                    actionDialog={
+                        <DialogActions>
+                            <Button
+                                onClick={() => {
+                                    setOpenUploadDialog(false);
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("config.add-patient.cancel", {ns: "patient"})}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                variant="contained"
+                                onClick={() => handleUploadDocuments()}
+                                startIcon={<SaveRoundedIcon/>}>
+                                {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
                         </DialogActions>
                     }
@@ -1418,28 +1473,28 @@ function Agenda() {
                         </>
                     }
                 />
-                <MobileContainer>     
-            <Button
-                startIcon={<IconUrl path="ic-filter"/>}
-                variant="filter"
-                onClick={() => setFilterBottom(true)}
-                sx={{
-                    position: "fixed",
-                    bottom: 50,
-                    transform: "translateX(-50%)",
-                    left: "50%",
-                    zIndex: 999,
-                    
-                }}>
-                {t("filter.title")} (0)
-            </Button>
-            </MobileContainer> 
-            <DrawerBottom
-                handleClose={() => setFilterBottom(false)}
-                open={filterBottom}
-                title={t("filter.title")}>
-                <AgendaFilter/>
-            </DrawerBottom>
+                <MobileContainer>
+                    <Button
+                        startIcon={<IconUrl path="ic-filter"/>}
+                        variant="filter"
+                        onClick={() => setFilterBottom(true)}
+                        sx={{
+                            position: "fixed",
+                            bottom: 50,
+                            transform: "translateX(-50%)",
+                            left: "50%",
+                            zIndex: 999,
+
+                        }}>
+                        {t("filter.title")} (0)
+                    </Button>
+                </MobileContainer>
+                <DrawerBottom
+                    handleClose={() => setFilterBottom(false)}
+                    open={filterBottom}
+                    title={t("filter.title")}>
+                    <AgendaFilter/>
+                </DrawerBottom>
             </Box>
         </div>
     )
