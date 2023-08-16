@@ -67,7 +67,7 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",

@@ -208,7 +208,7 @@ export const CalendarContextMenu = [
     {
         title: "import_document",
         icon: <UploadFileOutlinedIcon/>,
-        action: "addConsultationDocuments",
+        action: "onAddConsultationDocuments",
     },
     {
         title: "confirm_appointment",

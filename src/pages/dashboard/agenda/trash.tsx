@@ -77,7 +77,7 @@ function Trash() {
     const [event, setEvent] = useState<EventModal | null>();
 
     const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment"], sendRequest as any);
+    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
         method: "GET",

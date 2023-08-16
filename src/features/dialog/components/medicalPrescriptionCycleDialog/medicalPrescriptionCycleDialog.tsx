@@ -67,6 +67,7 @@ import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
 import {dosageMeal, initPrescriptionCycleData, duration} from "@features/dialog";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {useSession} from "next-auth/react";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -79,6 +80,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
+    const {data: session} = useSession();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
 
@@ -215,7 +217,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",

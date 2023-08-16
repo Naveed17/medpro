@@ -509,8 +509,7 @@ function Calendar({...props}) {
                                 transformOrigin={{
                                     vertical: 'top',
                                     horizontal: 'left',
-                                }}
-                            >
+                                }}>
                                 {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
