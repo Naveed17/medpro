@@ -5,18 +5,17 @@ import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
 import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
 import dynamic from "next/dynamic";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
     const [type, setType] = useState("");
-    const [types, setTypes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [load, setLoad] = useState(false);
     const {data} = props;
@@ -26,11 +25,10 @@ function AddDocumentDialog({...props}) {
     const {data: httpTypeResponse} = useRequest({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
-    });
+    }, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpTypeResponse) {
-            setTypes((httpTypeResponse as HttpResponse).data);
             setLoading(false);
         }
     }, [httpTypeResponse]);
@@ -101,13 +99,13 @@ function AddDocumentDialog({...props}) {
                                         selected={""}
                                         height={100}
                                         paddingTop={20}
-                                        loading={true}
+                                        loading
                                         active={data.state.type}
                                     />
                                 </Grid>
                             ))
-                            : types.map(
-                                (item: any, index) => (
+                            : ((httpTypeResponse as HttpResponse)?.data ?? []).map(
+                                (item: any, index: number) => (
                                     <Grid key={index} item xs={6} md={6}>
                                         <DocumentButton
                                             icon={item.logo.url}

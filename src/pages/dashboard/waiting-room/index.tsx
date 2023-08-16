@@ -104,7 +104,7 @@ function WaitingRoom() {
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
     const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {

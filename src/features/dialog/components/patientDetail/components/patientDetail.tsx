@@ -473,7 +473,7 @@ function PatientDetail({...props}) {
                             p: 2,
                             mt: 'auto',
                             textAlign: "right",
-                            display: {md: "block", xs: "none"},
+                            display: {md: "block", xs: "none"}
                         }}>
                         <LoadingButton
                             variant={"text"}
@@ -483,8 +483,10 @@ function PatientDetail({...props}) {
                             loadingPosition="start"
                             onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
-                            startIcon={<Icon path="ic-doc"
-                                             color={!patient ? "white" : "black"}/>}>{t('upload_document')}</LoadingButton>
+                            startIcon={<Icon
+                                path="ic-doc"
+                                color={!patient ? "white" : "black"}/>}>{t('upload_document')}
+                        </LoadingButton>
 
                         <Button
                             size="medium"
@@ -501,8 +503,7 @@ function PatientDetail({...props}) {
                                 dispatch(resetAppointment());
                                 dispatch(setAppointmentPatient(patient as any));
                                 setIsAdd(!isAdd);
-                            }}
-                        >
+                            }}>
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>

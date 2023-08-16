@@ -10,7 +10,7 @@ import {
     Stack,
     Theme,
     Typography,
-    useMediaQuery
+    useMediaQuery,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
@@ -29,15 +29,13 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry, TransactionStatus, TransactionType,} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
-import {DrawerBottom} from "@features/drawerBottom";
 import {PaymentDrawer} from "@features/drawer";
-import moment from "moment/moment";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -137,8 +135,6 @@ function Cashbox() {
         theme.breakpoints.down("md")
     );
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {enqueueSnackbar} = useSnackbar();
-    const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
@@ -164,6 +160,9 @@ function Cashbox() {
     const [paymentDrawer, setPaymentDrawer] = useState<boolean>(false);
     const [selectedCashBox, setCashbox] = useState<any>(null);
     const [idsSelected, setIdsSelected] = useState<string[]>([])
+
+    const {enqueueSnackbar} = useSnackbar();
+    const {insurances} = useInsurances();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)
@@ -475,8 +474,8 @@ function Cashbox() {
                                             insurances={insurances}
                                             pmList={pmList}
                                             mutateTransctions={mutateTransctions}
-                                            {...{idsSelected}}
-                                            handleIdsSelect={(v: string) => handleIdsSelect(v)}
+
+
                                         />
                                     </React.Fragment>
                                 ))}

@@ -37,6 +37,7 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {useSession} from "next-auth/react";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -46,6 +47,7 @@ function TemplatesConfig() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
+    const {data: session} = useSession();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {t: tConsultation} = useTranslation("consultation");
@@ -67,7 +69,7 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
 
     const {trigger} = useRequestMutation(null, "/settings/certifModel");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit"], sendRequest as any);
+    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
         method: "GET",

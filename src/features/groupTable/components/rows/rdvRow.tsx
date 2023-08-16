@@ -27,12 +27,14 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useRequest} from "@lib/axios";
+import {useSession} from "next-auth/react";
 
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
     const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
@@ -42,7 +44,7 @@ function RDVRow({...props}) {
 
     const [appointmentData, setAppointmentData] = useState<any>(null);
 
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
 
     const {
         data: httpPatientHistoryResponse,

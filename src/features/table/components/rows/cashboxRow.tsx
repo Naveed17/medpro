@@ -402,8 +402,8 @@ function PaymentRow({...props}) {
                             {isItemSelected && !row.appointment && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                                    onClick={(event) => {
+                                        event.stopPropagation();
                                         setOpenDeleteTransactionDialog(true);
                                     }}>
                                     <IconUrl path="setting/icdelete"/>

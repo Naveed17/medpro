@@ -24,6 +24,7 @@ const nextConfig = withTM({
     output: 'standalone',
     i18n,
     images: {
+        dangerouslyAllowSVG: true,
         domains: ["flagcdn.com", process.env.S3_URL || '']
     },
     sentry: {
