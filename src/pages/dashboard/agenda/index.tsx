@@ -892,7 +892,7 @@ function Agenda() {
         setLoadingRequest(true);
         const params = new FormData();
         documentConfig.files.map((file: any) => {
-            params.append(`document[${file.type}][]`, file.file, file.name);
+            params.append(`files[${file.type}][]`, file.file, file.name);
         });
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
@@ -900,6 +900,7 @@ function Agenda() {
             data: params
         }).then(() => {
             setLoadingRequest(false);
+            setOpenUploadDialog(false);
         });
     }
 
@@ -1410,16 +1411,14 @@ function Agenda() {
                                 startIcon={<CloseIcon/>}>
                                 {t("config.add-patient.cancel", {ns: "patient"})}
                             </Button>
-                            <Button
-                                disabled={loading}
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
                                 variant="contained"
-                                onClick={() => {
-                                    setOpenUploadDialog(false);
-                                    handleUploadDocuments();
-                                }}
+                                onClick={() => handleUploadDocuments()}
                                 startIcon={<SaveRoundedIcon/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
-                            </Button>
+                            </LoadingButton>
                         </DialogActions>
                     }
                 />
