@@ -341,24 +341,6 @@ function ConsultationInProgress() {
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
 
-            // Exam history
-            /*
-                        let noteHistories: any[] = []
-                        appointment.latestAppointments.map((app: any) => {
-                            const note = app.appointment.appointmentData.find((appdata: any) => appdata.name === "notes")
-                            const diagnostics = app.appointment.appointmentData.find((appdata: any) => appdata.name === "diagnostics")
-                            if ((note && note.value !== '') || (diagnostics && diagnostics.value !== '')) {
-                                noteHistories.push({
-                                    data: app.appointment.dayDate,
-                                    note: note.value,
-                                    diagnostics: diagnostics.value
-                                })
-                            }
-
-                        })
-                        setNotes(noteHistories);
-            */
-
             //Acts
             let _acts: AppointmentActModel[] = [];
             _acts = [{

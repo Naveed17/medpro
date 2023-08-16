@@ -50,7 +50,7 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
     const {insurances, mutateTransctions, pmList, hideName} = data;
-  
+
     const {data: session} = useSession();
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -102,7 +102,7 @@ function PaymentRow({...props}) {
         setOpenPaymentDialog(false);
     }
     const mutatePatientWallet = () => {
-        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
+        medicalEntityHasUser && row.appointment && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
     }
     const handleSubmit = () => {
         setLoadingRequest(true)
@@ -151,7 +151,7 @@ function PaymentRow({...props}) {
             let pay: any = {
                 uuid: td.uuid,
                 amount: td.amount,
-                payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                payment_date: td.payment_date,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data
@@ -164,18 +164,16 @@ function PaymentRow({...props}) {
                 }) => pt.slug === td.payment_means.slug)
             payments.push(pay)
         })
-
         setSelectedPayment({
-            uuid: row.appointment.uuid,
+            uuid: row.uuid,
             payments,
             payed_amount,
             appointment: row.appointment,
-            patient: row.appointment.patient,
+            patient:row.patient,
             total: row?.amount,
             isNew: false
         });
         setOpenPaymentDialog(true);
-
     }
     const handleClose = () => {
         setContextMenu(null);
@@ -259,7 +257,7 @@ function PaymentRow({...props}) {
 
                 </TableCell>
                 {!hideName &&
-                
+
                 <TableCell>
                     {row.appointment ? (
                         <Link
@@ -352,7 +350,7 @@ function PaymentRow({...props}) {
                         }}
                                     color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                                     fontWeight={700}>
-                            {row.rest_amount > 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
+                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
                             style={{fontSize: 10}}>{devise}</span>
                         </Typography>
 
@@ -391,7 +389,7 @@ function PaymentRow({...props}) {
                                     <Icon path={"ic-argent"}/>
                                 </IconButton>
                             </Tooltip>}
-                            {isItemSelected && <Tooltip title={t('edit')}>
+                            {isItemSelected && row.appointment && <Tooltip title={t('edit')}>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -401,7 +399,7 @@ function PaymentRow({...props}) {
                                     <IconUrl path="setting/edit"/>
                                 </IconButton>
                             </Tooltip>}
-                            {isItemSelected && <Tooltip title={t('delete')}>
+                            {isItemSelected && !row.appointment && <Tooltip title={t('delete')}>
                                 <IconButton
                                     size="small"
                                     onClick={(event) => {
@@ -498,7 +496,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(row.date_transaction).format('HH:mm')}</Typography>
+                                                        variant="body2">{moment(col.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm')}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell
@@ -600,7 +598,8 @@ function PaymentRow({...props}) {
                     appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
                     patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t('payment_dialog_title')}
                 dialogClose={resetDialog}
                 actionDialog={

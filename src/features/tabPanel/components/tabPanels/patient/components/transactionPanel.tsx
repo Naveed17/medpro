@@ -269,7 +269,8 @@ function TransactionPanel({...props}) {
                     setSelectedPayment,
                     patient,
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t('payment_dialog_title')}
                 dialogClose={() => {
                     setOpenPaymentDialog(false)

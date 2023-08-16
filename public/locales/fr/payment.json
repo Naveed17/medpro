@@ -38,7 +38,7 @@
   "edit": "Modifier",
   "delete": "Supprimer",
   "addsuccess": "Paiement ajouté",
-  "cashout": "Encaissement",
+  "cashout": "Encaisser",
   "appointment_date": "Date du RDV",
   "remainder_to_pay": "Reste a payé",
   "dialogs": {
@@ -57,6 +57,8 @@
     "type": "Type",
     "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
+    "bank": "Banque",
+    "carrier": "Carrier",
     "billing_status": "Etat de Facturation",
     "amount": "Montant",
     "actions": "Actions",
