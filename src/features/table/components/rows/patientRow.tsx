@@ -191,8 +191,14 @@ function PatientRow({...props}) {
                                                     }}
                                                     color={"warning"}>
                                                     <WarningRoundedIcon sx={{width: 12, height: 12}}/>
-                                                    <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
-                                                </Label></Button>}
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: 10,
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis"
+                                                        }}> {t("duplication")}</Typography>
+                                                </Label>
+                                            </Button>}
 
                                             {row.hasInfo &&
                                                 <Chip
@@ -228,7 +234,7 @@ function PatientRow({...props}) {
             <TableCell>
                 {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
-                        {row.insurances.length > 0 ?
+                        {row?.insurances?.length > 0 ?
                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
                                 {row.insurances.map((insuranceItem: any, index: number) =>
                                     <Tooltip key={index} title={insuranceItem?.insurance.name}>
@@ -256,7 +262,7 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     ) : (
                         <>
-                            {(row.contact.length > 0 ? <Stack direction={"row"}>
+                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
                                 {row.contact[0].code &&
                                     <Typography variant={"body2"} color={"primary"}
                                                 sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
@@ -419,11 +425,13 @@ function PatientRow({...props}) {
                 </Box>
             </TableCell>
 
-            <TableCell align="right" sx={{
-                display: "flex",
-                alignItems: "center",
-                minHeight: "58.85px",
-            }}>
+            <TableCell
+                align="right"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    minHeight: "58.85px",
+                }}>
                 {loading ? (
                     <>
                         <Skeleton

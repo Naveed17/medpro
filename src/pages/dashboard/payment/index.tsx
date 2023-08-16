@@ -248,7 +248,7 @@ function Payment() {
                                         .includes(insur)
                             );
                             return (
-                                row.patient.insurances.length > 0 &&
+                                row.patient.insurances?.length > 0 &&
                                 updatedData &&
                                 updatedData.length > 0
                             );

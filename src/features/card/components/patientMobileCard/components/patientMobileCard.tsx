@@ -112,7 +112,7 @@ const CardSection = ({...props}) => {
                                 </Stack>
                                 {loading ? <Skeleton variant="text"/> : (
                                     <Stack direction={"row"} alignItems={"center"} ml={1}>
-                                        {data.insurances.length > 0 ?
+                                        {data.insurances?.length > 0 ?
                                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}
                                                          max={3}>
                                                 {data.insurances.map((insuranceItem: any, index: number) =>
