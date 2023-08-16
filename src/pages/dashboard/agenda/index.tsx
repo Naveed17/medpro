@@ -46,7 +46,7 @@ import {
     Instruction,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates, setAppointmentSubmit,
+    setAppointmentRecurringDates, setAppointmentSubmit, setOpenUploadDialog,
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
@@ -75,6 +75,7 @@ import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -96,7 +97,7 @@ function Agenda() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
-    const {t, ready} = useTranslation(['agenda', 'common']);
+    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -131,6 +132,9 @@ function Agenda() {
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [loadingRequest, setLoadingRequest] = useState(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
@@ -180,7 +184,8 @@ function Agenda() {
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update"], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -549,6 +554,10 @@ function Agenda() {
                 setEvent(event);
                 setOpenPreConsultationDialog(true);
                 break;
+            case "onAddConsultationDocuments":
+                setEvent(event);
+                setOpenUploadDialog(true);
+                break;
         }
     }
 
@@ -833,6 +842,7 @@ function Agenda() {
     }
 
     const submitPreConsultationData = () => {
+        setLoadingRequest(true);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
@@ -841,6 +851,7 @@ function Agenda() {
                 "modal_data": localStorage.getItem(`Modeldata${event?.publicId}`) as string
             }
         } as any).then(() => {
+            setLoadingRequest(false);
             localStorage.removeItem(`Modeldata${event?.publicId}`);
             setOpenPreConsultationDialog(false);
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
@@ -875,6 +886,22 @@ function Agenda() {
                 setQuickAddAppointment(true);
                 break;
         }
+    }
+
+    const handleUploadDocuments = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`files[${file.type}][]`, file.file, file.name);
+        });
+        medicalEntityHasUser && triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
+            data: params
+        }).then(() => {
+            setLoadingRequest(false);
+            setOpenUploadDialog(false);
+        });
     }
 
     const handleAddAppointmentRequest = () => {
@@ -1346,12 +1373,51 @@ function Agenda() {
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
-                                {...{loading}}
+                                loading={loadingRequest}
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                 {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
+                <Dialog
+                    action={"add_a_document"}
+                    open={openUploadDialog}
+                    data={{
+                        t,
+                        state: documentConfig,
+                        setState: setDocumentConfig
+                    }}
+                    size={"md"}
+                    direction={"ltr"}
+                    sx={{minHeight: 400}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    dialogClose={() => {
+                        setOpenUploadDialog(false);
+                    }}
+                    onClose={() => {
+                        setOpenUploadDialog(false);
+                    }}
+                    actionDialog={
+                        <DialogActions>
+                            <Button
+                                onClick={() => {
+                                    setOpenUploadDialog(false);
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("config.add-patient.cancel", {ns: "patient"})}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                variant="contained"
+                                onClick={() => handleUploadDocuments()}
+                                startIcon={<SaveRoundedIcon/>}>
+                                {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
                         </DialogActions>
                     }

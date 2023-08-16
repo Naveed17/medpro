@@ -509,8 +509,7 @@ function Calendar({...props}) {
                                 transformOrigin={{
                                     vertical: 'top',
                                     horizontal: 'left',
-                                }}
-                            >
+                                }}>
                                 {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
@@ -525,8 +524,7 @@ function Calendar({...props}) {
                                                 OnMenuActions(v.action, event);
                                                 handleClose();
                                             }}
-                                            className="popover-item"
-                                        >
+                                            className="popover-item">
                                             {v.icon}
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
                                                 {translation(`${v.title}`, {ns: 'common'})}

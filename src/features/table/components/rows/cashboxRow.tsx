@@ -406,8 +406,7 @@ function PaymentRow({...props}) {
                                     size="small"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        //setOpenDeleteTransactionDialog(true);
-                                        handleEvent({action: "PATIENT_PAYMENT", row: row, event});
+                                        setOpenDeleteTransactionDialog(true);
                                     }}>
                                     <IconUrl path="setting/icdelete"/>
                                 </IconButton>
