@@ -481,6 +481,8 @@
     "alert": {
       "add": "Acte est ajouté",
       "updated": "Acte est modifé",
+      "demo": "Mode Demo est activé",
+      "demodisabled": "Mode Demo est désactivé ",
       "delete-act": "Acte est supprimé",
       "cannot-delete-resource": "Impossible de supprimer la ressource"
     }

@@ -265,11 +265,15 @@ function DashLayout({children}: LayoutProps) {
                 dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
+            let demo =  user.medical_entity.hasDemo;
+            if (localStorage.getItem('newCashbox'))
+                demo =  localStorage.getItem('newCashbox') === "1";
+
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
-                newCashBox: localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === "1" : user.medical_entity.hasDemo,
+                newCashBox: demo,
                 next: calendarData.next ? calendarData.next : null,
                 last_fiche_id: justNumbers(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
                 ongoing: calendarData.ongoing ? calendarData.ongoing : null
