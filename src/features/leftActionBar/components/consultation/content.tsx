@@ -131,7 +131,10 @@ const Content = ({...props}) => {
                     data: form
                 }).then(() => {
                 mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                if (medicalEntityHasUser){
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                }
             });
         } else if (info === "medical_imaging_pending") {
             mutateInfo();
@@ -148,7 +151,10 @@ const Content = ({...props}) => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(
             () => {
                 mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                if (medicalEntityHasUser){
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                }
             }
         );
         setOpenRemove(false);

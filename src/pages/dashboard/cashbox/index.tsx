@@ -183,7 +183,7 @@ function Cashbox() {
     const {data: paymentMeansHttp} = useRequest(
         {
             method: "GET",
-            url: "/api/public/payment-means/" + router.locale
+            url: `/api/public/payment-means/${router.locale}`
         },
         SWRNoValidateConfig
     );
@@ -334,7 +334,7 @@ function Cashbox() {
 
             triggerPostTransaction({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/transactions/encashment/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/transactions/encashment/${router.locale}`,
                 data: form
             }).then(() => {
                 mutateTransctions().then(() => {

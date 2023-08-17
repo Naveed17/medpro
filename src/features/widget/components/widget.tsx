@@ -78,13 +78,16 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         <>
             <Form
                 onChange={(ev: any) => {
-                    localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
-                    const item = changes.find(
-                        (change: { name: string }) => change.name === "patientInfo"
-                    );
-                    item.checked =
-                        Object.values(ev.data).filter((val) => val !== "").length > 0;
-                    setChanges([...changes]);
+                    if(Object.keys(ev.data).length !== 0){
+                        localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
+                        const item = changes.find(
+                            (change: { name: string }) => change.name === "patientInfo"
+                        );
+                        item.checked =
+                            Object.values(ev.data).filter((val) => val !== "").length > 0;
+                        setChanges([...changes]);
+                    }
+
                 }}
                 // @ts-ignore
                 submission={{

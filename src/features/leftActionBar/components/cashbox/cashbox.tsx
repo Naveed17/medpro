@@ -1,12 +1,12 @@
 // components
-import {ActionBarState, BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
+import {BoxStyled} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, DayOfWeek} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
-import {Box, Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
@@ -145,7 +145,7 @@ function Cashbox() {
                             <BoxesFilter/>
                         ),
                     },
-                    {
+                    /*{
                         heading: {
                             id: "facturation",
                             icon: "ic-invoice",
@@ -185,7 +185,7 @@ function Cashbox() {
                                 />
                             </Stack>
                         ),
-                    },
+                    },*/
                     {
                         heading: {
                             id: "paymentType",
@@ -250,7 +250,7 @@ function Cashbox() {
                             </Box>
                         ),
                     },
-                    {
+                    /*{
                         heading: {
                             id: "patient",
                             icon: "ic-patient",
@@ -283,7 +283,7 @@ function Cashbox() {
                                     }} t={t}/>
                             </FilterRootStyled>
                         ),
-                    }
+                    }*/
                 ]}
                 setData={() => {
 

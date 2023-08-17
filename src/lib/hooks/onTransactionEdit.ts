@@ -33,7 +33,7 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
         form.append("cash_box", selectedBoxes[0]?.uuid);
         form.append("amount", selectedPayment.total.toString());
         form.append("rest_amount", (selectedPayment.total - payed_amount).toString());
-        form.append("appointment", selectedPayment.uuid);
+        form.append("appointment", selectedPayment.appointment?.uuid);
         form.append("transaction_data", JSON.stringify(transaction_data));
         const method = selectedPayment.isNew ? "POST" : "PUT";
         const url = selectedPayment.isNew ? `${urlMedicalEntitySuffix}/transactions/${locale}` : `${urlMedicalEntitySuffix}/transactions/${transactions?.uuid}/${locale}`;
