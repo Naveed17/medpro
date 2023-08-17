@@ -107,7 +107,7 @@ function ActFees() {
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
-    const [isChecked, setIsChecked] = useState(localStorage.getItem('newCash') ? localStorage.getItem('newCash') === '1': user.medical_entity.hasDemo);
+    const [isChecked, setIsChecked] = useState(user.medical_entity.hasDemo);
     const [newFees, setNewFees] = useState<{
         act: ActModel | string | null;
         fees: string;
@@ -142,6 +142,9 @@ function ActFees() {
     useEffect(() => {
         if (medicalProfessionalData) {
             setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
+            if (localStorage.getItem('newCashbox')){
+                setIsChecked(localStorage.getItem('newCashbox') === '1')
+            }
         }
     }, [medicalProfessionalData]);
 
@@ -394,9 +397,9 @@ function ActFees() {
                                         },
                                         TriggerWithoutValidation
                                     ).then(() => {
-                                        enqueueSnackbar(t("alert.updated"), {variant: "success"})
+                                        enqueueSnackbar(t(isChecked ? "alert.demodisabled":"alert.demo"), {variant: "success"})
                                         dispatch(setOngoing({newCashBox: !isChecked}));
-                                        localStorage.setItem('newCash',!isChecked ? '1':'0')
+                                        localStorage.setItem('newCashbox',!isChecked ? '1':'0')
                                         setIsChecked(!isChecked);
                                     });
 
