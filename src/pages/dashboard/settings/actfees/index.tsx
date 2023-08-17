@@ -398,7 +398,6 @@ function ActFees() {
                                         TriggerWithoutValidation
                                     ).then(() => {
                                         enqueueSnackbar(t(isChecked ? "alert.demodisabled":"alert.demo"), {variant: "success"})
-                                        console.log(!isChecked)
                                         dispatch(setOngoing({newCashBox: !isChecked}));
                                         localStorage.setItem('newCashbox',!isChecked ? '1':'0')
                                         setIsChecked(!isChecked);
