@@ -55,7 +55,7 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                <Tooltip title={item.name}>
+                                <Tooltip title={item.note ? item.note : '-'}>
                                     <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
                                         {item.name}{" "}
                                         {item.startDate ? " / " + item.startDate : ""}{" "}
