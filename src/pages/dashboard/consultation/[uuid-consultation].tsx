@@ -219,7 +219,7 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientAnalyses,mutate:mutatePatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null, SWRNoValidateConfig);
@@ -559,14 +559,16 @@ function ConsultationInProgress() {
         return isClose ? 11 : closeExam ? 1 : 7;
     }
     const seeHistory = (appointmentDataHistory: any) => {
-        const groupsDiagnostics: any = appointmentDataHistory.diagnostics.group((diag: any) => diag.date);
-        const groupsNotes: any = appointmentDataHistory.notes.group((diag: any) => diag.date);
+        const groupsDiagnostics: any = appointmentDataHistory.diagnostics?.group((diag: any) => diag.date);
+        const groupsNotes: any = appointmentDataHistory.notes?.group((diag: any) => diag.date);
         let notes: any[] = [];
-        Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {
-            ...notes[diag[0]],
-            diagnostics: diag[1]
-        });
-        Object.entries(groupsNotes).forEach((note: any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
+        if (groupsDiagnostics)
+            Object.entries(groupsDiagnostics).forEach((diag: any) => notes[diag[0]] = {
+                ...notes[diag[0]],
+                diagnostics: diag[1]
+            });
+        if (groupsNotes)
+            Object.entries(groupsNotes).forEach((note: any) => notes[note[0]] = {...notes[note[0]], note: note[1]});
 
         setStateHistory(Object.entries(notes).map((data) => ({
             data: data[0],
@@ -796,6 +798,7 @@ function ConsultationInProgress() {
                         appuuid={app_uuid}
                         mutate={mutate}
                         mutateDoc={mutateDoc}
+                        mutatePatientAnalyses={mutatePatientAnalyses}
                         pendingDocuments={pendingDocuments}
                         setPendingDocuments={setPendingDocuments}
                         dialog={dialog}

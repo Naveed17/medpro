@@ -88,7 +88,7 @@ const headCells = [
 ];
 
 function TransactionPanel({...props}) {
-    const {patient, router} = props;
+    const {patient,wallet,rest,walletMutate,devise, router} = props;
 
     const {trigger} = useRequestMutation(null, "/patient/wallet");
 
@@ -102,26 +102,16 @@ function TransactionPanel({...props}) {
     const [pmList, setPmList] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
-    const [wallet, setWallet] = useState(0);
-    const [rest, setRest] = useState(0);
     const [toReceive, setToReceive] = useState(0);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const devise = doctor_country.currency?.name;
-
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientWallet, mutate: walletMutate} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
-    } : null);
+
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
@@ -151,13 +141,6 @@ function TransactionPanel({...props}) {
             setPmList(pList);
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (httpPatientWallet) {
-            setWallet((httpPatientWallet as HttpResponse).data.wallet)
-            setRest((httpPatientWallet as HttpResponse).data.rest_amount)
-        }
-    }, [httpPatientWallet])
 
     const handleSubmit = () => {
         let amount = 0

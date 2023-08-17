@@ -410,10 +410,10 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                {(appointmentDataHistory?.hasOwnProperty('notes') || appointmentDataHistory?.hasOwnProperty('diagnostics')) &&
+                               {/* {(appointmentDataHistory?.hasOwnProperty('notes') || appointmentDataHistory?.hasOwnProperty('diagnostics')) &&
                                     <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
                                         seeHistory(appointmentDataHistory)
-                                    }}>{t('seeHistory')}</Typography>}
+                                    }}>{t('seeHistory')}</Typography>}*/}
                             </Stack>
 
                             <TextField

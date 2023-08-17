@@ -2,7 +2,7 @@
 import {
     Avatar,
     Box,
-    Button,
+    Button, Chip,
     IconButton,
     InputBase,
     Skeleton,
@@ -36,6 +36,7 @@ import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
 import dynamic from "next/dynamic";
+import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -47,7 +48,8 @@ function PatientDetailsCard({...props}) {
         mutatePatientList,
         mutateAgenda,
         loading = false,
-        setEditableSection
+        setEditableSection,
+        rest,wallet,devise
     } = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -228,6 +230,11 @@ function PatientDetailsCard({...props}) {
                                         }}
                                         {...getFieldProps("name")}
                                     />
+                                    {rest > 0 && <Chip size="small"
+                                           label={`- ${rest} ${devise}`}
+                                           color={"error"}
+                                           icon={<WarningRoundedIcon/>}/>}
+
                                 </Stack>
                             )}
 
