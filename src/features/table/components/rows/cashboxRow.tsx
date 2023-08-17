@@ -252,7 +252,7 @@ function PaymentRow({...props}) {
                             },
                         }}>
                         <Icon path="ic-time"/>
-                        <Typography variant="body2">{moment(row.date_transaction).format('HH:mm')}</Typography>
+                        <Typography variant="body2">{moment(row.date_transaction).add(1,"hour").format('HH:mm')}</Typography>
                     </Stack>
 
                 </TableCell>
@@ -496,7 +496,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm')}</Typography>
+                                                        variant="body2">{moment(col.time,'HH:mm').add(1,"hour").format('HH:mm')}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell

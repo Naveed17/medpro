@@ -102,7 +102,10 @@ function HistoryContainer({...props}) {
             url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
             data: form,
         }).then(() => {
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`);
+            if (medicalEntityHasUser){
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+            }
         });
     }
 

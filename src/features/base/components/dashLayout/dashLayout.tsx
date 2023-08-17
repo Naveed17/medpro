@@ -269,7 +269,7 @@ function DashLayout({children}: LayoutProps) {
                 mutate,
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
-                newCashBox: localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === "1" : false,
+                newCashBox: localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === "1" : user.medical_entity.hasDemo,
                 next: calendarData.next ? calendarData.next : null,
                 last_fiche_id: justNumbers(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
                 ongoing: calendarData.ongoing ? calendarData.ongoing : null

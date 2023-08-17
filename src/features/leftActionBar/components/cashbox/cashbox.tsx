@@ -145,7 +145,7 @@ function Cashbox() {
                             <BoxesFilter/>
                         ),
                     },
-                    {
+                    /*{
                         heading: {
                             id: "facturation",
                             icon: "ic-invoice",
@@ -185,7 +185,7 @@ function Cashbox() {
                                 />
                             </Stack>
                         ),
-                    },
+                    },*/
                     {
                         heading: {
                             id: "paymentType",
@@ -250,7 +250,7 @@ function Cashbox() {
                             </Box>
                         ),
                     },
-                    {
+                    /*{
                         heading: {
                             id: "patient",
                             icon: "ic-patient",
@@ -283,7 +283,7 @@ function Cashbox() {
                                     }} t={t}/>
                             </FilterRootStyled>
                         ),
-                    }
+                    }*/
                 ]}
                 setData={() => {
 

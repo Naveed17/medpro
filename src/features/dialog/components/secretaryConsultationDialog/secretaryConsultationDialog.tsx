@@ -5,7 +5,7 @@ import {
     Button,
     Card,
     CardContent,
-    Checkbox,
+    Checkbox, Chip,
     DialogActions,
     Grid,
     IconButton,
@@ -39,7 +39,7 @@ import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
-
+import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
@@ -172,7 +172,7 @@ function SecretaryConsultationDialog({...props}) {
                             }}
                         />
                         {
-                            total - getTransactionAmountPayed() !== 0 &&
+                            total - getTransactionAmountPayed() !== 0 ?
                             <Stack direction={"row"} alignItems={"center"}>
                                 <Typography mr={1}>{t("amount_paid")}</Typography>
                                 <Label
@@ -203,7 +203,13 @@ function SecretaryConsultationDialog({...props}) {
                                     <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
                                     <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
                                 </Button>
-                            </Stack>
+                            </Stack>:
+                                <Chip
+                                    label={`${total} ${devise}`}
+                                    color={"success"}
+                                    onDelete={()=>{}}
+                                    deleteIcon={<DoneAllRoundedIcon />}
+                                />
                         }
                         <Button
                             className="counter-btn"

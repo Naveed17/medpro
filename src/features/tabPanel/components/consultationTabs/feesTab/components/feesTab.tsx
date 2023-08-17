@@ -93,7 +93,7 @@ function FeesTab({...props}) {
                 <Otable
                     headers={headCells}
                     rows={acts?.filter((act: any) => {
-                        return act.act.name.toLowerCase().includes(search.toLowerCase())
+                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
                     })}
                     from={"CIP-medical-procedures"}
                     t={t}

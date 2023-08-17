@@ -52,6 +52,7 @@ function ConsultationIPToolbar({...props}) {
         setSelectedTab,
         appuuid,
         mutate,
+        mutatePatientAnalyses,
         agenda,
         mutateDoc,
         setPendingDocuments,
@@ -213,6 +214,7 @@ function ConsultationIPToolbar({...props}) {
                 }).then((r: any) => {
                     mutateDoc();
                     mutate();
+                    mutatePatientAnalyses();
                     setCheckUp([]);
                     setInfo("document_detail");
                     const res = r.data.data;
