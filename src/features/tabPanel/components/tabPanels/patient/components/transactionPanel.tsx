@@ -2,18 +2,16 @@ import {Box, Button, DialogActions, LinearProgress, Stack, Typography} from '@mu
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {TransactionStatus, TransactionType} from "@lib/constants";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
 import {useInsurances} from '@lib/hooks/rest';
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {configSelector, dashLayoutSelector} from "@features/base";
+import {configSelector} from "@features/base";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -88,12 +86,11 @@ const headCells = [
 ];
 
 function TransactionPanel({...props}) {
-    const {patient,wallet,rest,walletMutate,devise, router} = props;
+    const {patient, wallet, rest, walletMutate, devise, router} = props;
 
     const {trigger} = useRequestMutation(null, "/patient/wallet");
 
     const {t} = useTranslation(["payment", "common"]);
-    const {data: session} = useSession();
     const {insurances} = useInsurances();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -109,9 +106,6 @@ function TransactionPanel({...props}) {
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
@@ -143,6 +137,7 @@ function TransactionPanel({...props}) {
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSubmit = () => {
+        setLoadingRequest(true)
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
@@ -175,6 +170,7 @@ function TransactionPanel({...props}) {
             enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
             mutateTransctions().then(() => {
                 walletMutate().then(() => setOpenPaymentDialog(false))
+                setLoadingRequest(false);
             });
         });
     }
