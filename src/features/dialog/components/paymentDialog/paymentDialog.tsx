@@ -134,7 +134,6 @@ function PaymentDialog({...props}) {
 
     const {appointment, selectedPayment, setSelectedPayment, patient} = data;
 
-    console.log(selectedPayment);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
