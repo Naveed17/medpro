@@ -142,13 +142,13 @@ function PaymentDialog({...props}) {
     const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
-            amount: ""
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
         },
         card: {
-            amount: ""
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
         },
         check: [{
-            amount: "",
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : "",
             carrier: "",
             bank: "",
             check_number: '',
