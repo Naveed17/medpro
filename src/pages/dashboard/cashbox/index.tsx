@@ -166,7 +166,10 @@ function Cashbox() {
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
 
+
     const {data: user} = session as Session;
+
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country
@@ -321,7 +324,7 @@ function Cashbox() {
                     }
                 });
             });
-            let totalAmount = (totalChequeAmount+collectedCash).toString();
+            let totalAmount = (totalChequeAmount + collectedCash).toString();
             cheques = cheques.slice(0, -1);
             const form = new FormData();
             form.append("cash_box", selectedBoxes[0].uuid);
@@ -369,7 +372,7 @@ function Cashbox() {
                             <>
                                 <Typography>{t("receive")}</Typography>
                                 <Typography variant="h6">
-                                    {toReceive}  <span style={{fontSize:10}}>{devise}</span>
+                                    {toReceive} <span style={{fontSize: 10}}>{devise}</span>
                                 </Typography>
                                 <Typography variant="h6" display={{xs: "none", md: "block"}}>
                                     I
@@ -377,7 +380,7 @@ function Cashbox() {
                             </>
                             <Typography>{t("total")}</Typography>
                             <Typography variant="h6">
-                                {total} <span style={{fontSize:10}}>{devise}</span>
+                                {total} <span style={{fontSize: 10}}>{devise}</span>
                             </Typography>
                         </Stack>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -396,7 +399,7 @@ function Cashbox() {
                             >
                                 - {!isMobile && t("btn_header_1")}
                             </Button>
-                            <Button
+                            {!roles.includes('ROLE_SECRETARY') && <><Button
                                 variant="contained"
                                 color="success"
                                 {...(isMobile && {
@@ -409,24 +412,24 @@ function Cashbox() {
                             >
                                 + {!isMobile && t("btn_header_2")}
                             </Button>
-                            <Typography variant="h6" display={{xs: "none", md: "block"}}>
-                                I
-                            </Typography>
-                            <Button
-                                variant="contained"
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                                onClick={() => {
-                                    setAction("cashout");
-                                    setActionDialog("cashout");
-                                    setOpenPaymentDialog(true);
-                                }}
-                            >
-                                {!isMobile && `${t("cashout")} ( ${collected} ${devise} )` }{" "}
-                                {isMobile && <KeyboardArrowDownIcon/>}
-                            </Button>
+                                <Typography variant="h6" display={{xs: "none", md: "block"}}>
+                                    I
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    {...(isMobile && {
+                                        size: "small",
+                                        sx: {minWidth: 40},
+                                    })}
+                                    onClick={() => {
+                                        setAction("cashout");
+                                        setActionDialog("cashout");
+                                        setOpenPaymentDialog(true);
+                                    }}
+                                >
+                                    {!isMobile && `${t("cashout")} ( ${collected} ${devise} )`}{" "}
+                                    {isMobile && <KeyboardArrowDownIcon/>}
+                                </Button></>}
                         </Stack>
                     </Stack>
                 </Stack>

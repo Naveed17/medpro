@@ -134,6 +134,7 @@ function PaymentDialog({...props}) {
 
     const {appointment, selectedPayment, setSelectedPayment, patient} = data;
 
+    console.log(selectedPayment);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
@@ -142,13 +143,13 @@ function PaymentDialog({...props}) {
     const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
-            amount: ""
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
         },
         card: {
-            amount: ""
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
         },
         check: [{
-            amount: "",
+            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : "",
             carrier: "",
             bank: "",
             check_number: '',
