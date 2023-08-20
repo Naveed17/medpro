@@ -20,19 +20,19 @@ import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
-import {a11yProps} from "@lib/hooks";
+import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {useAppointmentHistory} from "@lib/hooks/rest";
-import {useSession} from "next-auth/react";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
+import {useRequest} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {dashLayoutSelector} from "@features/base";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -65,7 +65,6 @@ function DocumentsPanel({...props}) {
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
-    const {previousAppointmentsData} = useAppointmentHistory({patientId: patient?.uuid});
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
@@ -160,6 +159,14 @@ function DocumentsPanel({...props}) {
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {data: httpAppDocPatientResponse} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
+    } : null, SWRNoValidateConfig);
+
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -248,17 +255,13 @@ function DocumentsPanel({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (previousAppointmentsData) {
-            previousAppointmentsData.length > 0 && setDocuments(previousAppointmentsData.reduce((accumulator: any[], currentValue: any) => {
-                const documents = currentValue.documents.map((doc: any) => ({
-                    ...doc,
-                    appUuid: currentValue.appointment.uuid
-                }));
-                accumulator = [...(accumulator ?? []), ...documents];
-                return accumulator;
-            }, []));
+        let pdoc: any[] = []
+        if (httpAppDocPatientResponse) {
+            const apps = (httpAppDocPatientResponse as HttpResponse)?.data;
+            apps.map((app: { documents: any; }) => pdoc = [...pdoc, ...app.documents])
+            setDocuments(pdoc);
         }
-    }, [previousAppointmentsData]);
+    }, [httpAppDocPatientResponse]);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
