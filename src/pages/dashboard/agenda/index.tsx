@@ -46,7 +46,7 @@ import {
     Instruction,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates, setAppointmentSubmit, setOpenUploadDialog,
+    setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@lib/swr/swrProvider";

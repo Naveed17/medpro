@@ -52,7 +52,7 @@ function PatientFilter({...props}) {
         }
     });
 
-    const {values: queryState, getFieldProps, setFieldValue} = formik;
+    const {values: queryState, setFieldValue} = formik;
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
         setFieldValue("name", event.target.value);

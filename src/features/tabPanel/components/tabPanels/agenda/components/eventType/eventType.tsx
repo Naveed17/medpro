@@ -1,8 +1,8 @@
 import {TextIconRadio} from "@features/buttons";
 import {
-    Box, Collapse,
+    Box,
     FormControlLabel, Grid,
-    LinearProgress, List, ListItemButton, ListItemText,
+    LinearProgress, List, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -23,8 +23,6 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {dashLayoutSelector} from "@features/base";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import ExpandLess from "@mui/icons-material/ExpandLess";
 
 function EventType({...props}) {
     const {onNext, OnAction, select, defaultType = null} = props;

@@ -24,17 +24,12 @@ import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
-import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
-import {useDuplicatedDetect, useProfilePhoto} from "@lib/hooks/rest";
+import {ConditionalWrapper} from "@lib/hooks";
+import { useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import {setDuplicated} from "@features/duplicateDetected";
 import {Label} from "@features/label";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {useRequestMutation} from "@lib/axios";
-import {dashLayoutSelector} from "@features/base";
-import {useRouter} from "next/router";
-import CircularProgress from "@mui/material/CircularProgress";
 import {LoadingButton} from "@mui/lab";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
@@ -46,13 +41,10 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
-    const {insurances, mutatePatient} = data;
+    const {insurances} = data;
     const dispatch = useAppDispatch();
-    const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loadingRequest, setLoadingRequest] = useState(false);
 
