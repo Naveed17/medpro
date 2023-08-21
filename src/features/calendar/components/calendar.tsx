@@ -212,7 +212,6 @@ function Calendar({...props}) {
     });
 
     useEffect(() => {
-        console.log("openingHours")
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
             Object.entries(openingHours).forEach((openingHours: any) => {
@@ -240,7 +239,6 @@ function Calendar({...props}) {
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("currentDate")
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -251,8 +249,6 @@ function Calendar({...props}) {
     }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("view")
-
         const calendarEl = calendarRef.current;
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -266,8 +262,6 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("appointments, refetchEvents", appointments)
-
         setEvents(appointments);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -277,8 +271,6 @@ function Calendar({...props}) {
     }, [appointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("sortedData, refetchEvents")
-
         setEventGroupByDay(sortedData);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
