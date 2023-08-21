@@ -109,6 +109,10 @@
         "title": "Add your first consultation",
         "description": "You have no consultations. Add an appointment and start the consultation",
         "button-text": "Add a Consultation"
+      },
+      "patient": {
+        "title": "No patients found",
+        "description": "No patients founds, add a patient and create an appointment"
       }
     },
     "table": {

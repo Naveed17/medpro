@@ -282,7 +282,7 @@ function TimeSchedule({...props}) {
                     <ListItemButton disableRipple onClick={handleClickTime} sx={{pl: 0}}>
                         <ListItemText primary={
                             <Stack direction={"row"} alignItems={"center"} className="inner-section">
-                                <Typography pr={2} variant="h6" color="text.primary">
+                                <Typography pr={2} sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
                                     {t("stepper-1.title")} :
                                 </Typography>
                                 {recurringDates.length > 0 && <Typography>
