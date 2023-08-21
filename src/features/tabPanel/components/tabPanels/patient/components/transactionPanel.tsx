@@ -2,18 +2,16 @@ import {Box, Button, DialogActions, LinearProgress, Stack, Typography} from '@mu
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {TransactionStatus, TransactionType} from "@lib/constants";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
 import {useInsurances} from '@lib/hooks/rest';
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {configSelector, dashLayoutSelector} from "@features/base";
+import {configSelector} from "@features/base";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -88,12 +86,11 @@ const headCells = [
 ];
 
 function TransactionPanel({...props}) {
-    const {patient, router} = props;
+    const {patient, wallet, rest, walletMutate, devise, router} = props;
 
     const {trigger} = useRequestMutation(null, "/patient/wallet");
 
     const {t} = useTranslation(["payment", "common"]);
-    const {data: session} = useSession();
     const {insurances} = useInsurances();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -102,26 +99,13 @@ function TransactionPanel({...props}) {
     const [pmList, setPmList] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
-    const [wallet, setWallet] = useState(0);
-    const [rest, setRest] = useState(0);
     const [toReceive, setToReceive] = useState(0);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const devise = doctor_country.currency?.name;
-
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const {data: httpPatientWallet, mutate: walletMutate} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
-    } : null);
 
     const {data: paymentMeansHttp} = useRequest({
         method: "GET",
@@ -152,14 +136,8 @@ function TransactionPanel({...props}) {
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (httpPatientWallet) {
-            setWallet((httpPatientWallet as HttpResponse).data.wallet)
-            setRest((httpPatientWallet as HttpResponse).data.rest_amount)
-        }
-    }, [httpPatientWallet])
-
     const handleSubmit = () => {
+        setLoadingRequest(true)
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
@@ -192,6 +170,7 @@ function TransactionPanel({...props}) {
             enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
             mutateTransctions().then(() => {
                 walletMutate().then(() => setOpenPaymentDialog(false))
+                setLoadingRequest(false);
             });
         });
     }

@@ -87,6 +87,7 @@ const headCells: readonly HeadCell[] = [
 
 function ActFees() {
     const {data: session} = useSession();
+    const {data: user} = session as Session;
     const theme = useTheme();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
@@ -106,13 +107,12 @@ function ActFees() {
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [consultationFees, setConsultationFees] = useState(0);
-    const [isChecked, setIsChecked] = useState(localStorage.getItem('newCash') ? localStorage.getItem('newCash') === '1': false);
+    const [isChecked, setIsChecked] = useState(user.medical_entity.hasDemo);
     const [newFees, setNewFees] = useState<{
         act: ActModel | string | null;
         fees: string;
     }>({act: null, fees: ""});
 
-    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
@@ -142,6 +142,9 @@ function ActFees() {
     useEffect(() => {
         if (medicalProfessionalData) {
             setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
+            if (localStorage.getItem('newCashbox')){
+                setIsChecked(localStorage.getItem('newCashbox') === '1')
+            }
         }
     }, [medicalProfessionalData]);
 
@@ -382,9 +385,24 @@ function ActFees() {
                             <Checkbox
                                 checked={isChecked}
                                 onChange={() =>{
-                                    dispatch(setOngoing({newCashBox: !isChecked}));
-                                    localStorage.setItem('newCash',!isChecked ? '1':'0')
-                                    setIsChecked(!isChecked);
+
+                                    const form = new FormData();
+                                    form.append("is_demo", (!isChecked).toString());
+
+                                    trigger(
+                                        {
+                                            method: "PATCH",
+                                            url: `${urlMedicalEntitySuffix}/demo/${router.locale}`,
+                                            data: form
+                                        },
+                                        TriggerWithoutValidation
+                                    ).then(() => {
+                                        enqueueSnackbar(t(isChecked ? "alert.demodisabled":"alert.demo"), {variant: "success"})
+                                        dispatch(setOngoing({newCashBox: !isChecked}));
+                                        localStorage.setItem('newCashbox',!isChecked ? '1':'0')
+                                        setIsChecked(!isChecked);
+                                    });
+
                                 }}
                             />
                         }

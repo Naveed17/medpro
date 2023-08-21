@@ -188,7 +188,10 @@ function SideBarMenu({children}: LayoutProps) {
     });
 
     useEffect(()=>{
-        menuItems[3].href= localStorage.getItem('newCash') === "1" ?"/dashboard/cashbox":"/dashboard/payment";
+        let demo =  user.medical_entity.hasDemo;
+        if (localStorage.getItem('newCashbox'))
+            demo =  localStorage.getItem('newCashbox') === "1";
+        menuItems[3].href= demo ?"/dashboard/cashbox":"/dashboard/payment";
         setMenuItems([...menuItems])
     },[newCashBox]) // eslint-disable-line react-hooks/exhaustive-deps
 

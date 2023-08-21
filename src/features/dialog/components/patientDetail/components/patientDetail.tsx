@@ -66,6 +66,7 @@ import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {useSWRConfig} from "swr";
 import AddIcon from "@mui/icons-material/Add";
+import {DefaultCountry} from "@lib/constants";
 
 function a11yProps(index: number) {
     return {
@@ -141,6 +142,9 @@ function PatientDetail({...props}) {
         personalInsuranceCard: false,
         patientDetailContactCard: false
     });
+    const [wallet, setWallet] = useState(0);
+    const [rest, setRest] = useState(0);
+
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -150,12 +154,22 @@ function PatientDetail({...props}) {
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
     // mutate for patient details
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const {
         data: httpPatientDetailsResponse,
         mutate: mutatePatientDetails
     } = useRequest(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
+    } : null);
+
+    const {data: httpPatientWallet, mutate: walletMutate} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
@@ -351,7 +365,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.transactions",
             children: <TransactionPanel {...{
-                patient, router
+                patient,wallet,rest,walletMutate,devise, router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -393,6 +407,13 @@ function PatientDetail({...props}) {
         }
     }, [httpAntecedentsResponse])
 
+    useEffect(() => {
+        if (httpPatientWallet) {
+            setWallet((httpPatientWallet as HttpResponse).data.wallet)
+            setRest((httpPatientWallet as HttpResponse).data.rest_amount)
+        }
+    }, [httpPatientWallet])
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -414,7 +435,8 @@ function PatientDetail({...props}) {
                             patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
-                            setEditableSection: setEditable
+                            setEditableSection: setEditable,
+                            rest,devise
                         }}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
