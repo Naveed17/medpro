@@ -111,6 +111,11 @@
         "title": "Ajouter votre premier consultation",
         "description": "Vous n'avez pas de consultation, ajouter un rendez-vous et commencer la consultation",
         "button-text": "Ajouter une consultation"
+      },
+      "patient": {
+        "title": "Ajouter votre premier patient",
+        "description": "",
+        "button-text": "Ajouter un patient"
       }
     },
     "table": {
@@ -239,7 +244,8 @@
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",
-        "no-duplicates": "Ces patients ne sont pas doublons ",
+        "no-duplicates": "Ces patients ne sont pas doublons",
+        "no-duplicates-check": "Ce patient n'a pas de doublons",
         "selected": "Patient sélectionné"
       },
       "alert": {
