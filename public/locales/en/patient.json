@@ -238,6 +238,7 @@
         "title": "Duplicates Detected",
         "later": "Do it later",
         "no-duplicates": "These patients are not duplicates",
+        "no-duplicates-check": "This patient has no duplicates",
         "selected": "Selected Patient"
       },
       "alert": {

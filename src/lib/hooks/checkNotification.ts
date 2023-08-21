@@ -12,11 +12,11 @@ export const checkNotification = () => {
         console.log('This browser does not support notifications.');
     } else {
         new Promise((resolve) => {
-            Notification.requestPermission().then(() => resolve(true));
+            Notification.requestPermission()?.then(() => resolve(true));
         }).catch(() => {
             Notification.requestPermission(handlePermission);
         }).then(() => {
-            Notification.requestPermission().then(handlePermission);
+            Notification.requestPermission()?.then(handlePermission);
         });
 
     }

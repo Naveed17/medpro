@@ -18,7 +18,7 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem
+    FormControlLabel, MenuItem, LinearProgress
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -30,7 +30,7 @@ import {
 } from "@features/table";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 // ________________________________
-import {PatientMobileCard, setTimer} from "@features/card";
+import {NoDataCard, PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
@@ -202,7 +202,7 @@ function Patient() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {data: session} = useSession();
+    const {data: session, status} = useSession();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -316,11 +316,37 @@ function Patient() {
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
     const {trigger: triggerDeletePatient} = useRequestMutation(null, "/patient/delete");
+    const {trigger: triggerCheckDuplication} = useRequestMutation(null, "/patient/duplication/check");
 
     const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`
     } : null, isMobile && SWRNoValidateConfig);
+
+    const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerCheckDuplication({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/duplications/${router.locale}`
+        }).then((results) => {
+            setLoadingRequest(false);
+            const duplications = ((results?.data as HttpResponse)?.data ?? []) as PatientModel[];
+            if (duplications?.length > 0) {
+                dispatch(setDuplicated({
+                    duplications,
+                    duplicationSrc: patient,
+                    duplicationInit: patient,
+                    openDialog: true,
+                    mutate
+                }));
+            } else {
+                enqueueSnackbar(t(`add-patient.dialog.no-duplicates-check`), {variant: "info"});
+            }
+            return duplications;
+        }).finally(() => []);
+
+        return [];
+    }
 
     const submitStepper = (index: number) => {
         if (index === 2) {
@@ -420,7 +446,7 @@ function Patient() {
         setMoveDialog(true);
     };
 
-    const handleTableActions = (action: string, event: PatientModel, mouseEvent?: any) => {
+    const handleTableActions = (action: string, event: PatientModel, mouseEvent?: any, setLoadingRequest?: any) => {
         switch (action) {
             case "PATIENT_DETAILS":
                 setAddAppointment(false);
@@ -471,6 +497,9 @@ function Patient() {
                             mouseY: mouseEvent.clientY - 6,
                         } : null,
                 );
+                break;
+            case "DUPLICATION_CHECK":
+                checkDuplications(event, setLoadingRequest);
                 break;
         }
     }
@@ -526,16 +555,19 @@ function Patient() {
                 setPatientDetailDrawer(true);
                 break;
             case "onCheckPatientDuplication":
-                const patientIndex = rows.findIndex(row => row.uuid === selectedPatient?.uuid);
-                const updatedPatients = [...patientData.list];
-                setPatientData({
-                    ...patientData,
-                    list: [
-                        ...updatedPatients.slice(0, patientIndex),
-                        {...updatedPatients[patientIndex], hasDouble: true},
-                        ...updatedPatients.slice(patientIndex + 1)
-                    ]
-                });
+                const duplications = checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
+                if (duplications?.length > 0) {
+                    const patientIndex = rows.findIndex(row => row.uuid === selectedPatient?.uuid);
+                    const updatedPatients = [...patientData.list];
+                    setPatientData({
+                        ...patientData,
+                        list: [
+                            ...updatedPatients.slice(0, patientIndex),
+                            {...updatedPatients[patientIndex], hasDouble: true},
+                            ...updatedPatients.slice(patientIndex + 1)
+                        ]
+                    });
+                }
                 break;
             case "onDeletePatient":
                 setDeleteDialog(true);
@@ -609,6 +641,9 @@ function Patient() {
                     </Stack>
                 )}
             </SubHeader>
+            <LinearProgress sx={{
+                visibility: loadingRequest ? "visible" : "hidden"
+            }} color="warning"/>
             <Box className="container">
                 <DesktopContainer>
                     <Otable
@@ -684,6 +719,15 @@ function Patient() {
                         </Stack>
                     }
                 </MobileContainer>
+
+                {patientData?.list?.length === 0 && <NoDataCard
+                    t={t}
+                    ns={"patient"}
+                    data={{
+                        mainIcon: "ic-patient",
+                        title: "table.no-data.patient.title",
+                        description: "table.no-data.patient.description",
+                    }}/>}
             </Box>
 
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
