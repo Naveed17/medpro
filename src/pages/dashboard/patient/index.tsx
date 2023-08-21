@@ -725,8 +725,8 @@ function Patient() {
                     ns={"patient"}
                     data={{
                         mainIcon: "ic-patient",
-                        title: "table.no-data.patient.title",
-                        description: "table.no-data.patient.description",
+                        title: "no-data.patient.title",
+                        description: "no-data.patient.description",
                     }}/>}
             </Box>
 

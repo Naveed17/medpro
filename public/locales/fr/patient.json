@@ -113,9 +113,8 @@
         "button-text": "Ajouter une consultation"
       },
       "patient": {
-        "title": "Ajouter votre premier patient",
-        "description": "",
-        "button-text": "Ajouter un patient"
+        "title": "Pas de patients trouvés",
+        "description": "Aucun patient trouvé, ajouter un patient et créer un rendez-vous"
       }
     },
     "table": {

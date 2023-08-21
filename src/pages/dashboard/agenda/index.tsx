@@ -163,11 +163,11 @@ function Agenda() {
         }
     ]);
     const [event, setEvent] = useState<EventDef | null>();
-    const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
+    const calendarRef = useRef<FullCalendar | null>(null);
     let events: MutableRefObject<EventModal[]> = useRef([]);
     let sortedData: MutableRefObject<GroupEventsModel[]> = useRef([]);
 
@@ -298,8 +298,8 @@ function Agenda() {
     }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (calendarEl && currentDate) {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+        if (calendarRef.current && currentDate) {
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
             calendarApi && calendarApi.gotoDate(currentDate.date);
         }
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -329,15 +329,11 @@ function Agenda() {
     }
 
     const handleOnToday = () => {
-        const calendarApi = (calendarEl as FullCalendar)?.getApi();
+        const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
         if (calendarApi) {
             calendarApi.today();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
-    }
-
-    const onLoadCalendar = (event: FullCalendar) => {
-        setCalendarEl(event);
     }
 
     const onViewChange = (view: string) => {
@@ -418,7 +414,7 @@ function Agenda() {
 
     const handleClickDatePrev = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
             if (calendarApi) {
                 calendarApi.prev();
                 dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
@@ -434,7 +430,7 @@ function Agenda() {
 
     const handleClickDateNext = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
             if (calendarApi) {
                 calendarApi.next();
                 dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
@@ -1011,6 +1007,7 @@ function Agenda() {
                                         events: events.current,
                                         doctor_country,
                                         agenda,
+                                        calendarRef,
                                         roles,
                                         refs,
                                         spinner: loading,
@@ -1018,7 +1015,6 @@ function Agenda() {
                                         sortedData: sortedData.current,
                                         mutate: refreshData
                                     }}
-                                    OnInit={onLoadCalendar}
                                     OnAddAppointment={handleAddAppointment}
                                     OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
                                     OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}

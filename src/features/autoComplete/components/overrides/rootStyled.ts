@@ -1,12 +1,9 @@
 import {styled} from '@mui/material/styles';
 
 const RootStyled = styled('div')(({theme}) => ({
-    "& .MuiPaper-root":{
+    "& .MuiPaper-root": {
         width: "100%",
-        backgroundColor: theme.palette.info.main,
-        "& .MuiButtonBase-root":{
-
-        }
+        backgroundColor: theme.palette.info.main
     },
     '& .MuiInputBase-root': {
         backgroundColor: `${theme.palette.info.main} !important`,
@@ -14,7 +11,7 @@ const RootStyled = styled('div')(({theme}) => ({
     '& .MuiList-root': {
         marginLeft: -10,
         marginRight: -10,
-        maxHeight: 254,
+        maxHeight: 320,
         overflowY: 'auto'
     }
 }));
