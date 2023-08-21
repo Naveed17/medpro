@@ -536,6 +536,8 @@ function Cashbox() {
                     direction,
                     sx: {
                         minHeight: 380,
+                        padding:{xs:1,md:2}
+                        
                     },
                 }}
                 open={openPaymentDialog}

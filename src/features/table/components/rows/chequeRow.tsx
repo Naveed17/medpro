@@ -81,7 +81,7 @@ function ChequeRow({...props}) {
                     ) : (
                         <Skeleton variant="text" width={100}/>
                     )}
-                </TableCell><TableCell >
+                </TableCell><TableCell>
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
                             {row.data.carrier}
