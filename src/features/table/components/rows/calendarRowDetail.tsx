@@ -187,32 +187,46 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
-                        {duplications?.length > 0 && <Button
-                            sx={{p: 0, ml: 1, borderRadius: 3}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                dispatch(setDuplicated({
-                                    duplications,
-                                    duplicationSrc: data.patient,
-                                    duplicationInit: data.patient,
-                                    openDialog: true,
-                                    mutate: mutateAgenda
-                                }));
-                            }}>
-                            <Label
-                                variant="filled"
+                        {duplications?.length > 0 &&
+                            <LoadingButton
+                                variant="contained"
+                                size={"small"}
+                                {...{loading}}
+                                color={"warning"}
+                                loadingPosition={"start"}
+                                startIcon={<WarningRoundedIcon/>}
                                 sx={{
-                                    cursor: "pointer",
-                                    "& .MuiSvgIcon-root": {
-                                        width: 16,
-                                        height: 16,
-                                        pl: 0
-                                    }
+                                    p: "0 auto", borderRadius: 3, ml: 1, minHeight: 24,
+                                    "& .MuiButton-startIcon": {mr: 0}
                                 }}
-                                color={"warning"}>
-                                <WarningRoundedIcon sx={{width: 12, height: 12}}/>
-                                <Typography sx={{fontSize: 10}}> {t("duplication")}</Typography>
-                            </Label></Button>}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    dispatch(setDuplicated({
+                                        duplications,
+                                        duplicationSrc: data.patient,
+                                        duplicationInit: data.patient,
+                                        openDialog: true,
+                                        mutate: mutateAgenda
+                                    }));
+                                }}>
+                                <Label
+                                    variant="outlined"
+                                    sx={{
+                                        cursor: "pointer",
+                                        pl: 0,
+                                        "& .MuiSvgIcon-root": {
+                                            width: 16,
+                                            height: 16
+                                        }
+                                    }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: 10,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis"
+                                        }}> {t("duplication")}</Typography>
+                                </Label>
+                            </LoadingButton>}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
