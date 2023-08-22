@@ -105,7 +105,7 @@ function SecretaryConsultationDialog({...props}) {
             uuid: app_uuid,
             payments,
             payed_amount: getTransactionAmountPayed(),
-            appointment,
+            appointment: {...appointment,uuid:app_uuid},
             patient:appointment.patient,
             total,
             isNew: getTransactionAmountPayed() === 0

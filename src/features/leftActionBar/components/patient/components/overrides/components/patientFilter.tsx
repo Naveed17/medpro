@@ -52,7 +52,7 @@ function PatientFilter({...props}) {
         }
     });
 
-    const {values: queryState, getFieldProps, setFieldValue} = formik;
+    const {values: queryState, setFieldValue} = formik;
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
         setFieldValue("name", event.target.value);
@@ -102,13 +102,14 @@ function PatientFilter({...props}) {
                         sx={{
                             cursor: "pointer",
                             "& .MuiSvgIcon-root": {
-                                width: 16,
-                                height: 16,
-                                pl: 0
+                                width: 14,
+                                height: 14,
+                                pl: 0,
+                                mr: 1
                             }
                         }}
                         color={"warning"}>
-                        <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                        <WarningRoundedIcon/>
                         <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
                     </Label>}/>}
                 <Typography variant="body2" color="text.secondary">

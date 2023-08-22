@@ -109,6 +109,10 @@
         "title": "Add your first consultation",
         "description": "You have no consultations. Add an appointment and start the consultation",
         "button-text": "Add a Consultation"
+      },
+      "patient": {
+        "title": "No patients found",
+        "description": "No patients founds, add a patient and create an appointment"
       }
     },
     "table": {
@@ -238,6 +242,7 @@
         "title": "Duplicates Detected",
         "later": "Do it later",
         "no-duplicates": "These patients are not duplicates",
+        "no-duplicates-check": "This patient has no duplicates",
         "selected": "Selected Patient"
       },
       "alert": {

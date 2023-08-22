@@ -41,7 +41,7 @@ function PaymentFeesPopover({...props}) {
             <LinearProgress sx={{visibility: !appointment ? "visible" : "hidden"}} color="warning"/>
             {appointment && <List sx={{p: 0}} aria-label="secondary mailbox folders">
                 <ListItemButton sx={{p: 0}} disableRipple disableGutters>
-                    <ListItemText primary={`Consultation: ${appointment.consultation_fees} ${devise}`}/>
+                    <ListItemText primary={`Consultation: ${appointment.consultation_fees ? appointment.consultation_fees : '0'} ${devise}`}/>
                 </ListItemButton>
                 {appointment.acts && appointment.acts.map((act: any, index: number) => <ListItemButton sx={{p: 0}} key={index} disableRipple
                                                                                    disableGutters>
@@ -52,7 +52,7 @@ function PaymentFeesPopover({...props}) {
             {appointment && <List aria-label="main mailbox folders">
                 <Stack direction={"row"} justifyContent={"space-between"}>
                     <ListItemText primary={`Total`}/>
-                    <ListItemText sx={{textAlign: "right"}} primary={`${appointment?.fees} ${devise}`}/>
+                    <ListItemText sx={{textAlign: "right"}} primary={`${appointment?.fees ? appointment?.fees : "0"} ${devise}`}/>
                 </Stack>
             </List>}
         </PaymentFeesPopoverStyled>

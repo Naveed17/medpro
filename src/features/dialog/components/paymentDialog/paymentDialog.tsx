@@ -142,13 +142,13 @@ function PaymentDialog({...props}) {
     const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
         },
         card: {
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
         },
         check: [{
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : "",
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : "",
             carrier: "",
             bank: "",
             check_number: '',
@@ -510,19 +510,19 @@ function PaymentDialog({...props}) {
                                                         <Paper key={idx}>
                                                             <Stack spacing={1} alignItems="flex-start">
 
-                                                                    <Stack direction='row' alignItems="center"
-                                                                           spacing={1}>
-                                                                        <TextField
-                                                                            variant="outlined"
-                                                                            placeholder={t("amount")}
-                                                                            {...getFieldProps(`check[${idx}].amount`)}
-                                                                            fullWidth
-                                                                            type="number"
-                                                                            required
-                                                                        />
-                                                                        <Typography>
-                                                                            {devise}
-                                                                        </Typography>
+                                                                <Stack direction='row' alignItems="center"
+                                                                       spacing={1}>
+                                                                    <TextField
+                                                                        variant="outlined"
+                                                                        placeholder={t("amount")}
+                                                                        {...getFieldProps(`check[${idx}].amount`)}
+                                                                        fullWidth
+                                                                        type="number"
+                                                                        required
+                                                                    />
+                                                                    <Typography>
+                                                                        {devise}
+                                                                    </Typography>
 
                                                                     <TextField
                                                                         variant="outlined"

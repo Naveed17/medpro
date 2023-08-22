@@ -19,18 +19,18 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {Fragment} from "react";
+import React, {Fragment, useState} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
-import {useDuplicatedDetect, useProfilePhoto} from "@lib/hooks/rest";
+import { useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import {setDuplicated} from "@features/duplicateDetected";
 import {Label} from "@features/label";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {LoadingButton} from "@mui/lab";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -41,11 +41,12 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
-    const {insurances, mutatePatient} = data;
+    const {insurances} = data;
     const dispatch = useAppDispatch();
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
-    const {duplications} = useDuplicatedDetect({patientId: row?.hasDouble && row?.uuid});
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
+
+    const [loadingRequest, setLoadingRequest] = useState(false);
 
     const handlePatientRowClick = (event: any) => {
         event.stopPropagation();
@@ -167,30 +168,31 @@ function PatientRow({...props}) {
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
 
-                                            {duplications?.length > 0 && <Button
-                                                sx={{p: 0, ml: 1, borderRadius: 3}}
+                                            {row.hasDouble && <LoadingButton
+                                                variant="contained"
+                                                size={"small"}
+                                                loading={loadingRequest}
+                                                color={"warning"}
+                                                loadingPosition={"start"}
+                                                startIcon={<WarningRoundedIcon/>}
+                                                sx={{
+                                                    p: "0 auto", borderRadius: 3, ml: 1, minHeight: 24,
+                                                    "& .MuiButton-startIcon": {mr: 0}
+                                                }}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    dispatch(setDuplicated({
-                                                        duplications,
-                                                        duplicationSrc: row,
-                                                        duplicationInit: row,
-                                                        openDialog: true,
-                                                        mutate: mutatePatient
-                                                    }));
+                                                    handleEvent("DUPLICATION_CHECK", row, event, setLoadingRequest);
                                                 }}>
                                                 <Label
-                                                    variant="filled"
+                                                    variant="outlined"
                                                     sx={{
                                                         cursor: "pointer",
+                                                        pl: 0,
                                                         "& .MuiSvgIcon-root": {
                                                             width: 16,
-                                                            height: 16,
-                                                            pl: 0
+                                                            height: 16
                                                         }
-                                                    }}
-                                                    color={"warning"}>
-                                                    <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                                                    }}>
                                                     <Typography
                                                         sx={{
                                                             fontSize: 10,
@@ -198,7 +200,7 @@ function PatientRow({...props}) {
                                                             textOverflow: "ellipsis"
                                                         }}> {t("duplication")}</Typography>
                                                 </Label>
-                                            </Button>}
+                                            </LoadingButton>}
 
                                             {row.hasInfo &&
                                                 <Chip
@@ -432,30 +434,32 @@ function PatientRow({...props}) {
                     alignItems: "center",
                     minHeight: "58.85px",
                 }}>
-                {loading ? (
-                    <>
-                        <Skeleton
-                            variant="circular"
-                            width={22}
-                            height={22}
-                            sx={{ml: 1}}
-                        />
-                        <Skeleton variant="text" width={60} sx={{ml: 1}}/>
-                        <Skeleton variant="text" width={60}/>
-                    </>
-                ) : (
-                    <Tooltip title={t('more')}>
-                        <IconButton
-                            disabled={loading}
-                            onClick={event => {
-                                event.stopPropagation();
-                                handleEvent("OPEN-POPOVER", row, event);
-                            }}
-                            size="small">
-                            <MoreVertIcon/>
-                        </IconButton>
-                    </Tooltip>
-                )}
+                <Box display="flex" alignItems="center" margin={"auto"}>
+                    {loading ? (
+                        <>
+                            <Skeleton
+                                variant="circular"
+                                width={22}
+                                height={22}
+                                sx={{ml: 1}}
+                            />
+                            <Skeleton variant="text" width={60} sx={{ml: 1}}/>
+                            <Skeleton variant="text" width={60}/>
+                        </>
+                    ) : (
+                        <Tooltip title={t('more')}>
+                            <IconButton
+                                disabled={loading}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent("OPEN-POPOVER", row, event);
+                                }}
+                                size="small">
+                                <MoreVertIcon/>
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </Box>
             </TableCell>
         </TableRowStyled>
     );
