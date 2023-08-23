@@ -448,25 +448,25 @@ function Payment() {
                         id="scroll-dialog-description"
                         tabIndex={-1}>
                         <Typography mb={2}>
-                            Nous sommes ravis de vous informer que nous avons introduit une toute nouvelle fonctionnalité de caisse en version bêta dans notre logiciel de gestion de cabinet médical. Cela marque une étape importante dans notre engagement continu à améliorer votre expérience.
+                            {t('alert-1')}
                         </Typography>
                         <Typography mb={2}>
-                            {`Nous souhaitons vous rappeler que la fonctionnalité de caisse en version bêta est actuellement en phase de test. En choisissant d'utiliser cette fonctionnalité, vous acceptez de participer à notre programme de test bêta, ce qui nous aidera à identifier et à résoudre tout problème potentiel avant le lancement officiel.`}
+                            {t('alert-2')}
                         </Typography>
                         <Typography mb={2}>
-                            {`Veuillez noter que, comme il s\'agit d'une version bêta, il est possible que certains calculs présentent des erreurs occasionnelles. Votre retour d'expérience est essentiel pour nous aider à perfectionner cette fonctionnalité et à la rendre la plus précise possible. Si vous rencontrez des problèmes ou avez des commentaires, n'hésitez pas à nous les faire parvenir.`}
+                            {t('alert-3')}
                         </Typography>
                         <Typography mb={2}>
-                            {`De plus, il est important de comprendre que l'historique de la caisse en version bêta pourrait être réinitialisé à des fins de test et d'optimisation. Nous vous encourageons à ne pas utiliser cette fonctionnalité pour des transactions critiques ou financières jusqu'à ce que la version finale soit lancée.`}
+                            {t('alert-4')}
                         </Typography>
                         <Typography mb={2}>
-                            {`Votre contribution et votre retour d'expérience sont inestimables pour nous aider à créer une fonctionnalité de caisse exceptionnelle. Nous vous remercions de votre collaboration dans cette phase cruciale de développement. Votre engagement contribuera à façonner l'avenir de notre logiciel de gestion de cabinet.`}
+                            {t('alert-5')}
                         </Typography>
                         <Typography mb={2}>
-                            Nous vous remercions pour votre confiance et votre soutien continu.
+                            {t('alert-6')}
                         </Typography>
-                        <Typography>Cordialement,</Typography>
-                        <Typography>{`L'équipe du support technique`}</Typography>
+                        <Typography>{t('alert-7')}</Typography>
+                        <Typography>{t('alert-8')}</Typography>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

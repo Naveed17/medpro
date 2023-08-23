@@ -112,5 +112,13 @@
   },
   "alert": {
     "transaction-deleted": "Transaction has been deleted"
-  }
+  },
+  "alert-1": "We're excited to let you know that we've introduced a brand new beta checkout feature to our practice management software. This marks an important milestone in our ongoing commitment to improving your experience.",
+  "alert-2": "We would like to remind you that the checkout functionality in beta is currently in the testing phase. By choosing to use this feature, you agree to participate in our beta testing program, which will help us identify and resolve any potential issues before official launch.",
+  "alert-3": "Please note that since this is a beta version, some calculations may have occasional errors. Your feedback is essential to help us improve this feature and make it as accurate as possible. If you encounter any problems or have any comments, please send them to us.",
+  "alert-4": "Also, it is important to understand that the checkout history in beta might be reset for testing and optimization purposes. We encourage you not to use this feature for critical or financial transactions until the final version is released.",
+  "alert-5": "Your input and feedback is invaluable in helping us create great checkout functionality. We thank you for your collaboration in this crucial phase of development. Your commitment will help shape the future of our practice management software.",
+  "alert-6": "We thank you for your trust and continued support.",
+  "alert-7": "Sincerely,",
+  "alert-8": "The technical support team"
 }
