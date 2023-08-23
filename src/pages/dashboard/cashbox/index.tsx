@@ -381,7 +381,7 @@ function Cashbox() {
                                 </Typography>
                             </>
                             <Typography>{t("total")}</Typography>
-                            <Tooltip title={`${t('check')}: 0 ${devise} - ${t('cash')}: 0 ${devise}"`} arrow>
+                            <Tooltip title={`${t('check')}: 0 ${devise} - ${t('cash')}: 0 ${devise}`} arrow>
                                 <Typography variant="h6">
                                     {total} <span style={{fontSize: 10}}>{devise}</span>
                                 </Typography>

@@ -222,14 +222,26 @@ function PaymentDialog({...props}) {
         return total
     }
     const checkCheques = () => {
-        let total = 0;
-        let hasEmpty = false;
-        values.check.map((check: { amount: number }) => {
-            if (check.amount.toString() === "")
-                hasEmpty = true;
-            else total += check.amount;
-        });
-        return hasEmpty ? hasEmpty : total > calculRest();
+        if (selectedPayment.uuid !== ""){
+            let total = 0;
+            let hasEmpty = false;
+            values.check.map((check: { amount: number }) => {
+                if (check.amount.toString() === "")
+                    hasEmpty = true;
+                else total += check.amount;
+            });
+            return hasEmpty ? hasEmpty : total > calculRest();
+        } else {
+            let hasEmpty = false;
+            let total = 0;
+            values.check.map((check: { amount: number }) => {
+                if (check.amount.toString() === "")
+                    hasEmpty = true;
+                else total += check.amount;
+            });
+            return hasEmpty
+        }
+
     }
     const calculRest = () => {
         let paymentTotal = 0
@@ -474,7 +486,7 @@ function PaymentDialog({...props}) {
                                                     </Stack>
 
                                                     <Button color={"success"}
-                                                            disabled={appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())}
+                                                            disabled={(appointment && (values.cash.amount === "" || Number(values.cash?.amount) > calculRest())) || !appointment && values.cash.amount === ""}
                                                             onClick={() => {
                                                                 const newPayment = [...payments, {
                                                                     amount: values.cash?.amount,
