@@ -31,6 +31,7 @@
   "receive": "Assurance",
   "somme": "Somme",
   "more": "Plus",
+  "betav":"Utiliser la nouvelle version de la caisse (bêta)",
   "payment_dialog_title": "Paiement",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
@@ -115,5 +116,13 @@
   },
   "alert": {
     "transaction-deleted": "Transaction a été supprimé"
-  }
+  },
+  "alert-1": "Nous sommes ravis de vous informer que nous avons introduit une toute nouvelle fonctionnalité de caisse en version bêta dans notre logiciel de gestion de cabinet médical. Cela marque une étape importante dans notre engagement continu à améliorer votre expérience.",
+  "alert-2": "Nous souhaitons vous rappeler que la fonctionnalité de caisse en version bêta est actuellement en phase de test. En choisissant d'utiliser cette fonctionnalité, vous acceptez de participer à notre programme de test bêta, ce qui nous aidera à identifier et à résoudre tout problème potentiel avant le lancement officiel.",
+  "alert-3": "Veuillez noter que, comme il s'agit d'une version bêta, il est possible que certains calculs présentent des erreurs occasionnelles. Votre retour d'expérience est essentiel pour nous aider à perfectionner cette fonctionnalité et à la rendre la plus précise possible. Si vous rencontrez des problèmes ou avez des commentaires, n'hésitez pas à nous les faire parvenir.",
+  "alert-4": "De plus, il est important de comprendre que l'historique de la caisse en version bêta pourrait être réinitialisé à des fins de test et d'optimisation. Nous vous encourageons à ne pas utiliser cette fonctionnalité pour des transactions critiques ou financières jusqu'à ce que la version finale soit lancée.",
+  "alert-5": "Votre contribution et votre retour d'expérience sont inestimables pour nous aider à créer une fonctionnalité de caisse exceptionnelle. Nous vous remercions de votre collaboration dans cette phase cruciale de développement. Votre engagement contribuera à façonner l'avenir de notre logiciel de gestion de cabinet.",
+  "alert-6": "Nous vous remercions pour votre confiance et votre soutien continu.",
+  "alert-7": "Cordialement,",
+  "alert-8": "L'équipe du support technique"
 }

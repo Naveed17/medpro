@@ -440,7 +440,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                     }}
                                            className="custom-paper" key={idx}>
                                         <Grid container spacing={2} alignItems="flex-end">
-                                            <Grid item md={8} xs={12}>
+                                            <Grid item md={.5} xs={12}><Typography><span style={{fontSize: 20, fontWeight: "bold"}}>{idx+1}</span>.</Typography></Grid>
+                                            <Grid item md={7.5} xs={12}>
                                                 {drugsList && <Autocomplete
                                                     id="cmo"
                                                     value={item.drug}
