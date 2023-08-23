@@ -261,21 +261,13 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setEvents(appointments);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
+        setTimeout(() => {
+            setEvents(appointments);
+        })
     }, [appointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setEventGroupByDay(sortedData);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
