@@ -101,6 +101,7 @@ function WaitingRoom() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1':user.medical_entity.hasDemo;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
@@ -311,7 +312,7 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                if (data.row.rest_amount >= 0) {
+                if (data.row.rest_amount >= 0 && demo) {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
