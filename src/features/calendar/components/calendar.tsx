@@ -18,10 +18,8 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import listPlugin from '@fullcalendar/list';
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
-
 import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
@@ -36,9 +34,7 @@ import {
     SlotFormat,
     TableHead
 } from "@features/calendar";
-
 import dynamic from "next/dynamic";
-import {useIsMountedRef} from "@lib/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
@@ -53,6 +49,7 @@ const Otable = dynamic(() => import('@features/table/components/table'));
 
 function Calendar({...props}) {
     const {
+        calendarRef,
         events: appointments,
         OnRangeChange,
         spinner,
@@ -61,7 +58,6 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         doctor_country,
-        OnInit,
         OnLeaveWaitingRoom,
         OnConfirmEvent,
         OnMoveEvent,
@@ -77,8 +73,6 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const isMounted = useIsMountedRef();
-    const calendarRef = useRef(null);
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -245,20 +239,13 @@ function Calendar({...props}) {
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
-        if (isMounted.current && calendarEl) {
-            OnInit(calendarEl);
-        }
-    }, [OnInit, isMounted]);
-
-    useEffect(() => {
-        const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (currentDate.fallback) {
                 calendarApi.gotoDate(currentDate.date);
             }
         }
-    }, [currentDate]);
+    }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -274,22 +261,14 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setEvents(appointments);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [appointments]);
+        setTimeout(() => {
+            setEvents(appointments);
+        })
+    }, [appointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setEventGroupByDay(sortedData);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [sortedData]);
+    }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Box bgcolor="#F0FAFF">
@@ -410,7 +389,7 @@ function Calendar({...props}) {
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
-                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
 
                             {slotInfo && <StyledMenu

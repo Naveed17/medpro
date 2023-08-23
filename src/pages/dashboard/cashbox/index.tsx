@@ -8,7 +8,7 @@ import {
     Drawer,
     LinearProgress,
     Stack,
-    Theme,
+    Theme, Tooltip,
     Typography,
     useMediaQuery,
 } from "@mui/material";
@@ -306,6 +306,7 @@ function Cashbox() {
                 status_transaction: TransactionStatus[2].value.toString(),
                 type_transaction: TransactionType[3].value.toString(),
                 payment_date: moment().format('DD-MM-YYYY'),
+                transaction_data_uuid: "",
                 data: {label: t('encashment')}
             }];
 
@@ -315,6 +316,7 @@ function Cashbox() {
                 transData.push({
                     payment_means: chq.payment_means.uuid,
                     amount: chq.amount.toString(),
+                    transaction_data_uuid: chq.uuid,
                     status_transaction: TransactionStatus[2].value.toString(),
                     type_transaction: TransactionType[3].value.toString(),
                     payment_date: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
@@ -379,9 +381,11 @@ function Cashbox() {
                                 </Typography>
                             </>
                             <Typography>{t("total")}</Typography>
-                            <Typography variant="h6">
-                                {total} <span style={{fontSize: 10}}>{devise}</span>
-                            </Typography>
+                            <Tooltip title={`${t('check')}: 0 ${devise} - ${t('cash')}: 0 ${devise}"`} arrow>
+                                <Typography variant="h6">
+                                    {total} <span style={{fontSize: 10}}>{devise}</span>
+                                </Typography>
+                            </Tooltip>
                         </Stack>
                         <Stack direction="row" spacing={1} alignItems="center">
                             {!isMobile && <Typography variant="h6">I</Typography>}
@@ -560,7 +564,7 @@ function Cashbox() {
                         </Button>
                         <Button
                             disabled={
-                                selectedPayment && selectedPayment.payments.length === 0
+                                action !== "cashout" && selectedPayment && selectedPayment.payments.length === 0
                             }
                             variant="contained"
                             onClick={handleSubmit}

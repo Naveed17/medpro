@@ -272,7 +272,9 @@ function PreviewDialog({...props}) {
         for (let i = 0; i < Math.ceil(pageX.clientHeight / data.content.maxHeight); i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
-            document.body.appendChild(el)
+            el.style.position = "absolute"
+            el.style.top = "0"
+           // document.body.appendChild(el)
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");

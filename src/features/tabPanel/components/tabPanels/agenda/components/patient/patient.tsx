@@ -131,7 +131,7 @@ function Patient({...props}) {
         <div>
             {!addPatient ? <>
                     <Box className="inner-section">
-                        <Typography variant="h6" color="text.primary">
+                        <Typography sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
                             {t("stepper-2.title")}
                         </Typography>
                         <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3} mb={1}>

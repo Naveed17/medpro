@@ -142,13 +142,13 @@ console.log(paymentTypesList.length)
     const [wallet, setWallet] = useState(0);
     const [deals, setDeals] = React.useState<any>({
         cash: {
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
         },
         card: {
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : ""
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
         },
         check: [{
-            amount: selectedPayment.total > 0 ? selectedPayment.total -selectedPayment.payed_amount : "",
+            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : "",
             carrier: "",
             bank: "",
             check_number: '',
