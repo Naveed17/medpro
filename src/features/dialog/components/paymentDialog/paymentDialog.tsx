@@ -222,7 +222,7 @@ function PaymentDialog({...props}) {
         return total
     }
     const checkCheques = () => {
-        if (selectedPayment.uuid !== ""){
+        if (selectedPayment.uuid !== "") {
             let total = 0;
             let hasEmpty = false;
             values.check.map((check: { amount: number }) => {
@@ -372,7 +372,7 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {paymentTypesList && paymentTypesList.map((method: {
+                    {paymentTypesList && paymentTypesList.filter((pt: { slug: string; }) => !(!appointment && pt.slug === "check")).map((method: {
                             slug: any;
                             name: string;
                             logoUrl: { url: string | undefined; };
