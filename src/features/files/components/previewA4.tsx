@@ -274,7 +274,7 @@ function PreviewDialog({...props}) {
             el.id = `page${i}`
             el.style.position = "absolute"
             el.style.top = "0"
-            document.body.appendChild(el)
+           // document.body.appendChild(el)
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
