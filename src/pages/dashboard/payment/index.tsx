@@ -447,24 +447,15 @@ function Payment() {
                     <DialogContentText
                         id="scroll-dialog-description"
                         tabIndex={-1}>
-                        <Typography mb={2}>
-                            {t('alert-1')}
-                        </Typography>
-                        <Typography mb={2}>
-                            {t('alert-2')}
-                        </Typography>
-                        <Typography mb={2}>
-                            {t('alert-3')}
-                        </Typography>
-                        <Typography mb={2}>
-                            {t('alert-4')}
-                        </Typography>
-                        <Typography mb={2}>
-                            {t('alert-5')}
-                        </Typography>
-                        <Typography mb={2}>
-                            {t('alert-6')}
-                        </Typography>
+                        {[...new Array(6)]
+                            .map(
+                                (_,index) =>(
+                                    <Typography key={`alert${index}`} mb={2}>
+                                        {t(`alert-${index+1}`)}
+                                    </Typography>
+                                    ))
+                        }
+
                         <Typography>{t('alert-7')}</Typography>
                         <Typography>{t('alert-8')}</Typography>
                     </DialogContentText>
