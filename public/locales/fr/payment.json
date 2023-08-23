@@ -31,6 +31,7 @@
   "receive": "Assurance",
   "somme": "Somme",
   "more": "Plus",
+  "betav":"Utiliser la nouvelle version de la caisse (bêta)",
   "payment_dialog_title": "Paiement",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
