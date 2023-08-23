@@ -21,7 +21,6 @@ function AddTreatmentDialog({...props}) {
     const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
 
     const addTraitment = (event:any, newValue:any) => {
-        console.log(newValue)
         let selectedDrug= newValue.inputValue ?{uuid: '', commercial_name: newValue.inputValue, isVerified: false} : newValue;
 
         setTraitments([...traitments, (selectedDrug as DrugModel)]);
@@ -36,7 +35,6 @@ function AddTreatmentDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const searchInDrug = (value: string) => {
-        console.log(value)
         if (value.length >= 2) {
             trigger({
                 method: "GET",
