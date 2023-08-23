@@ -13,7 +13,7 @@ import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 function CashoutMobileCard({ ...props }) {
   const { data, handleEvent, selected, devise } = props;
-
+  const isItemSelected = selected.some((item: any) => item.uuid === data?.uuid)
   return (
     <CardStyled
       sx={{
@@ -32,7 +32,7 @@ function CashoutMobileCard({ ...props }) {
         <Stack direction="row" alignItems="center">
           <Checkbox
             color="primary"
-            checked={selected.some((item: any) => item.uuid === data?.uuid)}
+            checked={isItemSelected}
             inputProps={{
               "aria-labelledby": data?.uuid,
             }}
@@ -46,7 +46,7 @@ function CashoutMobileCard({ ...props }) {
               width: 24,
             }}
           />
-          <Stack spacing={1} ml={2}>
+          <Stack ml={2}>
             <Stack direction="row" alignItems="center" spacing={2}>
               {data ? (
                 <Typography
@@ -116,7 +116,8 @@ function CashoutMobileCard({ ...props }) {
             <Typography
               variant="body1"
               color="text.primary"
-              sx={{ ml: "auto", alignSelf: { xs: "flex-end", sm: "center" } }}
+              fontWeight={600}
+              sx={{ ml: "auto"}}
             >
               {data.amount} {devise}
             </Typography>
