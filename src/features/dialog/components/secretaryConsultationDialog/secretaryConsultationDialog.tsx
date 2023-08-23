@@ -63,6 +63,7 @@ function SecretaryConsultationDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1':user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
@@ -188,7 +189,7 @@ function SecretaryConsultationDialog({...props}) {
                                     </Typography>
                                     {devise}
                                 </Label>
-                                <Button
+                                {demo && <Button
                                     variant="contained"
                                     size={"small"}
                                     style={{
@@ -202,7 +203,7 @@ function SecretaryConsultationDialog({...props}) {
                                 >
                                     <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
                                     <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
-                                </Button>
+                                </Button>}
                             </Stack>:
                                 <Chip
                                     label={`${total} ${devise}`}
@@ -332,7 +333,7 @@ function SecretaryConsultationDialog({...props}) {
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <LoadingButton
-                            // disabled={selectedPayment && selectedPayment.payments.length === 0}
+                            disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             loading={loading}
                             onClick={handleOnGoingPaymentDialog}

@@ -166,6 +166,7 @@ function ConsultationInProgress() {
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
     const [requestLoad, setRequestLoad] = useState<boolean>(false);
     const [isHistory, setIsHistory] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
@@ -475,6 +476,9 @@ function ConsultationInProgress() {
         if (previousAppointments) {
             setTotalPagesLa(previousAppointments.totalPages)
             setLastestsAppointments(previousAppointments.list)
+            setTimeout(()=>{
+                setLoadingHistory(false)
+            },2000)
         }
     }, [previousAppointments])
 
@@ -793,7 +797,7 @@ function ConsultationInProgress() {
                 borderRight: `2px solid${theme.palette.warning.main}`,
                 boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
             }}>
-                {appointment && (
+                {appointment && !loadingHistory && (
                     <ConsultationIPToolbar
                         appuuid={app_uuid}
                         mutate={mutate}
@@ -817,7 +821,7 @@ function ConsultationInProgress() {
                         endingDocuments={setPendingDocuments}
                         selectedTab={value}
                         setSelectedTab={setValue}
-                        lastestsAppointments
+                        hasLatestAppointments ={lastestsAppointments?.length !== 0}
                     />
                 )}
             </SubHeader>
