@@ -28,13 +28,7 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
 
                     }
                 },
-                [theme.breakpoints.down("sm")]:{
-                position:'absolute',
-                left:'50%',
-                top:"50%",
-                transform: 'translate(-50%,-50%)',
-
-            }
+            
             },
             '&.selected': {
                 backgroundColor: 'transparent',

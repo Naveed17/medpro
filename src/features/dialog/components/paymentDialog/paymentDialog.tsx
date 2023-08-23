@@ -368,6 +368,17 @@ console.log(paymentTypesList.length)
                             width:24,
                             height:24,
                             marginRight:.5
+                           },
+                           "& .label-inner":{
+                            ...((paymentTypesList.length + patient.insurances.length + (wallet > 0 ? 1:0)) < 4 && {
+                                
+                          position:'absolute',
+                          left:'50%',
+                          top:"50%",
+                          transform: 'translate(-50%,-50%)',
+
+            
+                            })
                            }
                         }
 
