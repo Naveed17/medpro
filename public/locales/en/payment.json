@@ -56,6 +56,7 @@
     "type": "Type",
     "payment_type": "Payment Type",
     "numcheque": "Check Number",
+    "patient": "Patient",
     "billing_status": "Billing Status",
     "amount": "Amount",
     "actions": "Actions",

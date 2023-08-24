@@ -149,7 +149,7 @@ function PaymentDialog({...props}) {
         },
         check: [{
             amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : "",
-            carrier: "",
+            carrier: patient ? `${patient.firstName} ${patient.lastName}`: "",
             bank: "",
             check_number: '',
             payment_date: new Date(),
