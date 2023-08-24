@@ -416,5 +416,7 @@
     "2_child": "2ème Enfant",
     "3_child": "3ème Enfant",
     "other_child": "Autre"
-  }
+  },
+  "satisfied": "Satisfait",
+  "notsatisfied": "Je ne suis pas satisfait"
 }
