@@ -58,6 +58,7 @@
     "type": "Type",
     "payment_type": "Paiement",
     "numcheque": "Numéro chéque",
+    "patient": "Patient",
     "bank": "Banque",
     "carrier": "Carrier",
     "billing_status": "Etat de Facturation",

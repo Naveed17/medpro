@@ -40,6 +40,8 @@ import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
+import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
@@ -56,6 +58,7 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [openAI, setOpenAI] = useState(false);
 
     const router = useRouter();
 
@@ -276,6 +279,15 @@ function SecretaryConsultationDialog({...props}) {
                             {t("recap")}
                         </Typography>
 
+                        {process.env.NODE_ENV === 'development' && <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
+                            <Chip label={t('imMedAI')}/>
+                            <Chip size={"small"} color={"primary"} label={t('yes')} onClick={() => {
+                                setOpenAI(true)
+                            }}/>
+                        </Stack>}
+
                         <Box display='grid' sx={{
                             gridGap: 16,
                             gridTemplateColumns: {
@@ -284,7 +296,6 @@ function SecretaryConsultationDialog({...props}) {
                                 lg: "repeat(3,minmax(0,1fr))",
                             }
                         }}>
-
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
                                 <Badge key={'feat' + idx} color="success" invisible={!item.checked}
                                        badgeContent={<CheckIcon sx={{width: 8}}/>}>
@@ -301,8 +312,8 @@ function SecretaryConsultationDialog({...props}) {
                                     </Card>
                                 </Badge>
                             ))}
-
                         </Box>
+
                     </Stack>
                 </Grid>
 
@@ -340,6 +351,32 @@ function SecretaryConsultationDialog({...props}) {
                             startIcon={<Icon path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                action={"open_ai"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openAI}
+                data={{
+                    appointment
+                }}
+                title={t("MedAI")}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={()=>{setOpenAI(false)}} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
+                            {t("notsatisfied", {ns: "common"})}
+                        </Button>
+                        <Button onClick={()=>{setOpenAI(false)}} startIcon={<SentimentSatisfiedRoundedIcon/>}>
+                            {t("satisfied", {ns: "common"})}
+                        </Button>
                     </DialogActions>
                 }
             />

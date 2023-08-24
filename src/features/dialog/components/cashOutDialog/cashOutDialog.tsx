@@ -34,6 +34,14 @@ const headCheques: readonly HeadCell[] = [
         align: "center",
     },
     {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        sortable: false,
+        align: "center",
+    },
+    {
         id: "nb-cheque",
         numeric: false,
         disablePadding: true,

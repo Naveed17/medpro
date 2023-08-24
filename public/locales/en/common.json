@@ -414,5 +414,8 @@
     "2_child": "2nd child",
     "3_child": "3rd child",
     "other_child": "Other"
-  }
+  },
+  "satisfied": "Satisfied",
+  "notsatisfied": "Not satisfied"
+
 }
