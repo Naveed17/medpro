@@ -63,7 +63,7 @@ function AddRequestQuoteDialog({...props}) {
             })
             setActs(_acts);
         }
-    }, [httpProfessionalsActs]);
+    }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let _total = 0
