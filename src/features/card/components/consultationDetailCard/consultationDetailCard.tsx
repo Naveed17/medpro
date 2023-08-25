@@ -42,7 +42,9 @@ function CIPPatientHistoryCard({...props}) {
         seeHistory,
         closed,
         handleClosePanel,
-        isClose
+        isClose,
+        mutateReasonsData,
+        reasons
     } = props;
     const router = useRouter();
     const theme = useTheme();
@@ -62,18 +64,9 @@ function CIPPatientHistoryCard({...props}) {
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
     const [appointmentDataHistory, setAppointmentDataHistory] = useState<any>(null);
-    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
 
     const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
     const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
-
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
-    } : null, SWRNoValidateConfig);
 
     const {data: httpAppointmentDataResponse} = useRequest(patient ? {
         method: "GET",
@@ -164,7 +157,7 @@ function CIPPatientHistoryCard({...props}) {
             const {status} = result?.data;
             const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
             if (status === "success") {
-                handleReasonChange([...reasons.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                handleReasonChange([...reasons.filter((reason: { uuid: any; }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
             }
             setLoadingReq(false);
         }));
@@ -230,11 +223,6 @@ function CIPPatientHistoryCard({...props}) {
         }
     }, [httpAppointmentDataResponse])
 
-    useEffect(() => {
-        if (httpConsultReasonResponse) {
-            setReasons((httpConsultReasonResponse as HttpResponse)?.data);
-        }
-    }, [httpConsultReasonResponse])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -304,7 +292,7 @@ function CIPPatientHistoryCard({...props}) {
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={values.motif && reasons ? reasons.filter(reason => values.motif.includes(reason.uuid)) : []}
+                                value={values.motif && reasons ? reasons.filter((reason: { uuid: any; }) => values.motif.includes(reason.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
                                     const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
@@ -317,7 +305,7 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                 sx={{color: "text.secondary"}}
-                                options={reasons ? reasons.filter(item => item.isEnabled) : []}
+                                options={reasons ? reasons.filter((item: { isEnabled: any; }) => item.isEnabled) : []}
                                 loading={reasons?.length === 0}
                                 getOptionLabel={(option) => {
                                     // Value selected with enter, right from the input
