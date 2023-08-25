@@ -254,6 +254,14 @@ const dialogData = [
         ),
     },
     {
+        action: "quote-request-dialog",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addQuoteRequestDialog/addQuoteRequestDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "cashout",
         component: dynamic((): any =>
             import("@features/dialog/components/cashOutDialog/cashOutDialog").then(
