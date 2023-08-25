@@ -17,6 +17,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import AddIcon from "@mui/icons-material/Add";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import moment from "moment";
 
 const headCells = [
     {
@@ -98,11 +102,17 @@ function TransactionPanel({...props}) {
     const [loading, setLoading] = useState(true);
     const [pmList, setPmList] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
-    const [total, setTotal] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
+    /*
+        const [total, setTotal] = useState(0);
+        const [toReceive, setToReceive] = useState(0);
+    */
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
+    const [acts, setActs] = useState<AppointmentActModel[]>([]);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [state, setState] = useState<any>();
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
@@ -120,8 +130,10 @@ function TransactionPanel({...props}) {
     useEffect(() => {
         if (httpTransactionsResponse) {
             const data = (httpTransactionsResponse as HttpResponse)?.data
-            setTotal(data.total_amount)
-            setToReceive(data.total_insurance_amount);
+            /*
+                        setTotal(data.total_amount)
+                        setToReceive(data.total_insurance_amount);
+            */
             if (data.transactions)
                 setRows(data.transactions.reverse());
 
@@ -175,11 +187,37 @@ function TransactionPanel({...props}) {
         });
     }
 
+    const saveQuote = () => {
+        let type = "";
+        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
+
+        setState({
+            type: "quote",
+            name: "Quote",
+            info: acts.filter(act => act.selected),
+            createdAt: moment().format("DD/MM/YYYY"),
+            patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+        });
+        setOpenDialog(true);
+    }
 
     return (
         <PanelStyled>
             {loading && <LinearProgress/>}
             {!loading && <Box className="files-panel">
+                <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                    <Typography>{t('transactions')}</Typography>
+                    <Button
+                        size={"medium"}
+                        onClick={() => {
+                            setOpenQuoteDialog(true);
+                        }}
+                        variant="contained"
+                        color="warning">
+                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add_quote")}
+                    </Button>
+                </Stack>
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
                     {/*<Button size='small'
                             variant='contained'>
@@ -274,6 +312,65 @@ function TransactionPanel({...props}) {
                     </DialogActions>
                 }
             />
+
+            <Dialog
+                action={"quote-request-dialog"}
+                data={{
+                    acts, setActs
+                }}
+                open={openQuoteDialog}
+                size={"md"}
+                direction={"ltr"}
+                sx={{minHeight: 400}}
+                title={t("add_quote")}
+                dialogClose={() => {
+                    setOpenQuoteDialog(false)
+                }}
+                onClose={() => {
+                    setOpenQuoteDialog(false)
+                }}
+                actionDialog={
+                    <DialogActions>
+                        <Button
+                            onClick={() => {
+                                setOpenQuoteDialog(false)
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                saveQuote()
+                            }}
+                            disabled={acts.filter(act=>act.selected).length === 0}
+                            startIcon={<SaveRoundedIcon/>}>
+                            {t("save")}
+                        </Button>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 300,
+                        padding: 0
+                    },
+                }}
+                action={"document_detail"}
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                data={{
+                    state,
+                    setState,
+                    setOpenDialog,
+                    t,
+                }}
+                size={"lg"}
+                title={t("add_quote")}
+            />
+
         </PanelStyled>
     )
 }

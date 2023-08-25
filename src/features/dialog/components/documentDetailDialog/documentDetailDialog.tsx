@@ -108,7 +108,7 @@ function DocumentDetailDialog({...props}) {
         }
     })
     const {direction} = useAppSelector(configSelector);
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees','quote']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
@@ -425,7 +425,7 @@ function DocumentDetailDialog({...props}) {
                                                 eventHandler,
                                                 data,
                                                 values: header,
-                                                state: state.type === "fees" && state.info.length === 0 ? {
+                                                state: (state.type === "fees" || state.type =='quote') && state.info.length === 0 ? {
                                                     ...state,
                                                     info: [{
                                                         fees: state.consultationFees,
