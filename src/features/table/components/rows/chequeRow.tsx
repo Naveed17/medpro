@@ -74,17 +74,9 @@ function ChequeRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell >
-                    {row ? (
+                    {row && row.patient ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.check_number}
-                        </Typography>
-                    ) : (
-                        <Skeleton variant="text" width={100}/>
-                    )}
-                </TableCell><TableCell >
-                    {row ? (
-                        <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.carrier}
+                            {row.patient.firstName} {row.patient.lastName}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>
@@ -93,7 +85,24 @@ function ChequeRow({...props}) {
                 <TableCell >
                     {row ? (
                         <Typography className="name" variant="body1" color="text.primary">
-                            {row.data.bank}
+                            {row.data.check_number ? row.data.check_number : '-'}
+                        </Typography>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell><TableCell >
+                    {row ? (
+                        <Typography className="name" variant="body1" color="text.primary">
+                            {row.data.carrier ? row.data.carrier : '-'}
+                        </Typography>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell>
+                <TableCell >
+                    {row ? (
+                        <Typography className="name" variant="body1" color="text.primary">
+                            {row.data.bank ? row.data.bank : '-'}
                         </Typography>
                     ) : (
                         <Skeleton variant="text" width={100}/>

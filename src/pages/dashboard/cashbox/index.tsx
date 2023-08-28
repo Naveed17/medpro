@@ -153,6 +153,8 @@ function Cashbox() {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
+    const [totalCash, setTotalCash] = useState(0);
+    const [totalCheck, setTotalCheck] = useState(0);
     const [toReceive, setToReceive] = useState(0);
     const [collected, setCollected] = useState(0);
     const [pmList, setPmList] = useState([]);
@@ -217,6 +219,8 @@ function Cashbox() {
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
+        setTotalCash(data.total_cash);
+        setTotalCheck(data.total_check);
         setToReceive(data.total_insurance_amount);
         setCollected(data.total_collected);
         if (data.transactions) setRows(data.transactions.reverse());
@@ -371,7 +375,7 @@ function Cashbox() {
                         alignItems={{xs: "flex-start", md: "center"}}
                     >
                         <Stack direction="row" spacing={2} alignItems="center">
-                            <>
+                            {toReceive > 0 && <>
                                 <Typography>{t("receive")}</Typography>
                                 <Typography variant="h6">
                                     {toReceive} <span style={{fontSize: 10}}>{devise}</span>
@@ -379,13 +383,22 @@ function Cashbox() {
                                 <Typography variant="h6" display={{xs: "none", md: "block"}}>
                                     I
                                 </Typography>
-                            </>
+                            </>}
                             <Typography>{t("total")}</Typography>
-                            <Tooltip title={`${t('check')}: 0 ${devise} - ${t('cash')}: 0 ${devise}"`} arrow>
                                 <Typography variant="h6">
                                     {total} <span style={{fontSize: 10}}>{devise}</span>
                                 </Typography>
-                            </Tooltip>
+                            <Typography variant="h6" display={{xs: "none", md: "block"}}>
+                                I
+                            </Typography>
+                            <Stack>
+                                <Typography fontSize={10}>
+                                    {t('check')} : <span style={{fontSize: 12,fontWeight:"bold"}}>{totalCheck}</span> {devise}
+                                </Typography>
+                                <Typography fontSize={10}>
+                                    {t('cash')} : <span style={{fontSize: 12,fontWeight:"bold"}}>{totalCash}</span> {devise}
+                                </Typography>
+                            </Stack>
                         </Stack>
                         <Stack direction="row" spacing={1} alignItems="center">
                             {!isMobile && <Typography variant="h6">I</Typography>}

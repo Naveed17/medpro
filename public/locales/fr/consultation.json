@@ -108,6 +108,8 @@
   "requestedAnalyses": "Demande bilan",
   "requestedPrescription": "Ordonnance médicale",
   "balance_sheet_request": "Analyse",
+  "imMedAI": "Bonjour, je suis MedAI, vous voulez mon avis ?",
+  "yes": "Oui",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -378,7 +380,8 @@
     "today": "Aujourd'hui",
     "age": "Âge",
     "cin": "CIN",
-    "age_placeholder": "Numéro CIN patient",
+    "age_placeholder": "Âge du patient",
+    "cin_placeholder": "Numéro CIN patient",
     "today_placeholder": "Date aujourd'hui",
     "disease": "Maladie",
     "noActiveFile": "Pas de formulaire de consultation actif",

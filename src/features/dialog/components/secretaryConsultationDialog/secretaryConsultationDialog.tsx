@@ -5,7 +5,8 @@ import {
     Button,
     Card,
     CardContent,
-    Checkbox, Chip,
+    Checkbox,
+    Chip,
     DialogActions,
     Grid,
     IconButton,
@@ -32,19 +33,34 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
+import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
+
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext, appointment},
+        data: {
+            app_uuid,
+            t,
+            changes,
+            total,
+            meeting,
+            setMeeting,
+            checkedNext,
+            setCheckedNext,
+            appointment,
+            exam,
+            reasons
+        },
     } = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -56,6 +72,7 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [openAI, setOpenAI] = useState(false);
 
     const router = useRouter();
 
@@ -63,10 +80,12 @@ function SecretaryConsultationDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {mutate} = useAppSelector(consultationSelector);
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
@@ -105,8 +124,8 @@ function SecretaryConsultationDialog({...props}) {
             uuid: app_uuid,
             payments,
             payed_amount: getTransactionAmountPayed(),
-            appointment: {...appointment,uuid:app_uuid},
-            patient:appointment.patient,
+            appointment: {...appointment, uuid: app_uuid},
+            patient: appointment.patient,
             total,
             isNew: getTransactionAmountPayed() === 0
         })
@@ -117,6 +136,62 @@ function SecretaryConsultationDialog({...props}) {
         if (appointment.transactions)
             appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
         return payed_amount;
+    }
+
+    const msgGenerator = () => {
+        let msg = '';
+        if (medicalProfessionalData) {
+            msg = `Je m'appelle dr ${session?.user?.name} ${medicalProfessionalData[0]?.medical_professional.specialities[0].speciality.name}, mon patient ${appointment.patient.firstName} ${appointment.patient.lastName}`;
+            if (appointment.patient.birthdate)
+                msg += ` ${getBirthdayFormat(appointment.patient, t).trim()} `;
+            if (appointment.patient.gender)
+                msg += ` de sexe ${appointment.patient.gender === 'F' ? 'feminin' : 'masculin'}`;
+
+            msg += ` a consulté le ${appointment.day_date}`
+            if (exam.motif.length > 0) {
+                msg += ` pour motif ${reasons.find((reason: { uuid: any; }) => reason.uuid === exam.motif[0]).name}` //UUID
+            }
+            if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
+                let txtModel = ''
+                const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
+                Object.keys(models).map(key => {
+                    if (models[key])
+                        txtModel += ` ${key}=${models[key]}`;
+                })
+                if (txtModel.length > 0) msg += ` avec${txtModel}`
+            }
+
+            if (exam.notes)
+                msg += `. mes observations: ${exam.notes}`
+            if (exam.diagnosis)
+                msg += `. mon diagnostique été: ${exam.diagnosis}`
+            if (exam.disease && exam.disease.length > 0) {
+                msg += ' maladie:'
+                exam.disease.map(((disease: string) => msg += ` ${disease},`))
+            }
+            if (appointment.patient.treatment.length > 0) {
+                msg += ' et j\'ai recommandé les traitements suivants:'
+                appointment.patient.treatment.map((treatment: { name: any; }) => msg += ` -${treatment.name}`)
+            }
+            if (appointment.patient.requestedAnalyses.length > 0) {
+                msg += '. J\'ai demandé les analyses suivante:'
+                appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
+                    analyse.hasAnalysis.map(ha => {
+                        msg += ` -${ha.analysis.name}`
+                    })
+                })
+            }
+            if (appointment.patient.requestedImaging.length > 0) {
+                msg += '. J\'ai demandé des imageries médicals:'
+                appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
+                    ri['medical-imaging']?.map(mi => {
+                        msg += ` - ${mi['medical-imaging'].name}`
+                    })
+                })
+            }
+        }
+
+        return msg;
     }
 
     const handleOnGoingPaymentDialog = () => {
@@ -173,42 +248,43 @@ function SecretaryConsultationDialog({...props}) {
                         />
                         {
                             total - getTransactionAmountPayed() !== 0 ?
-                            <Stack direction={"row"} alignItems={"center"}>
-                                <Typography mr={1}>{t("amount_paid")}</Typography>
-                                <Label
-                                    variant="filled"
-                                    color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
-                                    sx={{color: (theme) => theme.palette.text.primary}}>
-                                    <Typography
-                                        color="text.primary"
-                                        variant="subtitle1"
-                                        mr={0.3}
-                                        fontWeight={600}>
-                                        {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
-                                    </Typography>
-                                    {devise}
-                                </Label>
-                                <Button
-                                    variant="contained"
-                                    size={"small"}
-                                    style={{
-                                        marginLeft: 5
-                                    }}
-                                    {...(isMobile && {
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    <Typography mr={1}>{t("amount_paid")}</Typography>
+                                    <Label
+                                        variant="filled"
+                                        color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
+                                        sx={{color: (theme) => theme.palette.text.primary}}>
+                                        <Typography
+                                            color="text.primary"
+                                            variant="subtitle1"
+                                            mr={0.3}
+                                            fontWeight={600}>
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                        </Typography>
+                                        {devise}
+                                    </Label>
+                                    {demo && <Button
+                                        variant="contained"
+                                        size={"small"}
+                                        style={{
+                                            marginLeft: 5
+                                        }}
+                                        {...(isMobile && {
 
-                                        sx: {minWidth: 40},
-                                    })}
-                                    onClick={openDialogPayment}
-                                >
-                                    <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
-                                    <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
-                                </Button>
-                            </Stack>:
+                                            sx: {minWidth: 40},
+                                        })}
+                                        onClick={openDialogPayment}
+                                    >
+                                        <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
+                                        <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
+                                    </Button>}
+                                </Stack> :
                                 <Chip
                                     label={`${total} ${devise}`}
                                     color={"success"}
-                                    onDelete={()=>{}}
-                                    deleteIcon={<DoneAllRoundedIcon />}
+                                    onDelete={() => {
+                                    }}
+                                    deleteIcon={<DoneAllRoundedIcon/>}
                                 />
                         }
                         <Button
@@ -275,6 +351,17 @@ function SecretaryConsultationDialog({...props}) {
                             {t("recap")}
                         </Typography>
 
+                        {process.env.NODE_ENV === 'development' &&
+                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
+                                <Chip label={t('imMedAI')}/>
+                                <Chip size={"small"} color={"primary"} label={t('yes')} onClick={() => {
+                                    setOpenAI(true)
+                                    console.log(msgGenerator())
+                                }}/>
+                            </Stack>}
+
                         <Box display='grid' sx={{
                             gridGap: 16,
                             gridTemplateColumns: {
@@ -283,7 +370,6 @@ function SecretaryConsultationDialog({...props}) {
                                 lg: "repeat(3,minmax(0,1fr))",
                             }
                         }}>
-
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
                                 <Badge key={'feat' + idx} color="success" invisible={!item.checked}
                                        badgeContent={<CheckIcon sx={{width: 8}}/>}>
@@ -300,8 +386,8 @@ function SecretaryConsultationDialog({...props}) {
                                     </Card>
                                 </Badge>
                             ))}
-
                         </Box>
+
                     </Stack>
                 </Grid>
 
@@ -320,7 +406,7 @@ function SecretaryConsultationDialog({...props}) {
                     selectedPayment,
                     setSelectedPayment,
                     appointment,
-                    patient:appointment.patient
+                    patient: appointment.patient
                 }}
                 size={"lg"}
                 fullWidth
@@ -332,13 +418,43 @@ function SecretaryConsultationDialog({...props}) {
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <LoadingButton
-                            // disabled={selectedPayment && selectedPayment.payments.length === 0}
+                            disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             loading={loading}
                             onClick={handleOnGoingPaymentDialog}
                             startIcon={<Icon path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                action={"open_ai"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openAI}
+                data={{
+                    appointment
+                }}
+                title={t("MedAI")}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenAI(false)
+                        }} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
+                            {t("notsatisfied", {ns: "common"})}
+                        </Button>
+                        <Button onClick={() => {
+                            setOpenAI(false)
+                        }} startIcon={<SentimentSatisfiedRoundedIcon/>}>
+                            {t("satisfied", {ns: "common"})}
+                        </Button>
                     </DialogActions>
                 }
             />
