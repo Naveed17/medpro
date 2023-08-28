@@ -291,9 +291,9 @@ function TimeSchedule({...props}) {
                                            badgeContent={recurringDates.length} color="warning"/>
                                 </Typography>}
                             </Stack>}/>
-                        {openTime ? <ExpandLess/> : <ExpandMore/>}
+                        {openTime || recurringDates.length === 0 ? <ExpandLess/> : <ExpandMore/>}
                     </ListItemButton>
-                    <Collapse in={openTime} timeout="auto" unmountOnExit>
+                    <Collapse in={openTime || recurringDates.length === 0} timeout="auto" unmountOnExit>
                         {children}
                     </Collapse>
                 </List>}>

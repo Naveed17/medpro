@@ -61,7 +61,7 @@ function Event({...props}) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         ...(appointment.isOnline && {width: "98%"}),
-                        ...(appointment.motif.length > 0 && {width: "60%"})
+                        ...(appointment.motif.length > 0 && {width: "100%"})
                     }
                 }} color="primary" noWrap>
                     <span>{event.event._def.title}</span>
