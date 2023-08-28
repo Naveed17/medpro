@@ -424,7 +424,7 @@ function TimeSchedule({...props}) {
                                 {!changeTime && <Grid item md={6} xs={12}>
                                     <StaticDatePicker
                                         views={['day']}
-                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
+                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                         onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                                         value={(location) ? date : null}
                                         loading={!location || !medical_professional}
