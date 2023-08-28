@@ -144,7 +144,7 @@ export const authOptions: NextAuthOptions = {
     // when an action is performed.
     // https://next-auth.js.org/configuration/callbacks
     callbacks: {
-        async signIn({user, account, profile, email, credentials}) {
+        async signIn({user}) {
             return !(user as any).error
         },
         async redirect({url, baseUrl}) {
@@ -153,7 +153,7 @@ export const authOptions: NextAuthOptions = {
             if (url.startsWith("/")) return new URL(url, baseUrl).toString();
             return baseUrl;
         },
-        async session({session, token, user}) {
+        async session({session, token}) {
             // Send properties to the client, like an access_token from a provider.
             (session as any).accessToken = token.accessToken;
             session.data = token.data as UserDataResponse;
@@ -163,7 +163,7 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
-        async jwt({token, user, account, profile, trigger, session}) {
+        async jwt({token, user, account, trigger, session}) {
             // Persist the OAuth access_token to the token right after signin
             if (trigger === "update" && session?.agenda_default_view) {
                 // Note, that `session` can be any arbitrary object, remember to validate it!
