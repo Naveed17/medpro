@@ -260,7 +260,7 @@ function FcmLayout({...props}) {
         // Event listener that listens for the push notification event in the background
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
-                process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
+                console.log("event for the service worker", JSON.parse(event.data.data.detail));
             });
         }
 
