@@ -518,7 +518,7 @@ function TimeSchedule({...props}) {
                     }
 
                     {(timeAvailable || recurringDates.length > 0) &&
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence>
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}

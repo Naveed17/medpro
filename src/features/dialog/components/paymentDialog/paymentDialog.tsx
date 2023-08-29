@@ -383,13 +383,13 @@ console.log(paymentTypesList.length)
                            },
                            "& .label-inner":{
                             ...((paymentTypesList.length + patient.insurances.length + (wallet > 0 ? 1:0)) < 4 && {
-                                
+
                           position:'absolute',
                           left:'50%',
                           top:"50%",
                           transform: 'translate(-50%,-50%)',
 
-            
+
                             })
                            }
                         }
@@ -482,7 +482,7 @@ console.log(paymentTypesList.length)
                 </FormGroup>
                 <Grid container alignItems="center">
                     <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence>
                             {(() => {
                                 switch (values.selected) {
                                     case 'cash':
@@ -811,7 +811,7 @@ console.log(paymentTypesList.length)
                         </AnimatePresence>
                     </Grid>
                     {payments.length > 0 && <Grid item xs={12} lg={5}>
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence>
                             <Box mt={1}>
                                 <DesktopContainer>
                                     <Otable
@@ -832,7 +832,7 @@ console.log(paymentTypesList.length)
                                         {
                                             payments.map((item:any,i:number)=>
                                              <React.Fragment key={i}>
-                                       <PaymentDialogMobileCard data={item} t={t} 
+                                       <PaymentDialogMobileCard data={item} t={t}
                                        handleEvent={(action: string, payIndex: number) => {
                                             const paymentsUpdated = [...payments];
                                             paymentsUpdated.splice(payIndex, 1);
@@ -844,9 +844,9 @@ console.log(paymentTypesList.length)
                                         </React.Fragment>
                                             )
                                         }
-                                       
+
                                     </Stack>
-                                    
+
                                 </MobileContainer>
                             </Box>
                         </AnimatePresence>
