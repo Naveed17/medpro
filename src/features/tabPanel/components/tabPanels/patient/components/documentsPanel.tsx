@@ -365,7 +365,7 @@ function DocumentsPanel({...props}) {
                     }
                 } else {
                     _acts.push({
-                        act: {uuid: act.act.uuid,name: act.act.name},
+                        act: {uuid: act.act.uuid, name: act.act.name},
                         fees: act.fees,
                         isTopAct: false,
                         qte: act.qte ? act.qte : 1,
@@ -425,8 +425,13 @@ function DocumentsPanel({...props}) {
                                                 console.log(card.quotes_items)
                                                 console.log(acts);
                                                 let _acts: any[] = [];
-                                                acts.map(act => _acts = [..._acts, {...act, selected: card.quotes_items.findIndex((qi: { act_item: { uuid: string; }; }) => qi.act_item.uuid === act.act.uuid) !==-1}])
-                                                showQuote(_acts.filter(act=>act.selected))
+                                                acts.map(act => _acts = [..._acts, {
+                                                    ...act,
+                                                    selected: card.quotes_items.findIndex((qi: {
+                                                        act_item: { uuid: string; };
+                                                    }) => qi.act_item.uuid === act.act.uuid) !== -1
+                                                }])
+                                                showQuote(_acts.filter(act => act.selected))
                                             }} alignItems={"center"}
                                                    padding={2}>
                                                 <IconUrl width={20} path={"ic-text"}/>
@@ -630,7 +635,7 @@ function DocumentsPanel({...props}) {
                 size={"md"}
                 direction={"ltr"}
                 sx={{minHeight: 400}}
-                title={t("add_quote")}
+                title={t("config.tabs.quotes", {ns: 'patient'})}
                 dialogClose={() => {
                     setOpenQuoteDialog(false)
                 }}
@@ -652,7 +657,7 @@ function DocumentsPanel({...props}) {
                             }}
                             disabled={acts.filter(act => act.selected).length === 0}
                             startIcon={<SaveRoundedIcon/>}>
-                            {t("save")}
+                            {t("save",{ns:'patient'})}
                         </Button>
                     </DialogActions>
                 }

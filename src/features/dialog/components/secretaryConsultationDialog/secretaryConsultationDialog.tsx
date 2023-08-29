@@ -73,6 +73,8 @@ function SecretaryConsultationDialog({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [openAI, setOpenAI] = useState(false);
+    const [response, setResponse] = useState("");
+    const [loadingChat, setLoadingChat] = useState(false);
 
     const router = useRouter();
 
@@ -88,6 +90,7 @@ function SecretaryConsultationDialog({...props}) {
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+    const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
 
     const {
         paymentTypesList
@@ -189,6 +192,8 @@ function SecretaryConsultationDialog({...props}) {
                     })
                 })
             }
+
+            msg+='. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
         }
 
         return msg;
@@ -351,16 +356,27 @@ function SecretaryConsultationDialog({...props}) {
                             {t("recap")}
                         </Typography>
 
-                        {process.env.NODE_ENV === 'development' &&
+
                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
                                 <Chip label={t('imMedAI')}/>
-                                <Chip size={"small"} color={"primary"} label={t('yes')} onClick={() => {
-                                    setOpenAI(true)
-                                    console.log(msgGenerator())
+                                <Chip size={"small"} color={"primary"} label={t(loadingChat ?'wait':'yes')} disabled={loadingChat} onClick={() => {
+                                    setLoadingChat(true)
+                                    const form = new FormData();
+                                    form.append('message', msgGenerator());
+                                    triggerChat({
+                                        method: "POST",
+                                        url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
+                                        data: form
+                                    }).then((r) => {
+                                        const res = (r?.data as HttpResponse).data;
+                                        setResponse(res.message)
+                                        setOpenAI(true)
+                                        setLoadingChat(false)
+                                    })
                                 }}/>
-                            </Stack>}
+                            </Stack>
 
                         <Box display='grid' sx={{
                             gridGap: 16,
@@ -439,21 +455,21 @@ function SecretaryConsultationDialog({...props}) {
                 }}
                 open={openAI}
                 data={{
-                    appointment
+                    appointment, response
                 }}
                 title={t("MedAI")}
                 dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>
-                        <Button onClick={() => {
+                       {/* <Button onClick={() => {
                             setOpenAI(false)
                         }} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
                             {t("notsatisfied", {ns: "common"})}
-                        </Button>
+                        </Button>*/}
                         <Button onClick={() => {
                             setOpenAI(false)
                         }} startIcon={<SentimentSatisfiedRoundedIcon/>}>
-                            {t("satisfied", {ns: "common"})}
+                            {t("Merci", {ns: "common"})}
                         </Button>
                     </DialogActions>
                 }
