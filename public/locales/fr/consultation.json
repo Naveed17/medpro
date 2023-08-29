@@ -110,6 +110,7 @@
   "balance_sheet_request": "Analyse",
   "imMedAI": "Bonjour, je suis MedAI, vous voulez mon avis ?",
   "yes": "Oui",
+  "wait": "quelques instants...",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
