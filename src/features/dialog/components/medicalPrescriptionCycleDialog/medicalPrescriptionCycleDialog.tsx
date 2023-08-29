@@ -588,7 +588,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                     className="custom-paper"
                     key={idx}
                   >
-                    <Grid container spacing={2} alignItems="center">
+                    <Grid container spacing={{xs:1,md:2}} alignItems="center">
                       <Grid item md={0.5} xs={1}>
                         <Stack direction="row" alignItems="center">
                           <span style={{ fontSize: 20, fontWeight: "bold" }}>
@@ -708,7 +708,10 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                           />
                         )}
                       </Grid>
-                      <Grid item md={3.2} xs={12}>
+                      {
+                        isMobile && <Grid item xs={1}/>
+                      }
+                      <Grid item md={3.2} xs={10}>
                         <Autocomplete
                           size="small"
                           freeSolo
@@ -762,7 +765,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                         className={"grid-action"}
                         item
                         md={0.8}
-                        xs={12}
+                        xs={1}
                         pb={0.2}
                         sx={{ textAlign: { xs: "right", md: "left" } }}
                       >
@@ -887,28 +890,30 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                         id="demo-multiple-checkbox"
                                         fullWidth
                                         multiple
+                                        displayEmpty={true}
                                         size="small"
                                         value={
                                           values.data[idx].cycles[
                                             index
                                           ].dosageTime
-                                            .map((item: any) => {
-                                              if (item.value) {
-                                                return t(item.label, {
-                                                  ns: "consultation",
-                                                });
+                                            .reduce((item: any[],elm:any) => {
+                                              if (elm.value) {
+                                                item.push(t(elm.label,{
+                                                  ns:"consultation"
+                                                }));
                                               }
-                                            })
-                                            .filter((elm: any) => elm) || []
+                                              return item;
+                                            },[])
+                                             || []
                                         }
                                         renderValue={(selected) => {
                                           if (selected.length === 0) {
                                             return (
                                               <Typography
-                                                variant="body2"
+                                              
                                                 color="textSecondary"
                                               >
-                                                {t("select_dosage_time", {
+                                                {t("dosge_time", {
                                                   ns: "consultation",
                                                 })}
                                               </Typography>
@@ -916,6 +921,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                           }
                                           return selected.join(", ");
                                         }}
+                                        
                                       >
                                         {innerItem.dosageTime.map(
                                           (subitem: any, i: number) => (
