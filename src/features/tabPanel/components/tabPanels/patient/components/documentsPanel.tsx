@@ -140,7 +140,6 @@ function DocumentsPanel({...props}) {
                             {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
                                 <React.Fragment key={`doc-item-${idx}`}>
                                     <DocumentCard onClick={() => {
-                                        console.log(card);
                                         showDoc(card)
                                     }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
                                 </React.Fragment>
@@ -165,7 +164,6 @@ function DocumentsPanel({...props}) {
                                 <React.Fragment key={`doc-item-${idx}`}>
                                     <DocumentCard
                                         onClick={() => {
-                                            console.log(card);
                                             showDoc(card)
                                         }}
                                         {...{t, data: card, date: true, time: true, title: true}}/>
@@ -281,7 +279,6 @@ function DocumentsPanel({...props}) {
                 unit_item: string;
             }[] = [];
             acts.filter(act => act.selected).map(act => {
-                console.log(act);
                 rows.push({
                     "act_item": (act.act.uuid as string),
                     "name_item": act.act.name,
@@ -374,7 +371,6 @@ function DocumentsPanel({...props}) {
                     })
                 }
             })
-            console.log()
             setActs(_acts);
         }
     }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -422,8 +418,6 @@ function DocumentsPanel({...props}) {
                                     <React.Fragment key={`doc-item-${idx}`}>
                                         <DocumentCardStyled>
                                             <Stack direction={"row"} spacing={1} onClick={() => {
-                                                console.log(card.quotes_items)
-                                                console.log(acts);
                                                 let _acts: any[] = [];
                                                 acts.map(act => _acts = [..._acts, {
                                                     ...act,
@@ -500,7 +494,6 @@ function DocumentsPanel({...props}) {
                                             documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
                                                 <React.Fragment key={`doc-item-${idx}`}>
                                                     <DocumentCard onClick={() => {
-                                                        console.log(card);
                                                         showDoc(card)
                                                     }} {...{
                                                         t,

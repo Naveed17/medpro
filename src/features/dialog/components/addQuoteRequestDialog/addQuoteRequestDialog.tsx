@@ -24,8 +24,6 @@ function AddRequestQuoteDialog({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    console.log(acts);
-
     useEffect(() => {
         let _total = 0
         acts.filter((act: AppointmentActModel) => act.selected).forEach((act: AppointmentActModel) => _total += act.fees * act.qte)
