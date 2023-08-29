@@ -382,7 +382,7 @@ function WaitingRoom() {
                 <RoomToolbar/>
 
                 {error &&
-                    <AnimatePresence mode='wait'>
+                    <AnimatePresence>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}

@@ -34,6 +34,7 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
     {fallbackData, ...config}: any = {}
 ): ReturnMutation<DataMutation, Error> {
     const {data: session} = useSession();
+    const {jti} = session?.user as any;
 
     const {
         data: response,
@@ -43,7 +44,14 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
         reset
     } = useSWRMutation<AxiosResponse<DataMutation>, AxiosError<Error>>(
         key ? key : request?.url,
-        (key: string, requestConfig: any) => instanceAxios.request<DataMutation>({...requestConfig.arg, ...(!requestConfig?.arg?.url?.includes("/api/public") && {headers: {Authorization: `Bearer ${session?.accessToken}`}})}!),
+        (key: string, requestConfig: any) => instanceAxios.request<DataMutation>({
+            ...requestConfig.arg, ...(!requestConfig?.arg?.url?.includes("/api/public") && {
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    fcm_session: jti
+                }
+            })
+        }!),
         {...config}
     )
 

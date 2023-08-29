@@ -64,7 +64,7 @@ function NewUser() {
 
     const [loading, setLoading] = useState(false);
     const [profiles, setProfiles] = useState<any[]>([]);
-    const [agendaRoles] = useState(agendas);
+    const [agendaRoles] = useState([]);
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
