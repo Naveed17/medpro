@@ -212,7 +212,7 @@ function CashBoxMobileCard({...props}) {
             >
                 <CardContent>
                     <Stack direction="row" alignItems="center">
-                        <Stack spacing={1.5}>
+                        <Stack spacing={1.5} width={{xs:1,sm:'auto'}}>
                             <Stack
                                 direction="row"
                                 alignItems="center"
@@ -344,12 +344,21 @@ function CashBoxMobileCard({...props}) {
 
                                 <Stack
                                     sx={{
-                                        minWidth: {xs: 0, sm: 70},
+                                        minWidth: {xs: 0, sm: 100},
+                                        '& > span':{
+                                             mr: '4px !important',
+                                            '&:last-child':{
+                                                m:'0 !important'
+
+                                            }
+
+                                        }
                                     }}
                                     direction="row"
                                     alignItems="center"
                                     justifyContent="center"
-                                    spacing={1}>
+                                   
+                                    >
                                     {data.transaction_data &&
                                         data.transaction_data.map(
                                             (td: TransactionDataModel) =>
@@ -371,6 +380,7 @@ function CashBoxMobileCard({...props}) {
                                     alignItems={"center"}
                                     spacing={1}
                                     justifyContent={"center"}
+                                    ml={{xs:'auto !important',sm:1}}
                                 >
                                     <Typography
                                         onClick={(event) => {
@@ -531,6 +541,7 @@ function CashBoxMobileCard({...props}) {
                     direction,
                     sx: {
                         minHeight: 380,
+                        padding:{xs:1,md:2}
                     },
                 }}
                 open={openPaymentDialog}
