@@ -1,9 +1,20 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {Box, Button, Drawer, LinearProgress, Stack, Typography,} from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    Checkbox, Dialog, DialogActions, DialogContent,
+    DialogContentText, DialogTitle,
+    Drawer,
+    FormControlLabel,
+    LinearProgress,
+    Stack,
+    Typography,
+} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {PatientDetail} from "@features/dialog";
@@ -27,6 +38,7 @@ import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {sendRequest, useInsurances} from "@lib/hooks/rest";
 import useSWRMutation from "swr/mutation";
+import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -119,6 +131,7 @@ function Payment() {
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -128,25 +141,6 @@ function Payment() {
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: "",
-        },
-        card: {
-            amount: "",
-        },
-        check: [
-            {
-                amount: "",
-                carrier: "",
-                bank: "",
-                check_number: "",
-                payment_date: new Date(),
-                expiry_date: new Date(),
-            },
-        ],
-        selected: "",
-    });
     const [loading, setLoading] = useState<boolean>(false);
     const [day, setDay] = useState(moment().format("DD-MM-YYYY"));
     const [filtredRows, setFiltredRows] = useState<any[]>([]);
@@ -158,6 +152,8 @@ function Payment() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const [isChecked, setIsChecked] = useState(localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo);
+    const [openInfo, setOpenInfo] = React.useState(false);
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger} = useRequestMutation(null, "/payment/cashbox");
@@ -333,6 +329,33 @@ function Payment() {
             />
 
             <Box className="container">
+                {!roles.includes("ROLE_SECRETARY") && <Card style={{paddingLeft: 10,marginBottom:10}}>
+                    <FormControlLabel
+                        label={t('betav')}
+                        control={
+                            <Checkbox
+                                checked={isChecked}
+                                onChange={() => {
+                                    setOpenInfo(true)
+                                    const form = new FormData();
+                                    form.append("is_demo", (!isChecked).toString());
+                                    trigger(
+                                        {
+                                            method: "PATCH",
+                                            url: `${urlMedicalEntitySuffix}/demo/${router.locale}`,
+                                            data: form
+                                        },
+                                        TriggerWithoutValidation
+                                    ).then(() => {
+                                        dispatch(setOngoing({newCashBox: !isChecked}));
+                                        localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
+                                        setIsChecked(!isChecked);
+                                    });
+                                }}
+                            />
+                        }
+                    />
+                </Card>}
                 {filtredRows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
@@ -390,21 +413,21 @@ function Payment() {
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
-              <MobileContainer>
-            <Button
-                startIcon={<IconUrl path="ic-filter"/>}
-                variant="filter"
-                onClick={() => setFilter(true)}
-                sx={{
-                    position: "fixed",
-                    bottom: 50,
-                    transform: "translateX(-50%)",
-                    left: "50%",
-                    zIndex: 999,
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
 
-                }}>
-                Filtrer (0)
-            </Button>
+                    }}>
+                    Filtrer (0)
+                </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
@@ -412,6 +435,37 @@ function Payment() {
                 title="Filter">
                 <PaymentFilter/>
             </DrawerBottom>
+
+            <Dialog
+                open={openInfo}
+                scroll={'paper'}
+                aria-labelledby="scroll-dialog-title"
+                aria-describedby="scroll-dialog-description"
+            >
+                <DialogTitle id="scroll-dialog-title">Beta version</DialogTitle>
+                <DialogContent dividers={true}>
+                    <DialogContentText
+                        id="scroll-dialog-description"
+                        tabIndex={-1}>
+                        {[...new Array(6)]
+                            .map(
+                                (_,index) =>(
+                                    <Typography key={`alert${index}`} mb={2}>
+                                        {t(`alert-${index+1}`)}
+                                    </Typography>
+                                    ))
+                        }
+
+                        <Typography>{t('alert-7')}</Typography>
+                        <Typography>{t('alert-8')}</Typography>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{
+                        router.replace('/dashboard/cashbox')
+                    }}>OK</Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

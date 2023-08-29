@@ -64,7 +64,7 @@ function ConsultationIPToolbar({...props}) {
         setPatientShow,
         changes,
         appointment,
-        lastestsAppointments
+        hasLatestAppointments
     } = props;
 
     const dispatch = useAppDispatch();
@@ -90,7 +90,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setActions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
-    const hasLatestAppointments = lastestsAppointments.length === 0;
+
     const [tabsData, setTabsData] = useState<any[]>([]);
 
     const {data: user} = session as Session;
@@ -526,7 +526,7 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setTabsData(hasLatestAppointments ? [
+        setTabsData(!hasLatestAppointments ? [
             {
                 label: "consultation_form",
                 value: "consultation form"

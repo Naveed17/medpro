@@ -850,6 +850,7 @@ const Content = ({...props}) => {
                             </Button>
                             <Button
                                 variant="contained"
+                                disabled={info ==="add_treatment" && state?.length == 0}
                                 onClick={handleCloseDialog}
                                 startIcon={<Icon path="ic-dowlaodfile"/>}>
                                 {t("save")}

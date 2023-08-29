@@ -166,6 +166,7 @@ function ConsultationInProgress() {
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
     const [requestLoad, setRequestLoad] = useState<boolean>(false);
     const [isHistory, setIsHistory] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
@@ -191,6 +192,7 @@ function ConsultationInProgress() {
     const [pagesLa, setPagesLa] = useState(1);
     const [totalPagesLa, setTotalPagesLa] = useState(1);
     const [lastestsAppointments, setLastestsAppointments] = useState<any[]>([]);
+    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
 
     //***** REQUEST ****//
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
@@ -219,7 +221,7 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientAnalyses,mutate:mutatePatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientAnalyses, mutate: mutatePatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null, SWRNoValidateConfig);
@@ -236,6 +238,13 @@ function ConsultationInProgress() {
 
     const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
+    } : null, SWRNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -475,8 +484,17 @@ function ConsultationInProgress() {
         if (previousAppointments) {
             setTotalPagesLa(previousAppointments.totalPages)
             setLastestsAppointments(previousAppointments.list)
+            setTimeout(() => {
+                setLoadingHistory(false)
+            }, 2000)
         }
     }, [previousAppointments])
+
+    useEffect(() => {
+        if (httpConsultReasonResponse) {
+            setReasons((httpConsultReasonResponse as HttpResponse)?.data);
+        }
+    }, [httpConsultReasonResponse])
 
     //***** FUNCTIONS ****//
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -793,7 +811,7 @@ function ConsultationInProgress() {
                 borderRight: `2px solid${theme.palette.warning.main}`,
                 boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
             }}>
-                {appointment && (
+                {appointment && !loadingHistory && (
                     <ConsultationIPToolbar
                         appuuid={app_uuid}
                         mutate={mutate}
@@ -817,7 +835,7 @@ function ConsultationInProgress() {
                         endingDocuments={setPendingDocuments}
                         selectedTab={value}
                         setSelectedTab={setValue}
-                        lastestsAppointments
+                        hasLatestAppointments={lastestsAppointments?.length !== 0}
                     />
                 )}
             </SubHeader>
@@ -922,7 +940,9 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         closed: closeExam,
                                         setCloseExam,
-                                        isClose
+                                        isClose,
+                                        mutateReasonsData,
+                                        reasons
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
@@ -1138,6 +1158,8 @@ function ConsultationInProgress() {
                     data={{
                         state,
                         app_uuid,
+                        exam,
+                        reasons,
                         setState,
                         setDialog,
                         setOpenDialog,
