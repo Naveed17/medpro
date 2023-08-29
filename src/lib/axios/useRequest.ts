@@ -27,7 +27,7 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
     ...config
 }: any = {}): Return<Data, Error> {
     const {data: session} = useSession();
-
+    const {jti} = session?.user as any;
     const {
         data: response,
         error,
@@ -36,7 +36,14 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
         mutate,
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && request.url,
-        () => instanceAxios.request<Data>({...request, ...(!request?.url?.includes("/api/public") && {headers: {Authorization: `Bearer ${session?.accessToken}`}})}!),
+        () => instanceAxios.request<Data>({
+            ...request, ...(!request?.url?.includes("/api/public") && {
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    fcm_session: jti
+                }
+            })
+        }!),
         {
             ...config,
             fallbackData: fallbackData && {
