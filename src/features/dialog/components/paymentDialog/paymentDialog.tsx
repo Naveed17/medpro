@@ -127,7 +127,7 @@ function PaymentDialog({...props}) {
 
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-console.log(paymentTypesList.length)
+
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
