@@ -92,7 +92,8 @@
       "photo": "Photo",
       "video": "Video",
       "audio": "Audio",
-      "history": "History Sheet"
+      "history": "History Sheet",
+      "quotes": "Devis"
     },
     "no-data": {
       "appointment": {
