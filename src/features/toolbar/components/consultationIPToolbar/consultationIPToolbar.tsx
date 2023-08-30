@@ -763,7 +763,7 @@ function ConsultationIPToolbar({...props}) {
                                     position: "relative",
                                 }}
                                 id="scroll-dialog-title">
-                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                <Stack direction={{xs:'column',sm:'row'}} justifyContent={"space-between"} alignItems={{xs:'flex-start',sm:'center'}}>
                                     {t(info)}
                                     <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
                                 </Stack>
@@ -774,6 +774,9 @@ function ConsultationIPToolbar({...props}) {
                         action ? (
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
+                                   {...(info === "medical_prescription_cycle" && {
+                                    direction: {xs:'column',md:'row'},
+                                   })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
                                     <Button startIcon={<AddIcon/>} onClick={() => {
@@ -781,7 +784,11 @@ function ConsultationIPToolbar({...props}) {
                                     }}>
                                         {t("add_drug")}
                                     </Button>}
-                                <Stack direction={"row"} spacing={1.2}>
+                                <Stack direction={"row"} spacing={1.2}
+                                 {...(info === "medical_prescription_cycle" && {
+                                    mt:{xs:1,md:0}
+                                   })}
+                                >
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("cancel")}
                                     </Button>

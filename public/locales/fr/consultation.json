@@ -389,6 +389,7 @@
     "configureNow": "Veuillez configurer votre formulaire de consultation",
     "configure": "Configurer",
     "date": "Date",
+    "dosge_time": "Durée du dosage",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
