@@ -105,7 +105,7 @@ function SecretaryConsultationDialog({...props}) {
     const openDialogPayment = () => {
         let payments: any[] = [];
         if (appointment.transactions) {
-            appointment.transactions.transaction_data.map((td: any) => {
+            appointment.transactions.transaction_data.forEach((td: any) => {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
@@ -137,7 +137,7 @@ function SecretaryConsultationDialog({...props}) {
     const getTransactionAmountPayed = (): number => {
         let payed_amount = 0;
         if (appointment.transactions)
-            appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
+            appointment.transactions.transaction_data.forEach((td: { amount: number; }) => payed_amount += td.amount);
         return payed_amount;
     }
 
@@ -170,13 +170,13 @@ function SecretaryConsultationDialog({...props}) {
                 msg += `. mon diagnostique été: ${exam.diagnosis}`
             if (exam.disease && exam.disease.length > 0) {
                 msg += ' maladie:'
-                exam.disease.map(((disease: string) => msg += ` ${disease},`))
+                exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
             }
             if (Object.keys(patientAntecedent).length > 0) {
                 msg += ' .Voici les antecedents '
-                Object.keys(patientAntecedent).map(antecedent => {
+                Object.keys(patientAntecedent).forEach(antecedent => {
                     msg += `-${antecedent}: (`
-                    patientAntecedent[antecedent].map((pa: { name: any; }) => {
+                    patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
                         msg += ` ${pa.name},`
                     })
                     msg = msg.replace(/.$/, ")")
@@ -184,7 +184,7 @@ function SecretaryConsultationDialog({...props}) {
             }
             if (appointment.patient.treatment.length > 0) {
                 msg += ' et j\'ai recommandé les traitements suivants:'
-                appointment.patient.treatment.map((treatment: { name: any; }) => msg += ` -${treatment.name}`)
+                appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
             }
             if (appointment.patient.requestedAnalyses.length > 0) {
                 msg += '. J\'ai demandé les analyses suivante:'
@@ -197,7 +197,7 @@ function SecretaryConsultationDialog({...props}) {
             if (appointment.patient.requestedImaging.length > 0) {
                 msg += '. J\'ai demandé des imageries médicals:'
                 appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
-                    ri['medical-imaging']?.map(mi => {
+                    ri['medical-imaging']?.forEach(mi => {
                         msg += ` - ${mi['medical-imaging'].name}`
                     })
                 })
