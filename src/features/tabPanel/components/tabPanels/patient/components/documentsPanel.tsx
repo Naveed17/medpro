@@ -9,6 +9,7 @@ import {
     Checkbox,
     DialogActions,
     FormControlLabel,
+    Grid,
     IconButton,
     LinearProgress,
     Stack,
@@ -63,6 +64,18 @@ const AddAppointmentCardData = {
     description: "config.no-data.documents.description",
     buttons: [{
         text: "config.no-data.documents.button-text",
+        icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
+        variant: "primary",
+        color: "white"
+    }]
+};
+
+const AddQuoteCardData = {
+    mainIcon: "",
+    title: "",
+    description: "config.no-data.documents.quote-description",
+    buttons: [{
+        text: "config.no-data.documents.add_quote",
         icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
         variant: "primary",
         color: "white"
@@ -301,12 +314,18 @@ function DocumentsPanel({...props}) {
             }).then(() => {
                 mutateQuotes().then(() => {
                     setOpenQuoteDialog(false)
-                    showQuote(acts.filter(act => act.selected));
+                    showQuote("",acts.filter(act => act.selected));
+                    let _acts = [...acts]
+                    _acts.map(act => {
+                        act.qte = 1;
+                        act.selected = false
+                    })
+                    setActs([..._acts])
                 })
             });
         }
     }
-    const showQuote = (rows: AppointmentActModel[]) => {
+    const showQuote = (uuid:string,rows: AppointmentActModel[]) => {
         let type = "";
         if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
@@ -315,6 +334,8 @@ function DocumentsPanel({...props}) {
             type: "quote",
             name: "Quote",
             info: rows,
+            uuid:uuid,
+            mutate:mutateQuotes,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
         });
@@ -411,52 +432,57 @@ function DocumentsPanel({...props}) {
                         </Toolbar>
                     </AppBar>
 
-                    <Box style={{overflowX: "auto", marginBottom: 10}}>
-                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                            {
-                                quotes.map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCardStyled>
-                                            <Stack direction={"row"} spacing={1} onClick={() => {
-                                                let _acts: any[] = [];
-                                                acts.map(act => _acts = [..._acts, {
-                                                    ...act,
-                                                    selected: card.quotes_items.findIndex((qi: {
-                                                        act_item: { uuid: string; };
-                                                    }) => qi.act_item.uuid === act.act.uuid) !== -1
-                                                }])
-                                                showQuote(_acts.filter(act => act.selected))
-                                            }} alignItems={"center"}
-                                                   padding={2}>
-                                                <IconUrl width={20} path={"ic-text"}/>
-                                                <Stack>
-                                                    <Typography>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
-                                                    <Stack direction={"row"} spacing={1}>
-                                                        <EventRoundedIcon
-                                                            style={{fontSize: 15, color: "grey"}}/>
-                                                        <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                                    sx={{color: "grey", cursor: "pointer"}}>
-                                                            {moment(card.date_quote, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
-                                                        </Typography>
+                    <Grid container spacing={2}>
 
-                                                        <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
-                                                        <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                                    sx={{
-                                                                        marginTop: 0,
-                                                                        color: "grey",
-                                                                        cursor: "pointer"
-                                                                    }}>
-                                                            {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
-                                                        </Typography>
-                                                    </Stack>
+                        {
+                            quotes.map((card: any, idx: number) =>
+                                <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
+                                    <DocumentCardStyled style={{width:"100%"}}>
+                                        <Stack direction={"row"} spacing={1} onClick={() => {
+                                            let _acts: any[] = [];
+                                            acts.map(act => _acts = [..._acts, {
+                                                ...act,
+                                                selected: card.quotes_items.findIndex((qi: {
+                                                    act_item: { uuid: string; };
+                                                }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
+                                            }])
+                                            showQuote(card.uuid,_acts.filter(act => act.selected))
+                                        }} alignItems={"center"}
+                                               padding={2}>
+                                            <IconUrl width={20} path={"ic-text"}/>
+                                            <Stack>
+                                                <Typography>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
+                                                <Stack direction={"row"} spacing={1}>
+                                                    <EventRoundedIcon
+                                                        style={{fontSize: 15, color: "grey"}}/>
+                                                    <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                                sx={{color: "grey", cursor: "pointer"}}>
+                                                        {moment(card.date_quote, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
+                                                    </Typography>
+
+                                                    <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
+                                                    <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                                sx={{
+                                                                    marginTop: 0,
+                                                                    color: "grey",
+                                                                    cursor: "pointer"
+                                                                }}>
+                                                        {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
+                                                    </Typography>
                                                 </Stack>
                                             </Stack>
-                                        </DocumentCardStyled>
-                                    </React.Fragment>
-                                )
-                            }
-                        </Stack>
-                    </Box>
+                                        </Stack>
+                                    </DocumentCardStyled>
+                                </Grid>
+                            )
+                        }
+                    </Grid>
+
+
+                    {quotes.length == 0 && <NoDataCard t={t} ns={"patient"}
+                                                       onHandleClick={() => setOpenQuoteDialog(true)}
+                                                       data={AddQuoteCardData}/>}
+
                 </CardContent>
             </PanelCardStyled>
             {documents.length > 0 || patientDocuments?.length > 0 ? (
@@ -583,9 +609,24 @@ function DocumentsPanel({...props}) {
                     </PanelCardStyled>
                 </>
             ) : (
-                <NoDataCard t={t} ns={"patient"}
-                            onHandleClick={() => setOpenUploadDialog(true)}
-                            data={AddAppointmentCardData}/>
+                <PanelCardStyled
+                    sx={{
+                        "& .MuiCardContent-root": {
+                            background: "white"
+                        },
+                        "& .injected-svg": {
+                            //maxWidth: 30,
+                            //maxHeight: 30
+                        },
+                        marginBottom: "1rem"
+                    }}
+                >
+                    <CardContent>
+                        <NoDataCard t={t} ns={"patient"}
+                                    onHandleClick={() => setOpenUploadDialog(true)}
+                                    data={AddAppointmentCardData}/>
+                    </CardContent>
+                </PanelCardStyled>
             )}
 
             <Dialog action={"document_detail"}
@@ -650,7 +691,7 @@ function DocumentsPanel({...props}) {
                             }}
                             disabled={acts.filter(act => act.selected).length === 0}
                             startIcon={<SaveRoundedIcon/>}>
-                            {t("save",{ns:'patient'})}
+                            {t("consultationIP.save", {ns: 'consultation'})}
                         </Button>
                     </DialogActions>
                 }

@@ -52,7 +52,7 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps(lastestsAppointments ? [...lastestsAppointments] : []);
-        if (lastestsAppointments.length > 0) {
+        if (lastestsAppointments && lastestsAppointments.length > 0) {
             dispatch(SetSelectedApp(lastestsAppointments[0].appointment.uuid))
         }
     }, [lastestsAppointments, appuuid, dispatch]);

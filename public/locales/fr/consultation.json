@@ -112,6 +112,7 @@
   "imMedAI": "Bonjour, je suis MedAI, vous voulez mon avis ?",
   "yes": "Oui",
   "wait": "quelques instants...",
+  "quote": "Devis",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -134,6 +135,7 @@
     "record": "Enregistrer un audio",
     "contenu": "Contenu",
     "audio": "Audio",
+    "quote": "Devis",
     "listen": "Ecoutez",
     "seeHistory": "Voir historique",
     "patient_observation_history": "Historique",
