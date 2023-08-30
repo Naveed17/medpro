@@ -775,7 +775,7 @@ function ConsultationIPToolbar({...props}) {
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {
-                                    direction: {xs:'column',md:'row'},
+                                    direction: {xs:'column',sm:'row'},
                                    })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&

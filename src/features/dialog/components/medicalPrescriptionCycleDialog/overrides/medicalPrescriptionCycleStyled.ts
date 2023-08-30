@@ -34,6 +34,10 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
         },
       },
     },
+    [theme.breakpoints.down("sm")]:{
+          marginLeft: theme.spacing(-1)
+        
+        },
   },
   ".custom-paper": {
     backgroundColor: theme.palette.background.default,
