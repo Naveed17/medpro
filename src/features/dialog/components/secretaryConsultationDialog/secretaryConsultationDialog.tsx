@@ -157,7 +157,7 @@ function SecretaryConsultationDialog({...props}) {
             if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
                 let txtModel = ''
                 const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
-                Object.keys(models).map(key => {
+                Object.keys(models).forEach(key => {
                     if (models[key])
                         txtModel += ` ${key}=${models[key]}`;
                 })
@@ -189,7 +189,7 @@ function SecretaryConsultationDialog({...props}) {
             if (appointment.patient.requestedAnalyses.length > 0) {
                 msg += '. J\'ai demandé les analyses suivante:'
                 appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
-                    analyse.hasAnalysis.map(ha => {
+                    analyse.hasAnalysis.forEach(ha => {
                         msg += ` -${ha.analysis.name}`
                     })
                 })
@@ -367,34 +367,34 @@ function SecretaryConsultationDialog({...props}) {
                         </Typography>
 
 
-                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
-                            <Chip label={t('imMedAI')}/>
-                            <Chip size={"small"} color={"primary"} label={t(loadingChat ? 'wait' : 'yes')}
-                                  disabled={loadingChat} onClick={() => {
-                                setLoadingChat(true)
-                                const form = new FormData();
-                                form.append('message', msgGenerator());
-                                triggerChat({
-                                    method: "POST",
-                                    url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
-                                    data: form
-                                }).then((r) => {
-                                    const res = (r?.data as HttpResponse).data;
-                                    setResponse(res.message)
-                                    setOpenAI(true)
-                                    setLoadingChat(false)
-                                })
-                            }}/>
-                        </Stack>
+                            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={"center"}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
+                                <Chip label={t('imMedAI')}/>
+                                <Chip size={"small"} color={"primary"} label={t(loadingChat ?'wait':'yes')} disabled={loadingChat} onClick={() => {
+                                    setLoadingChat(true)
+                                    const form = new FormData();
+                                    form.append('message', msgGenerator());
+                                    triggerChat({
+                                        method: "POST",
+                                        url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
+                                        data: form
+                                    }).then((r) => {
+                                        const res = (r?.data as HttpResponse).data;
+                                        setResponse(res.message)
+                                        setOpenAI(true)
+                                        setLoadingChat(false)
+                                    })
+                                }}/>
+                            </Stack>
 
                         <Box display='grid' sx={{
+                            width:'100%',
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
-                                md: "repeat(3,minmax(0,1fr))",
-                                lg: "repeat(3,minmax(0,1fr))",
+                                sm: "repeat(3,minmax(0,1fr))",
+
                             }
                         }}>
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (

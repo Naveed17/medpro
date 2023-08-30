@@ -1,160 +1,173 @@
-import {Stack, styled} from "@mui/material";
+import { Stack, styled } from "@mui/material";
 
-const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
-    "& .MuiContainer-root": {
-        padding: 0,
-        maxWidth: "1400px",
+const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
+  "& .MuiContainer-root": {
+    padding: 0,
+    maxWidth: "1400px",
+  },
+  "& .MuiCardContent-root": {
+    paddingBottom: 10,
+  },
+  "& .MuiOutlinedInput-root.Mui-focused": {
+    background: theme.palette.background.default,
+  },
+  "& .grid-action": {
+    paddingLeft: 8,
+  },
+  "& .MuiGrid-root .drug-input": {
+    paddingLeft: 8
+  },
+  ".btn-del-drug": {
+    borderRadius: 4,
+    padding: 6,
+    border: "1px solid transparent",
+    svg: {
+      width: 20,
+      height: 20,
+      path: {
+        fill: theme.palette.grey["A50"],
+      },
     },
-    "& .MuiCardContent-root": {
-        paddingBottom: 10,
+    "&:hover": {
+      backgroundColor: theme.palette.common.white,
+      borderColor: theme.palette.grey[300],
+      svg: {
+        path: {
+          fill: theme.palette.error.main,
+        },
+      },
     },
-    "& .MuiOutlinedInput-root.Mui-focused": {
-        background: theme.palette.background.default,
+    [theme.breakpoints.down("sm")]:{
+          marginLeft: theme.spacing(-1)
+
+        },
+  },
+  ".custom-paper": {
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(3, 1),
+    ".name-of-drug": {
+      ".MuiButtonBase-root": {
+        opacity: 0,
+        visibility: "hidden",
+      },
     },
-    "& .grid-action": {
-        paddingLeft: 8,
-    },
-    "& .MuiGrid-root .drug-input": {
-        paddingLeft: 8
-    },
-    ".btn-del-drug": {
+    ".cycle-card": {
+      marginTop: theme.spacing(2),
+      backgroundColor: "transparent",
+      marginBottom: theme.spacing(2),
+      position: "relative",
+      borderStyle: "dashed",
+      borderColor: theme.palette.grey[300],
+      ".MuiButton-white": {
+        border: `1px solid ${theme.palette.grey[300]}`,
+        cursor: "default",
+        padding: theme.spacing(0.5, 1),
+        minWidth: 56,
+        [theme.breakpoints.up("sm")]:{
+          minWidth: 100
+        },
+        [theme.breakpoints.down("sm")]:{
+          width:'100%'
+        },
+        [theme.breakpoints.up("md")]:{
+          minWidth: 56
+        },
+        ".MuiIconButton-root": {
+          ".MuiSvgIcon-root": {
+            fontSize: "1rem",
+            path: {
+              fill: theme.palette.primary.main,
+            },
+          },
+          "&.Mui-disabled": {
+            ".MuiSvgIcon-root": {
+              path: {
+                fill: theme.palette.divider,
+              },
+            },
+          },
+        },
+        "&:hover": {
+          backgroundColor: theme.palette.common.white,
+        },
+        ".MuiButtonBase-root": {
+          width: 25,
+          height: 25,
+          svg: {
+            path: {
+              fill: theme.palette.divider,
+            },
+          },
+          ".react-svg": {
+            svg: {
+              path: {
+                fill: theme.palette.common.white,
+              },
+            },
+          },
+        },
+      },
+      ".btn-del": {
+        position: "absolute",
+        top: 5,
+        right: 5,
         borderRadius: 4,
         padding: 6,
         border: "1px solid transparent",
         svg: {
-            width: 20,
-            height: 20,
-            path: {
-                fill: theme.palette.grey["A50"],
-            },
+          width: 16,
+          height: 16,
+          path: {
+            fill: theme.palette.grey["A50"],
+          },
         },
         "&:hover": {
-            backgroundColor: theme.palette.common.white,
-            borderColor: theme.palette.grey[300],
-            svg: {
-                path: {
-                    fill: theme.palette.error.main,
-                },
+          backgroundColor: theme.palette.common.white,
+          borderColor: theme.palette.grey[300],
+          svg: {
+            path: {
+              fill: theme.palette.error.main,
             },
+          },
         },
+      },
+      [theme.breakpoints.down("md")]: {
+        paddingTop: theme.spacing(3),
+      },
     },
-    ".custom-paper": {
-        backgroundColor: theme.palette.background.default,
-        padding: theme.spacing(3, 1),
-        ".name-of-drug": {
-            ".MuiButtonBase-root": {
-                opacity: 0,
-                visibility: "hidden",
-            },
+  },
+  ".model-collapse": {
+    ".MuiListItem-root": {
+      ".btn-del": {
+        marginLeft: "auto",
+        display: "none",
+        padding: 0,
+        ".react-svg div": {
+          lineHeight: 0,
         },
-        ".cycle-card": {
-            marginTop: theme.spacing(2),
-            backgroundColor: "transparent",
-            marginBottom: theme.spacing(2),
-            position: "relative",
-            borderStyle: "dashed",
-            borderColor: theme.palette.grey[300],
-            ".MuiButton-white": {
-                border: `1px solid ${theme.palette.grey[300]}`,
-                cursor: "default",
-                padding: theme.spacing(0.5, 1),
-                minWidth: 56,
-                ".MuiIconButton-root": {
-                    ".MuiSvgIcon-root": {
-                        fontSize: "1rem",
-                        path: {
-                            fill: theme.palette.primary.main,
-                        },
-                    },
-                    "&.Mui-disabled": {
-                        ".MuiSvgIcon-root": {
-                            path: {
-                                fill: theme.palette.divider,
-                            },
-                        },
-                    },
-                },
-                "&:hover": {
-                    backgroundColor: theme.palette.common.white,
-                },
-                ".MuiButtonBase-root": {
-                    width: 25,
-                    height: 25,
-                    svg: {
-                        path: {
-                            fill: theme.palette.divider,
-                        },
-                    },
-                    ".react-svg": {
-                        svg: {
-                            path: {
-                                fill: theme.palette.common.white,
-                            },
-                        },
-                    },
-                },
-            },
-            ".btn-del": {
-                position: "absolute",
-                top: 5,
-                right: 5,
-                borderRadius: 4,
-                padding: 6,
-                border: "1px solid transparent",
-                svg: {
-                    width: 16,
-                    height: 16,
-                    path: {
-                        fill: theme.palette.grey["A50"],
-                    },
-                },
-                "&:hover": {
-                    backgroundColor: theme.palette.common.white,
-                    borderColor: theme.palette.grey[300],
-                    svg: {
-                        path: {
-                            fill: theme.palette.error.main,
-                        },
-                    },
-                },
-            },
-            [theme.breakpoints.down("md")]: {
-                paddingTop: theme.spacing(3),
-            },
+      },
+      "&:hover": {
+        backgroundColor: theme.palette.primary.light,
+        ".btn-del": {
+          display: "block",
         },
+      },
     },
-    ".model-collapse": {
-        ".MuiListItem-root": {
-            ".btn-del": {
-                marginLeft: "auto",
-                display: "none",
-                padding: 0,
-                ".react-svg div": {
-                    lineHeight: 0,
-                },
-            },
-            "&:hover": {
-                backgroundColor: theme.palette.primary.light,
-                ".btn-del": {
-                    display: "block",
-                },
-            },
-        },
+  },
+  "& .prescription-preview": {
+    width: "100%",
+    "& .MuiListItemButton-root": {
+      paddingTop: 0,
+      paddingRight: 0,
     },
-    "& .prescription-preview": {
-        width: "100%",
-        "& .MuiListItemButton-root": {
-            paddingTop: 0,
-            paddingRight: 0,
-        },
-        "& .MuiListItemText-primary": {
-            fontWeight: "bold",
-        },
+    "& .MuiListItemText-primary": {
+      fontWeight: "bold",
     },
-    "& .custom-button": {
-        px: {xs: 0.5, md: 1},
-        fontSize: {xs: 12, md: 14},
-        alignSelf: "flex-start",
-    },
+  },
+  "& .custom-button": {
+    px: { xs: 0.5, md: 1 },
+    fontSize: { xs: 12, md: 14 },
+    alignSelf: "flex-start",
+  },
 }));
 export default MedicalPrescriptionCycleStyled;

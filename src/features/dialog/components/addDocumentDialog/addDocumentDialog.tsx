@@ -130,7 +130,7 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={9}>
-                    {files.length === 0 && <Stack width={"80%"}
+                    {files.length === 0 && <Stack width={{xs:"100%",md:"80%"}}
                                                   margin={"auto"}
                                                   mt={6}
                                                   spacing={2}

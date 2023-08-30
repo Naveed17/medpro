@@ -70,6 +70,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import { MobileContainer } from "@themes/mobileContainer";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -684,7 +685,7 @@ function ConsultationInProgress() {
                     color={"black"}
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
-                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                    <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                         {t("withoutSave")}
                     </Typography>
                 </LoadingButton>
@@ -693,7 +694,7 @@ function ConsultationInProgress() {
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                             {t("cancel")}
                         </Typography>
                     </Button>
@@ -706,7 +707,7 @@ function ConsultationInProgress() {
                             saveConsultation();
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                             {t("end_consultation")}
                         </Typography>
                     </LoadingButton>
@@ -1176,6 +1177,9 @@ function ConsultationInProgress() {
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
+                    {...(info === "secretary_consultation_alert" && {
+                        sx:{px:{xs:2,sm:3}}
+                    })}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}
@@ -1221,6 +1225,25 @@ function ConsultationInProgress() {
                     onClose={closeImageViewer}
                 />
             )}
+           
+                
+                <MobileContainer>
+                    <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilterDrawer(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 100,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")}{" "}(0)
+                </Button>
+                </MobileContainer>
+           
         </>
     );
 }
