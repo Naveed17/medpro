@@ -108,6 +108,7 @@
   "reason_for_consultation": "Reason for Consultation",
   "imMedAI": "Hello, I'm MedAI, you want my opinion?",
   "yes": "Yes",
+  "wait": "Few moments",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",

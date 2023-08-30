@@ -15,6 +15,7 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
         flexWrap: 'nowrap',
         '.MuiFormControlLabel-root': {
             backgroundColor: theme.palette.primary.lighter,
+            position:'relative',
             border: '1px solid transparent',
             padding: theme.spacing(.7, 1),
             borderRadius: theme.spacing(1),
@@ -26,12 +27,20 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
                         fill: theme.palette.text.primary
 
                     }
-                }
+                },
+            
             },
             '&.selected': {
                 backgroundColor: 'transparent',
                 border: `1px solid ${theme.palette.divider}`
+            },
+            [theme.breakpoints.down("sm")]:{
+                margin:0
             }
+        },
+        [theme.breakpoints.down("sm")]:{
+            display:'grid',
+            gap:theme.spacing(1)
         }
     },
     '.tab-panel': {

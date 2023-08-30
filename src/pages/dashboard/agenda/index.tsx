@@ -966,12 +966,11 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence mode='wait'>
+                    <AnimatePresence>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: 1}}
-                        >
+                            transition={{ease: "easeIn", duration: 1}}>
                             <Alert variant="filled"
                                    onClick={() => {
                                        const slugConsultation = `/dashboard/consultation/${onGoingEvent?.publicId ? onGoingEvent?.publicId : (onGoingEvent as any)?.id}`;
@@ -994,74 +993,70 @@ function Agenda() {
                 <LinearProgress sx={{
                     visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <>
-                    {agenda &&
-                        <AnimatePresence mode='wait'>
-                            <motion.div
-                                initial={{opacity: 0}}
-                                animate={{opacity: 1}}
-                                transition={{ease: "easeIn", duration: .5}}
-                            >
-                                <Calendar
-                                    {...{
-                                        events: events.current,
-                                        doctor_country,
-                                        agenda,
-                                        calendarRef,
-                                        roles,
-                                        refs,
-                                        spinner: loading,
-                                        t,
-                                        sortedData: sortedData.current,
-                                        mutate: refreshData
+
+                {agenda &&
+                    <AnimatePresence>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: .5}}>
+                            <Calendar
+                                {...{
+                                    events: events.current,
+                                    doctor_country,
+                                    agenda,
+                                    calendarRef,
+                                    roles,
+                                    refs,
+                                    spinner: loading,
+                                    t,
+                                    sortedData: sortedData.current,
+                                    mutate: refreshData
+                                }}
+                                OnAddAppointment={handleAddAppointment}
+                                OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
+                                OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                                OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                                OnSelectEvent={onSelectEvent}
+                                OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
+                                OnEventChange={onEventChange}
+                                OnMenuActions={onMenuActions}
+                                OnSelectDate={onSelectDate}
+                                OnViewChange={onViewChange}
+                                OnRangeChange={handleOnRangeChange}/>
+                            {isMobile &&
+                                <Zoom
+                                    in={!loading}
+                                    timeout={transitionDuration}
+                                    style={{
+                                        transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
                                     }}
-                                    OnAddAppointment={handleAddAppointment}
-                                    OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                    OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                    OnSelectEvent={onSelectEvent}
-                                    OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
-                                    OnEventChange={onEventChange}
-                                    OnMenuActions={onMenuActions}
-                                    OnSelectDate={onSelectDate}
-                                    OnViewChange={onViewChange}
-                                    OnRangeChange={handleOnRangeChange}/>
-                                {isMobile &&
-                                    <Zoom
-                                        in={!loading}
-                                        timeout={transitionDuration}
-                                        style={{
-                                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                    unmountOnExit>
+                                    <SpeedDial
+                                        ariaLabel="SpeedDial tooltip Add"
+                                        sx={{
+                                            position: 'fixed',
+                                            bottom: 50,
+                                            right: 16
                                         }}
-                                        unmountOnExit
-                                    >
-                                        <SpeedDial
-                                            ariaLabel="SpeedDial tooltip Add"
-                                            sx={{
-                                                position: 'fixed',
-                                                bottom: 50,
-                                                right: 16
-                                            }}
-                                            icon={<SpeedDialIcon/>}
-                                            onClose={handleCloseFab}
-                                            onOpen={handleOpenFab}
-                                            open={openFabAdd}
-                                        >
-                                            {actions.map((action) => (
-                                                <SpeedDialAction
-                                                    key={action.name}
-                                                    icon={action.icon}
-                                                    tooltipTitle={t(`${action.key}`)}
-                                                    tooltipOpen
-                                                    onClick={() => handleActionFab(action)}
-                                                />
-                                            ))}
-                                        </SpeedDial>
-                                    </Zoom>}
-                            </motion.div>
-                        </AnimatePresence>
-                    }
-                </>
+                                        icon={<SpeedDialIcon/>}
+                                        onClose={handleCloseFab}
+                                        onOpen={handleOpenFab}
+                                        open={openFabAdd}>
+                                        {actions.map((action) => (
+                                            <SpeedDialAction
+                                                key={action.name}
+                                                icon={action.icon}
+                                                tooltipTitle={t(`${action.key}`)}
+                                                tooltipOpen
+                                                onClick={() => handleActionFab(action)}
+                                            />
+                                        ))}
+                                    </SpeedDial>
+                                </Zoom>}
+                        </motion.div>
+                    </AnimatePresence>
+                }
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
@@ -1112,8 +1107,7 @@ function Agenda() {
                             minWidth: "29vw",
                             maxWidth: "30rem",
                         }
-                    }}
-                >
+                    }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
