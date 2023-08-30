@@ -48,7 +48,7 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
             ...requestConfig.arg, ...(!requestConfig?.arg?.url?.includes("/api/public") && {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
-                    fcm_session: jti
+                    "Fcm-session": jti
                 }
             })
         }!),

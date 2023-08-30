@@ -3,15 +3,18 @@ import {Stack, styled} from "@mui/material";
 const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiContainer-root": {
         padding: 0,
-        maxWidth: "1400px"
+        maxWidth: "1400px",
     },
     "& .MuiCardContent-root": {
-        paddingBottom: 10
+        paddingBottom: 10,
     },
     "& .MuiOutlinedInput-root.Mui-focused": {
         background: theme.palette.background.default,
     },
     "& .grid-action": {
+        paddingLeft: 8,
+    },
+    "& .MuiGrid-root .drug-input": {
         paddingLeft: 8
     },
     ".btn-del-drug": {
@@ -115,6 +118,9 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                     },
                 },
             },
+            [theme.breakpoints.down("md")]: {
+                paddingTop: theme.spacing(3),
+            },
         },
     },
     ".model-collapse": {
@@ -136,19 +142,19 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
         },
     },
     "& .prescription-preview": {
-        width: '100%',
+        width: "100%",
         "& .MuiListItemButton-root": {
             paddingTop: 0,
-            paddingRight: 0
+            paddingRight: 0,
         },
         "& .MuiListItemText-primary": {
-            fontWeight: "bold"
-        }
+            fontWeight: "bold",
+        },
     },
     "& .custom-button": {
         px: {xs: 0.5, md: 1},
         fontSize: {xs: 12, md: 14},
-        alignSelf: "flex-start"
-    }
+        alignSelf: "flex-start",
+    },
 }));
 export default MedicalPrescriptionCycleStyled;

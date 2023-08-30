@@ -40,7 +40,7 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
             ...request, ...(!request?.url?.includes("/api/public") && {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
-                    fcm_session: jti
+                    "Fcm-session": jti
                 }
             })
         }!),
