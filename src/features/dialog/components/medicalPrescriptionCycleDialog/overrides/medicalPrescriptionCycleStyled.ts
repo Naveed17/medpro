@@ -14,6 +14,9 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
   "& .grid-action": {
     paddingLeft: 8,
   },
+  "& .MuiGrid-root .drug-input": {
+    paddingLeft: 8
+  },
   ".btn-del-drug": {
     borderRadius: 4,
     padding: 6,
@@ -36,7 +39,7 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
     },
     [theme.breakpoints.down("sm")]:{
           marginLeft: theme.spacing(-1)
-        
+
         },
   },
   ".custom-paper": {
