@@ -108,7 +108,7 @@ function DocumentDetailDialog({...props}) {
         }
     })
     const {direction} = useAppSelector(configSelector);
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees','quote']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
@@ -144,11 +144,13 @@ function DocumentDetailDialog({...props}) {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
-        }, {
+        },
+        {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ft14-text",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
-        }, {
+        },
+        {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: "text-strikethrough",
             disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
@@ -334,18 +336,32 @@ function DocumentDetailDialog({...props}) {
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
-        medicalEntityHasUser && trigger({
-            method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`
-        }).then(() => {
-            state.mutate && state.mutate();
-            state.mutateDetails && state.mutateDetails()
-            setOpenRemove(false);
-            setLoading(false);
-            (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
-            setLoadingRequest && setLoadingRequest(false);
-            setOpenDialog && setOpenDialog(false);
-        });
+        if (state.type === "quote") {
+            medicalEntityHasUser && trigger({
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state.uuid}/${router.locale}`
+            }).then(() => {
+                state.mutate && state.mutate();
+                setOpenRemove(false);
+                setLoading(false);
+                setLoadingRequest && setLoadingRequest(false);
+                setOpenDialog && setOpenDialog(false);
+            });
+
+        } else {
+            medicalEntityHasUser && trigger({
+                method: "DELETE",
+                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`
+            }).then(() => {
+                state.mutate && state.mutate();
+                state.mutateDetails && state.mutateDetails()
+                setOpenRemove(false);
+                setLoading(false);
+                (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                setLoadingRequest && setLoadingRequest(false);
+                setOpenDialog && setOpenDialog(false);
+            });
+        }
     }
 
     useEffect(() => {
@@ -358,7 +374,6 @@ function DocumentDetailDialog({...props}) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
             if (docInfo.length === 0) {
-                console.log("no header");
                 setLoading(false)
             } else {
                 setOpenAlert(false);
@@ -425,7 +440,7 @@ function DocumentDetailDialog({...props}) {
                                                 eventHandler,
                                                 data,
                                                 values: header,
-                                                state: (state.type === "fees" || state.type =='quote') && state.info.length === 0 ? {
+                                                state: (state.type === "fees" || state.type == 'quote') && state.info.length === 0 ? {
                                                     ...state,
                                                     info: [{
                                                         fees: state.consultationFees,

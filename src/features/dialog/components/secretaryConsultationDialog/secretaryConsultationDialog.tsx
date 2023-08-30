@@ -42,7 +42,6 @@ import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
-import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
 
 const limit = 255;
 
@@ -88,6 +87,7 @@ function SecretaryConsultationDialog({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {mutate} = useAppSelector(consultationSelector);
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {patientAntecedent} = useAppSelector(consultationSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
@@ -105,7 +105,7 @@ function SecretaryConsultationDialog({...props}) {
     const openDialogPayment = () => {
         let payments: any[] = [];
         if (appointment.transactions) {
-            appointment.transactions.transaction_data.map((td: any) => {
+            appointment.transactions.transaction_data.forEach((td: any) => {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
@@ -137,7 +137,7 @@ function SecretaryConsultationDialog({...props}) {
     const getTransactionAmountPayed = (): number => {
         let payed_amount = 0;
         if (appointment.transactions)
-            appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
+            appointment.transactions.transaction_data.forEach((td: { amount: number; }) => payed_amount += td.amount);
         return payed_amount;
     }
 
@@ -170,11 +170,21 @@ function SecretaryConsultationDialog({...props}) {
                 msg += `. mon diagnostique été: ${exam.diagnosis}`
             if (exam.disease && exam.disease.length > 0) {
                 msg += ' maladie:'
-                exam.disease.map(((disease: string) => msg += ` ${disease},`))
+                exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
+            }
+            if (Object.keys(patientAntecedent).length > 0) {
+                msg += ' .Voici les antecedents '
+                Object.keys(patientAntecedent).forEach(antecedent => {
+                    msg += `-${antecedent}: (`
+                    patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
+                        msg += ` ${pa.name},`
+                    })
+                    msg = msg.replace(/.$/, ")")
+                })
             }
             if (appointment.patient.treatment.length > 0) {
                 msg += ' et j\'ai recommandé les traitements suivants:'
-                appointment.patient.treatment.map((treatment: { name: any; }) => msg += ` -${treatment.name}`)
+                appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
             }
             if (appointment.patient.requestedAnalyses.length > 0) {
                 msg += '. J\'ai demandé les analyses suivante:'
@@ -187,13 +197,13 @@ function SecretaryConsultationDialog({...props}) {
             if (appointment.patient.requestedImaging.length > 0) {
                 msg += '. J\'ai demandé des imageries médicals:'
                 appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
-                    ri['medical-imaging']?.map(mi => {
+                    ri['medical-imaging']?.forEach(mi => {
                         msg += ` - ${mi['medical-imaging'].name}`
                     })
                 })
             }
 
-            msg+='. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
+            msg += '. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
         }
 
         return msg;
@@ -357,7 +367,7 @@ function SecretaryConsultationDialog({...props}) {
                         </Typography>
 
 
-                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={"center"}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
                                 <Chip label={t('imMedAI')}/>
@@ -379,11 +389,12 @@ function SecretaryConsultationDialog({...props}) {
                             </Stack>
 
                         <Box display='grid' sx={{
+                            width:'100%',
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
-                                md: "repeat(3,minmax(0,1fr))",
-                                lg: "repeat(3,minmax(0,1fr))",
+                                sm: "repeat(3,minmax(0,1fr))",
+
                             }
                         }}>
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
@@ -461,7 +472,7 @@ function SecretaryConsultationDialog({...props}) {
                 dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>
-                       {/* <Button onClick={() => {
+                        {/* <Button onClick={() => {
                             setOpenAI(false)
                         }} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
                             {t("notsatisfied", {ns: "common"})}

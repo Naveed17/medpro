@@ -109,6 +109,7 @@
   "imMedAI": "Hello, I'm MedAI, you want my opinion?",
   "yes": "Yes",
   "wait": "Few moments",
+  "quote": "Quote",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",
@@ -128,6 +129,7 @@
     "record": "Record audio",
     "contenu": "Content",
     "audio": "Audio",
+    "quote": "Devis",
     "listen": "Listen",
     "seeHistory": "View history",
     "patient_observation_history": "History",

@@ -557,7 +557,7 @@ function ConsultationIPToolbar({...props}) {
                 value: "medical procedures"
             },
         ]);
-    }, [tabs, appointment]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [tabs, appointment,hasLatestAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <>toolbar loading..</>;
 
