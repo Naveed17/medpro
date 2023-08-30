@@ -157,7 +157,7 @@ function SecretaryConsultationDialog({...props}) {
             if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
                 let txtModel = ''
                 const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
-                Object.keys(models).map(key => {
+                Object.keys(models).forEach(key => {
                     if (models[key])
                         txtModel += ` ${key}=${models[key]}`;
                 })
@@ -179,7 +179,7 @@ function SecretaryConsultationDialog({...props}) {
             if (appointment.patient.requestedAnalyses.length > 0) {
                 msg += '. J\'ai demandé les analyses suivante:'
                 appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
-                    analyse.hasAnalysis.map(ha => {
+                    analyse.hasAnalysis.forEach(ha => {
                         msg += ` -${ha.analysis.name}`
                     })
                 })

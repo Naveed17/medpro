@@ -100,7 +100,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
     const {drawerAction} = useAppSelector(dialogSelector);
-    const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
+    const {name: modelName, parent: modelParent} =
+        useAppSelector(prescriptionSelector);
 
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
     const [parentModelName, setParentModelName] = useState<string>("");
@@ -175,7 +176,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = (drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
+        const [first, ...rest] = (
+            drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : ""
+        )?.split(" ");
         const unit = rest.join(" ");
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(
@@ -584,7 +587,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         className="custom-paper"
                                         key={idx}>
                                         <Grid container spacing={{xs: 1, md: 2}} alignItems="center">
-                                            <Grid item md={0.5} xs={1}>
+                                            <Grid item sm={0.5} xs={1}>
                                                 <Stack direction="row" alignItems="center">
                                                       <span style={{fontSize: 20, fontWeight: "bold"}}>
                                                         {idx + 1}
@@ -592,7 +595,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     <FiberManualRecordIcon sx={{fontSize: 6, ml: .8}}/>
                                                 </Stack>
                                             </Grid>
-                                            <Grid className={"drug-input"} item md={7.5} xs={11}>
+                                            <Grid item className={"drug-input"} sm={7.5} xs={11}>
                                                 {drugsList && (
                                                     <Autocomplete
                                                         id="cmo"
@@ -702,10 +705,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     />
                                                 )}
                                             </Grid>
-                                            {
-                                                isMobile && <Grid item xs={1}/>
-                                            }
-                                            <Grid item md={3.2} xs={10}>
+
+                                            <Grid item xs={1} sx={{display: {xs: 'block', sm: 'none'}}}/>
+
+                                            <Grid item sm={3.2} xs={10}>
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
@@ -758,7 +761,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             <Grid
                                                 className={"grid-action"}
                                                 item
-                                                md={0.8}
+                                                sm={0.8}
                                                 xs={1}
                                                 pb={0.2}
                                                 sx={{textAlign: {xs: "right", md: "left"}}}>
@@ -789,17 +792,19 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     width={{xs: "100%", md: "auto"}}
                                                                     spacing={0.5}
                                                                     mb={0.5}
-                                                                    flexWrap="wrap"
-                                                                    direction={{xs: "column", md: "row"}}
+                                                                    direction={{xs: "column", sm: "row"}}
                                                                     alignItems="center">
                                                                     <Button
                                                                         sx={{
                                                                             justifyContent: {
                                                                                 xs: "space-between",
                                                                                 md: "center",
+                                                                                width: {xs: '100%', md: 'auto'},
+
                                                                             },
+
                                                                         }}
-                                                                        fullWidth={isMobile}
+
                                                                         onClick={(event: any) => {
                                                                             event.stopPropagation();
                                                                             event.preventDefault();
@@ -1046,8 +1051,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 width={{xs: "100%", md: "auto"}}
                                                                 mr={{xs: 0, md: 1}}
                                                                 mb={0.5}
-                                                                flexWrap="wrap"
-                                                                direction={{xs: "column", md: "row"}}
+                                                                direction={{xs: "column", sm: "row"}}
                                                                 alignItems="center">
                                                                 <Button
                                                                     sx={{
@@ -1056,7 +1060,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             md: "center",
                                                                         },
                                                                     }}
-                                                                    fullWidth={isMobile}
+
                                                                     component="label"
                                                                     onClick={(event: any) => {
                                                                         event.stopPropagation();
@@ -1087,7 +1091,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 durationCounter("minus", index, idx)
                                                                             }
                                                                             size="small"
-                                                                            disableRipple>
+                                                                            disableRipple
+                                                                        >
                                                                             <RemoveIcon/>
                                                                         </IconButton>
                                                                     }
@@ -1199,8 +1204,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     ns: "consultation",
                                                                 })}
                                                             />
-                                                            {values.data[idx].cycles[index]
-                                                                .cautionaryNoteInput && (
+                                                            {values.data[idx].cycles[index].cautionaryNoteInput && (
                                                                 <TextField
                                                                     {...getFieldProps(
                                                                         `data[${idx}].cycles[${index}].cautionaryNote`
@@ -1316,8 +1320,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         <Tabs
                                             value={prescriptionTabIndex}
                                             onChange={handlePrescriptionTabChange}
-                                            aria-label="prescription tabs"
-                                        >
+                                            aria-label="prescription tabs">
                                             <Tab
                                                 disableFocusRipple
                                                 label={t("preview")}
@@ -1357,9 +1360,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         primary={`${index + 1} • ${drug.name}`}
                                                         secondary={
                                                             <React.Fragment>
-                                <span style={{display: "grid"}}>
-                                  {drug.cycles.map(
-                                      (
+                                                                <span style={{display: "grid"}}>
+                                  {drug.cycles.map((
                                           cycle: PrescriptionCycleModel,
                                           indexCycle: number
                                       ) => (
