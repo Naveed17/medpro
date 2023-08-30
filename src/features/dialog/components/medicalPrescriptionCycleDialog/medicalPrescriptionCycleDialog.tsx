@@ -562,7 +562,6 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
       }
     }
   }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-  console.log(values.data);
   return (
     <MedicalPrescriptionCycleStyled>
       <Container fixed>
@@ -589,7 +588,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                     key={idx}
                   >
                     <Grid container spacing={{xs:1,md:2}} alignItems="center">
-                      <Grid item md={0.5} xs={1}>
+                      <Grid item sm={0.5} xs={1}>
                         <Stack direction="row" alignItems="center">
                           <span style={{ fontSize: 20, fontWeight: "bold" }}>
                             {idx + 1}
@@ -597,7 +596,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                           <FiberManualRecordIcon sx={{ fontSize: 6 }} />
                         </Stack>
                       </Grid>
-                      <Grid item md={7.5} xs={11}>
+                      <Grid item sm={7.5} xs={11}>
                         {drugsList && (
                           <Autocomplete
                             id="cmo"
@@ -708,10 +707,10 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                           />
                         )}
                       </Grid>
-                      {
-                        isMobile && <Grid item xs={1}/>
-                      }
-                      <Grid item md={3.2} xs={10}>
+                      
+                      <Grid item xs={1} sx={{display:{xs:'block',sm:'none'}}}/>
+                      
+                      <Grid item sm={3.2} xs={10}>
                         <Autocomplete
                           size="small"
                           freeSolo
@@ -764,7 +763,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                       <Grid
                         className={"grid-action"}
                         item
-                        md={0.8}
+                        sm={0.8}
                         xs={1}
                         pb={0.2}
                         sx={{ textAlign: { xs: "right", md: "left" } }}
@@ -799,8 +798,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                   width={{ xs: "100%", md: "auto" }}
                                   spacing={0.5}
                                   mb={0.5}
-                                  flexWrap="wrap"
-                                  direction={{ xs: "column", md: "row" }}
+                                  direction={{ xs: "column", sm: "row" }}
                                   alignItems="center"
                                 >
                                   <Button
@@ -808,9 +806,12 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                       justifyContent: {
                                         xs: "space-between",
                                         md: "center",
+                                        width:{xs:'100%',md:'auto'},
+                                        
                                       },
+
                                     }}
-                                    fullWidth={isMobile}
+                                    
                                     onClick={(event: any) => {
                                       event.stopPropagation();
                                       event.preventDefault();
@@ -1069,8 +1070,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                 width={{ xs: "100%", md: "auto" }}
                                 mr={{ xs: 0, md: 1 }}
                                 mb={0.5}
-                                flexWrap="wrap"
-                                direction={{ xs: "column", md: "row" }}
+                                direction={{ xs: "column", sm: "row" }}
                                 alignItems="center"
                               >
                                 <Button
@@ -1080,7 +1080,7 @@ function MedicalPrescriptionCycleDialog({ ...props }) {
                                       md: "center",
                                     },
                                   }}
-                                  fullWidth={isMobile}
+                                  
                                   component="label"
                                   onClick={(event: any) => {
                                     event.stopPropagation();

@@ -56,6 +56,15 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
         cursor: "default",
         padding: theme.spacing(0.5, 1),
         minWidth: 56,
+        [theme.breakpoints.up("sm")]:{
+          minWidth: 100
+        },
+        [theme.breakpoints.down("sm")]:{
+          width:'100%'
+        },
+        [theme.breakpoints.up("md")]:{
+          minWidth: 56
+        },
         ".MuiIconButton-root": {
           ".MuiSvgIcon-root": {
             fontSize: "1rem",
