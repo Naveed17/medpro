@@ -286,7 +286,7 @@ function ConsultationIPToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file.file, file.name);
+                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
 
                 trigger({
@@ -768,7 +768,11 @@ function ConsultationIPToolbar({...props}) {
                                     <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
                                 </Stack>
                             </DialogTitle>
-                        )
+                        ),
+                        sx:{
+                            p:1.5,
+                        }
+                        
                     })}
                     actionDialog={
                         action ? (
@@ -776,6 +780,7 @@ function ConsultationIPToolbar({...props}) {
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {
                                     direction: {xs:'column',sm:'row'},
+                                
                                    })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
