@@ -3,6 +3,7 @@
     "title": "Consultation en cours"
   },
   "filter": {
+    "title": "Filtre",
     "year": "ans",
     "day": "jour(s)",
     "month": "mois",

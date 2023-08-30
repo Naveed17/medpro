@@ -357,7 +357,7 @@ function SecretaryConsultationDialog({...props}) {
                         </Typography>
 
 
-                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={"center"}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
                                 <Chip label={t('imMedAI')}/>
@@ -379,11 +379,12 @@ function SecretaryConsultationDialog({...props}) {
                             </Stack>
 
                         <Box display='grid' sx={{
+                            width:'100%',
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
-                                md: "repeat(3,minmax(0,1fr))",
-                                lg: "repeat(3,minmax(0,1fr))",
+                                sm: "repeat(3,minmax(0,1fr))",
+                                
                             }
                         }}>
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
