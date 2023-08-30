@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import {Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, Button, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Avatar, Box, Button, IconButton, Stack, styled, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
@@ -20,6 +20,7 @@ import {useSession} from "next-auth/react";
 import {useDuplicatedDetect} from "@lib/hooks/rest";
 import {setDuplicated} from "@features/duplicateDetected";
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import {SmallAvatar} from "@features/avatar";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -100,8 +101,17 @@ function CalendarRowDetail({...props}) {
                     }}
                     className="first-child">
                     <Box sx={{display: "flex"}}>
-                        <Box sx={{display: "flex", mt: .3}}>
-                            {data.hasErrors?.length > 0 && <DangerIcon className="error"/>}
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                            {data.hasErrors?.length > 0 &&
+                                <SmallAvatar
+                                    sx={{
+                                        p: 1.5,
+                                        mr: 1
+                                    }}>
+                                    <DangerIcon
+                                        className="error"
+                                        color={"error"}/>
+                                </SmallAvatar>}
                             <TimeIcon/>
                             <Typography variant="body2" color="text.secondary">
                                 {new Date(data.time).toLocaleTimeString([], {
@@ -109,7 +119,7 @@ function CalendarRowDetail({...props}) {
                                     minute: "2-digit",
                                 })}
                             </Typography>
-                        </Box>
+                        </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label
                                 sx={{ml: 1, fontSize: 10}}
@@ -136,7 +146,7 @@ function CalendarRowDetail({...props}) {
                             },
                         },
                     }}>
-                    <Typography variant="body2" color="primary.main">
+                    <Typography variant="body2" color="primary.main" sx={{minHeight: 28}}>
                         {" "}
                         {data.motif?.map((reason: any) => reason.name).join(", ")}
                     </Typography>
@@ -188,17 +198,9 @@ function CalendarRowDetail({...props}) {
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
                         {duplications?.length > 0 &&
-                            <LoadingButton
-                                variant="contained"
-                                size={"small"}
-                                {...{loading}}
+                            <IconButton
+                                sx={{p: "0 8px", "& .MuiAvatar-root": {p: 1.5}}}
                                 color={"warning"}
-                                loadingPosition={"start"}
-                                startIcon={<WarningRoundedIcon/>}
-                                sx={{
-                                    p: "0 auto", borderRadius: 3, ml: 1, minHeight: 24,
-                                    "& .MuiButton-startIcon": {mr: 0}
-                                }}
                                 onClick={(event) => {
                                     event.stopPropagation();
                                     dispatch(setDuplicated({
@@ -209,24 +211,19 @@ function CalendarRowDetail({...props}) {
                                         mutate: mutateAgenda
                                     }));
                                 }}>
-                                <Label
-                                    variant="outlined"
+                                <SmallAvatar
                                     sx={{
-                                        cursor: "pointer",
-                                        pl: 0,
-                                        "& .MuiSvgIcon-root": {
-                                            width: 16,
-                                            height: 16
-                                        }
+                                        background: theme.palette.warning.main
                                     }}>
-                                    <Typography
+                                    <WarningRoundedIcon
+                                        color={"black"}
                                         sx={{
-                                            fontSize: 10,
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis"
-                                        }}> {t("duplication")}</Typography>
-                                </Label>
-                            </LoadingButton>}
+                                            width: 16,
+                                            height: 16,
+                                            marginTop: -0.2
+                                        }}/>
+                                </SmallAvatar>
+                            </IconButton>}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
