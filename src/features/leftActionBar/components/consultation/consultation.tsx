@@ -285,7 +285,12 @@ function Consultation() {
                                 <Typography
                                     variant="body1"
                                     color="primary.main"
-                                    sx={{fontFamily: "Poppins"}}>
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        width: "90%"
+                                    }}>
                                     {name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">

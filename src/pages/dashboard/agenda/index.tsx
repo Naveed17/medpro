@@ -1158,8 +1158,7 @@ function Agenda() {
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
-                    }}
-                >
+                    }}>
                     <Box height={"100%"}>
                         <CustomStepper
                             currentIndex={currentStepper}
@@ -1204,8 +1203,7 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         setQuickAddAppointment(false);
-                    }}
-                >
+                    }}>
                     <QuickAddAppointment
                         {...{t}}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
@@ -1217,16 +1215,14 @@ function Agenda() {
                             textAlign: "right",
                             p: "1rem"
                         }}
-                        className="action"
-                    >
+                        className="action">
                         <Button
                             sx={{
                                 mr: 1
                             }}
                             variant="text-primary"
                             onClick={() => setQuickAddAppointment(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.quick_add_appointment-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -1265,7 +1261,6 @@ function Agenda() {
                                     {humanizeDuration(event?.extendedProps.duration * 60000)}
                                 </>
                                 }
-
                             </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
@@ -1280,8 +1275,7 @@ function Agenda() {
                                     event?.extendedProps.revert && event?.extendedProps.revert();
                                     setMoveDialog(false)
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1291,8 +1285,7 @@ function Agenda() {
                                 color={moveDialogAction === "move" ? "warning" : "primary"}
                                 onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
                                     handleRescheduleAppointment(event as EventDef)}
-                                startIcon={<IconUrl path="iconfinder"></IconUrl>}
-                            >
+                                startIcon={<IconUrl path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1322,8 +1315,7 @@ function Agenda() {
                             <Button
                                 variant="text-primary"
                                 onClick={() => setCancelDialog(false)}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
                             </Button>
                             <LoadingButton
@@ -1333,8 +1325,7 @@ function Agenda() {
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="icdelete"></IconUrl>}
-                            >
+                                                    path="icdelete"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1444,8 +1435,7 @@ function Agenda() {
                                         dispatch(openDrawer({type: "move", open: false}));
                                     }
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1456,8 +1446,7 @@ function Agenda() {
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="iconfinder"></IconUrl>}
-                            >
+                                                    path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
