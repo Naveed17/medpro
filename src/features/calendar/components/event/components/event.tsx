@@ -60,7 +60,8 @@ function Event({...props}) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        ...((appointment.isOnline || appointment.motif.length > 0) && {width: "98%"})
+                        ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
+                        ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
                     }
                 }} color="primary" noWrap>
                     <span>{event.event._def.title}</span>
