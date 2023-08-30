@@ -778,7 +778,7 @@ function ConsultationInProgress() {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
                 data: form
-            }).then(r => console.log(r))
+            })
         }
     }
 

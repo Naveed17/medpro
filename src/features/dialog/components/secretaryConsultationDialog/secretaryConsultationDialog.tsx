@@ -42,7 +42,6 @@ import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
-import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
 
 const limit = 255;
 
@@ -88,6 +87,7 @@ function SecretaryConsultationDialog({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {mutate} = useAppSelector(consultationSelector);
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {patientAntecedent} = useAppSelector(consultationSelector);
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
@@ -172,6 +172,16 @@ function SecretaryConsultationDialog({...props}) {
                 msg += ' maladie:'
                 exam.disease.map(((disease: string) => msg += ` ${disease},`))
             }
+            if (Object.keys(patientAntecedent).length > 0) {
+                msg += ' .Voici les antecedents '
+                Object.keys(patientAntecedent).map(antecedent => {
+                    msg += `-${antecedent}: (`
+                    patientAntecedent[antecedent].map((pa: { name: any; }) => {
+                        msg += ` ${pa.name},`
+                    })
+                    msg = msg.replace(/.$/, ")")
+                })
+            }
             if (appointment.patient.treatment.length > 0) {
                 msg += ' et j\'ai recommandé les traitements suivants:'
                 appointment.patient.treatment.map((treatment: { name: any; }) => msg += ` -${treatment.name}`)
@@ -193,7 +203,7 @@ function SecretaryConsultationDialog({...props}) {
                 })
             }
 
-            msg+='. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
+            msg += '. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
         }
 
         return msg;
@@ -357,26 +367,27 @@ function SecretaryConsultationDialog({...props}) {
                         </Typography>
 
 
-                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
-                                <Chip label={t('imMedAI')}/>
-                                <Chip size={"small"} color={"primary"} label={t(loadingChat ?'wait':'yes')} disabled={loadingChat} onClick={() => {
-                                    setLoadingChat(true)
-                                    const form = new FormData();
-                                    form.append('message', msgGenerator());
-                                    triggerChat({
-                                        method: "POST",
-                                        url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
-                                        data: form
-                                    }).then((r) => {
-                                        const res = (r?.data as HttpResponse).data;
-                                        setResponse(res.message)
-                                        setOpenAI(true)
-                                        setLoadingChat(false)
-                                    })
-                                }}/>
-                            </Stack>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
+                            <Chip label={t('imMedAI')}/>
+                            <Chip size={"small"} color={"primary"} label={t(loadingChat ? 'wait' : 'yes')}
+                                  disabled={loadingChat} onClick={() => {
+                                setLoadingChat(true)
+                                const form = new FormData();
+                                form.append('message', msgGenerator());
+                                triggerChat({
+                                    method: "POST",
+                                    url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
+                                    data: form
+                                }).then((r) => {
+                                    const res = (r?.data as HttpResponse).data;
+                                    setResponse(res.message)
+                                    setOpenAI(true)
+                                    setLoadingChat(false)
+                                })
+                            }}/>
+                        </Stack>
 
                         <Box display='grid' sx={{
                             gridGap: 16,
@@ -461,7 +472,7 @@ function SecretaryConsultationDialog({...props}) {
                 dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>
-                       {/* <Button onClick={() => {
+                        {/* <Button onClick={() => {
                             setOpenAI(false)
                         }} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
                             {t("notsatisfied", {ns: "common"})}
