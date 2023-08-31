@@ -388,13 +388,8 @@ function DocumentsPanel({...props}) {
                     "& .MuiCardContent-root": {
                         background: "white"
                     },
-                    "& .injected-svg": {
-                        //maxWidth: 30,
-                        //maxHeight: 30
-                    },
                     marginBottom: "1rem"
-                }}
-            >
+                }}>
                 <CardContent>
                     <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                         <Toolbar variant="dense">
@@ -416,56 +411,51 @@ function DocumentsPanel({...props}) {
                     </AppBar>
 
                     <Grid container spacing={2}>
+                        {quotes.map((card: any, idx: number) =>
+                            <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
+                                <DocumentCardStyled style={{width: "100%"}}>
+                                    <Stack direction={"row"} spacing={1} onClick={() => {
+                                        let _acts: any[] = [];
+                                        acts.map(act => _acts = [..._acts, {
+                                            ...act,
+                                            selected: card.quotes_items.findIndex((qi: {
+                                                act_item: { uuid: string; };
+                                            }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
+                                        }])
+                                        showQuote(card.uuid, _acts.filter(act => act.selected))
+                                    }} alignItems={"center"}
+                                           padding={2}>
+                                        <IconUrl width={20} path={"ic-text"}/>
+                                        <Stack>
+                                            <Typography>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
+                                            <Stack direction={"row"} spacing={1}>
+                                                <EventRoundedIcon
+                                                    style={{fontSize: 15, color: "grey"}}/>
+                                                <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                            sx={{color: "grey", cursor: "pointer"}}>
+                                                    {moment(card.date_quote, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
+                                                </Typography>
 
-                        {
-                            quotes.map((card: any, idx: number) =>
-                                <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
-                                    <DocumentCardStyled style={{width: "100%"}}>
-                                        <Stack direction={"row"} spacing={1} onClick={() => {
-                                            let _acts: any[] = [];
-                                            acts.map(act => _acts = [..._acts, {
-                                                ...act,
-                                                selected: card.quotes_items.findIndex((qi: {
-                                                    act_item: { uuid: string; };
-                                                }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
-                                            }])
-                                            showQuote(card.uuid, _acts.filter(act => act.selected))
-                                        }} alignItems={"center"}
-                                               padding={2}>
-                                            <IconUrl width={20} path={"ic-text"}/>
-                                            <Stack>
-                                                <Typography>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
-                                                <Stack direction={"row"} spacing={1}>
-                                                    <EventRoundedIcon
-                                                        style={{fontSize: 15, color: "grey"}}/>
-                                                    <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                                sx={{color: "grey", cursor: "pointer"}}>
-                                                        {moment(card.date_quote, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
-                                                    </Typography>
-
-                                                    <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
-                                                    <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                                sx={{
-                                                                    marginTop: 0,
-                                                                    color: "grey",
-                                                                    cursor: "pointer"
-                                                                }}>
-                                                        {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
-                                                    </Typography>
-                                                </Stack>
+                                                <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
+                                                <Typography whiteSpace={"nowrap"} fontSize={12}
+                                                            sx={{
+                                                                marginTop: 0,
+                                                                color: "grey",
+                                                                cursor: "pointer"
+                                                            }}>
+                                                    {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
+                                                </Typography>
                                             </Stack>
                                         </Stack>
-                                    </DocumentCardStyled>
-                                </Grid>
-                            )
-                        }
+                                    </Stack>
+                                </DocumentCardStyled>
+                            </Grid>
+                        )}
                     </Grid>
-
 
                     {quotes.length == 0 && <NoDataCard t={t} ns={"patient"}
                                                        onHandleClick={() => setOpenQuoteDialog(true)}
                                                        data={AddQuoteCardData}/>}
-
                 </CardContent>
             </PanelCardStyled>
             {documents.length > 0 || patientDocuments?.length > 0 ? (
@@ -476,13 +466,8 @@ function DocumentsPanel({...props}) {
                                 "& .MuiCardContent-root": {
                                     background: "white"
                                 },
-                                "& .injected-svg": {
-                                    //maxWidth: 30,
-                                    //maxHeight: 30
-                                },
                                 marginBottom: "1rem"
-                            }}
-                        >
+                            }}>
                             <CardContent>
                                 <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                     <Toolbar variant="dense">
@@ -499,22 +484,20 @@ function DocumentsPanel({...props}) {
 
                                 <Box style={{overflowX: "auto", marginBottom: 10}}>
                                     <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                                        {
-                                            documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                                <React.Fragment key={`doc-item-${idx}`}>
-                                                    <DocumentCard onClick={() => {
-                                                        showDoc(card)
-                                                    }} {...{
-                                                        t,
-                                                        data: card,
-                                                        date: false,
-                                                        time: true,
-                                                        title: true,
-                                                        resize: true
-                                                    }}/>
-                                                </React.Fragment>
-                                            )
-                                        }
+                                        {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                            <React.Fragment key={`doc-item-${idx}`}>
+                                                <DocumentCard onClick={() => {
+                                                    showDoc(card)
+                                                }} {...{
+                                                    t,
+                                                    data: card,
+                                                    date: false,
+                                                    time: true,
+                                                    title: true,
+                                                    resize: true
+                                                }}/>
+                                            </React.Fragment>
+                                        )}
                                     </Stack>
                                 </Box>
                             </CardContent>
@@ -530,8 +513,7 @@ function DocumentsPanel({...props}) {
                                 maxWidth: 30,
                                 maxHeight: 30
                             }
-                        }}
-                    >
+                        }}>
                         <CardContent>
                             <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                 <Toolbar variant="dense">
@@ -597,13 +579,8 @@ function DocumentsPanel({...props}) {
                         "& .MuiCardContent-root": {
                             background: "white"
                         },
-                        "& .injected-svg": {
-                            //maxWidth: 30,
-                            //maxHeight: 30
-                        },
                         marginBottom: "1rem"
-                    }}
-                >
+                    }}>
                     <CardContent>
                         <NoDataCard t={t} ns={"patient"}
                                     onHandleClick={() => setOpenUploadDialog(true)}
