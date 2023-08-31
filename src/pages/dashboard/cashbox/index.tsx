@@ -219,8 +219,8 @@ function Cashbox() {
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
-        setTotalCash(data.total_cash);
-        setTotalCheck(data.total_check);
+        setTotalCash(data.period_cash);
+        setTotalCheck(data.period_check);
         setToReceive(data.total_insurance_amount);
         setCollected(data.total_collected);
         if (data.transactions) setRows(data.transactions.reverse());
