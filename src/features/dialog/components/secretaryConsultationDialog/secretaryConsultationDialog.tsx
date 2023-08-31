@@ -33,15 +33,14 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
-import {configSelector, dashLayoutSelector} from "@features/base";
+import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
 
 const limit = 255;
 
@@ -57,8 +56,7 @@ function SecretaryConsultationDialog({...props}) {
             checkedNext,
             setCheckedNext,
             appointment,
-            exam,
-            reasons
+
         },
     } = props;
 
@@ -71,9 +69,6 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-    const [openAI, setOpenAI] = useState(false);
-    const [response, setResponse] = useState("");
-    const [loadingChat, setLoadingChat] = useState(false);
 
     const router = useRouter();
 
@@ -86,17 +81,13 @@ function SecretaryConsultationDialog({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {mutate} = useAppSelector(consultationSelector);
-    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const {patientAntecedent} = useAppSelector(consultationSelector);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
-    const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
 
     const {
         paymentTypesList
     } = useAppSelector(cashBoxSelector);
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
 
     const resetDialog = () => {
@@ -141,73 +132,6 @@ function SecretaryConsultationDialog({...props}) {
         return payed_amount;
     }
 
-    const msgGenerator = () => {
-        let msg = '';
-        if (medicalProfessionalData) {
-            msg = `Je m'appelle dr ${session?.user?.name} ${medicalProfessionalData[0]?.medical_professional.specialities[0].speciality.name}, mon patient ${appointment.patient.firstName} ${appointment.patient.lastName}`;
-            if (appointment.patient.birthdate)
-                msg += ` ${getBirthdayFormat(appointment.patient, t).trim()} `;
-            if (appointment.patient.gender)
-                msg += ` de sexe ${appointment.patient.gender === 'F' ? 'feminin' : 'masculin'}`;
-
-            msg += ` a consulté le ${appointment.day_date}`
-            if (exam.motif.length > 0) {
-                msg += ` pour motif ${reasons.find((reason: { uuid: any; }) => reason.uuid === exam.motif[0]).name}` //UUID
-            }
-            if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
-                let txtModel = ''
-                const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
-                Object.keys(models).forEach(key => {
-                    if (models[key])
-                        txtModel += ` ${key}=${models[key]}`;
-                })
-                if (txtModel.length > 0) msg += ` avec${txtModel}`
-            }
-
-            if (exam.notes)
-                msg += `. mes observations: ${exam.notes}`
-            if (exam.diagnosis)
-                msg += `. mon diagnostique été: ${exam.diagnosis}`
-            if (exam.disease && exam.disease.length > 0) {
-                msg += ' maladie:'
-                exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
-            }
-            if (Object.keys(patientAntecedent).length > 0) {
-                msg += ' .Voici les antecedents '
-                Object.keys(patientAntecedent).forEach(antecedent => {
-                    msg += `-${antecedent}: (`
-                    patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
-                        msg += ` ${pa.name},`
-                    })
-                    msg = msg.replace(/.$/, ")")
-                })
-            }
-            if (appointment.patient.treatment.length > 0) {
-                msg += ' et j\'ai recommandé les traitements suivants:'
-                appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
-            }
-            if (appointment.patient.requestedAnalyses.length > 0) {
-                msg += '. J\'ai demandé les analyses suivante:'
-                appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
-                    analyse.hasAnalysis.forEach(ha => {
-                        msg += ` -${ha.analysis.name}`
-                    })
-                })
-            }
-            if (appointment.patient.requestedImaging.length > 0) {
-                msg += '. J\'ai demandé des imageries médicals:'
-                appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
-                    ri['medical-imaging']?.forEach(mi => {
-                        msg += ` - ${mi['medical-imaging'].name}`
-                    })
-                })
-            }
-
-            msg += '. qu\'est ce que vous pensez? (sans mentionner dans la réponse que cela est générer par AI) '
-        }
-
-        return msg;
-    }
 
     const handleOnGoingPaymentDialog = () => {
         setLoading(true);
@@ -366,30 +290,8 @@ function SecretaryConsultationDialog({...props}) {
                             {t("recap")}
                         </Typography>
 
-
-                            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={"center"}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
-                                <Chip label={t('imMedAI')}/>
-                                <Chip size={"small"} color={"primary"} label={t(loadingChat ?'wait':'yes')} disabled={loadingChat} onClick={() => {
-                                    setLoadingChat(true)
-                                    const form = new FormData();
-                                    form.append('message', msgGenerator());
-                                    triggerChat({
-                                        method: "POST",
-                                        url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
-                                        data: form
-                                    }).then((r) => {
-                                        const res = (r?.data as HttpResponse).data;
-                                        setResponse(res.message)
-                                        setOpenAI(true)
-                                        setLoadingChat(false)
-                                    })
-                                }}/>
-                            </Stack>
-
                         <Box display='grid' sx={{
-                            width:'100%',
+                            width: '100%',
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
@@ -455,37 +357,6 @@ function SecretaryConsultationDialog({...props}) {
                     </DialogActions>
                 }
             />
-
-            <Dialog
-                action={"open_ai"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380
-                    }
-                }}
-                open={openAI}
-                data={{
-                    appointment, response
-                }}
-                title={t("MedAI")}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        {/* <Button onClick={() => {
-                            setOpenAI(false)
-                        }} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
-                            {t("notsatisfied", {ns: "common"})}
-                        </Button>*/}
-                        <Button onClick={() => {
-                            setOpenAI(false)
-                        }} startIcon={<SentimentSatisfiedRoundedIcon/>}>
-                            {t("Merci", {ns: "common"})}
-                        </Button>
-                    </DialogActions>
-                }
-            />
-
         </RootStyled>
     );
 }

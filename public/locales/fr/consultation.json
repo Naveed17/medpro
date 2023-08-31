@@ -408,6 +408,31 @@
         "cancel": "Annuler",
         "confirm": "Supprimer"
       }
+    },
+    "chat": {
+      "opinion": "Quel est l’avis de medAI ?",
+      "health": "L'état de santé actuel du patient ?",
+      "askHealth": "Quel est l'état de santé actuel du patient ?",
+      "advice": "Conseils au patient",
+      "fiveadvice": "donnez moi 5 conseils au patient",
+      "im": "Je suis un",
+      "mypatient": "mon patient",
+      "sexe": "de sexe",
+      "feminine": "féminin",
+      "male": "masculin",
+      "date": "a consulté le",
+      "reason": "pour motif",
+      "with": "Avec",
+      "observation": "mes observations",
+      "diagnostic": "mon diagnostique été",
+      "disease": "maladie",
+      "antecedents": "Voici les antecedents ",
+      "treatment": "et j'ai recommandé les traitements suivants",
+      "analyses": "J'ai demandé les analyses suivante",
+      "mi": "J'ai demandé des imageries médicals",
+      "note": "(sans mentionner dans la réponse que cela est générer par AI)",
+      "youropinion": "qu'est ce que vous pensez?",
+      "wait": "MedAI est en train d'écrire..."
     }
   },
   "table": {
