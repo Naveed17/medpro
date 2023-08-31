@@ -77,6 +77,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
+
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
     {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'}
@@ -1366,6 +1367,7 @@ function Agenda() {
                 />
 
                 <Dialog
+                    {...{direction}}
                     action={"add_a_document"}
                     open={openUploadDialog}
                     data={{
@@ -1374,15 +1376,8 @@ function Agenda() {
                         setState: setDocumentConfig
                     }}
                     size={"md"}
-                    direction={"ltr"}
                     sx={{minHeight: 400}}
                     title={t("config.doc_detail_title", {ns: "patient"})}
-                    dialogClose={() => {
-                        setOpenUploadDialog(false);
-                    }}
-                    onClose={() => {
-                        setOpenUploadDialog(false);
-                    }}
                     actionDialog={
                         <DialogActions>
                             <Button
