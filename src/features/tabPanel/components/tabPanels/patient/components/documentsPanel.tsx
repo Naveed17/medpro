@@ -34,7 +34,6 @@ import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -43,7 +42,6 @@ import Add from "@mui/icons-material/Add";
 import DocumentCardStyled from "@features/card/components/documentCard/components/overrides/documentCardStyle";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import {useSession} from "next-auth/react";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -90,7 +88,6 @@ function DocumentsPanel({...props}) {
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
@@ -103,12 +100,32 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [documents, setDocuments] = useState<any[]>([]);
+    //const [documents, setDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
-    const [quotes, setQuotes] = useState<any[]>([]);
+    //const [quotes, setQuotes] = useState<any[]>([]);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
 
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medical_professional} = useMedicalProfessionalSuffix();
+
+    const {data: httpAppDocPatientResponse} = useRequest(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
+    } : null);
+
+    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/quotes/${router.locale}`
+    });
+    const {data: httpProfessionalsActs} = useRequest(medical_professional ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
+    } : null);
+
+    const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
+    const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
     const tabsContent = [
         {
             title: "Documents du rendez-vous",
@@ -191,25 +208,6 @@ function DocumentsPanel({...props}) {
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {medical_professional} = useMedicalProfessionalSuffix();
-
-    const {data: httpAppDocPatientResponse} = useRequest(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
-    } : null, SWRNoValidateConfig);
-
-    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/quotes/${router.locale}`
-    });
-    const {data: httpProfessionalsActs} = useRequest(medical_professional ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null, SWRNoValidateConfig);
 
     // handle change for checkboxes
     const handleToggle = (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -314,7 +312,7 @@ function DocumentsPanel({...props}) {
             }).then(() => {
                 mutateQuotes().then(() => {
                     setOpenQuoteDialog(false)
-                    showQuote("",acts.filter(act => act.selected));
+                    showQuote("", acts.filter(act => act.selected));
                     let _acts = [...acts]
                     _acts.map(act => {
                         act.qte = 1;
@@ -325,7 +323,7 @@ function DocumentsPanel({...props}) {
             });
         }
     }
-    const showQuote = (uuid:string,rows: AppointmentActModel[]) => {
+    const showQuote = (uuid: string, rows: AppointmentActModel[]) => {
         let type = "";
         if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
@@ -334,8 +332,8 @@ function DocumentsPanel({...props}) {
             type: "quote",
             name: "Quote",
             info: rows,
-            uuid:uuid,
-            mutate:mutateQuotes,
+            uuid: uuid,
+            mutate: mutateQuotes,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
         });
@@ -353,21 +351,6 @@ function DocumentsPanel({...props}) {
             }
         }
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        let pdoc: any[] = []
-        if (httpAppDocPatientResponse) {
-            const apps = (httpAppDocPatientResponse as HttpResponse)?.data;
-            apps.map((app: { documents: any; }) => pdoc = [...pdoc, ...app.documents])
-            setDocuments(pdoc);
-        }
-    }, [httpAppDocPatientResponse]);
-
-    useEffect(() => {
-        if (httpQuotesResponse) {
-            setQuotes((httpQuotesResponse as HttpResponse)?.data)
-        }
-    }, [httpQuotesResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (httpProfessionalsActs) {
@@ -437,7 +420,7 @@ function DocumentsPanel({...props}) {
                         {
                             quotes.map((card: any, idx: number) =>
                                 <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
-                                    <DocumentCardStyled style={{width:"100%"}}>
+                                    <DocumentCardStyled style={{width: "100%"}}>
                                         <Stack direction={"row"} spacing={1} onClick={() => {
                                             let _acts: any[] = [];
                                             acts.map(act => _acts = [..._acts, {
@@ -446,7 +429,7 @@ function DocumentsPanel({...props}) {
                                                     act_item: { uuid: string; };
                                                 }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
                                             }])
-                                            showQuote(card.uuid,_acts.filter(act => act.selected))
+                                            showQuote(card.uuid, _acts.filter(act => act.selected))
                                         }} alignItems={"center"}
                                                padding={2}>
                                             <IconUrl width={20} path={"ic-text"}/>
