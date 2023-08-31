@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {instanceAxios, useRequestMutation} from "@lib/axios";
+import { useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -132,15 +132,14 @@ function Agenda() {
     });
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
-    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [moveDialogInfo, setMoveDialogInfo] = useState({info: false, dialog: false});
+    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
-    const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
@@ -288,7 +287,7 @@ function Agenda() {
     useEffect(() => {
         if (openMoveDrawer) {
             setEvent(selectedEvent as EventDef);
-            setMoveDialogInfo(true);
+            setMoveDialogInfo({...moveDialogInfo, info: true});
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -357,7 +356,7 @@ function Agenda() {
             action: action,
             selected: false
         }));
-        setMoveDialog(true);
+        setMoveDialogInfo({...moveDialogInfo, dialog: true});
     }
 
     const onEventChange = (info: EventChangeArg) => {
@@ -526,7 +525,7 @@ function Agenda() {
                     action: "move",
                     selected: false
                 }));
-                setMoveDialogInfo(true);
+                setMoveDialogInfo({...moveDialogInfo, info: true});
                 break;
             case "onReschedule":
                 dispatch(setSelectedEvent(event));
@@ -553,7 +552,7 @@ function Agenda() {
                 break;
             case "onAddConsultationDocuments":
                 setEvent(event);
-                setOpenUploadDialog(true);
+                setOpenUploadDialog({...openUploadDialog, dialog: true});
                 break;
         }
     }
@@ -676,11 +675,10 @@ function Agenda() {
 
     const onMoveAppointment = () => {
         onUpdateDefEvent();
-        setMoveDialogInfo(false);
+        setMoveDialogInfo({dialog: true, info: false});
         if (openMoveDrawer) {
             dispatch(openDrawer({type: "move", open: false}));
         }
-        setMoveDialog(true);
     }
 
     const handleMoveAppointment = (event: EventDef) => {
@@ -701,7 +699,7 @@ function Agenda() {
             }
             dispatch(openDrawer({type: "view", open: false}));
             refreshData();
-            setMoveDialog(false);
+            setMoveDialogInfo({...moveDialogInfo, dialog: false});
             // update pending notifications status
             config?.mutate[1]();
         });
@@ -717,13 +715,12 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form
-        }, TriggerWithoutValidation).then((result) => {
+        }).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
             }
             refreshData();
-            setMoveDialogInfo(false);
-            setMoveDialog(false);
+            setMoveDialogInfo({dialog: false, info: false});
         });
     }
 
@@ -886,7 +883,7 @@ function Agenda() {
     }
 
     const handleUploadDocuments = () => {
-        setLoadingRequest(true);
+        setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
@@ -895,10 +892,7 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            setOpenUploadDialog(false);
-        });
+        }).then(() => setOpenUploadDialog({loading: false, dialog: false}));
     }
 
     const handleAddAppointmentRequest = () => {
@@ -1130,7 +1124,7 @@ function Agenda() {
                                 dispatch(openDrawer({type: "view", open: false}));
                                 dispatch(openDrawer({type: "patient", open: true}));
                             }}
-                            SetMoveDialog={() => setMoveDialogInfo(true)}
+                            SetMoveDialog={() => setMoveDialogInfo({...moveDialogInfo, info: true})}
                             SetCancelDialog={() => {
                                 setActionDialog('cancel');
                                 setCancelDialog(true)
@@ -1245,7 +1239,7 @@ function Agenda() {
                     contrastText={moveDialogAction === "move" ? theme.palette.warning.contrastText : theme.palette.primary.contrastText}
                     dialogClose={() => {
                         event?.extendedProps.revert && event?.extendedProps.revert();
-                        setMoveDialog(false);
+                        setMoveDialogInfo({...moveDialogInfo, dialog: false});
                     }}
                     dir={direction}
                     action={() => (
@@ -1266,7 +1260,7 @@ function Agenda() {
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
                         </Box>)}
-                    open={moveDialog}
+                    open={moveDialogInfo.dialog}
                     title={t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
@@ -1274,7 +1268,7 @@ function Agenda() {
                                 variant="text-primary"
                                 onClick={() => {
                                     event?.extendedProps.revert && event?.extendedProps.revert();
-                                    setMoveDialog(false)
+                                    setMoveDialogInfo({...moveDialogInfo, dialog: false})
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
@@ -1369,7 +1363,7 @@ function Agenda() {
                 <Dialog
                     {...{direction}}
                     action={"add_a_document"}
-                    open={openUploadDialog}
+                    open={openUploadDialog.dialog}
                     data={{
                         t,
                         state: documentConfig,
@@ -1378,20 +1372,24 @@ function Agenda() {
                     size={"md"}
                     sx={{minHeight: 400}}
                     title={t("config.doc_detail_title", {ns: "patient"})}
+                    {...(!openUploadDialog.loading && {dialogClose: () =>   setOpenUploadDialog({...openUploadDialog, dialog: false})})}
                     actionDialog={
                         <DialogActions>
                             <Button
                                 onClick={() => {
-                                    setOpenUploadDialog(false);
+                                    setOpenUploadDialog({...openUploadDialog, dialog: false});
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("config.add-patient.cancel", {ns: "patient"})}
                             </Button>
                             <LoadingButton
-                                loading={loadingRequest}
+                                loading={openUploadDialog.loading}
                                 loadingPosition={"start"}
                                 variant="contained"
-                                onClick={() => handleUploadDocuments()}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleUploadDocuments();
+                                }}
                                 startIcon={<SaveRoundedIcon/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
@@ -1411,21 +1409,21 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => {
-                        setMoveDialogInfo(false);
+                        setMoveDialogInfo({...moveDialogInfo, info: false});
                         if (openMoveDrawer) {
                             dispatch(openDrawer({type: "move", open: false}));
                         }
                     }}
                     action={"move_appointment"}
                     dir={direction}
-                    open={moveDialogInfo}
+                    open={moveDialogInfo.info}
                     title={t(`dialogs.${moveDialogAction}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
                                 onClick={() => {
-                                    setMoveDialogInfo(false);
+                                    setMoveDialogInfo({...moveDialogInfo, info: false});
                                     if (openMoveDrawer) {
                                         dispatch(openDrawer({type: "move", open: false}));
                                     }
@@ -1474,22 +1472,12 @@ function Agenda() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
-    // `getStaticProps` is executed on the server side.
-    const {data: countries} = await instanceAxios({
-        url: `/api/public/places/countries/${locale}?nationality=true`,
-        method: "GET"
-    });
-
-    return {
-        props: {
-            fallback: {
-                [`/api/public/places/countries/${locale}?nationality=true`]: countries
-            },
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
-        }
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
     }
-}
+})
 
 export default Agenda
 

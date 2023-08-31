@@ -47,13 +47,10 @@ function Dialogs({...props}) {
                                 width: '100%',
                                 m:1,
                             }
-                        
+
                         }
                     })
-                 }   
-                >
-                    
-                 
+                 }>
                 {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color
