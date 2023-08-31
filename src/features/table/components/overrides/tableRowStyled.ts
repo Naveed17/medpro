@@ -171,8 +171,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
     },
     '.counter-btn': {
         borderRadius: 5,
-        width:"fit-content",
-        height:25,
+        width: "fit-content",
+        height: 25,
         margin: "auto",
         alignSelf: 'flex-start',
         border: `1px solid ${theme.palette.grey["A600"]}`,
@@ -185,7 +185,7 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         },
         '.MuiInputBase-root': {
             width: 35,
-            height:22,
+            height: 22,
             borderRadius: 5,
             border: 0,
             margin: 0,
@@ -196,8 +196,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         '.MuiIconButton-root': {
             borderRadius: 4,
             padding: 2,
-            width:25,
-            height:25,
+            width: 25,
+            height: 25,
             backgroundColor: theme.palette.grey["A600"],
             svg: {
                 width: 14,
@@ -214,6 +214,10 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
     },
     "& .source-icon": {
         margin: "auto"
+    },
+    "& .MuiAvatar-root .error": {
+        marginLeft: 8,
+        width: 14
     }
 }));
 export default TableRowStyled;
