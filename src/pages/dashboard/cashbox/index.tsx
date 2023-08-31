@@ -8,7 +8,7 @@ import {
     Drawer,
     LinearProgress,
     Stack,
-    Theme, Tooltip,
+    Theme,
     Typography,
     useMediaQuery,
 } from "@mui/material";
@@ -385,18 +385,20 @@ function Cashbox() {
                                 </Typography>
                             </>}
                             <Typography>{t("total")}</Typography>
-                                <Typography variant="h6">
-                                    {total} <span style={{fontSize: 10}}>{devise}</span>
-                                </Typography>
+                            <Typography variant="h6">
+                                {total} <span style={{fontSize: 10}}>{devise}</span>
+                            </Typography>
                             <Typography variant="h6" display={{xs: "none", md: "block"}}>
                                 I
                             </Typography>
                             <Stack>
                                 <Typography fontSize={10}>
-                                    {t('check')} : <span style={{fontSize: 12,fontWeight:"bold"}}>{totalCheck}</span> {devise}
+                                    {t('check')} : <span
+                                    style={{fontSize: 12, fontWeight: "bold"}}>{totalCheck}</span> {devise}
                                 </Typography>
                                 <Typography fontSize={10}>
-                                    {t('cash')} : <span style={{fontSize: 12,fontWeight:"bold"}}>{totalCash}</span> {devise}
+                                    {t('cash')} : <span
+                                    style={{fontSize: 12, fontWeight: "bold"}}>{totalCash}</span> {devise}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -553,8 +555,8 @@ function Cashbox() {
                     direction,
                     sx: {
                         minHeight: 380,
-                        padding:{xs:1,md:2}
-                        
+                        padding: {xs: 1, md: 2}
+
                     },
                 }}
                 open={openPaymentDialog}
