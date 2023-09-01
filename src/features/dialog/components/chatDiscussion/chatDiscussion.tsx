@@ -17,7 +17,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function ChatDiscussionDialog({...props}) {
     const {data} = props;
 
-    const {appointment, exam, reasons, app_uuid, setOpenChat, patient} = data
+    const {appointment, exam, reasons, app_uuid, setOpenChat} = data
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
