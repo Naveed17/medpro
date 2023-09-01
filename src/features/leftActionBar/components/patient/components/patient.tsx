@@ -12,11 +12,11 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter,
+    AppointmentReasonsFilter, InsuranceFilter, leftActionBarSelector,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRouter} from "next/router";
 import {setSelectedRows} from "@features/table";
@@ -27,6 +27,7 @@ function Patient() {
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [opened, setOpend] = useState("patient");
     const [dataPatient, setDataPatient] = useState([
@@ -73,6 +74,27 @@ function Patient() {
                         t={t}
                     />
                 </FilterRootStyled>
+            ),
+        },
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: false,
+            children: (
+                <InsuranceFilter
+                    {...{t}}
+                    OnSearch={(data: { query: any }) => {
+                        dispatch(setFilter({
+                            ...filter,
+                            patient: {
+                                ...filter?.patient,
+                                ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
+                            }
+                        }));
+                    }}/>
             ),
         },
         {

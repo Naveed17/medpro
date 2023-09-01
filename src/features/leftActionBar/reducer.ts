@@ -15,6 +15,7 @@ export type ActionBarState = {
             birthdate?: string;
             name?: string;
             hasDouble?: boolean;
+            insurances?: string[]
         },
         payment?: {
             insurance?: string[],
