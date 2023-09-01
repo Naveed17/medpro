@@ -1,4 +1,4 @@
-import {Box, Chip, Fab, Stack, TextField, Typography} from '@mui/material'
+import {Box, Chip, Fab, IconButton, Stack, TextField, Typography} from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {useEffect, useRef, useState} from 'react';
 import dynamic from "next/dynamic";
@@ -9,13 +9,14 @@ import {dashLayoutSelector} from "@features/base";
 import {consultationSelector} from "@features/toolbar";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function ChatDiscussionDialog({...props}) {
     const {data} = props;
 
-    const {appointment, exam, reasons, app_uuid} = data
+    const {appointment, exam, reasons, app_uuid,setOpenChat} = data
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -30,7 +31,7 @@ function ChatDiscussionDialog({...props}) {
     const listRef = useRef<any>();
 
     const suggestions = [
-        {name: 'opinion', message: 'opinion'},
+        {name: 'opinion', message: 'youropinion'},
         {name: 'health', message: 'askHealth'},
         {name: 'advice', message: 'fiveadvice'},
     ]
@@ -101,7 +102,7 @@ function ChatDiscussionDialog({...props}) {
                 })
             }
 
-            msg += `. ${todo} ${t('chat.note')} `
+            msg += `. ${todo} `
         }
 
         return msg;
@@ -135,7 +136,14 @@ function ChatDiscussionDialog({...props}) {
 
     return (
         <Stack>
-
+            <IconButton onClick={()=>{setOpenChat(false)}} sx={{
+                display: {sm: "none"},
+                position: "absolute",
+                right: 20,
+                top: 15
+            }}>
+                <CloseRoundedIcon/>
+            </IconButton>
             {!loadingContainer && <div style={{
                 width: "100%",
                 padding: 10,

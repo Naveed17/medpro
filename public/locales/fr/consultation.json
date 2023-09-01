@@ -431,7 +431,7 @@
       "analyses": "J'ai demandé les analyses suivante",
       "mi": "J'ai demandé des imageries médicals",
       "note": "(sans mentionner dans la réponse que cela est générer par AI)",
-      "youropinion": "qu'est ce que vous pensez?",
+      "youropinion": "Que pensez-vous?",
       "wait": "MedAI est en train d'écrire..."
     }
   },
