@@ -1146,13 +1146,13 @@ function ConsultationInProgress() {
                         dir={direction}
                         sx={{
                             "& .MuiPaper-root": {
-                                width: "40%"
+                                width: {xs:"100%",sm:"40%"}
                             }
                         }}
                         onClose={() => {
                             setOpenChat(false)
                         }}>
-                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid}}/>
+                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat}}/>
                     </Drawer>
 
                     <DrawerBottom
