@@ -1,6 +1,5 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {setFilter, resetFilterPatient, resetFilterPayment, setFilterPayment} from "./actions";
-import AppointmentDisease from "@features/leftActionBar/components/agenda/components/appointmentDisease";
 
 export type ActionBarState = {
     query: {
