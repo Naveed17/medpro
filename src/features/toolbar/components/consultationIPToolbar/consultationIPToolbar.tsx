@@ -771,6 +771,7 @@ function ConsultationIPToolbar({...props}) {
                         ),
                         sx:{
                             p:1.5,
+                            overflowX:'hidden'
                         }
                         
                     })}
@@ -784,12 +785,12 @@ function ConsultationIPToolbar({...props}) {
                                    })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
-                                    <Button startIcon={<AddIcon/>} onClick={() => {
+                                    <Button sx={{alignSelf:'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
                                         dispatch(handleDrawerAction("addDrug"));
                                     }}>
                                         {t("add_drug")}
                                     </Button>}
-                                <Stack direction={"row"} spacing={1.2}
+                                <Stack direction={"row"}  justifyContent={{xs:'space-between',sm:'flex-start'}}spacing={1.2}
                                  {...(info === "medical_prescription_cycle" && {
                                     mt:{xs:1,md:0}
                                    })}
