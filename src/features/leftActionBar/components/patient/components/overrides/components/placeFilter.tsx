@@ -99,11 +99,10 @@ function PlaceFilter({...props}) {
     const statesCountry = (httpStatesResponse as HttpResponse)?.data as any[];
 
     return (
-        <Box component="figure" sx={{m: 0}}>
+        <>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.country?.heading}`)}
             </Typography>
-
             <Autocomplete
                 id="country"
                 sx={{width: "100%"}}
@@ -146,7 +145,6 @@ function PlaceFilter({...props}) {
             <Typography mt={2} variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.city?.heading}`)}
             </Typography>
-
             <Autocomplete
                 id="state"
                 sx={{width: "100%"}}
@@ -175,8 +173,7 @@ function PlaceFilter({...props}) {
                     </FormControl>
                 )}
             />
-        </Box>
-    )
+        </>)
 }
 
 export default PlaceFilter;

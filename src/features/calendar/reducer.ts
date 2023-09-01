@@ -18,6 +18,7 @@ export type CalendarProps = {
     openAddDrawer: boolean;
     openMoveDrawer: boolean;
     openPatientDrawer: boolean;
+    openPayDialog: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
@@ -36,6 +37,7 @@ const initialState: CalendarProps = {
     openAddDrawer: false,
     openPatientDrawer: false,
     openMoveDrawer: false,
+    openPayDialog: false,
     currentStepper: 0,
     config: null,
     actionSet: null,
@@ -61,6 +63,9 @@ export const AgendaReducer = createReducer(initialState, builder => {
                 break;
             case "move":
                 state.openMoveDrawer = action.payload.open;
+                break;
+            case "pay":
+                state.openPayDialog = action.payload.open;
                 break;
             default:
                 state.openAddDrawer = action.payload.open;

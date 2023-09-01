@@ -315,6 +315,7 @@ function FcmLayout({...props}) {
                             <ConsultationPopupAction
                                 data={{
                                     id: notificationData?.patient.uuid,
+                                    appUuid: notificationData?.appUuid,
                                     name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
                                     phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
                                     fees: notificationData?.fees,
@@ -322,6 +323,12 @@ function FcmLayout({...props}) {
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
                                     control: notificationData?.control
+                                }}
+                                OnPay={() => {
+                                    handleClose();
+                                    router.push("/dashboard/agenda").then(() => {
+                                        dispatch(openDrawer({type: "pay", open: true}));
+                                    });
                                 }}
                                 OnSchedule={() => {
                                     handleClose();

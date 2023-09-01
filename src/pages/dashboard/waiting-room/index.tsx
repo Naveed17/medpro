@@ -101,7 +101,7 @@ function WaitingRoom() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1':user.medical_entity.hasDemo;
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
@@ -239,12 +239,9 @@ function WaitingRoom() {
                 break;
             case "onPay":
                 let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
-
                 let payments: any[] = [];
-
                 row?.transactions && row.transactions.map(transaction => {
                     payed_amount += transaction.amount - transaction.rest_amount;
-
                     transaction.transaction_data.map((td: any) => {
                         let pay: any = {
                             uuid: td.uuid,
@@ -252,17 +249,18 @@ function WaitingRoom() {
                             payment_date: moment().format('DD-MM-YYYY HH:mm'),
                             status_transaction: td.status_transaction_data,
                             type_transaction: td.type_transaction_data,
-                            data: td.data
+                            data: td.data,
+                            ...(td.insurance && {insurance: td.insurance.uuid}),
+                            ...(td.payment_means && {
+                                payment_means: paymentTypesList.find((pt: {
+                                    slug: string;
+                                }) => pt.slug === td.payment_means.slug)
+                            })
                         }
-                        if (td.insurance)
-                            pay["insurance"] = td.insurance.uuid
-                        if (td.payment_means)
-                            pay["payment_means"] = paymentTypesList.find((pt: {
-                                slug: string;
-                            }) => pt.slug === td.payment_means.slug)
                         payments.push(pay)
                     })
-                })
+                });
+
                 setSelectedPayment({
                     uuid: row?.uuid,
                     payments,

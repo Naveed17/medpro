@@ -8,9 +8,15 @@ import {
     PatientFilter,
     PlaceFilter,
 } from "./overrides";
-import {ActionBarState, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    AppointmentActs,
+    AppointmentDisease,
+    AppointmentReasonsFilter, InsuranceFilter, leftActionBarSelector,
+    setFilter
+} from "@features/leftActionBar";
 import React, {useState} from "react";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRouter} from "next/router";
 import {setSelectedRows} from "@features/table";
@@ -21,6 +27,7 @@ function Patient() {
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [opened, setOpend] = useState("patient");
     const [dataPatient, setDataPatient] = useState([
@@ -69,7 +76,56 @@ function Patient() {
                 </FilterRootStyled>
             ),
         },
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: false,
+            children: (
+                <InsuranceFilter
+                    {...{t}}
+                    OnSearch={(data: { query: any }) => {
+                        dispatch(setFilter({
+                            ...filter,
+                            patient: {
+                                ...filter?.patient,
+                                ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
+                            }
+                        }));
+                    }}/>
+            ),
+        },
+        {
+            heading: {
+                id: "meetingReason",
+                icon: "setting/ic-patient-file",
+                title: "reason_for_consultation",
+            },
+            expanded: false,
+            children: (<AppointmentReasonsFilter/>)
+        },
+        {
+            heading: {
+                id: "meetingActs",
+                icon: "ic-generaliste",
+                title: "acts",
+            },
+            expanded: false,
+            children: (<AppointmentActs/>)
+        },
+        {
+            heading: {
+                id: "meetingDiseases",
+                icon: "setting/medical-history",
+                title: "disease",
+            },
+            expanded: false,
+            children: (<AppointmentDisease/>)
+        }
     ]);
+
     const [dataPlace, setDataPlace] = useState([
         {
             heading: {
@@ -77,7 +133,7 @@ function Patient() {
                 icon: collapse[1].heading.icon,
                 title: collapse[1].heading.title.toLowerCase(),
             },
-            expanded: true,
+            expanded: false,
             children: (
                 <FilterRootStyled>
                     <PlaceFilter

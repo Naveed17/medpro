@@ -164,6 +164,8 @@
   "request-appointment": "requested a new appointment online for the",
   "consultation_reson": "Reason for Consultation",
   "reason-consultation-placeholder": "Choose your reason for consultation",
+  "acts-consultation-placeholder": "Choose your act for consultation",
+  "disease-placeholder": "Enter your disease",
   "consultation_type": "Consultation Type",
   "appintment_date": "Appointment Date",
   "start_the_consultation": "Start the consultation",
@@ -305,7 +307,8 @@
     "finish-dialog": {
       "title": "Consultation Finished with",
       "sub-title": "Consultation Fee",
-      "reschedule": "Reschedule Follow-up"
+      "reschedule": "Reschedule Follow-up",
+      "pay": "Pay"
     },
     "duplication-dialog": {
       "title": "Duplicates detected",
@@ -350,6 +353,8 @@
     "reasons": "Reasons for Consultation",
     "status": "Status",
     "meetingType": "Meeting Type",
+    "meetingActs": "Act RDV",
+    "disease": "Disease",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Home",

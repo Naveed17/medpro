@@ -4,13 +4,17 @@ import {setFilter, resetFilterPatient, resetFilterPayment, setFilterPayment} fro
 export type ActionBarState = {
     query: {
         type?: string;
+        reasons?: string;
         status?: string;
+        acts?: string;
+        disease?: string;
         isOnline?: string;
         patient?: {
             gender?: string;
             birthdate?: string;
             name?: string;
             hasDouble?: boolean;
+            insurances?: string[]
         },
         payment?: {
             insurance?: string[],

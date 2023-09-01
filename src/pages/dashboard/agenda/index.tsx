@@ -10,7 +10,6 @@ import {
     Container, DialogActions,
     Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
-    Theme,
     Typography,
     useMediaQuery,
     useTheme, Zoom
@@ -23,7 +22,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import { useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -36,7 +35,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     DayOfWeek,
-    openDrawer, setCurrentDate, setGroupedByDayAppointments,
+    openDrawer,
+    setCurrentDate,
+    setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -114,7 +115,7 @@ function Agenda() {
     const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
-        selectedEvent, actionSet, openMoveDrawer,
+        selectedEvent, actionSet, openMoveDrawer, openPayDialog,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -143,6 +144,8 @@ function Agenda() {
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [eventStepper, setEventStepper] = useState([
         {
             title: "steppers.tabs.tab-1",
@@ -305,7 +308,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.disease || filter?.status || filter?.acts || filter?.reasons || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -1372,7 +1375,12 @@ function Agenda() {
                     size={"md"}
                     sx={{minHeight: 400}}
                     title={t("config.doc_detail_title", {ns: "patient"})}
-                    {...(!openUploadDialog.loading && {dialogClose: () =>   setOpenUploadDialog({...openUploadDialog, dialog: false})})}
+                    {...(!openUploadDialog.loading && {
+                        dialogClose: () => setOpenUploadDialog({
+                            ...openUploadDialog,
+                            dialog: false
+                        })
+                    })}
                     actionDialog={
                         <DialogActions>
                             <Button
@@ -1445,6 +1453,43 @@ function Agenda() {
                         </>
                     }
                 />
+
+                <Dialog
+                    action={"payment_dialog"}
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 380
+                        }
+                    }}
+                    open={openPayDialog}
+                    data={{
+                        selectedPayment,
+                        setSelectedPayment,
+                        appointment: event?.extendedProps,
+                        patient: event?.extendedProps.patient
+                    }}
+                    size={"lg"}
+                    fullWidth
+                    title={t("payment_dialog_title")}
+                    dialogClose={() => setOpenPaymentDialog(false)}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={event => {
+                                event.stopPropagation();
+                                setOpenPaymentDialog(false);
+                            }} startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <LoadingButton
+                                variant="contained"
+                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
                 <MobileContainer>
                     <Button
                         startIcon={<IconUrl path="ic-filter"/>}

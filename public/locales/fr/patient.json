@@ -52,6 +52,9 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "acts": "Acte",
+    "disease": "Maladie",
+    "insurance": "Assurances",
     "keyword": "Mot clé",
     "more": "Plus",
     "merge-patient": "Fusionner les patients",
@@ -60,6 +63,7 @@
     "place": "Lieu",
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
+    "assurance-placeholder": "Assurance",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
