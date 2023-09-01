@@ -8,7 +8,7 @@ import {
     Button,
     CardContent,
     DialogActions,
-    Drawer,
+    Drawer, Fab,
     Grid,
     LinearProgress,
     Stack,
@@ -71,6 +71,8 @@ import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import { MobileContainer } from "@themes/mobileContainer";
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -167,6 +169,7 @@ function ConsultationInProgress() {
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [openChat, setOpenChat] = useState<boolean>(false);
     const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
     const [requestLoad, setRequestLoad] = useState<boolean>(false);
     const [isHistory, setIsHistory] = useState(false);
@@ -1083,6 +1086,17 @@ function ConsultationInProgress() {
                         <ConsultationFilter/>
                     </DrawerBottom>
 
+                    <Fab sx={{
+                        position:"fixed",
+                        bottom: 76,
+                        right: 30
+                    }}
+                         onClick={()=>{setOpenChat(true)}}
+                         color={"primary"}
+                         aria-label="edit">
+                        <SmartToyOutlinedIcon/>
+                    </Fab>
+
                     <Stack
                         direction={{md: "row", xs: "column"}}
                         position="fixed"
@@ -1124,6 +1138,21 @@ function ConsultationInProgress() {
                                 scroll
                                 minWidth={726}/>
                         </Box>
+                    </Drawer>
+
+                    <Drawer
+                        anchor={"right"}
+                        open={openChat}
+                        dir={direction}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                width: {xs:"100%",sm:"40%"}
+                            }
+                        }}
+                        onClose={() => {
+                            setOpenChat(false)
+                        }}>
+                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat}}/>
                     </Drawer>
 
                     <DrawerBottom
