@@ -225,7 +225,7 @@ function Cashbox() {
         if (filterCB.payment_means.length > 0) {
             txt += ' ('
             // @ts-ignore
-            filterCB.payment_means.split(',').map((pm: any) => console.log(txt += `${pmList?.find(pml => pml.uuid === pm)?.name},`))
+            filterCB.payment_means.split(',').map((pm: any) => txt += `${pmList?.find(pml => pml.uuid === pm)?.name},`)
             txt = txt.replace(/.$/, ")")
         }
         setTxtFilter(txt)

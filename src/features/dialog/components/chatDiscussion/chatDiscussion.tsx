@@ -2,7 +2,7 @@ import {Box, Chip, Fab, IconButton, Stack, TextField, Typography} from '@mui/mat
 import {useTranslation} from 'next-i18next'
 import React, {useEffect, useRef, useState} from 'react';
 import dynamic from "next/dynamic";
-import {useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -10,13 +10,14 @@ import {consultationSelector} from "@features/toolbar";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function ChatDiscussionDialog({...props}) {
     const {data} = props;
 
-    const {appointment, exam, reasons, app_uuid,setOpenChat} = data
+    const {appointment, exam, reasons, app_uuid, setOpenChat, patient} = data
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -31,13 +32,17 @@ function ChatDiscussionDialog({...props}) {
     const listRef = useRef<any>();
 
     const suggestions = [
-        {name: 'opinion', message: 'youropinion'},
+        {name: 'opinion', message: 'opinion'},
         {name: 'health', message: 'askHealth'},
         {name: 'advice', message: 'fiveadvice'},
     ]
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
+    const {data: httpChatResponse} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${appointment.patient.uuid}/chat`
+    }, SWRNoValidateConfig);
     const msgGenerator = (todo: string) => {
         let msg = '';
         if (medicalProfessionalData) {
@@ -102,7 +107,7 @@ function ChatDiscussionDialog({...props}) {
                 })
             }
 
-            msg += `. ${todo} `
+            msg += `. ${t('chat.note')} ,; ${todo} `
         }
 
         return msg;
@@ -132,11 +137,32 @@ function ChatDiscussionDialog({...props}) {
             setLoadingContainer(false);
     }, [listRef])
 
+    useEffect(() => {
+        if (httpChatResponse) {
+            let _messages: { from: string, to: string, message: string }[] = [];
+            const data = (httpChatResponse as HttpResponse).data;
+            data.map((msg: { request: any; message: any; }) => {
+                _messages = [
+                    {from: 'chat', to: 'me', message: msg.message},
+                    {
+                        from: 'me',
+                        to: 'chat',
+                        message: msg.request.split(',;')[msg.request.split(',;').length - 1]
+                    },
+                    ..._messages
+
+                ]
+            });
+            setMessages([..._messages])
+        }
+    }, [httpChatResponse])
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <Stack>
-            <IconButton onClick={()=>{setOpenChat(false)}} sx={{
+            <IconButton onClick={() => {
+                setOpenChat(false)
+            }} sx={{
                 display: {sm: "none"},
                 position: "absolute",
                 right: 20,
@@ -157,8 +183,8 @@ function ChatDiscussionDialog({...props}) {
                     <Typography fontSize={12} color={"grey"} mb={1}
                                 ml={2}>{t('chat.wait')}</Typography>
                 }
-                {messages.map((msg) => (
-                    <>
+                {messages.map((msg,index) => (
+                    <Box key={`msg-${index}`}>
                         {
                             msg.from !== "chat" ? <ChatMsg
                                     avatar={''}
@@ -171,18 +197,24 @@ function ChatDiscussionDialog({...props}) {
                                     messages={[msg.message]}
                                 />
                         }
-                    </>
+                    </Box>
                 ))}
 
             </div>}
             <Box padding={2} ref={listRef} style={{
                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
             }}>
-                {suggestions.map((suggestion) => (
-                    <Chip key={suggestion.name}
+                {suggestions.map((suggestion,index) => (
+                    <Chip key={`${suggestion} ${index}`}
                           disabled={loadingResponse}
                           style={{marginRight: 5, marginBottom: 5}}
                           onClick={() => {
+                              setMessages([{
+                                  from: 'me',
+                                  to: 'chat',
+                                  message: t(`chat.${suggestion.message}`)
+                              }, ...messages])
+
                               sendToAI(t(`chat.${suggestion.message}`), {
                                   from: 'me',
                                   to: 'chat',
