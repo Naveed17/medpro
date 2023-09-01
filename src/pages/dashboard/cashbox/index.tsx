@@ -145,6 +145,7 @@ function Cashbox() {
 
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false)
+    const [txtFilter, setTxtFilter] = useState("")
     const [patientDetailDrawer, setPatientDetailDrawer] =
         useState<boolean>(false);
     const isAddAppointment = false;
@@ -216,6 +217,20 @@ function Cashbox() {
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const txtGenerator = () => {
+        let txt = ''
+        if (filterCB.start_date === filterCB.end_date)
+            txt = `Le ${filterCB.start_date}`
+        else txt = `Du ${filterCB.start_date} à ${filterCB.end_date}`
+        if (filterCB.payment_means.length > 0) {
+            txt += ' ('
+            // @ts-ignore
+            filterCB.payment_means.split(',').map((pm: any) => console.log(txt += `${pmList?.find(pml => pml.uuid === pm)?.name},`))
+            txt = txt.replace(/.$/, ")")
+        }
+        setTxtFilter(txt)
+    }
+
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
@@ -223,6 +238,7 @@ function Cashbox() {
         setTotalCheck(data.period_check);
         setToReceive(data.total_insurance_amount);
         setCollected(data.total_collected);
+        txtGenerator()
         if (data.transactions) setRows(data.transactions.reverse());
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
@@ -367,7 +383,7 @@ function Cashbox() {
                     alignItems={{xs: "flex-start", md: "center"}}
                 >
                     <Typography>
-                        <b></b>
+                        <b>{txtFilter}</b>
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
@@ -384,7 +400,7 @@ function Cashbox() {
                                     I
                                 </Typography>
                             </>}
-                            <Typography>{t("total")}</Typography>
+
                             <Typography variant="h6">
                                 {total} <span style={{fontSize: 10}}>{devise}</span>
                             </Typography>
