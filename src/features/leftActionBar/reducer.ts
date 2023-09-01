@@ -1,10 +1,14 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {setFilter, resetFilterPatient, resetFilterPayment, setFilterPayment} from "./actions";
+import AppointmentDisease from "@features/leftActionBar/components/agenda/components/appointmentDisease";
 
 export type ActionBarState = {
     query: {
         type?: string;
+        reasons?: string;
         status?: string;
+        acts?: string;
+        disease?: string;
         isOnline?: string;
         patient?: {
             gender?: string;

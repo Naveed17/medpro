@@ -8,7 +8,13 @@ import {
     PatientFilter,
     PlaceFilter,
 } from "./overrides";
-import {ActionBarState, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    AppointmentActs,
+    AppointmentDisease,
+    AppointmentReasonsFilter,
+    setFilter
+} from "@features/leftActionBar";
 import React, {useState} from "react";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -69,7 +75,35 @@ function Patient() {
                 </FilterRootStyled>
             ),
         },
+        {
+            heading: {
+                id: "meetingReason",
+                icon: "setting/ic-patient-file",
+                title: "reason_for_consultation",
+            },
+            expanded: false,
+            children: (<AppointmentReasonsFilter/>)
+        },
+        {
+            heading: {
+                id: "meetingActs",
+                icon: "ic-generaliste",
+                title: "acts",
+            },
+            expanded: false,
+            children: (<AppointmentActs/>)
+        },
+        {
+            heading: {
+                id: "meetingDiseases",
+                icon: "setting/medical-history",
+                title: "disease",
+            },
+            expanded: false,
+            children: (<AppointmentDisease/>)
+        }
     ]);
+
     const [dataPlace, setDataPlace] = useState([
         {
             heading: {
@@ -77,7 +111,7 @@ function Patient() {
                 icon: collapse[1].heading.icon,
                 title: collapse[1].heading.title.toLowerCase(),
             },
-            expanded: true,
+            expanded: false,
             children: (
                 <FilterRootStyled>
                     <PlaceFilter

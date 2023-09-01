@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import IconUrl from "@themes/urlIcon";
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
+import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
 import * as React from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
@@ -20,14 +21,43 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {useState} from "react";
+import {useRequestMutation} from "@lib/axios";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function ConsultationPopupAction({...props}) {
-    const {data, OnSchedule} = props
+    const {data, OnSchedule, OnPay} = props
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("common");
-    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n`: ""}, ${data.instruction}`);
+    const {config: agenda, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n` : ""}, ${data.instruction}`);
+
+    const {trigger: triggerTransactions} = useRequestMutation(null, "agenda/appointment/transactions");
+
+    const getAllTransactions = () => {
+        triggerTransactions({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.appUuid}/transactions/${router.locale}`,
+        }).then((result) => {
+            const transactions = (result?.data as HttpResponse)?.data;
+            dispatch(setSelectedEvent({
+                ...appointment,
+                extendedProps: {
+                    ...appointment?.extendedProps,
+                    transactions
+                }
+            } as any));
+            OnPay();
+        });
+    }
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <ConsultationPopupActionStyled>
@@ -76,6 +106,11 @@ function ConsultationPopupAction({...props}) {
                     </List>
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
+                    <Button
+                        onClick={getAllTransactions}
+                        variant="contained" startIcon={<PaymentRoundedIcon/>}>
+                        {t("dialogs.finish-dialog.pay")}
+                    </Button>
                     <Button
                         onClick={OnSchedule}
                         variant="contained" startIcon={<LocalHospitalOutlinedIcon/>}>

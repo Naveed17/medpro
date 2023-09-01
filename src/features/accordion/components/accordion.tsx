@@ -39,8 +39,7 @@ function Accordion({...props}) {
                 square
                 expanded={item.expanded} //state.expanded === item.heading.title
                 onChange={handleChange(index)}
-                key={`collapse-${index}`}
-            >
+                key={`collapse-${index}`}>
                 <MuiAccordionSummary
                     expandIcon={
                         <>
@@ -54,21 +53,18 @@ function Accordion({...props}) {
                                         textAlign: "center",
                                         borderRadius: 2.688,
                                         mr: 1,
-                                    }}
-                                >
+                                    }}>
                                     {badge}
                                 </Box>
                             )}
                             <Icon path={item.expanded ? "arrow-up-table" : "ic-expand-more"}/>
                         </>
-                    }
-                >
+                    }>
                     <Box sx={{display: "flex", alignItems: "center"}}>
                         <Icon path={item.heading.icon}/>
                         <Typography
                             variant="body1"
-                            sx={{color: "text.secondary", ml: 1}}
-                        >
+                            sx={{color: "text.secondary", ml: 1}}>
                             {upperFirst(t(item.heading.title))}
                         </Typography>
                     </Box>

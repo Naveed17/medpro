@@ -52,6 +52,8 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "acts": "Acte",
+    "disease": "Maladie",
     "keyword": "Mot clé",
     "more": "Plus",
     "merge-patient": "Fusionner les patients",

@@ -592,7 +592,7 @@ function Patient() {
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type || filter?.patient) {
+        if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
         }
