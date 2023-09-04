@@ -44,8 +44,6 @@ function AppointmentActs() {
                     e.stopPropagation();
                     const actsUuid = newValue.map(act => act.uuid);
                     setSelectedActs(actsUuid);
-                    console.log("actsUuid", actsUuid, query);
-
                     dispatch(setFilter({acts: actsUuid.length === 0 ? undefined : actsUuid.join(",")}));
                 }}
                 sx={{color: "text.secondary"}}
