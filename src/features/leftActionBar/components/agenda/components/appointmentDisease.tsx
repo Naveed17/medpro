@@ -1,15 +1,13 @@
-import {Autocomplete, Divider, FormControl, Stack, TextField} from "@mui/material";
-import React, {KeyboardEvent, useState} from "react";
+import {Autocomplete, FormControl, Stack, TextField} from "@mui/material";
+import React, {useState} from "react";
 import {debounce} from "lodash";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
-import {useTranslation} from "next-i18next";
 import CircularProgress from "@mui/material/CircularProgress";
 import {useRequest} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {arrayUniqueByKey} from "@lib/hooks";
 
 function AppointmentDisease() {
@@ -21,7 +19,7 @@ function AppointmentDisease() {
     const [localFilter, setLocalFilter] = useState("");
     const [selectedDisease, setSelectedDisease] = useState<string>("");
 
-    const {data: httpDiseasesResponse} = useRequest({
+    const {data: httpDiseasesResponse, isLoading} = useRequest({
         method: "GET",
         url: `/api/private/diseases/${router.locale}?name=${localFilter}`
     }, SWRNoValidateConfig);
@@ -57,6 +55,7 @@ function AppointmentDisease() {
                 onInputChange={(event, newInputValue) => {
                     debouncedOnChange(newInputValue);
                 }}
+                getOptionLabel={(option) => option.title}
                 renderOption={(props, option, index) => (
                     <Stack key={index + option.title}>
                         <MenuItem
@@ -74,7 +73,7 @@ function AppointmentDisease() {
                             ...params.InputProps,
                             endAdornment: (
                                 <React.Fragment>
-                                    {!diseases ?
+                                    {isLoading ?
                                         <CircularProgress color="inherit"
                                                           size={20}/> : null}
                                     {params.InputProps.endAdornment}
