@@ -236,7 +236,6 @@ function Patient() {
     const [popoverActions, setPopoverActions] = useState(menuPopoverData);
     const [loading] = useState<boolean>(status === "loading");
     const [rows, setRows] = useState<PatientModel[]>([]);
-    const [patientData, setPatientData] = useState<any>(null);
     const [page, setPage] = useState<any>(router.query.page || 1);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
@@ -559,15 +558,15 @@ function Patient() {
                 const duplications = checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
                 if (duplications?.length > 0) {
                     const patientIndex = rows.findIndex(row => row.uuid === selectedPatient?.uuid);
-                    const updatedPatients = [...patientData.list];
-                    setPatientData({
+                    /*const updatedPatients = [...patientData.list];
+                    patientData =({
                         ...patientData,
                         list: [
                             ...updatedPatients.slice(0, patientIndex),
                             {...updatedPatients[patientIndex], hasDouble: true},
                             ...updatedPatients.slice(patientIndex + 1)
                         ]
-                    });
+                    });*/
                 }
                 break;
             case "onDeletePatient":
@@ -587,7 +586,6 @@ function Patient() {
     useEffect(() => {
         if (httpPatientsResponse) {
             const patientsResponse = (httpPatientsResponse as HttpResponse)?.data;
-            setPatientData(patientsResponse)
             if (isMobile && localFilter?.length > 0) {
                 setRows(patientsResponse.list)
             } else {
@@ -615,6 +613,8 @@ function Patient() {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -657,9 +657,9 @@ function Patient() {
                         {...{t, insurances, mutatePatient: mutate}}
                         headers={headCells}
                         handleEvent={handleTableActions}
-                        rows={patientData?.list}
-                        total={patientData?.total}
-                        totalPages={patientData?.totalPages}
+                        rows={patientData?.list ?? []}
+                        total={patientData?.total ?? 0}
+                        totalPages={patientData?.totalPages ?? 1}
                         from={"patient"}
                         pagination
                         loading={!Boolean(httpPatientsResponse)}
