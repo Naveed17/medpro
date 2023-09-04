@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import React, {useState} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import {setFilter} from "@features/leftActionBar";
+import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import FormControl from "@mui/material/FormControl";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
@@ -22,6 +22,7 @@ function AppointmentReasonsFilter({...props}) {
 
     const {t} = useTranslation('common');
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const {data: httpConsultReasonResponse, isLoading} = useRequest(medicalEntityHasUser ? {
         method: "GET",
@@ -44,7 +45,7 @@ function AppointmentReasonsFilter({...props}) {
                     e.stopPropagation();
                     const reasonsUuid = newValue.map(reason => reason.uuid);
                     setSelectedReasons(reasonsUuid);
-                    dispatch(setFilter({reasons: reasonsUuid.length === 0 ? undefined : reasonsUuid.join(",")}));
+                    dispatch(setFilter({...filter, reasons: reasonsUuid.length === 0 ? undefined : reasonsUuid.join(",")}));
                 }}
                 sx={{color: "text.secondary"}}
                 options={reasons?.filter(item => item.isEnabled) ?? []}

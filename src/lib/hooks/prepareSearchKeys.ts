@@ -17,7 +17,7 @@ export const prepareSearchKeys = (filter: ActionBarState | undefined) => {
             }
 
             if (param[0] === "reasons" && param[1]) {
-                query += `&consultionReasons=${param[1]}`;
+                query += `&consultationReasons=${param[1]}`;
             }
         });
     }

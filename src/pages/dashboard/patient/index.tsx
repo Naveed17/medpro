@@ -600,8 +600,10 @@ function Patient() {
         if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
+        } else if (localFilter.length > 0) {
+            setLocalFilter("")
         }
-    }, [filter]);
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && !lock) {
