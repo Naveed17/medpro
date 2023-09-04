@@ -556,18 +556,7 @@ function Patient() {
                 break;
             case "onCheckPatientDuplication":
                 const duplications = checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
-                if (duplications?.length > 0) {
-                    const patientIndex = rows.findIndex(row => row.uuid === selectedPatient?.uuid);
-                    /*const updatedPatients = [...patientData.list];
-                    patientData =({
-                        ...patientData,
-                        list: [
-                            ...updatedPatients.slice(0, patientIndex),
-                            {...updatedPatients[patientIndex], hasDouble: true},
-                            ...updatedPatients.slice(patientIndex + 1)
-                        ]
-                    });*/
-                }
+
                 break;
             case "onDeletePatient":
                 setDeleteDialog(true);
