@@ -364,12 +364,8 @@ function OnStepPatient({...props}) {
 
     useEffect(() => {
         if (countries) {
-            const defaultCountry = countries.find(country => country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
             setCountriesData(countries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-
-            /*!(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
-           !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);*/
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
