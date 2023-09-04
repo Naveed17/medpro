@@ -4,7 +4,6 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     addPatientSelector,
     appointmentSelector,
-    onAddPatient,
     onResetPatient,
     resetSubmitAppointment
 } from "@features/tabPanel";
@@ -13,7 +12,6 @@ import dynamic from "next/dynamic";
 import {resetDuplicated} from "@features/duplicateDetected";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 
 function AddPatientStep3({...props}) {
     const {onNext, selectedPatient, OnCustomAction} = props;
