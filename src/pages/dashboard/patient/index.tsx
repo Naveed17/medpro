@@ -599,7 +599,6 @@ function Patient() {
     useEffect(() => {
         if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
             const query = prepareSearchKeys(filter as any);
-            console.log("patient query", query, filter)
             setLocalFilter(query);
         }
     }, [filter]);
