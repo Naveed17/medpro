@@ -17,7 +17,7 @@ function AppointmentDisease() {
     const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [localFilter, setLocalFilter] = useState("");
-    const [selectedDisease, setSelectedDisease] = useState<string>("");
+    const [selectedDisease, setSelectedDisease] = useState({title: ""});
 
     const {data: httpDiseasesResponse, isLoading} = useRequest({
         method: "GET",
@@ -42,7 +42,7 @@ function AppointmentDisease() {
                 value={selectedDisease}
                 onChange={(e, newValue: any) => {
                     e.stopPropagation();
-                    setSelectedDisease(newValue?.title ?? "");
+                    setSelectedDisease({title: newValue?.title ?? ""});
                     dispatch(setFilter({...filter, disease: !newValue ? undefined : newValue.title}));
                 }}
                 filterOptions={(options, params) => {
@@ -55,7 +55,7 @@ function AppointmentDisease() {
                 onInputChange={(event, newInputValue) => {
                     debouncedOnChange(newInputValue);
                 }}
-                getOptionLabel={(option) => option.title}
+                getOptionLabel={(option) => option?.title ?? ""}
                 renderOption={(props, option, index) => (
                     <Stack key={index + option.title}>
                         <MenuItem
