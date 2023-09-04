@@ -18,7 +18,7 @@ function AutoComplete({...props}) {
         onSearchChange(value);
     }, [onSearchChange]);
 
-    const handleOnAddPatient = useCallback((event) => {
+    const handleOnAddPatient = useCallback((event: any) => {
         onAddPatient(event);
     }, [onAddPatient]);
 
