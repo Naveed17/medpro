@@ -555,8 +555,7 @@ function Patient() {
                 setPatientDetailDrawer(true);
                 break;
             case "onCheckPatientDuplication":
-                const duplications = checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
-
+                checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
                 break;
             case "onDeletePatient":
                 setDeleteDialog(true);
