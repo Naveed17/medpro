@@ -62,8 +62,7 @@ function InsuranceFilter({...props}) {
                     onSelectAll: (selectedAll) => void handleSelectAll({insurance: selectedAll ? [] : insurancesData}),
                     selectedAll,
                     indeterminate: !!queryState.insurance.length && !selectedAll,
-                }}
-            >
+                }}>
                 <Autocomplete
                     size={"small"}
                     id={"assurance"}
