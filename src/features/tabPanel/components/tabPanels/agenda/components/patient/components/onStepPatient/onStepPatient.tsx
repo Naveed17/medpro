@@ -76,7 +76,6 @@ export const MyTextInput: any = memo(({...props}) => {
 })
 MyTextInput.displayName = "TextField";
 
-
 const ExpandMore = styled((props: ExpandMoreProps) => {
     const {expand, ...other} = props;
     return <IconButton {...other} />;
@@ -299,7 +298,7 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const states = (httpStatesResponse as HttpResponse)?.data as any[];
+    const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -351,7 +350,7 @@ function OnStepPatient({...props}) {
         const insurance = [...values.insurance];
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
-    };
+    }
 
     useEffect(() => {
         if (errors.hasOwnProperty("firstName") ||
@@ -362,15 +361,15 @@ function OnStepPatient({...props}) {
         }
     }, [errors, touched]);
 
+
     useEffect(() => {
         if (countries) {
-            const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
+            const defaultCountry = countries.find(country => country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
             setCountriesData(countries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
 
-            !(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
-            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
+            /*!(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
+           !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);*/
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -389,8 +388,7 @@ function OnStepPatient({...props}) {
                 component={Form}
                 autoComplete="off"
                 noValidate
-                onSubmit={handleSubmit}
-            >
+                onSubmit={handleSubmit}>
                 <Stack spacing={2} className="inner-section">
                     <div ref={topRef}/>
                     <Box>
@@ -445,8 +443,7 @@ function OnStepPatient({...props}) {
                                     variant="body2"
                                     color="text.secondary"
                                     gutterBottom
-                                    component="span"
-                                >
+                                    component="span">
                                     {t("first-name")}{" "}
                                     <Typography component="span" color="error">
                                         *
@@ -471,8 +468,7 @@ function OnStepPatient({...props}) {
                                     variant="body2"
                                     color="text.secondary"
                                     gutterBottom
-                                    component="span"
-                                >
+                                    component="span">
                                     {t("last-name")}{" "}
                                     <Typography component="span" color="error">
                                         *
@@ -586,8 +582,7 @@ function OnStepPatient({...props}) {
                             color={"primary"}
                             onClick={handleExpandClick}
                             aria-expanded={expanded}
-                            aria-label="show more"
-                        >
+                            aria-label="show more">
                             <ExpandMoreIcon/>
                             <Typography>{expanded ? t("less-detail") : t("more-detail")}</Typography>
                         </ExpandMore>
@@ -605,8 +600,7 @@ function OnStepPatient({...props}) {
                                 variant="body2"
                                 color="text.secondary"
                                 gutterBottom
-                                component="span"
-                            >
+                                component="span">
                                 {t("date-of-birth")}
                             </Typography>
                             <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
@@ -643,8 +637,7 @@ function OnStepPatient({...props}) {
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
-                                gutterBottom
-                            >
+                                gutterBottom>
                                 {t("nationality")}
                             </Typography>
                             <FormControl fullWidth>
@@ -654,8 +647,7 @@ function OnStepPatient({...props}) {
                                     autoHighlight
                                     disableClearable
                                     size="small"
-                                    value={countriesData.find(country => country.uuid === getFieldProps("nationality").value) ?
-                                        countriesData.find(country => country.uuid === getFieldProps("nationality").value) : ""}
+                                    value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
                                     onChange={(e, v: any) => {
                                         setFieldValue("nationality", v.uuid);
                                     }}
@@ -663,7 +655,7 @@ function OnStepPatient({...props}) {
                                     options={countriesData}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.nationality ?? ""}
-                                    isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
+                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
                                     renderOption={(props, option) => (
                                         <MenuItem
                                             {...props}
@@ -728,8 +720,7 @@ function OnStepPatient({...props}) {
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    gutterBottom
-                                >
+                                    gutterBottom>
                                     {t("country")}
                                 </Typography>
                                 <FormControl fullWidth>
@@ -739,8 +730,7 @@ function OnStepPatient({...props}) {
                                         autoHighlight
                                         disableClearable
                                         size="small"
-                                        value={countriesData.find(country => country.uuid === getFieldProps("country").value) ?
-                                            countriesData.find(country => country.uuid === getFieldProps("country").value) : ""}
+                                        value={(countriesData.find(country => country.uuid === values.country) ?? null) as any}
                                         onChange={(e, v: any) => {
                                             setFieldValue("country", v.uuid);
                                         }}
@@ -809,14 +799,13 @@ function OnStepPatient({...props}) {
                                                 autoHighlight
                                                 disableClearable
                                                 size="small"
-                                                value={states?.find(country => country.uuid === getFieldProps("region").value) ?
-                                                    states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                value={states?.find(country => country.uuid === values.region) ?? null}
                                                 onChange={(e, state: any) => {
                                                     setFieldValue("region", state.uuid);
                                                     setFieldValue("zip_code", state.zipCode);
                                                 }}
                                                 sx={{color: "text.secondary"}}
-                                                options={states ? states : []}
+                                                options={states}
                                                 loading={states?.length === 0}
                                                 getOptionLabel={(option) => option?.name ?? ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
@@ -964,7 +953,7 @@ function OnStepPatient({...props}) {
                                                                     id={"assurance"}
                                                                     options={insurances ? insurances : []}
                                                                     getOptionLabel={option => option?.name ?? ""}
-                                                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                                                     renderOption={(params, insuranceItem) => (
                                                                         <MenuItem
                                                                             {...params}

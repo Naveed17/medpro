@@ -74,11 +74,9 @@ function AutoCompleteButton({...props}) {
                             <ClickAwayListener onClickAway={handleClickAway}>
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
+                                        {...{data, loading, onSearchChange}}
                                         onAddPatient={OnClickAction}
                                         t={translation}
-                                        onSearchChange={onSearchChange}
-                                        data={data}
-                                        loading={loading}
                                         onSelectData={onSubmitPatient}
                                     />
                                 </Box>

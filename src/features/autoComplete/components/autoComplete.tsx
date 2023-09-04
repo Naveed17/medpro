@@ -18,6 +18,10 @@ function AutoComplete({...props}) {
         onSearchChange(value);
     }, [onSearchChange]);
 
+    const handleOnAddPatient = useCallback((event) => {
+        onAddPatient(event);
+    }, [onAddPatient]);
+
     const handleListItemClick = ({...props}) => {
         onSelectData(props);
     };
@@ -34,8 +38,7 @@ function AutoComplete({...props}) {
         <RootStyled>
             <Paper
                 component="form"
-                sx={{p: '2px 4px', display: 'flex', alignItems: 'center', width: 400}}
-            >
+                sx={{p: '2px 4px', display: 'flex', alignItems: 'center', width: 400}}>
                 <InputBase
                     sx={{ml: 1, flex: 1}}
                     placeholder={t("stepper-2.search_placeholder")}
@@ -53,12 +56,12 @@ function AutoComplete({...props}) {
                     <IconButton
                         size="small"
                         color="primary"
-                        onClick={onAddPatient}>
+                        onClick={handleOnAddPatient}>
                         <AddIcon/>
                     </IconButton>
                     :
                     <Button
-                        onClick={onAddPatient}
+                        onClick={handleOnAddPatient}
                         size={"small"}
                         color="primary"
                         sx={{m: .5}} aria-label="directions">

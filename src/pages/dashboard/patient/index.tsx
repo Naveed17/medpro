@@ -50,7 +50,7 @@ import {
     dialogMoveSelector,
     PatientDetail,
 } from "@features/dialog";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
@@ -89,6 +89,7 @@ import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -575,6 +576,10 @@ function Patient() {
         }
     }
 
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
+
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
     });
@@ -594,6 +599,7 @@ function Patient() {
     useEffect(() => {
         if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
             const query = prepareSearchKeys(filter as any);
+            console.log("patient query", query, filter)
             setLocalFilter(query);
         }
     }, [filter]);
