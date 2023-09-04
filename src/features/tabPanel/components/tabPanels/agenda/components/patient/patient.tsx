@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {Box} from "@mui/material";
