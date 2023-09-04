@@ -50,7 +50,7 @@ import {
     dialogMoveSelector,
     PatientDetail,
 } from "@features/dialog";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
@@ -89,6 +89,7 @@ import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -574,6 +575,10 @@ function Patient() {
                 break;
         }
     }
+
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
 
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);

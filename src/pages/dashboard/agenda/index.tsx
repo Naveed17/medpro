@@ -322,7 +322,6 @@ function Agenda() {
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        // dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});

@@ -13,6 +13,7 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function AppointmentActs() {
     const {medical_professional} = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -22,11 +23,10 @@ function AppointmentActs() {
 
     const {data: httpActSpeciality} = useRequest(medical_professional ? {
         method: "GET",
-        url: `/api/public/acts/${router.locale}`,
-        params: {["specialities[0]"]: medical_professional.specialities[0].speciality.uuid}
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
+    const acts = (httpActSpeciality as HttpResponse)?.data.map((data: any) => data.act) as ActModel[];
 
     return (
         <FormControl component="form" fullWidth>
@@ -42,7 +42,7 @@ function AppointmentActs() {
                     e.stopPropagation();
                     const actsUuid = newValue.map(act => act.uuid);
                     setSelectedActs(actsUuid);
-                    dispatch(setFilter({acts: actsUuid.join(",")}));
+                    dispatch(setFilter({acts: actsUuid.length === 0 ? undefined : actsUuid.join(",")}));
                 }}
                 sx={{color: "text.secondary"}}
                 options={acts ?? []}
@@ -83,7 +83,12 @@ function AppointmentActs() {
                                    ),
                                }}
                                placeholder={t("acts-consultation-placeholder")}
-                               sx={{paddingLeft: 0}}
+                               sx={{
+                                   paddingLeft: 0,
+                                   whiteSpace: "nowrap",
+                                   overflow: "hidden",
+                                   textOverflow: "ellipsis"
+                               }}
                                variant="outlined" fullWidth/>}/>
         </FormControl>)
 }

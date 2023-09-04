@@ -44,7 +44,7 @@ function AppointmentReasonsFilter({...props}) {
                     e.stopPropagation();
                     const reasonsUuid = newValue.map(reason => reason.uuid);
                     setSelectedReasons(reasonsUuid);
-                    dispatch(setFilter({reasons: reasonsUuid.join(",")}));
+                    dispatch(setFilter({reasons: reasonsUuid.length === 0 ? undefined : reasonsUuid.join(",")}));
                 }}
                 sx={{color: "text.secondary"}}
                 options={reasons?.filter(item => item.isEnabled) ?? []}
