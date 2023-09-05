@@ -4,6 +4,7 @@ import {
     Button,
     Card,
     CardContent,
+    Checkbox,
     Container,
     Dialog,
     DialogActions,
@@ -12,24 +13,21 @@ import {
     Divider,
     FormControlLabel,
     FormHelperText,
+    Grid,
+    IconButton,
     List,
     ListItemButton,
     ListItemText,
     ListSubheader,
+    Paper,
+    Radio,
     Select,
+    Stack,
     Tab,
     Tabs,
     TextField,
     Theme,
-} from "@mui/material";
-import {
-    Grid,
-    Paper,
-    Stack,
     Typography,
-    IconButton,
-    Checkbox,
-    Radio,
     useMediaQuery,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -43,7 +41,10 @@ import IconUrl from "@themes/urlIcon";
 import {
     Dialog as CustomDialog,
     dialogSelector,
+    dosageMeal,
+    duration,
     handleDrawerAction,
+    initPrescriptionCycleData,
     ModelPrescriptionList,
     prescriptionSelector,
     setParentModel,
@@ -52,17 +53,13 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import {motion, AnimatePresence} from "framer-motion";
+import {AnimatePresence, motion} from "framer-motion";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {
-    a11yProps,
-    useMedicalProfessionalSuffix,
-    useLastPrescription,
-} from "@lib/hooks";
+import {a11yProps, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import useSWRMutation from "swr/mutation";
@@ -72,11 +69,6 @@ import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
-import {
-    dosageMeal,
-    initPrescriptionCycleData,
-    duration,
-} from "@features/dialog";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {useSession} from "next-auth/react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -1214,12 +1206,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 />
                                                             )}
                                                         </Stack>
-                                                        <IconButton
+                                                        {index !== 0 && <IconButton
                                                             onClick={() => handleRemoveCycle(idx, innerItem)}
                                                             className="btn-del"
                                                             disableRipple>
                                                             <IconUrl path="icdelete"/>
-                                                        </IconButton>
+                                                        </IconButton>}
                                                     </CardContent>
                                                 </Card>
                                             ))}
@@ -1408,6 +1400,23 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             </React.Fragment>
                                                         }
                                                     />
+                                                    <IconButton
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setTimeout(() => {
+                                                                (refs.current as any)[index]?.scrollIntoView({
+                                                                    behavior: "smooth",
+                                                                });
+                                                            }, 100);
+                                                        }}
+
+                                                        disableRipple>
+                                                        <IconUrl
+                                                            width={12}
+                                                            height={12}
+                                                            path="ic-edit"
+                                                        />
+                                                    </IconButton>
                                                     <IconButton
                                                         onClick={(event) => {
                                                             event.stopPropagation();
