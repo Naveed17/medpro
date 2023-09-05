@@ -12,8 +12,6 @@ const ChatMsg = ({...props}) => {
         saveDoc,t
     } = props;
 
-    console.log(messages)
-
     return (
         <MsgStyled
             container
