@@ -1,5 +1,5 @@
 import {Box, Button, DialogActions, LinearProgress, Stack, Typography} from '@mui/material'
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
 import {useRequest, useRequestMutation} from "@lib/axios";
