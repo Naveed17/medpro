@@ -198,11 +198,13 @@ function PreviewDialog({...props}) {
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                            txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                             if (state.birthdate)
                                 txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
                             if (state.cin)
                                 txt = txt.replaceAll('{cin}', state.cin)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
+                            txt = txt.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];

@@ -415,6 +415,12 @@
       "askHealth": "Quel est l'état de santé actuel du patient ?",
       "advice": "Conseils au patient",
       "fiveadvice": "donnez moi 5 conseils au patient",
+      "certif": "Certificat Médical",
+      "certif_content": "ecrivez contenu d'une certificat Médical d'Absence au Travail",
+      "rapportInit": "Rapport de consultation initiale",
+      "ri_content": "ecrivez un contenu d'un rapport rapport de consultation initiale",
+      "ro": "Rapport d'orientation et d'éducation du patient",
+      "ro_content": "ecrivez un contenu d'un rapport d'orientation et d'éducation du patient",
       "im": "Je suis un",
       "mypatient": "mon patient",
       "sexe": "de sexe",
@@ -430,9 +436,10 @@
       "treatment": "et j'ai recommandé les traitements suivants",
       "analyses": "J'ai demandé les analyses suivante",
       "mi": "J'ai demandé des imageries médicals",
-      "note": "(sans mentionner dans la réponse que cela est générer par AI)",
+      "note": "sans mentionner dans la réponse que cela est générer par AI",
       "youropinion": "Que pensez-vous?",
-      "wait": "MedAI est en train d'écrire..."
+      "wait": "MedAI est en train d'écrire...",
+      "asDoc": "Créer document"
     }
   },
   "table": {
