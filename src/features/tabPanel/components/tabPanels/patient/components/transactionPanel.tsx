@@ -95,17 +95,9 @@ function TransactionPanel({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const [loading, setLoading] = useState(true);
-    const [pmList, setPmList] = useState([]);
-    const [rows, setRows] = useState<any[]>([]);
-    /*
-        const [total, setTotal] = useState(0);
-        const [toReceive, setToReceive] = useState(0);
-    */
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
@@ -115,32 +107,10 @@ function TransactionPanel({...props}) {
         url: `/api/public/payment-means/${router.locale}`
     }, SWRNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequest({
+    const {data: httpTransactionsResponse, mutate: mutateTransctions, isLoading} = useRequest({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`
     });
-
-    useEffect(() => {
-        if (httpTransactionsResponse) {
-            const data = (httpTransactionsResponse as HttpResponse)?.data
-            /*
-                        setTotal(data.total_amount)
-                        setToReceive(data.total_insurance_amount);
-            */
-            if (data.transactions)
-                setRows(data.transactions.reverse());
-
-            setLoading(false);
-        }
-    }, [httpTransactionsResponse]);
-
-    useEffect(() => {
-        if (paymentMeansHttp) {
-            const pList = (paymentMeansHttp as HttpResponse).data
-            setPmList(pList);
-        }
-    }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
-
 
     const handleSubmit = () => {
         setLoadingRequest(true)
@@ -181,26 +151,14 @@ function TransactionPanel({...props}) {
         });
     }
 
-
+    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions.reverse() ?? []
+    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? []
+    console.log("rows", rows, pmList)
     return (
         <PanelStyled>
-            {loading && <LinearProgress/>}
-            {!loading && <Box className="files-panel">
+            {isLoading && <LinearProgress/>}
+            {!isLoading && <Box className="files-panel">
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
-                    {/*<Button size='small'
-                            variant='contained'>
-                        {t("total")}
-                        <Typography fontWeight={700} component='strong'
-                                    mx={1}>{total}</Typography>
-                        {devise}
-                    </Button>
-                    <Button size='small'
-                            variant='contained'>
-                        {t("insurance")}
-                        <Typography fontWeight={700} component='strong'
-                                    mx={1}>{toReceive}</Typography>
-                        {devise}
-                    </Button>*/}
                     <Button size='small'
                             onClick={() => {
                                 setSelectedPayment({
@@ -231,7 +189,7 @@ function TransactionPanel({...props}) {
 
                 </Stack>
                 <DesktopContainer>
-                    {!loading && <Otable
+                    {!isLoading && <Otable
                         {...{rows, t, insurances, pmList, mutateTransctions, hideName: true}}
                         headers={headCells}
                         from={"cashbox"}
