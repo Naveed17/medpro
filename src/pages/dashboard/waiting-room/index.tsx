@@ -62,6 +62,12 @@ function WaitingRoom() {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
+
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
     const [loading] = useState<boolean>(status === 'loading');
@@ -80,11 +86,11 @@ function WaitingRoom() {
             icon: <PendingIcon/>,
             action: "onPreConsultation",
         },
-        {
+        ...(!roles.includes('ROLE_SECRETARY') ? [{
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
             action: "onConsultationStart",
-        },
+        }] : []),
         {
             title: "leave_waiting_room",
             icon: <IconUrl color={"white"} path="ic-salle"/>,
@@ -96,12 +102,6 @@ function WaitingRoom() {
             action: "onPatientDetail",
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
@@ -276,27 +276,6 @@ function WaitingRoom() {
         handleClose();
     }
     const handleTableActions = (data: any) => {
-        const menu = [
-            {
-                title: "pre_consultation_data",
-                icon: <PendingIcon/>,
-                action: "onPreConsultation",
-            },
-            {
-                title: "start_the_consultation",
-                icon: <PlayCircleIcon/>,
-                action: "onConsultationStart",
-            },
-            {
-                title: "leave_waiting_room",
-                icon: <IconUrl color={"white"} path="ic-salle"/>,
-                action: "onLeaveWaitingRoom",
-            },
-            {
-                title: "see_patient_form",
-                icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
-                action: "onPatientDetail",
-            }];
         setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
@@ -310,14 +289,14 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                if (data.row.rest_amount >= 0 && demo) {
+                if (data.row.rest_amount >= 0 && demo && !popoverActions.find(data => data.action === "onPay")) {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
-                    }, ...menu])
+                    }, ...popoverActions])
                 } else {
-                    setPopoverActions([...menu])
+                    setPopoverActions([...popoverActions]);
                 }
                 handleContextMenu(data.event);
                 break;
@@ -351,21 +330,6 @@ function WaitingRoom() {
             dispatch(setOngoing({waiting_room: waitingRooms.length}))
         }
     }, [dispatch, waitingRooms]);
-
-    useEffect(() => {
-        if (roles && roles.includes('ROLE_SECRETARY')) {
-            setPopoverActions([
-                {
-                    title: "pre_consultation_data",
-                    icon: <PendingIcon/>,
-                    action: "onPreConsultation",
-                }, {
-                    title: "leave_waiting_room",
-                    icon: <IconUrl color={"white"} path="ic-salle"/>,
-                    action: "onLeaveWaitingRoom",
-                }])
-        }
-    }, [roles]);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 

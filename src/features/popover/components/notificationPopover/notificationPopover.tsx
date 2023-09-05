@@ -100,11 +100,11 @@ function NotificationPopover({...props}) {
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
             buttons: [
-                {
+                /*{
                     text: t("dialogs.finish-dialog.pay"),
                     color: "primary",
                     action: "onPay"
-                },
+                },*/
                 {
                     text: t("dialogs.finish-dialog.reschedule"),
                     color: "primary",

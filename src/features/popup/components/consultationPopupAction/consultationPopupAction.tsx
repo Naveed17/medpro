@@ -106,11 +106,11 @@ function ConsultationPopupAction({...props}) {
                     </List>
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
-                    <Button
+                    {/*<Button
                         onClick={getAllTransactions}
                         variant="contained" startIcon={<PaymentRoundedIcon/>}>
                         {t("dialogs.finish-dialog.pay")}
-                    </Button>
+                    </Button>*/}
                     <Button
                         onClick={OnSchedule}
                         variant="contained" startIcon={<LocalHospitalOutlinedIcon/>}>

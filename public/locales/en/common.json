@@ -29,6 +29,11 @@
     "description": "We’re busy updating the Medlink for you. Please check back soon.",
     "button": "Try again"
   },
+  "initialisation-error": {
+    "title": "Initialization...",
+    "description": "We are in the process of initializing your account for you. Please wait a moment.",
+    "button": "Try again"
+  },
   "loading-error-404": {
     "title": "Page not found",
     "description": "The page you are looking for might have been removed or it's temporarily unavailable.",
