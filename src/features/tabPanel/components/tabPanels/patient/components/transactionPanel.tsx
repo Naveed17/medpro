@@ -151,9 +151,9 @@ function TransactionPanel({...props}) {
         });
     }
 
-    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions.reverse() ?? []
-    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? []
-    console.log("rows", rows, pmList)
+    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions.reverse() ?? [];
+    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
+
     return (
         <PanelStyled>
             {isLoading && <LinearProgress/>}
