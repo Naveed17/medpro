@@ -49,6 +49,8 @@
     "status": "Statut",
     "meetingType": "Type de RDV",
     "meetingStatus": "Statut du RDV",
+    "meetingActs": "Acte RDV",
+    "meetingDisease": "Maladie",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",

@@ -8,12 +8,19 @@ import {
     PatientFilter,
     PlaceFilter,
 } from "./overrides";
-import {ActionBarState, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    AppointmentActs,
+    AppointmentDisease,
+    AppointmentReasonsFilter, InsuranceFilter, leftActionBarSelector,
+    setFilter
+} from "@features/leftActionBar";
 import React, {useState} from "react";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRouter} from "next/router";
 import {setSelectedRows} from "@features/table";
+import {prepareSearchKeys} from "@lib/hooks";
 
 function Patient() {
     const router = useRouter();
@@ -21,6 +28,7 @@ function Patient() {
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [opened, setOpend] = useState("patient");
     const [dataPatient, setDataPatient] = useState([
@@ -35,14 +43,10 @@ function Patient() {
                 <FilterRootStyled>
                     <PatientFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            router
-                                .replace("/dashboard/patient?page=1", "/dashboard/patient", {
-                                    shallow: true,
-                                })
-                                .then(() => {
-                                    dispatch(setSelectedRows([]));
-                                    dispatch(setFilter({patient: data.query}));
-                                });
+                            router.replace("/dashboard/patient?page=1", "/dashboard/patient", {shallow: true}).then(() => {
+                                dispatch(setSelectedRows([]));
+                                dispatch(setFilter({patient: data.query}));
+                            });
                         }}
                         item={{
                             heading: {
@@ -69,7 +73,78 @@ function Patient() {
                 </FilterRootStyled>
             ),
         },
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: false,
+            children: (
+                <InsuranceFilter
+                    {...{t}}
+                    OnSearch={(data: { query: any }) => {
+                        const queryData = prepareSearchKeys({
+                            ...filter,
+                            patient: {
+                                ...filter?.patient,
+                                ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
+                            }
+                        } as any);
+                        router.replace({
+                            pathname: '/dashboard/patient?page=1',
+                            ...(queryData.length > 0 && {query: {params: queryData}})
+                        }, "/dashboard/patient", {shallow: true});
+                    }}/>
+            ),
+        },
+        {
+            heading: {
+                id: "meetingReason",
+                icon: "setting/ic-patient-file",
+                title: "reason_for_consultation",
+            },
+            expanded: false,
+            children: (<AppointmentReasonsFilter OnSearch={(data: any) => {
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
+            }}/>)
+        },
+        {
+            heading: {
+                id: "meetingActs",
+                icon: "ic-generaliste",
+                title: "acts",
+            },
+            expanded: false,
+            children: (<AppointmentActs OnSearch={(data: any) => {
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
+            }}/>)
+        },
+        {
+            heading: {
+                id: "meetingDiseases",
+                icon: "setting/medical-history",
+                title: "disease",
+            },
+            expanded: false,
+            children: (<AppointmentDisease OnSearch={(data: any) => {
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
+            }}/>)
+        }
     ]);
+
     const [dataPlace, setDataPlace] = useState([
         {
             heading: {
@@ -77,19 +152,16 @@ function Patient() {
                 icon: collapse[1].heading.icon,
                 title: collapse[1].heading.title.toLowerCase(),
             },
-            expanded: true,
+            expanded: false,
             children: (
                 <FilterRootStyled>
                     <PlaceFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            router
-                                .replace("/dashboard/patient?page=1", "/dashboard/patient", {
-                                    shallow: true,
-                                })
-                                .then(() => {
-                                    dispatch(setFilter({patient: data.query}));
-                                });
-                            dispatch(setFilter({patient: data.query}));
+                            const queryData = prepareSearchKeys({patient: data.query} as any);
+                            router.replace({
+                                pathname: '/dashboard/patient?page=1',
+                                ...(queryData.length > 0 && {query: {params: queryData}})
+                            }, "/dashboard/patient", {shallow: true});
                         }}
                         item={collapse[1]}
                         setOpend={(ev: string) => {

@@ -68,8 +68,7 @@ function SuccessCard({...props}) {
             <Typography
                 variant="body1"
                 textAlign={{xs: "center", lg: "left"}}
-                color="text.secondary"
-            >
+                color="text.secondary">
                 {description}
             </Typography>
             {buttons &&

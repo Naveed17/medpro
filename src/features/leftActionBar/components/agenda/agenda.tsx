@@ -7,7 +7,10 @@ import {
     PatientFilter,
     setFilter,
     AppointmentStatusFilter,
-    AppointmentTypesFilter
+    AppointmentTypesFilter,
+    AppointmentReasonsFilter,
+    AppointmentActs,
+    AppointmentDisease
 } from "@features/leftActionBar";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -88,7 +91,7 @@ function Agenda() {
                     },
                     expanded: false,
                     children: (<AppointmentStatusFilter/>)
-                },
+                }
             ]);
         }
     }, [appointmentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -105,10 +108,7 @@ function Agenda() {
                 }
             />
             <Accordion
-                translate={{
-                    t: t,
-                    ready: ready,
-                }}
+                translate={{t, ready}}
                 data={accordionData}
                 setData={setAccordionData}
             />

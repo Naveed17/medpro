@@ -18,6 +18,7 @@
   "stats": "Statistics",
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
+  "noOption": "No results found",
   "loading-error": {
     "title": "Refresh the page !",
     "description": "An error occurred during initialization. Click the button to retry.",
@@ -26,6 +27,11 @@
   "maintenance-error": {
     "title": "We’ll be back",
     "description": "We’re busy updating the Medlink for you. Please check back soon.",
+    "button": "Try again"
+  },
+  "initialisation-error": {
+    "title": "Initialization...",
+    "description": "We are in the process of initializing your account for you. Please wait a moment.",
     "button": "Try again"
   },
   "loading-error-404": {
@@ -164,6 +170,8 @@
   "request-appointment": "requested a new appointment online for the",
   "consultation_reson": "Reason for Consultation",
   "reason-consultation-placeholder": "Choose your reason for consultation",
+  "acts-consultation-placeholder": "Choose your act for consultation",
+  "disease-placeholder": "Enter your disease",
   "consultation_type": "Consultation Type",
   "appintment_date": "Appointment Date",
   "start_the_consultation": "Start the consultation",
@@ -305,7 +313,8 @@
     "finish-dialog": {
       "title": "Consultation Finished with",
       "sub-title": "Consultation Fee",
-      "reschedule": "Reschedule Follow-up"
+      "reschedule": "Reschedule Follow-up",
+      "pay": "Pay"
     },
     "duplication-dialog": {
       "title": "Duplicates detected",
@@ -350,6 +359,8 @@
     "reasons": "Reasons for Consultation",
     "status": "Status",
     "meetingType": "Meeting Type",
+    "meetingActs": "Act RDV",
+    "disease": "Disease",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Home",
@@ -417,5 +428,4 @@
   },
   "satisfied": "Satisfied",
   "notsatisfied": "Not satisfied"
-
 }

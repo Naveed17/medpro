@@ -14,7 +14,9 @@ import {
     Skeleton,
     Stack,
     TextField,
-    Typography
+    Typography,
+    useMediaQuery,
+    Theme
 } from '@mui/material'
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -27,7 +29,7 @@ import SearchIcon from "@mui/icons-material/Search";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function LifeStyleDialog({...props}) {
-
+    const isMobile = useMediaQuery((theme:Theme) => theme.breakpoints.down('sm'));
     const action = props.data.action;
     const allAntecedents = props.data.antecedents;
     const initalData = Array.from(new Array(20));
@@ -265,7 +267,19 @@ function LifeStyleDialog({...props}) {
                                                     <Typography fontSize={10} mt={2}
                                                                 ml={1}>{t('selectPlz')} <span
                                                         style={{color: "red"}}> *</span></Typography>
-                                                    <Stack direction={'row'} spacing={1} mb={1} ml={1}>
+                                                    <Stack direction={'row'} spacing={{xs:0,sm:1}} mb={1} ml={1}
+                                                    {...(isMobile && {
+                                                        sx:{
+                                                            display:'grid',
+                                                            gridTemplateColumns:'repeat(auto-fit, minmax(88px, 1fr))',
+                                                            gap:1,
+                                                            width:1,
+                                                            "label":{
+                                                                margin:0
+                                                            }
+                                                        }
+                                                    })}
+                                                    >
                                                         {list.values.map((val: { uuid: string; value: string }) => (
                                                             <FormControlLabel
                                                                 key={val.uuid}

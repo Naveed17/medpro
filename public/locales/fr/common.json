@@ -19,6 +19,7 @@
   "settings": "Paramètres",
   "duplication": "Détection des doublons",
   "loading": "Veuillez patienter un instant le temps de chargement",
+  "noOption" : "Aucun résultat trouvé",
   "loading-error": {
     "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
@@ -27,6 +28,11 @@
   "maintenance-error": {
     "title": "Nous reviendrons",
     "description": "Nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
+    "button": "Réessayer"
+  },
+  "initialisation-error": {
+    "title": "Initialisation...",
+    "description": "Nous sommes en train de initialiser votre compte pour vous. Veuillez patienter un instant.",
     "button": "Réessayer"
   },
   "loading-error-404": {
@@ -166,6 +172,8 @@
   "next-appointment-control": "Contrôle médical apres",
   "consultation_reson": "Motif de consultation",
   "reason-consultation-placeholder": "Choisissez votre motif de consultation",
+  "acts-consultation-placeholder": "Choisissez votre acts",
+  "disease-placeholder": "Saisissez votre maladie",
   "consultation_type": "Type de consultation",
   "appintment_date": "Date de RDV",
   "start_the_consultation": "Commencer la consultation",
@@ -307,7 +315,8 @@
     "finish-dialog": {
       "title": "Consultation terminée avec",
       "sub-title": "Prix de la consultation",
-      "reschedule": "Replanifier un contrôle"
+      "reschedule": "Replanifier un contrôle",
+      "pay": "Payer"
     },
     "duplication-dialog": {
       "title": "Duplicatas détectés",
@@ -352,6 +361,8 @@
     "reasons": "Motif de consultation",
     "status": "Statut",
     "meetingType": "Type RDV",
+    "meetingActs": "Acte RDV",
+    "meetingDisease": "Maladie",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",

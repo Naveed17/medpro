@@ -99,11 +99,17 @@ function NotificationPopover({...props}) {
             avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
-            buttons: [{
-                text: t("dialogs.finish-dialog.reschedule"),
-                color: "primary",
-                action: "onReschedule"
-            }]
+            buttons: [
+                /*{
+                    text: t("dialogs.finish-dialog.pay"),
+                    color: "primary",
+                    action: "onPay"
+                },*/
+                {
+                    text: t("dialogs.finish-dialog.reschedule"),
+                    color: "primary",
+                    action: "onReschedule"
+                }]
         })) : [])]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
