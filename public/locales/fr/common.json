@@ -19,6 +19,7 @@
   "settings": "Paramètres",
   "duplication": "Détection des doublons",
   "loading": "Veuillez patienter un instant le temps de chargement",
+  "noOption" : "Aucun résultat trouvé",
   "loading-error": {
     "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
@@ -27,6 +28,11 @@
   "maintenance-error": {
     "title": "Nous reviendrons",
     "description": "Nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
+    "button": "Réessayer"
+  },
+  "initialisation-error": {
+    "title": "Initialisation...",
+    "description": "Nous sommes en train de initialiser votre compte pour vous. Veuillez patienter un instant.",
     "button": "Réessayer"
   },
   "loading-error-404": {

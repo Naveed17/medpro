@@ -181,11 +181,11 @@ export const authOptions: NextAuthOptions = {
                 return token;
             }
 
-            if (account && user) {
+            if ((account && user) || (trigger === "update" && session?.refresh)) {
                 // Send properties to the client, like an access_token from a provider.
-                if (account.provider === "credentials") {
+                if (account && account.provider === "credentials") {
                     token = user as any;
-                } else {
+                } else if (account) {
                     // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
                     token.refreshToken = account.refresh_token;
@@ -201,13 +201,22 @@ export const authOptions: NextAuthOptions = {
                     headers: {
                         Authorization: `Bearer ${token.accessToken}`
                     }
+                }).catch((error) => {
+                    token.error = error.response.data;
+                    return token;
                 });
 
-                Object.assign(res?.data.data, {
-                    medical_entity: res?.data.data.medical_entities?.find((entity: MedicalEntityDefault) =>
-                        entity.is_default)?.medical_entity
-                });
-                token.data = res?.data.data;
+                if (token.error && res?.data?.data) {
+                    delete token['error']
+                }
+
+                if (!token.error) {
+                    Object.assign(res?.data.data, {
+                        medical_entity: res?.data.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
+                            entity.is_default)?.medical_entity
+                    });
+                    token.data = res?.data.data;
+                }
                 return token
             }
 

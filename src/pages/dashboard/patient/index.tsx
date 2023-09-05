@@ -318,9 +318,13 @@ function Patient() {
     const {trigger: triggerDeletePatient} = useRequestMutation(null, "/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestMutation(null, "/patient/duplication/check");
 
-    const {data: httpPatientsResponse, mutate, isLoading} = useRequest(medicalEntityHasUser ? {
+    const {
+        data: httpPatientsResponse,
+        mutate,
+        isLoading
+    } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${router.query.params ?? localFilter}`
     } : null, isMobile && SWRNoValidateConfig);
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
@@ -637,7 +641,7 @@ function Patient() {
                 )}
             </SubHeader>
             <LinearProgress sx={{
-                visibility: loadingRequest ? "visible" : "hidden"
+                visibility: loadingRequest || isLoading ? "visible" : "hidden"
             }} color="warning"/>
             <Box className="container">
                 <DesktopContainer>

@@ -1,22 +1,22 @@
 import {useRequest} from "@lib/axios";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {Autocomplete, Divider, Stack, TextField} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
+import {leftActionBarSelector} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import FormControl from "@mui/material/FormControl";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function AppointmentReasonsFilter({...props}) {
+    const {OnSearch} = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
-    const dispatch = useAppDispatch();
 
     const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
 
@@ -28,6 +28,10 @@ function AppointmentReasonsFilter({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
     } : null, SWRNoValidateConfig);
+
+    const handleOnSearch = useCallback((value: any) => {
+        OnSearch(value);
+    }, [OnSearch]);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
@@ -45,7 +49,10 @@ function AppointmentReasonsFilter({...props}) {
                     e.stopPropagation();
                     const reasonsUuid = newValue.map(reason => reason.uuid);
                     setSelectedReasons(reasonsUuid);
-                    dispatch(setFilter({...filter, reasons: reasonsUuid.length === 0 ? undefined : reasonsUuid.join(",")}));
+                    handleOnSearch({
+                        ...filter,
+                        reasons: reasonsUuid.length === 0 ? undefined : reasonsUuid.join(",")
+                    });
                 }}
                 sx={{color: "text.secondary"}}
                 options={reasons?.filter(item => item.isEnabled) ?? []}
