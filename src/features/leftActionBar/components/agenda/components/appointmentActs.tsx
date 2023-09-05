@@ -1,22 +1,21 @@
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {useState} from "react";
+import {useAppSelector} from "@lib/redux/hooks";
+import React, {useCallback, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {useRequest} from "@lib/axios";
 import {Autocomplete, Divider, Stack, TextField} from "@mui/material";
-import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
+import {leftActionBarSelector} from "@features/leftActionBar";
 import MenuItem from "@mui/material/MenuItem";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FormControl from "@mui/material/FormControl";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import _ from "lodash";
 
-function AppointmentActs() {
+function AppointmentActs({...props}) {
+    const {OnSearch} = props;
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
-    const dispatch = useAppDispatch();
 
     const [selectedActs, setSelectedActs] = useState<string[]>([]);
 
@@ -28,7 +27,14 @@ function AppointmentActs() {
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const acts = (httpActSpeciality as HttpResponse)?.data.reduce((actsUpdate: any[], data: any) => [...(actsUpdate ?? []), {...data?.act, medicalProfessionalAct: data.uuid}], []) as any[];
+    const handleOnSearch = useCallback((value: any) => {
+        OnSearch(value);
+    }, [OnSearch]);
+
+    const acts = (httpActSpeciality as HttpResponse)?.data.reduce((actsUpdate: any[], data: any) => [...(actsUpdate ?? []), {
+        ...data?.act,
+        medicalProfessionalAct: data.uuid
+    }], []) as any[];
 
     return (
         <FormControl component="form" fullWidth>
@@ -44,7 +50,7 @@ function AppointmentActs() {
                     e.stopPropagation();
                     const actsUuid = newValue.map(act => act.medicalProfessionalAct);
                     setSelectedActs(actsUuid);
-                    dispatch(setFilter({...filter, acts: actsUuid.length === 0 ? undefined : actsUuid.join(",")}));
+                    handleOnSearch({...filter, acts: actsUuid.length === 0 ? undefined : actsUuid.join(",")});
                 }}
                 sx={{color: "text.secondary"}}
                 options={acts ?? []}
