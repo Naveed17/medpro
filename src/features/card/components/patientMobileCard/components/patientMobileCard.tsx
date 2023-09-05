@@ -30,15 +30,9 @@ import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ImageHandler} from "@features/image";
+import {SmallAvatar} from "@features/avatar";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-const SmallAvatar = styled(Avatar)(({theme}) => ({
-    width: 20,
-    height: 20,
-    borderRadius: 20,
-    border: `2px solid ${theme.palette.background.paper}`,
-}));
 
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;

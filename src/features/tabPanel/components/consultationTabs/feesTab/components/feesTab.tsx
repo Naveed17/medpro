@@ -67,13 +67,14 @@ function FeesTab({...props}) {
         setTotal,
         devise,
         router,
-        t
+        t,
+        isQuoteRequest
     } = props;
 
     return (
         <>
             <Box>
-                <Stack alignItems={"flex-end"} mb={2}>
+                {!isQuoteRequest && <Stack alignItems={"flex-end"} mb={2}>
                     <TextField
                         placeholder={t("exempleFees")}
                         value={search}
@@ -81,14 +82,14 @@ function FeesTab({...props}) {
                             setSearch(ev.target.value);
                         }}
                         sx={{width: '15rem'}}
-                        inputProps={{style:{background:"white"}}}
+                        inputProps={{style: {background: "white"}}}
                         InputProps={{
                             endAdornment: <InputAdornment position="end">
                                 <SearchIcon/>
                             </InputAdornment>,
                         }}
                     />
-                </Stack>
+                </Stack>}
 
                 <Otable
                     headers={headCells}
@@ -101,14 +102,14 @@ function FeesTab({...props}) {
                     devise={devise}
                     handleChange={setTotal}/>
 
-                <Button
+                {!isQuoteRequest&&<Button
                     onClick={() => {
                         router.push("/dashboard/settings/actfees")
                     }}
                     size="small"
                     startIcon={<TuneRoundedIcon/>}>
                     {t('consultationIP.config')}
-                </Button>
+                </Button>}
             </Box>
 
             <Box pt={8}/>

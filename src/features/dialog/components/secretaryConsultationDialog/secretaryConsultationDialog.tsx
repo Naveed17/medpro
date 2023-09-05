@@ -5,7 +5,8 @@ import {
     Button,
     Card,
     CardContent,
-    Checkbox, Chip,
+    Checkbox,
+    Chip,
     DialogActions,
     Grid,
     IconButton,
@@ -38,15 +39,25 @@ import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import { OnTransactionEdit } from "@lib/hooks/onTransactionEdit";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
-import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
+
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {app_uuid, t, changes, total, meeting, setMeeting, checkedNext, setCheckedNext, appointment},
+        data: {
+            app_uuid,
+            t,
+            changes,
+            total,
+            meeting,
+            setMeeting,
+            checkedNext,
+            setCheckedNext,
+            appointment,
+
+        },
     } = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -58,7 +69,6 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-    const [openAI, setOpenAI] = useState(false);
 
     const router = useRouter();
 
@@ -66,19 +76,18 @@ function SecretaryConsultationDialog({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1':user.medical_entity.hasDemo;
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {mutate} = useAppSelector(consultationSelector);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
     const {
         paymentTypesList
     } = useAppSelector(cashBoxSelector);
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
 
     const resetDialog = () => {
@@ -87,7 +96,7 @@ function SecretaryConsultationDialog({...props}) {
     const openDialogPayment = () => {
         let payments: any[] = [];
         if (appointment.transactions) {
-            appointment.transactions.transaction_data.map((td: any) => {
+            appointment.transactions.transaction_data.forEach((td: any) => {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
@@ -109,8 +118,8 @@ function SecretaryConsultationDialog({...props}) {
             uuid: app_uuid,
             payments,
             payed_amount: getTransactionAmountPayed(),
-            appointment: {...appointment,uuid:app_uuid},
-            patient:appointment.patient,
+            appointment: {...appointment, uuid: app_uuid},
+            patient: appointment.patient,
             total,
             isNew: getTransactionAmountPayed() === 0
         })
@@ -119,9 +128,10 @@ function SecretaryConsultationDialog({...props}) {
     const getTransactionAmountPayed = (): number => {
         let payed_amount = 0;
         if (appointment.transactions)
-            appointment.transactions.transaction_data.map((td: { amount: number; }) => payed_amount += td.amount);
+            appointment.transactions.transaction_data.forEach((td: { amount: number; }) => payed_amount += td.amount);
         return payed_amount;
     }
+
 
     const handleOnGoingPaymentDialog = () => {
         setLoading(true);
@@ -177,42 +187,43 @@ function SecretaryConsultationDialog({...props}) {
                         />
                         {
                             total - getTransactionAmountPayed() !== 0 ?
-                            <Stack direction={"row"} alignItems={"center"}>
-                                <Typography mr={1}>{t("amount_paid")}</Typography>
-                                <Label
-                                    variant="filled"
-                                    color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
-                                    sx={{color: (theme) => theme.palette.text.primary}}>
-                                    <Typography
-                                        color="text.primary"
-                                        variant="subtitle1"
-                                        mr={0.3}
-                                        fontWeight={600}>
-                                        {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
-                                    </Typography>
-                                    {devise}
-                                </Label>
-                                {demo && <Button
-                                    variant="contained"
-                                    size={"small"}
-                                    style={{
-                                        marginLeft: 5
-                                    }}
-                                    {...(isMobile && {
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    <Typography mr={1}>{t("amount_paid")}</Typography>
+                                    <Label
+                                        variant="filled"
+                                        color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
+                                        sx={{color: (theme) => theme.palette.text.primary}}>
+                                        <Typography
+                                            color="text.primary"
+                                            variant="subtitle1"
+                                            mr={0.3}
+                                            fontWeight={600}>
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                        </Typography>
+                                        {devise}
+                                    </Label>
+                                    {demo && <Button
+                                        variant="contained"
+                                        size={"small"}
+                                        style={{
+                                            marginLeft: 5
+                                        }}
+                                        {...(isMobile && {
 
-                                        sx: {minWidth: 40},
-                                    })}
-                                    onClick={openDialogPayment}
-                                >
-                                    <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
-                                    <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
-                                </Button>}
-                            </Stack>:
+                                            sx: {minWidth: 40},
+                                        })}
+                                        onClick={openDialogPayment}
+                                    >
+                                        <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
+                                        <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
+                                    </Button>}
+                                </Stack> :
                                 <Chip
                                     label={`${total} ${devise}`}
                                     color={"success"}
-                                    onDelete={()=>{}}
-                                    deleteIcon={<DoneAllRoundedIcon />}
+                                    onDelete={() => {
+                                    }}
+                                    deleteIcon={<DoneAllRoundedIcon/>}
                                 />
                         }
                         <Button
@@ -279,21 +290,13 @@ function SecretaryConsultationDialog({...props}) {
                             {t("recap")}
                         </Typography>
 
-                        {process.env.NODE_ENV === 'development' && <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img style={{width: 35}} src={"/static/img/medical-robot.png"} alt={"ai doctor logo"}/>
-                            <Chip label={t('imMedAI')}/>
-                            <Chip size={"small"} color={"primary"} label={t('yes')} onClick={() => {
-                                setOpenAI(true)
-                            }}/>
-                        </Stack>}
-
                         <Box display='grid' sx={{
+                            width: '100%',
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
-                                md: "repeat(3,minmax(0,1fr))",
-                                lg: "repeat(3,minmax(0,1fr))",
+                                sm: "repeat(3,minmax(0,1fr))",
+
                             }
                         }}>
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
@@ -332,7 +335,7 @@ function SecretaryConsultationDialog({...props}) {
                     selectedPayment,
                     setSelectedPayment,
                     appointment,
-                    patient:appointment.patient
+                    patient: appointment.patient
                 }}
                 size={"lg"}
                 fullWidth
@@ -354,33 +357,6 @@ function SecretaryConsultationDialog({...props}) {
                     </DialogActions>
                 }
             />
-
-            <Dialog
-                action={"open_ai"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380
-                    }
-                }}
-                open={openAI}
-                data={{
-                    appointment
-                }}
-                title={t("MedAI")}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={()=>{setOpenAI(false)}} startIcon={<SentimentDissatisfiedRoundedIcon/>}>
-                            {t("notsatisfied", {ns: "common"})}
-                        </Button>
-                        <Button onClick={()=>{setOpenAI(false)}} startIcon={<SentimentSatisfiedRoundedIcon/>}>
-                            {t("satisfied", {ns: "common"})}
-                        </Button>
-                    </DialogActions>
-                }
-            />
-
         </RootStyled>
     );
 }

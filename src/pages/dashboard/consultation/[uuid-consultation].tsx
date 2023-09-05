@@ -8,7 +8,7 @@ import {
     Button,
     CardContent,
     DialogActions,
-    Drawer,
+    Drawer, Fab,
     Grid,
     LinearProgress,
     Stack,
@@ -70,6 +70,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import { MobileContainer } from "@themes/mobileContainer";
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -166,6 +169,7 @@ function ConsultationInProgress() {
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [openChat, setOpenChat] = useState<boolean>(false);
     const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
     const [requestLoad, setRequestLoad] = useState<boolean>(false);
     const [isHistory, setIsHistory] = useState(false);
@@ -192,6 +196,7 @@ function ConsultationInProgress() {
     const [pagesLa, setPagesLa] = useState(1);
     const [totalPagesLa, setTotalPagesLa] = useState(1);
     const [lastestsAppointments, setLastestsAppointments] = useState<any[]>([]);
+    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
 
     //***** REQUEST ****//
     const {data: httpUsersResponse} = useRequest(medical_entity ? {
@@ -220,7 +225,7 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpPatientAnalyses,mutate:mutatePatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientAnalyses, mutate: mutatePatientAnalyses} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null, SWRNoValidateConfig);
@@ -237,6 +242,13 @@ function ConsultationInProgress() {
 
     const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequest(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
+    } : null, SWRNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -476,11 +488,17 @@ function ConsultationInProgress() {
         if (previousAppointments) {
             setTotalPagesLa(previousAppointments.totalPages)
             setLastestsAppointments(previousAppointments.list)
-            setTimeout(()=>{
+            setTimeout(() => {
                 setLoadingHistory(false)
-            },2000)
+            }, 2000)
         }
     }, [previousAppointments])
+
+    useEffect(() => {
+        if (httpConsultReasonResponse) {
+            setReasons((httpConsultReasonResponse as HttpResponse)?.data);
+        }
+    }, [httpConsultReasonResponse])
 
     //***** FUNCTIONS ****//
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -670,7 +688,7 @@ function ConsultationInProgress() {
                     color={"black"}
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
-                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                    <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                         {t("withoutSave")}
                     </Typography>
                 </LoadingButton>
@@ -679,7 +697,7 @@ function ConsultationInProgress() {
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                             {t("cancel")}
                         </Typography>
                     </Button>
@@ -692,7 +710,7 @@ function ConsultationInProgress() {
                             saveConsultation();
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                             {t("end_consultation")}
                         </Typography>
                     </LoadingButton>
@@ -764,7 +782,7 @@ function ConsultationInProgress() {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
                 data: form
-            }).then(r => console.log(r))
+            })
         }
     }
 
@@ -821,7 +839,7 @@ function ConsultationInProgress() {
                         endingDocuments={setPendingDocuments}
                         selectedTab={value}
                         setSelectedTab={setValue}
-                        hasLatestAppointments ={lastestsAppointments?.length !== 0}
+                        hasLatestAppointments={lastestsAppointments?.length !== 0}
                     />
                 )}
             </SubHeader>
@@ -926,7 +944,9 @@ function ConsultationInProgress() {
                                         seeHistory,
                                         closed: closeExam,
                                         setCloseExam,
-                                        isClose
+                                        isClose,
+                                        mutateReasonsData,
+                                        reasons
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
@@ -1066,6 +1086,17 @@ function ConsultationInProgress() {
                         <ConsultationFilter/>
                     </DrawerBottom>
 
+                    <Fab sx={{
+                        position:"fixed",
+                        bottom: 76,
+                        right: 30
+                    }}
+                         onClick={()=>{setOpenChat(true)}}
+                         color={"primary"}
+                         aria-label="edit">
+                        <SmartToyOutlinedIcon/>
+                    </Fab>
+
                     <Stack
                         direction={{md: "row", xs: "column"}}
                         position="fixed"
@@ -1109,6 +1140,21 @@ function ConsultationInProgress() {
                         </Box>
                     </Drawer>
 
+                    <Drawer
+                        anchor={"right"}
+                        open={openChat}
+                        dir={direction}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                width: {xs:"100%",sm:"40%"}
+                            }
+                        }}
+                        onClose={() => {
+                            setOpenChat(false)
+                        }}>
+                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat}}/>
+                    </Drawer>
+
                     <DrawerBottom
                         handleClose={() => setFilterDrawer(false)}
                         open={filterdrawer}
@@ -1142,6 +1188,8 @@ function ConsultationInProgress() {
                     data={{
                         state,
                         app_uuid,
+                        exam,
+                        reasons,
                         setState,
                         setDialog,
                         setOpenDialog,
@@ -1158,6 +1206,9 @@ function ConsultationInProgress() {
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
+                    {...(info === "secretary_consultation_alert" && {
+                        sx:{px:{xs:2,sm:3}}
+                    })}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}
@@ -1203,6 +1254,25 @@ function ConsultationInProgress() {
                     onClose={closeImageViewer}
                 />
             )}
+           
+                
+                <MobileContainer>
+                    <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilterDrawer(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 100,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")}{" "}(0)
+                </Button>
+                </MobileContainer>
+           
         </>
     );
 }

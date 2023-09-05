@@ -286,7 +286,7 @@ function ConsultationIPToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file.file, file.name);
+                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
 
                 trigger({
@@ -557,7 +557,7 @@ function ConsultationIPToolbar({...props}) {
                 value: "medical procedures"
             },
         ]);
-    }, [tabs, appointment]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [tabs, appointment,hasLatestAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <>toolbar loading..</>;
 
@@ -763,25 +763,38 @@ function ConsultationIPToolbar({...props}) {
                                     position: "relative",
                                 }}
                                 id="scroll-dialog-title">
-                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                <Stack direction={{xs:'column',sm:'row'}} justifyContent={"space-between"} alignItems={{xs:'flex-start',sm:'center'}}>
                                     {t(info)}
                                     <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
                                 </Stack>
                             </DialogTitle>
-                        )
+                        ),
+                        sx:{
+                            p:1.5,
+                            overflowX:'hidden'
+                        }
+                        
                     })}
                     actionDialog={
                         action ? (
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
+                                   {...(info === "medical_prescription_cycle" && {
+                                    direction: {xs:'column',sm:'row'},
+                                
+                                   })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
-                                    <Button startIcon={<AddIcon/>} onClick={() => {
+                                    <Button sx={{alignSelf:'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
                                         dispatch(handleDrawerAction("addDrug"));
                                     }}>
                                         {t("add_drug")}
                                     </Button>}
-                                <Stack direction={"row"} spacing={1.2}>
+                                <Stack direction={"row"}  justifyContent={{xs:'space-between',sm:'flex-start'}}spacing={1.2}
+                                 {...(info === "medical_prescription_cycle" && {
+                                    mt:{xs:1,md:0}
+                                   })}
+                                >
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("cancel")}
                                     </Button>

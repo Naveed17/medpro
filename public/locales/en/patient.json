@@ -52,12 +52,16 @@
   },
   "config": {
     "reason_for_consultation": "Reason for Consultation",
+    "acts": "Act",
+    "disease": "Disease",
+    "insurance": "Insurances",
     "keyword": "Keyword",
     "more": "More",
     "patient": "Patient",
     "place": "Place",
     "doc_detail_title": "Document",
     "treatment_medication": "Treatment (medication)",
+    "assurance-placeholder": "insurance",
     "documents": "Documents",
     "bal_sheet_req": "Balance sheet request",
     "upload_document": "Upload a document",
@@ -92,7 +96,8 @@
       "photo": "Photo",
       "video": "Video",
       "audio": "Audio",
-      "history": "History Sheet"
+      "history": "History Sheet",
+      "quotes": "Devis"
     },
     "no-data": {
       "appointment": {
@@ -103,7 +108,9 @@
       "documents": {
         "title": "Add the first document",
         "description": "You have no medical documents. Add documents by clicking on 'Add a Document'",
-        "button-text": "Add a Document"
+        "button-text": "Add a Document",
+        "quote-description": "No quote, Click on 'Add a quote'",
+        "add_quote": "Add quote"
       },
       "consultation": {
         "title": "Add your first consultation",
@@ -118,7 +125,7 @@
     "table": {
       "name": "Patient Name",
       "telephone": "Telephone",
-      "insurance": "Insurance",
+      "insurance": "Insurances",
       "city": "city",
       "id": "ID",
       "nextAppointment": "Next app",

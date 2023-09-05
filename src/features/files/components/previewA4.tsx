@@ -6,7 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, date, t,nbPage} = props;
+    const {eventHandler, data, values, state, loading, date, t, nbPage} = props;
 
     const {data: session} = useSession();
 
@@ -241,6 +241,7 @@ function PreviewDialog({...props}) {
                             setTitle("CERTIFICAT MEDICAL");
                             break;
                         case "fees":
+                        case "quote":
                             const FeesLine = document.createElement('table');
                             FeesLine.append(`${el.fees} • ${el.act.name}`)
                             rows.push({
@@ -256,7 +257,7 @@ function PreviewDialog({...props}) {
                                 style: {}
                             })
                             pageX.appendChild(FeesLine)
-                            setTitle("Note d'honoraires");
+                            setTitle(state.type =="fees" ? "Note d'honoraires": "Devis");
                             break;
                     }
                 } else {
@@ -274,8 +275,8 @@ function PreviewDialog({...props}) {
             el.id = `page${i}`
             el.style.position = "absolute"
             el.style.top = "0"
-           // document.body.appendChild(el)
-            if (state && state.type === 'fees') {
+            // document.body.appendChild(el)
+            if (state && (state.type === 'fees' || state.type === 'quote')) {
                 let total = 0;
                 const elx = document.createElement("table");
                 elx.style.width = '190mm';

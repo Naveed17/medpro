@@ -250,7 +250,7 @@ function AddPatientStep2({...props}) {
                 setLoading(false);
                 if (status === "success") {
                     mutateOnGoing && mutateOnGoing();
-                    dispatch(onSubmitPatient(result));
+                    dispatch(onSubmitPatient(result.data));
                     dispatch(setDuplicated({
                         duplications: result.duplicated,
                         duplicationSrc: result.data,

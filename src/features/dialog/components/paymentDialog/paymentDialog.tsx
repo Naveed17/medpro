@@ -149,7 +149,7 @@ function PaymentDialog({...props}) {
         },
         check: [{
             amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : "",
-            carrier: patient ? `${patient.firstName} ${patient.lastName}`: "",
+            carrier: patient ? `${patient.firstName} ${patient.lastName}` : "",
             bank: "",
             check_number: '',
             payment_date: new Date(),
@@ -371,8 +371,32 @@ function PaymentDialog({...props}) {
                             borderBottom: 1,
                             borderColor: 'divider'
                         }
-                    })}>
-                    {paymentTypesList && paymentTypesList.filter((pt: { slug: string; }) => !(!appointment && pt.slug === "check")).map((method: {
+
+                    })}
+                    {...(isMobile && {
+                        sx: {
+                            gridTemplateColumns: `repeat(${paymentTypesList.length + patient.insurances.length + (wallet > 0 ? 1 : 0)}, minmax(0, 1fr))`,
+                            "& .MuiCheckbox-root": {
+                                width: 24,
+                                height: 24,
+                                marginRight: .5
+                            },
+                            "& .label-inner": {
+                                ...((paymentTypesList.length + patient.insurances.length + (wallet > 0 ? 1 : 0)) < 4 && {
+
+                                    position: 'absolute',
+                                    left: '50%',
+                                    top: "50%",
+                                    transform: 'translate(-50%,-50%)',
+                                })
+                            }
+                        }
+
+                    })}
+                >
+                    {paymentTypesList && paymentTypesList.filter((pt: {
+                        slug: string;
+                    }) => !(!appointment && pt.slug === "check")).map((method: {
                             slug: any;
                             name: string;
                             logoUrl: { url: string | undefined; };
@@ -456,9 +480,9 @@ function PaymentDialog({...props}) {
                         }
                     />}
                 </FormGroup>
-                <Grid container alignItems="center">
+                <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence>
                             {(() => {
                                 switch (values.selected) {
                                     case 'cash':
@@ -513,7 +537,7 @@ function PaymentDialog({...props}) {
                                         </TabPanel>
                                     case 'check':
                                         return <TabPanel index={0}>
-                                            <Stack p={4} minHeight={200} justifyContent="center">
+                                            <Stack p={{xs: 1, sm: 2}}  justifyContent="center">
                                                 <Typography gutterBottom>
                                                     {t('enter_the_amount')}
                                                 </Typography>
@@ -523,7 +547,7 @@ function PaymentDialog({...props}) {
                                                             <Stack spacing={1} alignItems="flex-start">
 
                                                                 <Stack direction='row' alignItems="center"
-                                                                       spacing={1}>
+                                                                       spacing={1} width={{xs: 1, sm: '100%'}}>
                                                                     <TextField
                                                                         variant="outlined"
                                                                         placeholder={t("amount")}
@@ -535,6 +559,11 @@ function PaymentDialog({...props}) {
                                                                     <Typography>
                                                                         {devise}
                                                                     </Typography>
+                                                                </Stack>
+                                                                <Stack width={{xs: 1, sm: '100%'}}
+                                                                       direction={{xs: 'column', sm: 'row'}}
+                                                                       alignItems="center"
+                                                                       spacing={1}>
 
                                                                     <TextField
                                                                         variant="outlined"
@@ -784,32 +813,49 @@ function PaymentDialog({...props}) {
                             })()}
                         </AnimatePresence>
                     </Grid>
-                    {payments.length > 0 && <Grid item xs={12} lg={5}>
-                        <AnimatePresence mode='wait'>
+                    {
+                        payments.length > 0 && <Grid item xs={12} lg={5}>
+                            <AnimatePresence>
+                                <Box mt={1}>
+                                    <DesktopContainer>
+                                        <Otable
+                                            {...{t, patient: patient ? patient : null}}
+                                            headers={headCells}
+                                            rows={payments}
+                                            handleEvent={(action: string, payIndex: number) => {
+                                                const paymentsUpdated = [...payments];
+                                                paymentsUpdated.splice(payIndex, 1);
+                                                setPayments(paymentsUpdated);
+                                            }}
+                                            from={"payment_dialog"}
+                                            sx={{tableLayout: 'fixed'}}
+                                        />
+                                    </DesktopContainer>
+                                    <MobileContainer>
+                                        <Stack spacing={2}>
+                                            {
+                                                payments.map((item: any, i: number) =>
+                                                    <React.Fragment key={i}>
+                                                        <PaymentDialogMobileCard data={item} t={t}
+                                                                                 handleEvent={(action: string, payIndex: number) => {
+                                                                                     const paymentsUpdated = [...payments];
+                                                                                     paymentsUpdated.splice(payIndex, 1);
+                                                                                     setPayments(paymentsUpdated);
+                                                                                 }}
+                                                                                 index={i}
+                                                                                 patient={patient ? patient : null}
+                                                        />
+                                                    </React.Fragment>
+                                                )
+                                            }
 
-                            <Box ml={1}>
-                                <DesktopContainer>
-                                    <Otable
-                                        {...{t, patient: patient ? patient : null}}
-                                        headers={headCells}
-                                        rows={payments}
-                                        handleEvent={(action: string, payIndex: number) => {
-                                            const paymentsUpdated = [...payments];
-                                            paymentsUpdated.splice(payIndex, 1);
-                                            setPayments(paymentsUpdated);
-                                        }}
-                                        from={"payment_dialog"}
-                                        sx={{tableLayout: 'fixed'}}
-                                    />
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <PaymentDialogMobileCard data={payments} t={t}/>
-                                </MobileContainer>
-                            </Box>
-                        </AnimatePresence>
-                    </Grid>
+                                        </Stack>
+
+                                    </MobileContainer>
+                                </Box>
+                            </AnimatePresence>
+                        </Grid>
                     }
-
                 </Grid>
             </PaymentDialogStyled>
         </FormikProvider>

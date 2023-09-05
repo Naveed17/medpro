@@ -26,7 +26,7 @@ function DateFilter({...props}) {
 
     return (
         <Box>
-            <FormControlLabel
+            {/*<FormControlLabel
                 label={`${t('filterByDate')}`}
                 control={
                     <Checkbox
@@ -47,7 +47,7 @@ function DateFilter({...props}) {
                         }}
                     />
                 }
-            />
+            />*/}
 
             <FormControlLabel
                 label={`${t('filterByPeriod')}`}

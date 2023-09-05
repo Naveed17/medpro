@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {Box} from "@mui/material";
@@ -11,7 +11,6 @@ import {AutoCompleteButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 
@@ -30,7 +29,6 @@ function Patient({...props}) {
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
-    const [patients, setPatients] = useState<PatientModel[]>([]);
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
@@ -39,9 +37,11 @@ function Patient({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
     } : null);
 
-    const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
+    const {trigger} = useRequestMutation(null, "agenda/add-patient");
 
     const handleOnClick = () => {
+
+        console.log("handleOnClick")
         setAddPatient(true);
         handleAddPatient && handleAddPatient(true);
     }
@@ -119,11 +119,7 @@ function Patient({...props}) {
         });
     }
 
-    useEffect(() => {
-        if (httpPatientResponse) {
-            setPatients((httpPatientResponse as HttpResponse)?.data as PatientModel[]);
-        }
-    }, [httpPatientResponse]);
+    const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
 
     if (!ready) return (<LoadingScreen/>);
 
@@ -151,8 +147,7 @@ function Patient({...props}) {
                             borderWidth: "0px",
                             textAlign: "right"
                         }}
-                        className="action"
-                    >
+                        className="action">
                         <Button
                             size="medium"
                             variant="text-primary"
@@ -160,8 +155,7 @@ function Patient({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={() => onBack(currentStepper)}
-                        >
+                            onClick={() => onBack(currentStepper)}>
                             {t("back")}
                         </Button>
                         <Button
@@ -169,8 +163,7 @@ function Patient({...props}) {
                             variant="contained"
                             color="primary"
                             onClick={onNextStep}
-                            disabled={!selectedPatient}
-                        >
+                            disabled={!selectedPatient}>
                             {t("next")}
                         </Button>
                     </Paper>}

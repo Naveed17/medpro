@@ -52,6 +52,9 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "acts": "Acte",
+    "disease": "Maladie",
+    "insurance": "Assurances",
     "keyword": "Mot clé",
     "more": "Plus",
     "merge-patient": "Fusionner les patients",
@@ -60,6 +63,7 @@
     "place": "Lieu",
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
+    "assurance-placeholder": "Assurance",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
@@ -94,7 +98,8 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Fiche d'historique"
+      "history": "Fiche d'historique",
+      "quotes": "Devis"
     },
     "no-data": {
       "appointment": {
@@ -105,6 +110,8 @@
       "documents": {
         "title": "Ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
+        "quote-description": "Aucun devis, Cliquez sur 'Ajouter un devis'",
+        "add_quote": "Ajouter devis",
         "button-text": "Ajouter un document"
       },
       "consultation": {

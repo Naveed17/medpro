@@ -10,9 +10,9 @@ import {
     IconButton,
     Skeleton,
     Stack,
-    styled,
+    styled, Theme,
     Tooltip,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import {onOpenPatientDrawer, TableRowStyled, setSelectedRows, tableActionSelector} from "@features/table";
 import IconUrl from "@themes/urlIcon";
@@ -25,24 +25,18 @@ import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
-import { useProfilePhoto} from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import {Label} from "@features/label";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {LoadingButton} from "@mui/lab";
-
-const SmallAvatar = styled(Avatar)(({theme}) => ({
-    width: 20,
-    height: 20,
-    borderRadius: 20,
-    border: `2px solid ${theme.palette.background.paper}`
-}));
+import {SmallAvatar} from "@features/avatar";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
     const {insurances} = data;
     const dispatch = useAppDispatch();
+    const theme = useTheme() as Theme;
+
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
@@ -118,7 +112,21 @@ function PatientRow({...props}) {
                                         anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                                         {...(row.nationality && {
                                             badgeContent:
-                                                <Tooltip title={row.nationality.nationality}>
+                                                <AvatarGroup>
+                                                    {row.hasDouble && <SmallAvatar
+                                                        sx={{
+                                                            background: theme.palette.warning.main
+                                                        }}>
+                                                        <WarningRoundedIcon
+                                                            color={"black"}
+                                                            sx={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                marginLeft: .5,
+                                                                marginTop: -0.2
+                                                            }}/>
+                                                    </SmallAvatar>}
+
                                                     <SmallAvatar
                                                         {...(row.hasPhoto && {
                                                             sx: {
@@ -127,13 +135,11 @@ function PatientRow({...props}) {
                                                         })}
                                                         alt={"flag"}
                                                         src={`https://flagcdn.com/${row.nationality.code}.svg`}/>
-                                                </Tooltip>
-                                        })}
-                                    >
+                                                </AvatarGroup>
+                                        })}>
                                         <ConditionalWrapper
                                             condition={row.hasPhoto}
-                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}
-                                        >
+                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                             <Fragment>
                                                 <Avatar
                                                     {...(row.hasPhoto && {className: "zoom"})}
@@ -168,40 +174,6 @@ function PatientRow({...props}) {
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
 
-                                            {row.hasDouble && <LoadingButton
-                                                variant="contained"
-                                                size={"small"}
-                                                loading={loadingRequest}
-                                                color={"warning"}
-                                                loadingPosition={"start"}
-                                                startIcon={<WarningRoundedIcon/>}
-                                                sx={{
-                                                    p: "0 auto", borderRadius: 3, ml: 1, minHeight: 24,
-                                                    "& .MuiButton-startIcon": {mr: 0}
-                                                }}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleEvent("DUPLICATION_CHECK", row, event, setLoadingRequest);
-                                                }}>
-                                                <Label
-                                                    variant="outlined"
-                                                    sx={{
-                                                        cursor: "pointer",
-                                                        pl: 0,
-                                                        "& .MuiSvgIcon-root": {
-                                                            width: 16,
-                                                            height: 16
-                                                        }
-                                                    }}>
-                                                    <Typography
-                                                        sx={{
-                                                            fontSize: 10,
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis"
-                                                        }}> {t("duplication")}</Typography>
-                                                </Label>
-                                            </LoadingButton>}
-
                                             {row.hasInfo &&
                                                 <Chip
                                                     sx={{marginLeft: 1, height: 26}}
@@ -215,8 +187,7 @@ function PatientRow({...props}) {
                                             variant="body2"
                                             component="span"
                                             color="text.secondary"
-                                            className="text-time"
-                                        >
+                                            className="text-time">
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (

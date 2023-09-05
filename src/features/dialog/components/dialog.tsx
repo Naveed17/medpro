@@ -1,6 +1,6 @@
 import {DialogData} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,} from "@mui/material";
+import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,useMediaQuery} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
@@ -29,7 +29,7 @@ function Dialogs({...props}) {
     const [fullWidth] = useState(true);
     const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
-
+    const smScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
     return (
         <>
             <Dialog
@@ -39,7 +39,18 @@ function Dialogs({...props}) {
                 scroll="paper"
                 dir={direction}
                 aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description">
+                aria-describedby="scroll-dialog-description"
+                {
+                    ...(smScreen && {
+                        PaperProps:{
+                            sx:{
+                                width: '100%',
+                                m:1,
+                            }
+
+                        }
+                    })
+                 }>
                 {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color

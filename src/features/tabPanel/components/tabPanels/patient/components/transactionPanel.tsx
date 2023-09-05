@@ -98,11 +98,14 @@ function TransactionPanel({...props}) {
     const [loading, setLoading] = useState(true);
     const [pmList, setPmList] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
-    const [total, setTotal] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
+    /*
+        const [total, setTotal] = useState(0);
+        const [toReceive, setToReceive] = useState(0);
+    */
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
@@ -120,8 +123,10 @@ function TransactionPanel({...props}) {
     useEffect(() => {
         if (httpTransactionsResponse) {
             const data = (httpTransactionsResponse as HttpResponse)?.data
-            setTotal(data.total_amount)
-            setToReceive(data.total_insurance_amount);
+            /*
+                        setTotal(data.total_amount)
+                        setToReceive(data.total_insurance_amount);
+            */
             if (data.transactions)
                 setRows(data.transactions.reverse());
 
@@ -135,6 +140,7 @@ function TransactionPanel({...props}) {
             setPmList(pList);
         }
     }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     const handleSubmit = () => {
         setLoadingRequest(true)
@@ -231,7 +237,6 @@ function TransactionPanel({...props}) {
                         from={"cashbox"}
                     />}
                 </DesktopContainer>
-
             </Box>}
 
             <Dialog

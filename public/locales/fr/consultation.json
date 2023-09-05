@@ -3,6 +3,7 @@
     "title": "Consultation en cours"
   },
   "filter": {
+    "title": "Filtre",
     "year": "ans",
     "day": "jour(s)",
     "month": "mois",
@@ -110,6 +111,8 @@
   "balance_sheet_request": "Analyse",
   "imMedAI": "Bonjour, je suis MedAI, vous voulez mon avis ?",
   "yes": "Oui",
+  "wait": "quelques instants...",
+  "quote": "Devis",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -132,6 +135,7 @@
     "record": "Enregistrer un audio",
     "contenu": "Contenu",
     "audio": "Audio",
+    "quote": "Devis",
     "listen": "Ecoutez",
     "seeHistory": "Voir historique",
     "patient_observation_history": "Historique",
@@ -388,6 +392,7 @@
     "configureNow": "Veuillez configurer votre formulaire de consultation",
     "configure": "Configurer",
     "date": "Date",
+    "dosge_time": "Durée du dosage",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -403,6 +408,31 @@
         "cancel": "Annuler",
         "confirm": "Supprimer"
       }
+    },
+    "chat": {
+      "opinion": "Quel est l’avis de medAI ?",
+      "health": "L'état de santé actuel du patient ?",
+      "askHealth": "Quel est l'état de santé actuel du patient ?",
+      "advice": "Conseils au patient",
+      "fiveadvice": "donnez moi 5 conseils au patient",
+      "im": "Je suis un",
+      "mypatient": "mon patient",
+      "sexe": "de sexe",
+      "feminine": "féminin",
+      "male": "masculin",
+      "date": "a consulté le",
+      "reason": "pour motif",
+      "with": "Avec",
+      "observation": "mes observations",
+      "diagnostic": "mon diagnostique été",
+      "disease": "maladie",
+      "antecedents": "Voici les antecedents ",
+      "treatment": "et j'ai recommandé les traitements suivants",
+      "analyses": "J'ai demandé les analyses suivante",
+      "mi": "J'ai demandé des imageries médicals",
+      "note": "(sans mentionner dans la réponse que cela est générer par AI)",
+      "youropinion": "Que pensez-vous?",
+      "wait": "MedAI est en train d'écrire..."
     }
   },
   "table": {

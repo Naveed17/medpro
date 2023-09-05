@@ -50,7 +50,7 @@ import {
     dialogMoveSelector,
     PatientDetail,
 } from "@features/dialog";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
@@ -89,6 +89,7 @@ import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -235,7 +236,6 @@ function Patient() {
     const [popoverActions, setPopoverActions] = useState(menuPopoverData);
     const [loading] = useState<boolean>(status === "loading");
     const [rows, setRows] = useState<PatientModel[]>([]);
-    const [patientData, setPatientData] = useState<any>(null);
     const [page, setPage] = useState<any>(router.query.page || 1);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
@@ -555,25 +555,17 @@ function Patient() {
                 setPatientDetailDrawer(true);
                 break;
             case "onCheckPatientDuplication":
-                const duplications = checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
-                if (duplications?.length > 0) {
-                    const patientIndex = rows.findIndex(row => row.uuid === selectedPatient?.uuid);
-                    const updatedPatients = [...patientData.list];
-                    setPatientData({
-                        ...patientData,
-                        list: [
-                            ...updatedPatients.slice(0, patientIndex),
-                            {...updatedPatients[patientIndex], hasDouble: true},
-                            ...updatedPatients.slice(patientIndex + 1)
-                        ]
-                    });
-                }
+                checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
                 break;
             case "onDeletePatient":
                 setDeleteDialog(true);
                 break;
         }
     }
+
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
 
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
@@ -582,7 +574,6 @@ function Patient() {
     useEffect(() => {
         if (httpPatientsResponse) {
             const patientsResponse = (httpPatientsResponse as HttpResponse)?.data;
-            setPatientData(patientsResponse)
             if (isMobile && localFilter?.length > 0) {
                 setRows(patientsResponse.list)
             } else {
@@ -592,11 +583,13 @@ function Patient() {
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type || filter?.patient) {
+        if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
+        } else if (localFilter.length > 0) {
+            setLocalFilter("")
         }
-    }, [filter]);
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && !lock) {
@@ -608,6 +601,8 @@ function Patient() {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -650,9 +645,9 @@ function Patient() {
                         {...{t, insurances, mutatePatient: mutate}}
                         headers={headCells}
                         handleEvent={handleTableActions}
-                        rows={patientData?.list}
-                        total={patientData?.total}
-                        totalPages={patientData?.totalPages}
+                        rows={patientData?.list ?? []}
+                        total={patientData?.total ?? 0}
+                        totalPages={patientData?.totalPages ?? 1}
                         from={"patient"}
                         pagination
                         loading={!Boolean(httpPatientsResponse)}

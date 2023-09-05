@@ -12,6 +12,9 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import { DesktopContainer } from '@themes/desktopConainter';
+import { MobileContainer } from '@themes/mobileContainer';
+import {CashOutMobileCard} from "@features/card";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -128,9 +131,8 @@ function CashOutDialog({...props}) {
             checksToCashout.push(props);
         }
         setChecksToCashout([...checksToCashout]);
-        let res = 0;
-        checksToCashout.map((val: { amount: number; }) => (res += val.amount))
-        setTotalCheck(res)
+        const total = checksToCashout.reduce((acc:number, curr:ChequeModel) => acc + curr.amount, 0);
+        setTotalCheck(total);
     };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -167,17 +169,16 @@ function CashOutDialog({...props}) {
             <PaymentDialogStyled>
                 <Stack
                     className={"tab-panel"}
-                    direction={"row"}
-                    spacing={3}
-                    alignItems={"center"}
+                    direction={{xs: "column", sm: "row"}}
+                    spacing={{xs:1,sm:3}}
+                    alignItems={{xs:"flex-start",sm:"center"}}
                     padding={2}>
                     <Typography variant={"body1"}>{t("somme")} <Typography fontSize={12}
                                                                            color={theme.palette.grey[700]}>(
                         Max: {totalCash} {devise} )</Typography></Typography>
-
-                    <TextField
+                         <Stack direction={"row"} spacing={1} alignItems={"center"} width={{xs:'100%',sm:'auto'}}>
+                            <TextField
                         fullWidth
-                        style={{width: "150px", textAlign: "center"}}
                         value={collectedCash}
                         onChange={(ev) => {
                             if (Number(ev.target.value) <= totalCash) {
@@ -185,8 +186,8 @@ function CashOutDialog({...props}) {
                             }
                         }}
                         InputProps={{
-                            style: {
-                                width: "150px",
+                            sx: {
+                                width: {xs:"100%",sm:"150px"},
                                 textAlign: "center",
                             },
                         }}
@@ -195,8 +196,12 @@ function CashOutDialog({...props}) {
                     <Typography variant={"body1"} color={theme.palette.grey[700]}>
                         {devise}
                     </Typography>
+                    </Stack>                                                            
+                    
+
                 </Stack>
             </PaymentDialogStyled>
+            <DesktopContainer>
             <Otable
                 headers={headCheques}
                 rows={cheques}
@@ -205,6 +210,24 @@ function CashOutDialog({...props}) {
                 select={checksToCashout}
                 edit={handleCheques}
             />
+            </DesktopContainer>
+            <MobileContainer>
+                <Stack spacing={2}>
+                    {(httpCollectResponse ? cheques : Array.from({length:5})).map((card, idx) => (
+                        <React.Fragment key={idx}>
+                            <CashOutMobileCard
+                                data={card}
+                                handleEvent={handleCheques}
+                                t={t}
+                                selected={checksToCashout}
+                                devise={devise}
+                            
+                            />
+                        </React.Fragment>
+                    ))}
+                
+                </Stack>
+            </MobileContainer>
         </Box>
     )
 }

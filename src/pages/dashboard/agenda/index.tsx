@@ -10,7 +10,6 @@ import {
     Container, DialogActions,
     Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
-    Theme,
     Typography,
     useMediaQuery,
     useTheme, Zoom
@@ -23,7 +22,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {instanceAxios, useRequestMutation} from "@lib/axios";
+import {useRequestMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -36,7 +35,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     DayOfWeek,
-    openDrawer, setCurrentDate, setGroupedByDayAppointments,
+    openDrawer,
+    setCurrentDate,
+    setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -76,6 +77,7 @@ import {useSWRConfig} from "swr";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {MobileContainer as smallScreen} from "@lib/constants";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -113,7 +115,7 @@ function Agenda() {
     const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
-        selectedEvent, actionSet, openMoveDrawer,
+        selectedEvent, actionSet, openMoveDrawer, openPayDialog,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -131,18 +133,19 @@ function Agenda() {
     });
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
-    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [moveDialogInfo, setMoveDialogInfo] = useState({info: false, dialog: false});
+    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
-    const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [eventStepper, setEventStepper] = useState([
         {
             title: "steppers.tabs.tab-1",
@@ -165,7 +168,7 @@ function Agenda() {
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const calendarRef = useRef<FullCalendar | null>(null);
     let events: MutableRefObject<EventModal[]> = useRef([]);
@@ -287,7 +290,7 @@ function Agenda() {
     useEffect(() => {
         if (openMoveDrawer) {
             setEvent(selectedEvent as EventDef);
-            setMoveDialogInfo(true);
+            setMoveDialogInfo({...moveDialogInfo, info: true});
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -305,7 +308,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.disease || filter?.status || filter?.acts || filter?.reasons || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -319,7 +322,6 @@ function Agenda() {
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        // dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
@@ -356,7 +358,7 @@ function Agenda() {
             action: action,
             selected: false
         }));
-        setMoveDialog(true);
+        setMoveDialogInfo({...moveDialogInfo, dialog: true});
     }
 
     const onEventChange = (info: EventChangeArg) => {
@@ -525,7 +527,7 @@ function Agenda() {
                     action: "move",
                     selected: false
                 }));
-                setMoveDialogInfo(true);
+                setMoveDialogInfo({...moveDialogInfo, info: true});
                 break;
             case "onReschedule":
                 dispatch(setSelectedEvent(event));
@@ -552,7 +554,7 @@ function Agenda() {
                 break;
             case "onAddConsultationDocuments":
                 setEvent(event);
-                setOpenUploadDialog(true);
+                setOpenUploadDialog({...openUploadDialog, dialog: true});
                 break;
         }
     }
@@ -675,11 +677,10 @@ function Agenda() {
 
     const onMoveAppointment = () => {
         onUpdateDefEvent();
-        setMoveDialogInfo(false);
+        setMoveDialogInfo({dialog: true, info: false});
         if (openMoveDrawer) {
             dispatch(openDrawer({type: "move", open: false}));
         }
-        setMoveDialog(true);
     }
 
     const handleMoveAppointment = (event: EventDef) => {
@@ -700,7 +701,7 @@ function Agenda() {
             }
             dispatch(openDrawer({type: "view", open: false}));
             refreshData();
-            setMoveDialog(false);
+            setMoveDialogInfo({...moveDialogInfo, dialog: false});
             // update pending notifications status
             config?.mutate[1]();
         });
@@ -716,13 +717,12 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form
-        }, TriggerWithoutValidation).then((result) => {
+        }).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
             }
             refreshData();
-            setMoveDialogInfo(false);
-            setMoveDialog(false);
+            setMoveDialogInfo({dialog: false, info: false});
         });
     }
 
@@ -885,7 +885,7 @@ function Agenda() {
     }
 
     const handleUploadDocuments = () => {
-        setLoadingRequest(true);
+        setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
@@ -894,10 +894,7 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            setOpenUploadDialog(false);
-        });
+        }).then(() => setOpenUploadDialog({loading: false, dialog: false}));
     }
 
     const handleAddAppointmentRequest = () => {
@@ -966,12 +963,11 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence mode='wait'>
+                    <AnimatePresence>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: 1}}
-                        >
+                            transition={{ease: "easeIn", duration: 1}}>
                             <Alert variant="filled"
                                    onClick={() => {
                                        const slugConsultation = `/dashboard/consultation/${onGoingEvent?.publicId ? onGoingEvent?.publicId : (onGoingEvent as any)?.id}`;
@@ -994,74 +990,70 @@ function Agenda() {
                 <LinearProgress sx={{
                     visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <>
-                    {agenda &&
-                        <AnimatePresence mode='wait'>
-                            <motion.div
-                                initial={{opacity: 0}}
-                                animate={{opacity: 1}}
-                                transition={{ease: "easeIn", duration: .5}}
-                            >
-                                <Calendar
-                                    {...{
-                                        events: events.current,
-                                        doctor_country,
-                                        agenda,
-                                        calendarRef,
-                                        roles,
-                                        refs,
-                                        spinner: loading,
-                                        t,
-                                        sortedData: sortedData.current,
-                                        mutate: refreshData
+
+                {agenda &&
+                    <AnimatePresence>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: .5}}>
+                            <Calendar
+                                {...{
+                                    events: events.current,
+                                    doctor_country,
+                                    agenda,
+                                    calendarRef,
+                                    roles,
+                                    refs,
+                                    spinner: loading,
+                                    t,
+                                    sortedData: sortedData.current,
+                                    mutate: refreshData
+                                }}
+                                OnAddAppointment={handleAddAppointment}
+                                OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
+                                OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                                OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                                OnSelectEvent={onSelectEvent}
+                                OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
+                                OnEventChange={onEventChange}
+                                OnMenuActions={onMenuActions}
+                                OnSelectDate={onSelectDate}
+                                OnViewChange={onViewChange}
+                                OnRangeChange={handleOnRangeChange}/>
+                            {isMobile &&
+                                <Zoom
+                                    in={!loading}
+                                    timeout={transitionDuration}
+                                    style={{
+                                        transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
                                     }}
-                                    OnAddAppointment={handleAddAppointment}
-                                    OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                    OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                    OnSelectEvent={onSelectEvent}
-                                    OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
-                                    OnEventChange={onEventChange}
-                                    OnMenuActions={onMenuActions}
-                                    OnSelectDate={onSelectDate}
-                                    OnViewChange={onViewChange}
-                                    OnRangeChange={handleOnRangeChange}/>
-                                {isMobile &&
-                                    <Zoom
-                                        in={!loading}
-                                        timeout={transitionDuration}
-                                        style={{
-                                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                    unmountOnExit>
+                                    <SpeedDial
+                                        ariaLabel="SpeedDial tooltip Add"
+                                        sx={{
+                                            position: 'fixed',
+                                            bottom: 50,
+                                            right: 16
                                         }}
-                                        unmountOnExit
-                                    >
-                                        <SpeedDial
-                                            ariaLabel="SpeedDial tooltip Add"
-                                            sx={{
-                                                position: 'fixed',
-                                                bottom: 50,
-                                                right: 16
-                                            }}
-                                            icon={<SpeedDialIcon/>}
-                                            onClose={handleCloseFab}
-                                            onOpen={handleOpenFab}
-                                            open={openFabAdd}
-                                        >
-                                            {actions.map((action) => (
-                                                <SpeedDialAction
-                                                    key={action.name}
-                                                    icon={action.icon}
-                                                    tooltipTitle={t(`${action.key}`)}
-                                                    tooltipOpen
-                                                    onClick={() => handleActionFab(action)}
-                                                />
-                                            ))}
-                                        </SpeedDial>
-                                    </Zoom>}
-                            </motion.div>
-                        </AnimatePresence>
-                    }
-                </>
+                                        icon={<SpeedDialIcon/>}
+                                        onClose={handleCloseFab}
+                                        onOpen={handleOpenFab}
+                                        open={openFabAdd}>
+                                        {actions.map((action) => (
+                                            <SpeedDialAction
+                                                key={action.name}
+                                                icon={action.icon}
+                                                tooltipTitle={t(`${action.key}`)}
+                                                tooltipOpen
+                                                onClick={() => handleActionFab(action)}
+                                            />
+                                        ))}
+                                    </SpeedDial>
+                                </Zoom>}
+                        </motion.div>
+                    </AnimatePresence>
+                }
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
@@ -1112,8 +1104,7 @@ function Agenda() {
                             minWidth: "29vw",
                             maxWidth: "30rem",
                         }
-                    }}
-                >
+                    }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
@@ -1135,7 +1126,7 @@ function Agenda() {
                                 dispatch(openDrawer({type: "view", open: false}));
                                 dispatch(openDrawer({type: "patient", open: true}));
                             }}
-                            SetMoveDialog={() => setMoveDialogInfo(true)}
+                            SetMoveDialog={() => setMoveDialogInfo({...moveDialogInfo, info: true})}
                             SetCancelDialog={() => {
                                 setActionDialog('cancel');
                                 setCancelDialog(true)
@@ -1164,8 +1155,7 @@ function Agenda() {
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
-                    }}
-                >
+                    }}>
                     <Box height={"100%"}>
                         <CustomStepper
                             currentIndex={currentStepper}
@@ -1210,8 +1200,7 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         setQuickAddAppointment(false);
-                    }}
-                >
+                    }}>
                     <QuickAddAppointment
                         {...{t}}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
@@ -1223,16 +1212,14 @@ function Agenda() {
                             textAlign: "right",
                             p: "1rem"
                         }}
-                        className="action"
-                    >
+                        className="action">
                         <Button
                             sx={{
                                 mr: 1
                             }}
                             variant="text-primary"
                             onClick={() => setQuickAddAppointment(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.quick_add_appointment-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -1254,7 +1241,7 @@ function Agenda() {
                     contrastText={moveDialogAction === "move" ? theme.palette.warning.contrastText : theme.palette.primary.contrastText}
                     dialogClose={() => {
                         event?.extendedProps.revert && event?.extendedProps.revert();
-                        setMoveDialog(false);
+                        setMoveDialogInfo({...moveDialogInfo, dialog: false});
                     }}
                     dir={direction}
                     action={() => (
@@ -1271,12 +1258,11 @@ function Agenda() {
                                     {humanizeDuration(event?.extendedProps.duration * 60000)}
                                 </>
                                 }
-
                             </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
                         </Box>)}
-                    open={moveDialog}
+                    open={moveDialogInfo.dialog}
                     title={t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
@@ -1284,10 +1270,9 @@ function Agenda() {
                                 variant="text-primary"
                                 onClick={() => {
                                     event?.extendedProps.revert && event?.extendedProps.revert();
-                                    setMoveDialog(false)
+                                    setMoveDialogInfo({...moveDialogInfo, dialog: false})
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1297,8 +1282,7 @@ function Agenda() {
                                 color={moveDialogAction === "move" ? "warning" : "primary"}
                                 onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
                                     handleRescheduleAppointment(event as EventDef)}
-                                startIcon={<IconUrl path="iconfinder"></IconUrl>}
-                            >
+                                startIcon={<IconUrl path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1328,8 +1312,7 @@ function Agenda() {
                             <Button
                                 variant="text-primary"
                                 onClick={() => setCancelDialog(false)}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
                             </Button>
                             <LoadingButton
@@ -1339,8 +1322,7 @@ function Agenda() {
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="icdelete"></IconUrl>}
-                            >
+                                                    path="icdelete"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1381,37 +1363,40 @@ function Agenda() {
                 />
 
                 <Dialog
+                    {...{direction}}
                     action={"add_a_document"}
-                    open={openUploadDialog}
+                    open={openUploadDialog.dialog}
                     data={{
                         t,
                         state: documentConfig,
                         setState: setDocumentConfig
                     }}
                     size={"md"}
-                    direction={"ltr"}
                     sx={{minHeight: 400}}
                     title={t("config.doc_detail_title", {ns: "patient"})}
-                    dialogClose={() => {
-                        setOpenUploadDialog(false);
-                    }}
-                    onClose={() => {
-                        setOpenUploadDialog(false);
-                    }}
+                    {...(!openUploadDialog.loading && {
+                        dialogClose: () => setOpenUploadDialog({
+                            ...openUploadDialog,
+                            dialog: false
+                        })
+                    })}
                     actionDialog={
                         <DialogActions>
                             <Button
                                 onClick={() => {
-                                    setOpenUploadDialog(false);
+                                    setOpenUploadDialog({...openUploadDialog, dialog: false});
                                 }}
                                 startIcon={<CloseIcon/>}>
                                 {t("config.add-patient.cancel", {ns: "patient"})}
                             </Button>
                             <LoadingButton
-                                loading={loadingRequest}
+                                loading={openUploadDialog.loading}
                                 loadingPosition={"start"}
                                 variant="contained"
-                                onClick={() => handleUploadDocuments()}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleUploadDocuments();
+                                }}
                                 startIcon={<SaveRoundedIcon/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
@@ -1431,27 +1416,26 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => {
-                        setMoveDialogInfo(false);
+                        setMoveDialogInfo({...moveDialogInfo, info: false});
                         if (openMoveDrawer) {
                             dispatch(openDrawer({type: "move", open: false}));
                         }
                     }}
                     action={"move_appointment"}
                     dir={direction}
-                    open={moveDialogInfo}
+                    open={moveDialogInfo.info}
                     title={t(`dialogs.${moveDialogAction}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
                                 onClick={() => {
-                                    setMoveDialogInfo(false);
+                                    setMoveDialogInfo({...moveDialogInfo, info: false});
                                     if (openMoveDrawer) {
                                         dispatch(openDrawer({type: "move", open: false}));
                                     }
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1462,13 +1446,49 @@ function Agenda() {
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="iconfinder"></IconUrl>}
-                            >
+                                                    path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
                     }
                 />
+
+                <Dialog
+                    action={"payment_dialog"}
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 380
+                        }
+                    }}
+                    open={openPayDialog}
+                    data={{
+                        selectedPayment,
+                        setSelectedPayment,
+                        appointment: event?.extendedProps,
+                        patient: event?.extendedProps.patient
+                    }}
+                    size={"lg"}
+                    fullWidth
+                    title={t("payment_dialog_title")}
+                    dialogClose={() => setOpenPaymentDialog(false)}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={event => {
+                                event.stopPropagation();
+                                setOpenPaymentDialog(false);
+                            }} startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <LoadingButton
+                                variant="contained"
+                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
                 <MobileContainer>
                     <Button
                         startIcon={<IconUrl path="ic-filter"/>}
@@ -1496,22 +1516,12 @@ function Agenda() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
-    // `getStaticProps` is executed on the server side.
-    const {data: countries} = await instanceAxios({
-        url: `/api/public/places/countries/${locale}?nationality=true`,
-        method: "GET"
-    });
-
-    return {
-        props: {
-            fallback: {
-                [`/api/public/places/countries/${locale}?nationality=true`]: countries
-            },
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
-        }
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
     }
-}
+})
 
 export default Agenda
 

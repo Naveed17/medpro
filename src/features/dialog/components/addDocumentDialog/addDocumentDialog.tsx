@@ -106,7 +106,7 @@ function AddDocumentDialog({...props}) {
                             ))
                             : ((httpTypeResponse as HttpResponse)?.data ?? []).map(
                                 (item: any, index: number) => (
-                                    <Grid key={index} item xs={6} md={6}>
+                                    <Grid key={index} item xs={6} sm={4} md={6}>
                                         <DocumentButton
                                             icon={item.logo.url}
                                             active={data.state.type}
@@ -130,7 +130,7 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={9}>
-                    {files.length === 0 && <Stack width={"80%"}
+                    {files.length === 0 && <Stack width={{xs:"100%",md:"80%"}}
                                                   margin={"auto"}
                                                   mt={6}
                                                   spacing={2}

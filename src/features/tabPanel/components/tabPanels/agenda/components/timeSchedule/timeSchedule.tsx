@@ -291,9 +291,9 @@ function TimeSchedule({...props}) {
                                            badgeContent={recurringDates.length} color="warning"/>
                                 </Typography>}
                             </Stack>}/>
-                        {openTime ? <ExpandLess/> : <ExpandMore/>}
+                        {openTime || recurringDates.length === 0 ? <ExpandLess/> : <ExpandMore/>}
                     </ListItemButton>
-                    <Collapse in={openTime} timeout="auto" unmountOnExit>
+                    <Collapse in={openTime || recurringDates.length === 0} timeout="auto" unmountOnExit>
                         {children}
                     </Collapse>
                 </List>}>
@@ -424,7 +424,7 @@ function TimeSchedule({...props}) {
                                 {!changeTime && <Grid item md={6} xs={12}>
                                     <StaticDatePicker
                                         views={['day']}
-                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
+                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                         onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                                         value={(location) ? date : null}
                                         loading={!location || !medical_professional}
@@ -518,7 +518,7 @@ function TimeSchedule({...props}) {
                     }
 
                     {(timeAvailable || recurringDates.length > 0) &&
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence>
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}

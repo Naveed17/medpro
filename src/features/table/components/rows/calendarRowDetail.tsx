@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import {Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, Button, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, IconButton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
@@ -20,6 +20,8 @@ import {useSession} from "next-auth/react";
 import {useDuplicatedDetect} from "@lib/hooks/rest";
 import {setDuplicated} from "@features/duplicateDetected";
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import {SmallAvatar} from "@features/avatar";
+import Zoom from "@mui/material/Zoom";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -100,8 +102,21 @@ function CalendarRowDetail({...props}) {
                     }}
                     className="first-child">
                     <Box sx={{display: "flex"}}>
-                        <Box sx={{display: "flex", mt: .3}}>
-                            {data.hasErrors?.length > 0 && <DangerIcon className="error"/>}
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                            {data.hasErrors?.length > 0 &&
+                                <Tooltip
+                                    title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
+                                    TransitionComponent={Zoom}>
+                                    <SmallAvatar
+                                        sx={{
+                                            p: 1.5,
+                                            mr: 1
+                                        }}>
+                                        <DangerIcon
+                                            className="error"
+                                            color={"error"}/>
+                                    </SmallAvatar>
+                                </Tooltip>}
                             <TimeIcon/>
                             <Typography variant="body2" color="text.secondary">
                                 {new Date(data.time).toLocaleTimeString([], {
@@ -109,7 +124,7 @@ function CalendarRowDetail({...props}) {
                                     minute: "2-digit",
                                 })}
                             </Typography>
-                        </Box>
+                        </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label
                                 sx={{ml: 1, fontSize: 10}}
@@ -136,7 +151,7 @@ function CalendarRowDetail({...props}) {
                             },
                         },
                     }}>
-                    <Typography variant="body2" color="primary.main">
+                    <Typography variant="body2" color="primary.main" sx={{minHeight: 28}}>
                         {" "}
                         {data.motif?.map((reason: any) => reason.name).join(", ")}
                     </Typography>
@@ -188,45 +203,34 @@ function CalendarRowDetail({...props}) {
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
                         {duplications?.length > 0 &&
-                            <LoadingButton
-                                variant="contained"
-                                size={"small"}
-                                {...{loading}}
-                                color={"warning"}
-                                loadingPosition={"start"}
-                                startIcon={<WarningRoundedIcon/>}
-                                sx={{
-                                    p: "0 auto", borderRadius: 3, ml: 1, minHeight: 24,
-                                    "& .MuiButton-startIcon": {mr: 0}
-                                }}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    dispatch(setDuplicated({
-                                        duplications,
-                                        duplicationSrc: data.patient,
-                                        duplicationInit: data.patient,
-                                        openDialog: true,
-                                        mutate: mutateAgenda
-                                    }));
-                                }}>
-                                <Label
-                                    variant="outlined"
-                                    sx={{
-                                        cursor: "pointer",
-                                        pl: 0,
-                                        "& .MuiSvgIcon-root": {
-                                            width: 16,
-                                            height: 16
-                                        }
+                            <Tooltip title={t("duplication")} TransitionComponent={Zoom}>
+                                <IconButton
+                                    sx={{p: "0 8px", "& .MuiAvatar-root": {p: 1.5}}}
+                                    color={"warning"}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        dispatch(setDuplicated({
+                                            duplications,
+                                            duplicationSrc: data.patient,
+                                            duplicationInit: data.patient,
+                                            openDialog: true,
+                                            mutate: mutateAgenda
+                                        }));
                                     }}>
-                                    <Typography
+                                    <SmallAvatar
                                         sx={{
-                                            fontSize: 10,
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis"
-                                        }}> {t("duplication")}</Typography>
-                                </Label>
-                            </LoadingButton>}
+                                            background: theme.palette.warning.main
+                                        }}>
+                                        <WarningRoundedIcon
+                                            color={"black"}
+                                            sx={{
+                                                width: 16,
+                                                height: 16,
+                                                marginTop: -0.2
+                                            }}/>
+                                    </SmallAvatar>
+                                </IconButton>
+                            </Tooltip>}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>

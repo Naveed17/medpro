@@ -222,7 +222,8 @@ function AntecedentsCard({...props}) {
                 <Dialog
                     {...{
                         direction,
-                        size
+                        size,
+                        sx:{px:{xs:1.2,md:3}}
                     }}
                     action={info}
                     open={openDialog}

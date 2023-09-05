@@ -40,7 +40,18 @@ function BasicList({...props}) {
                                 </ConditionalWrapper>
                             </ListItemAvatar>
                             <Stack direction={"column"}>
-                                <ListItemText sx={{"& .MuiTypography-root": {fontSize: 12}}} primary={item.title}/>
+                                <ListItemText sx={{"& .MuiTypography-root": {fontSize: 12}}} primary={<>
+                                    {item.title}
+                                    {item.appointment?.fees > 0 && <Chip size={"small"}
+                                                                         sx={{
+                                                                             height: 16,
+                                                                             ml: 1,
+                                                                             fontSize: 10,
+                                                                             padding: 0
+                                                                         }}
+                                                                         color="secondary"
+                                                                         label={`${item.appointment?.fees} ${devise}`}/>}
+                                </>}/>
                                 {item.appointment?.instruction?.length > 0 && <Stack direction={"row"}>
                                     <NotesIcon sx={{fontSize: 20}}/>
                                     <Typography
@@ -49,7 +60,7 @@ function BasicList({...props}) {
                                 </Stack>}
                                 <Stack direction={item?.action !== "end-consultation" ? "column" : "row"}
                                        alignItems={item?.action !== "end-consultation" ? "flex-start" : "center"}>
-                                    {item?.action !== "end-consultation" ? <span style={{display: "flex"}}>
+                                    {item?.action !== "end-consultation" && <span style={{display: "flex"}}>
                                         <Typography
                                             sx={{display: 'inline'}}
                                             component="span"
@@ -59,9 +70,7 @@ function BasicList({...props}) {
                                             {item.duration} <span className="dot"></span>
                                         </Typography>
                                         <Typography variant={"body2"}> {t("online")}</Typography>
-                                    </span> : item.appointment?.fees > 0 && <Chip sx={{height: 26}}
-                                                                                  color="primary"
-                                                                                  label={`${item.appointment?.fees} ${devise}`}/>}
+                                    </span>}
 
 
                                     <Stack direction={"row"}>

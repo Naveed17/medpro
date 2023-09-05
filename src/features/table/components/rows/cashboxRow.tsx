@@ -38,7 +38,7 @@ import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
 import {useSWRConfig} from "swr";
-
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {
@@ -61,7 +61,6 @@ function PaymentRow({...props}) {
     const devise = doctor_country.currency?.name;
 
     const {mutate} = useSWRConfig();
-
 
     const router = useRouter();
     const theme = useTheme();
@@ -518,6 +517,7 @@ function PaymentRow({...props}) {
                                                             color="text.primary"
                                                             variant="body2">
                                                             {t(col.payment_means.name)}
+                                                            {col.status_transaction_data === 3 && <CheckCircleOutlineRoundedIcon style={{fontSize:15}} color={"success"}/>}
                                                         </Typography>}
 
                                                         {!col.payment_means && col.insurance && <Typography
@@ -531,9 +531,16 @@ function PaymentRow({...props}) {
                                                             {t('wallet')}
                                                         </Typography>}
                                                     </Stack>
-
                                                 </Stack>
-
+                                            </TableCell>
+                                            <TableCell>
+                                                {col.data.check_number && <Typography>{col.data.check_number}</Typography>}
+                                            </TableCell>
+                                            <TableCell>
+                                                {col.data.carrier && <Typography>{col.data.carrier}</Typography>}
+                                            </TableCell>
+                                            <TableCell>
+                                                {col.data.bank && <Typography>{col.data.bank}</Typography>}
                                             </TableCell>
                                             {/*
                                             <TableCell

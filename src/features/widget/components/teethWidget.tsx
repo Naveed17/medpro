@@ -193,7 +193,7 @@ export default function TeethWidget({...props}) {
     };
     const editStorage = (trait: TraitementTeeth[]) => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
-        const res = data ? JSON.parse(data) : {};
+        const res = data ? JSON.parse(data) : {[`${of}Teeth`]:{}};
         res[`${of}Teeth`] = {
             absent,
             traitements: [...trait]
