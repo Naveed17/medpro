@@ -1091,7 +1091,7 @@ function Agenda() {
 
                 <Drawer
                     anchor={"right"}
-                    open={openViewDrawer}
+                    open={openViewDrawer && !openPatientDrawer}
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "view", open: false}));
