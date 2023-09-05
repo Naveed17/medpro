@@ -1152,7 +1152,8 @@ function ConsultationInProgress() {
                         onClose={() => {
                             setOpenChat(false)
                         }}>
-                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat}}/>
+                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat,
+                            setInfo,setOpenDialog,router, setState}}/>
                     </Drawer>
 
                     <DrawerBottom
