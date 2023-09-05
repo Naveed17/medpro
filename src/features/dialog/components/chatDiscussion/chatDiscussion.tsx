@@ -12,6 +12,7 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import moment from "moment-timezone";
+import {Player} from "@lottiefiles/react-lottie-player";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -227,8 +228,17 @@ function ChatDiscussionDialog({...props}) {
             }}>
                 {
                     loadingResponse &&
-                    <Typography fontSize={12} color={"grey"} mb={1}
-                                ml={2}>{t('chat.wait')}</Typography>
+                    <Player
+                        autoplay
+                        loop={true}
+                        src="/static/lotties/typing.json"
+                        style={{
+                            height: "35px",
+                            width: "85px",
+                            transform: "scale(1.2)",
+                            margin: 0
+                        }}
+                    />
                 }
                 {messages.map((msg, index) => (
                     <Box key={`msg-${index}`}>
