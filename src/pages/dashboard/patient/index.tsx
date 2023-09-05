@@ -324,7 +324,7 @@ function Patient() {
         isLoading
     } = useRequest(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${router.query.params ?? localFilter}`
     } : null, isMobile && SWRNoValidateConfig);
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {

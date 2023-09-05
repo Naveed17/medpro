@@ -10,7 +10,7 @@ import {
     IconButton,
     Skeleton,
     Stack,
-    styled, Theme,
+    Theme,
     Tooltip,
     Typography, useTheme
 } from "@mui/material";
@@ -19,7 +19,7 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {Fragment, useState} from "react";
+import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
@@ -39,8 +39,6 @@ function PatientRow({...props}) {
 
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
-
-    const [loadingRequest, setLoadingRequest] = useState(false);
 
     const handlePatientRowClick = (event: any) => {
         event.stopPropagation();
@@ -213,14 +211,15 @@ function PatientRow({...props}) {
                                     <Tooltip key={index} title={insuranceItem?.insurance.name}>
                                         <Avatar variant={"circular"}>
                                             {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
-                                                <ImageHandler
-                                                    alt={insuranceItem?.name}
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    style={{width: 20, height: 20}}
                                                     src={insurances.find(
                                                         (insurance: any) =>
                                                             insurance.uuid ===
                                                             insuranceItem?.insurance.uuid
                                                     ).logoUrl.url}
-                                                />}
+                                                    alt={insuranceItem?.name}/>}
                                         </Avatar>
                                     </Tooltip>
                                 )}

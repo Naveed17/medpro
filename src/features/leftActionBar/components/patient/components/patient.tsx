@@ -20,6 +20,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useRouter} from "next/router";
 import {setSelectedRows} from "@features/table";
+import {prepareSearchKeys} from "@lib/hooks";
 
 function Patient() {
     const router = useRouter();
@@ -83,14 +84,17 @@ function Patient() {
                 <InsuranceFilter
                     {...{t}}
                     OnSearch={(data: { query: any }) => {
-                        dispatch(setFilter({
+                        const queryData = prepareSearchKeys({
                             ...filter,
                             patient: {
                                 ...filter?.patient,
                                 ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
                             }
-                        }));
-                        router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+                        } as any);
+                        router.replace({
+                            pathname: '/dashboard/patient?page=1',
+                            ...(queryData.length > 0 && {query: {params: queryData}})
+                        }, "/dashboard/patient", {shallow: true});
                     }}/>
             ),
         },
@@ -102,8 +106,11 @@ function Patient() {
             },
             expanded: false,
             children: (<AppointmentReasonsFilter OnSearch={(data: any) => {
-                dispatch(setFilter(data));
-                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
             }}/>)
         },
         {
@@ -113,9 +120,12 @@ function Patient() {
                 title: "acts",
             },
             expanded: false,
-            children: (<AppointmentActs OnSearch={(data: { query: any }) => {
-                dispatch(setFilter(data));
-                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+            children: (<AppointmentActs OnSearch={(data: any) => {
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
             }}/>)
         },
         {
@@ -125,9 +135,12 @@ function Patient() {
                 title: "disease",
             },
             expanded: false,
-            children: (<AppointmentDisease OnSearch={(data: { query: any }) => {
-                dispatch(setFilter(data));
-                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+            children: (<AppointmentDisease OnSearch={(data: any) => {
+                const queryData = prepareSearchKeys(data);
+                router.replace({
+                    pathname: '/dashboard/patient?page=1',
+                    ...(queryData.length > 0 && {query: {params: queryData}})
+                }, "/dashboard/patient", {shallow: true});
             }}/>)
         }
     ]);
@@ -144,9 +157,11 @@ function Patient() {
                 <FilterRootStyled>
                     <PlaceFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            dispatch(setFilter({patient: data.query}));
-                            dispatch(setFilter({patient: data.query}));
-                            router.replace("/dashboard/patient?page=1", "/dashboard/patient", {shallow: true});
+                            const queryData = prepareSearchKeys({patient: data.query} as any);
+                            router.replace({
+                                pathname: '/dashboard/patient?page=1',
+                                ...(queryData.length > 0 && {query: {params: queryData}})
+                            }, "/dashboard/patient", {shallow: true});
                         }}
                         item={collapse[1]}
                         setOpend={(ev: string) => {
