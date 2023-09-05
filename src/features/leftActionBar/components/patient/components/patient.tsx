@@ -42,14 +42,10 @@ function Patient() {
                 <FilterRootStyled>
                     <PatientFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            router
-                                .replace("/dashboard/patient?page=1", "/dashboard/patient", {
-                                    shallow: true,
-                                })
-                                .then(() => {
-                                    dispatch(setSelectedRows([]));
-                                    dispatch(setFilter({patient: data.query}));
-                                });
+                            router.replace("/dashboard/patient?page=1", "/dashboard/patient", {shallow: true}).then(() => {
+                                dispatch(setSelectedRows([]));
+                                dispatch(setFilter({patient: data.query}));
+                            });
                         }}
                         item={{
                             heading: {
@@ -94,6 +90,7 @@ function Patient() {
                                 ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
                             }
                         }));
+                        router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
                     }}/>
             ),
         },
@@ -104,7 +101,10 @@ function Patient() {
                 title: "reason_for_consultation",
             },
             expanded: false,
-            children: (<AppointmentReasonsFilter/>)
+            children: (<AppointmentReasonsFilter OnSearch={(data: any) => {
+                dispatch(setFilter(data));
+                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+            }}/>)
         },
         {
             heading: {
@@ -113,7 +113,10 @@ function Patient() {
                 title: "acts",
             },
             expanded: false,
-            children: (<AppointmentActs/>)
+            children: (<AppointmentActs OnSearch={(data: { query: any }) => {
+                dispatch(setFilter(data));
+                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+            }}/>)
         },
         {
             heading: {
@@ -122,7 +125,10 @@ function Patient() {
                 title: "disease",
             },
             expanded: false,
-            children: (<AppointmentDisease/>)
+            children: (<AppointmentDisease OnSearch={(data: { query: any }) => {
+                dispatch(setFilter(data));
+                router.replace('/dashboard/patient?page=1', "/dashboard/patient", {shallow: true});
+            }}/>)
         }
     ]);
 
@@ -138,14 +144,9 @@ function Patient() {
                 <FilterRootStyled>
                     <PlaceFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            router
-                                .replace("/dashboard/patient?page=1", "/dashboard/patient", {
-                                    shallow: true,
-                                })
-                                .then(() => {
-                                    dispatch(setFilter({patient: data.query}));
-                                });
                             dispatch(setFilter({patient: data.query}));
+                            dispatch(setFilter({patient: data.query}));
+                            router.replace("/dashboard/patient?page=1", "/dashboard/patient", {shallow: true});
                         }}
                         item={collapse[1]}
                         setOpend={(ev: string) => {

@@ -18,6 +18,7 @@
   "stats": "Statistics",
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
+  "noOption": "No results found",
   "loading-error": {
     "title": "Refresh the page !",
     "description": "An error occurred during initialization. Click the button to retry.",
@@ -422,5 +423,4 @@
   },
   "satisfied": "Satisfied",
   "notsatisfied": "Not satisfied"
-
 }
