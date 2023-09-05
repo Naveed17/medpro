@@ -8,7 +8,6 @@ import {JWT} from "next-auth/jwt";
 // https://next-auth.js.org/configuration/options
 
 const refreshAccessToken = async (token: JWT) => {
-    console.log("refreshAccessToken");
     try {
         if (Date.now() > (token as any).refreshTokenExpired) {
             console.log('Error thrown');
@@ -165,7 +164,6 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async jwt({token, user, account, trigger, session}) {
-            console.log("trigger", trigger, session);
             // Persist the OAuth access_token to the token right after signin
             if (trigger === "update" && session?.agenda_default_view) {
                 // Note, that `session` can be any arbitrary object, remember to validate it!
