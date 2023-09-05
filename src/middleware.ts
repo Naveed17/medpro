@@ -44,5 +44,5 @@ export const config = {
     api: {
         externalResolver: true
     },
-    matcher: ["/dashboard/:path*", "/edit-profile", "/maintenance"]
+    matcher: ["/dashboard/:path*", "/edit-profile", "/maintenance", "/initialization"]
 }
