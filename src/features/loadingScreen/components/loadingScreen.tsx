@@ -55,8 +55,7 @@ function LoadingScreen({...props}) {
                         strokeLinejoin: "round",
                         strokeLinecap: "round",
                         mb: 3,
-                    }}
-                >
+                    }}>
                     <MedProIcon color={(theme.palette[color as keyof typeof theme.palette] as PaletteColor).main}/>
                 </Box>
 
@@ -65,14 +64,12 @@ function LoadingScreen({...props}) {
                     sx={{
                         ul: {listStyleType: "none", display: "contents", p: 0},
                         svg: {mx: 0.7},
-                    }}
-                >
+                    }}>
                     <motion.ul
                         className="container"
                         variants={container}
                         initial="hidden"
-                        animate="visible"
-                    >
+                        animate="visible">
                         <motion.li variants={item}>
                             <IconUrl path="color/ic-doctor-gris"/>
                         </motion.li>

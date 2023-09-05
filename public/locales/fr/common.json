@@ -30,6 +30,11 @@
     "description": "Nous sommes en train de mettre à jour Medlink pour vous. N'hésitez pas à revenir bientôt.",
     "button": "Réessayer"
   },
+  "initialisation-error": {
+    "title": "Initialisation...",
+    "description": "Nous sommes en train de initialiser votre compte pour vous. Veuillez patienter un instant.",
+    "button": "Réessayer"
+  },
   "loading-error-404": {
     "title": "Page non trouvée",
     "description": "La page que vous recherchez a peut-être été supprimée ou est temporairement indisponible.",
