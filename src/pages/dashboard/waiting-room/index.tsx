@@ -331,21 +331,6 @@ function WaitingRoom() {
         }
     }, [dispatch, waitingRooms]);
 
-    /*    useEffect(() => {
-            if (roles && roles.includes('ROLE_SECRETARY')) {
-                setPopoverActions([
-                    {
-                        title: "pre_consultation_data",
-                        icon: <PendingIcon/>,
-                        action: "onPreConsultation",
-                    }, {
-                        title: "leave_waiting_room",
-                        icon: <IconUrl color={"white"} path="ic-salle"/>,
-                        action: "onLeaveWaitingRoom",
-                    }])
-            }
-        }, [roles]);*/
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
