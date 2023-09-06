@@ -108,7 +108,7 @@ function LoadingScreen({...props}) {
                 {button &&
                     <Button
                         onClick={() => {
-                            clearBrowserCache();
+                            clearBrowserCache().then(() => router.reload());
                             if (process.env.NODE_ENV !== 'development') {
                                 router.replace("/dashboard/agenda");
                             }
