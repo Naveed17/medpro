@@ -87,13 +87,13 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                             Object.values(ev.data).filter((val) => val !== "").length > 0;
                         setChanges([...changes]);
                     }
-
                 }}
                 // @ts-ignore
                 submission={{
-                    data: localStorage.getItem(`Modeldata${appuuid}`)
-                        ? JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)
-                        : data,
+                    data
+                    /*: localStorage.getItem(`Modeldata${appuuid}`)
+                    ? JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)
+                    : data,*/
                 }}
                 form={{
                     display: "form",
