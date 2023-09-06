@@ -195,29 +195,33 @@ export const authOptions: NextAuthOptions = {
                 }
                 setAxiosToken(<string>token.accessToken);
 
-                const res = await requestAxios({
-                    url: "/api/private/users/fr",
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token.accessToken}`
+                try {
+                    const res = await requestAxios({
+                        url: "/api/private/users/fr",
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token.accessToken}`
+                        }
+                    });
+
+                    if (token.error && res?.data?.data) {
+                        delete token['error']
                     }
-                }).catch((error) => {
+
+                    if (!token.error) {
+                        Object.assign(res?.data.data, {
+                            medical_entity: res?.data.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
+                                entity.is_default)?.medical_entity
+                        });
+                        token.data = res?.data.data;
+                    }
+
+                    return token;
+
+                } catch (error) {
                     token.error = error.response.data;
                     return token;
-                });
-
-                if (token.error && res?.data?.data) {
-                    delete token['error']
                 }
-
-                if (!token.error) {
-                    Object.assign(res?.data.data, {
-                        medical_entity: res?.data.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
-                            entity.is_default)?.medical_entity
-                    });
-                    token.data = res?.data.data;
-                }
-                return token
             }
 
             // Return previous token if the access token has not expired yet
