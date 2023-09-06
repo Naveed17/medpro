@@ -17,7 +17,7 @@ export default withAuth(
         }
 
         const token = req.nextauth.token as any;
-        console.log("token.user", token.user);
+
         if (token.error) {
             return NextResponse.rewrite(
                 new URL(`/initialization`, req.url)
