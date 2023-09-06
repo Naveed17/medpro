@@ -2,6 +2,7 @@ import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server"
 import type {JWT} from "next-auth/jwt"
 import {withAuth} from "next-auth/middleware"
+import {signOut} from "next-auth/react";
 
 export default withAuth(
     // @ts-ignore
@@ -20,7 +21,7 @@ export default withAuth(
 
         if (token.error) {
             return NextResponse.rewrite(
-                new URL(`/initialization`, req.url)
+                new URL(token.error === "RefreshAccessTokenError" ? '/api/auth/signout' : '/initialization', req.url)
             )
         } else if (req.nextUrl.pathname.startsWith('/dashboard')) {
             const medical_professional: MedicalProfessionalModel = token?.user?.medical_professional;
