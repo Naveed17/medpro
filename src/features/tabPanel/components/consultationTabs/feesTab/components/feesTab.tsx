@@ -1,9 +1,7 @@
 import React, {useState} from "react";
-import {Box, Button, InputAdornment, Stack, TextField} from "@mui/material";
+import {Box, InputAdornment, Stack, TextField} from "@mui/material";
 import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
-import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
-
 function FeesTab({...props}) {
 
     const [search, setSearch] = useState<string>("");
@@ -66,7 +64,6 @@ function FeesTab({...props}) {
         editAct,
         setTotal,
         devise,
-        router,
         t,
         isQuoteRequest
     } = props;
@@ -102,14 +99,14 @@ function FeesTab({...props}) {
                     devise={devise}
                     handleChange={setTotal}/>
 
-                {!isQuoteRequest&&<Button
+                {/* {!isQuoteRequest&&<Button
                     onClick={() => {
                         router.push("/dashboard/settings/actfees")
                     }}
                     size="small"
                     startIcon={<TuneRoundedIcon/>}>
                     {t('consultationIP.config')}
-                </Button>}
+                </Button>}*/}
             </Box>
 
             <Box pt={8}/>
