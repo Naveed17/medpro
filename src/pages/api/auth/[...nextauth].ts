@@ -219,8 +219,14 @@ export const authOptions: NextAuthOptions = {
                     return token;
 
                 } catch (error) {
-                    token.error = error.response.data;
-                    return token;
+                    const errorData = error.response.data;
+                    if (errorData.code === 4006) {
+                        token.error = errorData;
+                        return token;
+                    } else if (errorData.code === 4000) {
+                        // Access token has expired, try to update it
+                        return refreshAccessToken(token);
+                    }
                 }
             }
 
