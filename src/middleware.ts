@@ -37,7 +37,6 @@ export default withAuth(
                 if (token) return true // If there is a token, the user is authenticated
             }
         }
-        ,
     }
 )
 
