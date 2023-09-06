@@ -315,7 +315,6 @@ function DocumentsPanel({...props}) {
                     showQuote("", acts.filter(act => act.selected));
                     let _acts = [...acts]
                     _acts.map(act => {
-                        act.qte = 1;
                         act.selected = false
                     })
                     setActs([..._acts])
