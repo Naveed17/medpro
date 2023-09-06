@@ -193,11 +193,14 @@ export default function TeethWidget({...props}) {
     };
     const editStorage = (trait: TraitementTeeth[]) => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
-        const res = data ? JSON.parse(data) : {[`${of}Teeth`]:{}};
-        res[`${of}Teeth`] = {
-            absent,
-            traitements: [...trait]
+        let res = data ? JSON.parse(data) : {[`${of}Teeth`]: {}};
+        res = {
+            ...res, [`${of}Teeth`]: {
+                absent,
+                traitements: [...trait]
+            }
         }
+
         localStorage.setItem("Modeldata" + appuuid, JSON.stringify(res));
     }
 
@@ -406,7 +409,9 @@ export default function TeethWidget({...props}) {
                                                 </Box>
                                             )}
                                             MenuProps={MenuProps}>
-                                            {acts && acts.filter((act: { uuid: string; }) => act.uuid !== 'consultation_type').map((act: any) =>
+                                            {acts && acts.filter((act: {
+                                                uuid: string;
+                                            }) => act.uuid !== 'consultation_type').map((act: any) =>
                                                 <MenuItem key={act.uuid}
                                                           style={getStyles(act.uuid, traitement.acts, theme)}
                                                           value={act.uuid}>{act.act.name}</MenuItem>)}
