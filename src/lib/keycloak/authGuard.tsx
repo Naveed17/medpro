@@ -1,4 +1,4 @@
-import {signIn, signOut, useSession} from "next-auth/react";
+import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import React, {useEffect} from "react";
 import dynamic from "next/dynamic";
