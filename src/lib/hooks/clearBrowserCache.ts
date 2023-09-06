@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export async function clearBrowserCache() {
-    console.log("clearBrowserCache");
     // Clearing the session storage
     sessionStorage.clear();
     // Clearing the browser storage
