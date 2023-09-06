@@ -2,7 +2,6 @@ import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server"
 import type {JWT} from "next-auth/jwt"
 import {withAuth} from "next-auth/middleware"
-import {signOut} from "next-auth/react";
 
 export default withAuth(
     // @ts-ignore
