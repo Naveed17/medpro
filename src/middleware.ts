@@ -17,12 +17,13 @@ export default withAuth(
         }
 
         const token = req.nextauth.token as any;
+        console.log("token.user", token.user);
         if (token.error) {
             return NextResponse.rewrite(
                 new URL(`/initialization`, req.url)
             )
         } else if (req.nextUrl.pathname.startsWith('/dashboard')) {
-            const medical_professional: MedicalProfessionalModel = token.user.medical_professional;
+            const medical_professional: MedicalProfessionalModel = token?.user?.medical_professional;
             if (medical_professional !== undefined && medical_professional.registrationStep < 3) {
                 return NextResponse.rewrite(
                     new URL(`/edit-profile?from=${req.nextUrl.pathname}&step=${medical_professional.registrationStep}`, req.url)
