@@ -1,6 +1,6 @@
 import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
-import requestAxios, {setAxiosToken} from "@lib/axios/config";
+import {setAxiosToken} from "@lib/axios/config";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {JWT} from "next-auth/jwt";
 
@@ -195,31 +195,36 @@ export const authOptions: NextAuthOptions = {
                 }
                 setAxiosToken(<string>token.accessToken);
 
-                try {
-                    const res = await requestAxios({
-                        url: "/api/private/users/fr",
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token.accessToken}`
-                        }
-                    });
-
-                    if (token.error && res?.data?.data) {
+                const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
+                const response = await fetch(`${baseURL}api/private/users/fr`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token.accessToken}`
+                    }
+                });
+                const res = await response.json();
+                if (res.status === "error") {
+                    const errorData = res;
+                    if (errorData.code === 4006) {
+                        token.error = errorData;
+                        return token;
+                    } else if (errorData.code === 4000) {
+                        // Access token has expired, try to update it
+                        return refreshAccessToken(token);
+                    }
+                } else {
+                    if (token.error && res?.data) {
                         delete token['error']
                     }
 
                     if (!token.error) {
-                        Object.assign(res?.data.data, {
-                            medical_entity: res?.data.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
+                        Object.assign(res?.data, {
+                            medical_entity: res?.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
                                 entity.is_default)?.medical_entity
                         });
-                        token.data = res?.data.data;
+                        token.data = res?.data;
                     }
 
-                    return token;
-
-                } catch (error) {
-                    token.error = error.response.data;
                     return token;
                 }
             }
