@@ -41,7 +41,9 @@ function AuthGuard({children}: LayoutProps) {
     useEffect(() => {
         // check if the error has occurred
         if (session?.error === "RefreshAccessTokenError") {
-            signOut({redirect: true, callbackUrl: "/api/auth/signout"});
+            signIn('keycloak', {
+                callbackUrl: `${router.locale}/dashboard/agenda`,
+            }); // Force sign in to hopefully resolve error
         }
     }, [session?.error, router]);
 
