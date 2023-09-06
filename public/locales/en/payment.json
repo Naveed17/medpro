@@ -18,6 +18,7 @@
   "check": "Chéque",
   "betav":"Use the new cash box version (beta)",
   "carrier": "Porteur",
+  "add_reason": "add",
   "description": "Désignation",
   "paymentMean": "Moyen de paiement",
   "bank": "Banque",

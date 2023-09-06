@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react'
 import PaymentDialogStyled from './overrides/paymentDialogStyle';
 import {
+    Autocomplete,
     Avatar,
     Box,
     Button,
     Checkbox,
+    Divider,
     FormControlLabel,
     FormGroup,
     Grid,
     IconButton,
+    MenuItem,
     Paper,
     Stack,
     TextField,
@@ -36,9 +39,11 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {DatePicker} from "@features/datepicker";
 import {useInsurances} from "@lib/hooks/rest";
 import {useRequest} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
+import useBanks from "@lib/hooks/rest/useBanks";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -133,6 +138,7 @@ function PaymentDialog({...props}) {
     const router = useRouter();
 
     const {appointment, selectedPayment, setSelectedPayment, patient} = data;
+    const {banks} = useBanks();
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
@@ -184,7 +190,6 @@ function PaymentDialog({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
-
 
     useEffect(() => {
         setSelectedPayment({
@@ -537,7 +542,7 @@ function PaymentDialog({...props}) {
                                         </TabPanel>
                                     case 'check':
                                         return <TabPanel index={0}>
-                                            <Stack p={{xs: 1, sm: 2}}  justifyContent="center">
+                                            <Stack p={{xs: 1, sm: 2}} justifyContent="center">
                                                 <Typography gutterBottom>
                                                     {t('enter_the_amount')}
                                                 </Typography>
@@ -573,14 +578,51 @@ function PaymentDialog({...props}) {
                                                                         {...getFieldProps(`check[${idx}].carrier`)}
                                                                         required
                                                                     />
-                                                                    <TextField
-                                                                        variant="outlined"
-                                                                        placeholder={t("bank")}
+
+                                                                    <Autocomplete
+                                                                        id={"banks"}
+                                                                        freeSolo
                                                                         fullWidth
-                                                                        type="text"
-                                                                        {...getFieldProps(`check[${idx}].bank`)}
-                                                                        required
-                                                                    />
+                                                                        autoHighlight
+                                                                        disableClearable
+                                                                        placeholder={t("bank")}
+                                                                        size="small"
+                                                                        value={values[`check[${idx}].bank`]}
+                                                                        onChange={(e, newValue: any) => {
+                                                                            e.stopPropagation();
+                                                                            let res = ''
+                                                                            if (newValue.inputValue)
+                                                                                res = newValue.inputValue
+                                                                            else res = newValue.name
+                                                                            setFieldValue(`check[${idx}].bank`,res)
+                                                                        }}
+                                                                        filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                                                        sx={{color: "text.secondary"}}
+                                                                        options={banks ? banks : []}
+                                                                        loading={banks?.length === 0}
+                                                                        getOptionLabel={(option) => {
+                                                                            return option.name;
+                                                                        }}
+                                                                        isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                                                        renderOption={(props, option) => (
+                                                                            <Stack
+                                                                                key={option.uuid ? option.uuid : "-1"}>
+                                                                                {!option.uuid && <Divider/>}
+                                                                                <MenuItem
+                                                                                    {...props}
+                                                                                    value={option.uuid}>
+                                                                                    {!option.uuid && <AddOutlinedIcon/>}
+                                                                                    {option.name}
+                                                                                </MenuItem>
+                                                                            </Stack>
+                                                                        )}
+                                                                        renderInput={params => <TextField color={"info"}
+                                                                                                          {...params}
+                                                                                                          placeholder={"--"}
+                                                                                                          sx={{paddingLeft: 0}}
+                                                                                                          variant="outlined"
+                                                                                                          fullWidth/>}/>
+
                                                                 </Stack>
 
                                                                 <TextField
