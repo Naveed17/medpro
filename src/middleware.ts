@@ -19,9 +19,9 @@ export default withAuth(
 
         const token = req.nextauth.token as any;
 
-        if (token.error) {
+        if (token.error && token.error !== "RefreshAccessTokenError") {
             return NextResponse.rewrite(
-                new URL(token.error === "RefreshAccessTokenError" ? '/api/auth/signout' : '/initialization', req.url)
+                new URL('/initialization', req.url)
             )
         } else if (req.nextUrl.pathname.startsWith('/dashboard')) {
             const medical_professional: MedicalProfessionalModel = token?.user?.medical_professional;

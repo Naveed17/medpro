@@ -1,4 +1,4 @@
-import {signIn, useSession} from "next-auth/react";
+import {signIn, signOut, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import React, {useEffect} from "react";
 import dynamic from "next/dynamic";
@@ -37,6 +37,14 @@ function AuthGuard({children}: LayoutProps) {
             signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
         }
     }, [status, router]);
+
+    useEffect(() => {
+        // check if the error has occurred
+        if (session?.error === "RefreshAccessTokenError") {
+            signOut({redirect: true, callbackUrl: "/api/auth/signout"});
+        }
+    }, [session?.error, router]);
+
     // Make sure that you show a loading state for BOTH loading and unauthenticated.
     // This is because when status becomes `unathenticated` the component renders,
     // returns children and then the useEffect redirect is fired afterward,
