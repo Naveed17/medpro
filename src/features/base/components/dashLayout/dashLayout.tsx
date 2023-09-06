@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {motion} from "framer-motion";
-import {signIn, useSession} from "next-auth/react";
+import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
@@ -265,9 +265,9 @@ function DashLayout({children}: LayoutProps) {
                 dispatch(setProgress(progress ? parseFloat(progress) : 10));
             }
 
-            let demo =  user.medical_entity.hasDemo;
+            let demo = user.medical_entity.hasDemo;
             if (localStorage.getItem('newCashbox'))
-                demo =  localStorage.getItem('newCashbox') === "1";
+                demo = localStorage.getItem('newCashbox') === "1";
 
             dispatch(setOngoing({
                 mutate,
@@ -280,14 +280,6 @@ function DashLayout({children}: LayoutProps) {
             }));
         }
     }, [httpOngoingResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (session?.error === "RefreshAccessTokenError") {
-            signIn('keycloak', {
-                callbackUrl: `${router.locale}/dashboard/agenda`,
-            }); // Force sign in to hopefully resolve error
-        }
-    }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (permission) {

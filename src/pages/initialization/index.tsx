@@ -18,7 +18,6 @@ function Initialization() {
         button
         OnClick={() => {
             update({refresh: true}).then((data) => {
-                console.log("data", data);
                 if (!data?.hasOwnProperty("error")) {
                     router.reload();
                 }
