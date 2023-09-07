@@ -95,7 +95,7 @@ function CashBoxMobileCard({...props}) {
         "/payment/cashbox"
     );
 
-    
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
@@ -111,8 +111,6 @@ function CashBoxMobileCard({...props}) {
             selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             data,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
@@ -357,7 +355,7 @@ function CashBoxMobileCard({...props}) {
                                     direction="row"
                                     alignItems="center"
                                     justifyContent="center"
-                                   
+
                                     >
                                     {data.transaction_data &&
                                         data.transaction_data.map(
@@ -486,7 +484,7 @@ function CashBoxMobileCard({...props}) {
                             {data.rest_amount > 0 && (
                                 <Tooltip title={t("settlement")}>
                                     <IconButton
-                                       
+
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             openPutTransactionDialog();
@@ -498,7 +496,7 @@ function CashBoxMobileCard({...props}) {
                             )}
                             <Tooltip title={t("more")}>
                                     <IconButton
-                                       
+
                                         onClick={(e) => {
                                             e.stopPropagation();
                                              handleEvent({action: "PATIENT_PAYMENT", row: data, e});
@@ -518,8 +516,8 @@ function CashBoxMobileCard({...props}) {
                                         <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Tooltip>
-                            
-                            
+
+
                                 <Tooltip title={t("delete")}>
                                     <IconButton
                                         size="small"

@@ -8,3 +8,4 @@ export * from './waitingRoom';
 export * from './consultation';
 export * from './questions';
 export * from './payment';
+export * from './cashbox';

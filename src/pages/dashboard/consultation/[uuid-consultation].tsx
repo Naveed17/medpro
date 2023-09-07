@@ -717,7 +717,8 @@ function ConsultationInProgress() {
                 </Stack>
             </DialogActions>
         );
-    };
+    }
+
     const sendNotification = () => {
         if (secretary.length > 0 && patient) {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -727,10 +728,11 @@ function ConsultationInProgress() {
                 "content",
                 JSON.stringify({
                     fees: total,
+                    restAmount: appointment?.rest_amount,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
                     edited: false,
-                    payed: appointment?.transactions ? appointment.rest_amount === total : false,
+                    payed: appointment?.transactions ? appointment.rest_amount === 0 : appointment?.rest_amount !== 0,
                     nextApp: meeting ? meeting : "0",
                     appUuid: app_uuid,
                     dayDate: appointment?.day_date,

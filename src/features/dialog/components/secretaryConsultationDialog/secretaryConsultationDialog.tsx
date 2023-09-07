@@ -138,8 +138,6 @@ function SecretaryConsultationDialog({...props}) {
         OnTransactionEdit(selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             appointment.transactions,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
