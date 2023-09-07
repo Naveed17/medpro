@@ -30,6 +30,11 @@ export const siteHeader = {
             name: "payment",
             href: '/dashboard/payment'
         },
+        {
+            icon: "shopping-bag",
+            name: "inventory",
+            href: '/dashboard/inventory',
+        },
         // {
         //     icon: "ic-messanger-lite",
         //     name: "message",
@@ -45,11 +50,7 @@ export const siteHeader = {
         //     name: "questions",
         //     href: '/dashboard/questions',
         // },
-        // {
-        //     icon: "shopping-bag",
-        //     name: "shop",
-        //     href: '#',
-        // },
+         
         // {
         //     icon: "ic-portfeuille",
         //     name: "wallet",
