@@ -246,12 +246,17 @@ function AddPatientStep1({...props}) {
                             </Typography>
                             <Box>
                                 <Grid container spacing={2}>
-                                    <Grid item md={4} xs={12}>
+                                    <Grid item md={4} xs={12} sx={{
+                                        display:{xs:'flex',md:'block'},
+                                        justifyContent:"center"
+                                        
+                                    }}>
                                         <label htmlFor="contained-button-file"
                                                style={{
                                                    position: "relative",
                                                    zIndex: 1,
                                                    cursor: "pointer",
+                                                   display:'inline-flex'
                                                }}>
                                             <InputStyled
                                                 id="contained-button-file"
