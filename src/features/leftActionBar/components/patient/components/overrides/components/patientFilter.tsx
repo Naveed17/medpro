@@ -221,7 +221,7 @@ function PatientFilter({...props}) {
                                             onChange={date => {
                                                 setFieldValue("birthdate", date);
 
-                                                if (date && date.toString() !== "Invalid Date") {
+                                                if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
                                                     OnSearch({
                                                         query: {
                                                             ...queryState,

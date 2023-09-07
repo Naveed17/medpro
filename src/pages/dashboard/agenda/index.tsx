@@ -295,6 +295,13 @@ function Agenda() {
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        if (openPayDialog) {
+            setEvent(selectedEvent as EventDef);
+            console.log("selectedEvent", selectedEvent);
+        }
+    }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
             onConfirmAppointment(actionSet.event);
         }
@@ -1461,7 +1468,7 @@ function Agenda() {
                             minHeight: 380
                         }
                     }}
-                    open={openPayDialog}
+                    open={openPaymentDialog}
                     data={{
                         selectedPayment,
                         setSelectedPayment,
