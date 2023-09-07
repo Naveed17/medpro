@@ -323,6 +323,7 @@ function FcmLayout({...props}) {
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
                                     control: notificationData?.control,
+                                    restAmount: notificationData?.restAmount,
                                     payed: notificationData?.payed
                                 }}
                                 OnPay={() => {

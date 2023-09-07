@@ -1,8 +1,12 @@
 import {TransactionStatus, TransactionType} from "@lib/constants";
-import {Session} from "next-auth";
 
-// @ts-ignore
-export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, locale: string | undefined, session: Session | null, medical_entity_uuid: string, transactions: any, trigger, urlMedicalEntitySuffix, successFn) => {
+export const OnTransactionEdit = (selectedPayment: any,
+                                  selectedBoxes: any,
+                                  locale: string | undefined,
+                                  transactions: any,
+                                  trigger: any,
+                                  urlMedicalEntitySuffix: any,
+                                  successFn?: any) => {
 
     let payed_amount = 0
     let transaction_data: any[] = [];
@@ -43,7 +47,7 @@ export const OnTransactionEdit = (selectedPayment: any, selectedBoxes: any, loca
             url,
             data: form
         }).then(() => {
-            successFn();
+            successFn && successFn();
         })
     }
 };

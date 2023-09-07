@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from "react";
 import CardStyled from "./overrides/cardStyle";
-import StyledList from "./overrides/listStyle";
 import {
     CardContent,
     alpha,
@@ -12,8 +11,6 @@ import {
     Avatar,
     Typography,
     IconButton,
-    Collapse,
-    ListItem,
     Menu,
     Button,
     DialogActions,
@@ -26,12 +23,9 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry, TransactionStatus} from "@lib/constants";
-
-import {Label} from "@features/label";
+import {DefaultCountry} from "@lib/constants";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -43,7 +37,6 @@ import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
 import {useSWRConfig} from "swr";
-import Image from "next/image";
 
 function CashBoxMobileCard({...props}) {
     const {
@@ -95,7 +88,7 @@ function CashBoxMobileCard({...props}) {
         "/payment/cashbox"
     );
 
-    
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
@@ -111,8 +104,6 @@ function CashBoxMobileCard({...props}) {
             selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             data,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
@@ -357,7 +348,7 @@ function CashBoxMobileCard({...props}) {
                                     direction="row"
                                     alignItems="center"
                                     justifyContent="center"
-                                   
+
                                     >
                                     {data.transaction_data &&
                                         data.transaction_data.map(
@@ -486,7 +477,7 @@ function CashBoxMobileCard({...props}) {
                             {data.rest_amount > 0 && (
                                 <Tooltip title={t("settlement")}>
                                     <IconButton
-                                       
+
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             openPutTransactionDialog();
@@ -498,7 +489,7 @@ function CashBoxMobileCard({...props}) {
                             )}
                             <Tooltip title={t("more")}>
                                     <IconButton
-                                       
+
                                         onClick={(e) => {
                                             e.stopPropagation();
                                              handleEvent({action: "PATIENT_PAYMENT", row: data, e});
@@ -518,8 +509,8 @@ function CashBoxMobileCard({...props}) {
                                         <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Tooltip>
-                            
-                            
+
+
                                 <Tooltip title={t("delete")}>
                                     <IconButton
                                         size="small"

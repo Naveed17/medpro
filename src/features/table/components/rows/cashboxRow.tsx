@@ -108,8 +108,6 @@ function PaymentRow({...props}) {
         OnTransactionEdit(selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             row,
             triggerPostTransaction,
             urlMedicalEntitySuffix,

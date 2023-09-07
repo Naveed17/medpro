@@ -56,6 +56,7 @@ function ConsultationPopupAction({...props}) {
                 extendedProps: {
                     ...appointment?.extendedProps,
                     patient: transactionsData.transactions[0]?.appointment?.patient,
+                    total: data.fees,
                     transactions: transactionsData.transactions
                 }
             } as any));
@@ -101,7 +102,7 @@ function ConsultationPopupAction({...props}) {
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
                                     <Chip
                                         color={data.payed ? "success" : "warning"}
-                                        label={`${data.fees} ${data.devise}`}
+                                        label={`${data.restAmount !== 0 ? (data.fees - data.restAmount) + '/' : ''}${data.fees} ${data.devise}`}
                                     />
                                 </Stack>
                             </Stack>

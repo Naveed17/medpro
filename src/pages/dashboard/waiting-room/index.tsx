@@ -138,8 +138,6 @@ function WaitingRoom() {
         OnTransactionEdit(selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
@@ -151,8 +149,8 @@ function WaitingRoom() {
                 })
             }
         );
-
     }
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];

@@ -1,5 +1,11 @@
 // components
-import {BoxStyled} from "@features/leftActionBar";
+import {
+    BoxStyled,
+    cashBoxSelector,
+    setFilterCB,
+    setInsurances,
+    setPaymentTypes
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -10,8 +16,6 @@ import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
-import {setFilterCB, setInsurances, setPaymentTypes} from "@features/leftActionBar/components/cashbox/actions";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox/selectors";
 
 
 const CalendarPickers = dynamic(() =>
