@@ -78,6 +78,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -102,6 +103,7 @@ function Agenda() {
     const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {
         motif,
         duration,
@@ -293,6 +295,44 @@ function Agenda() {
             setMoveDialogInfo({...moveDialogInfo, info: true});
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (openPayDialog) {
+            setEvent(selectedEvent as EventDef);
+            let payed_amount = 0;
+            let payments: any[] = [];
+            const transactions = selectedEvent?.extendedProps?.transactions;
+            transactions.forEach((transaction: any) => {
+                payed_amount += transaction.amount - transaction.rest_amount;
+                transaction.transaction_data && payments.push(...transaction.transaction_data.map((td: any) => ({
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data,
+                    ...(td.insurance && {insurance: td.insurance.uuid}),
+                    ...(td.payment_means && {
+                        payment_means: paymentTypesList.find((pt: {
+                            slug: string;
+                        }) => pt.slug === td.payment_means.slug)
+                    })
+                })))
+            });
+            setSelectedPayment({
+                uuid: transactions[0]?.appointment.uuid,
+                payments,
+                payed_amount,
+                appointment: transactions[0]?.appointment,
+                patient: transactions[0]?.appointment?.patient,
+                total: transactions[0]?.appointment?.type.price,
+                isNew: payed_amount === 0
+            });
+            setTimeout(() => {
+                setOpenPaymentDialog(true);
+            })
+        }
+    }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
@@ -1461,7 +1501,7 @@ function Agenda() {
                             minHeight: 380
                         }
                     }}
-                    open={openPayDialog}
+                    open={openPaymentDialog}
                     data={{
                         selectedPayment,
                         setSelectedPayment,
@@ -1470,13 +1510,17 @@ function Agenda() {
                     }}
                     size={"lg"}
                     fullWidth
-                    title={t("payment_dialog_title")}
-                    dialogClose={() => setOpenPaymentDialog(false)}
+                    title={t("payment_dialog_title", {ns: "common"})}
+                    dialogClose={() => {
+                        setOpenPaymentDialog(false);
+                        dispatch(openDrawer({type: "pay", open: false}));
+                    }}
                     actionDialog={
                         <DialogActions>
                             <Button onClick={event => {
                                 event.stopPropagation();
                                 setOpenPaymentDialog(false);
+                                dispatch(openDrawer({type: "pay", open: false}));
                             }} startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>
