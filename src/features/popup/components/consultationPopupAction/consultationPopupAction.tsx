@@ -28,7 +28,6 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
 import {dashLayoutSelector} from "@features/base";
-import DoneAllRoundedIcon from "@mui/icons-material/DoneAllRounded";
 
 function ConsultationPopupAction({...props}) {
     const {data, OnSchedule, OnPay} = props
