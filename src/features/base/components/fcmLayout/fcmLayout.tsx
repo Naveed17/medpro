@@ -322,7 +322,8 @@ function FcmLayout({...props}) {
                                     instruction: notificationData?.instruction,
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
-                                    control: notificationData?.control
+                                    control: notificationData?.control,
+                                    payed: notificationData?.payed
                                 }}
                                 OnPay={() => {
                                     handleClose();

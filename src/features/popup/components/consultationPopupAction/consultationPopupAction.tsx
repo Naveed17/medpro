@@ -100,7 +100,7 @@ function ConsultationPopupAction({...props}) {
                                 </Stack>
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
                                     <Chip
-                                        color="success"
+                                        color={data.payed ? "success" : "warning"}
                                         label={`${data.fees} ${data.devise}`}
                                     />
                                 </Stack>
@@ -116,6 +116,7 @@ function ConsultationPopupAction({...props}) {
                     {newCashBox && <LoadingButton
                         loading={loadingRequest}
                         loadingPosition={"start"}
+                        disabled={data.payed}
                         onClick={getAllTransactions}
                         variant="contained"
                         startIcon={<PaymentRoundedIcon/>}>

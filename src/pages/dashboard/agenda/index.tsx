@@ -328,7 +328,9 @@ function Agenda() {
                 total: transactions[0]?.appointment?.type.price,
                 isNew: payed_amount === 0
             });
-            setOpenPaymentDialog(true);
+            setTimeout(() => {
+                setOpenPaymentDialog(true);
+            })
         }
     }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1509,12 +1511,16 @@ function Agenda() {
                     size={"lg"}
                     fullWidth
                     title={t("payment_dialog_title", {ns: "common"})}
-                    dialogClose={() => setOpenPaymentDialog(false)}
+                    dialogClose={() => {
+                        setOpenPaymentDialog(false);
+                        dispatch(openDrawer({type: "pay", open: false}));
+                    }}
                     actionDialog={
                         <DialogActions>
                             <Button onClick={event => {
                                 event.stopPropagation();
                                 setOpenPaymentDialog(false);
+                                dispatch(openDrawer({type: "pay", open: false}));
                             }} startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>

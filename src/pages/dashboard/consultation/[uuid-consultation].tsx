@@ -70,7 +70,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import useSWRMutation from "swr/mutation";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import { MobileContainer } from "@themes/mobileContainer";
+import {MobileContainer} from "@themes/mobileContainer";
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 
@@ -730,6 +730,7 @@ function ConsultationInProgress() {
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
                     edited: false,
+                    payed: appointment?.transactions ? appointment.rest_amount === total : false,
                     nextApp: meeting ? meeting : "0",
                     appUuid: app_uuid,
                     dayDate: appointment?.day_date,
@@ -1087,11 +1088,13 @@ function ConsultationInProgress() {
                     </DrawerBottom>
 
                     <Fab sx={{
-                        position:"fixed",
+                        position: "fixed",
                         bottom: 76,
                         right: 30
                     }}
-                         onClick={()=>{setOpenChat(true)}}
+                         onClick={() => {
+                             setOpenChat(true)
+                         }}
                          color={"primary"}
                          aria-label="edit">
                         <SmartToyOutlinedIcon/>
@@ -1146,14 +1149,16 @@ function ConsultationInProgress() {
                         dir={direction}
                         sx={{
                             "& .MuiPaper-root": {
-                                width: {xs:"100%",sm:"40%"}
+                                width: {xs: "100%", sm: "40%"}
                             }
                         }}
                         onClose={() => {
                             setOpenChat(false)
                         }}>
-                        <ChatDiscussionDialog  data={{appointment,session,exam, reasons,app_uuid,setOpenChat,
-                            setInfo,setOpenDialog,router, setState}}/>
+                        <ChatDiscussionDialog data={{
+                            appointment, session, exam, reasons, app_uuid, setOpenChat,
+                            setInfo, setOpenDialog, router, setState
+                        }}/>
                     </Drawer>
 
                     <DrawerBottom
@@ -1208,7 +1213,7 @@ function ConsultationInProgress() {
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
                     {...(info === "secretary_consultation_alert" && {
-                        sx:{px:{xs:2,sm:3}}
+                        sx: {px: {xs: 2, sm: 3}}
                     })}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
@@ -1255,10 +1260,10 @@ function ConsultationInProgress() {
                     onClose={closeImageViewer}
                 />
             )}
-           
-                
-                <MobileContainer>
-                    <Button
+
+
+            <MobileContainer>
+                <Button
                     startIcon={<IconUrl path="ic-filter"/>}
                     variant="filter"
                     onClick={() => setFilterDrawer(true)}
@@ -1272,8 +1277,8 @@ function ConsultationInProgress() {
                     }}>
                     {t("filter.title")}{" "}(0)
                 </Button>
-                </MobileContainer>
-           
+            </MobileContainer>
+
         </>
     );
 }
