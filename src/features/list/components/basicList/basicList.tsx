@@ -51,8 +51,8 @@ function BasicList({...props}) {
                                                                              fontSize: 10,
                                                                              padding: 0
                                                                          }}
-                                                                         color="secondary"
-                                                                         label={`${item.appointment?.fees} ${devise}`}/>}
+                                                                         color={item.appointment.payed ? "success" : "warning"}
+                                                                         label={`${item.appointment?.restAmount !== 0 ? (item.appointment.fees - item.appointment.restAmount) + '/' : ''}${item.appointment?.fees} ${devise}`}/>}
                                 </>}/>
                                 {item.appointment?.instruction?.length > 0 && <Stack direction={"row"}>
                                     <NotesIcon sx={{fontSize: 20}}/>

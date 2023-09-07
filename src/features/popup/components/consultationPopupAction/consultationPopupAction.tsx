@@ -104,7 +104,6 @@ function ConsultationPopupAction({...props}) {
                                     <Chip
                                         color={data.payed ? "success" : "warning"}
                                         label={`${data.restAmount !== 0 ? (data.fees - data.restAmount) + '/' : ''}${data.fees} ${data.devise}`}
-                                        {...(data.payed && {deleteIcon: <DoneAllRoundedIcon/>})}
                                     />
                                 </Stack>
                             </Stack>
