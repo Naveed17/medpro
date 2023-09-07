@@ -424,16 +424,7 @@ function ConsultationInProgress() {
 
             const form = new FormData();
             form.append("acts", JSON.stringify(_acts));
-            form.append("modal_uuid", selectedModel?.default_modal.uuid);
-            form.append(
-                "modal_data",
-                localStorage.getItem("Modeldata" + app_uuid) as string
-            );
-            form.append("notes", exam.notes);
-            form.append("diagnostic", exam.diagnosis);
-            form.append("disease", exam.disease.toString());
-            form.append("treatment", exam.treatment ? exam.treatment : "");
-            form.append("consultation_reason", exam.motif.toString());
+
             form.append("fees", total.toString());
             if (!isFree)
                 form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
@@ -938,7 +929,7 @@ function ConsultationInProgress() {
                                     {...{
                                         changes,
                                         setChanges,
-                                        uuind: app_uuid,
+                                        app_uuid,
                                         exam: sheetExam,
                                         patient,
                                         seeHistory,
@@ -946,7 +937,8 @@ function ConsultationInProgress() {
                                         setCloseExam,
                                         isClose,
                                         mutateReasonsData,
-                                        reasons
+                                        reasons,
+                                        agenda, trigger
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
