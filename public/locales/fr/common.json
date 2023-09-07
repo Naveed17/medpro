@@ -4,6 +4,7 @@
   "powered_by": "Tous droits réservés",
   "default-view": "Affichage par défaut",
   "trash": "Corbeille",
+  "payment_dialog_title": "Paiement",
   "empty-trash": "Vider la corbeille",
   "lang": "langue",
   "sms-languages": {
@@ -19,7 +20,7 @@
   "settings": "Paramètres",
   "duplication": "Détection des doublons",
   "loading": "Veuillez patienter un instant le temps de chargement",
-  "noOption" : "Aucun résultat trouvé",
+  "noOption": "Aucun résultat trouvé",
   "loading-error": {
     "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",

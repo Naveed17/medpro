@@ -59,8 +59,7 @@ function WaitingRoom() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
