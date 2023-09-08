@@ -107,66 +107,64 @@ function FcmLayout({...props}) {
                         }
                     }
                 } else {
-                    if (data.body.mutate) {
-                        mutate(data.body.mutate);
-                    } else {
-                        switch (message.data.root) {
-                            case "agenda":
-                                dispatch(setLastUpdate(data));
-                                if (data.type === "popup") {
-                                    if (!data.body.appointment) {
-                                        dispatch(resetTimer());
-                                    }
-                                    setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
-                                    setOpenDialog(true);
-                                    setNotificationData(data.body);
-                                    const localStorageNotifications = localStorage.getItem("notifications");
-                                    const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
-                                        (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
-                                        appointment: data.body,
-                                        action: "end-consultation"
-                                    }];
-                                    localStorage.setItem("notifications", JSON.stringify(notifications));
-                                    // Update notifications popup
-                                    dispatch(setOngoing({notifications}));
-                                } else if (data.body.action === "update") {
-                                    // update pending notifications status
-                                    agendaConfig?.mutate[1]();
+                    switch (message.data.root) {
+                        case "agenda":
+                            dispatch(setLastUpdate(data));
+                            if (data.type === "popup") {
+                                if (!data.body.appointment) {
+                                    dispatch(resetTimer());
                                 }
-                                break;
-                            case "waiting-room":
-                                // refresh agenda
-                                dispatch(setLastUpdate(data));
-                                // refresh on going api
-                                mutateOnGoing && mutateOnGoing();
-                                break;
-                            case "consultation":
-                                // refresh agenda
-                                dispatch(setLastUpdate(data));
-                                // refresh on going api
-                                mutateOnGoing && mutateOnGoing();
-                                const event = {
-                                    publicId: data.body.appointment?.uuid,
-                                    title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
-                                    extendedProps: {
-                                        patient: data.body.appointment.patient,
-                                        type: data.body.type,
-                                        status: AppointmentStatus[data.body.appointment?.status],
-                                        time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
-                                    }
-                                } as any;
-                                // start consultation timer
-                                dispatch(setTimer({
-                                        isActive: true,
-                                        isPaused: false,
-                                        event,
-                                        startTime: moment().utc().format("HH:mm")
-                                    }
-                                ));
-                                break;
-                        }
+                                setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
+                                setOpenDialog(true);
+                                setNotificationData(data.body);
+                                const localStorageNotifications = localStorage.getItem("notifications");
+                                const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                    (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                    appointment: data.body,
+                                    action: "end-consultation"
+                                }];
+                                localStorage.setItem("notifications", JSON.stringify(notifications));
+                                // Update notifications popup
+                                dispatch(setOngoing({notifications}));
+                            } else if (data.body.action === "update") {
+                                // update pending notifications status
+                                agendaConfig?.mutate[1]();
+                            }
+                            break;
+                        case "waiting-room":
+                            // refresh agenda
+                            dispatch(setLastUpdate(data));
+                            // refresh on going api
+                            mutateOnGoing && mutateOnGoing();
+                            break;
+                        case "consultation":
+                            // refresh agenda
+                            dispatch(setLastUpdate(data));
+                            // refresh on going api
+                            mutateOnGoing && mutateOnGoing();
+                            const event = {
+                                publicId: data.body.appointment?.uuid,
+                                title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
+                                extendedProps: {
+                                    patient: data.body.appointment.patient,
+                                    type: data.body.type,
+                                    status: AppointmentStatus[data.body.appointment?.status],
+                                    time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+                                }
+                            } as any;
+                            // start consultation timer
+                            dispatch(setTimer({
+                                    isActive: true,
+                                    isPaused: false,
+                                    event,
+                                    startTime: moment().utc().format("HH:mm")
+                                }
+                            ));
+                            break;
+                        default:
+                            data.body.mutate && mutate(data.body.mutate);
+                            break;
                     }
-
                 }
             }
         });

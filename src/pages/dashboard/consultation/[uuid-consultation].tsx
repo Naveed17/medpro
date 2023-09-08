@@ -707,6 +707,7 @@ function ConsultationInProgress() {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
             const form = new FormData();
             form.append("action", "end_consultation");
+            form.append("root", "agenda");
             form.append(
                 "content",
                 JSON.stringify({
@@ -736,7 +737,7 @@ function ConsultationInProgress() {
             );
             trigger({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/professionals/${secretary}/notification/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
                 data: form
             });
         }
