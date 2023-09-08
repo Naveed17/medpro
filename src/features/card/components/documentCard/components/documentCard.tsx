@@ -78,9 +78,10 @@ function DocumentCard({...props}) {
                         <CardContent style={{padding: 0}} onClick={onClick}>
                             <Stack alignItems="center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={data.uri.thumbnails.length === 0 ? data.uri.url:data.uri.thumbnails['thumbnail_128']}
-                                     style={{width: "100%", height: 164}}
-                                     alt={'photo history'}/>
+                                <img
+                                    src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
+                                    style={{width: "100%", height: 164, objectFit: "scale-down"}}
+                                    alt={'photo history'}/>
                                 <DocumentContent {...{data, date, t, resize}} />
                             </Stack>
                         </CardContent>

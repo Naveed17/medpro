@@ -148,12 +148,13 @@ function PatientDetail({...props}) {
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const {jti} = session?.user as any;
 
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
-    // mutate for patient details
+    const {trigger: triggerNotificationPush} = useRequestMutation(null, "notification/push");
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -240,7 +241,20 @@ function PatientDetail({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params
         }).then(() => {
-            mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
+            const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
+            mutate(mutateUrl);
+            const form = new FormData();
+            form.append("action", "push");
+            form.append("message", "");
+            form.append("content", JSON.stringify({
+                mutate: mutateUrl,
+                fcm_session: jti
+            }));
+            triggerNotificationPush({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/professionals/secretary/notification/${router.locale}`,
+                data: form
+            });
             setLoadingRequest(false);
         });
     }
@@ -365,7 +379,7 @@ function PatientDetail({...props}) {
         {
             title: "tabs.transactions",
             children: <TransactionPanel {...{
-                patient,wallet,rest,walletMutate,devise, router
+                patient, wallet, rest, walletMutate, devise, router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -436,7 +450,7 @@ function PatientDetail({...props}) {
                             mutatePatientList,
                             mutateAgenda,
                             setEditableSection: setEditable,
-                            rest,devise
+                            rest, devise
                         }}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
