@@ -57,7 +57,7 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -78,6 +78,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
+import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -126,6 +127,7 @@ function Agenda() {
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -189,6 +191,7 @@ function Agenda() {
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
+    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -293,6 +296,44 @@ function Agenda() {
             setMoveDialogInfo({...moveDialogInfo, info: true});
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (openPayDialog) {
+            setEvent(selectedEvent as EventDef);
+            let payed_amount = 0;
+            let payments: any[] = [];
+            const transactions = selectedEvent?.extendedProps?.transactions;
+            transactions.forEach((transaction: any) => {
+                payed_amount += transaction.amount - transaction.rest_amount;
+                transaction.transaction_data && payments.push(...transaction.transaction_data.map((td: any) => ({
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data,
+                    ...(td.insurance && {insurance: td.insurance.uuid}),
+                    ...(td.payment_means && {
+                        payment_means: paymentTypesList.find((pt: {
+                            slug: string;
+                        }) => pt.slug === td.payment_means.slug)
+                    })
+                })))
+            });
+            setSelectedPayment({
+                uuid: transactions[0]?.appointment.uuid,
+                payments,
+                payed_amount,
+                appointment: transactions[0]?.appointment,
+                patient: transactions[0]?.appointment?.patient,
+                total: selectedEvent?.extendedProps?.total,
+                isNew: payed_amount === 0
+            });
+            setTimeout(() => {
+                setOpenPaymentDialog(true);
+            })
+        }
+    }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
@@ -941,6 +982,24 @@ function Agenda() {
         }
     }
 
+    const handlePayTransaction = () => {
+        setLoadingRequest(true);
+        const transactions = selectedEvent?.extendedProps?.transactions;
+        OnTransactionEdit(selectedPayment,
+            selectedBoxes,
+            router.locale,
+            transactions && transactions?.length > 0 ? transactions[0] : null,
+            triggerPostTransaction,
+            urlMedicalEntitySuffix,
+            () => {
+                setOpenPaymentDialog(false);
+                setTimeout(() => {
+                    setLoadingRequest(false);
+                })
+            }
+        );
+    }
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -1461,7 +1520,7 @@ function Agenda() {
                             minHeight: 380
                         }
                     }}
-                    open={openPayDialog}
+                    open={openPaymentDialog}
                     data={{
                         selectedPayment,
                         setSelectedPayment,
@@ -1470,17 +1529,25 @@ function Agenda() {
                     }}
                     size={"lg"}
                     fullWidth
-                    title={t("payment_dialog_title")}
-                    dialogClose={() => setOpenPaymentDialog(false)}
+                    title={t("payment_dialog_title", {ns: "common"})}
+                    dialogClose={() => {
+                        setOpenPaymentDialog(false);
+                        dispatch(openDrawer({type: "pay", open: false}));
+                    }}
                     actionDialog={
                         <DialogActions>
                             <Button onClick={event => {
                                 event.stopPropagation();
                                 setOpenPaymentDialog(false);
+                                dispatch(openDrawer({type: "pay", open: false}));
                             }} startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                disabled={selectedPayment && selectedPayment.payments.length === 0}
+                                onClick={handlePayTransaction}
                                 variant="contained"
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                 {t("save", {ns: "common"})}

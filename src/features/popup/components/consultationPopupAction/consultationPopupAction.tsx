@@ -26,6 +26,8 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {LoadingButton} from "@mui/lab";
+import {dashLayoutSelector} from "@features/base";
 
 function ConsultationPopupAction({...props}) {
     const {data, OnSchedule, OnPay} = props
@@ -34,26 +36,32 @@ function ConsultationPopupAction({...props}) {
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("common");
+    const {newCashBox} = useAppSelector(dashLayoutSelector)
     const {config: agenda, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n` : ""}, ${data.instruction}`);
+    const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {trigger: triggerTransactions} = useRequestMutation(null, "agenda/appointment/transactions");
 
     const getAllTransactions = () => {
+        setLoadingRequest(true);
         triggerTransactions({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.appUuid}/transactions/${router.locale}`,
         }).then((result) => {
-            const transactions = (result?.data as HttpResponse)?.data;
+            const transactionsData = (result?.data as HttpResponse)?.data;
             dispatch(setSelectedEvent({
                 ...appointment,
                 extendedProps: {
                     ...appointment?.extendedProps,
-                    transactions
+                    patient: transactionsData.transactions[0]?.appointment?.patient,
+                    total: data.fees,
+                    transactions: transactionsData.transactions
                 }
             } as any));
             OnPay();
+            setLoadingRequest(false);
         });
     }
 
@@ -93,8 +101,8 @@ function ConsultationPopupAction({...props}) {
                                 </Stack>
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
                                     <Chip
-                                        color="success"
-                                        label={`${data.fees} ${data.devise}`}
+                                        color={data.payed ? "success" : "warning"}
+                                        label={`${data.restAmount !== 0 ? (data.fees - data.restAmount) + '/' : ''}${data.fees} ${data.devise}`}
                                     />
                                 </Stack>
                             </Stack>
@@ -106,14 +114,19 @@ function ConsultationPopupAction({...props}) {
                     </List>
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
-                    {/*<Button
+                    {newCashBox && <LoadingButton
+                        loading={loadingRequest}
+                        loadingPosition={"start"}
+                        disabled={data.payed}
                         onClick={getAllTransactions}
-                        variant="contained" startIcon={<PaymentRoundedIcon/>}>
+                        variant="contained"
+                        startIcon={<PaymentRoundedIcon/>}>
                         {t("dialogs.finish-dialog.pay")}
-                    </Button>*/}
+                    </LoadingButton>}
                     <Button
                         onClick={OnSchedule}
-                        variant="contained" startIcon={<LocalHospitalOutlinedIcon/>}>
+                        variant="contained"
+                        startIcon={<LocalHospitalOutlinedIcon/>}>
                         {t("dialogs.finish-dialog.reschedule")}
                     </Button>
                 </Stack>

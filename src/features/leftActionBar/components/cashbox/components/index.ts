@@ -1,2 +1,2 @@
-export { default as InsuranceFilter } from "./insuranceFilter";
-export { default as DateRangeFilter } from "./dateRangeFilter";
+export { default as InsuranceFilterCashbox } from "./insuranceFilter";
+export { default as DateRangeFilterCashbox} from "./dateRangeFilter";

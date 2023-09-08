@@ -59,8 +59,7 @@ function WaitingRoom() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -139,8 +138,6 @@ function WaitingRoom() {
         OnTransactionEdit(selectedPayment,
             selectedBoxes,
             router.locale,
-            session,
-            medical_entity.uuid,
             row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
@@ -152,8 +149,8 @@ function WaitingRoom() {
                 })
             }
         );
-
     }
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];

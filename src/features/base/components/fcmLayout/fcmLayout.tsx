@@ -258,7 +258,7 @@ function FcmLayout({...props}) {
     useEffect(() => {
         setToken();
         // Event listener that listens for the push notification event in the background
-        if ("serviceWorker" in navigator) {
+        if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 console.log("event for the service worker", JSON.parse(event.data.data.detail));
             });
@@ -322,7 +322,9 @@ function FcmLayout({...props}) {
                                     instruction: notificationData?.instruction,
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
-                                    control: notificationData?.control
+                                    control: notificationData?.control,
+                                    restAmount: notificationData?.restAmount,
+                                    payed: notificationData?.payed
                                 }}
                                 OnPay={() => {
                                     handleClose();
