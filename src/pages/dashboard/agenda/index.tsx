@@ -293,7 +293,7 @@ function Agenda() {
     useEffect(() => {
         if (openMoveDrawer) {
             setEvent(selectedEvent as EventDef);
-            setMoveDialogInfo({...moveDialogInfo, info: true});
+            setTimeout(() => setMoveDialogInfo({...moveDialogInfo, info: true}));
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -329,9 +329,7 @@ function Agenda() {
                 total: selectedEvent?.extendedProps?.total,
                 isNew: payed_amount === 0
             });
-            setTimeout(() => {
-                setOpenPaymentDialog(true);
-            })
+            setTimeout(() => setOpenPaymentDialog(true));
         }
     }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -489,8 +487,10 @@ function Agenda() {
         switch (action) {
             case "onCancel":
                 setEvent(event);
-                setActionDialog('cancel');
-                setCancelDialog(true);
+                setTimeout(() => {
+                    setActionDialog('cancel');
+                    setTimeout(() => setCancelDialog(true));
+                });
                 break;
             case "onConsultationDetail":
                 if (!isActive) {
@@ -568,13 +568,13 @@ function Agenda() {
                     action: "move",
                     selected: false
                 }));
-                setMoveDialogInfo({...moveDialogInfo, info: true});
+                setTimeout(() => setMoveDialogInfo({...moveDialogInfo, info: true}));
                 break;
             case "onReschedule":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 if (eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
-                    setEventStepper(eventStepper.filter(stepper => stepper.title !== "steppers.tabs.tab-3"));
+                    setTimeout(() => setEventStepper(eventStepper.filter(stepper => stepper.title !== "steppers.tabs.tab-3")));
                 }
                 dispatch(resetAppointment());
                 dispatch(setAppointmentPatient(event.extendedProps.patient as any));
@@ -583,19 +583,21 @@ function Agenda() {
             case "onDelete":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
-                setActionDialog('delete');
-                setCancelDialog(true);
+                setTimeout(() => {
+                    setActionDialog('delete');
+                    setTimeout(() => setCancelDialog(true));
+                })
                 break;
             case "onConfirmAppointment":
                 onConfirmAppointment(event);
                 break;
             case "onPreConsultation":
                 setEvent(event);
-                setOpenPreConsultationDialog(true);
+                setTimeout(() => setOpenPreConsultationDialog(true));
                 break;
             case "onAddConsultationDocuments":
                 setEvent(event);
-                setOpenUploadDialog({...openUploadDialog, dialog: true});
+                setTimeout(() => setOpenUploadDialog({...openUploadDialog, dialog: true}));
                 break;
         }
     }
@@ -652,12 +654,12 @@ function Agenda() {
             },
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
         } as any).then(() => {
-            setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
             dispatch(openDrawer({type: "view", open: false}));
             // update pending notifications status
             config?.mutate[1]();
+            setLoading(false);
         });
     }
 
@@ -789,7 +791,7 @@ function Agenda() {
         } as any).then(() => {
             dispatch(openDrawer({type: "view", open: false}));
             setCancelDialog(false);
-            setLoading(false);
+            setTimeout(() => setLoading(false));
             refreshData();
             enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
         });
@@ -808,7 +810,7 @@ function Agenda() {
             };
             dispatch(setSelectedEvent(eventUpdated));
             setCancelDialog(false);
-            setLoading(false);
+            setTimeout(() => setLoading(false));
             refreshData();
             enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
         });
@@ -891,7 +893,7 @@ function Agenda() {
         } as any).then(() => {
             setLoadingRequest(false);
             localStorage.removeItem(`Modeldata${event?.publicId}`);
-            setOpenPreConsultationDialog(false);
+            setTimeout(() => setOpenPreConsultationDialog(false));
             medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
         });
     }
@@ -962,7 +964,7 @@ function Agenda() {
                 refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
-                setQuickAddAppointment(false);
+                setTimeout(() => setQuickAddAppointment(false));
             }
         });
     }
@@ -994,9 +996,7 @@ function Agenda() {
             urlMedicalEntitySuffix,
             () => {
                 setOpenPaymentDialog(false);
-                setTimeout(() => {
-                    setLoadingRequest(false);
-                })
+                setTimeout(() => setLoadingRequest(false));
             }
         );
     }
@@ -1189,11 +1189,11 @@ function Agenda() {
                             SetMoveDialog={() => setMoveDialogInfo({...moveDialogInfo, info: true})}
                             SetCancelDialog={() => {
                                 setActionDialog('cancel');
-                                setCancelDialog(true)
+                                setTimeout(() => setCancelDialog(true));
                             }}
                             SetDeleteDialog={() => {
                                 setActionDialog('delete');
-                                setCancelDialog(true);
+                                setTimeout(() => setCancelDialog(true));
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}

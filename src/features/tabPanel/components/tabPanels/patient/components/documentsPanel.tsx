@@ -184,7 +184,7 @@ function DocumentsPanel({...props}) {
                                       sx={{
                                           "& .sub-title": {
                                               paddingRight: "1rem"
-                                          },
+                                          }
                                       }}>
                                     <React.Fragment>
                                         <DocumentCard
