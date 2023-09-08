@@ -161,6 +161,14 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "inventory",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/inventoryRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;

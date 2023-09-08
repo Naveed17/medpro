@@ -1,1 +1,25 @@
-{}
+{
+    "title": "Inventaire",
+    "add": "Ajouter",
+    "cancel": "Annuler",
+    "save": "Économiser",
+    "table": {
+        "#": "#",
+        "name": "Nom",
+        "quality": "Quantité",
+        "before_amount": "Avant le montant",
+        "after_amount": "Après le montant",
+        "total": "Total",
+        "actions": "Actions"
+    },
+    "dialog": {
+        "title": "Supprimer le produit",
+        "description": "Vous souhaitez supprimer le produit ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+    },
+    "no-data": {
+        "title": "Ajouter votre premier produit",
+        "description": "Si vous n'avez pas de produit, ajoutez-les en cliquant sur 'Ajouter un produit'."
+    }
+}
