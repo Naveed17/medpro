@@ -219,7 +219,7 @@ function Calendar({...props}) {
                     }
 
                     if (max > slotMaxTime) {
-                        setSlotMaxTime(max);
+                        setTimeout(() => setSlotMaxTime(max));
                     }
 
                     days.push({
@@ -229,7 +229,7 @@ function Calendar({...props}) {
                     });
                 })
             });
-            setDaysOfWeek(days);
+            setTimeout(() => setDaysOfWeek(days));
             setLoading(false);
         }
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
