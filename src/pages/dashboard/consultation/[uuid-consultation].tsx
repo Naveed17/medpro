@@ -702,7 +702,6 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     }
-
     const sendNotification = () => {
         if (secretary.length > 0 && patient) {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -753,7 +752,6 @@ function ConsultationInProgress() {
         setActs([...acts])
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
     }
-
     const checkTransactions = () => {
         if (!appointment?.transactions && app_uuid) {
             const form = new FormData();

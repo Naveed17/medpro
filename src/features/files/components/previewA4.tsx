@@ -210,32 +210,12 @@ function PreviewDialog({...props}) {
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
-                                /*const nblines = countLines(item);
-                                if ( nblines > 1 ){
-                                const lines = getLines(item);
-                                lines.map((line) => {
-                                    rows.push({
-                                        value: line.row,
-                                        name: "name",
-                                        element: "div",
-                                        style: {}
-                                    })
-                                })*/
                                 rows.push({
                                     value: item,
                                     name: "name",
                                     element: "div",
                                     style: {}
                                 })
-
-                                /*}else{
-                                    rows.push({
-                                        value: item,
-                                        name: "name",
-                                        element: "div",
-                                        style: {}
-                                    })
-                                }*/
                                 certifLine.append(item.cloneNode(true))
                             })
 
@@ -259,7 +239,7 @@ function PreviewDialog({...props}) {
                                 style: {}
                             })
                             pageX.appendChild(FeesLine)
-                            setTitle(state.type =="fees" ? "Note d'honoraires": "Devis");
+                            setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
                             break;
                     }
                 } else {
@@ -272,7 +252,8 @@ function PreviewDialog({...props}) {
 
         let lastPos = 0;
         let updatedPages = [];
-        for (let i = 0; i < Math.ceil(pageX.clientHeight / data.content.maxHeight); i++) {
+        const nbPages = Math.ceil(pageX.clientHeight / data.content.maxHeight);
+        for (let i = 0; i < nbPages; i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
             el.style.position = "absolute"
@@ -333,14 +314,21 @@ function PreviewDialog({...props}) {
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
+                    document.body.append(el)
                     if (el.clientHeight >= data.content.maxHeight) {
                         lastPos = i + 1;
                         break;
                     }
                 }
             }
-
             updatedPages.push({page: i, content: el})
+        }
+        for(let i = 0; i < nbPages; i++){
+            let p = document.getElementById(`page${i}`)
+            if(p) {
+                p.style.height = "0";
+                document.body.removeChild(p)
+            }
         }
         setPages(updatedPages);
     }
