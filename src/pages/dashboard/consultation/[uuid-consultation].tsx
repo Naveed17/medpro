@@ -753,7 +753,7 @@ function ConsultationInProgress() {
             );
             trigger({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/professionals/${secretary}/notification/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
                 data: form
             });
         }
