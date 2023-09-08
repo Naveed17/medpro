@@ -164,47 +164,44 @@ function DocumentsPanel({...props}) {
             title: "Documents du patient",
             children:
                 <>
+                    <Grid container>
+                        {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={1} spacing={1} m={1}
+                                  alignItems={"center"}>
+                                <DocumentCard onClick={() => {
+                                    showDoc(card)
+                                }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                            </Grid>
+                        )}
+                    </Grid>
 
-                    <Box style={{overflowX: "auto", marginBottom: 10}}>
-                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                            {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                <React.Fragment key={`doc-item-${idx}`}>
-                                    <DocumentCard onClick={() => {
-                                        showDoc(card)
-                                    }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                                </React.Fragment>
-                            )}
-                        </Stack>
-                    </Box>
-
-                    <Box display='grid' className={'document-container'}
-                         {...(patientDocuments?.length > 0 && {
-                             sx: {
-                                 gridGap: 16,
-                                 gridTemplateColumns: {
-                                     xs: "repeat(1,minmax(0,1fr))",
-                                     md: "repeat(1,minmax(0,1fr))",
-                                     lg: "repeat(2,minmax(0,1fr))",
-                                 },
-                             }
-                         })}>
+                    <Grid container>
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc: MedicalDocuments) =>
                                 doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <React.Fragment key={`doc-item-${idx}`}>
-                                    <DocumentCard
-                                        onClick={() => {
-                                            showDoc(card)
-                                        }}
-                                        {...{t, data: card, date: true, time: true, title: true}}/>
-                                </React.Fragment>
+                                <Grid key={`doc-item-${idx}`} item md={4} xs={1} spacing={1} m={1}
+                                      alignItems={"center"}
+                                      sx={{
+                                          "& .sub-title": {
+                                              paddingRight: "1rem"
+                                          }
+                                      }}>
+                                    <React.Fragment>
+                                        <DocumentCard
+                                            onClick={() => {
+                                                showDoc(card)
+                                            }}
+                                            {...{t, data: card, date: true, time: true, title: true}}/>
+                                    </React.Fragment>
+                                </Grid>
                             )
                             :
                             <NoDataCard t={t} ns={"patient"}
                                         onHandleClick={() => setOpenUploadDialog(true)}
                                         data={AddAppointmentCardData}/>
                         }
-                    </Box></>,
+                    </Grid>
+                </>,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }
     ].filter(tab => tab.permission.includes(roles[0]));
