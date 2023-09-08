@@ -67,6 +67,7 @@ import {SwitchPrescriptionUI} from "@features/buttons";
 import {useSWRConfig} from "swr";
 import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
+import useSendNotification from "@lib/hooks/rest/useSendNotification";
 
 function a11yProps(index: number) {
     return {
@@ -154,7 +155,7 @@ function PatientDetail({...props}) {
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
     const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
-    const {trigger: triggerNotificationPush} = useRequestMutation(null, "notification/push");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -243,17 +244,14 @@ function PatientDetail({...props}) {
         }).then(() => {
             const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
             mutate(mutateUrl);
-            const form = new FormData();
-            form.append("action", "push");
-            form.append("message", "");
-            form.append("content", JSON.stringify({
-                mutate: mutateUrl,
-                fcm_session: jti
-            }));
             triggerNotificationPush({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/professionals/secretary/notification/${router.locale}`,
-                data: form
+                action: "push",
+                root: "all",
+                message: "",
+                content: JSON.stringify({
+                    mutate: mutateUrl,
+                    fcm_session: jti
+                })
             });
             setLoadingRequest(false);
         });
