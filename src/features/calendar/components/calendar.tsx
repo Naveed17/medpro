@@ -10,12 +10,9 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-
 import React, {useEffect, useRef, useState} from "react";
-
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";

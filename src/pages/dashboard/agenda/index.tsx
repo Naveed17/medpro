@@ -601,6 +601,7 @@ function Agenda() {
     }
 
     const onOpenWaitingRoom = (event: EventDef) => {
+        setLoading(true);
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
