@@ -43,7 +43,7 @@ function InventoryDrawer({ ...props }) {
         setRows((prev: any) => [
           ...prev,
           {
-            uuid: Math.random(),
+            uuid: `${Math.floor(Math.random())}`,
             ...values,
           },
         ]);
