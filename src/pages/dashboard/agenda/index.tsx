@@ -79,6 +79,7 @@ import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {batch} from "react-redux";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -1052,67 +1053,62 @@ function Agenda() {
                 }} color="warning"/>
 
                 {agenda &&
-                    <AnimatePresence>
-                        <motion.div
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: .5}}>
-                            <Calendar
-                                {...{
-                                    events: events.current,
-                                    doctor_country,
-                                    agenda,
-                                    calendarRef,
-                                    roles,
-                                    refs,
-                                    spinner: loading,
-                                    t,
-                                    sortedData: sortedData.current,
-                                    mutate: refreshData
+                    <>
+                        <Calendar
+                            {...{
+                                events: events.current,
+                                doctor_country,
+                                agenda,
+                                calendarRef,
+                                roles,
+                                refs,
+                                spinner: loading,
+                                t,
+                                sortedData: sortedData.current,
+                                mutate: refreshData
+                            }}
+                            OnAddAppointment={handleAddAppointment}
+                            OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
+                            OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                            OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                            OnSelectEvent={onSelectEvent}
+                            OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
+                            OnEventChange={onEventChange}
+                            OnMenuActions={onMenuActions}
+                            OnSelectDate={onSelectDate}
+                            OnViewChange={onViewChange}
+                            OnRangeChange={handleOnRangeChange}/>
+                        {isMobile &&
+                            <Zoom
+                                in={!loading}
+                                timeout={transitionDuration}
+                                style={{
+                                    transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
                                 }}
-                                OnAddAppointment={handleAddAppointment}
-                                OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                                OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                OnSelectEvent={onSelectEvent}
-                                OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
-                                OnEventChange={onEventChange}
-                                OnMenuActions={onMenuActions}
-                                OnSelectDate={onSelectDate}
-                                OnViewChange={onViewChange}
-                                OnRangeChange={handleOnRangeChange}/>
-                            {isMobile &&
-                                <Zoom
-                                    in={!loading}
-                                    timeout={transitionDuration}
-                                    style={{
-                                        transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                unmountOnExit>
+                                <SpeedDial
+                                    ariaLabel="SpeedDial tooltip Add"
+                                    sx={{
+                                        position: 'fixed',
+                                        bottom: 50,
+                                        right: 16
                                     }}
-                                    unmountOnExit>
-                                    <SpeedDial
-                                        ariaLabel="SpeedDial tooltip Add"
-                                        sx={{
-                                            position: 'fixed',
-                                            bottom: 50,
-                                            right: 16
-                                        }}
-                                        icon={<SpeedDialIcon/>}
-                                        onClose={handleCloseFab}
-                                        onOpen={handleOpenFab}
-                                        open={openFabAdd}>
-                                        {actions.map((action) => (
-                                            <SpeedDialAction
-                                                key={action.name}
-                                                icon={action.icon}
-                                                tooltipTitle={t(`${action.key}`)}
-                                                tooltipOpen
-                                                onClick={() => handleActionFab(action)}
-                                            />
-                                        ))}
-                                    </SpeedDial>
-                                </Zoom>}
-                        </motion.div>
-                    </AnimatePresence>
+                                    icon={<SpeedDialIcon/>}
+                                    onClose={handleCloseFab}
+                                    onOpen={handleOpenFab}
+                                    open={openFabAdd}>
+                                    {actions.map((action) => (
+                                        <SpeedDialAction
+                                            key={action.name}
+                                            icon={action.icon}
+                                            tooltipTitle={t(`${action.key}`)}
+                                            tooltipOpen
+                                            onClick={() => handleActionFab(action)}
+                                        />
+                                    ))}
+                                </SpeedDial>
+                            </Zoom>}
+                    </>
                 }
 
                 {(isMobile && view === "listWeek") && <>
@@ -1206,12 +1202,16 @@ function Agenda() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(setStepperIndex(0));
-                        if (submitted) {
-                            dispatch(resetSubmitAppointment());
-                        }
+                        batch(() => {
+                            dispatch(openDrawer({type: "add", open: false}));
+                            dispatch(setStepperIndex(0));
+                            if (submitted) {
+                                dispatch(resetSubmitAppointment());
+                            }
+                        })
+
                         eventStepper[0].disabled = false;
-                        dispatch(openDrawer({type: "add", open: false}));
+
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
