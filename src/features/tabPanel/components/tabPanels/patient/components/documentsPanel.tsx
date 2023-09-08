@@ -406,7 +406,7 @@ function DocumentsPanel({...props}) {
                         </Toolbar>
                     </AppBar>
 
-                    <Grid container spacing={2}>
+                    <Grid container>
                         {quotes.map((card: any, idx: number) =>
                             <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
                                 <DocumentCardStyled style={{width: "100%"}}>

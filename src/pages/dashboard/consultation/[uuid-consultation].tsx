@@ -724,6 +724,7 @@ function ConsultationInProgress() {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
             const form = new FormData();
             form.append("action", "end_consultation");
+            form.append("root", "agenda");
             form.append(
                 "content",
                 JSON.stringify({
