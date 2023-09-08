@@ -242,10 +242,7 @@ function ConsultationInProgress() {
 
     const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
     } : null, SWRNoValidateConfig);
@@ -254,13 +251,9 @@ function ConsultationInProgress() {
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
 
-    //***** USEEFFECTS ****//
     useEffect(() => {
         if (sheet) {
-            const storageWidget = localStorage.getItem(`Modeldata${app_uuid}`);
-            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal?.data));
-            const ModelWidget = localStorage.getItem(`Model-${app_uuid}`);
-            setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
+            setSelectedModel(sheetModal);
         }
     }, [dispatch, sheet, app_uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -888,7 +881,11 @@ function ConsultationInProgress() {
                                             isClose,
                                             acts,
                                             setActs,
-                                            previousData
+                                            previousData,
+                                            selectedModel,
+                                            trigger,
+                                            mutateSheetData,
+                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`
                                         }}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
