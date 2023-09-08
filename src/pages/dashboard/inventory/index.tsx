@@ -26,7 +26,8 @@ import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import { InventoryDrawer } from "@features/drawer";
-import { NoDataCard } from "@features/card";
+import { InventoryMobileCard, NoDataCard } from "@features/card";
+import { MobileContainer } from "@themes/mobileContainer";
 const data = [
   {
     uuid: "1",
@@ -59,7 +60,7 @@ const headCells: readonly HeadCell[] = [
     disablePadding: true,
     label: "name",
     sortable: true,
-    align: "left",
+    align: "center",
   },
   {
     id: "qte",
@@ -90,7 +91,7 @@ const headCells: readonly HeadCell[] = [
     numeric: true,
     disablePadding: false,
     label: "total",
-    sortable: true,
+    sortable: false,
     align: "center",
   },
   {
@@ -183,6 +184,22 @@ function Inventory() {
                 devise={devise}
               />
             </DesktopContainer>
+            <MobileContainer>
+              <Stack spacing={1}>
+                {rows.map((item: any, index: number) => (
+                  <React.Fragment key={index}>
+                    <InventoryMobileCard
+                      {...{
+                        t,
+                        data: item,
+                        edit: editProduct,
+                        devise,
+                      }}
+                    />
+                  </React.Fragment>
+                ))}
+              </Stack>
+            </MobileContainer>
           </>
         ) : (
           <NoDataCard

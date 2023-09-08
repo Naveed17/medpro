@@ -12,10 +12,16 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Form, FormikProvider, useFormik } from "formik";
-import IconUrl from "@themes/urlIcon";
+import * as Yup from "yup";
 import SaveIcon from "@mui/icons-material/Save";
 function InventoryDrawer({ ...props }) {
   const { t, handleClose, devise, setSelected, data, edit, setRows } = props;
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(),
+    qte: Yup.number().required(),
+    before_amount: Yup.number().required(),
+    after_amount: Yup.number().required(),
+  });
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -44,9 +50,10 @@ function InventoryDrawer({ ...props }) {
       }
       handleClose();
     },
+    validationSchema,
   });
 
-  const { handleSubmit, values, setFieldValue, getFieldProps } = formik;
+  const { handleSubmit, touched, errors, getFieldProps } = formik;
   return (
     <DrawerStyled>
       <Box className="drawer-header">
@@ -75,6 +82,7 @@ function InventoryDrawer({ ...props }) {
                   <TextField
                     placeholder={t("table.name")}
                     {...getFieldProps("name")}
+                    error={Boolean(touched.name && errors.name)}
                   />
                 </Stack>
                 <Stack spacing={0.5}>
@@ -89,6 +97,7 @@ function InventoryDrawer({ ...props }) {
                     type="number"
                     placeholder={t("table.quality")}
                     {...getFieldProps("qte")}
+                    error={Boolean(touched.qte && errors.qte)}
                   />
                 </Stack>
                 <Stack
@@ -108,6 +117,9 @@ function InventoryDrawer({ ...props }) {
                       type="number"
                       placeholder={t("table.before_amount")}
                       {...getFieldProps("before_amount")}
+                      error={Boolean(
+                        touched.before_amount && errors.before_amount
+                      )}
                     />
                   </Stack>
                   <Stack spacing={0.5} width={1}>
@@ -122,6 +134,9 @@ function InventoryDrawer({ ...props }) {
                       type="number"
                       placeholder={t("table.after_amount")}
                       {...getFieldProps("after_amount")}
+                      error={Boolean(
+                        touched.after_amount && errors.after_amount
+                      )}
                     />
                   </Stack>
                 </Stack>
