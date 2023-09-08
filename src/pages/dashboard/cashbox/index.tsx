@@ -418,6 +418,7 @@ function Cashbox() {
                                 </Typography>
                             </Stack>
                         </Stack>
+                        {/*
                         <Stack direction="row" spacing={1} alignItems="center">
                             {!isMobile && <Typography variant="h6">I</Typography>}
 
@@ -466,6 +467,7 @@ function Cashbox() {
                                     {isMobile && <KeyboardArrowDownIcon/>}
                                 </Button></>}
                         </Stack>
+*/}
                     </Stack>
                 </Stack>
             </SubHeader>

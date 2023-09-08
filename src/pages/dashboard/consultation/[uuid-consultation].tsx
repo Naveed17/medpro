@@ -242,10 +242,7 @@ function ConsultationInProgress() {
 
     const {previousAppointmentsData: previousAppointments} = useAppointmentHistory({patientId: patient?.uuid});
 
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequest(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
     } : null, SWRNoValidateConfig);
@@ -254,13 +251,9 @@ function ConsultationInProgress() {
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
 
-    //***** USEEFFECTS ****//
     useEffect(() => {
         if (sheet) {
-            const storageWidget = localStorage.getItem(`Modeldata${app_uuid}`);
-            (!storageWidget && sheetModal) && localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal?.data));
-            const ModelWidget = localStorage.getItem(`Model-${app_uuid}`);
-            setSelectedModel(ModelWidget ? JSON.parse(ModelWidget) : sheetModal);
+            setSelectedModel(sheetModal);
         }
     }, [dispatch, sheet, app_uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -424,16 +417,7 @@ function ConsultationInProgress() {
 
             const form = new FormData();
             form.append("acts", JSON.stringify(_acts));
-            form.append("modal_uuid", selectedModel?.default_modal.uuid);
-            form.append(
-                "modal_data",
-                localStorage.getItem("Modeldata" + app_uuid) as string
-            );
-            form.append("notes", exam.notes);
-            form.append("diagnostic", exam.diagnosis);
-            form.append("disease", exam.disease.toString());
-            form.append("treatment", exam.treatment ? exam.treatment : "");
-            form.append("consultation_reason", exam.motif.toString());
+
             form.append("fees", total.toString());
             if (!isFree)
                 form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
@@ -718,7 +702,6 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     }
-
     const sendNotification = () => {
         if (secretary.length > 0 && patient) {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -769,7 +752,6 @@ function ConsultationInProgress() {
         setActs([...acts])
         localStorage.setItem(`consultation-acts-${app_uuid}`, JSON.stringify([...acts]));
     }
-
     const checkTransactions = () => {
         if (!appointment?.transactions && app_uuid) {
             const form = new FormData();
@@ -900,7 +882,11 @@ function ConsultationInProgress() {
                                             isClose,
                                             acts,
                                             setActs,
-                                            previousData
+                                            previousData,
+                                            selectedModel,
+                                            trigger,
+                                            mutateSheetData,
+                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`
                                         }}
                                         modal={selectedModel}
                                         data={sheetModal?.data}
@@ -941,7 +927,7 @@ function ConsultationInProgress() {
                                     {...{
                                         changes,
                                         setChanges,
-                                        uuind: app_uuid,
+                                        app_uuid,
                                         exam: sheetExam,
                                         patient,
                                         seeHistory,
@@ -949,7 +935,8 @@ function ConsultationInProgress() {
                                         setCloseExam,
                                         isClose,
                                         mutateReasonsData,
-                                        reasons
+                                        reasons,
+                                        agenda, trigger
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />

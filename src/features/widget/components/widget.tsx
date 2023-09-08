@@ -58,6 +58,9 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         changes,
         setChanges,
         previousData,
+        selectedModel,
+        trigger,
+        url,mutateSheetData
     } = props;
 
     if (modal) {
@@ -79,7 +82,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
             <Form
                 onChange={(ev: any) => {
                     if(Object.keys(ev.data).length !== 0){
-                        localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
+                        localStorage.setItem(`Modeldata${appuuid}`, JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string),...ev.data}));
                         const item = changes.find(
                             (change: { name: string }) => change.name === "patientInfo"
                         );
@@ -87,6 +90,16 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                             Object.values(ev.data).filter((val) => val !== "").length > 0;
                         setChanges([...changes]);
                     }
+                }}
+                onBlur={(ev: { data: any; })=>{
+                    const form = new FormData();
+                    form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string),...ev.data}));
+                    form.append("modal_uuid", selectedModel?.default_modal.uuid);
+                    trigger({
+                        method: "PUT",
+                        url,
+                        data: form
+                    }).then(() => {mutateSheetData()})
                 }}
                 // @ts-ignore
                 submission={{
@@ -118,7 +131,9 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
-        acts, setActs
+        acts, setActs,selectedModel,
+        trigger,
+        url,mutateSheetData
     } = props;
     const router = useRouter();
 
@@ -358,6 +373,9 @@ function Widget({...props}) {
                                             acts,
                                             setActs,
                                             previousData,
+                                            selectedModel,
+                                            trigger,
+                                            url,mutateSheetData
                                         }}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
