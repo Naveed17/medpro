@@ -182,7 +182,7 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "PATIENT_CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onDelete" &&
             (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
             action === "onMove" &&

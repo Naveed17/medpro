@@ -411,7 +411,8 @@
     "EXPIRED": "Expired",
     "PAUSED": "Paused",
     "NOSHOW": "Patient did not show up",
-    "ONLINE": "Appointment from the website"
+    "ONLINE": "Appointment from the website",
+    "PATIENT_CANCELED": "Canceled by patient"
   },
   "social_insured": {
     "socialInsured": "Social insurance",
