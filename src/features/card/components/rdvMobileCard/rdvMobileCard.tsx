@@ -26,10 +26,7 @@ function RDVMobileCard({...props}) {
                                 component="span"
                                 variant="body2"
                                 color="primary.main"
-                                className="title"
-                            >
-                                {inner.meeting ? <Icon path="ic-video"/> : null}
-
+                                className="title">
                                 <span>{inner.title}</span>
                             </Typography>
                             <Box className="time-badge-main">
