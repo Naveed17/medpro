@@ -64,7 +64,6 @@ function CipMedicProCard({...props}) {
                                     patient: patient,
                                     motif: row.consultationReasons,
                                     description: "",
-                                    meeting: false,
                                     status: status.value
                                 }
                             }

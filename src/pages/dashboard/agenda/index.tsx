@@ -196,6 +196,7 @@ function Agenda() {
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerAppointmentDetails} = useRequestMutation(null, "/agenda/appointment/details");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -223,7 +224,7 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?mode=mini&${query}`
         }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
@@ -389,9 +390,31 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
-        setEvent(event);
-        dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
+        setLoadingRequest(true);
+        setTimeout(() => setEvent(event));
+        const query = `?mode=tooltip&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+        triggerAppointmentDetails({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+        }).then((result) => {
+            const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+            if (appointmentData.length > 0) {
+                const appointment = appointmentData[0];
+                const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                const hasErrors = [
+                    ...(horsWork ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
+                setLoadingRequest(false);
+                batch(() => {
+                    dispatch(setSelectedEvent({
+                        ...event,
+                        extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                    }));
+                    dispatch(openDrawer({type: "view", open: true}));
+                });
+            }
+        })
+
     }
 
     const handleDragEvent = (DateTime: Moment, action: string) => {

@@ -5,17 +5,38 @@ import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-import {convertHexToRGBA} from "@lib/hooks";
+import {convertHexToRGBA, useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
+import {useRouter} from "next/router";
 
 function Event({...props}) {
     const {event, view, t, isMobile} = props;
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const open = Boolean(anchorEl);
     const appointment = event.event._def.extendedProps;
+    const appointmentUuid = event.event._def.publicId;
+    const {trigger: triggerAppointmentTooltip} = useRequestMutation(null, "/agenda/appointment/tooltip");
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
+        const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
+        triggerAppointmentTooltip({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+        }).then((result) => {
+            const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+            if (appointmentData.length > 0) {
+                setAppointmentData(appointmentData[0]);
+            }
+        })
     };
 
     const handlePopoverClose = () => {
@@ -95,8 +116,7 @@ function Event({...props}) {
                     horizontal: isHorizontal()
                 }}
                 onClose={handlePopoverClose}
-                disableRestoreFocus
-            >
+                disableRestoreFocus>
                 <>
                     {appointment.new &&
                         <Chip label={t("event.new", {ns: 'common'})}
@@ -111,7 +131,7 @@ function Event({...props}) {
                     <AppointmentPopoverCard
                         {...{t}}
                         style={{width: "300px", border: "none"}}
-                        data={appointment}/>
+                        data={appointmentData}/>
                 </>
             </Popover>
         </>

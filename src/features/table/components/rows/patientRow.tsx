@@ -268,7 +268,6 @@ function PatientRow({...props}) {
                                             patient: row,
                                             motif: row.nextAppointment.consultationReasons,
                                             description: "",
-                                            meeting: false,
                                             dur: row.nextAppointment.duration,
                                             status: AppointmentStatus[row.nextAppointment.status]
                                         }

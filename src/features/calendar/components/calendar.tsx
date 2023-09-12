@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
@@ -96,6 +96,10 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
+    const handleOnSelectEvent = useCallback((value: any) => {
+        OnSelectEvent(value);
+    }, [OnSelectEvent]);
+
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
         return moment.utc(duration._milliseconds).format("HH:mm:ss");
@@ -132,7 +136,7 @@ function Calendar({...props}) {
     const handleTableEvent = (action: string, eventData: EventModal) => {
         switch (action) {
             case "showEvent":
-                OnSelectEvent(eventData);
+                handleOnSelectEvent(eventData);
                 break;
             case "waitingRoom":
                 OnWaitingRoom(eventData);
@@ -358,7 +362,7 @@ function Calendar({...props}) {
                                         isMobile
                                     })
                                 }
-                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);

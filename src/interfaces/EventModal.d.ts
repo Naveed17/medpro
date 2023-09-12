@@ -17,12 +17,10 @@ interface EventModal {
     fees: string;
     id: string;
     dur: number;
-    meeting: boolean;
     filtered: boolean;
     new: boolean;
     isOnline: boolean;
     hasErrors: Array<string>;
-    addRoom: boolean;
     patient: PatientModel;
     status: AppointmentStatusModel;
 }
