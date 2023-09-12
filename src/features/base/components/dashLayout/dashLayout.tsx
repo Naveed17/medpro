@@ -26,6 +26,7 @@ import {LoadingButton} from "@mui/lab";
 import {setSelectedRows} from "@features/table";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
+import {batch} from "react-redux";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -219,10 +220,12 @@ function DashLayout({children}: LayoutProps) {
             data: params
         }).then(() => {
             setLoading(false);
-            setMergeDialog(false);
-            dispatch(setSelectedRows([]));
-            dispatch(setDuplicated({openDialog: false}));
-            dispatch(resetDuplicated());
+            batch(() => {
+                dispatch(setSelectedRows([]));
+                dispatch(setDuplicated({openDialog: false}));
+                dispatch(resetDuplicated());
+            });
+            setTimeout(() => setMergeDialog(false));
             mutateDuplicationSource && mutateDuplicationSource();
         })
     }

@@ -166,7 +166,7 @@ function DocumentsPanel({...props}) {
                 <>
                     <Grid container>
                         {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={1} spacing={1} m={1}
+                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} spacing={1} m={1}
                                   alignItems={"center"}>
                                 <DocumentCard onClick={() => {
                                     showDoc(card)
@@ -179,7 +179,7 @@ function DocumentsPanel({...props}) {
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc: MedicalDocuments) =>
                                 doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <Grid key={`doc-item-${idx}`} item md={4} xs={1} spacing={1} m={1}
+                                <Grid key={`doc-item-${idx}`} item md={4} xs={12} spacing={1} m={1}
                                       alignItems={"center"}
                                       sx={{
                                           "& .sub-title": {
@@ -478,13 +478,15 @@ function DocumentsPanel({...props}) {
                                     </Toolbar>
                                 </AppBar>
 
-                                <Box style={{overflowX: "auto", marginBottom: 10}}>
-                                    <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                                        {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                            <React.Fragment key={`doc-item-${idx}`}>
-                                                <DocumentCard onClick={() => {
+                                <Grid container>
+                                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                        <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} spacing={1} m={1}
+                                              alignItems={"center"}>
+                                            <DocumentCard
+                                                onClick={() => {
                                                     showDoc(card)
-                                                }} {...{
+                                                }}
+                                                {...{
                                                     t,
                                                     data: card,
                                                     date: false,
@@ -492,10 +494,9 @@ function DocumentsPanel({...props}) {
                                                     title: true,
                                                     resize: true
                                                 }}/>
-                                            </React.Fragment>
-                                        )}
-                                    </Stack>
-                                </Box>
+                                        </Grid>
+                                    )}
+                                </Grid>
                             </CardContent>
                         </PanelCardStyled>
                     }

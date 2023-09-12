@@ -12,7 +12,8 @@
     "stats": "Statistiques",
     "settings": "Mon profil",
     "logout": "Se déconnecter",
-    "payment": "Caisse"
+    "payment": "Caisse",
+    "inventory": "inventaire"
   },
   "doctor-dropdown": {
     "news": "Fil d'actualité",
