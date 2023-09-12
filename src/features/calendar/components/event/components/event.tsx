@@ -20,6 +20,7 @@ function Event({...props}) {
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
+
     const open = Boolean(anchorEl);
     const appointment = event.event._def.extendedProps;
     const appointmentUuid = event.event._def.publicId;
@@ -88,7 +89,7 @@ function Event({...props}) {
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
-                            {appointment.patient?.contact.length > 0 && <>
+                            {appointment.patient?.contact?.length > 0 && <>
                                 <Icon path="ic-phone"/>
                                 {appointment.patient?.contact[0]?.code} {appointment.patient?.contact[0].value}
                             </>}

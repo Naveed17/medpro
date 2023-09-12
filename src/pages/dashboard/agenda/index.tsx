@@ -392,7 +392,7 @@ function Agenda() {
     const onSelectEvent = (event: EventDef) => {
         setLoadingRequest(true);
         setTimeout(() => setEvent(event));
-        const query = `?mode=tooltip&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+        const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
         triggerAppointmentDetails({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
