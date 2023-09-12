@@ -85,7 +85,6 @@ function FcmLayout({...props}) {
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
             const fcmSession = data.body?.fcm_session ?? "";
-            console.log("fcmSession", fcmSession, jti)
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
                     if (data.mode === "foreground") {
