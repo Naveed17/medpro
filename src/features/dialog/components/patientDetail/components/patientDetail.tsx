@@ -247,7 +247,7 @@ function PatientDetail({...props}) {
             triggerNotificationPush({
                 action: "push",
                 root: "all",
-                message: "",
+                message: " ",
                 content: JSON.stringify({
                     mutate: mutateUrl,
                     fcm_session: jti

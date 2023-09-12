@@ -80,6 +80,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {batch} from "react-redux";
+import useSendNotification from "@lib/hooks/rest/useSendNotification";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -181,6 +182,7 @@ function Agenda() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {jti} = session?.user as any;
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -193,6 +195,7 @@ function Agenda() {
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -939,7 +942,18 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
             data: params
-        }).then(() => setOpenUploadDialog({loading: false, dialog: false}));
+        }).then(() => {
+            setOpenUploadDialog({loading: false, dialog: false});
+            triggerNotificationPush({
+                action: "push",
+                root: "all",
+                message: " ",
+                content: JSON.stringify({
+                    mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                    fcm_session: jti
+                })
+            });
+        });
     }
 
     const handleAddAppointmentRequest = () => {
