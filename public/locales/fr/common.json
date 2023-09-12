@@ -414,7 +414,8 @@
     "EXPIRED": "Expiré",
     "PAUSED": "Pausé",
     "NOSHOW": "Patient ne s'est pas présenté",
-    "ONLINE": "Rendez-vous depuis le site"
+    "ONLINE": "Rendez-vous depuis le site",
+    "PATIENT_CANCELED": "Annulé par le patient"
   },
   "social_insured": {
     "socialInsured": "L'assuré social",

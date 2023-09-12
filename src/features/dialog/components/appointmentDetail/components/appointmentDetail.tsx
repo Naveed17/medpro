@@ -448,6 +448,7 @@ function AppointmentDetail({...props}) {
                                 sx={{
                                     display:
                                         appointment?.extendedProps.status.key === "CANCELED" ||
+                                        appointment?.extendedProps.status.key === "PATIENT_CANCELED" ||
                                         appointment?.extendedProps.status.key === "FINISHED" ||
                                         appointment?.extendedProps.status.key === "ON_GOING"
                                             ? "none"
@@ -461,7 +462,7 @@ function AppointmentDetail({...props}) {
                                     <IconUrl
                                         path="icdelete"
                                         color={
-                                            appointment?.extendedProps.status.key === "CANCELED"
+                                            appointment?.extendedProps.status.key === "CANCELED" || appointment?.extendedProps.status.key === "PATIENT_CANCELED"
                                                 ? "white"
                                                 : theme.palette.error.main
                                         }
