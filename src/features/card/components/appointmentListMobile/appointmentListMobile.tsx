@@ -31,7 +31,7 @@ function AppointmentListMobile({...props}) {
     const getColor = () => {
         if (event?.status.key === "CONFIRMED")
             return "success"
-        else if (event?.status.key === "CANCELED")
+        else if (event?.status.key === "CANCELED" || event?.status.key === "PATIENT_CANCELED")
             return "error";
         else
             return "primary"
