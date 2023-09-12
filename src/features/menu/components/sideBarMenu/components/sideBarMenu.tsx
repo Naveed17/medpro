@@ -11,7 +11,6 @@ import {
     useMediaQuery,
     Badge
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 // utils
 import Icon from "@themes/icon";
 
