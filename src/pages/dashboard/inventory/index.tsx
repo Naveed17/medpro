@@ -147,7 +147,6 @@ function Inventory() {
     setOpen(false);
     setSelected("");
   };
-  console.log(rows);
   return (
     <>
       <SubHeader>

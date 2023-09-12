@@ -53,10 +53,13 @@ function InventoryDrawer({ ...props }) {
     validationSchema,
   });
 
-  const { handleSubmit, touched, errors, getFieldProps } = formik;
+  const { values, handleSubmit, touched, errors, getFieldProps } = formik;
   return (
     <DrawerStyled>
       <Box className="drawer-header">
+        <Typography variant="h6">
+          {t("table.total")}: {values.qte * values.after_amount} {devise}
+        </Typography>
         <IconButton
           onClick={() => {
             handleClose();
