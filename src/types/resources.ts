@@ -9,6 +9,7 @@ import settings from '../../public/locales/fr/settings.json'
 import patient from "../../public/locales/fr/patient.json";
 import consultation from "../../public/locales/fr/consultation.json";
 import payment from "../../public/locales/fr/payment.json";
+import inventory from "../../public/locales/fr/inventory.json";
 
 export interface Resources {
     common: typeof common
@@ -19,6 +20,7 @@ export interface Resources {
     settings: typeof settings
     patient: typeof patient;
     consultation: typeof consultation;
-    payment: typeof payment
+    payment: typeof payment;
+    inventory: typeof inventory;
     // as many as files you have
 }
