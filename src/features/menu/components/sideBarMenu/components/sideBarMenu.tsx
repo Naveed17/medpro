@@ -50,7 +50,8 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
-import { MobileContainer } from "@lib/constants";
+import {MobileContainer} from "@lib/constants";
+
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
@@ -62,13 +63,12 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room,newCashBox} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(sidebarItems);
-
+    const [menuItems, setMenuItems] = useState(sidebarItems.filter(item => item.enabled));
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -142,8 +142,8 @@ function SideBarMenu({children}: LayoutProps) {
                                         badgeContent={item.badge}
                                         color="warning"
                                         sx={{
-                                            '.MuiBadge-badge':{
-                                                right:8
+                                            '.MuiBadge-badge': {
+                                                right: 8
                                             }
                                         }}
                                     />
@@ -187,13 +187,13 @@ function SideBarMenu({children}: LayoutProps) {
 
     });
 
-    useEffect(()=>{
-        let demo =  user.medical_entity.hasDemo;
+    useEffect(() => {
+        let demo = user.medical_entity.hasDemo;
         if (localStorage.getItem('newCashbox'))
-            demo =  localStorage.getItem('newCashbox') === "1";
-        menuItems[3].href= demo ?"/dashboard/cashbox":"/dashboard/payment";
+            demo = localStorage.getItem('newCashbox') === "1";
+        menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
         setMenuItems([...menuItems])
-    },[newCashBox]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [newCashBox]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const currentDay = sortedData.find((event) => event.date === moment().format("DD-MM-YYYY"));
@@ -204,7 +204,7 @@ function SideBarMenu({children}: LayoutProps) {
         ]);
     }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <MainMenuStyled>
