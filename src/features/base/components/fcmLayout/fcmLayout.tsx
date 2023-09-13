@@ -132,8 +132,6 @@ function FcmLayout({...props}) {
                             } else if (data.body.action === "update") {
                                 // update pending notifications status
                                 agendaConfig?.mutate[1]();
-                                // refresh on going api
-                                mutateOnGoing();
                             }
                             break;
                         case "waiting-room":
@@ -255,7 +253,6 @@ function FcmLayout({...props}) {
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
     useEffect(() => {
         // Update notifications popup
         const localStorageNotifications = localStorage.getItem("notifications");
@@ -267,14 +264,18 @@ function FcmLayout({...props}) {
     }, [dispatch])
 
     useEffect(() => {
-        setToken();
-        // Event listener that listens for the push notification event in the background
-        if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
-            navigator.serviceWorker.addEventListener("message", (event) => {
-                console.log("event for the service worker", JSON.parse(event.data.data.detail));
-            });
+        if (agendaConfig) {
+            setToken();
+            // Event listener that listens for the push notification event in the background
+            if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                });
+            }
         }
+    }, [agendaConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
                 // when we're back online
@@ -291,7 +292,7 @@ function FcmLayout({...props}) {
                 }));
             });
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <>
