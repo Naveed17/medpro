@@ -71,7 +71,7 @@ function TopNavBar({...props}) {
     const {config: agendaConfig, pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
     const {
-        ongoing, medicalEntityHasUser, next, notifications,
+        ongoing, next, notifications,
         import_data, allowNotification
     } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
@@ -98,7 +98,7 @@ function TopNavBar({...props}) {
     const id = open ? "simple-popover" : undefined;
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
     }
 
     const popovers: { [key: string]: EmotionJSX.Element } = {

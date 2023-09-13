@@ -55,7 +55,7 @@ function FcmLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
-    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
 
@@ -81,7 +81,7 @@ function FcmLayout({...props}) {
     }
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
     }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {

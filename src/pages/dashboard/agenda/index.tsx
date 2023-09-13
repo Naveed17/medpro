@@ -199,7 +199,7 @@ function Agenda() {
     const {trigger: triggerAppointmentDetails} = useRequestMutation(null, "/agenda/appointment/details");
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
     }
 
     const getAppointmentBugs = useCallback((date: Date) => {
