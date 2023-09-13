@@ -65,7 +65,7 @@ function CipCard({...props}) {
                         </Typography>
                     </Box>
                     <Label color='warning' variant='filled' className='label'>
-                        {event?.extendedProps.type?.name ? event?.extendedProps.type.name : event?.extendedProps.type}
+                        {event?.extendedProps.type?.name ?? event?.extendedProps.type}
                     </Label>
                 </Stack>
             </CipCardStyled>

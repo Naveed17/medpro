@@ -128,6 +128,8 @@ function FcmLayout({...props}) {
                             } else if (data.body.action === "update") {
                                 // update pending notifications status
                                 agendaConfig?.mutate[1]();
+                                // refresh on going api
+                                mutateOnGoing && mutateOnGoing();
                             }
                             break;
                         case "waiting-room":
@@ -310,8 +312,7 @@ function FcmLayout({...props}) {
                         }
                     }
                 }}
-                aria-labelledby="draggable-dialog-title"
-            >
+                aria-labelledby="draggable-dialog-title">
                 {dialogAction !== "confirm-dialog" ? <>
                         <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
                             Fin de consultation
