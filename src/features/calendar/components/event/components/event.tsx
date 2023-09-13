@@ -22,27 +22,35 @@ function Event({...props}) {
     const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
 
     const open = Boolean(anchorEl);
+    let timeoutId: any;
     const appointment = event.event._def.extendedProps;
     const appointmentUuid = event.event._def.publicId;
     const {trigger: triggerAppointmentTooltip} = useRequestMutation(null, "/agenda/appointment/tooltip");
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-        const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
-        triggerAppointmentTooltip({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
-        }).then((result) => {
-            const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
-            if (appointmentData.length > 0) {
-                setAppointmentData(appointmentData[0]);
-            }
-        })
-    };
+        if (timeoutId !== undefined) {
+            clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+            setAnchorEl(event.target as any);
+            const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
+            triggerAppointmentTooltip({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+            }).then((result) => {
+                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                if (appointmentData.length > 0) {
+                    setAppointmentData(appointmentData[0]);
+                }
+            })
+        }, 1000);
+    }
 
     const handlePopoverClose = () => {
         setAnchorEl(null);
-    };
+        clearTimeout(timeoutId);
+    }
 
     const isHorizontal = () => {
         if (view === "timeGridDay")
