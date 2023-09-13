@@ -110,7 +110,6 @@ function FcmLayout({...props}) {
                         }
                     }
                 } else {
-                    console.log("message", message);
                     switch (message.data.root) {
                         case "agenda":
                             dispatch(setLastUpdate(data));
