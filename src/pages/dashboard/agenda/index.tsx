@@ -332,7 +332,7 @@ function Agenda() {
                 appointment: transactions[0]?.appointment,
                 patient: transactions[0]?.appointment?.patient,
                 total: selectedEvent?.extendedProps?.total,
-                isNew: payed_amount === 0
+                isNew: false
             });
             setTimeout(() => setOpenPaymentDialog(true));
         }
@@ -1035,6 +1035,7 @@ function Agenda() {
             () => {
                 setOpenPaymentDialog(false);
                 setTimeout(() => setLoadingRequest(false));
+                dispatch(openDrawer({type: "pay", open: false}));
             }
         );
     }

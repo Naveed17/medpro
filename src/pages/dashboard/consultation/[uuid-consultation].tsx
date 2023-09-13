@@ -466,7 +466,7 @@ function ConsultationInProgress() {
         let _total = 0
         acts.filter(act => act.selected).forEach(act => _total += act.fees * act.qte)
         setTotal(_total);
-    }, [acts])
+    }, [acts]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (previousAppointments) {
@@ -702,9 +702,20 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     }
+
+    const getTransactionAmountPayed = (): number => {
+        let payed_amount = 0;
+        if (appointment?.transactions)
+            (appointment.transactions as any).transaction_data.forEach((td: {
+                amount: number;
+            }) => payed_amount += td.amount);
+        return payed_amount;
+    }
+
     const sendNotification = () => {
         if (secretary.length > 0 && patient) {
             const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+            const restAmount = getTransactionAmountPayed();
             const form = new FormData();
             form.append("action", "end_consultation");
             form.append("root", "agenda");
@@ -712,11 +723,11 @@ function ConsultationInProgress() {
                 "content",
                 JSON.stringify({
                     fees: total,
-                    restAmount: appointment?.rest_amount,
+                    restAmount: total - restAmount,
                     instruction: localInstr ? localInstr : "",
                     control: checkedNext,
                     edited: false,
-                    payed: appointment?.transactions ? appointment.rest_amount === 0 : appointment?.rest_amount !== 0,
+                    payed: appointment?.transactions ? restAmount === 0 : restAmount !== 0,
                     nextApp: meeting ? meeting : "0",
                     appUuid: app_uuid,
                     dayDate: appointment?.day_date,
