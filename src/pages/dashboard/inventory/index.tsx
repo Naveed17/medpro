@@ -28,6 +28,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { InventoryDrawer } from "@features/drawer";
 import { InventoryMobileCard, NoDataCard } from "@features/card";
 import { MobileContainer } from "@themes/mobileContainer";
+import { DrawerBottom } from "@features/drawerBottom";
+import { InventoryFilter } from "@features/leftActionBar";
 const data = [
   {
     uuid: "1",
@@ -106,10 +108,11 @@ const headCells: readonly HeadCell[] = [
 function Inventory() {
   const [openViewDrawer, setOpenViewDrawer] = useState<boolean>(false);
   const [selectedRow, setSelected] = useState<any>("");
+  const [filter, setFilter] = useState<any>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [rows, setRows] = useState<any[]>(data);
   const { direction } = useAppSelector(configSelector);
-  const { t } = useTranslation("inventory");
+  const { t } = useTranslation(["inventory", "common"]);
   const { data: session } = useSession();
   const { data: user } = session as Session;
   const medical_entity = (user as UserDataResponse)
@@ -284,6 +287,29 @@ function Inventory() {
           </Button>
         </DialogActions>
       </Dialog>
+      <MobileContainer>
+        <Button
+          startIcon={<IconUrl path="ic-filter" />}
+          variant="filter"
+          onClick={() => setFilter(true)}
+          sx={{
+            position: "fixed",
+            bottom: 50,
+            transform: "translateX(-50%)",
+            left: "50%",
+            zIndex: 999,
+          }}
+        >
+          {t("filter.title", { ns: "common" })} (0)
+        </Button>
+      </MobileContainer>
+      <DrawerBottom
+        handleClose={() => setFilter(false)}
+        open={filter}
+        title={t("filter.title", { ns: "common" })}
+      >
+        <InventoryFilter />
+      </DrawerBottom>
     </>
   );
 }

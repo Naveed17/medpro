@@ -18,6 +18,19 @@
         "cancel": "Annuler",
         "delete": "Supprimer"
     },
+    "filter": {
+        "name": "Nom",
+        "product": "Produit",
+        "placeholder_name": "Saisir le nom du produit",
+        "brand": "Marque",
+        "placeholder_brand": "Sélectionner la marque",
+        "category": "Catégorie",
+        "placeholder_category": "Sélectionner la catégorie",
+        "stock": "Stock",
+        "placeholder_stock": "Sélectionner la stock",
+        "is_hidden": "Est caché",
+        "is_for_appointment": "Est pour Rendez-vous"
+    },
     "no-data": {
         "title": "Ajouter votre premier produit",
         "description": "Si vous n'avez pas de produit, ajoutez-les en cliquant sur 'Ajouter un produit'."
