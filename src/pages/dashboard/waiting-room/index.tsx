@@ -132,7 +132,7 @@ function WaitingRoom() {
     };
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`);
+        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
     }
 
     const handleClose = () => {
@@ -206,7 +206,7 @@ function WaitingRoom() {
                         }
                     ));
                     // refresh on going api
-                   mutateOnGoing();
+                    mutateOnGoing();
                 });
             });
         } else {
