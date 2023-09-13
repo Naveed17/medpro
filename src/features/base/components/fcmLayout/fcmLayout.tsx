@@ -81,7 +81,7 @@ function FcmLayout({...props}) {
     }
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`);
+        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
     }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {

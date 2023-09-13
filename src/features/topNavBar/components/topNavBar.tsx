@@ -98,7 +98,7 @@ function TopNavBar({...props}) {
     const id = open ? "simple-popover" : undefined;
 
     const mutateOnGoing = () => {
-        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`);
+        medicalEntityHasUser && setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
     }
 
     const popovers: { [key: string]: EmotionJSX.Element } = {
