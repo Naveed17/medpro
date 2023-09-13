@@ -140,13 +140,13 @@ function FcmLayout({...props}) {
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             break;
                         case "consultation":
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             const event = {
                                 publicId: data.body.appointment?.uuid,
                                 title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
