@@ -115,7 +115,7 @@ function Agenda() {
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
         selectedEvent, actionSet, openMoveDrawer, openPayDialog,
@@ -197,6 +197,10 @@ function Agenda() {
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
     const {trigger: triggerNotificationPush} = useSendNotification();
     const {trigger: triggerAppointmentDetails} = useRequestMutation(null, "/agenda/appointment/details");
+
+    const mutateOnGoing = () => {
+        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`);
+    }
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -540,7 +544,7 @@ function Agenda() {
                                 }
                             ));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                         });
                     });
                 } else {
@@ -571,7 +575,7 @@ function Agenda() {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
                 break;
             case "onPatientNoShow":
@@ -712,7 +716,7 @@ function Agenda() {
                         }
                     ));
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
             })
         } else {

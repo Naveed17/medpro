@@ -55,7 +55,7 @@ function FcmLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
 
-    const {mutate: mutateOnGoing, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
 
@@ -79,6 +79,10 @@ function FcmLayout({...props}) {
     const handleClose = () => {
         setOpenDialog(false);
     }
+
+    const mutateOnGoing = () => {
+        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`);
+    }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
@@ -95,7 +99,7 @@ function FcmLayout({...props}) {
                             localStorage.removeItem("import-data-progress");
                             importData.mutate && importData.mutate();
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             closeSnackbar();
                             enqueueSnackbar((data.body.progress === -1 ?
                                     translationCommon.import_data.failed : translationCommon.import_data.end),
@@ -129,20 +133,20 @@ function FcmLayout({...props}) {
                                 // update pending notifications status
                                 agendaConfig?.mutate[1]();
                                 // refresh on going api
-                                mutateOnGoing && mutateOnGoing();
+                                mutateOnGoing();
                             }
                             break;
                         case "waiting-room":
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             break;
                         case "consultation":
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             const event = {
                                 publicId: data.body.appointment?.uuid,
                                 title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
