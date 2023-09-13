@@ -69,6 +69,7 @@ function Event({...props}) {
                         background: event.borderColor,
                     },
                 }}
+                onClick={handlePopoverClose}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
                 {...(!isMobile && {onMouseEnter: handlePopoverOpen})}
