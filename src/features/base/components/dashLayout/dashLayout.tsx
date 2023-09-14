@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation, useRequestQuery} from "@lib/axios";
+import {useRequestMutation, useRequestQuery} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
@@ -30,11 +30,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
-const variants = {
-    hidden: {opacity: 0},
-    enter: {opacity: 1},
-    exit: {opacity: 0},
-}
 type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {

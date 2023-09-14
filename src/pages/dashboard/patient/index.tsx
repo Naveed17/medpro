@@ -34,7 +34,7 @@ import {NoDataCard, PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {instanceAxios, useRequest, useRequestMutation, useRequestQuery} from "@lib/axios";
+import {instanceAxios, useRequestMutation, useRequestQuery} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -83,7 +83,6 @@ import useSWRMutation from "swr/mutation";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
