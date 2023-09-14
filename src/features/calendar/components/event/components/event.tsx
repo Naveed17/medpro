@@ -1,5 +1,5 @@
 import {Avatar, Box, Chip, Popover, Typography} from "@mui/material";
-import React from "react";
+import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
@@ -16,7 +16,7 @@ function Event({...props}) {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const {config: agenda, openViewDrawer} = useAppSelector(agendaSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
@@ -44,7 +44,7 @@ function Event({...props}) {
                     setAppointmentData(appointmentData[0]);
                 }
             })
-        }, 1000);
+        }, 800);
     }
 
     const handlePopoverClose = () => {
@@ -60,6 +60,10 @@ function Event({...props}) {
         else return 'right';
     }
 
+    useEffect(() => {
+        handlePopoverClose()
+    }, [openViewDrawer]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <>
             <EventStyled
@@ -69,7 +73,6 @@ function Event({...props}) {
                         background: event.borderColor,
                     },
                 }}
-                onClick={handlePopoverClose}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
                 {...(!isMobile && {onMouseEnter: handlePopoverOpen})}
@@ -86,15 +89,20 @@ function Event({...props}) {
                     {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                 </Typography>
 
-                <Typography variant="body2" component={"span"} sx={{
-                    span: {
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
-                        ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
-                    }
-                }} color="primary" noWrap>
+                <Typography
+                    variant="body2"
+                    component={"span"}
+                    sx={{
+                        span: {
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
+                            ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
+                        }
+                    }}
+                    color="primary"
+                    noWrap>
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
