@@ -240,7 +240,7 @@ function FcmLayout({...props}) {
             if (prodEnv && remoteConfig) {
                 fetchAndActivate(remoteConfig).then(() => {
                     const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
-                    if (config.smartlook) {
+                    if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
                         // identify smartlook user
                         smartlookClient.identify(general_information.uuid, {
                             name: `${general_information.firstName} ${general_information.lastName}`,
