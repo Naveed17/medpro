@@ -201,7 +201,6 @@ function PatientContactDetailCard({...props}) {
                 dispatch(setSelectedEvent(event));
             }
             enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
-
         });
     }
 
