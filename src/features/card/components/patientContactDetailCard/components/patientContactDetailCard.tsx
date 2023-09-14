@@ -122,7 +122,8 @@ function PatientContactDetailCard({...props}) {
                     value: ""
                 }]
     }
-    const flattenedObject = flattenObject(initialValue);
+    const [flattenedObject, setFlattenedObject] = useState(flattenObject(initialValue));
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: initialValue,
@@ -200,6 +201,7 @@ function PatientContactDetailCard({...props}) {
                 dispatch(setSelectedEvent(event));
             }
             enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
+
         });
     }
 
@@ -208,9 +210,14 @@ function PatientContactDetailCard({...props}) {
     const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.personalInfoCard;
 
     useEffect(() => {
+        contactData && setFlattenedObject(flattenObject(initialValue));
+    }, [contactData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (!editable) {
-            const changedValues = checkObjectChange(flattenedObject, values);
-            if (Object.keys(changedValues).length > 0) {
+            const flattenValues = flattenObject(values);
+            const changedValues = checkObjectChange(flattenedObject, flattenValues);
+            if (Object.keys(changedValues).length > 0 || Object.keys(flattenedObject).length !== Object.keys(flattenValues).length) {
                 handleUpdatePatient();
             }
         }
