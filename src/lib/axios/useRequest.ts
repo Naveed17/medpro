@@ -37,7 +37,8 @@ function useRequest<Data = unknown, Error = unknown>(request: GetRequest, {
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && request.url,
         () => instanceAxios.request<Data>({
-            ...request, ...(!request?.url?.includes("/api/public") && {
+            ...request,
+            ...(!request?.url?.includes("/api/public") && {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                     "Fcm-session": jti

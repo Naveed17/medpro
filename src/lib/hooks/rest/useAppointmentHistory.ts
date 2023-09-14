@@ -1,4 +1,4 @@
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -15,7 +15,7 @@ function useAppointmentHistory({...props}) {
         data: httpPatientHistoryResponse,
         isLoading,
         mutate: mutatePatientHis
-    } = useRequest(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}?page=${page}&limit=${limit}`
     } : null);

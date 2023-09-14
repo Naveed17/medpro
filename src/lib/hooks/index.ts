@@ -22,7 +22,6 @@ export * from "./getBirthday";
 export * from "./getBirthdayFormat";
 export * from "./getDifference";
 export * from "./a11yProps";
-export * from "./rest/useAppointment";
 export * from './rest/useContactType';
 export * from './rest/useSendNotification';
 

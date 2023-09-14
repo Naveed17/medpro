@@ -1,11 +1,11 @@
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function usePermissions() {
-    const {data: httpPermissionsResponse} = useRequest({
+    const {data: httpPermissionsResponse} = useRequestQuery({
         method: "GET",
         url: "/api/medical-entity/permissions"
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
     const hasPermission = (permissionName: PermissionName) => {
         return !!((httpPermissionsResponse as HttpResponse)?.data ?? [])[permissionName];

@@ -34,7 +34,7 @@ import {NoDataCard, PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {instanceAxios, useRequest, useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequest, useRequestMutation, useRequestQuery} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -90,6 +90,7 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -322,10 +323,10 @@ function Patient() {
         data: httpPatientsResponse,
         mutate,
         isLoading
-    } = useRequest(medicalEntityHasUser ? {
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${router.query.params ?? localFilter}`
-    } : null, isMobile && SWRNoValidateConfig);
+    } : null, isMobile && ReactQueryNoValidateConfig);
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
         setLoadingRequest(true);

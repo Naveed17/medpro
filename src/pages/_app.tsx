@@ -18,7 +18,6 @@ import "moment/locale/fr";
 // import wrap components
 import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
-import SwrProvider from "@lib/swr/swrProvider";
 import AuthGuard from "@lib/keycloak/authGuard";
 import moment from "moment-timezone";
 import Head from "next/head";
@@ -31,6 +30,7 @@ import smartlookClient from "smartlook-client";
 import {useRouter} from "next/router";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
+import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -73,10 +73,10 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
             });
         }
     }
-
     // Get Layout for pages
     const getLayout = Component.getLayout ?? ((page) => page);
-    const pageKey = router.asPath
+    const pageKey = router.asPath;
+
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
@@ -87,7 +87,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                 <AppThemeProvider>
                     <GlobleStyles>
                         <KeycloakSession session={pageProps.session}>
-                            <SwrProvider fallback={pageProps.fallback}>
+                            <ReactQueryProvider {...pageProps}>
                                 <Head>
                                     <title>Med Link</title>
                                     <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
@@ -108,7 +108,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                         )}
                                     </ErrorBoundary>
                                 </AnimatePresence>
-                            </SwrProvider>
+                            </ReactQueryProvider>
                         </KeycloakSession>
                     </GlobleStyles>
                 </AppThemeProvider>

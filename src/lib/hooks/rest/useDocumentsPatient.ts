@@ -1,4 +1,4 @@
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -15,7 +15,7 @@ function useDocumentsPatient({...props}) {
         data: httpPatientDocumentsResponse,
         isLoading,
         mutate: mutatePatientDocuments
-    } = useRequest(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`
     } : null);
