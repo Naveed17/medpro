@@ -76,6 +76,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
     // Get Layout for pages
     const getLayout = Component.getLayout ?? ((page) => page);
+    const pageKey = router.asPath
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
@@ -93,16 +94,17 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                 </Head>
                                 <AnimatePresence
                                     initial={false}
+                                    mode="popLayout"
                                     onExitComplete={() => window.scrollTo(0, 0)}>
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>
                                                 <FcmLayout {...pageProps}>
-                                                    {getLayout(<Component {...pageProps} />)}
+                                                    {getLayout(<Component key={pageKey} {...pageProps} />)}
                                                 </FcmLayout>
                                             </AuthGuard>
                                         ) : (
-                                            <> {getLayout(<Component {...pageProps} />)}</>
+                                            <> {getLayout(<Component key={pageKey} {...pageProps} />)}</>
                                         )}
                                     </ErrorBoundary>
                                 </AnimatePresence>

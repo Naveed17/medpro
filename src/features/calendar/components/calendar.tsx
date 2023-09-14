@@ -373,7 +373,7 @@ function Calendar({...props}) {
                                     }, isMobile ? 100 : 0);*/
                                 }}
                                 showNonCurrentDates={true}
-                                rerenderDelay={8}
+                                //rerenderDelay={6}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}

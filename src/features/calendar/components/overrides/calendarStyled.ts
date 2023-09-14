@@ -40,6 +40,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-event .fc-event-main': {
         padding: 0,
+        minHeight: 20,
         borderRadius: 4,
         backgroundColor: theme.palette.common.white,
         transition: theme.transitions.create('filter'),

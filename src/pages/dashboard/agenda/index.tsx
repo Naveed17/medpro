@@ -1095,7 +1095,10 @@ function Agenda() {
                 }} color="warning"/>
 
                 {agenda &&
-                    <>
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{ease: "easeIn", duration: .5}}>
                         <Calendar
                             {...{
                                 events: events.current,
@@ -1150,7 +1153,7 @@ function Agenda() {
                                     ))}
                                 </SpeedDial>
                             </Zoom>}
-                    </>
+                    </motion.div>
                 }
 
                 {(isMobile && view === "listWeek") && <>

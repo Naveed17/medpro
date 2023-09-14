@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
-import {motion} from "framer-motion";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@lib/axios";
@@ -8,7 +7,7 @@ import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {configSelector, dashLayoutState, setOngoing} from "@features/base";
+import {configSelector, dashLayoutState, setOngoing, PageTransition} from "@features/base";
 import {AppLock} from "@features/appLock";
 import {Box, Button, DialogActions, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -35,8 +34,9 @@ const variants = {
     enter: {opacity: 1},
     exit: {opacity: 0},
 }
+type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
 
-function DashLayout({children}: LayoutProps) {
+function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -325,15 +325,9 @@ function DashLayout({children}: LayoutProps) {
     return (
         <SideBarMenu>
             <AppLock/>
-            <motion.main
-                key={router.route}
-                initial="hidden"
-                animate="enter"
-                exit="exit"
-                variants={variants}
-                transition={{type: "linear"}}>
+            <PageTransition ref={ref}>
                 {children}
-            </motion.main>
+            </PageTransition>
             <Dialog
                 {...{
                     sx: {
