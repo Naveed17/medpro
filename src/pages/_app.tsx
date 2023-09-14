@@ -66,7 +66,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
         if (prodEnv && remoteConfig) {
             fetchAndActivate(remoteConfig).then(() => {
                 const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
-                if (config.smartlook) {
+                if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
                     // init smartlook client
                     smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
                 }
