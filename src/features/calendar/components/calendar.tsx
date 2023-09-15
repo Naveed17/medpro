@@ -1,11 +1,11 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box,
+    Box, Chip,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem,
+    MenuItem, Popover,
     Theme,
     useMediaQuery,
     useTheme
@@ -32,7 +32,7 @@ import {
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {NoDataCard} from "@features/card";
+import {AppointmentPopoverCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
@@ -41,6 +41,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
+import {motion} from "framer-motion";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -76,6 +77,8 @@ function Calendar({...props}) {
 
     const prevView = useRef(view);
 
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -95,6 +98,7 @@ function Calendar({...props}) {
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
+    const open = Boolean(anchorEl);
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
@@ -210,6 +214,14 @@ function Calendar({...props}) {
         },
         preventScrollOnSwipe: true
     });
+
+    const isHorizontal = () => {
+        if (view === "timeGridDay")
+            return 'left';
+        else if (moment(appointmentData?.time).weekday() > 4)
+            return -305;
+        else return 'right';
+    }
 
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
@@ -327,7 +339,19 @@ function Calendar({...props}) {
                                 }}
                                 moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
-                                    <Event {...{event, openingHours, view, isMobile}} t={translation}/>
+                                    <motion.div
+                                        initial={{opacity: 0}}
+                                        animate={{opacity: 1}}
+                                        transition={{ease: "easeOut", duration: .2}}>
+                                        <Event
+                                            {...{
+                                                open,
+                                                setAppointmentData,
+                                                event, openingHours,
+                                                view, isMobile, anchorEl, setAnchorEl
+                                            }}
+                                            t={translation}/>
+                                    </motion.div>
                                 }
                                 eventClassNames={(arg) => {
                                     if (arg.event._def.extendedProps.filtered) {
@@ -514,6 +538,41 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
+
+                            <Popover
+                                id="mouse-over-popover"
+                                sx={{
+                                    pointerEvents: 'none',
+                                    zIndex: 900
+                                }}
+                                open={open}
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
+                                    horizontal: isHorizontal()
+                                }}
+                                onClose={() => setAnchorEl(null)}
+                                disableRestoreFocus>
+                                <motion.div
+                                    initial={{opacity: 0}}
+                                    animate={{opacity: 1}}
+                                    transition={{ease: "linear", duration: .2}}>
+                                    {appointmentData?.new &&
+                                        <Chip label={translation("event.new", {ns: 'common'})}
+                                              sx={{
+                                                  position: "absolute",
+                                                  right: 4,
+                                                  top: 4,
+                                                  fontSize: 10
+                                              }}
+                                              size="small"
+                                              color={"primary"}/>}
+                                    <AppointmentPopoverCard
+                                        {...{t: translation}}
+                                        style={{width: "300px", border: "none"}}
+                                        data={appointmentData}/>
+                                </motion.div>
+                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

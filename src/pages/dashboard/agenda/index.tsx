@@ -22,7 +22,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequestQueryMutation, useRequestMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -81,6 +81,7 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {batch} from "react-redux";
 import useSendNotification from "@lib/hooks/rest/useSendNotification";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -148,6 +149,7 @@ function Agenda() {
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [query, setQuery] = useState<any>(null);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [eventStepper, setEventStepper] = useState([
@@ -188,7 +190,14 @@ function Agenda() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
+    const {data: httpAppointmentsResponse} = useRequestQuery(agenda && query ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(query && {variables: {query: `?mode=mini&${query.queryData}`}})
+    });
+
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
     const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
@@ -221,53 +230,99 @@ function Agenda() {
     }, [agenda]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
+
+        setQuery({queryData: query, view, filter, history});
+
+        /*triggerAppointmentsData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?mode=mini&${query}`
+        }, {
+            onSuccess: (result) => {
+                const eventCond = (result?.data as HttpResponse)?.data;
+                const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
+                const eventsUpdated: EventModal[] = [];
+                if (!filter || events.current.length === 0) {
+                    appointments?.forEach((appointment) => {
+                        const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                        const hasErrors = [
+                            ...(horsWork ? ["event.hors-opening-hours"] : []),
+                            ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
+                        eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
+                    });
+                } else {
+                    events.current.forEach(event => {
+                        eventsUpdated.push({
+                            ...event,
+                            filtered: !appointments?.find(appointment => appointment.uuid === event.id)
+                        })
+                    })
+                }
+                if (!history) {
+                    events.current = eventsUpdated;
+                } else {
+                    events.current = [...eventsUpdated, ...events.current];
+                }
+
+                // Edit: to add it in the array format instead
+                const groupArrays = appointmentGroupByDate(events.current);
+
+                dispatch(setGroupedByDayAppointments(groupArrays));
+
+                if (isMobile || view === "listWeek") {
+                    // sort grouped data
+                    sortedData.current = groupArrays.slice()
+                        .sort((a, b) =>
+                            new Date(a.date).getTime() - new Date(b.date).getTime());
+                }
+                setLoading(false);
+            },
+        });*/
+    }
+
+    const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
-        if (query.includes("format=list")) {
+        if (query?.queryData.includes("format=list")) {
             dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             events.current = [];
         }
-        trigger({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?mode=mini&${query}`
-        }).then((result) => {
-            const eventCond = (result?.data as HttpResponse)?.data;
-            const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-            const eventsUpdated: EventModal[] = [];
-            if (!filter || events.current.length === 0) {
-                appointments?.forEach((appointment) => {
-                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
-                    const hasErrors = [
-                        ...(horsWork ? ["event.hors-opening-hours"] : []),
-                        ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
-                    eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
-                });
-            } else {
-                events.current.forEach(event => {
-                    eventsUpdated.push({
-                        ...event,
-                        filtered: !appointments?.find(appointment => appointment.uuid === event.id)
-                    })
+
+        const eventCond = result?.data;
+        const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
+        const eventsUpdated: EventModal[] = [];
+        if (!query?.filter || events.current.length === 0) {
+            appointments?.forEach((appointment) => {
+                const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                const hasErrors = [
+                    ...(horsWork ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
+                eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
+            });
+        } else {
+            events.current.forEach(event => {
+                eventsUpdated.push({
+                    ...event,
+                    filtered: !appointments?.find(appointment => appointment.uuid === event.id)
                 })
-            }
-            if (!history) {
-                events.current = eventsUpdated;
-            } else {
-                events.current = [...eventsUpdated, ...events.current];
-            }
+            })
+        }
+        if (!query?.history) {
+            events.current = eventsUpdated;
+        } else {
+            events.current = [...eventsUpdated, ...events.current];
+        }
 
-            // Edit: to add it in the array format instead
-            const groupArrays = appointmentGroupByDate(events.current);
+        // Edit: to add it in the array format instead
+        const groupArrays = appointmentGroupByDate(events.current);
 
-            dispatch(setGroupedByDayAppointments(groupArrays));
+        dispatch(setGroupedByDayAppointments(groupArrays));
 
-            if (isMobile || view === "listWeek") {
-                // sort grouped data
-                sortedData.current = groupArrays.slice()
-                    .sort((a, b) =>
-                        new Date(a.date).getTime() - new Date(b.date).getTime());
-            }
-            setLoading(false);
-        });
+        if (isMobile || query?.view === "listWeek") {
+            // sort grouped data
+            sortedData.current = groupArrays.slice()
+                .sort((a, b) =>
+                    new Date(a.date).getTime() - new Date(b.date).getTime());
+        }
+        setLoading(false);
     }
 
     const calendarIntervalSlot = () => {
@@ -298,6 +353,12 @@ function Agenda() {
             refreshData();
         }
     }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpAppointmentsResponse) {
+            updateCalendarEvents(httpAppointmentsResponse as HttpResponse);
+        }
+    }, [httpAppointmentsResponse])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (openMoveDrawer) {
@@ -1091,7 +1152,7 @@ function Agenda() {
                 <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
                           open={openFabAdd}/>
                 <LinearProgress sx={{
-                    visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
+                    visibility: !httpAppointmentsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
 
                 {agenda &&
@@ -1629,12 +1690,22 @@ function Agenda() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    // `getStaticProps` is executed on the server side.
+    const {data: countries} = await instanceAxios({
+        url: `/api/public/places/countries/${locale}?nationality=true`,
+        method: "GET"
+    });
+
+    return {
+        props: {
+            fallback: {
+                [`/api/public/places/countries/${locale}?nationality=true`]: countries
+            },
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+        }
     }
-})
+}
 
 export default Agenda
 

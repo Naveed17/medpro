@@ -32,7 +32,7 @@ function CalendarRowDetail({...props}) {
     const {data: session} = useSession();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
+    //const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
@@ -202,7 +202,7 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
-                        {duplications?.length > 0 &&
+                        {/* {duplications?.length > 0 &&
                             <Tooltip title={t("duplication")} TransitionComponent={Zoom}>
                                 <IconButton
                                     sx={{p: "0 8px", "& .MuiAvatar-root": {p: 1.5}}}
@@ -230,7 +230,7 @@ function CalendarRowDetail({...props}) {
                                             }}/>
                                     </SmallAvatar>
                                 </IconButton>
-                            </Tooltip>}
+                            </Tooltip>}*/}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>

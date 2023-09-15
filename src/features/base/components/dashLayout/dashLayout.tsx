@@ -3,7 +3,6 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequestMutation, useRequestQuery} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -73,32 +72,32 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpProfessionalsResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
     const {data: httpAppointmentTypesResponse} = useRequestQuery(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpBoxesResponse} = useRequestQuery(httpOngoingResponse ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const renderNoDataCard = <NoDataCard
         {...{t}}

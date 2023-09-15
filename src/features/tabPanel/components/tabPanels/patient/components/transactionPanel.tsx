@@ -107,10 +107,10 @@ function TransactionPanel({...props}) {
         url: `/api/public/payment-means/${router.locale}`
     }, SWRNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions, isLoading} = useRequest({
+    const {data: httpTransactionsResponse, mutate: mutateTransctions, isLoading} = useRequest(patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`
-    });
+    } : null);
 
     const handleSubmit = () => {
         setLoadingRequest(true)

@@ -9,14 +9,16 @@ export const ReactQueryNoValidateConfig = {
     refetchOnReconnect: false
 }
 
-function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {...config}: any = {}) {
+function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {variables, ...config}: any = {}) {
     const {data: session} = useSession();
     const {jti} = session?.user as any;
+    const queryKey: string[] = [(request?.url ?? []), ...(variables?.query ? [variables.query] : [])];
 
     const {isLoading, error, data: response, refetch} = useQuery(
-        [request?.url],
+        queryKey,
         () => instanceAxios.request<Data>({
             ...request,
+            ...(variables?.query && {url: `${request?.url}${variables.query}`}),
             ...(!request?.url?.includes("/api/public") && {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -24,7 +26,7 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
                 }
             })
         }!), {
-            enabled: !!request,
+            enabled: !!request || queryKey.length === 0,
             ...config
         }
     );

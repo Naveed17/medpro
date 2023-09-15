@@ -115,10 +115,11 @@ function DocumentsPanel({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
-    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequest({
+    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequest(patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/quotes/${router.locale}`
-    });
+    } : null);
+
     const {data: httpProfessionalsActs} = useRequest(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
