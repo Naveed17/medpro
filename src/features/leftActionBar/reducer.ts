@@ -4,10 +4,12 @@ import {
   resetFilterPatient,
   resetFilterPayment,
   setFilterPayment,
+  setFilterData,
 } from "./actions";
 import _ from "lodash";
 
 export type ActionBarState = {
+  filter: any;
   query:
     | {
         type?: string;
@@ -23,14 +25,6 @@ export type ActionBarState = {
           hasDouble?: boolean;
           insurances?: string[];
         };
-        inventory?: {
-          name?: string;
-          brand?: string;
-          category?: string;
-          stock?: string;
-          isHidden: boolean;
-          isForAppointment: boolean;
-        };
         payment?: {
           insurance?: string[];
           dates?: any;
@@ -40,6 +34,7 @@ export type ActionBarState = {
 };
 
 const initialState: ActionBarState = {
+  filter: null,
   query: undefined,
 };
 
@@ -63,5 +58,8 @@ export const leftActionBarReducer = createReducer(initialState, (builder) => {
     })
     .addCase(resetFilterPayment, (state) => {
       return { ...state, query: { ...state.query, payment: undefined } };
+    })
+    .addCase(setFilterData, (state, action) => {
+      return { ...state, filter: action.payload };
     });
 });

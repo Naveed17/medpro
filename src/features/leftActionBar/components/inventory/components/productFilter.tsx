@@ -9,22 +9,26 @@ import {
 } from "@mui/material";
 import { FormikProvider, useFormik, Form } from "formik";
 import * as data from "./data";
-import { setFilter, leftActionBarSelector } from "@features/leftActionBar";
+import {
+  setFilter,
+  leftActionBarSelector,
+  setFilterData,
+} from "@features/leftActionBar";
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 
 function ProductFilter({ ...props }) {
   const { t, OnSearch } = props;
   const dispatch = useAppDispatch();
-  const { query } = useAppSelector(leftActionBarSelector);
+  const { filter } = useAppSelector(leftActionBarSelector);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: (query?.inventory as any)?.name || "",
-      brand: (query?.inventory as any)?.brand || [],
-      categories: (query?.inventory as any)?.categories || [],
-      stock: (query?.inventory as any)?.stock || [],
-      isHidden: (query?.inventory as any)?.isHidden || false,
-      isForAppointment: (query?.inventory as any)?.isForAppointment || false,
+      name: (filter as any)?.name || "",
+      brand: (filter as any)?.brand || [],
+      categories: (filter as any)?.categories || [],
+      stock: (filter as any)?.stock || [],
+      isHidden: (filter as any)?.isHidden || false,
+      isForAppointment: (filter as any)?.isForAppointment || false,
     },
 
     onSubmit: (values) => {
@@ -53,12 +57,9 @@ function ProductFilter({ ...props }) {
             onChange={(e) => {
               setFieldValue("name", e.target.value);
               dispatch(
-                setFilter({
-                  ...query,
-                  inventory: {
-                    ...query?.inventory,
-                    name: e.target.value,
-                  },
+                setFilterData({
+                  ...filter,
+                  name: e.target.value,
                 })
               );
             }}
@@ -73,12 +74,9 @@ function ProductFilter({ ...props }) {
             onChange={(value: any) => {
               setFieldValue("brand", value);
               dispatch(
-                setFilter({
-                  ...query,
-                  inventory: {
-                    ...query?.inventory,
-                    brand: value,
-                  },
+                setFilterData({
+                  ...filter,
+                  brand: value,
                 })
               );
             }}
@@ -94,12 +92,9 @@ function ProductFilter({ ...props }) {
             onChange={(value: any) => {
               setFieldValue("categories", value);
               dispatch(
-                setFilter({
-                  ...query,
-                  inventory: {
-                    ...query?.inventory,
-                    categories: value,
-                  },
+                setFilterData({
+                  ...filter,
+                  categories: value,
                 })
               );
             }}
@@ -115,12 +110,9 @@ function ProductFilter({ ...props }) {
             onChange={(value: any) => {
               setFieldValue("stock", value);
               dispatch(
-                setFilter({
-                  ...query,
-                  inventory: {
-                    ...query?.inventory,
-                    stock: value,
-                  },
+                setFilterData({
+                  ...filter,
+                  stock: value,
                 })
               );
             }}
@@ -134,12 +126,9 @@ function ProductFilter({ ...props }) {
               onChange={(e) => {
                 setFieldValue("isHidden", e.target.checked);
                 dispatch(
-                  setFilter({
-                    ...query,
-                    inventory: {
-                      ...query?.inventory,
-                      isHidden: e.target.checked,
-                    },
+                  setFilterData({
+                    ...filter,
+                    isHidden: e.target.checked,
                   })
                 );
               }}
@@ -154,12 +143,9 @@ function ProductFilter({ ...props }) {
               onChange={(e) => {
                 setFieldValue("isForAppointment", e.target.checked);
                 dispatch(
-                  setFilter({
-                    ...query,
-                    inventory: {
-                      ...query?.inventory,
-                      isForAppointment: e.target.checked,
-                    },
+                  setFilterData({
+                    ...filter,
+                    isForAppointment: e.target.checked,
                   })
                 );
               }}

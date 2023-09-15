@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import { DashLayout, configSelector } from "@features/base";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -21,7 +21,7 @@ import { SubHeader } from "@features/subHeader";
 import { DefaultCountry } from "@lib/constants";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useAppSelector } from "@lib/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@lib/redux/hooks";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
@@ -31,6 +31,7 @@ import { MobileContainer } from "@themes/mobileContainer";
 import { DrawerBottom } from "@features/drawerBottom";
 import { InventoryFilter } from "@features/leftActionBar";
 import { useRouter } from "next/router";
+import { setFilterData } from "@features/leftActionBar";
 const data = [
   {
     uuid: "1",
@@ -112,7 +113,7 @@ function Inventory() {
   const filtered = (router?.query?.params as any)
     ?.split("&")
     .filter((item: any) => item.length > 0) as any;
-
+  const dispatch = useAppDispatch();
   const [selectedRow, setSelected] = useState<any>("");
   const [filter, setFilter] = useState<any>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -156,6 +157,12 @@ function Inventory() {
     setOpen(false);
     setSelected("");
   };
+  useEffect(() => {
+    return () => {
+      dispatch(setFilterData(null as any));
+    };
+  }, []);
+
   return (
     <>
       <SubHeader>
