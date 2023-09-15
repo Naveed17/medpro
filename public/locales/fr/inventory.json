@@ -19,6 +19,7 @@
         "delete": "Supprimer"
     },
     "filter": {
+        "title": "Filtre",
         "name": "Nom",
         "product": "Produit",
         "placeholder_name": "Saisir le nom du produit",

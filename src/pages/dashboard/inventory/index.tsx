@@ -30,6 +30,7 @@ import { InventoryMobileCard, NoDataCard } from "@features/card";
 import { MobileContainer } from "@themes/mobileContainer";
 import { DrawerBottom } from "@features/drawerBottom";
 import { InventoryFilter } from "@features/leftActionBar";
+import { useRouter } from "next/router";
 const data = [
   {
     uuid: "1",
@@ -107,6 +108,11 @@ const headCells: readonly HeadCell[] = [
 ];
 function Inventory() {
   const [openViewDrawer, setOpenViewDrawer] = useState<boolean>(false);
+  const router = useRouter();
+  const filtered = (router?.query?.params as any)
+    ?.split("&")
+    .filter((item: any) => item.length > 0) as any;
+
   const [selectedRow, setSelected] = useState<any>("");
   const [filter, setFilter] = useState<any>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -300,7 +306,8 @@ function Inventory() {
             zIndex: 999,
           }}
         >
-          {t("filter.title", { ns: "common" })} (0)
+          {t("filter.title", { ns: "common" })} (
+          {filtered ? filtered.length : 0})
         </Button>
       </MobileContainer>
       <DrawerBottom

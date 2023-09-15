@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useAppSelector } from "@lib/redux/hooks";
 import { leftActionBarSelector } from "@features/leftActionBar";
 import { prepareSearchKeys } from "@lib/hooks";
+import { Typography } from "@mui/material";
 
 function Inventory() {
   const { t, ready } = useTranslation("inventory", { keyPrefix: "filter" });
@@ -14,6 +15,13 @@ function Inventory() {
   const { query: filter } = useAppSelector(leftActionBarSelector);
   return (
     <>
+      <Typography
+        display={{ xs: "none", md: "block" }}
+        variant="h6"
+        gutterBottom
+      >
+        {t("title")}
+      </Typography>
       <Accordion
         sx={{ ml: { xs: 0, md: -2.5 }, mx: { xs: -2, md: 0 } }}
         translate={{

@@ -9,31 +9,38 @@ import {
 } from "@mui/material";
 import { FormikProvider, useFormik, Form } from "formik";
 import * as data from "./data";
+import { setFilter, leftActionBarSelector } from "@features/leftActionBar";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+
 function ProductFilter({ ...props }) {
   const { t, OnSearch } = props;
+  const dispatch = useAppDispatch();
+  const { query } = useAppSelector(leftActionBarSelector);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: "",
-      brand: [],
-      categories: [],
-      stock: [],
-      isHidden: false,
-      isForAppointment: false,
+      name: (query?.inventory as any)?.name || "",
+      brand: (query?.inventory as any)?.brand || [],
+      categories: (query?.inventory as any)?.categories || [],
+      stock: (query?.inventory as any)?.stock || [],
+      isHidden: (query?.inventory as any)?.isHidden || false,
+      isForAppointment: (query?.inventory as any)?.isForAppointment || false,
     },
+
     onSubmit: (values) => {
       console.log(values);
     },
   });
 
-  const { getFieldProps, setFieldValue, values } = formik;
+  const { setFieldValue, values } = formik;
   useEffect(() => {
-    OnSearch({
+    const data = {
       ...values,
-      brand: values.brand.map((item: any) => item.name),
-      categories: values.categories.map((item: any) => item.name),
-      stock: values.stock.map((item: any) => item.name),
-    });
+      brand: values.brand.map((item: any) => item?.name),
+      categories: values.categories.map((item: any) => item?.name),
+      stock: values.stock.map((item: any) => item?.name),
+    };
+    OnSearch(data);
   }, [values]);
   return (
     <FormikProvider value={formik}>
@@ -42,7 +49,19 @@ function ProductFilter({ ...props }) {
           <Typography>{t("name")}</Typography>
           <TextField
             placeholder={t("placeholder_name")}
-            {...getFieldProps("name")}
+            value={values.name}
+            onChange={(e) => {
+              setFieldValue("name", e.target.value);
+              dispatch(
+                setFilter({
+                  ...query,
+                  inventory: {
+                    ...query?.inventory,
+                    name: e.target.value,
+                  },
+                })
+              );
+            }}
           />
         </Stack>
         <Stack spacing={0.5}>
@@ -53,6 +72,15 @@ function ProductFilter({ ...props }) {
             data={data.BrandsName}
             onChange={(value: any) => {
               setFieldValue("brand", value);
+              dispatch(
+                setFilter({
+                  ...query,
+                  inventory: {
+                    ...query?.inventory,
+                    brand: value,
+                  },
+                })
+              );
             }}
             value={values.brand}
           />
@@ -65,6 +93,15 @@ function ProductFilter({ ...props }) {
             data={data.CategoriesName}
             onChange={(value: any) => {
               setFieldValue("categories", value);
+              dispatch(
+                setFilter({
+                  ...query,
+                  inventory: {
+                    ...query?.inventory,
+                    categories: value,
+                  },
+                })
+              );
             }}
             value={values.categories}
           />
@@ -77,16 +114,57 @@ function ProductFilter({ ...props }) {
             data={data.ProductsName}
             onChange={(value: any) => {
               setFieldValue("stock", value);
+              dispatch(
+                setFilter({
+                  ...query,
+                  inventory: {
+                    ...query?.inventory,
+                    stock: value,
+                  },
+                })
+              );
             }}
             value={values.stock}
           />
         </Stack>
         <FormControlLabel
-          control={<Checkbox {...getFieldProps("isHidden")} />}
+          control={
+            <Checkbox
+              checked={values.isHidden}
+              onChange={(e) => {
+                setFieldValue("isHidden", e.target.checked);
+                dispatch(
+                  setFilter({
+                    ...query,
+                    inventory: {
+                      ...query?.inventory,
+                      isHidden: e.target.checked,
+                    },
+                  })
+                );
+              }}
+            />
+          }
           label={t("is_hidden")}
         />
         <FormControlLabel
-          control={<Checkbox {...getFieldProps("isForAppointment")} />}
+          control={
+            <Checkbox
+              checked={values.isForAppointment}
+              onChange={(e) => {
+                setFieldValue("isForAppointment", e.target.checked);
+                dispatch(
+                  setFilter({
+                    ...query,
+                    inventory: {
+                      ...query?.inventory,
+                      isForAppointment: e.target.checked,
+                    },
+                  })
+                );
+              }}
+            />
+          }
           label={t("is_for_appointment")}
         />
       </Stack>
