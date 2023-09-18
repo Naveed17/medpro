@@ -25,9 +25,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -44,6 +43,8 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
 import {setDuplicated} from "@features/duplicateDetected";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useQueryClient} from "@tanstack/react-query";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -74,6 +75,7 @@ function AddPatientStep2({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
+    const queryClient = useQueryClient();
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
@@ -188,17 +190,17 @@ function AddPatientStep2({...props}) {
 
     const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors} = formik;
 
-    const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
+    const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequest((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
     const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state;
@@ -243,23 +245,26 @@ function AddPatientStep2({...props}) {
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             data: form
-        }).then(
-            (res: any) => {
+        }, {
+            onSuccess: (res: any) => {
                 const {data} = res;
                 const {status, data: result} = data;
                 setLoading(false);
                 if (status === "success") {
-                    mutateOnGoing && mutateOnGoing();
                     dispatch(onSubmitPatient(result.data));
                     dispatch(setDuplicated({
                         duplications: result.duplicated,
                         duplicationSrc: result.data,
                         duplicationInit: result.data
                     }));
+                    queryClient.invalidateQueries({
+                        queryKey: [
+                            `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`]
+                    });
                     onNext(2);
                 }
             }
-        );
+        });
     };
 
     const getCountryByCode = (code: string) => {

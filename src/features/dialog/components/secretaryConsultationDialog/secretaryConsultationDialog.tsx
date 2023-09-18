@@ -39,8 +39,9 @@ import {useRequestMutation} from "@lib/axios";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import {useTransactionEdit} from "@lib/hooks/rest";
 
 const limit = 255;
 
@@ -61,8 +62,8 @@ function SecretaryConsultationDialog({...props}) {
     } = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
     const {data: session} = useSession();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
@@ -135,12 +136,8 @@ function SecretaryConsultationDialog({...props}) {
 
     const handleOnGoingPaymentDialog = () => {
         setLoading(true);
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
+        triggerTransactionEdit(selectedPayment,
             appointment.transactions,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
                 mutate().then(() => {
                     setOpenPaymentDialog(false);

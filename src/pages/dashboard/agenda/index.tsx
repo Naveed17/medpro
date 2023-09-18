@@ -14,7 +14,7 @@ import {
     useMediaQuery,
     useTheme, Zoom
 } from "@mui/material";
-import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {useSession} from "next-auth/react";
@@ -22,7 +22,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {instanceAxios, useRequestQueryMutation, useRequestMutation, useRequestQuery} from "@lib/axios";
+import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -50,7 +50,6 @@ import {
     setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail, QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
@@ -63,24 +62,27 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
+import {
+    appointmentGroupByDate,
+    appointmentPrepareEvent,
+    prepareSearchKeys,
+    useMedicalEntitySuffix,
+    useMutateOnGoing
+} from "@lib/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
 import {DefaultCountry} from "@lib/constants";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import IconUrl from "@themes/urlIcon";
 import {useSWRConfig} from "swr";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
+import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
-import useSendNotification from "@lib/hooks/rest/useSendNotification";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const actions = [
@@ -102,6 +104,8 @@ function Agenda() {
     const refs = useRef([]);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
@@ -199,17 +203,13 @@ function Agenda() {
     });
 
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
-    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/update");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/update/date");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/agenda/pre-consultation/update");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/agenda/payment/transaction");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerNotificationPush} = useSendNotification();
-    const {trigger: triggerAppointmentDetails} = useRequestMutation(null, "/agenda/appointment/details");
-
-    const mutateOnGoing = () => {
-        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
-    }
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -417,25 +417,26 @@ function Agenda() {
         triggerAppointmentDetails({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
-        }).then((result) => {
-            const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
-            if (appointmentData.length > 0) {
-                const appointment = appointmentData[0];
-                const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
-                const hasErrors = [
-                    ...(horsWork ? ["event.hors-opening-hours"] : []),
-                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
-                setLoadingRequest(false);
-                batch(() => {
-                    dispatch(setSelectedEvent({
-                        ...event,
-                        extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
-                    }));
-                    dispatch(openDrawer({type: "view", open: true}));
-                });
+        }, {
+            onSuccess: (result) => {
+                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                if (appointmentData.length > 0) {
+                    const appointment = appointmentData[0];
+                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                    const hasErrors = [
+                        ...(horsWork ? ["event.hors-opening-hours"] : []),
+                        ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
+                    setLoadingRequest(false);
+                    batch(() => {
+                        dispatch(setSelectedEvent({
+                            ...event,
+                            extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                        }));
+                        dispatch(openDrawer({type: "view", open: true}));
+                    });
+                }
             }
-        })
-
+        });
     }
 
     const handleDragEvent = (DateTime: Moment, action: string) => {
@@ -541,32 +542,7 @@ function Agenda() {
                 });
                 break;
             case "onConsultationDetail":
-                if (!isActive) {
-                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        updateAppointmentStatus({
-                            method: "PATCH",
-                            data: {
-                                status: "4",
-                                start_date: moment().format("DD-MM-YYYY"),
-                                start_time: moment().format("HH:mm")
-                            },
-                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                        } as any).then(() => {
-                            dispatch(setTimer({
-                                    isActive: true,
-                                    isPaused: false,
-                                    event,
-                                    startTime: moment().utc().format("HH:mm")
-                                }
-                            ));
-                            // refresh on going api
-                            mutateOnGoing();
-                        });
-                    });
-                } else {
-                    setError(true);
-                }
+                onConsultationDetail(event)
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -582,17 +558,19 @@ function Agenda() {
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
+                const form = new FormData();
+                form.append("status", "1");
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "1"
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                } as any).then(() => {
-                    refreshData();
-                    enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
-                    // refresh on going api
-                    mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        refreshData();
+                        enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
+                        // refresh on going api
+                        mutateOnGoing();
+                    }
                 });
                 break;
             case "onPatientNoShow":
@@ -655,34 +633,38 @@ function Agenda() {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        const form = new FormData();
+        form.append("status", "3");
+        form.append("is_first_appointment", filteredEvents?.toString() ?? "false");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "3",
-                is_first_appointment: filteredEvents
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(
-            () => {
+        }, {
+            onSuccess: () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
+                // refresh on going api
+                mutateOnGoing();
                 // update pending notifications status
                 config?.mutate[1]();
-            });
+            }
+        });
     }
 
     const onPatientNoShow = (event: EventDef) => {
+        const form = new FormData();
+        form.append("status", "10");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "10"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(() => {
-            refreshData();
-            enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
-            dispatch(openDrawer({type: "view", open: false}));
+        }, {
+            onSuccess: () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+            }
         });
     }
 
@@ -695,19 +677,21 @@ function Agenda() {
 
     const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "1");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "1"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(() => {
-            refreshData();
-            enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
-            dispatch(openDrawer({type: "view", open: false}));
-            // update pending notifications status
-            config?.mutate[1]();
-            setLoading(false);
+        }, {
+            onSuccess: () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+                // update pending notifications status
+                config?.mutate[1]();
+                setLoading(false);
+            }
         });
     }
 
@@ -715,25 +699,27 @@ function Agenda() {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                const form = new FormData();
+                form.append("status", "4");
+                form.append("start_date", moment().format("DD-MM-YYYY"));
+                form.append("start_time", moment().format("HH:mm"));
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(setTimer({
+                                isActive: true,
+                                isPaused: false,
+                                event,
+                                startTime: moment().utc().format("HH:mm")
+                            }
+                        ));
+                        // refresh on going api
+                        mutateOnGoing();
+                    }
                 });
             })
         } else {
@@ -836,35 +822,43 @@ function Agenda() {
 
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "9");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {status: "9"},
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
-        } as any).then(() => {
-            dispatch(openDrawer({type: "view", open: false}));
-            setCancelDialog(false);
-            setTimeout(() => setLoading(false));
-            refreshData();
-            enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                dispatch(openDrawer({type: "view", open: false}));
+                setCancelDialog(false);
+                setTimeout(() => setLoading(false));
+                refreshData();
+                enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
+            }
         });
     }
 
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "6");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {status: "6"},
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
-        } as any).then(() => {
-            const eventUpdated: any = {
-                ...event, extendedProps:
-                    {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
-            };
-            dispatch(setSelectedEvent(eventUpdated));
-            setCancelDialog(false);
-            setTimeout(() => setLoading(false));
-            refreshData();
-            enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                const eventUpdated: any = {
+                    ...event, extendedProps:
+                        {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
+                };
+                dispatch(setSelectedEvent(eventUpdated));
+                setCancelDialog(false);
+                setTimeout(() => setLoading(false));
+                refreshData();
+                enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
+            }
         });
     }
 
@@ -935,18 +929,20 @@ function Agenda() {
 
     const submitPreConsultationData = () => {
         setLoadingRequest(true);
+        const form = new FormData();
+        form.append("modal_uuid", model);
+        form.append("modal_data", localStorage.getItem(`Modeldata${event?.publicId}`) as string);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${event?.publicId}`) as string
+            data: form
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                localStorage.removeItem(`Modeldata${event?.publicId}`);
+                setTimeout(() => setOpenPreConsultationDialog(false));
+                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
             }
-        } as any).then(() => {
-            setLoadingRequest(false);
-            localStorage.removeItem(`Modeldata${event?.publicId}`);
-            setTimeout(() => setOpenPreConsultationDialog(false));
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
         });
     }
 
@@ -986,21 +982,23 @@ function Agenda() {
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
         });
-        medicalEntityHasUser && triggerUploadDocuments({
+        triggerUploadDocuments({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
             data: params
-        }).then(() => {
-            setOpenUploadDialog({loading: false, dialog: false});
-            triggerNotificationPush({
-                action: "push",
-                root: "all",
-                message: " ",
-                content: JSON.stringify({
-                    mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
-                    fcm_session: jti
-                })
-            });
+        }, {
+            onSuccess: () => {
+                setOpenUploadDialog({loading: false, dialog: false});
+                medicalEntityHasUser && triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                        fcm_session: jti
+                    })
+                });
+            }
         });
     }
 
@@ -1053,12 +1051,8 @@ function Agenda() {
     const handlePayTransaction = () => {
         setLoadingRequest(true);
         const transactions = selectedEvent?.extendedProps?.transactions;
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
+        triggerTransactionEdit(selectedPayment,
             transactions && transactions?.length > 0 ? transactions[0] : null,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
                 setOpenPaymentDialog(false);
                 setTimeout(() => setLoadingRequest(false));

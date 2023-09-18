@@ -52,6 +52,7 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
+import {arrayUniqueByKey} from "@lib/hooks";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -364,7 +365,8 @@ function OnStepPatient({...props}) {
 
     useEffect(() => {
         if (countries) {
-            setCountriesData(countries.sort((country: CountryModel) =>
+            const uniqueCountries = arrayUniqueByKey("nationality", countries);
+            setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -653,10 +655,7 @@ function OnStepPatient({...props}) {
                                     getOptionLabel={(option: any) => option?.nationality ?? ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
                                     renderOption={(props, option) => (
-                                        <MenuItem
-                                            {...props}
-                                            key={`nationality-${option.uuid}`}
-                                            value={option.uuid}>
+                                        <MenuItem {...props}>
                                             {option?.code && <Avatar
                                                 sx={{
                                                     width: 26,
@@ -1160,7 +1159,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("cin")}
-                                value={getFieldProps("cin") ? getFieldProps("cin").value : ""}
+                                value={getFieldProps("cin").value ?? ""}
                             />
                         </Box>
                         <Box>

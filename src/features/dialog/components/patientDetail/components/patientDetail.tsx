@@ -59,7 +59,7 @@ import {PatientFile} from "@features/files/components/patientFile";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
-import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {useProfilePhoto, useAntecedentTypes, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -67,7 +67,6 @@ import {SwitchPrescriptionUI} from "@features/buttons";
 import {useSWRConfig} from "swr";
 import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
-import useSendNotification from "@lib/hooks/rest/useSendNotification";
 
 function a11yProps(index: number) {
     return {

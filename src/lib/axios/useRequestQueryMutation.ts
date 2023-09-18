@@ -1,4 +1,3 @@
-import {GetRequest} from "@lib/axios/config";
 import {useSession} from "next-auth/react";
 import {useMutation} from "@tanstack/react-query";
 import {instanceAxios} from "@lib/axios/index";

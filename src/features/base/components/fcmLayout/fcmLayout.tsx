@@ -34,10 +34,10 @@ import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useSWRConfig} from "swr";
+import {useRequestQueryMutation} from "@lib/axios";
+import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -54,6 +54,7 @@ function FcmLayout({...props}) {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -72,16 +73,12 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
-    }
-
-    const mutateOnGoing = () => {
-        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
     }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
@@ -389,13 +386,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
+                            const form = new FormData();
+                            form.append('status', "1");
                             updateAppointmentStatus({
                                 method: "PATCH",
-                                data: {
-                                    status: "1"
-                                },
+                                data: form,
                                 url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
-                            } as any);
+                            });
                         }}
                     />}
             </Dialog>

@@ -30,13 +30,13 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useSnackbar} from "notistack";
 import {useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
 import {useSWRConfig} from "swr";
+import {useTransactionEdit} from "@lib/hooks/rest";
 
 function CashBoxMobileCard({...props}) {
     const {
@@ -53,6 +53,7 @@ function CashBoxMobileCard({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)
@@ -100,13 +101,9 @@ function CashBoxMobileCard({...props}) {
     };
     const handleSubmit = () => {
         setLoadingRequest(true);
-        OnTransactionEdit(
+        triggerTransactionEdit(
             selectedPayment,
-            selectedBoxes,
-            router.locale,
             data,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
                 mutateTransctions().then(() => {
                     mutatePatientWallet();
@@ -203,7 +200,7 @@ function CashBoxMobileCard({...props}) {
             >
                 <CardContent>
                     <Stack direction="row" alignItems="center">
-                        <Stack spacing={1.5} width={{xs:1,sm:'auto'}}>
+                        <Stack spacing={1.5} width={{xs: 1, sm: 'auto'}}>
                             <Stack
                                 direction="row"
                                 alignItems="center"
@@ -336,10 +333,10 @@ function CashBoxMobileCard({...props}) {
                                 <Stack
                                     sx={{
                                         minWidth: {xs: 0, sm: 100},
-                                        '& > span':{
-                                             mr: '4px !important',
-                                            '&:last-child':{
-                                                m:'0 !important'
+                                        '& > span': {
+                                            mr: '4px !important',
+                                            '&:last-child': {
+                                                m: '0 !important'
 
                                             }
 
@@ -349,7 +346,7 @@ function CashBoxMobileCard({...props}) {
                                     alignItems="center"
                                     justifyContent="center"
 
-                                    >
+                                >
                                     {data.transaction_data &&
                                         data.transaction_data.map(
                                             (td: TransactionDataModel) =>
@@ -371,7 +368,7 @@ function CashBoxMobileCard({...props}) {
                                     alignItems={"center"}
                                     spacing={1}
                                     justifyContent={"center"}
-                                    ml={{xs:'auto !important',sm:1}}
+                                    ml={{xs: 'auto !important', sm: 1}}
                                 >
                                     <Typography
                                         onClick={(event) => {
@@ -488,40 +485,40 @@ function CashBoxMobileCard({...props}) {
                                 </Tooltip>
                             )}
                             <Tooltip title={t("more")}>
-                                    <IconButton
+                                <IconButton
 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                             handleEvent({action: "PATIENT_PAYMENT", row: data, e});
-                                        }}
-                                    >
-                                        <Icon path={"setting/ic-voir"}/>
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title={t("edit")}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            openPutTransactionDialog();
-                                        }}
-                                    >
-                                        <IconUrl path="setting/edit"/>
-                                    </IconButton>
-                                </Tooltip>
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEvent({action: "PATIENT_PAYMENT", row: data, e});
+                                    }}
+                                >
+                                    <Icon path={"setting/ic-voir"}/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("edit")}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        openPutTransactionDialog();
+                                    }}
+                                >
+                                    <IconUrl path="setting/edit"/>
+                                </IconButton>
+                            </Tooltip>
 
 
-                                <Tooltip title={t("delete")}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenDeleteTransactionDialog(true);
-                                        }}
-                                    >
-                                        <IconUrl path="setting/icdelete"/>
-                                    </IconButton>
-                                </Tooltip>
+                            <Tooltip title={t("delete")}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDeleteTransactionDialog(true);
+                                    }}
+                                >
+                                    <IconUrl path="setting/icdelete"/>
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Stack>
                 </CardContent>
@@ -532,7 +529,7 @@ function CashBoxMobileCard({...props}) {
                     direction,
                     sx: {
                         minHeight: 380,
-                        padding:{xs:1,md:2}
+                        padding: {xs: 1, md: 2}
                     },
                 }}
                 open={openPaymentDialog}
