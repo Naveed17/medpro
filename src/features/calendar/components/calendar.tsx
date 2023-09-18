@@ -92,6 +92,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isEventDragging, setIsEventDragging] = useState(false);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
@@ -346,6 +347,7 @@ function Calendar({...props}) {
                                         <Event
                                             {...{
                                                 open,
+                                                isEventDragging,
                                                 setAppointmentData,
                                                 event, openingHours,
                                                 view, isMobile, anchorEl, setAnchorEl
@@ -360,6 +362,8 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
+                                eventDragStart={() => setIsEventDragging(true)}
+                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);

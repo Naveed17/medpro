@@ -1,18 +1,17 @@
-import {Avatar, Box, Chip, Popover, Typography} from "@mui/material";
+import {Avatar, Box, Typography} from "@mui/material";
 import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {convertHexToRGBA, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRequestMutation, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 
 function Event({...props}) {
-    const {event, view, isMobile, open, setAppointmentData, setAnchorEl} = props;
+    const {event, view, isMobile, open, setAppointmentData, setAnchorEl, isEventDragging} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -67,8 +66,8 @@ function Event({...props}) {
                 }}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
-                {...(!isMobile && {onMouseEnter: handlePopoverOpen})}
-                {...(!isMobile && {onMouseLeave: handlePopoverClose})}
+                {...((!isMobile && !isEventDragging) && {onMouseEnter: handlePopoverOpen})}
+                {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
                 <Typography variant="body2"

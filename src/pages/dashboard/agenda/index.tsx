@@ -190,7 +190,7 @@ function Agenda() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const {data: httpAppointmentsResponse} = useRequestQuery(agenda && query ? {
+    const {data: httpAppointmentsResponse, mutate: mutateAppointmentsData} = useRequestQuery(agenda && query ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
@@ -198,8 +198,8 @@ function Agenda() {
         ...(query && {variables: {query: `?mode=mini&${query.queryData}`}})
     });
 
-    const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
+    const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
@@ -786,16 +786,18 @@ function Agenda() {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form
-        }, TriggerWithoutValidation).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
-                    "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
+                        "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
+                }
+                dispatch(openDrawer({type: "view", open: false}));
+                refreshData();
+                setMoveDialogInfo({...moveDialogInfo, dialog: false});
+                // update pending notifications status
+                config?.mutate[1]();
             }
-            dispatch(openDrawer({type: "view", open: false}));
-            refreshData();
-            setMoveDialogInfo({...moveDialogInfo, dialog: false});
-            // update pending notifications status
-            config?.mutate[1]();
         });
     }
 
@@ -809,12 +811,14 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form
-        }).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
+                }
+                refreshData();
+                setMoveDialogInfo({dialog: false, info: false});
             }
-            refreshData();
-            setMoveDialogInfo({dialog: false, info: false});
         });
     }
 
@@ -950,7 +954,7 @@ function Agenda() {
         if (view === 'listWeek') {
             getAppointments(`format=list&page=1&limit=50`, view);
         } else {
-            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
+            mutateAppointmentsData();
         }
     }
 
@@ -1017,13 +1021,15 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
             data: params
-        }).then((value: any) => {
-            setLoading(false);
-            if (value?.data.status === 'success') {
+        }, {
+            onSuccess: (value) => {
                 refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
                 setTimeout(() => setQuickAddAppointment(false));
+            },
+            onSettled: () => {
+                setLoading(false);
             }
         });
     }
