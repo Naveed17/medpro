@@ -230,59 +230,12 @@ function Agenda() {
     }, [agenda]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
-
         setQuery({queryData: query, view, filter, history});
-
-        /*triggerAppointmentsData({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?mode=mini&${query}`
-        }, {
-            onSuccess: (result) => {
-                const eventCond = (result?.data as HttpResponse)?.data;
-                const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-                const eventsUpdated: EventModal[] = [];
-                if (!filter || events.current.length === 0) {
-                    appointments?.forEach((appointment) => {
-                        const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
-                        const hasErrors = [
-                            ...(horsWork ? ["event.hors-opening-hours"] : []),
-                            ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
-                        eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
-                    });
-                } else {
-                    events.current.forEach(event => {
-                        eventsUpdated.push({
-                            ...event,
-                            filtered: !appointments?.find(appointment => appointment.uuid === event.id)
-                        })
-                    })
-                }
-                if (!history) {
-                    events.current = eventsUpdated;
-                } else {
-                    events.current = [...eventsUpdated, ...events.current];
-                }
-
-                // Edit: to add it in the array format instead
-                const groupArrays = appointmentGroupByDate(events.current);
-
-                dispatch(setGroupedByDayAppointments(groupArrays));
-
-                if (isMobile || view === "listWeek") {
-                    // sort grouped data
-                    sortedData.current = groupArrays.slice()
-                        .sort((a, b) =>
-                            new Date(a.date).getTime() - new Date(b.date).getTime());
-                }
-                setLoading(false);
-            },
-        });*/
     }
 
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
         if (query?.queryData.includes("format=list")) {
-            dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             events.current = [];
         }
 
@@ -452,6 +405,7 @@ function Agenda() {
     const onViewChange = (view: string) => {
         const query = prepareSearchKeys(filter as any);
         if (view === 'listWeek' && filter?.patient === undefined) {
+            dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             getAppointments(`format=list&page=1&limit=50${query}`, view);
         }
     }
@@ -557,9 +511,9 @@ function Agenda() {
         } else {
             scrollToView(refs.current[0], 1);
             const prevDate = moment(currentDate.date).clone().subtract(1, "days");
+            dispatch(setCurrentDate({date: prevDate.toDate(), fallback: false}));
             getAppointments(`format=list&page=1&limit=50&start_date=${prevDate.format("DD-MM-YYYY")}`,
                 view, false, true);
-            dispatch(setCurrentDate({date: prevDate.toDate(), fallback: false}));
         }
     };
 
