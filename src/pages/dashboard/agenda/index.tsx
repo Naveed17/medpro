@@ -412,7 +412,9 @@ function Agenda() {
     useEffect(() => {
         if (calendarRef.current && currentDate) {
             const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
-            calendarApi && calendarApi.gotoDate(currentDate.date);
+            calendarApi && setTimeout(() => {
+                calendarApi.updateSize();
+            }, 0);
         }
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
