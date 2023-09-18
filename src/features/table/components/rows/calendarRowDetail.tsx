@@ -48,6 +48,7 @@ function CalendarRowDetail({...props}) {
         let event = eventData;
         if (!eventData?.hasOwnProperty("extendedProps")) {
             event = Object.assign({...eventData}, {
+                publicId: eventData.id,
                 extendedProps: {
                     ...eventData
                 }
