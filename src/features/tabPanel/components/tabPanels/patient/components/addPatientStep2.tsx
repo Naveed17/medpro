@@ -38,13 +38,12 @@ import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData, useMutateOnGoing} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useQueryClient} from "@tanstack/react-query";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -75,11 +74,11 @@ function AddPatientStep2({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
-    const queryClient = useQueryClient();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
-    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
@@ -257,10 +256,7 @@ function AddPatientStep2({...props}) {
                         duplicationSrc: result.data,
                         duplicationInit: result.data
                     }));
-                    queryClient.invalidateQueries({
-                        queryKey: [
-                            `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`]
-                    });
+                    mutateOnGoing();
                     onNext(2);
                 }
             }

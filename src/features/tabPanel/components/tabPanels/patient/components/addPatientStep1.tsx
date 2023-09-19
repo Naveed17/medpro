@@ -41,7 +41,7 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from "react-phone-number-input/input";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 
@@ -61,27 +61,26 @@ function AddPatientStep1({...props}) {
         translationPrefix = "config.add-patient",
     } = props;
 
-    const {trigger} = useRequestMutation(null, "/detect");
-
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const phoneInputRef = useRef(null);
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {t: commonTranslation} = useTranslation("common");
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {stepsData} = useAppSelector(addPatientSelector);
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
-    const {stepsData} = useAppSelector(addPatientSelector);
-    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
-    const {t: commonTranslation} = useTranslation("common");
-
-    const [openUploadPicture, setOpenUploadPicture] = useState(false);
-    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
-    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {trigger: triggerDetectFiche} = useRequestQueryMutation("/patient/detect/fiche_id");
 
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
@@ -192,15 +191,17 @@ function AddPatientStep1({...props}) {
         setFieldValue("picture.url", URL.createObjectURL(file));
         setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
-    };
+    }
 
     const checkFicheID = () => {
-        trigger(medicalEntityHasUser ? {
+        medicalEntityHasUser && triggerDetectFiche({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
-        } : null).then((res: any) => {
-            setDuplicatedFiche(res.data.data.length > 0)
-        })
+        }, {
+            onSuccess: (res: any) => {
+                setDuplicatedFiche(res.data.data.length > 0);
+            }
+        });
     }
 
     const {
@@ -247,16 +248,16 @@ function AddPatientStep1({...props}) {
                             <Box>
                                 <Grid container spacing={2}>
                                     <Grid item md={4} xs={12} sx={{
-                                        display:{xs:'flex',md:'block'},
-                                        justifyContent:"center"
-                                        
+                                        display: {xs: 'flex', md: 'block'},
+                                        justifyContent: "center"
+
                                     }}>
                                         <label htmlFor="contained-button-file"
                                                style={{
                                                    position: "relative",
                                                    zIndex: 1,
                                                    cursor: "pointer",
-                                                   display:'inline-flex'
+                                                   display: 'inline-flex'
                                                }}>
                                             <InputStyled
                                                 id="contained-button-file"

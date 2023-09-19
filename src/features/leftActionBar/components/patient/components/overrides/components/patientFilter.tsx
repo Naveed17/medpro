@@ -58,7 +58,6 @@ function PatientFilter({...props}) {
     }, [OnSearch]);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
-        console.log(" event.target.value", event.target.value);
         setFieldValue("name", event.target.value);
         if (event.target.value.length >= 1) {
             onSearchChange({
