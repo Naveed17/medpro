@@ -561,6 +561,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             <Container fixed>
                 <Grid
                     container
+                    spacing={{xs: 0, md: 2}}
                     sx={{flexDirection: {xs: "column-reverse", md: "row"}}}>
                     <Grid item md={8} xs={12}>
                         <FormikProvider value={formik}>
