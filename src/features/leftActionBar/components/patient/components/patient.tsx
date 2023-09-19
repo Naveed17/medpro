@@ -27,7 +27,7 @@ function Patient() {
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
-    const handleFilterChange = (data) => {
+    const handleFilterChange = (data: any) => {
         window.history.replaceState({
             ...window.history.state,
             as: "/dashboard/patient?page=1",
