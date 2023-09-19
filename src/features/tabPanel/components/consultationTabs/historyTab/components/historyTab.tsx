@@ -1,96 +1,108 @@
-import React, {useEffect, useState} from "react";
-import {HistoryCard, HistoryContainer,} from "@features/card";
+import React from "react";
 import {Label} from "@features/label";
-import {Box, Button, Drawer, Stack, Typography,} from "@mui/material";
+import {Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
-import {SetSelectedApp} from "@features/toolbar";
 import {useRequest} from "@lib/axios";
-import Icon from "@themes/urlIcon";
-import moment from "moment/moment";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {HistoryCard, PatientHistoryStaticCard} from "@features/card";
+import {AppointmentHistoryPreview} from "@features/card/components/appointmentHistoryPreview";
+import {consultationSelector, SetSelectedApp} from "@features/toolbar";
+import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
 
 function HistoryTab({...props}) {
 
     const {
         patient,
-        t,
-        direction,
-        setInfo,
-        setState,
-        appuuid,
         dispatch,
-        setOpenDialog,
-        medical_entity,
-        showDoc,
-        setSelectedTab,
+        t,
         session,
-        mutate,
-        dates, keys, modelData,
-        lastestsAppointments,
-        setLastestsAppointments,
-        trigger,
-        totalPagesLa, pagesLa, setPagesLa,
-        router
+        acts,
+        direction,
+        mutate: mutatePatient,
+        setOpenDialog,
+        showDoc,
+        setState,
+        setInfo,
+        router,
+        setIsViewerOpen,
+        setSelectedTab,
+        appuuid,
+        trigger
     } = props;
+
+    let dates: string[] = [];
+    let keys: string[] = [];
+
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {drawer} = useAppSelector(dialogSelector);
+    const {selectedApp} = useAppSelector(consultationSelector);
+
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [size, setSize] = useState<number>(3);
-    const [apps, setApps] = useState<any>([]);
-    const [photos, setPhotos] = useState<any[]>([]);
 
-    const {data: httpPatientDocumentsResponse} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientHistory, mutate} = useRequest(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
     } : null);
 
-    useEffect(() => {
-        setApps(lastestsAppointments ? [...lastestsAppointments] : []);
-        if (lastestsAppointments && lastestsAppointments.length > 0) {
-            dispatch(SetSelectedApp(lastestsAppointments[0].appointment.uuid))
-        }
-    }, [lastestsAppointments, appuuid, dispatch]);
+    const histories = (httpPatientHistory as HttpResponse)?.data
+    const sheet = histories ? histories['consultation-sheet'] : null
+    const latest_appointment = histories ? histories['latest_appointment'] : []
+    const nextAppointment = histories ? histories['nextAppointment'] : []
 
-    useEffect(() => {
-        if (httpPatientDocumentsResponse) {
-            setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents.reverse()
-                .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
-        }
-    }, [httpPatientDocumentsResponse]);
+    sheet && Object.keys(sheet).forEach(key => {
+        keys.push(key);
+        Object.keys(sheet[key].data).forEach(date => {
+            if (dates.indexOf(date) === -1) dates.push(date);
+        })
+    })
+
+    /*
+        useEffect(() => {
+            setApps(lastestsAppointments ? [...lastestsAppointments] : []);
+            if (lastestsAppointments && lastestsAppointments.length > 0) {
+                dispatch(SetSelectedApp(lastestsAppointments[0].appointment.uuid))
+            }
+        }, [lastestsAppointments, appuuid, dispatch]);
+    */
+
+    /*    useEffect(() => {
+            if (httpPatientDocumentsResponse) {
+                console.log(httpPatientDocumentsResponse)
+                setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents.reverse()
+                    .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
+            }
+        }, [httpPatientDocumentsResponse]);*/
 
     return (
         <>
-            {patient?.nextAppointments.length > 0 && (
+            {/****** Next appointment ******/}
+            {nextAppointment && nextAppointment.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
                     <Label variant="filled" color="warning">
                         {t("next_meeting")}
                     </Label>
-                    {patient?.nextAppointments
-                        .slice(0, size)
-                        .map((data: any, index: number) => (
-                            <React.Fragment key={`patient-${index}`}>
-                                <HistoryCard row={data} patient={patient} t={t}/>
-                            </React.Fragment>
-                        ))}
+                    {nextAppointment.map((data: any, index: number) => (
+                        <React.Fragment key={`patient-${index}`}>
+                            <HistoryCard row={{
+                                status: 0,
+                                dayDate: data.date,
+                                startTime: data.time,
+                                uuid: data.uuid,
+                                consultationReasons: data.consultationReason
+                            }} patient={patient} t={t}/>
+                        </React.Fragment>
+                    ))}
                 </Stack>
             )}
-            {size < patient?.nextAppointments.length && (
-                <Button
-                    style={{marginBottom: 10, marginTop: -10, fontSize: 12}}
-                    onClick={() => {
-                        setSize(patient?.nextAppointments.length);
-                    }}>
-                    {t("showAll")}
-                </Button>
-            )}
+            {/****** Next appointment ******/}
 
-            {
+            {/*{
                 photos.length > 0 &&
                 <Box>
                     <Label variant="filled" color="warning">
@@ -101,7 +113,7 @@ function HistoryTab({...props}) {
                             {photos.map((photo, index) => (
                                 <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
                                      style={{background: "white"}}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                     eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
                                         alt={'img'}
@@ -126,15 +138,16 @@ function HistoryTab({...props}) {
                     </Box>
                 </Box>
             }
+*/}
 
-            {Object.keys(modelData).length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+            {/****** Sheet History ******/}
+            {sheet && keys.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
                 <Label variant="filled" color="warning">
                     {t("history")}
                 </Label>
             </Stack>}
-
             <div style={{overflowY: "hidden"}}>
-                {Object.keys(modelData).length > 0 &&
+                {keys.length > 0 &&
                     <HistoryStyled>
                         <thead>
                         <tr>
@@ -147,53 +160,58 @@ function HistoryTab({...props}) {
                         {keys.map((key: string) => (
                             <tr key={key}>
                                 <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}>{modelData[key]['label']}</Typography></td>
+                                    className={"keys col"}>{sheet[key]['label']}</Typography></td>
                                 {dates.map((date: string) => (<td key={date}><Typography
-                                    className={"data col"}>{modelData[key]['data'][date] ? modelData[key]['data'][date] + modelData[key]['description'] : '-'}</Typography>
+                                    className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
                             </tr>
                         ))}
                         </tbody>
                     </HistoryStyled>}
             </div>
+            {/****** Sheet History ******/}
 
+            {/****** Latest appointment ******/}
+            {latest_appointment && latest_appointment.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+                <Label variant="filled" color="warning">
+                    {t("history")}
+                </Label>
+            </Stack>}
             <Stack spacing={1}>
-                {apps.map((app: any, appID: number) => (
+                {latest_appointment && latest_appointment.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
-                        <HistoryContainer {...{
-                            app,
-                            apps,
-                            setApps,
-                            appID,
-                            appuuid,
-                            dispatch,
-                            t,
-                            setInfo,
-                            setState,
-                            setOpenDialog,
-                            showDoc,
-                            mutate,
-                            patient,
-                            setSelectedTab,
-                            session,
-                            medical_entity,
-                            totalPagesLa, pagesLa
-                        }}/>
+                        <PatientHistoryStaticCard
+                            handleOpen={() => {
+                                app.uuid === selectedApp
+                                    ? dispatch(SetSelectedApp(""))
+                                    : dispatch(SetSelectedApp(app.uuid));
+                            }}
+                            open={false}
+                            key={`${app.uuid}timeline`}>
+                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t}}>
+                                {selectedApp === app.uuid && <Collapse
+                                    in={app.uuid === selectedApp}>
+                                    <AppointmentHistoryContent {...{
+                                        mutate,
+                                        showDoc,
+                                        appID,
+                                        appuuid,
+                                        setInfo,
+                                        setState,
+                                        setOpenDialog,
+                                        session,
+                                        patient,
+                                        t
+                                    }}/>
+                                </Collapse>}
+                            </AppointmentHistoryPreview>
+                        </PatientHistoryStaticCard>
+
                     </React.Fragment>
                 ))}
-                {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
-                    if (medicalEntityHasUser) {
-                        trigger({
-                            method: "GET",
-                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
-                        }).then((r: any) => {
-                            const res = r?.data.data;
-                            setLastestsAppointments([...lastestsAppointments, ...res.list])
-                        })
-                        setPagesLa(pagesLa + 1)
-                    }
-                }}>{t('consultationIP.more')}</Button>}
             </Stack>
+            {/****** Latest appointment ******/}
+
             <Drawer
                 anchor={"right"}
                 open={drawer}

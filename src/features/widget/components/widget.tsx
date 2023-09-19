@@ -3,21 +3,17 @@ import dynamic from "next/dynamic";
 import {
     Box,
     Button,
-    Card,
     CardContent,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
-    List,
-    ListItem,
     ListItemIcon,
     ListItemText,
     MenuItem,
     MenuList,
     Paper,
-    Skeleton,
     Stack,
     Typography,
     useTheme,
@@ -34,6 +30,8 @@ import {useTranslation} from "next-i18next";
 import TeethPreview from "@features/widget/components/teethPreview";
 import ReactDOM from "react-dom/client";
 import {useRouter} from "next/router";
+import {useRequestMutation} from "@lib/axios";
+import {useSWRConfig} from "swr";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -60,7 +58,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         previousData,
         selectedModel,
         trigger,
-        url,mutateSheetData
+        mutateSheetData,
+        url
     } = props;
 
     if (modal) {
@@ -81,8 +80,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         <>
             <Form
                 onChange={(ev: any) => {
-                    if(Object.keys(ev.data).length !== 0){
-                        localStorage.setItem(`Modeldata${appuuid}`, JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string),...ev.data}));
+                    if (Object.keys(ev.data).length !== 0) {
+                        localStorage.setItem(`Modeldata${appuuid}`, JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
                         const item = changes.find(
                             (change: { name: string }) => change.name === "patientInfo"
                         );
@@ -91,15 +90,19 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         setChanges([...changes]);
                     }
                 }}
-                onBlur={(ev: { data: any; })=>{
+                onBlur={(ev: { data: any; }) => {
+                    console.log("ok");
                     const form = new FormData();
-                    form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string),...ev.data}));
+                    form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
                     form.append("modal_uuid", selectedModel?.default_modal.uuid);
                     trigger({
                         method: "PUT",
                         url,
                         data: form
-                    }).then(() => {mutateSheetData()})
+                    }).then(() => {
+                        console.log(mutateSheetData)
+                        mutateSheetData()
+                    })
                 }}
                 // @ts-ignore
                 submission={{
@@ -131,8 +134,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
-        acts, setActs,selectedModel,
-        trigger,
+        acts, setActs, selectedModel,
         url,mutateSheetData
     } = props;
     const router = useRouter();
@@ -143,7 +145,6 @@ function Widget({...props}) {
     const [openTeeth, setOpenTeeth] = useState("");
     const [updated, setUpdated] = useState(false);
 
-    const [pageLoading, setPageLoading] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -156,6 +157,10 @@ function Widget({...props}) {
     });
 
     const theme = useTheme();
+
+    const {trigger} = useRequestMutation(null, "appointment/edit");
+
+
 
     useEffect(() => {
         if (modal) {
@@ -336,31 +341,6 @@ function Widget({...props}) {
                         </Paper>
                     </motion.div>
                     <Box>
-                        {pageLoading &&
-                            Array.from({length: 3}).map((_, idx) => (
-                                <Box key={`loading-box-${idx}`} padding={"0 16px"}>
-                                    <Typography alignSelf="center" marginBottom={2} marginTop={2}>
-                                        <Skeleton width={130} variant="text"/>
-                                    </Typography>
-                                    <Card className="loading-card">
-                                        <Stack spacing={2}>
-                                            <List style={{marginTop: 25}}>
-                                                {Array.from({length: 4}).map((_, idx) => (
-                                                    <ListItem
-                                                        key={`skeleton-item-${idx}`}
-                                                        sx={{py: 0.5}}>
-                                                        <Skeleton width={"40%"} variant="text"/>
-                                                        <Skeleton
-                                                            sx={{ml: 1}}
-                                                            width={"50%"}
-                                                            variant="text"/>
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Stack>
-                                    </Card>
-                                </Box>
-                            ))}
                         {models?.map(
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
@@ -375,7 +355,8 @@ function Widget({...props}) {
                                             previousData,
                                             selectedModel,
                                             trigger,
-                                            url,mutateSheetData
+                                            mutateSheetData,
+                                            url
                                         }}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
@@ -399,7 +380,7 @@ function Widget({...props}) {
                     {t('title')}
                     <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{t('subtitle')}</Typography>
                 </DialogTitle>
-                <DialogContent style={{overflow:"hidden"}}>
+                <DialogContent style={{overflow: "hidden"}}>
                     <TeethWidget {...{
                         acts,
                         setActs,
@@ -407,7 +388,7 @@ function Widget({...props}) {
                         of: openTeeth,
                         previousData,
                         appuuid,
-                        local:router.locale
+                        local: router.locale
                     }}/>
                 </DialogContent>
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>

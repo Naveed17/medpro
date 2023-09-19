@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Badge,
     Box,
@@ -35,12 +35,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
-import {consultationSelector} from "@features/toolbar";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 const limit = 255;
 
@@ -48,15 +48,17 @@ function SecretaryConsultationDialog({...props}) {
     const {
         data: {
             app_uuid,
+            agenda,
+            patient,
             t,
+            transactions, setTransactions,
+            total, setTotal,
+            restAmount, setRestAmount,
             changes,
-            total,
             meeting,
             setMeeting,
             checkedNext,
-            setCheckedNext,
-            appointment,
-
+            setCheckedNext
         },
     } = props;
 
@@ -80,23 +82,38 @@ function SecretaryConsultationDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {mutate} = useAppSelector(consultationSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
 
-    const {
-        paymentTypesList
-    } = useAppSelector(cashBoxSelector);
 
+    const {data: httpAppointmentTransactions, mutate} = useRequest({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
+    });
+
+    /*const res = (httpAppointmentTransactions as HttpResponse)?.data
+    res && setTransactions(res.transactions ? res.transactions[0] : null);
+    res && setTotal(res.fees ? res.fees : 0)*/
+
+    useEffect(()=>{
+        if (httpAppointmentTransactions) {
+            const res = (httpAppointmentTransactions as HttpResponse)?.data
+            console.log(res)
+            setTransactions(res.transactions ? res.transactions[0] : null);
+            setTotal(res.fees ? res.fees : 0)
+            setRestAmount(res.rest_amount)
+        }
+    },[httpAppointmentTransactions, setTotal, setTransactions])
 
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
     const openDialogPayment = () => {
         let payments: any[] = [];
-        if (appointment.transactions) {
-            appointment.transactions.transaction_data.forEach((td: any) => {
+        if (transactions) {
+            transactions.transaction_data.forEach((td: any) => {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
@@ -118,8 +135,8 @@ function SecretaryConsultationDialog({...props}) {
             uuid: app_uuid,
             payments,
             payed_amount: getTransactionAmountPayed(),
-            appointment: {...appointment, uuid: app_uuid},
-            patient: appointment.patient,
+            appointment: {uuid: app_uuid},
+            patient,
             total,
             isNew: getTransactionAmountPayed() === 0
         })
@@ -127,18 +144,16 @@ function SecretaryConsultationDialog({...props}) {
     }
     const getTransactionAmountPayed = (): number => {
         let payed_amount = 0;
-        if (appointment.transactions)
-            appointment.transactions.transaction_data.forEach((td: { amount: number; }) => payed_amount += td.amount);
+        if (transactions)
+            transactions.transaction_data?.forEach((td: { amount: number; }) => payed_amount += td.amount);
+
         return payed_amount;
     }
 
-
     const handleOnGoingPaymentDialog = () => {
         setLoading(true);
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
-            appointment.transactions,
+        OnTransactionEdit(selectedPayment, selectedBoxes, router.locale,
+            transactions,
             triggerPostTransaction,
             urlMedicalEntitySuffix,
             () => {
@@ -147,9 +162,7 @@ function SecretaryConsultationDialog({...props}) {
                     setLoading(false)
                 })
             });
-
     }
-
 
     return (
         <RootStyled>
@@ -293,8 +306,7 @@ function SecretaryConsultationDialog({...props}) {
                             gridGap: 16,
                             gridTemplateColumns: {
                                 xs: "repeat(2,minmax(0,1fr))",
-                                sm: "repeat(3,minmax(0,1fr))",
-
+                                sm: "repeat(3,minmax(0,1fr))"
                             }
                         }}>
                             {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
@@ -332,8 +344,8 @@ function SecretaryConsultationDialog({...props}) {
                 data={{
                     selectedPayment,
                     setSelectedPayment,
-                    appointment,
-                    patient: appointment.patient
+                    appointment: {uuid: app_uuid},
+                    patient
                 }}
                 size={"lg"}
                 fullWidth

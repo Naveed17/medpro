@@ -1,101 +1,89 @@
-import React, {useEffect, useState} from "react";
-import {
-    Avatar,
-    Button,
-    MenuItem,
-    Stack,
-    Tab,
-    Tabs,
-    tabsClasses,
-    Typography,
-    useMediaQuery,
-} from "@mui/material";
-import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
+import React, {useState} from "react";
+import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography, Zoom,} from "@mui/material";
+import AppToolbarStyled from "./overrides/appToolbarStyle";
+import AddIcon from "@mui/icons-material/Add";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import StyledMenu from "./overrides/menuStyle";
-import {useTranslation} from "next-i18next";
-import {documentButtonList} from "./config";
-import {Dialog, handleDrawerAction} from "@features/dialog";
-import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {documentButtonList} from "@features/toolbar/components/appToolbar/config";
 import Icon from "@themes/urlIcon";
+import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
+import {useProfilePhoto} from "@lib/hooks/rest";
+import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {Theme} from "@mui/material/styles";
+import {useRequestMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
+import StopCircleIcon from "@mui/icons-material/StopCircle";
+import {useSWRConfig} from "swr";
+import moment from "moment-timezone";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
-import AddIcon from '@mui/icons-material/Add';
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import StopCircleIcon from '@mui/icons-material/StopCircle';
-import RecondingBoxStyle from '@features/card/components/consultationDetailCard/overrides/recordingBoxStyle';
-import moment from "moment-timezone";
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import Zoom from "react-medium-image-zoom";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {Dialog, handleDrawerAction} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
+import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import {useProfilePhoto} from "@lib/hooks/rest";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
     bitRate: 128
 });
 
-function ConsultationIPToolbar({...props}) {
+function AppToolbar({...props}) {
+
     const {
         selectedTab,
         setSelectedTab,
-        appuuid,
-        mutate,
-        mutatePatientAnalyses,
-        agenda,
-        mutateDoc,
-        setPendingDocuments,
         pendingDocuments,
-        dialog,
-        patient,
+        setPendingDocuments,
+        tabsData,
         selectedDialog,
-        setDialog,
-        setPatientShow,
+        agenda,
+        app_uuid,
+        patient,
+        handleChangeTab,
+        isMobile,
         changes,
-        appointment,
-        hasLatestAppointments
+        anchorEl,
+        mutatePatient,
+        setAnchorEl,
+        setPatientShow
     } = props;
 
-    const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const router = useRouter();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
-
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {record} = useAppSelector(consultationSelector);
-
+    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
     const {trigger} = useRequestMutation(null, "/drugs");
-
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [info, setInfo] = useState<null | string>("");
-    const [state, setState] = useState<any>();
-    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
-    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
-    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
-    const [tabs, setTabs] = useState(0);
-    const [lastTabs, setLastTabs] = useState<string | null>("");
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [action, setActions] = useState<boolean>(false);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
+    const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`;
+    const {mutate}= useSWRConfig()
     const open = Boolean(anchorEl);
-
-    const [tabsData, setTabsData] = useState<any[]>([]);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
 
+    const [info, setInfo] = useState<null | string>("");
+    const [state, setState] = useState<any>();
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
+    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
+    const [action, setActions] = useState<boolean>(false);
+    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
     const startRecord = () => {
         recorder.start().then(() => {
             dispatch(SetRecord(true))
@@ -103,7 +91,6 @@ function ConsultationIPToolbar({...props}) {
             console.log(e);
         });
     }
-
     const stopRec = () => {
         const res = recorder.stop();
         // @ts-ignore
@@ -116,14 +103,13 @@ function ConsultationIPToolbar({...props}) {
 
             dispatch(SetRecord(false))
             dispatch(SetTimer('00:00'))
-            mutateDoc();
+            mutate(docUrl);
 
         }).catch((e: any) => {
             alert('We could not retrieve your message');
             console.log(e);
         });
     }
-
     const uploadRecord = (file: File) => {
         trigger({
             method: "GET",
@@ -135,19 +121,30 @@ function ConsultationIPToolbar({...props}) {
                 form.append(`files[${audios[0].uuid}][]`, file, file.name);
                 trigger({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: docUrl,
                     data: form
                 }).then(() => {
-                    mutateDoc();
+                    mutate(docUrl);
                 });
             }
         });
     }
-
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+    const mutateDoc = () =>{mutate(docUrl)}
+    const handleOpen = () => {
+        dispatch(resetAppointment());
+        dispatch(setAppointmentPatient(patient));
+        dispatch(openDrawer({type: "add", open: true}));
     };
-
+    const handleSwitchUI = () => {
+        //close the current dialog
+        setOpenDialog(false);
+        setInfo(null);
+        // switch UI and open dialog
+        setInfo(getPrescriptionUI());
+        setAnchorEl(null);
+        setOpenDialog(true);
+        setActions(true);
+    }
     const handleSaveDialog = () => {
         const form = new FormData();
         let method = "";
@@ -159,10 +156,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
                 method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${router.locale}`;
                 if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
                     method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
 
                 trigger({
@@ -170,8 +167,8 @@ function ConsultationIPToolbar({...props}) {
                     url: url,
                     data: form
                 }).then((r: any) => {
-                    mutateDoc();
-                    mutate();
+                    mutate(docUrl);
+                    mutatePatient();
                     setInfo("document_detail");
                     const res = r.data.data;
                     let type = "";
@@ -201,10 +198,10 @@ function ConsultationIPToolbar({...props}) {
             case "balance_sheet_request":
                 form.append("analyses", JSON.stringify(state));
                 method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/requested-analysis/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "balance_sheet_request") {
                     method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
@@ -213,8 +210,8 @@ function ConsultationIPToolbar({...props}) {
                     data: form
                 }).then((r: any) => {
                     mutateDoc();
-                    mutate();
-                    mutatePatientAnalyses();
+                    mutatePatient();
+                    //mutatePatientAnalyses();
                     setCheckUp([]);
                     setInfo("document_detail");
                     const res = r.data.data;
@@ -244,10 +241,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("medical-imaging", JSON.stringify(state));
 
                 method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointment/${appuuid}/medical-imaging/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointment/${app_uuid}/medical-imaging/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "medical_imagery") {
                     method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
                 trigger({
@@ -255,8 +252,8 @@ function ConsultationIPToolbar({...props}) {
                     url,
                     data: form
                 }).then((r: any) => {
-                    mutateDoc();
-                    mutate();
+                    mutate(docUrl);
+                    mutatePatient();
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
@@ -291,7 +288,7 @@ function ConsultationIPToolbar({...props}) {
 
                 trigger({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }).then(() => {
                     mutateDoc();
@@ -304,10 +301,10 @@ function ConsultationIPToolbar({...props}) {
                 form.append("title", state.title);
 
                 method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${router.locale}`;
+                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "write_certif") {
                     method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${appuuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
+                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
                 }
 
                 trigger({
@@ -409,9 +406,9 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
-                    brithdate: `${appointment.patient.birthdate}`,
-                    cin: appointment.patient.idCard ?`${appointment.patient.idCard}`:""
+                    patient: `${patient.firstName} ${patient.lastName}`,
+                    brithdate: `${patient.birthdate}`,
+                    cin: patient.idCard ?`${patient.idCard}`:""
                 });
                 break;
             case "upload_document":
@@ -433,136 +430,11 @@ function ConsultationIPToolbar({...props}) {
         setActions(true);
     };
 
-    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setSelectedTab(newValue);
-    };
-
-    const handleOpen = () => {
-        dispatch(resetAppointment());
-        dispatch(setAppointmentPatient(appointment?.patient));
-        dispatch(openDrawer({type: "add", open: true}));
-    };
-
-    const handleSwitchUI = () => {
-        //close the current dialog
-        setOpenDialog(false);
-        setInfo(null);
-        // switch UI and open dialog
-        setInfo(getPrescriptionUI());
-        setAnchorEl(null);
-        setOpenDialog(true);
-        setActions(true);
-    }
-
-    useEffect(() => {
-        if (selectedDialog) {
-            switch (selectedDialog.action) {
-                case "medical_prescription":
-                case "medical_prescription_cycle":
-                    setInfo(getPrescriptionUI());
-                    setState(selectedDialog.state);
-                    setAnchorEl(null);
-                    setOpenDialog(true);
-                    setActions(true);
-                    break;
-                case "balance_sheet_request":
-                    setInfo("balance_sheet_request");
-                    setState(selectedDialog.state);
-                    setAnchorEl(null);
-                    setOpenDialog(true);
-                    setActions(true);
-                    break;
-                case "medical_imagery":
-                    setInfo("medical_imagery");
-                    setState(selectedDialog.state);
-                    setAnchorEl(null);
-                    setOpenDialog(true);
-                    setActions(true);
-                    break;
-                case "write_certif":
-                    setInfo("write_certif");
-                    setState({
-                        name: `${general_information.firstName} ${general_information.lastName}`,
-                        days: '',
-                        uuid: selectedDialog.state.uuid,
-                        content: selectedDialog.state.content,
-                        title: selectedDialog.state.title,
-                        patient: `${selectedDialog.state.patient}`
-                    });
-                    setAnchorEl(null);
-                    setOpenDialog(true);
-                    setActions(true);
-                    break;
-            }
-        }
-    }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        switch (dialog) {
-            case "draw_up_an_order":
-                setInfo(getPrescriptionUI());
-                setState(prescription);
-                break;
-            case "balance_sheet_request":
-                setInfo("balance_sheet_request");
-                setState(checkUp);
-                break;
-        }
-        setDialog("");
-        setOpenDialog(true);
-        setActions(true);
-    }, [checkUp, dialog, prescription, setDialog]);
-
-    useEffect(() => {
-        if (lastTabs === "consultation_form") {
-            const btn = document.getElementsByClassName("sub-btn")[1];
-            const examBtn = document.getElementsByClassName("sub-exam")[0];
-
-            (btn as HTMLElement)?.click();
-            (examBtn as HTMLElement)?.click();
-        }
-        setLastTabs(selectedTab);
-    }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        setTabsData(!hasLatestAppointments ? [
-            {
-                label: "consultation_form",
-                value: "consultation form"
-            },
-            {
-                label: "documents",
-                value: "documents"
-            },
-            {
-                label: "medical_procedures",
-                value: "medical procedures"
-            }
-        ] : [
-            {
-                label: "patient_history",
-                value: "patient history"
-            },
-            {
-                label: "consultation_form",
-                value: "consultation form"
-            },
-            {
-                label: "documents",
-                value: "documents"
-            },
-            {
-                label: "medical_procedures",
-                value: "medical procedures"
-            },
-        ]);
-    }, [tabs, appointment,hasLatestAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (!ready) return <>toolbar loading..</>;
-
     return (
         <>
-            <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
+
+            <AppToolbarStyled minHeight="inherit" width={1}>
+
                 {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
                     {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
                         <Zoom>
@@ -643,6 +515,7 @@ function ConsultationIPToolbar({...props}) {
                         </StyledMenu>
                     </Stack>
                 </Stack>}
+
                 <Stack
                     direction="row"
                     minHeight="inherit"
@@ -650,33 +523,31 @@ function ConsultationIPToolbar({...props}) {
                     width={1}>
                     <Tabs
                         value={selectedTab}
-                        onChange={handleChange}
-                        sx={
-                            {
-                                width: {xs: "100%", md: "70%"},
-                                [`& .${tabsClasses.scrollButtons}`]: {
-                                    '&.Mui-disabled': {opacity: 0.5},
-                                }
+                        onChange={handleChangeTab}
+                        sx={{
+                            width: {xs: "100%", md: "70%"},
+                            [`& .${tabsClasses.scrollButtons}`]: {
+                                '&.Mui-disabled': {opacity: 0.5},
                             }
-                        }
+                        }}
                         variant={isMobile ? "scrollable" : "standard"}
                         allowScrollButtonsMobile={isMobile}
                         scrollButtons={true}
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map((tab, index) => (
-                            <Tab
-                                onFocus={() => {
-                                    setTabs(index);
-                                }}
-                                className="custom-tab"
-                                key={tab.label}
-                                value={tab.label}
-                                label={t(tab.label)}
-                            />
-                        ))}
+                        {
+                            tabsData.map((tab: { label: string; }) => (
+                                <Tab
+                                    className="custom-tab"
+                                    key={tab.label}
+                                    value={tab.label}
+                                    label={t(tab.label)}
+                                />
+                            ))
+                        }
                     </Tabs>
+
                     {!isMobile && <Stack
                         direction="row"
                         spacing={1}
@@ -694,7 +565,9 @@ function ConsultationIPToolbar({...props}) {
                         <Button
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}
-                            onClick={handleClick}
+                            onClick={(event) => {
+                                setAnchorEl(event.currentTarget);
+                            }}
                             variant="contained"
                             endIcon={<KeyboardArrowDownIcon/>}
                             color="warning">
@@ -728,7 +601,9 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
-                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: {
+                                    {changes.find((ch: {
+                                            index: number;
+                                        }) => ch.index === index) && changes.find((ch: {
                                             index: number;
                                         }) => ch.index === index).checked &&
                                         <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
@@ -737,13 +612,14 @@ function ConsultationIPToolbar({...props}) {
                         </StyledMenu>
                     </Stack>}
                 </Stack>
-            </ConsultationIPToolbarStyled>
+
+            </AppToolbarStyled>
 
             {info && (
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid, state, setState, t, setOpenDialog}}
+                    data={{appuuid:app_uuid, state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -772,15 +648,15 @@ function ConsultationIPToolbar({...props}) {
                             p:1.5,
                             overflowX:'hidden'
                         }
-                        
+
                     })}
                     actionDialog={
                         action ? (
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {
-                                    direction: {xs:'column',sm:'row'},
-                                
+                                       direction: {xs:'column',sm:'row'},
+
                                    })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
@@ -789,10 +665,10 @@ function ConsultationIPToolbar({...props}) {
                                     }}>
                                         {t("add_drug")}
                                     </Button>}
-                                <Stack direction={"row"}  justifyContent={{xs:'space-between',sm:'flex-start'}}spacing={1.2}
-                                 {...(info === "medical_prescription_cycle" && {
-                                    mt:{xs:1,md:0}
-                                   })}
+                                <Stack direction={"row"}  justifyContent={{xs:'space-between',sm:'flex-start'}} spacing={1.2}
+                                       {...(info === "medical_prescription_cycle" && {
+                                           mt:{xs:1,md:0}
+                                       })}
                                 >
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("cancel")}
@@ -814,4 +690,4 @@ function ConsultationIPToolbar({...props}) {
     );
 }
 
-export default ConsultationIPToolbar;
+export default AppToolbar;

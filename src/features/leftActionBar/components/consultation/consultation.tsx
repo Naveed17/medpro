@@ -8,6 +8,7 @@ import {
     Box,
     Button,
     CardContent,
+    Chip,
     Collapse,
     IconButton,
     List,
@@ -21,7 +22,6 @@ import {
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import Content from "./content";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
@@ -29,95 +29,80 @@ import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
-import {useSpeechRecognition,} from "react-speech-recognition";
+import {useSpeechRecognition} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
-import {useAntecedentTypes, useInsurances, useProfilePhoto} from "@lib/hooks/rest";
+import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {useSWRConfig} from "swr";
 import {ImageHandler} from "@features/image";
+import Content from "@features/leftActionBar/components/consultation/content";
+import {DefaultCountry} from "@lib/constants";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Consultation() {
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
-    const {allAntecedents} = useAntecedentTypes();
+
     const {cache} = useSWRConfig();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient, analyses, mi, patientAntecedent} = useAppSelector(consultationSelector);
+    const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [number, setNumber] = useState<any>(null);
-    const [email, setEmail] = useState("");
-    const [name, setName] = useState("");
-    const [insurances, setInsurances] = useState<any[]>([]);
+
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
-    const [patientAntecedents, setPatientAntecedents] = useState<any>([]);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     const [oldNote, setOldNote] = useState("");
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
+
     const editPatientInfo = () => {
         const params = new FormData();
-        if (patient) {
-            params.append("note", note);
-            patient.fiche_id && params.append("fiche_id", patient.fiche_id);
-            patient.email && params.append("email", patient.email);
-            patient.familyDoctor && params.append("family_doctor", patient.familyDoctor);
-            patient.profession && params.append("profession", patient.profession);
-            patient.birthdate && params.append("birthdate", patient.birthdate);
-            params.append("first_name", patient.firstName);
-            params.append("last_name", patient.lastName);
-            params.append("phone", JSON.stringify(patient.contact));
-            params.append("gender", patient.gender === 'M' ? '1' : '2');
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].city &&
-            params.append("country", patient?.address[0]?.city?.country?.uuid);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].city &&
-            params.append("region", patient?.address[0]?.city?.uuid);
-            patient?.address &&
-            patient?.address.length > 0 &&
-            patient?.address[0].city &&
-            params.append("zip_code", patient?.address[0]?.postalCode);
-            if (patient?.address &&
-                patient?.address.length > 0 &&
-                patient?.address[0].street) {
-                params.append("address", JSON.stringify({[router.locale as string]: patient?.address[0]?.street}));
-            }
-            patient.idCard && params.append("id_card", patient.idCard);
-        }
-        if (medicalEntityHasUser) {
+        if (patient && medicalEntityHasUser) {
             const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+
+            params.append('attribute', 'note');
+            params.append('value', note);
+
             triggerPatientUpdate({
-                method: "PUT",
+                method: "PATCH",
                 url,
                 data: params,
-            }).then(() => cache.delete(url));
+            }).then(() => {
+                cache.delete(url)
+            });
         }
+
     };
 
     useEffect(() => {
@@ -133,92 +118,68 @@ function Consultation() {
 
     useEffect(() => {
         if (isStarted) {
-            setNote(oldNote + " " + transcript);
+            setNote(`${oldNote} ${transcript}`);
         }
     }, [transcript, isStarted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (patient && !lock) {
             dispatch(toggleSideBar(false));
-            setNumber(patient.contact[0]);
-            setEmail(patient.email);
+
             setNote(patient.note ? patient.note : "");
-            setName(`${patient.firstName} ${patient.lastName}`);
-            setInsurances(patient.insurances as any);
             setLoading(false);
-            let wayOfLifeBadge = 0;
-            let allergicBadge = 0;
-            let antecedentBadge = 0;
-
-            if (patientAntecedent) {
-                const res = patientAntecedent;
-                setPatientAntecedents(res);
-                if (res['way_of_life'])
-                    wayOfLifeBadge = res['way_of_life'].length;
-
-                if (res['allergic'])
-                    allergicBadge = res['allergic']?.length;
-
-                let nb = 0;
-                Object.keys(res).forEach(ant => {
-                    if (Array.isArray(res[ant]) && ant !== "way_of_life" && ant !== "allergic") {
-                        nb += res[ant].length;
-                    }
-                });
-                antecedentBadge = nb;
-            }
+            let nb = 0
+            Object.keys(patient?.antecedents).map(antecedent => {
+                    if (antecedent !== 'way_of_life' && antecedent !== 'allergic')
+                        nb += patient?.antecedents[antecedent]
+                }
+            )
             setCollapseData([
                 {
                     id: 1,
                     title: "treatment_in_progress",
                     icon: "ic-medicament",
-                    badge: patient?.treatment?.length,
+                    badge: patient?.treatments
                 },
                 {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: wayOfLifeBadge
+                    badge: patient?.antecedents.way_of_life
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: allergicBadge
+                    badge: patient?.antecedents.allergic
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "ic-doc",
-                    badge: antecedentBadge
+                    badge: nb
                 },
                 {
                     id: 9,
                     title: "balance_sheet",
                     icon: "ic-analyse",
-                    badge: patient.requestedAnalyses.length,
+                    badge: patient?.requestedAnalyses
                 },
-                /*{
-                    id: 2,
-                    title: "balance_sheet_pending",
-                    icon: "ic-analyse",
-                    badge: patient.requestedAnalyses.length,
-                },*/
                 {
                     id: 5,
                     title: "medical_imaging_pending",
                     icon: "ic-soura",
-                    badge: patient.requestedImaging.length,
+                    badge: patient?.requestedImaging
                 },
                 {
                     id: 8,
                     title: "documents",
                     icon: "ic-download",
-                    badge: 0,
+                    badge: patient?.documents
                 },
             ]);
         }
-    }, [patient, patientAntecedent]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -248,21 +209,21 @@ function Consultation() {
                                 </Avatar>
                             </Zoom>
                         </label>
-                        {insurances && insurances.length > 0 &&
+                        {patient?.insurances && patient?.insurances.length > 0 &&
                             <Stack direction='row' alignItems="center" spacing={1}>
                                 <AvatarGroup max={3}>
-                                    {insurances.map((insuranceItem: any) =>
-                                        <Tooltip key={insuranceItem?.insurance.uuid}
-                                                 title={insuranceItem?.insurance.name}>
+                                    {patient?.insurances.map((insuranceItem: any) =>
+                                        <Tooltip key={insuranceItem?.uuid}
+                                                 title={insuranceItem?.name}>
                                             <Avatar variant={"circular"}>
-                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
 
                                                     <ImageHandler
-                                                        alt={insuranceItem?.insurance.name}
+                                                        alt={insuranceItem?.name}
                                                         src={allInsurances.find(
                                                             (insurance: any) =>
                                                                 insurance.uuid ===
-                                                                insuranceItem?.insurance.uuid
+                                                                insuranceItem?.uuid
                                                         )?.logoUrl?.url}
                                                     />}
                                             </Avatar>
@@ -289,15 +250,15 @@ function Consultation() {
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        width: "90%"
+                                        width: "100%"
                                     }}>
-                                    {name}
+                                    {patient?.first_name} {patient?.lastName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
                                 </Typography>
 
-                                {number && (
+                                {patient?.contact && patient?.contact.length > 0 &&
                                     <Typography
                                         component="div"
                                         sx={{
@@ -308,12 +269,11 @@ function Consultation() {
                                         }}
                                         variant="body2"
                                         color="text.secondary">
-                                        <Icon path="ic-phone"/>
-                                        {(number.code ? number.code + " " : "") + number.value}
+                                        <Icon path="ic-phone"/>{patient?.contact[0]}
                                     </Typography>
-                                )}
+                                }
 
-                                {email && (
+                                {patient?.email && (
                                     <Typography
                                         component="div"
                                         sx={{
@@ -324,9 +284,16 @@ function Consultation() {
                                         variant="body2"
                                         color="text.secondary">
                                         <Icon path="ic-message-contour"/>
-                                        {email}
+                                        {patient?.email}
                                     </Typography>
                                 )}
+                                {
+                                    patient?.rest_amount && patient?.rest_amount < 0 &&
+                                    <Chip label={`${patient?.rest_amount} ${devise}`}
+                                          color={"error"}
+                                          icon={<WarningRoundedIcon/>}
+                                          size={"small"}/>
+                                }
                             </Box>
                         )}
                     </Box>
@@ -344,9 +311,6 @@ function Consultation() {
                 </Stack>
                 {patient?.fiche_id && (
                     <Stack spacing={1} mb={-2} mt={2} ml={3}>
-                        {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
-                    <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
-                </Alert>}*/}
                         <Button
                             onClick={() => {
                                 dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
@@ -377,7 +341,6 @@ function Consultation() {
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
                             <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
-
                         </IconButton>
                     </ListItem>
 
@@ -475,13 +438,11 @@ function Consultation() {
                             <ListItem sx={{p: 0}}>
                                 <Collapse in={collapse === col.id} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} {...{
-                                            patient,
-                                            patientAntecedents,
-                                            allAntecedents,
-                                            analyses,
-                                            mi
-                                        }} patient={patient}/>
+                                        {collapse === col.id && <Content  {...{
+                                            id: col.id,
+                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/preview/${router.locale}`,
+                                            patient
+                                        }}/>}
                                     </Box>
                                 </Collapse>
                             </ListItem>

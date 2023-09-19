@@ -121,7 +121,8 @@ function HistoryContainer({...props}) {
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis = [...capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis]
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
 
-        setApps(capps)
+        setApps &&setApps(capps)
+        medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`)
     }
 
     return (

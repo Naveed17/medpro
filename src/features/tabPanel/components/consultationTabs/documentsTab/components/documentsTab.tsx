@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Box, IconButton, CircularProgress, Stack, Tooltip, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -8,8 +8,22 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import fileDownload from 'js-file-download';
 import axios from "axios";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@lib/axios";
 
 function DocumentsTab({...props}) {
+
+    const {
+        medical_professional_uuid,
+        agenda,
+        urlMedicalEntitySuffix,
+        app_uuid,
+        showDoc,
+        router,
+        t,
+    } = props;
+
+    const {trigger} = useRequestMutation(null, "/document/remove");
 
     const noCardData = {
         mainIcon: "ic-doc",
@@ -20,27 +34,31 @@ function DocumentsTab({...props}) {
     };
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
+    const [documents, setDocuments] = useState<MedicalDocuments[]>([]);
+    const [loadingDocs, setLoadingDocs] = useState(true);
 
-    const {
-        documents,
-        mutateDoc,
-        showDoc,
-        router,
-        t, trigger
-    } = props;
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(medical_professional_uuid && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
+    } : null, SWRNoValidateConfig);
 
-
+    useEffect(()=>{
+        if (httpDocumentResponse) {
+            setDocuments((httpDocumentResponse as HttpResponse).data)
+            setLoadingDocs(false)
+        }
+    },[httpDocumentResponse])
     const removeDoc = () => {
         trigger({
             method: "DELETE",
             url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
         }).then(() => {
-            setSelectedAudio(null)
-            mutateDoc()
+            mutateDoc().then(() => setSelectedAudio(null))
         });
     }
     return (
         <>
+            {loadingDocs && <Stack direction={"row"} justifyContent={"center"}><CircularProgress/></Stack>}
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
@@ -138,7 +156,7 @@ function DocumentsTab({...props}) {
                     />
                 </Box>}
             </Box>
-            {documents.length === 0 && (
+            {documents.length === 0 && !loadingDocs && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
             )}
         </>

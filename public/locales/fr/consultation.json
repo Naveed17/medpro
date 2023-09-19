@@ -86,7 +86,8 @@
     "removedoc": "Êtes-vous sûr ?",
     "note_fees": "Note honoraire",
     "askRemove": "Vous voulez supprimer",
-    "doc_detail_title": "Document"
+    "doc_detail_title": "Document",
+    "rest": "Solde:"
   },
   "end of consultation": "fin de la consultation",
   "cancel": "Annuler",

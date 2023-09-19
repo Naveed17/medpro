@@ -1,36 +1,76 @@
-import React, {ReactElement} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
-import useUsersList from "@lib/hooks/rest/useUsersList";
-import {Button, useTheme} from "@mui/material";
+import {
+    Box,
+    Button,
+    CardContent,
+    DialogActions,
+    Drawer,
+    Fab,
+    Grid,
+    Skeleton,
+    Stack,
+    Toolbar,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {timerSelector} from "@features/card";
-import {consultationSelector} from "@features/toolbar";
-import {appLockSelector} from "@features/appLock";
-import {tableActionSelector} from "@features/table";
-import {cashBoxSelector} from "@features/leftActionBar";
-import {agendaSelector} from "@features/calendar";
+import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
+import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useWidgetModels} from "@lib/hooks/rest";
-import {useSession} from "next-auth/react";
+import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
 import {useRouter} from "next/router";
+import {tabs} from "@features/toolbar/components/appToolbar/config";
+import {alpha, Theme} from "@mui/material/styles";
+import {AppToolbar} from "@features/toolbar/components/appToolbar";
+import {SubHeader} from "@features/subHeader";
+import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
+import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {WidgetForm} from "@features/widget";
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
+import AppointHistoryContainerStyled
+    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import IconUrl from "@themes/urlIcon";
+import {LoadingButton} from "@mui/lab";
+import {SubFooter} from "@features/subFooter";
+import {consultationSelector, SetPatient} from "@features/toolbar";
+import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
+import moment from "moment/moment";
+import CloseIcon from "@mui/icons-material/Close";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import useSWRMutation from "swr/mutation";
+import {useSession} from "next-auth/react";
+import {DrawerBottom} from "@features/drawerBottom";
+import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
+import {CustomStepper} from "@features/customStepper";
+import ImageViewer from "react-simple-image-viewer";
+import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
+import {MobileContainer} from "@themes/mobileContainer";
+import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
+import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {Session} from "next-auth";
+import useUsersList from "@lib/hooks/rest/useUsersList";
 
 function ConsultationInProgress() {
 
     const theme = useTheme();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {models, modelsMutate} = useWidgetModels({filter: ""})
+    const {models} = useWidgetModels({filter: ""})
 
-    const {t, ready} = useTranslation("consultation");
-    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-
+    const {t} = useTranslation("consultation");
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
 
     //***** SELECTORS ****//
     const {
@@ -38,18 +78,887 @@ function ConsultationInProgress() {
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
-    const {selectedDialog, exam} = useAppSelector(consultationSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
-    const {lock} = useAppSelector(appLockSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
 
-    const {users} = useUsersList();
+    const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
+    const app_uuid = router.query["uuid-consultation"];
+
+    const {trigger} = useRequestMutation(null, "appointment/edit");
+    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: usersList} = useUsersList()
+
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
+    const EventStepper = [
+        {
+            title: "steppers.tabs.tab-1",
+            children: EventType,
+            disabled: true,
+        },
+        {
+            title: "steppers.tabs.tab-2",
+            children: TimeSchedule,
+            disabled: true,
+        },
+        {
+            title: "steppers.tabs.tab-4",
+            children: Instruction,
+            disabled: true,
+        },
+    ];
+    const isAddAppointment = false;
+
+    const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
+    const [changes, setChanges] = useState([
+        {name: "patientInfo", icon: "ic-text", checked: false},
+        {name: "fiche", icon: "ic-text", checked: false},
+        {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {
+            index: 3,
+            name: "requested-analysis",
+            icon: "ic-analyse",
+            checked: false,
+        },
+        {
+            index: 2,
+            name: "requested-medical-imaging",
+            icon: "ic-soura",
+            checked: false,
+        },
+        {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
+    ]);
+    const [isHistory, setIsHistory] = useState(false);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [closeExam, setCloseExam] = useState<boolean>(false);
+    const [isClose, setIsClose] = useState<boolean>(false);
+    const [mpActs, setMPActs] = useState<AppointmentActModel[]>([]);
+    const [acts, setActs] = useState<AppointmentActModel[]>([]);
+    const [previousData, setPreviousData] = useState(null);
+    const [selectedModel, setSelectedModel] = useState<any>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [pendingDocuments, setPendingDocuments] = useState<DocumentPreviewModel[]>([]);
+    const [patient, setPatient] = useState<PatientPreview>();
+    const [total, setTotal] = useState(0);
+    const [state, setState] = useState<any>();
+    const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
+    const [info, setInfo] = useState<null | string>("");
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [actions, setActions] = useState<boolean>(false);
+    const [meeting, setMeeting] = useState<number>(15);
+    const [checkedNext, setCheckedNext] = useState(false);
+    const [dialog, setDialog] = useState<string>("");
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [filterdrawer, setFilterDrawer] = useState(false);
+    const [openChat, setOpenChat] = useState<boolean>(false);
+    const [isViewerOpen, setIsViewerOpen] = useState<string>("");
+    const [transactions, setTransactions] = useState(null);
+    const [restAmount, setRestAmount] = useState(0);
+
+    const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
+        setSelectedTab(newValue)
+    }
+
+    // ********** Requests ********** \\
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
+    } : null, SWRNoValidateConfig);
+
+    const sheet = (httpSheetResponse as HttpResponse)?.data;
+    const sheetExam = sheet?.exam;
+    const sheetModal = sheet?.modal;
+    const hasDataHistory = sheet?.hasDataHistory;
+    const tabsData = [...sheet?.hasHistory ? [{
+        label: "patient_history",
+        value: "patient history"
+    }] : [], ...tabs]
+
+    const {data: httpPatientPreview, mutate: mutatePatient} = useRequest(sheet?.patient && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
+    } : null, SWRNoValidateConfig);
+
+    const {data: httpPreviousResponse} = useRequest(sheet?.hasHistory && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`
+    } : null, SWRNoValidateConfig);
+
+    // ********** Requests ********** \\
+    const getWidgetSize = () => {
+        return isClose ? 1 : closeExam ? 11 : 5
+    }
+    const getExamSize = () => {
+        return isClose ? 11 : closeExam ? 1 : 7;
+    }
+    const showDoc = (card: any) => {
+        let type = "";
+        if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+        if (card.documentType === "medical-certificate") {
+            setInfo("document_detail");
+            setState({
+                uuid: card.uuid,
+                certifUuid: card.certificate[0].uuid,
+                content: card.certificate[0].content,
+                doctor: card.name,
+                patient: `${type} ${
+                    patient?.first_name
+                } ${patient?.lastName}`,
+                birthdate: patient?.birthdate,
+                cin: patient?.idCard,
+                days: card.days,
+                description: card.description,
+                title: card.title,
+                createdAt: card.createdAt,
+                detectedType: card.type,
+                name: "certif",
+                type: "write_certif",
+                /*mutate: mutateDoc,
+                mutateDetails: mutate*/
+            });
+            setOpenDialog(true);
+        } else {
+            setInfo("document_detail");
+            let info = card;
+            let uuidDoc = "";
+            switch (card.documentType) {
+                case "prescription":
+                    info = card.prescription[0].prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid;
+                    break;
+                case "requested-analysis":
+                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    uuidDoc = card.requested_Analyses[0].uuid;
+                    break;
+                case "requested-medical-imaging":
+                    info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
+                    break;
+            }
+            setState({
+                uuid: card.uuid,
+                uri: card.uri,
+                name: card.title,
+                type: card.documentType,
+                createdAt: card.createdAt,
+                description: card.description,
+                info: info,
+                detectedType: card.type,
+                uuidDoc: uuidDoc,
+                patient: `${type} ${
+                    patient?.first_name
+                } ${patient?.lastName}`,
+                /*mutate: mutateDoc,
+                mutateDetails: mutate*/
+            });
+            setOpenDialog(true);
+        }
+    };
+    const seeHistory = () => {
+        setOpenHistoryDialog(true);
+    }
+    const openDialogue = (item: any) => {
+        switch (item.id) {
+            case 1:
+                setDialog("balance_sheet_request");
+                break;
+            case 2:
+                setDialog("draw_up_an_order");
+                break;
+        }
+    };
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setInfo(null);
+        setActions(false);
+    };
+    const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+
+        if (event) {
+            const slugConsultation = `/dashboard/consultation/${event.publicId}`;
+            router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+        }
+    }
+    const clearData = () => {
+        localStorage.removeItem(`Modeldata${app_uuid}`);
+        localStorage.removeItem(`Model-${app_uuid}`);
+        localStorage.removeItem(`consultation-data-${app_uuid}`);
+        localStorage.removeItem(`instruction-data-${app_uuid}`);
+        localStorage.removeItem(`consultation-fees`);
+        localStorage.removeItem(`consultation-acts-${app_uuid}`);
+    }
+    const handleTableActions = (action: string, event: any) => {
+        switch (action) {
+            case "onDetailPatient":
+                dispatch(
+                    onOpenPatientDrawer({patientId: event.extendedProps.patient.uuid})
+                );
+                dispatch(openDrawer({type: "add", open: false}));
+                setPatientDetailDrawer(true);
+                break;
+        }
+    };
+    const leave = () => {
+        clearData();
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: {
+                status: "11"
+            },
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
+        } as any).then(() => {
+            router.push("/dashboard/agenda").then(() => {
+                dispatch(resetTimer());
+                setActions(false);
+                mutateOnGoing && mutateOnGoing();
+            });
+        });
+    };
+    const DialogAction = () => {
+        return (
+            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
+                <LoadingButton
+                    loading={loading}
+                    loadingPosition="start"
+                    variant="text"
+                    color={"black"}
+                    onClick={leave}
+                    startIcon={<LogoutRoundedIcon/>}>
+                    <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                        {t("withoutSave")}
+                    </Typography>
+                </LoadingButton>
+                <Stack direction={"row"} spacing={2}>
+                    <Button
+                        variant="text-black"
+                        onClick={handleCloseDialog}
+                        startIcon={<CloseIcon/>}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                            {t("cancel")}
+                        </Typography>
+                    </Button>
+                    <LoadingButton
+                        loading={loading}
+                        loadingPosition="start"
+                        variant="contained"
+                        color="error"
+                        onClick={() => {
+                            saveConsultation();
+                        }}
+                        startIcon={<IconUrl path="ic-check"/>}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                            {t("end_consultation")}
+                        </Typography>
+                    </LoadingButton>
+                </Stack>
+            </DialogActions>
+        );
+    }
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    };
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        } else {
+            mutatePatient();
+        }
+    };
+    const closeImageViewer = () => {
+        setIsViewerOpen("");
+    };
+    const sendNotification = () => {
+
+                usersList().then(r => {
+                    const secretary = (r?.data as HttpResponse).data;
+                    if (secretary.length > 0 && patient) {
+                        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+                        const form = new FormData();
+                        form.append("action", "end_consultation");
+                        form.append("root", "agenda");
+                        form.append(
+                            "content",
+                            JSON.stringify({
+                                fees: total,
+                                restAmount: restAmount,
+                                instruction: localInstr ? localInstr : "",
+                                control: checkedNext,
+                                edited: false,
+                                payed: transactions ? restAmount === 0 : restAmount !== 0,
+                                nextApp: meeting ? meeting : "0",
+                                appUuid: app_uuid,
+                                dayDate: sheet?.date,
+                                patient: {
+                                    uuid: patient.uuid,
+                                    email: patient.email,
+                                    birthdate: patient.birthdate,
+                                    firstName: patient.first_name,
+                                    lastName: patient.lastName,
+                                    gender: patient.gender,
+                                },
+                            })
+                        );
+                        trigger({
+                            method: "POST",
+                            url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
+                            data: form
+                        });
+                    }
+                })
+
+    };
+    const checkTransactions = () => {
+        if (!transactions && app_uuid) {
+            const form = new FormData();
+            form.append("type_transaction", TransactionType[2].value);
+            form.append("status_transaction", TransactionStatus[1].value);
+            form.append("cash_box", selectedBoxes[0]?.uuid);
+            form.append("amount", total.toString());
+            form.append("rest_amount", total.toString());
+            form.append("appointment", app_uuid.toString());
+            form.append("transaction_data", JSON.stringify([]));
+
+            trigger({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                data: form
+            })
+        }
+    }
+
+    const saveConsultation = () => {
+        router.push("/dashboard/agenda").then(() => {
+            const form = new FormData();
+            form.append("status", "5");
+            trigger({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                data: form
+            }).then(() => {
+                dispatch(resetTimer());
+                mutateOnGoing && mutateOnGoing();
+                sendNotification();
+                checkTransactions();
+                clearData();
+                setActions(false);
+            });
+        });
+
+    }
+    const end = () => {
+        setInfo("secretary_consultation_alert");
+        setOpenDialog(true);
+        setActions(true);
+    }
+
+    useEffect(() => {
+        if (httpPreviousResponse) {
+            const data = (httpPreviousResponse as HttpResponse).data;
+            if (data)
+                setPreviousData(data);
+        }
+    }, [httpPreviousResponse]);
+
+    useEffect(() => {
+        if (sheet) {
+            setSelectedModel(sheetModal);
+            setLoading(false)
+            let _acts: AppointmentActModel[] = []
+            medicalProfessionalData && medicalProfessionalData[0].acts.map(act => {
+                _acts.push({qte: 1, selected: false, ...act})
+            })
+            setActs(_acts);
+            setMPActs(_acts);
+        }
+    }, [medicalProfessionalData, sheet, sheetModal]);
+
+    useEffect(() => {
+        if (event && event.publicId !== app_uuid && isActive) {
+            setIsHistory(true)
+        } else setIsHistory(false)
+    }, [app_uuid, event, isActive])
+
+    useEffect(() => {
+        if (httpPatientPreview) {
+            const data = (httpPatientPreview as HttpResponse).data;
+            dispatch(SetPatient({uuid: sheet?.patient, birthdate: "", gender: "M", ...data}))
+            setPatient(data)
+        }
+    }, [dispatch, httpPatientPreview, sheet?.patient])
+    useEffect(() => {
+        if (tableState.patientId)
+            setPatientDetailDrawer(true);
+    }, [tableState.patientId]);
+
 
     return (
         <>
-            <Button onClick={()=>{console.log(users)}}>OK</Button>
+            {isHistory && <AppointHistoryContainerStyled> <Toolbar>
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                       width={"100%"}>
+                    <Stack spacing={1.5} direction="row" alignItems="center">
+                        <IconUrl path={'ic-speaker'}/>
+                        <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>
+                    </Stack>
+                    <LoadingButton
+                        disabled={false}
+                        loading={false}
+                        loadingPosition="start"
+                        onClick={closeHistory}
+                        className="btn-action"
+                        color="warning"
+                        size="small"
+                        startIcon={<IconUrl path="ic-retour"/>}>
+                        {t('consultationIP.back')}
+                    </LoadingButton>
+                </Stack>
+            </Toolbar></AppointHistoryContainerStyled>}
+            {tabsData.length > 0 && <SubHeader sx={isHistory && {
+                backgroundColor: alpha(theme.palette.warning.main, 0.2),
+                borderLeft: `2px solid${theme.palette.warning.main}`,
+                borderRight: `2px solid${theme.palette.warning.main}`,
+                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
+            }}>
+                <AppToolbar
+                    {...{
+                        selectedTab,
+                        setSelectedTab,
+                        pendingDocuments,
+                        setPendingDocuments,
+                        tabsData,
+                        selectedDialog,
+                        agenda: agenda?.uuid,
+                        app_uuid,
+                        patient,
+                        handleChangeTab,
+                        isMobile,
+                        changes,
+                        anchorEl,
+                        mutatePatient,
+                        setAnchorEl
+                    }}
+                    setPatientShow={() => setFilterDrawer(!drawer)}
+                />
+            </SubHeader>}
+
+            {<HistoryAppointementContainer {...{isHistory, loading}}>
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     className="container container-scroll">
+                    <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
+                        <HistoryTab
+                            {...{
+                                patient: {
+                                    uuid: sheet?.patient,
+                                    ...patient
+                                },
+                                dispatch,
+                                t,
+                                session,
+                                acts,
+                                direction,
+                                mutate: mutatePatient,
+                                setOpenDialog,
+                                showDoc,
+                                setState,
+                                setInfo,
+                                router,
+                                setIsViewerOpen,
+                                setSelectedTab,
+                                appuuid: app_uuid,
+                                trigger
+                            }}
+                        />
+                    </TabPanel>
+                    <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
+                                {loading && <CardContent
+                                    sx={{
+                                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                        border: `1px solid ${theme.palette.grey['A300']}`,
+                                        overflow: 'hidden',
+                                        borderRadius: 2,
+                                        height: {xs: "30vh", md: "40.3rem"},
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        padding: 0
+                                    }}>
+                                    <Skeleton variant="rounded" width={"100%"}
+                                              sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
+                                </CardContent>}
+                                {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && (
+                                    <WidgetForm
+                                        {...{
+                                            models,
+                                            changes,
+                                            setChanges,
+                                            isClose,
+                                            acts,
+                                            setActs,
+                                            previousData,
+                                            selectedModel,
+                                            appuuid: app_uuid,
+                                            modal: selectedModel,
+                                            data: sheetModal?.data,
+                                            closed: closeExam,
+                                            setSM: setSelectedModel,
+                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                                            mutateSheetData
+                                        }}
+                                        handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
+                                )}
+                                {!loading && !selectedModel && (<CardContent
+                                        sx={{
+                                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                            border: `1px solid ${theme.palette.grey['A300']}`,
+                                            overflow: 'hidden',
+                                            borderRadius: 2,
+                                            height: {xs: "30vh", md: "40.3rem"},
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+
+                                        <Stack spacing={1} alignItems={"center"}>
+                                            <TuneRoundedIcon/>
+                                            <Typography fontSize={11}
+                                                        textAlign={"center"}>{t('consultationIP.noActiveFile')}</Typography>
+                                            <Typography fontSize={10} textAlign={"center"}
+                                                        style={{opacity: 0.5}}>{t('consultationIP.configure')}</Typography>
+                                            <Button size={"small"} onClick={() => {
+                                                router.replace("/dashboard/settings/patient-file-templates")
+                                            }}></Button>
+                                        </Stack>
+                                    </CardContent>
+                                )}
+                            </Grid>
+                            <Grid item xs={12}
+                                  md={getExamSize()}
+                                  style={{paddingLeft: isClose ? 0 : 10}}>
+                                <ConsultationDetailCard
+                                    {...{
+                                        changes,
+                                        setChanges,
+                                        app_uuid,
+                                        exam: sheetExam,
+                                        patient: "",
+                                        hasDataHistory,
+                                        seeHistory,
+                                        closed: closeExam,
+                                        setCloseExam,
+                                        isClose,
+                                        agenda, trigger
+                                    }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
+                                />
+                            </Grid>
+                        </Grid>
+                    </TabPanel>
+                    <TabPanel padding={1} value={selectedTab} index={"documents"}>
+                        <DocumentsTab
+                            {...{
+                                medical_professional_uuid,
+                                agenda,
+                                urlMedicalEntitySuffix,
+                                app_uuid,
+                                showDoc,
+                                router,
+                                t
+                            }}></DocumentsTab>
+                    </TabPanel>
+                    <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
+                        <FeesTab {...{
+                            acts,
+                            setActs,
+                            mpActs,
+                            status: sheet?.status,
+                            urlMedicalEntitySuffix,
+                            agenda: agenda?.uuid,
+                            app_uuid,
+                            total,
+                            setTotal,
+                            router,
+                            devise,
+                            t
+                        }}/>
+                    </TabPanel>
+                </Box>
+
+                <DrawerBottom
+                    handleClose={() => setFilterDrawer(false)}
+                    open={filterdrawer}
+                    title={null}>
+                    <ConsultationFilter/>
+                </DrawerBottom>
+
+                <Stack
+                    direction={{md: "row", xs: "column"}}
+                    position="fixed"
+                    sx={{right: 10, bottom: 70, zIndex: 999}}
+                    spacing={2}>
+                    {pendingDocuments?.map((item: any) => (
+                        <React.Fragment key={item.id}>
+                            <PendingDocumentCard
+                                data={item}
+                                t={t}
+                                onClick={() => {
+                                    openDialogue(item);
+                                }}
+                                closeDocument={(v: number) =>
+                                    setPendingDocuments(
+                                        pendingDocuments.filter((card: any) => card.id !== v)
+                                    )
+                                }
+                            />
+                        </React.Fragment>
+                    ))}
+                </Stack>
+
+                <Drawer
+                    anchor={"right"}
+                    open={openAddDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(openDrawer({type: "add", open: false}));
+                    }}>
+                    <Box height={"100%"}>
+                        <CustomStepper
+                            {...{currentStepper, t}}
+                            modal={"consultation"}
+                            OnTabsChange={handleStepperChange}
+                            OnSubmitStepper={submitStepper}
+                            OnCustomAction={handleTableActions}
+                            stepperData={EventStepper}
+                            scroll
+                            minWidth={726}/>
+                    </Box>
+                </Drawer>
+
+                <Drawer
+                    anchor={"right"}
+                    open={openChat}
+                    dir={direction}
+                    sx={{
+                        "& .MuiPaper-root": {
+                            width: {xs: "100%", sm: "40%"}
+                        }
+                    }}
+                    onClose={() => {
+                        setOpenChat(false)
+                    }}>
+                    <ChatDiscussionDialog data={{
+                        session, app_uuid, setOpenChat, patient: sheet?.patient,
+                        setInfo, setOpenDialog, router, setState
+                    }}/>
+                </Drawer>
+
+            </HistoryAppointementContainer>}
+
+            <Box pt={8}>
+                <SubFooter>
+                    <Stack
+                        width={1}
+                        spacing={{xs: 1, md: 0}}
+                        padding={{xs: 1, md: 0}}
+                        direction={{xs: "column", md: "row"}}
+                        alignItems="flex-end"
+                        justifyContent={
+                            selectedTab === "medical_procedures" ? "space-between" : "flex-end"
+                        }>
+                        {selectedTab === "medical_procedures" && (
+                            <Stack direction="row" alignItems={"center"}>
+                                <Typography variant="subtitle1">
+                                    <span>{t("total")} : </span>
+                                </Typography>
+                                <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
+                                    {isNaN(total) ? "-" : total} {devise}
+                                </Typography>
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={2}>
+                                    <span>|</span>
+                                    <Button
+                                        variant="text-black"
+                                        onClick={(event) => {
+
+                                            let type = "";
+                                            if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
+
+                                            event.stopPropagation();
+                                            setInfo("document_detail");
+                                            setState({
+                                                type: "fees",
+                                                name: "Honoraire",
+                                                info: acts.filter(act => act.selected),
+                                                createdAt: moment().format("DD/MM/YYYY"),
+                                                patient: `${type} ${patient?.first_name} ${patient?.lastName}`,
+                                            });
+                                            setOpenDialog(true);
+
+                                        }}
+                                        startIcon={<IconUrl path="ic-imprime"/>}>
+                                        {t("consultationIP.print")}
+                                    </Button>
+                                </Stack>
+                            </Stack>
+                        )}
+
+                        {sheet?.status !== 5 && <LoadingButton
+                            disabled={loading}
+                            loading={loading}
+                            loadingPosition={"start"}
+                            onClick={end}
+                            color={"error"}
+                            className="btn-action"
+                            startIcon={<IconUrl path="ic-check"/>}
+                            variant="contained"
+                            sx={{".react-svg": {mr: 1}}}>
+                            {t("end_of_consultation")}
+                        </LoadingButton>}
+                    </Stack>
+                </SubFooter>
+            </Box>
+
+            <Dialog
+                action={"patient_observation_history"}
+                open={openHistoryDialog}
+                data={{patient_uuid: sheet?.patient, t}}
+                size={"sm"}
+                direction={"ltr"}
+                title={t("consultationIP.patient_observation_history")}
+                dialogClose={() => setOpenHistoryDialog(false)}
+                onClose={() => setOpenHistoryDialog(false)}
+                icon={true}
+            />
+
+            {info && (
+                <Dialog
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 300,
+                        },
+                    }}
+                    action={info}
+                    open={openDialog}
+                    data={{
+                        state,
+                        app_uuid,
+                        agenda: agenda?.uuid,
+                        patient: {
+                            firstName: patient?.first_name,
+                            uuid: sheet?.patient,
+                            ...patient
+                        },
+                        setState,
+                        setDialog,
+                        setOpenDialog,
+                        t,
+                        changes,
+                        transactions, setTransactions,
+                        total, setTotal,
+                        restAmount, setRestAmount,
+                        meeting,
+                        setMeeting,
+                        checkedNext,
+                        setCheckedNext,
+                    }}
+                    size={"lg"}
+                    color={
+                        info === "secretary_consultation_alert" && theme.palette.error.main
+                    }
+                    {...(info === "secretary_consultation_alert" && {
+                        sx: {px: {xs: 2, sm: 3}}
+                    })}
+                    {...(info === "document_detail" && {
+                        sx: {p: 0},
+                    })}
+                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                    {...((info === "document_detail" || info === "end_consultation") && {
+                        onClose: handleCloseDialog,
+                    })}
+                    {...(info !== "secretary_consultation_alert" && {dialogClose: handleCloseDialog})}
+                    {...(actions && {
+                        actionDialog: <DialogAction/>,
+                    })}
+                />
+            )}
+
+            <Drawer
+                anchor={"right"}
+                open={patientDetailDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    setPatientDetailDrawer(false);
+                }}>
+                <PatientDetail
+                    {...{isAddAppointment, mutate: mutatePatient}}
+                    onCloseDialog={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                    patientId={tableState.patientId}
+                />
+            </Drawer>
+
+            {isViewerOpen.length > 0 && (
+                <ImageViewer
+                    src={[isViewerOpen, isViewerOpen]}
+                    currentIndex={0}
+                    disableScroll={false}
+                    backgroundStyle={{
+                        backgroundColor: "rgba(6, 150, 214,0.5)",
+                    }}
+                    closeOnClickOutside={true}
+                    onClose={closeImageViewer}
+                />
+            )}
+
+
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilterDrawer(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 100,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")}{" "}(0)
+                </Button>
+            </MobileContainer>
+
+
+            <Fab sx={{
+                position: "fixed",
+                bottom: 76,
+                right: 30
+            }}
+                 onClick={() => {
+                     setOpenChat(true)
+                 }}
+                 color={"primary"}
+                 aria-label="edit">
+                <SmartToyOutlinedIcon/>
+            </Fab>
         </>
     );
 }
