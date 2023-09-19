@@ -17,8 +17,8 @@ function useAppointmentHistory({...props}) {
         mutate: mutatePatientHis
     } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}?page=${page}&limit=${limit}`
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`
+    } : null, {keepPreviousData: true, variables: {query: `?page=${page}&limit=${limit}`}});
 
     return {
         previousAppointmentsData: (httpPatientHistoryResponse as HttpResponse)?.data ?? [] as any[],

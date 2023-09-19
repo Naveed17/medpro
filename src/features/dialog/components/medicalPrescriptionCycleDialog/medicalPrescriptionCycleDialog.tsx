@@ -578,7 +578,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         }}
                                         className="custom-paper"
                                         key={idx}>
-                                        <Grid container spacing={{xs: 1, md: 2}} alignItems="center">
+                                        <Grid container alignItems="center">
                                             <Grid item sm={0.5} xs={1}>
                                                 <Stack direction="row" alignItems="center">
                                                       <span style={{fontSize: 20, fontWeight: "bold"}}>

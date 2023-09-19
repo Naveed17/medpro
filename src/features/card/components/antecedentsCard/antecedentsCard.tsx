@@ -11,7 +11,7 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -43,7 +43,7 @@ function AntecedentsCard({...props}) {
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
 
     const isObject = (val: any) => {
         if (val === null) {
@@ -60,17 +60,19 @@ function AntecedentsCard({...props}) {
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            setOpenDialog(false);
-            setInfo("");
-            setInfoDynamic("");
-            mutateAntecedents();
+        }, {
+            onSuccess: () => {
+                setOpenDialog(false);
+                setInfo("");
+                setInfoDynamic("");
+                mutateAntecedents();
+            }
         });
     };
 
@@ -111,6 +113,7 @@ function AntecedentsCard({...props}) {
         else return [];
 
     }
+
     const getNote = (item: { response: string | any[]; }) => {
         if (item?.response)
             if (typeof item?.response === "string")
@@ -120,6 +123,7 @@ function AntecedentsCard({...props}) {
             else return '-';
         else return '-';
     }
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -223,7 +227,7 @@ function AntecedentsCard({...props}) {
                     {...{
                         direction,
                         size,
-                        sx:{px:{xs:1.2,md:3}}
+                        sx: {px: {xs: 1.2, md: 3}}
                     }}
                     action={info}
                     open={openDialog}

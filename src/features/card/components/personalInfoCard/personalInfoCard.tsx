@@ -19,7 +19,7 @@ import {
     useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
@@ -66,7 +66,7 @@ function PersonalInfo({...props}) {
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -130,28 +130,30 @@ function PersonalInfo({...props}) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
             data: params,
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientDetails && mutatePatientDetails();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientDetails && mutatePatientDetails();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
 
-            if (appointment) {
-                const event = {
-                    ...appointment,
-                    title: `${values.firstName} ${values.lastName}`,
-                    extendedProps: {
-                        ...appointment.extendedProps,
-                        patient: {
-                            ...appointment.extendedProps.patient,
-                            ...values,
-                            gender: values.gender === '1' ? 'M' : 'F'
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        title: `${values.firstName} ${values.lastName}`,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            patient: {
+                                ...appointment.extendedProps.patient,
+                                ...values,
+                                gender: values.gender === '1' ? 'M' : 'F'
+                            }
                         }
-                    }
-                } as any;
-                dispatch(setSelectedEvent(event));
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
+                enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
             }
-            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
     }
 

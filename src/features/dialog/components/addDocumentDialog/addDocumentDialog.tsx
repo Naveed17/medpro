@@ -86,12 +86,12 @@ function AddDocumentDialog({...props}) {
 
     return (
         <AddDocumentDialogStyled>
-            <Grid container spacing={2}>
+            <Grid container>
                 <Grid item xs={12} md={3}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
                     </Typography>
-                    <Grid container spacing={1} mt={6} margin={"auto"}>
+                    <Grid container mt={6} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
                                 <Grid key={"loading-card-" + idx} item xs={6} md={6}>
@@ -149,7 +149,7 @@ function AddDocumentDialog({...props}) {
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
-                        <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
+                        <Grid container alignItems="flex-start">
                             <Grid item xs={12} lg={12}>
                                 {files.length > 0 && <Typography
                                     mt={1}

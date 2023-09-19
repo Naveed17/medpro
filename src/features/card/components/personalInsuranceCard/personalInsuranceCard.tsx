@@ -16,7 +16,7 @@ import {
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -36,8 +36,8 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import dynamic from "next/dynamic";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -65,15 +65,15 @@ function PersonalInsuranceCard({...props}) {
     const [requestAction, setRequestAction] = useState("POST");
     const {t, ready} = useTranslation(["patient", "common"]);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation(null, "/patient/update");
 
     const {
         data: httpPatientInsurancesResponse,
         mutate: mutatePatientInsurances
-    } = useRequest(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const RegisterPatientSchema = Yup.object().shape({
         insurances: Yup.array().of(
@@ -179,14 +179,15 @@ function PersonalInsuranceCard({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientInsurances();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientInsurances();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+            }
         });
     }
-
 
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
         setEditable({
@@ -270,12 +271,14 @@ function PersonalInsuranceCard({...props}) {
             method: requestAction,
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientInsurances();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
-            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientInsurances();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+                enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
+            }
         });
     }
 
