@@ -84,6 +84,7 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {dehydrate, QueryClient} from "@tanstack/query-core";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -1647,17 +1648,21 @@ function Agenda() {
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
-    // `getStaticProps` is executed on the server side.
-    const {data: countries} = await instanceAxios({
-        url: `/api/public/places/countries/${locale}?nationality=true`,
-        method: "GET"
+    const queryClient = new QueryClient();
+    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([countries], async () => {
+        const {data} = await instanceAxios.request({
+            url: countries,
+            method: "GET"
+        });
+        return data
     });
 
     return {
         props: {
-            fallback: {
-                [`/api/public/places/countries/${locale}?nationality=true`]: countries
-            },
+            dehydratedState: dehydrate(queryClient),
+            fallback: false,
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
         }
     }

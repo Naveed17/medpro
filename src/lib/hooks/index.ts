@@ -5,6 +5,7 @@ export {default as useMedicalEntitySuffix} from "./useMedicalEntitySuffix";
 export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalSuffix";
 export {default as useMutateOnGoing} from "./useMutateOnGoing";
 export {default as useInvalidateQueries} from "./useInvalidateQueries";
+export {default as useLastPrescription} from "./useLastPrescription";
 export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";
 export * from "./filterReasonOptions";

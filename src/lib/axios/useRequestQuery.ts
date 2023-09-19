@@ -14,9 +14,9 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
     const {jti} = session?.user as any;
     const queryKey: string[] = [(request?.url ?? []), ...(variables?.query ? [variables.query] : [])];
 
-    const {isLoading, error, data: response, refetch} = useQuery(
+    const {isFetching, error, data: response, refetch} = useQuery(
         queryKey,
-        () => instanceAxios.request<Data>({
+        ({signal}) => instanceAxios.request<Data>({
             ...request,
             ...(variables?.query && {url: `${request?.url}${variables.query}`}),
             ...(!request?.url?.includes("/api/public") && {
@@ -24,7 +24,8 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
                     Authorization: `Bearer ${session?.accessToken}`,
                     "Fcm-session": jti
                 }
-            })
+            }),
+            signal
         }!), {
             enabled: !!request || queryKey.length === 0,
             ...config
@@ -32,7 +33,7 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
     );
 
     return {
-        isLoading,
+        isLoading: isFetching,
         error,
         data: response && response.data,
         mutate: refetch
