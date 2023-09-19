@@ -65,7 +65,7 @@ function PersonalInsuranceCard({...props}) {
     const [requestAction, setRequestAction] = useState("POST");
     const {t, ready} = useTranslation(["patient", "common"]);
 
-    const {trigger: triggerPatientUpdate} = useRequestQueryMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const {
         data: httpPatientInsurancesResponse,

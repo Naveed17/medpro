@@ -301,7 +301,7 @@ function TimeSchedule({...props}) {
                         {t("stepper-1.title")}
                     </Typography>}
 
-                    <Grid container>
+                    <Grid container spacing={1}>
                         <Grid item md={6} xs={12}>
                             <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                                 {t("stepper-1.duration.title")}
