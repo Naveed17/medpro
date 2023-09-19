@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
@@ -96,6 +96,10 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
+    const handleOnSelectEvent = useCallback((value: any) => {
+        OnSelectEvent(value);
+    }, [OnSelectEvent]);
+
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
         return moment.utc(duration._milliseconds).format("HH:mm:ss");
@@ -132,7 +136,7 @@ function Calendar({...props}) {
     const handleTableEvent = (action: string, eventData: EventModal) => {
         switch (action) {
             case "showEvent":
-                OnSelectEvent(eventData);
+                handleOnSelectEvent(eventData);
                 break;
             case "waitingRoom":
                 OnWaitingRoom(eventData);
@@ -182,9 +186,9 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onDelete" &&
-            (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onMove" &&
             (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
@@ -358,7 +362,7 @@ function Calendar({...props}) {
                                         isMobile
                                     })
                                 }
-                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
@@ -369,7 +373,7 @@ function Calendar({...props}) {
                                     }, isMobile ? 100 : 0);*/
                                 }}
                                 showNonCurrentDates={true}
-                                rerenderDelay={8}
+                                //rerenderDelay={6}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -407,35 +411,36 @@ function Calendar({...props}) {
                                     vertical: 'top',
                                     horizontal: 'left',
                                 }}
-                                PaperProps={{
-                                    elevation: 0,
-                                    sx: {
-                                        overflow: 'visible',
-                                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                                        mt: 1.5,
-                                        '& .MuiAvatar-root': {
-                                            width: 32,
-                                            height: 32,
-                                            ml: -0.5,
-                                            mr: 1,
+                                slotProps={{
+                                    paper: {
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                            mt: 1.5,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            ...!isMobile && {
+                                                '&:before': {
+                                                    content: '""',
+                                                    display: 'block',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 14,
+                                                    width: 10,
+                                                    height: 10,
+                                                    bgcolor: 'background.paper',
+                                                    transform: 'translateY(-50%) rotate(45deg)',
+                                                    zIndex: 0,
+                                                }
+                                            },
                                         },
-                                        ...!isMobile && {
-                                            '&:before': {
-                                                content: '""',
-                                                display: 'block',
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 14,
-                                                width: 10,
-                                                height: 10,
-                                                bgcolor: 'background.paper',
-                                                transform: 'translateY(-50%) rotate(45deg)',
-                                                zIndex: 0,
-                                            }
-                                        },
-                                    },
-                                }}
-                            >
+                                    }
+                                }}>
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
                                     OnAddAppointment("add-quick");

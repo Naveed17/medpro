@@ -46,7 +46,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import useSWRMutation from "swr/mutation";
 import {sendRequest} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
-import { MobileContainer } from "@lib/constants";
+import {MobileContainer} from "@lib/constants";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/menu/components/profilMenu/components/profilMenu")
@@ -72,7 +72,7 @@ function TopNavBar({...props}) {
     const {isActive} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
-        import_data, allowNotification, mutate: mutateOnGoing
+        import_data, allowNotification
     } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
@@ -96,6 +96,10 @@ function TopNavBar({...props}) {
     const settingHas = router.pathname.includes("settings/");
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
+
+    const mutateOnGoing = () => {
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
+    }
 
     const popovers: { [key: string]: EmotionJSX.Element } = {
         "appointment-stats": <AppointmentStatsPopover/>,
@@ -145,7 +149,7 @@ function TopNavBar({...props}) {
             data: form
         }).then(() => {
             // refresh on going api
-            mutateOnGoing && mutateOnGoing();
+            mutateOnGoing();
             // refresh waiting room api
             mutate(`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`)
                 .then(() => setLoading(false));
@@ -183,7 +187,7 @@ function TopNavBar({...props}) {
                         }
                     ));
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
             });
         }
@@ -264,34 +268,34 @@ function TopNavBar({...props}) {
                     className={`top-bar ${opened ? "openedSidebar" : ""}`}
                     color="inherit">
                     <Toolbar>
-                            {
-                                isMobile ?
+                        {
+                            isMobile ?
                                 settingHas ? (
-                                <IconButton
-                                    color={"inherit"}
-                                    edge="start"
-                                    className="btn"
-                                    onClick={() => router.push("/dashboard/settings")}>
-                                    <ArrowBackIcon/>
-                                </IconButton>
-                            ) : (
-                                <IconButton
+                                    <IconButton
+                                        color={"inherit"}
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => router.push("/dashboard/settings")}>
+                                        <ArrowBackIcon/>
+                                    </IconButton>
+                                ) : (
+                                    <IconButton
+                                        color="primary"
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
+                                        <Icon path="ic-toggle"/>
+                                    </IconButton>
+                                ) :
+                                (<IconButton
+                                    disabled={lock}
                                     color="primary"
                                     edge="start"
                                     className="btn"
-                                    onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
+                                    onClick={() => dispatch(toggleSideBar(opened))}>
                                     <Icon path="ic-toggle"/>
-                                </IconButton>
-                            ):
-(                              <IconButton
-                                disabled={lock}
-                                color="primary"
-                                edge="start"
-                                className="btn"
-                                onClick={() => dispatch(toggleSideBar(opened))}>
-                                <Icon path="ic-toggle"/>
-                            </IconButton>)
-                            }
+                                </IconButton>)
+                        }
 
                         <Hidden mdDown>
                             <IconButton

@@ -1,26 +1,56 @@
 import {Avatar, Box, Chip, Popover, Typography} from "@mui/material";
-import React from "react";
+import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-import {convertHexToRGBA} from "@lib/hooks";
+import {convertHexToRGBA, useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
+import {useRouter} from "next/router";
 
 function Event({...props}) {
     const {event, view, t, isMobile} = props;
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {config: agenda, openViewDrawer} = useAppSelector(agendaSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
+
     const open = Boolean(anchorEl);
+    let timeoutId: any;
     const appointment = event.event._def.extendedProps;
+    const appointmentUuid = event.event._def.publicId;
+    const {trigger: triggerAppointmentTooltip} = useRequestMutation(null, "/agenda/appointment/tooltip");
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
+        if (timeoutId !== undefined) {
+            clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+            setAnchorEl(event.target as any);
+            const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
+            triggerAppointmentTooltip({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+            }).then((result) => {
+                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                if (appointmentData.length > 0) {
+                    setAppointmentData(appointmentData[0]);
+                }
+            })
+        }, 800);
+    }
 
     const handlePopoverClose = () => {
         setAnchorEl(null);
-    };
+        clearTimeout(timeoutId);
+    }
 
     const isHorizontal = () => {
         if (view === "timeGridDay")
@@ -29,6 +59,10 @@ function Event({...props}) {
             return -305;
         else return 'right';
     }
+
+    useEffect(() => {
+        handlePopoverClose()
+    }, [openViewDrawer]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -55,19 +89,24 @@ function Event({...props}) {
                     {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                 </Typography>
 
-                <Typography variant="body2" component={"span"} sx={{
-                    span: {
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
-                        ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
-                    }
-                }} color="primary" noWrap>
+                <Typography
+                    variant="body2"
+                    component={"span"}
+                    sx={{
+                        span: {
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
+                            ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
+                        }
+                    }}
+                    color="primary"
+                    noWrap>
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
-                            {appointment.patient?.contact.length > 0 && <>
+                            {appointment.patient?.contact?.length > 0 && <>
                                 <Icon path="ic-phone"/>
                                 {appointment.patient?.contact[0]?.code} {appointment.patient?.contact[0].value}
                             </>}
@@ -95,8 +134,7 @@ function Event({...props}) {
                     horizontal: isHorizontal()
                 }}
                 onClose={handlePopoverClose}
-                disableRestoreFocus
-            >
+                disableRestoreFocus>
                 <>
                     {appointment.new &&
                         <Chip label={t("event.new", {ns: 'common'})}
@@ -111,7 +149,7 @@ function Event({...props}) {
                     <AppointmentPopoverCard
                         {...{t}}
                         style={{width: "300px", border: "none"}}
-                        data={appointment}/>
+                        data={appointmentData}/>
                 </>
             </Popover>
         </>

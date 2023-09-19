@@ -26,9 +26,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         hasErrors,
         dur: appointment.duration,
         type: appointment.type,
-        meeting: false,
         new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
-        addRoom: true,
         status: AppointmentStatus[appointment.status]
     }
 }

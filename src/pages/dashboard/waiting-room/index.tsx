@@ -40,6 +40,7 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {ActionMenu} from "@features/menu";
+import {useSWRConfig} from "swr";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -50,10 +51,11 @@ function WaitingRoom() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {mutate} = useSWRConfig();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -129,6 +131,10 @@ function WaitingRoom() {
         );
     };
 
+    const mutateOnGoing = () => {
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
+    }
+
     const handleClose = () => {
         setContextMenu(null);
     };
@@ -168,7 +174,7 @@ function WaitingRoom() {
         }).then(() => {
             mutateWaitingRoom();
             // refresh on going api
-            mutateOnGoing && mutateOnGoing();
+            mutateOnGoing();
             setLoadingRequest(false);
         });
     }
@@ -200,7 +206,7 @@ function WaitingRoom() {
                         }
                     ));
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
             });
         } else {
@@ -226,7 +232,7 @@ function WaitingRoom() {
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
                 } as any).then(() => {
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                     mutateWaitingRoom();
                 });
                 break;

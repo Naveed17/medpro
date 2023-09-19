@@ -80,6 +80,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {batch} from "react-redux";
+import useSendNotification from "@lib/hooks/rest/useSendNotification";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -114,7 +115,7 @@ function Agenda() {
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
         selectedEvent, actionSet, openMoveDrawer, openPayDialog,
@@ -181,6 +182,7 @@ function Agenda() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {jti} = session?.user as any;
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -193,6 +195,12 @@ function Agenda() {
     const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/agenda/appointment/documents");
     const {trigger: triggerPostTransaction} = useRequestMutation(null, "/agenda//payment/cashbox");
+    const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerAppointmentDetails} = useRequestMutation(null, "/agenda/appointment/details");
+
+    const mutateOnGoing = () => {
+        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`));
+    }
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -220,7 +228,7 @@ function Agenda() {
         }
         trigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?mode=mini&${query}`
         }).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
@@ -328,7 +336,7 @@ function Agenda() {
                 appointment: transactions[0]?.appointment,
                 patient: transactions[0]?.appointment?.patient,
                 total: selectedEvent?.extendedProps?.total,
-                isNew: payed_amount === 0
+                isNew: false
             });
             setTimeout(() => setOpenPaymentDialog(true));
         }
@@ -386,9 +394,31 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
-        setEvent(event);
-        dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
+        setLoadingRequest(true);
+        setTimeout(() => setEvent(event));
+        const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+        triggerAppointmentDetails({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+        }).then((result) => {
+            const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+            if (appointmentData.length > 0) {
+                const appointment = appointmentData[0];
+                const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                const hasErrors = [
+                    ...(horsWork ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
+                setLoadingRequest(false);
+                batch(() => {
+                    dispatch(setSelectedEvent({
+                        ...event,
+                        extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                    }));
+                    dispatch(openDrawer({type: "view", open: true}));
+                });
+            }
+        })
+
     }
 
     const handleDragEvent = (DateTime: Moment, action: string) => {
@@ -514,7 +544,7 @@ function Agenda() {
                                 }
                             ));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                         });
                     });
                 } else {
@@ -545,7 +575,7 @@ function Agenda() {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
                 break;
             case "onPatientNoShow":
@@ -686,7 +716,7 @@ function Agenda() {
                         }
                     ));
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 });
             })
         } else {
@@ -939,7 +969,18 @@ function Agenda() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
             data: params
-        }).then(() => setOpenUploadDialog({loading: false, dialog: false}));
+        }).then(() => {
+            setOpenUploadDialog({loading: false, dialog: false});
+            triggerNotificationPush({
+                action: "push",
+                root: "all",
+                message: " ",
+                content: JSON.stringify({
+                    mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                    fcm_session: jti
+                })
+            });
+        });
     }
 
     const handleAddAppointmentRequest = () => {
@@ -998,6 +1039,7 @@ function Agenda() {
             () => {
                 setOpenPaymentDialog(false);
                 setTimeout(() => setLoadingRequest(false));
+                dispatch(openDrawer({type: "pay", open: false}));
             }
         );
     }
@@ -1053,7 +1095,10 @@ function Agenda() {
                 }} color="warning"/>
 
                 {agenda &&
-                    <>
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{ease: "easeIn", duration: .5}}>
                         <Calendar
                             {...{
                                 events: events.current,
@@ -1108,7 +1153,7 @@ function Agenda() {
                                     ))}
                                 </SpeedDial>
                             </Zoom>}
-                    </>
+                    </motion.div>
                 }
 
                 {(isMobile && view === "listWeek") && <>

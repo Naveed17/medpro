@@ -1,6 +1,5 @@
 import {useCallback} from "react";
 import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 
