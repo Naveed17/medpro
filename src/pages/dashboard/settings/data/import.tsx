@@ -312,7 +312,6 @@ function ImportData() {
                                     <Box mb={2} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
@@ -356,7 +355,6 @@ function ImportData() {
                                     <Box mb={6} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
@@ -393,7 +391,6 @@ function ImportData() {
                                     <Box mb={2} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
