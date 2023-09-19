@@ -419,7 +419,7 @@ function TimeSchedule({...props}) {
                             <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                                 {t("stepper-1.date-message")}
                             </Typography>
-                            <Grid container sx={{height: "auto"}}>
+                            <Grid container spacing={changeTime ? 3 : 6} sx={{height: "auto"}}>
                                 {!changeTime && <Grid item md={6} xs={12}>
                                     <StaticDatePicker
                                         views={['day']}
