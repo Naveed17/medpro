@@ -596,7 +596,7 @@ function PaymentDialog({...props}) {
                                                                         value={values[`check[${idx}].bank`]}
                                                                         onChange={(e, newValue: any) => {
                                                                             e.stopPropagation();
-                                                                            let res = ''
+                                                                            let res: string
                                                                             if (newValue.inputValue)
                                                                                 res = newValue.inputValue
                                                                             else res = newValue.name

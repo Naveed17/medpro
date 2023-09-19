@@ -121,7 +121,7 @@ function Agenda() {
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {waiting_room, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
         selectedEvent, actionSet, openMoveDrawer, openPayDialog,
@@ -135,7 +135,7 @@ function Agenda() {
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
-    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -208,7 +208,6 @@ function Agenda() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/agenda/pre-consultation/update");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
-    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/agenda/payment/transaction");
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerNotificationPush} = useSendNotification();
 

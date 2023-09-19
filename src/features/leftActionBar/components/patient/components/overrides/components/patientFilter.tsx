@@ -40,7 +40,7 @@ function PatientFilter({...props}) {
     const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const formik = useFormik({
-        onSubmit<Values>(values: Values, formikHelpers: FormikHelpers<Values>): void | Promise<any> {
+        onSubmit<Values>(): void | Promise<any> {
             return undefined;
         },
         initialValues: {

@@ -21,20 +21,16 @@ import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
-import {useRequest, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
     const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
