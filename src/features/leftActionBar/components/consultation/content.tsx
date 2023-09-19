@@ -77,7 +77,6 @@ const Content = ({...props}) => {
     const {trigger} = useRequestMutation(null, "/antecedent");
     const {allAntecedents} = useAntecedentTypes();
 
-    console.log(id)
     const {
         data: httpAntecedents,
         mutate: mutateAntecedents

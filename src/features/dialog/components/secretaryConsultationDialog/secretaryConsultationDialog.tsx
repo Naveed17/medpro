@@ -100,7 +100,6 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(()=>{
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
-            console.log(res)
             setTransactions(res.transactions ? res.transactions[0] : null);
             setTotal(res.fees ? res.fees : 0)
             setRestAmount(res.rest_amount)

@@ -91,7 +91,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                     }
                 }}
                 onBlur={(ev: { data: any; }) => {
-                    console.log("ok");
                     const form = new FormData();
                     form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
                     form.append("modal_uuid", selectedModel?.default_modal.uuid);
@@ -100,7 +99,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         url,
                         data: form
                     }).then(() => {
-                        console.log(mutateSheetData)
                         mutateSheetData()
                     })
                 }}

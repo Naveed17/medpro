@@ -1,6 +1,6 @@
 import React from "react";
 import {Label} from "@features/label";
-import {Collapse, Drawer, Stack, Typography,} from "@mui/material";
+import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequest} from "@lib/axios";
@@ -12,6 +12,8 @@ import {HistoryCard, PatientHistoryStaticCard} from "@features/card";
 import {AppointmentHistoryPreview} from "@features/card/components/appointmentHistoryPreview";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
+import Icon from "@themes/icon";
+import moment from "moment/moment";
 
 function HistoryTab({...props}) {
 
@@ -20,18 +22,13 @@ function HistoryTab({...props}) {
         dispatch,
         t,
         session,
-        acts,
         direction,
-        mutate: mutatePatient,
         setOpenDialog,
         showDoc,
         setState,
         setInfo,
         router,
-        setIsViewerOpen,
-        setSelectedTab,
-        appuuid,
-        trigger
+        appuuid
     } = props;
 
     let dates: string[] = [];
@@ -54,6 +51,7 @@ function HistoryTab({...props}) {
     const sheet = histories ? histories['consultation-sheet'] : null
     const latest_appointment = histories ? histories['latest_appointment'] : []
     const nextAppointment = histories ? histories['nextAppointment'] : []
+    const photos = histories ? histories['photo'] : []
 
     sheet && Object.keys(sheet).forEach(key => {
         keys.push(key);
@@ -61,23 +59,6 @@ function HistoryTab({...props}) {
             if (dates.indexOf(date) === -1) dates.push(date);
         })
     })
-
-    /*
-        useEffect(() => {
-            setApps(lastestsAppointments ? [...lastestsAppointments] : []);
-            if (lastestsAppointments && lastestsAppointments.length > 0) {
-                dispatch(SetSelectedApp(lastestsAppointments[0].appointment.uuid))
-            }
-        }, [lastestsAppointments, appuuid, dispatch]);
-    */
-
-    /*    useEffect(() => {
-            if (httpPatientDocumentsResponse) {
-                console.log(httpPatientDocumentsResponse)
-                setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents.reverse()
-                    .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
-            }
-        }, [httpPatientDocumentsResponse]);*/
 
     return (
         <>
@@ -102,7 +83,7 @@ function HistoryTab({...props}) {
             )}
             {/****** Next appointment ******/}
 
-            {/*{
+            {
                 photos.length > 0 &&
                 <Box>
                     <Label variant="filled" color="warning">
@@ -110,10 +91,10 @@ function HistoryTab({...props}) {
                     </Label>
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
                         <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
-                            {photos.map((photo, index) => (
+                            {photos.map((photo: any, index: number) => (
                                 <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
                                      style={{background: "white"}}>
-                                     eslint-disable-next-line @next/next/no-img-element
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={photo.uri.thumbnails.length === 0 ? photo.uri.url : photo.uri.thumbnails['thumbnail_128']}
                                         alt={'img'}
@@ -138,12 +119,12 @@ function HistoryTab({...props}) {
                     </Box>
                 </Box>
             }
-*/}
+
 
             {/****** Sheet History ******/}
             {sheet && keys.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
                 <Label variant="filled" color="warning">
-                    {t("history")}
+                    {t("consultationIP.suivi_chiffre")}
                 </Label>
             </Stack>}
             <div style={{overflowY: "hidden"}}>
