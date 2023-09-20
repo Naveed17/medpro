@@ -31,11 +31,10 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
-import {useRequestMutation, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
-import {useSWRConfig} from "swr";
 import {useTransactionEdit} from "@lib/hooks/rest";
 
 function CashBoxMobileCard({...props}) {

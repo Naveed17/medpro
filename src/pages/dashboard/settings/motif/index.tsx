@@ -23,7 +23,7 @@ import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
-import {useRequest, useRequestMutation, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -32,7 +32,6 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";

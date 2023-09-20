@@ -30,7 +30,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
@@ -41,7 +41,6 @@ import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import {FileuploadProgress} from "@features/progressUI";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';

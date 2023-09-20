@@ -103,7 +103,7 @@ function Lieux() {
         setLoading(true);
         triggerPlacesUpdate(selected.request, {
             onSuccess: () => {
-                mutate().then(r => {
+                mutate().then(() => {
                     setOpen(false);
                     setTimeout(() => setLoading(false));
                 });

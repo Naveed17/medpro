@@ -35,7 +35,6 @@ import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {useSession} from "next-auth/react";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -45,7 +44,6 @@ function TemplatesConfig() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-    const {data: session} = useSession();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {t: tConsultation} = useTranslation("consultation");

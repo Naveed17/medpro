@@ -712,7 +712,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async ({...props
         fallback: "blocking", //indicates the type of fallback
     };
 };
-export const getStaticProps: GetStaticProps = async ({locale, params}) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
 
     return {
         props: {
