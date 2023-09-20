@@ -16,13 +16,12 @@ import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from "@mui/icons-material/Circle";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Add from "@mui/icons-material/Add";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -40,11 +39,12 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSWRConfig} from "swr";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
+import {useAntecedentTypes} from "@lib/hooks/rest";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, analyses, mi} = props;
+    const {id, patient, url} = props;
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const router = useRouter();
@@ -53,7 +53,6 @@ const Content = ({...props}) => {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {mutate: mutateInfo, mutateDoc} = useAppSelector(consultationSelector);
     const {mutate} = useSWRConfig();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
 
@@ -67,12 +66,50 @@ const Content = ({...props}) => {
     const [openRemove, setOpenRemove] = useState(false);
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
+    const [treatements, setTreatements] = useState([]);
+    const [ordonnaces, setOrdonnaces] = useState([]);
+    const [analyses, setAnalyses] = useState([]);
+    const [mi, setMi] = useState([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/antecedent");
+    const {allAntecedents} = useAntecedentTypes();
 
+    const {
+        data: httpAntecedents,
+        mutate: mutateAntecedents
+    } = useRequest([4, 6, 7].includes(id) && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`
+    } : null);
+    const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
+
+    const {data: httpPatientAnalyses} = useRequest(id === 9 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
+    } : null);
+
+    const {data: httpPatientMI} = useRequest(id === 5 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
+    } : null);
+
+    useEffect(() => {
+        if (httpPatientAnalyses)
+            setAnalyses((httpPatientAnalyses as HttpResponse).data)
+    }, [httpPatientAnalyses])
+
+    useEffect(() => {
+        if (httpPatientMI)
+            setMi((httpPatientMI as HttpResponse).data)
+    }, [httpPatientMI])
+
+
+    const mutatePatient = () => {
+        mutate(url)
+    }
     const getTitle = () => {
         const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
 
@@ -102,8 +139,8 @@ const Content = ({...props}) => {
                 }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                 data: form
             }).then(() => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                mutatePatient();
+                medicalEntityHasUser && mutateAntecedents()
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
@@ -115,8 +152,8 @@ const Content = ({...props}) => {
                     url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
                     data: form
                 }).then(() => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                mutatePatient();
+                medicalEntityHasUser && mutateAntecedents()
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -130,16 +167,16 @@ const Content = ({...props}) => {
                     }/requested-analysis/${(state as any).uuid}/${router.locale}`,
                     data: form
                 }).then(() => {
-                mutateInfo();
-                if (medicalEntityHasUser){
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                mutatePatient();
+                if (medicalEntityHasUser) {
+                    mutateAntecedents()
                     mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
                 }
             });
         } else if (info === "medical_imaging_pending") {
-            mutateInfo();
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-            mutateDoc();
+            mutatePatient();
+            medicalEntityHasUser && mutateAntecedents()
+            //mutateDoc();
         }
 
         setOpenDialog(false);
@@ -150,9 +187,9 @@ const Content = ({...props}) => {
     const dialogSave = () => {
         trigger(selected.request, {revalidate: true, populateCache: true}).then(
             () => {
-                mutateInfo();
-                if (medicalEntityHasUser){
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                mutatePatient();
+                if (medicalEntityHasUser) {
+                    mutateAntecedents()
                     mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
                 }
             }
@@ -168,7 +205,7 @@ const Content = ({...props}) => {
             return;
         }
 
-        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
 
         setInfo(action);
         setInfoDynamic(action)
@@ -179,7 +216,7 @@ const Content = ({...props}) => {
     };
 
     const handleOpenDynamic = (action: string) => {
-        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
         setInfo("dynamicAnt");
         setInfoDynamic(action);
         setSize("sm");
@@ -249,12 +286,12 @@ const Content = ({...props}) => {
         }
     };
 
-    const treatements = patient?.treatment.filter((trait: {
-        isOtherProfessional: boolean;
-    }) => trait.isOtherProfessional)
-    const ordonnaces = patient?.treatment.filter((trait: {
-        isOtherProfessional: boolean;
-    }) => !trait.isOtherProfessional)
+    /*    const treatements = patient?.treatment.filter((trait: {
+            isOtherProfessional: boolean;
+        }) => trait.isOtherProfessional)
+        const ordonnaces = patient?.treatment.filter((trait: {
+            isOtherProfessional: boolean;
+        }) => !trait.isOtherProfessional)*/
 
     if (!ready || status === "loading") return (
         <LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -606,7 +643,7 @@ const Content = ({...props}) => {
                             t,
                             patient,
                             trigger,
-                            mutate: mutateInfo,
+                            mutate: mutatePatient,
                             session,
                             setSelected,
                             setOpenRemove,
@@ -624,7 +661,7 @@ const Content = ({...props}) => {
                             t,
                             patient,
                             trigger,
-                            mutate: mutateInfo,
+                            mutate: mutatePatient,
                             session,
                             setSelected,
                             setOpenRemove,
@@ -772,7 +809,7 @@ const Content = ({...props}) => {
                                     patient,
                                     trigger,
                                     index,
-                                    mutate: mutateInfo,
+                                    mutate: mutatePatient,
                                     session,
                                     setSelected,
                                     setOpenRemove,
@@ -850,7 +887,7 @@ const Content = ({...props}) => {
                             </Button>
                             <Button
                                 variant="contained"
-                                disabled={info ==="add_treatment" && state?.length == 0}
+                                disabled={info === "add_treatment" && state?.length == 0}
                                 onClick={handleCloseDialog}
                                 startIcon={<Icon path="ic-dowlaodfile"/>}>
                                 {t("save")}
