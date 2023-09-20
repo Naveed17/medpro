@@ -148,7 +148,7 @@ function SecretaryConsultationDialog({...props}) {
     const handleOnGoingPaymentDialog = () => {
         setLoading(true);
         triggerTransactionEdit(selectedPayment,
-            appointment.transactions,
+            transactions,
             () => {
                 mutate().then(() => {
                     setOpenPaymentDialog(false);
