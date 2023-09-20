@@ -86,14 +86,19 @@ const Content = ({...props}) => {
     } : null);
     const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
 
-    const {data: httpPatientAnalyses} = useRequest(id === 9 && medicalEntityHasUser ? {
+    const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequest(id === 9 && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null);
 
-    const {data: httpPatientMI} = useRequest(id === 5 && medicalEntityHasUser ? {
+    const {data: httpPatientMI,mutate: mutateMi} = useRequest(id === 5 && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
+    } : null);
+
+    const {data: httpTreatment, mutate: mutateTreatment} = useRequest(id === 1 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
     } : null);
 
     useEffect(() => {
@@ -106,6 +111,14 @@ const Content = ({...props}) => {
             setMi((httpPatientMI as HttpResponse).data)
     }, [httpPatientMI])
 
+    useEffect(() => {
+        if (httpTreatment) {
+            const res = (httpTreatment as HttpResponse).data
+            setTreatements(res.filter((traitment:{isOtherProfessional:boolean}) => traitment.isOtherProfessional))
+            setOrdonnaces(res.filter((traitment:{isOtherProfessional:boolean}) => !traitment.isOtherProfessional))
+        }
+
+    }, [httpTreatment])
 
     const mutatePatient = () => {
         mutate(url)
@@ -153,7 +166,7 @@ const Content = ({...props}) => {
                     data: form
                 }).then(() => {
                 mutatePatient();
-                medicalEntityHasUser && mutateAntecedents()
+                medicalEntityHasUser && mutateTreatment()
                 setState([]);
             });
         } else if (info === "balance_sheet_pending") {
@@ -169,14 +182,12 @@ const Content = ({...props}) => {
                 }).then(() => {
                 mutatePatient();
                 if (medicalEntityHasUser) {
-                    mutateAntecedents()
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                    mutateAnalyses()
                 }
             });
         } else if (info === "medical_imaging_pending") {
             mutatePatient();
-            medicalEntityHasUser && mutateAntecedents()
-            //mutateDoc();
+            mutateMi()
         }
 
         setOpenDialog(false);
@@ -189,8 +200,7 @@ const Content = ({...props}) => {
             () => {
                 mutatePatient();
                 if (medicalEntityHasUser) {
-                    mutateAntecedents()
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                    mutateTreatment()
                 }
             }
         );

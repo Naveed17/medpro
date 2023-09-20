@@ -130,7 +130,7 @@ function ChatDiscussionDialog({...props}) {
     }, isDocument: boolean) => {
         setLoadingResponse(true)
         const form = new FormData();
-        form.append('message', todo);
+        form.append('message', `${todo} .Votre réponse en Html dont chaque phrase dans une balise p`);
         form.append('short', short ? short : todo);
         form.append('isDocument', isDocument.toString());
         triggerChat({
