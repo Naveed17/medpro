@@ -159,7 +159,7 @@ function Patient() {
                 <Typography
                     variant="h6"
                     color="text.primary"
-                    sx={{py: 5, pl: "10px", mb: "0.21em"}}
+                    sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
                     gutterBottom>
                     {t(`filter.title`)}
                 </Typography>
