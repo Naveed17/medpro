@@ -21,7 +21,7 @@ import {SubHeader} from "@features/subHeader";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {useAppSelector, useAppDispatch} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
@@ -113,7 +113,6 @@ const headCells: readonly HeadCell[] = [
 function Inventory() {
     const [openViewDrawer, setOpenViewDrawer] = useState<boolean>(false);
     const router = useRouter();
-    const dispatch = useAppDispatch();
     const {data: session} = useSession();
 
     const {direction} = useAppSelector(configSelector);
