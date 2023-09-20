@@ -29,9 +29,8 @@ import {addPatientSelector, appointmentSelector, CustomInput} from "@features/ta
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from "next/dynamic";
@@ -53,6 +52,7 @@ import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -294,10 +294,10 @@ function OnStepPatient({...props}) {
     })));
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
 

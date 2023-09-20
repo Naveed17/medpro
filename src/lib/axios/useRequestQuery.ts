@@ -12,7 +12,7 @@ export const ReactQueryNoValidateConfig = {
 function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {variables, ...config}: any = {}) {
     const {data: session} = useSession();
     const {jti} = session?.user as any;
-    const queryKey: string[] = [(request?.url ?? []), ...(variables?.query ? [variables.query] : [])];
+    const queryKey: string[] = [...(request?.url ? [request.url] : []), ...(variables?.query ? [variables.query] : [])];
 
     const {isFetching, error, data: response, refetch} = useQuery(
         queryKey,
@@ -27,7 +27,7 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
             }),
             signal
         }!), {
-            enabled: !!request || queryKey.length === 0,
+            enabled: !!request && queryKey.length > 0,
             ...config
         }
     );

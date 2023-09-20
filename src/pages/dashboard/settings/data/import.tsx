@@ -36,7 +36,7 @@ import readXlsxFile from "read-excel-file";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestQueryMutation} from "@lib/axios";
+import {useRequest, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
@@ -146,7 +146,7 @@ function ImportData() {
 
     const {trigger: triggerImportData} = useRequestQueryMutation("/import/data");
 
-    const {data: httpFileResponse} = useRequest({
+    const {data: httpFileResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/med-link/patient/file/${router.locale}`
     });
