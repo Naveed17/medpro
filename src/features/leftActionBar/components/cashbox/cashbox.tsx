@@ -22,20 +22,9 @@ const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Cashbox() {
-
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
-
-    const [filterDate, setFilterDate] = useState(true);
-    const [byPeriod, setByPeriod] = useState(false);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
-    const [loadingInscurances, setLoadingInscurances] = useState(true);
-    const [loadingPM, setLoadingPM] = useState(true);
-    const {currentDate} = useAppSelector(agendaSelector);
-
-    const hours = agendaConfig?.openingHours[0];
     const dispatch = useAppDispatch();
+    
+    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
         selectedBoxes,
         insurances,
@@ -44,6 +33,18 @@ function Cashbox() {
         paymentTypesList,
         filterCB
     } = useAppSelector(cashBoxSelector);
+    const {currentDate} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+    const [filterDate, setFilterDate] = useState(true);
+    const [byPeriod, setByPeriod] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [loadingInscurances, setLoadingInscurances] = useState(true);
+    const [loadingPM, setLoadingPM] = useState(true);
+
+    const hours = agendaConfig?.openingHours[0];
 
     useEffect(() => {
         let boxes = '';
@@ -99,7 +100,6 @@ function Cashbox() {
         setLoadingPM(false)
     }, [paymentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
 
     return (
         <BoxStyled className="container-filter">

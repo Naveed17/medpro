@@ -18,7 +18,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ImportDataMobileCard, NoDataCard} from "@features/card";
 import {
     importDataUpdate,
@@ -34,10 +34,10 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import {resetDuplicated} from "@features/duplicateDetected";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const PatientDetail = dynamic(
     () =>
@@ -99,12 +99,12 @@ function Data() {
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
-    const {trigger: triggerDeleteImportData} = useRequestMutation(null, "/import/data/delete");
+    const {trigger: triggerDeleteImportData} = useRequestQueryMutation("/import/data/delete");
 
-    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest({
+    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
         currentPage: number;
@@ -149,14 +149,16 @@ function Data() {
         triggerDeleteImportData({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`
-        }).then((value) => {
-            if ((value?.data as any).status === "success") {
-                setDeleteDialog(false);
-                setSelectedRow(null);
-                mutateImportData();
-                enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
+        }, {
+            onSuccess: (value) => {
+                if ((value?.data as any).status === "success") {
+                    setDeleteDialog(false);
+                    setSelectedRow(null);
+                    mutateImportData();
+                    enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
+                }
+                setLoading(false);
             }
-            setLoading(false);
         });
     };
 

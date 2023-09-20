@@ -30,7 +30,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestMutation, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
@@ -61,6 +61,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocsConfig() {
 
@@ -108,17 +109,18 @@ function DocsConfig() {
 
     const selectedAll = queryState.type.length === types?.length;
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {trigger: triggerHeaderUpdate} = useRequestQueryMutation("/MP/header/update");
+    const {trigger: triggerHeaderDelete} = useRequestQueryMutation("/MP/header/delete");
 
-    const {data: httpDocumentHeader, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpDocumentHeader, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpTypeResponse} = useRequest({
+    const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}?is_active=0`
-    });
+        url: `/api/private/document/types/${router.locale}`
+    }, {variables: {query: "?is_active=0"}});
 
     const formik = useFormik({
         children: undefined,
@@ -209,16 +211,18 @@ function DocsConfig() {
             form.append('types', typeUuids);
 
         const url = uuid === 'new' ? `${urlMedicalProfessionalSuffix}/header/${router.locale}` : `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
-        trigger({
+        triggerHeaderUpdate({
             method: uuid === 'new' ? "POST" : "PUT",
             url,
             data: form
-        }, TriggerWithoutValidation).then(() => {
-            mutate().then(() => {
-                router.back();
-            });
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("updated"), {variant: 'success'})
+                mutate().then(() => {
+                    router.back();
+                });
+            }
         })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
     }
 
     const openDialog = () => {
@@ -238,11 +242,13 @@ function DocsConfig() {
     }
 
     const remove = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(() => {
-                router.back();
-                enqueueSnackbar(t("removed"), {variant: 'error'})
-            });
+        triggerHeaderDelete(selected.request, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    router.back();
+                    enqueueSnackbar(t("removed"), {variant: 'error'})
+                });
+            }
         });
     }
 

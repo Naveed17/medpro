@@ -36,7 +36,7 @@ import readXlsxFile from "read-excel-file";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
@@ -144,10 +144,7 @@ function ImportData() {
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
 
-    const {trigger: triggerImportData} = useRequestMutation(
-        null,
-        "/import/data"
-    );
+    const {trigger: triggerImportData} = useRequestQueryMutation("/import/data");
 
     const {data: httpFileResponse} = useRequest({
         method: "GET",
@@ -211,8 +208,8 @@ function ImportData() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
             data: params
-        }).then(
-            (value: any) => {
+        }, {
+            onSuccess: (value: any) => {
                 if (value?.data.status === "success") {
                     // refresh on going api
                     mutateOnGoing && mutateOnGoing();
@@ -224,7 +221,7 @@ function ImportData() {
                     router.push("/dashboard/settings/data");
                 }
             },
-            (reason) => {
+            onError: (reason: any) => {
                 if (reason?.response.status === 400) {
                     const errors = Object.entries(reason?.response.data.data).map(
                         ([key, value]: [string, any]) => ({
@@ -236,7 +233,7 @@ function ImportData() {
                 }
                 setLoading(false);
             }
-        );
+        });
     };
 
     const {values, handleSubmit, getFieldProps, setFieldValue} = formik;

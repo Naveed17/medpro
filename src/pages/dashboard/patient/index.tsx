@@ -328,7 +328,7 @@ function Patient() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...({variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+        variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}
     });
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
