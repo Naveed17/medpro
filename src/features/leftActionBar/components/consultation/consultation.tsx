@@ -216,14 +216,13 @@ function Consultation() {
                                         <Tooltip key={insuranceItem?.uuid}
                                                  title={insuranceItem?.name}>
                                             <Avatar variant={"circular"}>
-                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
-
+                                                {allInsurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
                                                     <ImageHandler
-                                                        alt={insuranceItem?.name}
+                                                        alt={insuranceItem?.insurance.name}
                                                         src={allInsurances.find(
                                                             (insurance: any) =>
                                                                 insurance.uuid ===
-                                                                insuranceItem?.uuid
+                                                                insuranceItem?.insurance.uuid
                                                         )?.logoUrl?.url}
                                                     />}
                                             </Avatar>
@@ -252,7 +251,7 @@ function Consultation() {
                                         textOverflow: "ellipsis",
                                         width: "100%"
                                     }}>
-                                    {patient?.first_name} {patient?.lastName}
+                                    {patient?.firstName} {patient?.lastName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
@@ -287,15 +286,13 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
-                                {
-                                    patient?.rest_amount && patient?.rest_amount < 0 &&
-                                    <Chip label={`${patient?.rest_amount} ${devise}`}
-                                          color={"error"}
-                                          icon={<WarningRoundedIcon/>}
-                                          size={"small"}/>
-                                }
                             </Box>
                         )}
+
+                        {patient?.rest_amount !== undefined && patient?.rest_amount < 0 && <Chip label={`${patient?.rest_amount} ${devise}`}
+                               color={"error"}
+                               icon={<WarningRoundedIcon/>}
+                               size={"small"}/>}
                     </Box>
 
                     <Box

@@ -210,7 +210,7 @@ function ConsultationInProgress() {
                 content: card.certificate[0].content,
                 doctor: card.name,
                 patient: `${type} ${
-                    patient?.first_name
+                    patient?.firstName
                 } ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
@@ -254,7 +254,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 uuidDoc: uuidDoc,
                 patient: `${type} ${
-                    patient?.first_name
+                    patient?.firstName
                 } ${patient?.lastName}`,
                 /*mutate: mutateDoc,
                 mutateDetails: mutate*/
@@ -401,7 +401,7 @@ function ConsultationInProgress() {
                                     uuid: patient.uuid,
                                     email: patient.email,
                                     birthdate: patient.birthdate,
-                                    firstName: patient.first_name,
+                                    firstName: patient.firstName,
                                     lastName: patient.lastName,
                                     gender: patient.gender,
                                 },
@@ -544,7 +544,8 @@ function ConsultationInProgress() {
                         changes,
                         anchorEl,
                         mutatePatient,
-                        setAnchorEl
+                        setAnchorEl,
+                        dialog,setDialog
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
@@ -803,7 +804,7 @@ function ConsultationInProgress() {
                                                 name: "Honoraire",
                                                 info: acts.filter(act => act.selected),
                                                 createdAt: moment().format("DD/MM/YYYY"),
-                                                patient: `${type} ${patient?.first_name} ${patient?.lastName}`,
+                                                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                                             });
                                             setOpenDialog(true);
 
@@ -858,7 +859,6 @@ function ConsultationInProgress() {
                         app_uuid,
                         agenda: agenda?.uuid,
                         patient: {
-                            firstName: patient?.first_name,
                             uuid: sheet?.patient,
                             ...patient
                         },

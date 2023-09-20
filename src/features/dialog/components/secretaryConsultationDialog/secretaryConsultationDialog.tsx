@@ -40,7 +40,6 @@ import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 const limit = 255;
 
@@ -53,7 +52,7 @@ function SecretaryConsultationDialog({...props}) {
             t,
             transactions, setTransactions,
             total, setTotal,
-            restAmount, setRestAmount,
+            setRestAmount,
             changes,
             meeting,
             setMeeting,
@@ -93,18 +92,14 @@ function SecretaryConsultationDialog({...props}) {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
 
-    /*const res = (httpAppointmentTransactions as HttpResponse)?.data
-    res && setTransactions(res.transactions ? res.transactions[0] : null);
-    res && setTotal(res.fees ? res.fees : 0)*/
-
-    useEffect(()=>{
+    useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setTransactions(res.transactions ? res.transactions[0] : null);
             setTotal(res.fees ? res.fees : 0)
             setRestAmount(res.rest_amount)
         }
-    },[httpAppointmentTransactions, setTotal, setTransactions])
+    }, [httpAppointmentTransactions, setTotal, setTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const resetDialog = () => {
         setOpenPaymentDialog(false);

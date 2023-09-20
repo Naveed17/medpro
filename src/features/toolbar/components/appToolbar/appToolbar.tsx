@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography, Zoom,} from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
@@ -55,7 +55,8 @@ function AppToolbar({...props}) {
         anchorEl,
         mutatePatient,
         setAnchorEl,
-        setPatientShow
+        setPatientShow,
+        dialog,setDialog
     } = props;
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -429,6 +430,22 @@ function AppToolbar({...props}) {
         setOpenDialog(true);
         setActions(true);
     };
+
+    useEffect(() => {
+        switch (dialog) {
+            case "draw_up_an_order":
+                setInfo(getPrescriptionUI());
+                setState(prescription);
+                break;
+            case "balance_sheet_request":
+                setInfo("balance_sheet_request");
+                setState(checkUp);
+                break;
+        }
+        setDialog("");
+        setOpenDialog(true);
+        setActions(true);
+    }, [checkUp, dialog, prescription, setDialog]);
 
     return (
         <>

@@ -5,7 +5,7 @@ interface PatientPreview {
   documents:number
   email: string
   fiche_id: string
-  first_name:string
+  firstName:string
   hasPhoto:boolean
   insurances:InsuranceModel[]
   lastName:string
