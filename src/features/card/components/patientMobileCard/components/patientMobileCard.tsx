@@ -175,7 +175,6 @@ const CardSection = ({...props}) => {
                                                         patient: data,
                                                         motif: data.nextAppointment.consultationReasons,
                                                         description: "",
-                                                        meeting: false,
                                                         dur: data.nextAppointment.duration,
                                                         status: AppointmentStatus[data.nextAppointment.status]
                                                     }

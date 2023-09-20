@@ -1,5 +1,4 @@
 export {default as useContactType} from "./useContactType"
-export {default as useAppointment} from "./useAppointment";
 export {default as useInsurances} from "./useInsurances";
 export {default as usePermissions} from "./usePermissions";
 export {default as sendRequest} from "./sendRequest";
@@ -9,3 +8,5 @@ export {default as useCountries} from "./useCountries";
 export {default as useAppointmentHistory} from "./useAppointmentHistory";
 export {default as useWidgetModels} from "./useWidgetModels";
 export {default as useDuplicatedDetect} from "./useDuplicatedDetect";
+export {default as useTransactionEdit} from "./useTransactionEdit";
+export {default as useSendNotification} from "./useSendNotification";

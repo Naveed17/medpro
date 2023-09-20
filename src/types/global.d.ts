@@ -9,6 +9,7 @@ declare global {
         fallback?: any;
         pageProps?: any;
         session?: any;
+        dehydratedState?: any;
         sx?: any;
     };
 

@@ -19,12 +19,13 @@ export type ActionBarState = {
         disease?: string;
         isOnline?: string;
         patient?: {
-          gender?: string;
-          birthdate?: string;
-          name?: string;
-          hasDouble?: boolean;
-          insurances?: string[];
-        };
+            gender?: string;
+            birthdate?: string;
+            name?: string;
+            country?: string;
+            hasDouble?: boolean;
+            insurances?: string[];
+        },
         payment?: {
           insurance?: string[];
           dates?: any;

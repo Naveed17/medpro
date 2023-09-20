@@ -14,7 +14,7 @@ import {
     Typography,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, DashLayout, setOngoing} from "@features/base";
 import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {PatientDetail} from "@features/dialog";
@@ -25,7 +25,7 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -35,10 +35,8 @@ import {leftActionBarSelector, PaymentFilter} from "@features/leftActionBar";
 import {DefaultCountry} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {DrawerBottom} from "@features/drawerBottom";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {sendRequest, useInsurances} from "@lib/hooks/rest";
-import useSWRMutation from "swr/mutation";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
+import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useInsurances} from "@lib/hooks/rest";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -122,12 +120,12 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
@@ -155,8 +153,8 @@ function Payment() {
     const [isChecked, setIsChecked] = useState(localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo);
     const [openInfo, setOpenInfo] = React.useState(false);
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger} = useRequestMutation(null, "/payment/cashbox");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
+    const {trigger: triggerCashbox} = useRequestQueryMutation("/payment/cashbox");
 
 
     const handleTableActions = (data: any) => {
@@ -172,29 +170,30 @@ function Payment() {
         const slugConsultation = `/dashboard/consultation/${
             event?.publicId ? event?.publicId : (event as any)?.id
         }`;
-        router
-            .push(slugConsultation, slugConsultation, {locale: router.locale})
+        router.push(slugConsultation, slugConsultation, {locale: router.locale})
             .then(() => {
+                const form = new FormData();
+                form.append('status', "4");
+                form.append('start_date', moment().format("DD-MM-YYYY"));
+                form.append('start_time', moment().format("HH:mm"));
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(
-                        setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm"),
-                        })
-                    );
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(
+                            setTimer({
+                                isActive: true,
+                                isPaused: false,
+                                event,
+                                startTime: moment().utc().format("HH:mm"),
+                            })
+                        );
+                        // refresh on going api
+                        mutateOnGoing();
+                    }
                 });
             });
     };
@@ -205,57 +204,59 @@ function Payment() {
             if (query.includes("format=list")) {
                 dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             }
-            trigger({
+            triggerCashbox({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`
-            }).then((result) => {
-                let amout = 0;
-                const r: any[] = [];
-                const appointments = result?.data as HttpResponse;
-                const filteredStatus = appointments?.data.filter((app: {
-                    status: number;
-                    dayDate: string
-                }) => app.status === 5);
-                const filteredData = filterQuery.day ? filteredStatus?.filter(
-                    (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
+            }, {
+                onSuccess: (result) => {
+                    let amout = 0;
+                    const r: any[] = [];
+                    const appointments = result?.data as HttpResponse;
+                    const filteredStatus = appointments?.data.filter((app: {
+                        status: number;
+                        dayDate: string
+                    }) => app.status === 5);
+                    const filteredData = filterQuery.day ? filteredStatus?.filter(
+                        (app: { status: number; dayDate: string }) => app.dayDate === filterQuery.day) : filteredStatus;
 
-                filteredData?.map((app: any) => {
-                    amout += Number(app.fees ?? 0);
-                    r.push({
-                        uuid: app.uuid,
-                        date: app.dayDate,
-                        time: app.startTime,
-                        name: `${app.patient.firstName} ${app.patient.lastName}`,
-                        insurance: app.patient.insurances,
-                        patient: app.patient,
-                        type: app.type.name,
-                        payment_type: ["ic-argent", "ic-card-pen"],
-                        billing_status: "yes",
-                        amount: app.fees ?? 0
+                    filteredData?.map((app: any) => {
+                        amout += Number(app.fees ?? 0);
+                        r.push({
+                            uuid: app.uuid,
+                            date: app.dayDate,
+                            time: app.startTime,
+                            name: `${app.patient.firstName} ${app.patient.lastName}`,
+                            insurance: app.patient.insurances,
+                            patient: app.patient,
+                            type: app.type.name,
+                            payment_type: ["ic-argent", "ic-card-pen"],
+                            billing_status: "yes",
+                            amount: app.fees ?? 0
+                        });
                     });
-                });
-                setFiltredRows(
-                    filterQuery?.payment && filterQuery?.payment?.insurance
-                        ? [...r].filter((row) => {
-                            const updatedData = filterQuery.payment?.insurance?.filter(
-                                (insur: any) =>
-                                    row.patient.insurances
-                                        ?.map((insurance: any) => insurance.uuid)
-                                        .includes(insur)
-                            );
-                            return (
-                                row.patient.insurances?.length > 0 &&
-                                updatedData &&
-                                updatedData.length > 0
-                            );
-                        })
-                        : [...r]
-                );
-                //setTotal(amout);
-                setLoading(false);
+                    setFiltredRows(
+                        filterQuery?.payment && filterQuery?.payment?.insurance
+                            ? [...r].filter((row) => {
+                                const updatedData = filterQuery.payment?.insurance?.filter(
+                                    (insur: any) =>
+                                        row.patient.insurances
+                                            ?.map((insurance: any) => insurance.uuid)
+                                            .includes(insur)
+                                );
+                                return (
+                                    row.patient.insurances?.length > 0 &&
+                                    updatedData &&
+                                    updatedData.length > 0
+                                );
+                            })
+                            : [...r]
+                    );
+                    //setTotal(amout);
+                    setLoading(false);
+                }
             });
         },
-        [agenda, medical_entity.uuid, router, session, trigger, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
+        [agenda, medical_entity.uuid, router, session, triggerCashbox, dispatch] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     const getFilteredData = (day: string) => {
@@ -329,7 +330,7 @@ function Payment() {
             />
 
             <Box className="container">
-                {!roles.includes("ROLE_SECRETARY") && <Card style={{paddingLeft: 10,marginBottom:10}}>
+                {!roles.includes("ROLE_SECRETARY") && <Card style={{paddingLeft: 10, marginBottom: 10}}>
                     <FormControlLabel
                         label={t('betav')}
                         control={
@@ -339,18 +340,19 @@ function Payment() {
                                     setOpenInfo(true)
                                     const form = new FormData();
                                     form.append("is_demo", (!isChecked).toString());
-                                    trigger(
-                                        {
+                                    triggerCashbox({
                                             method: "PATCH",
                                             url: `${urlMedicalEntitySuffix}/demo/${router.locale}`,
                                             data: form
                                         },
-                                        TriggerWithoutValidation
-                                    ).then(() => {
-                                        dispatch(setOngoing({newCashBox: !isChecked}));
-                                        localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
-                                        setIsChecked(!isChecked);
-                                    });
+                                        {
+                                            onSuccess: () => {
+                                                dispatch(setOngoing({newCashBox: !isChecked}));
+                                                localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
+                                                setIsChecked(!isChecked);
+                                            }
+                                        }
+                                    );
                                 }}
                             />
                         }
@@ -449,11 +451,11 @@ function Payment() {
                         tabIndex={-1}>
                         {[...new Array(6)]
                             .map(
-                                (_,index) =>(
+                                (_, index) => (
                                     <Typography key={`alert${index}`} mb={2}>
-                                        {t(`alert-${index+1}`)}
+                                        {t(`alert-${index + 1}`)}
                                     </Typography>
-                                    ))
+                                ))
                         }
 
                         <Typography>{t('alert-7')}</Typography>
@@ -461,7 +463,7 @@ function Payment() {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>{
+                    <Button onClick={() => {
                         router.replace('/dashboard/cashbox')
                     }}>OK</Button>
                 </DialogActions>

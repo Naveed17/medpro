@@ -30,7 +30,6 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {useRequestMutation} from "@lib/axios";
@@ -39,6 +38,8 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
 import {useSWRConfig} from "swr";
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import {useTransactionEdit} from "@lib/hooks/rest";
+
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {
@@ -52,8 +53,8 @@ function PaymentRow({...props}) {
     const {insurances, mutateTransctions, pmList, hideName} = data;
 
     const {data: session} = useSession();
-
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -105,12 +106,8 @@ function PaymentRow({...props}) {
     }
     const handleSubmit = () => {
         setLoadingRequest(true)
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
+        triggerTransactionEdit(selectedPayment,
             row,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
                 mutateTransctions().then(() => {
                     mutatePatientWallet()
@@ -120,8 +117,8 @@ function PaymentRow({...props}) {
                 })
             }
         );
-
     }
+
     const deleteTransaction = () => {
         const form = new FormData();
         form.append("cash_box", selectedBoxes[0]?.uuid);
@@ -166,7 +163,7 @@ function PaymentRow({...props}) {
             payments,
             payed_amount,
             appointment: row.appointment,
-            patient:row.patient,
+            patient: row.patient,
             total: row?.amount,
             isNew: false
         });
@@ -249,37 +246,38 @@ function PaymentRow({...props}) {
                             },
                         }}>
                         <Icon path="ic-time"/>
-                        <Typography variant="body2">{moment(row.date_transaction).add(1,"hour").format('HH:mm')}</Typography>
+                        <Typography
+                            variant="body2">{moment(row.date_transaction).add(1, "hour").format('HH:mm')}</Typography>
                     </Stack>
 
                 </TableCell>
                 {!hideName &&
 
-                <TableCell>
-                    {row.appointment ? (
-                        <Link
-                            sx={{cursor: "pointer"}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
-                            }}
-                            underline="none">
-                            {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
-                        </Link>
-                    ) : row.patient ? (
-                        <Link
-                            sx={{cursor: "pointer"}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
-                            }}
-                            underline="none">
-                            {`${row.patient.firstName} ${row.patient.lastName}`}
-                        </Link>
-                    ) : (
-                        <Link underline="none">{row.transaction_data[0].data.label}</Link>
-                    )}
-                </TableCell>}
+                    <TableCell>
+                        {row.appointment ? (
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
+                                }}
+                                underline="none">
+                                {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
+                            </Link>
+                        ) : row.patient ? (
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                                }}
+                                underline="none">
+                                {`${row.patient.firstName} ${row.patient.lastName}`}
+                            </Link>
+                        ) : (
+                            <Link underline="none">{row.transaction_data[0].data.label}</Link>
+                        )}
+                    </TableCell>}
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
                         {
@@ -347,8 +345,9 @@ function PaymentRow({...props}) {
                         }}
                                     color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                                     fontWeight={700}>
-                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
-                            style={{fontSize: 10}}>{devise}</span>
+                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount}
+                            <span
+                                style={{fontSize: 10}}>{devise}</span>
                         </Typography>
 
                         {row?.appointment && <Menu
@@ -440,10 +439,10 @@ function PaymentRow({...props}) {
                                             sx={{
                                                 bgcolor: (theme: Theme) =>
                                                     theme.palette.background.paper,
-                                                    "&::before":{
+                                                "&::before": {
                                                     ...(idx > 0 && {
-                                                        height:"calc(100% + 8px)",
-                                                        top:'-70%'
+                                                        height: "calc(100% + 8px)",
+                                                        top: '-70%'
 
                                                     })
                                                 }
@@ -493,7 +492,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.time,'HH:mm').add(1,"hour").format('HH:mm')}</Typography>
+                                                        variant="body2">{moment(col.time, 'HH:mm').add(1, "hour").format('HH:mm')}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell
@@ -515,7 +514,9 @@ function PaymentRow({...props}) {
                                                             color="text.primary"
                                                             variant="body2">
                                                             {t(col.payment_means.name)}
-                                                            {col.status_transaction_data === 3 && <CheckCircleOutlineRoundedIcon style={{fontSize:15}} color={"success"}/>}
+                                                            {col.status_transaction_data === 3 &&
+                                                                <CheckCircleOutlineRoundedIcon style={{fontSize: 15}}
+                                                                                               color={"success"}/>}
                                                         </Typography>}
 
                                                         {!col.payment_means && col.insurance && <Typography
@@ -532,7 +533,8 @@ function PaymentRow({...props}) {
                                                 </Stack>
                                             </TableCell>
                                             <TableCell>
-                                                {col.data.check_number && <Typography>{col.data.check_number}</Typography>}
+                                                {col.data.check_number &&
+                                                    <Typography>{col.data.check_number}</Typography>}
                                             </TableCell>
                                             <TableCell>
                                                 {col.data.carrier && <Typography>{col.data.carrier}</Typography>}

@@ -32,7 +32,7 @@ import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -49,25 +49,21 @@ import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {AppointmentDetail, Dialog, handleDrawerAction} from "@features/dialog";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
-import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useProfilePhoto, useAntecedentTypes, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {useSWRConfig} from "swr";
 import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
-import useSendNotification from "@lib/hooks/rest/useSendNotification";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function a11yProps(index: number) {
     return {
@@ -94,14 +90,15 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
 
     const {direction} = useAppSelector(configSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
-    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         config: agenda,
         sortedData: groupSortedData,
@@ -146,15 +143,13 @@ function PatientDetail({...props}) {
     const [wallet, setWallet] = useState(0);
     const [rest, setRest] = useState(0);
 
-
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const {jti} = session?.user as any;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
-    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
-    const {trigger: triggerPrevious} = useRequestMutation(null, "consultation/previous");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
+    const {trigger: triggerConsultationUpdate} = useRequestQueryMutation("consultation/data/update");
     const {trigger: triggerNotificationPush} = useSendNotification();
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -164,22 +159,22 @@ function PatientDetail({...props}) {
     const {
         data: httpPatientDetailsResponse,
         mutate: mutatePatientDetails
-    } = useRequest(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
     } : null);
 
-    const {data: httpPatientWallet, mutate: walletMutate} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
+    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -241,19 +236,21 @@ function PatientDetail({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
             data: params
-        }).then(() => {
-            const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
-            mutate(mutateUrl);
-            triggerNotificationPush({
-                action: "push",
-                root: "all",
-                message: " ",
-                content: JSON.stringify({
-                    mutate: mutateUrl,
-                    fcm_session: jti
-                })
-            });
-            setLoadingRequest(false);
+        }, {
+            onSuccess: () => {
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
+                invalidateQueries([mutateUrl]);
+                triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: mutateUrl,
+                        fcm_session: jti
+                    })
+                });
+                setLoadingRequest(false);
+            }
         });
     }
 
@@ -266,33 +263,36 @@ function PatientDetail({...props}) {
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
 
-                triggerUpdate({
+                triggerConsultationUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/appointments/${selectedDialog.appUuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
                     data: form
-                }).then((result: any) => {
-                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
-                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
-                    setOpenDialog(false);
-                    setInfo("document_detail");
-                    const res = result.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                }, {
+                    onSuccess: (result: any) => {
+                        medicalEntityHasUser && invalidateQueries([
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`]);
+                        setOpenDialog(false);
+                        setInfo("document_detail");
+                        const res = result.data.data;
+                        let type = "";
+                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                    setState({
-                        uri: res[1],
-                        name: "prescription",
-                        type: "prescription",
-                        info: res[0].prescription_has_drugs,
-                        uuid: res[0].uuid,
-                        uuidDoc: res[0].uuid,
-                        appUuid: selectedDialog.appUuid,
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                    });
-                    setOpenDialog(true);
+                        setState({
+                            uri: res[1],
+                            name: "prescription",
+                            type: "prescription",
+                            info: res[0].prescription_has_drugs,
+                            uuid: res[0].uuid,
+                            uuidDoc: res[0].uuid,
+                            appUuid: selectedDialog.appUuid,
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        });
+                        setOpenDialog(true);
+                    }
                 });
                 break;
         }
@@ -302,22 +302,23 @@ function PatientDetail({...props}) {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        const params = new FormData();
+        params.append("status", "3");
+        params.append("is_first_appointment", filteredEvents?.toString() ?? "false");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "3",
-                is_first_appointment: filteredEvents
-            },
+            data: params,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(
-            () => {
+        }, {
+            onSuccess: () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api
-                mutateOnGoing && mutateOnGoing();
+                mutateOnGoing();
                 // update pending notifications status
                 agenda?.mutate[1]();
                 closePatientDialog();
-            });
+            }
+        });
     }
 
     const handleSwitchUI = () => {
@@ -349,7 +350,6 @@ function PatientDetail({...props}) {
             children: <HistoryPanel {...{
                 t,
                 patient,
-                triggerPrevious,
                 closePatientDialog
             }} />,
             permission: ["ROLE_PROFESSIONAL"]

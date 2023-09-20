@@ -17,9 +17,9 @@ import {
     FormControlLabel, InputAdornment,
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
-import React from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -31,10 +31,10 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@lib/constants";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector, setOngoing} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSWRConfig} from "swr";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {LoadingButton} from "@mui/lab";
 
 const icons = [
     "ic-consultation",
@@ -44,6 +44,7 @@ const icons = [
     "ic-at-home",
     "ic-personal",
 ];
+
 const PaperStyled = styled(Form)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
@@ -101,20 +102,23 @@ function EditMotifDialog({...props}) {
     const {data: user} = session as Session;
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const {trigger} = useRequestMutation(null, "/settings/type");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
-    const dispatch = useAppDispatch();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [loading, setLoading] = useState(false);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
+    const {trigger: triggerTypeAdd} = useRequestQueryMutation("/settings/type/add");
+    const {trigger: triggerTypeUpdate} = useRequestQueryMutation("/settings/type/update");
+
     const mutateMedicalProfessionalData = () => {
-        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`).then(r => dispatch(setOngoing(r.data.data)));
+        invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
     };
 
     const validationSchema = Yup.object().shape({
@@ -142,7 +146,7 @@ function EditMotifDialog({...props}) {
         },
         validationSchema,
         onSubmit: async (values) => {
-            props.closeDraw();
+            setLoading(true);
             const form = new FormData();
             form.append("color", values.color);
             form.append("name", JSON.stringify({[router.locale as string]: values.name}));
@@ -153,28 +157,33 @@ function EditMotifDialog({...props}) {
             );
             form.append("price", values.isFree ? null : values.consultation_fees);
             if (props.data) {
-                medicalEntityHasUser && trigger({
+                medicalEntityHasUser && triggerTypeUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
                     data: form
-                }).then(() => {
-                    enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
-                    mutateEvent();
-                    mutateMedicalProfessionalData()
-                }).catch((error) => {
-                    enqueueSnackbar(error, {variant: "error"});
+                }, {
+                    onSuccess: () => {
+                        console.log("onSuccess")
+                        enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
+                        mutateEvent();
+                        mutateMedicalProfessionalData();
+                        props.closeDraw();
+                        setLoading(false);
+                    }
                 });
             } else {
-                medicalEntityHasUser && trigger(
-                    {
-                        method: "POST",
-                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
-                        data: form
-                    }).then(() => {
-                    enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
-                    mutateEvent();
-                }).catch((error) => {
-                    enqueueSnackbar(error, {variant: "error"});
+                medicalEntityHasUser && triggerTypeAdd({
+                    method: "POST",
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
+                        mutateEvent();
+                        props.closeDraw();
+
+                        setLoading(false);
+                    }
                 });
             }
         },
@@ -351,9 +360,9 @@ function EditMotifDialog({...props}) {
                     <Button onClick={props.closeDraw}>
                         {t("motifType.dialog.cancel")}
                     </Button>
-                    <Button type="submit" variant="contained" color="primary">
+                    <LoadingButton {...{loading}} type="submit" variant="contained" color="primary">
                         {t("motifType.dialog.save")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </PaperStyled>
         </FormikProvider>

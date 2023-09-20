@@ -34,7 +34,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
@@ -156,13 +156,13 @@ function PlacesDetail() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const uuind = router.query.uuid;
 
-    const {trigger} = useRequestMutation(null, "/settings/place");
-    const {data, mutate} = useRequest(uuind !== "new" ? {
+    const {trigger: triggerPlaceUpdate} = useRequestQueryMutation("/settings/place/update");
+    const {data, mutate} = useRequestQuery(uuind !== "new" ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`
     } : null);
 
-    const {data: httpStateResponse} = useRequest({
+    const {data: httpStateResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`
     });
@@ -247,18 +247,18 @@ function PlacesDetail() {
                 url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger({
-                    method,
-                    data: form,
-                    url
-                },
-                {revalidate: true, populateCache: true}
-            ).then((r: any) => {
-                if (r.status === 200 || r.status === 201) {
-                    mutate();
-                    agendaConfig?.mutate[0]();
-                    router.back();
-                    setLoading(false);
+            triggerPlaceUpdate({
+                method,
+                data: form,
+                url
+            }, {
+                onSuccess: (r: any) => {
+                    if (r.status === 200 || r.status === 201) {
+                        mutate();
+                        agendaConfig?.mutate[0]();
+                        router.back();
+                        setLoading(false);
+                    }
                 }
             });
         },
@@ -274,24 +274,28 @@ function PlacesDetail() {
     } = formik;
 
     const getCities = (state: string) => {
-        trigger({
+        triggerPlaceUpdate({
             method: "GET",
             url: `/api/public/places/state/${state}/cities/${router.locale}`
-        }).then((r: any) => {
-            setCities(r.data.data);
+        }, {
+            onSuccess: (r: any) => {
+                setCities(r.data.data);
+            }
         });
-    };
+    }
 
     const initialCites = useCallback(
         (adr: any) => {
-            trigger({
+            triggerPlaceUpdate({
                 method: "GET",
                 url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
-            }).then((r: any) => {
-                setCities(r.data.data);
-                setFieldValue("city", adr.address.city.uuid);
+            }, {
+                onSuccess: (r: any) => {
+                    setCities(r.data.data);
+                    setFieldValue("city", adr.address.city.uuid);
+                }
             });
-        }, [router, setFieldValue, trigger]);
+        }, [router, setFieldValue, triggerPlaceUpdate]);
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -304,7 +308,7 @@ function PlacesDetail() {
             }
         })
         setAllDays(true)
-    };
+    }
 
     const cleanData = () => {
         Object.keys(horaires[0].openingHours).forEach((day) => {
@@ -314,13 +318,13 @@ function PlacesDetail() {
             );
         });
         setHoraires([...horaires]);
-    };
+    }
 
     const onChangeState = (event: SelectChangeEvent) => {
         setFieldValue("town", event.target.value);
         setFieldValue("city", "");
         getCities(event.target.value);
-    };
+    }
 
     const handleAddPhone = () => {
         const phones = [
@@ -335,7 +339,7 @@ function PlacesDetail() {
             }
         ];
         setFieldValue("phones", phones);
-    };
+    }
 
     const handleRemovePhone = (props: number) => {
         const phones = values.phones.filter((item, index) => index !== props);

@@ -30,6 +30,7 @@ function PaymentDrawer({...props}) {
     const status = AppointmentStatus[data?.appointment?.status];
     const theme = useTheme<Theme>();
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
+
     const openPutTransactionDialog = () => {
         let payments: any[] = [];
         let payed_amount = 0

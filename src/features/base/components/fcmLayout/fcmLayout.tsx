@@ -34,10 +34,10 @@ import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useSWRConfig} from "swr";
+import {useRequestQueryMutation} from "@lib/axios";
+import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -54,8 +54,9 @@ function FcmLayout({...props}) {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {mutate} = useSWRConfig();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
-    const {mutate: mutateOnGoing, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
 
@@ -72,7 +73,7 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
@@ -95,7 +96,7 @@ function FcmLayout({...props}) {
                             localStorage.removeItem("import-data-progress");
                             importData.mutate && importData.mutate();
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             closeSnackbar();
                             enqueueSnackbar((data.body.progress === -1 ?
                                     translationCommon.import_data.failed : translationCommon.import_data.end),
@@ -134,13 +135,13 @@ function FcmLayout({...props}) {
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             break;
                         case "consultation":
                             // refresh agenda
                             dispatch(setLastUpdate(data));
                             // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
+                            mutateOnGoing();
                             const event = {
                                 publicId: data.body.appointment?.uuid,
                                 title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
@@ -236,7 +237,7 @@ function FcmLayout({...props}) {
             if (prodEnv && remoteConfig) {
                 fetchAndActivate(remoteConfig).then(() => {
                     const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
-                    if (config.smartlook) {
+                    if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
                         // identify smartlook user
                         smartlookClient.identify(general_information.uuid, {
                             name: `${general_information.firstName} ${general_information.lastName}`,
@@ -249,7 +250,6 @@ function FcmLayout({...props}) {
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
     useEffect(() => {
         // Update notifications popup
         const localStorageNotifications = localStorage.getItem("notifications");
@@ -261,14 +261,18 @@ function FcmLayout({...props}) {
     }, [dispatch])
 
     useEffect(() => {
-        setToken();
-        // Event listener that listens for the push notification event in the background
-        if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
-            navigator.serviceWorker.addEventListener("message", (event) => {
-                console.log("event for the service worker", JSON.parse(event.data.data.detail));
-            });
+        if (agendaConfig) {
+            setToken();
+            // Event listener that listens for the push notification event in the background
+            if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                });
+            }
         }
+    }, [agendaConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
                 // when we're back online
@@ -310,8 +314,7 @@ function FcmLayout({...props}) {
                         }
                     }
                 }}
-                aria-labelledby="draggable-dialog-title"
-            >
+                aria-labelledby="draggable-dialog-title">
                 {dialogAction !== "confirm-dialog" ? <>
                         <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
                             Fin de consultation
@@ -383,13 +386,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
+                            const form = new FormData();
+                            form.append('status', "1");
                             updateAppointmentStatus({
                                 method: "PATCH",
-                                data: {
-                                    status: "1"
-                                },
+                                data: form,
                                 url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
-                            } as any);
+                            });
                         }}
                     />}
             </Dialog>

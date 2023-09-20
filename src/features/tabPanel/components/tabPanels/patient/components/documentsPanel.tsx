@@ -33,7 +33,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -93,8 +93,6 @@ function DocumentsPanel({...props}) {
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
 
-    const {trigger: triggerQuote} = useRequestMutation(null, "/patient/quote");
-
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -110,16 +108,19 @@ function DocumentsPanel({...props}) {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {medical_professional} = useMedicalProfessionalSuffix();
 
-    const {data: httpAppDocPatientResponse} = useRequest(medicalEntityHasUser && patient ? {
+    const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
+
+    const {data: httpAppDocPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
-    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequest({
+    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequestQuery(patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/quotes/${router.locale}`
-    });
-    const {data: httpProfessionalsActs} = useRequest(medical_professional ? {
+    } : null);
+
+    const {data: httpProfessionalsActs} = useRequestQuery(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
     } : null);
@@ -164,9 +165,9 @@ function DocumentsPanel({...props}) {
             title: "Documents du patient",
             children:
                 <>
-                    <Grid container>
+                    <Grid container spacing={1}>
                         {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} spacing={1} m={1}
+                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} m={1}
                                   alignItems={"center"}>
                                 <DocumentCard onClick={() => {
                                     showDoc(card)
@@ -175,11 +176,11 @@ function DocumentsPanel({...props}) {
                         )}
                     </Grid>
 
-                    <Grid container>
+                    <Grid container spacing={1}>
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc: MedicalDocuments) =>
                                 doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <Grid key={`doc-item-${idx}`} item md={4} xs={12} spacing={1} m={1}
+                                <Grid key={`doc-item-${idx}`} item md={4} xs={12}  m={1}
                                       alignItems={"center"}
                                       sx={{
                                           "& .sub-title": {
@@ -302,23 +303,26 @@ function DocumentsPanel({...props}) {
             form.append("notes", "");
             form.append("quote_items", JSON.stringify(rows));
 
-            triggerQuote({
+            triggerQuoteUpdate({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${router.locale}`,
                 data: form
-            }).then(() => {
-                mutateQuotes().then(() => {
-                    setOpenQuoteDialog(false)
-                    showQuote("", acts.filter(act => act.selected));
-                    let _acts = [...acts]
-                    _acts.map(act => {
-                        act.selected = false
+            }, {
+                onSuccess: () => {
+                    mutateQuotes().then(() => {
+                        setOpenQuoteDialog(false)
+                        showQuote("", acts.filter(act => act.selected));
+                        let _acts = [...acts]
+                        _acts.map(act => {
+                            act.selected = false
+                        })
+                        setActs([..._acts])
                     })
-                    setActs([..._acts])
-                })
+                }
             });
         }
     }
+
     const showQuote = (uuid: string, rows: AppointmentActModel[]) => {
         let type = "";
         if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -478,9 +482,9 @@ function DocumentsPanel({...props}) {
                                     </Toolbar>
                                 </AppBar>
 
-                                <Grid container>
+                                <Grid container spacing={1}>
                                     {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                        <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} spacing={1} m={1}
+                                        <Grid key={`doc-item-${idx}`} item md={3.6} xs={12}  m={1}
                                               alignItems={"center"}>
                                             <DocumentCard
                                                 onClick={() => {

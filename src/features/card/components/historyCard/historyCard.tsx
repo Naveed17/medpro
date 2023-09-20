@@ -57,7 +57,6 @@ export default function HistoryCard({...props}) {
                                 patient: patient,
                                 motif: row.consultationReasons,
                                 description: "",
-                                meeting: false,
                                 status
                             }
                         }

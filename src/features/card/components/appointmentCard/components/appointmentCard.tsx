@@ -16,8 +16,7 @@ import {
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
@@ -36,6 +35,7 @@ import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
 import {LocaleFnsProvider} from "@lib/localization";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -50,13 +50,16 @@ function AppointmentCard({...props}) {
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        variables: {query: "?sort=true"}
+    });
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
     const [instruction, setInstruction] = useState(data.instruction);
@@ -83,11 +86,13 @@ function AppointmentCard({...props}) {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            if (onDataUpdated) {
-                onDataUpdated();
-            } else {
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
+        }, {
+            onSuccess: () => {
+                if (onDataUpdated) {
+                    onDataUpdated();
+                } else {
+                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
+                }
             }
         });
     }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
@@ -112,14 +117,16 @@ function AppointmentCard({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params
-        }).then(() => mutateConsultReason().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                handleReasonChange([...reason, reasonsUpdated[0]]);
-            }
-            setLoadingRequest(false);
-        }));
+        }, {
+            onSuccess: () => mutateConsultReason().then((result: any) => {
+                const {status} = result?.data;
+                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                if (status === "success") {
+                    handleReasonChange([...reason, reasonsUpdated[0]]);
+                }
+                setLoadingRequest(false);
+            })
+        });
     }
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

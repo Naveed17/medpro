@@ -11,7 +11,7 @@ import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequest, useRequestMutation, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -24,7 +24,7 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
 import {toggleSideBar} from "@features/menu";
-import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
+import {useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
@@ -34,12 +34,11 @@ import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/con
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {ActionMenu} from "@features/menu";
+import {agendaSelector} from "@features/calendar";
+import {useTransactionEdit} from "@lib/hooks/rest";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -50,10 +49,12 @@ function WaitingRoom() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -102,22 +103,15 @@ function WaitingRoom() {
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
-    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+    const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
+    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
 
-    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
-    } : null, SWRNoValidateConfig);
-
-    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
+    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`
     });
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
         setContextMenu(
@@ -135,12 +129,8 @@ function WaitingRoom() {
 
     const handleSubmit = () => {
         setLoadingRequest(true)
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
+        triggerTransactionEdit(selectedPayment,
             row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
                 mutateWaitingRoom().then(() => {
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});
@@ -165,11 +155,13 @@ function WaitingRoom() {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutateWaitingRoom();
-            // refresh on going api
-            mutateOnGoing && mutateOnGoing();
-            setLoadingRequest(false);
+        }, {
+            onSuccess: () => {
+                mutateWaitingRoom();
+                // refresh on going api
+                mutateOnGoing();
+                setLoadingRequest(false);
+            }
         });
     }
     const startConsultation = (row: any) => {
@@ -183,24 +175,26 @@ function WaitingRoom() {
             };
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                const form = new FormData();
+                form.append('status', '4');
+                form.append('start_date', moment().format("DD-MM-YYYY"));
+                form.append('start_time', moment().format("HH:mm"));
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event.publicId}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        dispatch(setTimer({
+                                isActive: true,
+                                isPaused: false,
+                                event,
+                                startTime: moment().utc().format("HH:mm")
+                            }
+                        ));
+                        // refresh on going api
+                        mutateOnGoing();
+                    }
                 });
             });
         } else {
@@ -220,14 +214,18 @@ function WaitingRoom() {
                 nextConsultation(row);
                 break;
             case "onLeaveWaitingRoom":
+                const form = new FormData();
+                form.append('status', '1');
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {status: "1"},
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
-                } as any).then(() => {
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
-                    mutateWaitingRoom();
+                }, {
+                    onSuccess: () => {
+                        // refresh on going api
+                        mutateOnGoing();
+                        mutateWaitingRoom();
+                    }
                 });
                 break;
             case "onPatientDetail":
@@ -301,16 +299,18 @@ function WaitingRoom() {
     }
 
     const submitPreConsultationData = () => {
+        const form = new FormData();
+        form.append('modal_uuid', model);
+        form.append('modal_data', localStorage.getItem(`Modeldata${row?.uuid}`) as string);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${row?.uuid}`) as string
+            data: form
+        }, {
+            onSuccess: () => {
+                localStorage.removeItem(`Modeldata${row?.uuid}`);
+                setOpenPreConsultationDialog(false);
             }
-        } as any).then(() => {
-            localStorage.removeItem(`Modeldata${row?.uuid}`);
-            setOpenPreConsultationDialog(false);
         });
     }
 

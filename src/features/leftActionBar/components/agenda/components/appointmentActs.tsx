@@ -3,13 +3,13 @@ import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
 import React, {useCallback, useState} from "react";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {Autocomplete, Divider, Stack, TextField} from "@mui/material";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import MenuItem from "@mui/material/MenuItem";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FormControl from "@mui/material/FormControl";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentActs({...props}) {
     const {OnSearch} = props;
@@ -22,10 +22,10 @@ function AppointmentActs({...props}) {
     const {t} = useTranslation('common');
     const {query: filter} = useAppSelector(leftActionBarSelector);
 
-    const {data: httpActSpeciality} = useRequest(medical_professional ? {
+    const {data: httpActSpeciality} = useRequestQuery(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleOnSearch = useCallback((value: any) => {
         OnSearch(value);

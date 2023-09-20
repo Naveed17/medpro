@@ -44,6 +44,7 @@ function PaymentMobileCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+
     const openFeesPopover = (event: React.MouseEvent<any>) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
@@ -58,11 +59,13 @@ function PaymentMobileCard({...props}) {
                   // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
                 null
         );
-    };
+    }
+
     const handleClose = () => {
         setAnchorEl(null);
         setContextMenu(null);
-    };
+    }
+
     return (
         <PaymentMobileCardStyled
             sx={{

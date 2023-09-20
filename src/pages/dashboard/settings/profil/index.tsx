@@ -29,7 +29,7 @@ import {SubHeader} from "@features/subHeader";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {checkListSelector} from "@features/checkList";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
@@ -39,17 +39,16 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
-import {useSWRConfig} from "swr";
 
 function Profil() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {mutate} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("settings");
     const {direction} = useAppSelector(configSelector);
@@ -68,12 +67,12 @@ function Profil() {
     const [speciality, setSpeciality] = useState<string>("");
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
-    const initialData = Array.from(new Array(3));
 
+    const initialData = Array.from(new Array(3));
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/settings");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/settings/profile/update");
 
     useEffect(() => {
         if (medicalProfessionalData) {
@@ -102,15 +101,13 @@ function Profil() {
 
     const [dialogContent, setDialogContent] = useState("");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
-
     const dialogClose = () => {
         setOpen(false);
-    };
+    }
 
     const mutateMedicalProfessionalData = () => {
-        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`);
-    };
+        invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
+    }
 
     const dialogSave = () => {
         setOpen(false);
@@ -150,7 +147,7 @@ function Profil() {
             default:
                 break;
         }
-    };
+    }
 
     const dialogOpen = (action: string) => {
         setDialogContent(action);
@@ -171,47 +168,57 @@ function Profil() {
                 break;
         }
         setOpen(true);
-    };
+    }
 
     const editQualification = (qualif: string) => {
         const form = new FormData();
         form.append("qualifications", qualif);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/qualifications/${router.locale}`,
             data: form
-        }).then(() => mutateMedicalProfessionalData());
-    };
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editInscurance = (inscurance: string) => {
         const form = new FormData();
         form.append("insurance", inscurance);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/insurance/${router.locale}`,
             data: form
-        }).then(() => mutateMedicalProfessionalData());
-    };
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editLanguages = (languages: string) => {
         const form = new FormData();
         form.append("languages", languages);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/languages/${router.locale}`,
             data: form
-        }).then(() => mutateMedicalProfessionalData());
-    };
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editPaymentMeans = (paymentMeans: string) => {
         const form = new FormData();
         form.append("paymentMeans", paymentMeans);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/paymentMeans/${router.locale}`,
             data: form
-        }).then(() => mutateMedicalProfessionalData());
-    };
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

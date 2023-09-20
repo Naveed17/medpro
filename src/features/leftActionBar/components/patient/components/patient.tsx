@@ -12,25 +12,33 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, InsuranceFilter, leftActionBarSelector,
+    AppointmentReasonsFilter, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRouter} from "next/router";
 import {setSelectedRows} from "@features/table";
-import {prepareSearchKeys} from "@lib/hooks";
+import {batch} from "react-redux";
 
 function Patient() {
-    const router = useRouter();
     const dispatch = useAppDispatch();
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {query: filter} = useAppSelector(leftActionBarSelector);
 
-    const [opened, setOpend] = useState("patient");
+    const handleFilterChange = (data: any) => {
+        window.history.replaceState({
+            ...window.history.state,
+            as: "/dashboard/patient?page=1",
+            url: "/dashboard/patient?page=1"
+        }, '', "/dashboard/patient?page=1");
+        batch(() => {
+            dispatch(setSelectedRows([]));
+            dispatch(setFilter(data));
+        });
+    }
+
     const [dataPatient, setDataPatient] = useState([
         {
             heading: {
@@ -43,10 +51,7 @@ function Patient() {
                 <FilterRootStyled>
                     <PatientFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            router.replace("/dashboard/patient?page=1", "/dashboard/patient", {shallow: true}).then(() => {
-                                dispatch(setSelectedRows([]));
-                                dispatch(setFilter({patient: data.query}));
-                            });
+                            handleFilterChange({patient: data.query});
                         }}
                         item={{
                             heading: {
@@ -84,17 +89,7 @@ function Patient() {
                 <InsuranceFilter
                     {...{t}}
                     OnSearch={(data: { query: any }) => {
-                        const queryData = prepareSearchKeys({
-                            ...filter,
-                            patient: {
-                                ...filter?.patient,
-                                ...(data.query.insurance && {insurances: data.query.insurance.join(",")})
-                            }
-                        } as any);
-                        router.replace({
-                            pathname: '/dashboard/patient?page=1',
-                            ...(queryData.length > 0 && {query: {params: queryData}})
-                        }, "/dashboard/patient", {shallow: true});
+                        handleFilterChange({patient: data.query});
                     }}/>
             ),
         },
@@ -106,11 +101,7 @@ function Patient() {
             },
             expanded: false,
             children: (<AppointmentReasonsFilter OnSearch={(data: any) => {
-                const queryData = prepareSearchKeys(data);
-                router.replace({
-                    pathname: '/dashboard/patient?page=1',
-                    ...(queryData.length > 0 && {query: {params: queryData}})
-                }, "/dashboard/patient", {shallow: true});
+                handleFilterChange(data);
             }}/>)
         },
         {
@@ -121,11 +112,7 @@ function Patient() {
             },
             expanded: false,
             children: (<AppointmentActs OnSearch={(data: any) => {
-                const queryData = prepareSearchKeys(data);
-                router.replace({
-                    pathname: '/dashboard/patient?page=1',
-                    ...(queryData.length > 0 && {query: {params: queryData}})
-                }, "/dashboard/patient", {shallow: true});
+                handleFilterChange(data);
             }}/>)
         },
         {
@@ -136,11 +123,7 @@ function Patient() {
             },
             expanded: false,
             children: (<AppointmentDisease OnSearch={(data: any) => {
-                const queryData = prepareSearchKeys(data);
-                router.replace({
-                    pathname: '/dashboard/patient?page=1',
-                    ...(queryData.length > 0 && {query: {params: queryData}})
-                }, "/dashboard/patient", {shallow: true});
+                handleFilterChange(data);
             }}/>)
         }
     ]);
@@ -157,16 +140,9 @@ function Patient() {
                 <FilterRootStyled>
                     <PlaceFilter
                         OnSearch={(data: { query: ActionBarState }) => {
-                            const queryData = prepareSearchKeys({patient: data.query} as any);
-                            router.replace({
-                                pathname: '/dashboard/patient?page=1',
-                                ...(queryData.length > 0 && {query: {params: queryData}})
-                            }, "/dashboard/patient", {shallow: true});
+                            handleFilterChange({patient: data.query});
                         }}
                         item={collapse[1]}
-                        setOpend={(ev: string) => {
-                            setOpend(ev);
-                        }}
                         t={t}
                         keyPrefix={"filter."}
                     />

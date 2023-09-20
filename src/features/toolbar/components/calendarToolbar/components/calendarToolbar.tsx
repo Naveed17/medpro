@@ -121,18 +121,15 @@ function CalendarToolbar({...props}) {
                                 svg: {
                                     transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
                                 },
-                            }}
-                        >
+                            }}>
                             <IconButton
                                 onClick={OnClickDatePrev}
-                                aria-label="back"
-                            >
+                                aria-label="back">
                                 <ArrowBackIosNewIcon fontSize="small"/>
                             </IconButton>
                             <IconButton
                                 onClick={OnClickDateNext}
-                                aria-label="next"
-                            >
+                                aria-label="next">
                                 <ArrowForwardIosIcon fontSize="small"/>
                             </IconButton>
                         </Box>

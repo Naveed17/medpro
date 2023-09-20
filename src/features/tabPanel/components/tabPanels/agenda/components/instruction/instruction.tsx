@@ -28,7 +28,7 @@ import {
     setAppointmentInstruction,
     setAppointmentSubmit
 } from "@features/tabPanel";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestMutation, useRequestQueryMutation} from "@lib/axios";
 import moment from "moment-timezone";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -72,7 +72,7 @@ function Instruction({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger} = useRequestMutation(null, "/calendar/addPatient");
+    const {trigger: triggerAddPatient} = useRequestQueryMutation("/agenda/patient/add");
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
@@ -109,8 +109,7 @@ function Instruction({...props}) {
         form.append('duration', duration as string);
         form.append('global_instructions', description);
         {
-            smsRappel &&
-            form.append('reminder', JSON.stringify([{
+            smsRappel && form.append('reminder', JSON.stringify([{
                 "type": rappelType,
                 "time": moment.utc(timeRappel).format('HH:mm'),
                 "number_of_day": rappel,
@@ -119,15 +118,17 @@ function Instruction({...props}) {
             }]))
         }
 
-        trigger({
+        triggerAddPatient({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
             data: form
-        }).then((value: any) => {
-            if (value?.data.status === 'success') {
-                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
-                dispatch(setStepperIndex(0));
-                onNext(currentStepper + 1);
+        }, {
+            onSuccess: (value: any) => {
+                if (value?.data.status === 'success') {
+                    dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                    dispatch(setStepperIndex(0));
+                    onNext(currentStepper + 1);
+                }
             }
         });
     }
