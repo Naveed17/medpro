@@ -182,8 +182,6 @@ export default function TeethWidget({...props}) {
         const {target: {value}} = event;
         traitements[traitement].acts = typeof value === 'string' ? value.split(',') : value;
 
-        console.log(traitements)
-
         let _acts = [...acts]
         _acts.forEach(act => {
             if (act.teeth) {
