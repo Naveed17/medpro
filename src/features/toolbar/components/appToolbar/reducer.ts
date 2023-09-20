@@ -20,7 +20,7 @@ export type MenuState = {
     mutate: any,
     mutateDoc: any,
     appointement: any,
-    patient: PatientPreview | null
+    patient: PatientModel | null
     selectedDialog: any
     selectedApp: string
     listen: string;

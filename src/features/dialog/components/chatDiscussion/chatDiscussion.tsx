@@ -1,12 +1,9 @@
-import {Box, Chip, Fab, IconButton, Stack, TextField, Typography} from '@mui/material'
+import {Box, Chip, Fab, IconButton, Stack, TextField} from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {useEffect, useRef, useState} from 'react';
 import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@lib/axios";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {consultationSelector} from "@features/toolbar";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -20,15 +17,16 @@ function ChatDiscussionDialog({...props}) {
     const {data} = props;
 
     const {
-        appointment, exam, reasons, app_uuid, setOpenChat, setInfo,
-        setState, router,
+        app_uuid,
+        setOpenChat,
+        setInfo,
+        setState,
+        patient,
+        router,
         setOpenDialog
     } = data
     const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
-    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const {patientAntecedent} = useAppSelector(consultationSelector);
 
     const [text, setText] = useState<string>("");
     const [messages, setMessages] = useState<any[]>([]);
@@ -52,81 +50,87 @@ function ChatDiscussionDialog({...props}) {
 
     const {data: httpChatResponse} = useRequest({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/patients/${appointment.patient.uuid}/chat`
+        url: `${urlMedicalEntitySuffix}/patients/${patient}/chat`
     }, SWRNoValidateConfig);
-    const msgGenerator = (todo: string) => {
-        let msg = '';
-        if (medicalProfessionalData) {
-            const name = medicalProfessionalData[0].medical_professional.publicName;
-            msg = `${name}, ${t('chat.im')} ${medicalProfessionalData[0]?.medical_professional.specialities[0].speciality.name}, ${t('chat.mypatient')} ${appointment.patient.firstName} ${appointment.patient.lastName}`;
-            if (appointment.patient.birthdate)
-                msg += ` ${getBirthdayFormat(appointment.patient, t).trim()} `;
-            if (appointment.patient.gender)
-                msg += ` ${t('chat.sexe')} ${appointment.patient.gender === 'F' ? t('chat.feminine') : t('chat.male')}`;
+    /*
+        const msgGenerator = (todo: string) => {
+            let msg = '';
+            if (medicalProfessionalData) {
+                const name = medicalProfessionalData[0].medical_professional.publicName;
+                msg = `${name}, ${t('chat.im')} ${medicalProfessionalData[0]?.medical_professional.specialities[0].speciality.name}, ${t('chat.mypatient')} ${appointment.patient.firstName} ${appointment.patient.lastName}`;
+                if (appointment.patient.birthdate)
+                    msg += ` ${getBirthdayFormat(appointment.patient, t).trim()} `;
+                if (appointment.patient.gender)
+                    msg += ` ${t('chat.sexe')} ${appointment.patient.gender === 'F' ? t('chat.feminine') : t('chat.male')}`;
 
-            msg += ` ${t('chat.date')} ${appointment.day_date}`
-            if (exam.motif.length > 0) {
-                msg += ` ${t('chat.reason')} ${reasons.find((reason: {
-                    uuid: any;
-                }) => reason.uuid === exam.motif[0]).name}` //UUID
-            }
-            if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
-                let txtModel = ''
-                const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
-                Object.keys(models).forEach(key => {
-                    if (models[key])
-                        txtModel += ` ${key}=${models[key]}`;
-                })
-                if (txtModel.length > 0) msg += ` ${t('chat.with')} ${txtModel}`
+                msg += ` ${t('chat.date')} ${appointment.day_date}`
+                if (exam.motif.length > 0) {
+                    msg += ` ${t('chat.reason')} ${reasons.find((reason: {
+                        uuid: any;
+                    }) => reason.uuid === exam.motif[0]).name}` //UUID
+                }
+                if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
+                    let txtModel = ''
+                    const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
+                    Object.keys(models).forEach(key => {
+                        if (models[key])
+                            txtModel += ` ${key}=${models[key]}`;
+                    })
+                    if (txtModel.length > 0) msg += ` ${t('chat.with')} ${txtModel}`
+                }
+
+                if (exam.notes)
+                    msg += `. ${t('chat.observation')}: ${exam.notes}`
+                if (exam.diagnosis)
+                    msg += `. ${t('chat.diagnostic')}: ${exam.diagnosis}`
+                if (exam.disease && exam.disease.length > 0) {
+                    msg += ` ${t('chat.disease')}:`
+                    exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
+                }
+                if (Object.keys(patientAntecedent).length > 0) {
+                    msg += ` .${t('chat.antecedents')}`
+                    Object.keys(patientAntecedent).forEach(antecedent => {
+                        msg += `-${antecedent}: (`
+                        patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
+                            msg += ` ${pa.name},`
+                        })
+                        msg = msg.replace(/.$/, ")")
+                    })
+                }
+                if (appointment.patient.treatment.length > 0) {
+                    msg += ` ${t('chat.treatment')}:`
+                    appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
+                }
+                if (appointment.patient.requestedAnalyses.length > 0) {
+                    msg += `. ${t('chat.analyses')}:`
+                    appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
+                        analyse.hasAnalysis.forEach(ha => {
+                            msg += ` -${ha.analysis.name}`
+                        })
+                    })
+                }
+                if (appointment.patient.requestedImaging.length > 0) {
+                    msg += `. ${t('chat.mi')}:`
+                    appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
+                        ri['medical-imaging']?.forEach(mi => {
+                            msg += ` - ${mi['medical-imaging'].name}`
+                        })
+                    })
+                }
+                msg += `.${todo} (sachant que, Votre réponse en Html dont chaque phrase dans une balise p et le contenu ne doit contient aucune information sur le patient ne sera divulguée pour respecter sa confidentialité et avec la langue francaises seulement. )`
             }
 
-            if (exam.notes)
-                msg += `. ${t('chat.observation')}: ${exam.notes}`
-            if (exam.diagnosis)
-                msg += `. ${t('chat.diagnostic')}: ${exam.diagnosis}`
-            if (exam.disease && exam.disease.length > 0) {
-                msg += ` ${t('chat.disease')}:`
-                exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
-            }
-            if (Object.keys(patientAntecedent).length > 0) {
-                msg += ` .${t('chat.antecedents')}`
-                Object.keys(patientAntecedent).forEach(antecedent => {
-                    msg += `-${antecedent}: (`
-                    patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
-                        msg += ` ${pa.name},`
-                    })
-                    msg = msg.replace(/.$/, ")")
-                })
-            }
-            if (appointment.patient.treatment.length > 0) {
-                msg += ` ${t('chat.treatment')}:`
-                appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
-            }
-            if (appointment.patient.requestedAnalyses.length > 0) {
-                msg += `. ${t('chat.analyses')}:`
-                appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
-                    analyse.hasAnalysis.forEach(ha => {
-                        msg += ` -${ha.analysis.name}`
-                    })
-                })
-            }
-            if (appointment.patient.requestedImaging.length > 0) {
-                msg += `. ${t('chat.mi')}:`
-                appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
-                    ri['medical-imaging']?.forEach(mi => {
-                        msg += ` - ${mi['medical-imaging'].name}`
-                    })
-                })
-            }
-            msg += `.${todo} (sachant que, Votre réponse en Html dont chaque phrase dans une balise p et le contenu ne doit contient aucune information sur le patient ne sera divulguée pour respecter sa confidentialité et avec la langue francaises seulement. )`
+            return msg;
         }
-
-        return msg;
-    }
-    const sendToAI = (todo: string, short: string, msg: { from: string, to: string, message: string }, isDocument: boolean) => {
+    */
+    const sendToAI = (todo: string, short: string, msg: {
+        from: string,
+        to: string,
+        message: string
+    }, isDocument: boolean) => {
         setLoadingResponse(true)
         const form = new FormData();
-        form.append('message', msgGenerator(todo));
+        form.append('message', `${todo} .Votre réponse en Html dont chaque phrase dans une balise p`);
         form.append('short', short ? short : todo);
         form.append('isDocument', isDocument.toString());
         triggerChat({
@@ -135,7 +139,7 @@ function ChatDiscussionDialog({...props}) {
             data: form
         }).then((r) => {
             const res = (r?.data as HttpResponse).data;
-            setMessages([{from: 'chat', to: 'me', message: res.message,short:short ? short:""}, msg, ...messages])
+            setMessages([{from: 'chat', to: 'me', message: res.message, short: short ? short : ""}, msg, ...messages])
             setLoadingResponse(false)
         })
     }
@@ -183,14 +187,14 @@ function ChatDiscussionDialog({...props}) {
 
     useEffect(() => {
         if (httpChatResponse) {
-            let _messages: { from: string, to: string, message: string,short?:string }[] = [];
+            let _messages: { from: string, to: string, message: string, short?: string }[] = [];
             const data = (httpChatResponse as HttpResponse).data;
             data.map((msg: {
                 short: string;
                 request: string; message: string;
             }) => {
                 _messages = [
-                    {from: 'chat', to: 'me', message: msg.message,short:msg.short ? msg.short : msg.request},
+                    {from: 'chat', to: 'me', message: msg.message, short: msg.short ? msg.short : msg.request},
                     {
                         from: 'me',
                         to: 'chat',
@@ -247,15 +251,15 @@ function ChatDiscussionDialog({...props}) {
                                     avatar={''}
                                     side={'right'}
                                     t={t}
-                                    messages={[{text:msg.message}]}
+                                    messages={[{text: msg.message}]}
                                 /> :
                                 <ChatMsg
                                     avatar={''}
                                     side={'left'}
                                     t={t}
-                                    messages={[{text:msg.message,short:msg.short}]}
+                                    messages={[{text: msg.message, short: msg.short}]}
                                     saveDoc={() => {
-                                        saveDoc({text:msg.message,short:msg.short})
+                                        saveDoc({text: msg.message, short: msg.short})
                                     }}
                                 />
                         }

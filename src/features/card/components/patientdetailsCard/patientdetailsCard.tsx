@@ -2,7 +2,8 @@
 import {
     Avatar,
     Box,
-    Button, Chip,
+    Button,
+    Chip,
     IconButton,
     InputBase,
     Skeleton,
@@ -49,7 +50,7 @@ function PatientDetailsCard({...props}) {
         mutateAgenda,
         loading = false,
         setEditableSection,
-        rest,wallet,devise
+        rest, devise
     } = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -231,9 +232,9 @@ function PatientDetailsCard({...props}) {
                                         {...getFieldProps("name")}
                                     />
                                     {rest > 0 && <Chip size="small"
-                                           label={`- ${rest} ${devise}`}
-                                           color={"error"}
-                                           icon={<WarningRoundedIcon/>}/>}
+                                                       label={`- ${rest} ${devise}`}
+                                                       color={"error"}
+                                                       icon={<WarningRoundedIcon/>}/>}
 
                                 </Stack>
                             )}
