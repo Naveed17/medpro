@@ -258,7 +258,6 @@ function PreviewDialog({...props}) {
             el.id = `page${i}`
             el.style.position = "absolute"
             el.style.top = "0"
-            // document.body.appendChild(el)
             if (state && (state.type === 'fees' || state.type === 'quote')) {
                 let total = 0;
                 const elx = document.createElement("table");
@@ -319,10 +318,13 @@ function PreviewDialog({...props}) {
                         lastPos = i + 1;
                         break;
                     }
+
+                    document.body.removeChild(el)
                 }
             }
             updatedPages.push({page: i, content: el})
         }
+/*
         for(let i = 0; i < nbPages; i++){
             let p = document.getElementById(`page${i}`)
             if(p) {
@@ -330,42 +332,9 @@ function PreviewDialog({...props}) {
                 document.body.removeChild(p)
             }
         }
+*/
         setPages(updatedPages);
     }
-
-    /*const getLines = (element: any) => {
-        const clone = element.cloneNode(true);
-        const words = clone.innerText.replaceAll('&nbsp;', '').split(' ');
-        const rows = [];
-        let nbLine = 1;
-        const row = document.createElement('p');
-        row.style.lineHeight = '21px';
-        row.style.width = data.content.maxWidth ? `${data.content.maxWidth - 15}mm` : '115mm'
-        document.body.appendChild(row);
-        for (let word of words) {
-            row.innerHTML += word + ' '
-            if (row.clientHeight > 21) {
-                row.innerHTML = row.innerHTML.slice(0, -1)
-                rows.push({nb: nbLine, row: row.innerHTML})
-                nbLine++
-                row.innerText = word + ' '
-            }
-        }
-        rows.push({nb: nbLine, row: row.innerHTML})
-        document.body.removeChild(row);
-        return rows;
-    }*/
-
-    /*     const countLines = (element: any) => {
-            const clone = element.cloneNode(true);
-            document.body.appendChild(clone);
-            clone.style.height = "auto";
-            clone.style.lineHeight = '21px';
-            const divHeight = clone.offsetHeight
-            const lineHeight = parseInt(clone.style.lineHeight);
-             document.body.removeChild(clone);
-             return divHeight / lineHeight;
-        }*/
 
     useEffect(() => {
         const pageX = document.createElement("div")

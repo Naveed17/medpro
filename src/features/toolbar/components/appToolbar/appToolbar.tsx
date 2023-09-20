@@ -447,6 +447,50 @@ function AppToolbar({...props}) {
         setActions(true);
     }, [checkUp, dialog, prescription, setDialog]);
 
+    useEffect(() => {
+        if (selectedDialog) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                case "medical_prescription_cycle":
+                    setInfo(getPrescriptionUI());
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setActions(true);
+                    break;
+                case "balance_sheet_request":
+                    setInfo("balance_sheet_request");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setActions(true);
+                    break;
+                case "medical_imagery":
+                    setInfo("medical_imagery");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setActions(true);
+                    break;
+                case "write_certif":
+                    setInfo("write_certif");
+                    setState({
+                        name: `${general_information.firstName} ${general_information.lastName}`,
+                        days: '',
+                        uuid: selectedDialog.state.uuid,
+                        content: selectedDialog.state.content,
+                        title: selectedDialog.state.title,
+                        patient: `${selectedDialog.state.patient}`
+                    });
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setActions(true);
+                    break;
+            }
+        }
+    }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
+
+
     return (
         <>
 
