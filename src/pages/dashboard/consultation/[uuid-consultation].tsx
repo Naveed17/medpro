@@ -494,6 +494,7 @@ function ConsultationInProgress() {
             setPatient(data)
         }
     }, [dispatch, httpPatientPreview, sheet?.patient])
+
     useEffect(() => {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
@@ -671,6 +672,7 @@ function ConsultationInProgress() {
                                 medical_professional_uuid,
                                 agenda,
                                 urlMedicalEntitySuffix,
+                                selectedDialog,
                                 app_uuid,
                                 showDoc,
                                 router,

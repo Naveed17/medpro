@@ -3,6 +3,7 @@ import {Box, InputAdornment, Stack, TextField} from "@mui/material";
 import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
 import {useRequest, useRequestMutation} from "@lib/axios";
+import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 
 function FeesTab({...props}) {
 
@@ -65,7 +66,6 @@ function FeesTab({...props}) {
         acts,
         setActs,
         mpActs,
-        total,
         setTotal,
         status = null,
         agenda,
@@ -79,10 +79,10 @@ function FeesTab({...props}) {
 
     const {trigger} = useRequestMutation(null, "edit/fees");
 
-    const {data: httpAppointmentFees} = useRequest({
+    const {data: httpAppointmentFees,mutate} = useRequest({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    });
+    },SWRNoValidateConfig);
 
     const res = (httpAppointmentFees as HttpResponse)?.data
     useEffect(() => {
@@ -100,24 +100,30 @@ function FeesTab({...props}) {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 index > -1 ? _acts[index].selected = true : console.log(act)
             })
+
+            let _total = 0
+            _acts.filter((act: { selected: boolean; }) => act.selected).forEach((act: {
+                fees: number;
+                qte: number;
+            }) => _total += act.fees * act.qte)
+            setTotal(_total);
+
             setActs(_acts)
         }
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
+
+    const saveChanges = (actsList: any[]) => {
+        const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
+
         let _total = 0
-        acts.filter((act: { selected: boolean; }) => act.selected).forEach((act: {
+        actsList.filter((act: { selected: boolean; }) => act.selected).forEach((act: {
             fees: number;
             qte: number;
         }) => _total += act.fees * act.qte)
         setTotal(_total);
-        saveChanges(_total);
-    }, [acts, setTotal]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const saveChanges = (_total: number) => {
-        const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
-
-        acts.filter((act: {
+        actsList.filter((act: {
             selected: boolean;
             uuid: string;
         }) => act.selected && act.uuid !== "consultation_type").forEach((act: {
@@ -134,7 +140,7 @@ function FeesTab({...props}) {
             });
         })
 
-        const app_type = acts.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
+        const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
         let isFree = true;
         let consultationFees = 0;
 
@@ -153,7 +159,7 @@ function FeesTab({...props}) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
-        })
+        }).then(() => {mutate()})
     }
     const editAct = (row: any, from: any) => {
         const act_index = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid)
@@ -163,7 +169,8 @@ function FeesTab({...props}) {
         if (from === 'change')
             acts[act_index] = row
 
-        setActs([...acts])
+        saveChanges([...acts]);
+
     }
 
     return (
