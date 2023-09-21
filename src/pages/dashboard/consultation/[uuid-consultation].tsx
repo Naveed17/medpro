@@ -222,6 +222,8 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
+                documentHeader:card.certificate[0].documentHeader
+
                 /*mutate: mutateDoc,
                 mutateDetails: mutate*/
             });

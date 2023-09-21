@@ -103,7 +103,7 @@ function CertifDialog({...props}) {
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
-        form.append('documentHeader', selectedTemplate);
+        form.append('header', selectedTemplate);
         trigger({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,

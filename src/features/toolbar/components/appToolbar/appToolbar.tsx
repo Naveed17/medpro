@@ -300,7 +300,7 @@ function AppToolbar({...props}) {
             case "write_certif":
                 form.append("content", state.content);
                 form.append("title", state.title);
-                form.append("documentHeader", state.documentHeader);
+                form.append("header", state.documentHeader);
 
                 method = "POST"
                 url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`;
@@ -328,6 +328,8 @@ function AppToolbar({...props}) {
                         days: state.days,
                         name: "certif",
                         type: "write_certif",
+                        documentHeader:state.documentHeader
+
                     });
                     setOpenDialog(true);
                     setActions(false);
