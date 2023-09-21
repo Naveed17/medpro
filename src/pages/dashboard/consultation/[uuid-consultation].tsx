@@ -55,6 +55,7 @@ import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useWidgetModels} from "@lib/hooks/rest";
+import {batch} from "react-redux";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -323,6 +324,10 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
+                batch(() => {
+                    dispatch(resetTimer());
+                    dispatch(openDrawer({type: "view", open: false}));
+                });
                 setActions(false);
                 setTimeout(() => mutateOnGoing());
                 router.push("/dashboard/agenda");
@@ -459,7 +464,10 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
-                dispatch(resetTimer());
+                batch(() => {
+                    dispatch(resetTimer());
+                    dispatch(openDrawer({type: "view", open: false}));
+                });
                 setTimeout(() => mutateOnGoing());
                 sendNotification();
                 checkTransactions();
