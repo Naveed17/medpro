@@ -85,7 +85,8 @@
     "removedoc": "Are you sure?",
     "note_fees": "Fee Note",
     "askRemove": "Do you want to delete",
-    "doc_detail_title": "Document"
+    "doc_detail_title": "Document",
+    "rest": "Sold:"
   },
   "end of consultation": "End of Consultation",
   "cancel": "Cancel",
@@ -134,6 +135,7 @@
     "seeHistory": "View history",
     "patient_observation_history": "History",
     "suivi_image": "Image tracking",
+    "suivi_chiffre": "Numbers tracking",
     "name": "Name",
     "stop": "Finish",
     "Rapport": "Report",

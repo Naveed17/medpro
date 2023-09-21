@@ -115,6 +115,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
             src="/static/icons/Med-logo_.svg"
         />,
     },
+    15: {
+        key: "PATIENT_CANCELED",
+        value: "Annulé",
+        color: "#c92a2a",
+        classColor: "error",
+        icon: <CancelCircleIcon/>,
+    }
 };
 
 export const TableHead = [

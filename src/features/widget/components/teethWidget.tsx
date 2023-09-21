@@ -29,6 +29,11 @@ import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
 import IconUrl from "@themes/urlIcon";
 import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {agendaSelector} from "@features/calendar";
+import {useAppSelector} from "@lib/redux/hooks";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -79,6 +84,12 @@ export default function TeethWidget({...props}) {
     const [absent, setAbsent] = useState<string[]>([]);
     const teeth = of === 'adult' ? adultTeeth : childTeeth;
     const colors = ['#B80000', '#FCCB00', '#008B02', '#006B76', '#1273DE', '#004DCF', '#5300EB', '#EB9694', '#FAD0C3', '#FEF3BD', '#C1E1C5', '#BEDADC']
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger} = useRequestMutation(null, "consultation/end");
+    const router = useRouter();
+    const {config: agenda} = useAppSelector(agendaSelector);
+
 
     useEffect(() => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
@@ -178,12 +189,39 @@ export default function TeethWidget({...props}) {
                 act.selected = false
             }
         });
-        Array.isArray(value) && value.forEach(act => {
-            _acts.find(a => a.uuid === act).selected = true
-            _acts.find(a => a.uuid === act).teeth = true
+        traitements.map(_traitment =>{
+            Array.isArray(_traitment.acts) && _traitment.acts.forEach(act => {
+                _acts.find(a => a.uuid === act).selected = true
+                _acts.find(a => a.uuid === act).teeth = true
+            })
         })
         setActs([..._acts]);
-        localStorage.setItem(`consultation-acts-${appuuid}`, JSON.stringify([..._acts]));
+
+        let res: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
+        _acts.filter((act: {
+            selected: boolean;
+            uuid: string;
+        }) => act.selected && act.uuid !== "consultation_type").forEach((act: {
+            uuid: string;
+            act: { name: string; };
+            qte: number;
+            fees: number;
+        }) => {
+            res.push({
+                act_uuid: act.uuid,
+                name: act.act.name,
+                qte: act.qte,
+                price: act.fees,
+            });
+        })
+
+        const form = new FormData();
+        form.append("acts", JSON.stringify(res));
+        trigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appuuid}/data/${router.locale}`,
+            data: form
+        })
 
         setTraitements([...traitements])
         editStorage(traitements)
