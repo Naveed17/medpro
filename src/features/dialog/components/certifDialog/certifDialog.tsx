@@ -3,9 +3,9 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Box,
-    Button,
-    DialogActions,
-    Divider,
+    Button, Checkbox,
+    DialogActions, DialogContent,
+    Divider, FormControlLabel,
     Grid,
     IconButton,
     List,
@@ -36,6 +36,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
+import Dialog from "@mui/material/Dialog";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -62,6 +63,10 @@ function CertifDialog({...props}) {
     const [selected, setSelected] = useState<any>();
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
+    const [templates, setTemplates] = useState([]);
+    const [openAlert, setOpenAlert] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState("");
+
     const {enqueueSnackbar} = useSnackbar();
 
     const contentBtns = [
@@ -78,10 +83,16 @@ function CertifDialog({...props}) {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
+    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
+    } : null);
+
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
         data.state.title = model.title;
+        data.state.documentHeader = model.documentHeader
         data.setState(data.state)
         setTitle(model.title)
         setSelectedColor([model.color])
@@ -92,6 +103,7 @@ function CertifDialog({...props}) {
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
+        form.append('documentHeader', selectedTemplate);
         trigger({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
@@ -100,10 +112,14 @@ function CertifDialog({...props}) {
             revalidate: true,
             populateCache: true
         }).then(() => {
-            mutate();
+            mutate().then(() => {
+                setOpenAlert(false)
+                setSelectedTemplate('')
+            });
         })
 
     }
+
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -151,6 +167,7 @@ function CertifDialog({...props}) {
         if (httpModelResponse) {
             const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
+            console.log(modelsList)
             modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
                 template.push({
@@ -159,6 +176,7 @@ function CertifDialog({...props}) {
                     title: model.title ? model.title : 'Sans titre',
                     name: model.title ? model.title : 'Sans titre',
                     content: model.content,
+                    documentHeader:model.documentHeader,
                     preview: (stringToHTML as HTMLElement)?.innerHTML
                 });
             });
@@ -177,6 +195,13 @@ function CertifDialog({...props}) {
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(()=>{
+        if (httpDocumentHeader) {
+            const docInfo = (httpDocumentHeader as HttpResponse).data
+            console.log(docInfo);
+            setTemplates(docInfo)
+        }
+    },[httpDocumentHeader])
     const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -249,19 +274,10 @@ function CertifDialog({...props}) {
                                     branding: false,
                                     statusbar: false,
                                     menubar: false,
-                                    plugins: [
-                                        'advlist autolink lists link image charmap print preview anchor',
-                                        'searchreplace visualblocks code fullscreen textcolor',
-                                        'insertdatetime media table paste code help wordcount'
-                                    ],
-                                    toolbar: 'undo redo | formatselect | ' +
-                                        'bold italic backcolor forecolor | alignleft aligncenter ' +
-                                        'alignright alignjustify | bullist numlist outdent indent | ' +
-                                        'removeformat | help',
+                                    plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
+                                    toolbar: "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist ",
                                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-
-                                }}
-                            />
+                                }}/>
                         </Stack>
                     </List>
                 </Grid>
@@ -271,7 +287,7 @@ function CertifDialog({...props}) {
                         <Button sx={{ml: 'auto', height: 1}}
                                 size='small'
                                 disabled={title.length === 0 || value.length === 0}
-                                onClick={saveModel}
+                                onClick={()=>{setOpenAlert(true)}}
                                 startIcon={<AddIcon/>}>
                             {t('consultationIP.createAsModel')}
                         </Button>
@@ -384,6 +400,32 @@ function CertifDialog({...props}) {
                               </DialogActions>
                           }
             />
+
+            <Dialog
+                open={openAlert}
+                onClose={()=>{setOpenAlert(false)}}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description">
+                <DialogContent>
+                    <Typography variant={"h6"} mb={2}>{t('consultationIP.alertTitle')}</Typography>
+                    {templates.map((doc: any) => (<FormControlLabel
+                        key={doc.uuid}
+                        control={
+                            <Checkbox checked={selectedTemplate === doc.uuid}
+                                      onChange={() => {
+                                          setSelectedTemplate(doc.uuid)
+                                      }} name={doc.uuid}/>
+                        }
+                        label={doc.title}
+                    />))}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{setOpenAlert(false)}}>{t('consultationIP.notNow')}</Button>
+                    <Button disabled={selectedTemplate === ''} onClick={saveModel} autoFocus>
+                        {t('consultationIP.now')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }

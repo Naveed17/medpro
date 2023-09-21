@@ -5,4 +5,5 @@ interface CertifModel {
     content: string,
     color: string,
     preview:string
+    documentHeader:string
 }

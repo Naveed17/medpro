@@ -300,6 +300,7 @@ function AppToolbar({...props}) {
             case "write_certif":
                 form.append("content", state.content);
                 form.append("title", state.title);
+                form.append("documentHeader", state.documentHeader);
 
                 method = "POST"
                 url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`;
