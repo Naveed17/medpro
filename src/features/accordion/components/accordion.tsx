@@ -29,7 +29,6 @@ function Accordion({...props}) {
 
     return data.map((item: any, index: number) => (
         <RootStyled
-            {...props}
             autoSave={"off"}
             disableGutters
             elevation={0}
@@ -57,8 +56,7 @@ function Accordion({...props}) {
                         )}
                         <Icon path={item.expanded ? "arrow-up-table" : "ic-expand-more"}/>
                     </>
-                }
-            >
+                }>
                 <Box sx={{display: "flex", alignItems: "center"}}>
                     {/*<Icon path={item.heading.icon}/>*/}
                     <Typography variant="body1" sx={{color: "text.secondary", ml: 1}}>
