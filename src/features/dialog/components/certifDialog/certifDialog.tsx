@@ -167,7 +167,6 @@ function CertifDialog({...props}) {
         if (httpModelResponse) {
             const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
-            console.log(modelsList)
             modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
                 template.push({
@@ -198,7 +197,6 @@ function CertifDialog({...props}) {
     useEffect(()=>{
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
-            console.log(docInfo);
             setTemplates(docInfo)
         }
     },[httpDocumentHeader])
