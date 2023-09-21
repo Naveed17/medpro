@@ -51,15 +51,13 @@ function AutoCompleteMulti({...props}) {
                         </MenuItem>
                     )}
                     renderInput={(params) => (
-                        <FormControl component="form" fullWidth>
-                            <TextField
-                                color={"info"}
-                                {...params}
-                                sx={{paddingLeft: 0}}
-                                placeholder={placeholder}
-                                variant="outlined"
-                            />
-                        </FormControl>
+                        <TextField
+                            color={"info"}
+                            {...params}
+                            sx={{paddingLeft: 0}}
+                            placeholder={placeholder}
+                            variant="outlined"
+                        />
                     )}
                 />
             </MuiAutocompleteSelectAll.Provider>

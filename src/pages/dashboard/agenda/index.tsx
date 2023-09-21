@@ -696,31 +696,22 @@ function Agenda() {
 
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
-            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                const form = new FormData();
-                form.append("status", "4");
-                form.append("start_date", moment().format("DD-MM-YYYY"));
-                form.append("start_time", moment().format("HH:mm"));
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: form,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                }, {
-                    onSuccess: () => {
-                        dispatch(openDrawer({type: "view", open: false}));
-                        dispatch(setTimer({
-                                isActive: true,
-                                isPaused: false,
-                                event,
-                                startTime: moment().utc().format("HH:mm")
-                            }
-                        ));
-                        // refresh on going api
-                        mutateOnGoing();
-                    }
-                });
-            })
+            const form = new FormData();
+            form.append("status", "4");
+            form.append("start_date", moment().format("DD-MM-YYYY"));
+            form.append("start_time", moment().format("HH:mm"));
+            updateAppointmentStatus({
+                method: "PATCH",
+                data: form,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
+            }, {
+                onSuccess: () => {
+                    // refresh on going api
+                    mutateOnGoing();
+                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale})
+                }
+            });
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);

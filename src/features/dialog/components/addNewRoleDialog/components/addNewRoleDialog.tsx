@@ -35,8 +35,8 @@ function AddNewRoleDialog({...props}) {
     const [loading, setLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>([]);
 
-    const {trigger: triggerProfileCreate} = useRequestQueryMutation(null, "/profile/create");
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation(null, "/profile/update");
+    const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     useEffect(() => {
         if (allPermissions) {

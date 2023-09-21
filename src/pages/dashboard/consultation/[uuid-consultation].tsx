@@ -21,7 +21,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
@@ -64,11 +64,11 @@ function ConsultationInProgress() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models} = useWidgetModels({filter: ""})
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {
-        mutate: mutateOnGoing,
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
@@ -323,11 +323,9 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                router.push("/dashboard/agenda").then(() => {
-                    dispatch(resetTimer());
-                    setActions(false);
-                    mutateOnGoing && mutateOnGoing();
-                });
+                setActions(false);
+                setTimeout(() => mutateOnGoing());
+                router.push("/dashboard/agenda");
             }
         });
     }
@@ -453,25 +451,23 @@ function ConsultationInProgress() {
     }
 
     const saveConsultation = () => {
-        router.push("/dashboard/agenda").then(() => {
-            const form = new FormData();
-            form.append("status", "5");
-            triggerAppointmentEdit({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                data: form
-            }, {
-                onSuccess: () => {
-                    dispatch(resetTimer());
-                    mutateOnGoing && mutateOnGoing();
-                    sendNotification();
-                    checkTransactions();
-                    clearData();
-                    setActions(false);
-                }
-            });
+        const form = new FormData();
+        form.append("status", "5");
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                dispatch(resetTimer());
+                setTimeout(() => mutateOnGoing());
+                sendNotification();
+                checkTransactions();
+                clearData();
+                setActions(false);
+                router.push("/dashboard/agenda");
+            }
         });
-
     }
 
     const end = () => {

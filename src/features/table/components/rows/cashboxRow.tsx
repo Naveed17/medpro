@@ -49,7 +49,7 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
-    const {insurances, mutateTransctions, pmList, hideName} = data;
+    const {insurances, mutateTransactions, pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
@@ -106,15 +106,17 @@ function PaymentRow({...props}) {
 
     const handleSubmit = () => {
         setLoadingRequest(true)
-        triggerTransactionEdit(selectedPayment,
+        triggerTransactionEdit(
+            selectedPayment,
             row,
             () => {
-                mutateTransctions().then(() => {
-                    mutatePatientWallet()
+                mutateTransactions().then(() => {
+                    mutatePatientWallet();
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});
                     setOpenPaymentDialog(false);
-                    setLoadingRequest(false);
-                })
+                    setTimeout(() => setLoadingRequest(false));
+                });
+
             }
         );
     }
@@ -129,7 +131,7 @@ function PaymentRow({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                mutateTransctions()
+                mutateTransactions()
                 mutatePatientWallet()
                 setLoadingDeleteTransaction(false);
                 setOpenDeleteTransactionDialog(false);

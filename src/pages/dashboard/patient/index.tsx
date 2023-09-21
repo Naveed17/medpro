@@ -434,7 +434,7 @@ function Patient() {
                         }
                     ));
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                 }
             });
         })

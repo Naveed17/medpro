@@ -53,7 +53,7 @@ function useTransactionEdit() {
                 url,
                 data: form
             }, {
-                onSuccess: successFn && successFn()
+                onSuccess: () => successFn && successFn()
             })
         }
     }, [router.locale, selectedBoxes, triggerPostTransaction, urlMedicalEntitySuffix]);

@@ -108,14 +108,12 @@ function TransactionPanel({...props}) {
         url: `/api/public/payment-means/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions, isLoading} = useRequestQuery(patient ? {
+    const {data: httpTransactionsResponse, mutate: mutateTransactions, isLoading} = useRequestQuery(patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`
     } : null, {
         keepPreviousData: true,
-        variables: {
-            query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`
-        }
+        ...(patient && {variables: {query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`}})
     });
 
     const handleSubmit = () => {
@@ -151,7 +149,7 @@ function TransactionPanel({...props}) {
         }, {
             onSuccess: () => {
                 enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
-                mutateTransctions().then(() => {
+                mutateTransactions().then(() => {
                     walletMutate().then(() => setOpenPaymentDialog(false))
                     setLoadingRequest(false);
                 });
@@ -198,7 +196,7 @@ function TransactionPanel({...props}) {
                 </Stack>
                 <DesktopContainer>
                     {!isLoading && <Otable
-                        {...{rows, t, insurances, pmList, mutateTransctions, hideName: true}}
+                        {...{rows, t, insurances, pmList, mutateTransactions, hideName: true}}
                         headers={headCells}
                         from={"cashbox"}
                     />}

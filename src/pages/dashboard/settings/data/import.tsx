@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -43,7 +43,7 @@ import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {DefaultCountry} from "@lib/constants";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 
 const RootStyled = styled(Box)(({theme}: { theme: Theme }) => ({
     ".tab-item": {
@@ -81,6 +81,7 @@ function ImportData() {
     const {data: session} = useSession();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -96,7 +97,6 @@ function ImportData() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const {data: user} = session as Session;
@@ -212,7 +212,7 @@ function ImportData() {
             onSuccess: (value: any) => {
                 if (value?.data.status === "success") {
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                     setLoading(false);
                     setCancelDialog(false);
                     localStorage.setItem("import-data", "true");

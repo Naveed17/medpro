@@ -178,10 +178,12 @@ function Cashbox() {
         url: `/api/public/payment-means/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions} = useRequestQuery(filterQuery ? {
+    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`
-    } : null, {variables: {query: filterQuery}});
+    } : null, {
+        ...(filterQuery && {variables: {query: filterQuery}})
+    });
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -289,8 +291,9 @@ function Cashbox() {
                 data: form
             }, {
                 onSuccess: () => {
+                    console.log("mutateTransactions");
                     enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
-                    mutateTransctions();
+                    mutateTransactions();
                 }
             });
         } else {
@@ -340,7 +343,7 @@ function Cashbox() {
                 data: form
             }, {
                 onSuccess: () => {
-                    mutateTransctions().then(() => {
+                    mutateTransactions().then(() => {
                         enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
                         setChecksToCashout([]);
                         setCollectedCash(0);
@@ -361,16 +364,14 @@ function Cashbox() {
                     width={1}
                     justifyContent="space-between"
                     py={1}
-                    alignItems={{xs: "flex-start", md: "center"}}
-                >
+                    alignItems={{xs: "flex-start", md: "center"}}>
                     <Typography>
                         <b>{txtFilter}</b>
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
                         spacing={{xs: 1, md: 3}}
-                        alignItems={{xs: "flex-start", md: "center"}}
-                    >
+                        alignItems={{xs: "flex-start", md: "center"}}>
                         <Stack direction="row" spacing={2} alignItems="center">
                             {toReceive > 0 && <>
                                 <Typography>{t("receive")}</Typography>
@@ -464,7 +465,7 @@ function Cashbox() {
                         <DesktopContainer>
                             {!loading && (
                                 <Otable
-                                    {...{rows, t, insurances, pmList, mutateTransctions}}
+                                    {...{rows, t, insurances, pmList, mutateTransactions}}
                                     headers={headCells}
                                     from={"cashbox"}
                                     handleEvent={handleTableActions}
@@ -481,9 +482,7 @@ function Cashbox() {
                                             t={t}
                                             insurances={insurances}
                                             pmList={pmList}
-                                            mutateTransctions={mutateTransctions}
-
-
+                                            mutateTransactions={mutateTransactions}
                                         />
                                     </React.Fragment>
                                 ))}

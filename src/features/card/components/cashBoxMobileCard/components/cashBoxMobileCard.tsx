@@ -44,7 +44,7 @@ function CashBoxMobileCard({...props}) {
         handleEvent,
         insurances,
         t,
-        mutateTransctions,
+        mutateTransactions,
         pmList,
     } = props;
     const theme = useTheme<Theme>();
@@ -94,7 +94,7 @@ function CashBoxMobileCard({...props}) {
             selectedPayment,
             data,
             () => {
-                mutateTransctions().then(() => {
+                mutateTransactions().then(() => {
                     mutatePatientWallet();
                     enqueueSnackbar(t("addsuccess"), {variant: "success"});
                     setOpenPaymentDialog(false);
@@ -114,7 +114,7 @@ function CashBoxMobileCard({...props}) {
             data: form,
         }, {
             onSuccess: () => {
-                mutateTransctions();
+                mutateTransactions();
                 mutatePatientWallet();
                 setLoadingDeleteTransaction(false);
                 setOpenDeleteTransactionDialog(false);

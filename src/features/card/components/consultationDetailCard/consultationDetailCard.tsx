@@ -66,8 +66,8 @@ function CIPPatientHistoryCard({...props}) {
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
 
-    const {trigger: triggerAddReason} = useRequestQueryMutation(null, "/motif/add");
-    const {trigger: triggerDiseases} = useRequestQueryMutation(null, "/diseases");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
+    const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
 
     const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",

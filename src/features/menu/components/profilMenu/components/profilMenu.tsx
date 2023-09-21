@@ -36,9 +36,9 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import sImage from "next/image";
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
+import Image from "next/image";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -60,7 +60,7 @@ function ProfilMenu() {
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
 
-    const {trigger: triggerSettingsUpdate} = useRequestQueryMutation(null, "/settings/update");
+    const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
