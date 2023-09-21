@@ -541,7 +541,7 @@ function Agenda() {
                 });
                 break;
             case "onConsultationDetail":
-                onConsultationDetail(event)
+                onConsultationStart(event)
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -694,24 +694,10 @@ function Agenda() {
         });
     }
 
-    const onConsultationDetail = (event: EventDef) => {
+    const onConsultationStart = (event: EventDef) => {
         if (!isActive) {
-            const form = new FormData();
-            form.append("status", "4");
-            form.append("start_date", moment().format("DD-MM-YYYY"));
-            form.append("start_time", moment().format("HH:mm"));
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: form,
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-            }, {
-                onSuccess: () => {
-                    // refresh on going api
-                    mutateOnGoing();
-                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale})
-                }
-            });
+            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+            router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale})
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
@@ -891,7 +877,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
             case "onConsultationStart":
-                onConsultationDetail(event);
+                onConsultationStart(event);
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
         }
@@ -1215,7 +1201,7 @@ function Agenda() {
                     }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
-                            OnConsultation={onConsultationDetail}
+                            OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}

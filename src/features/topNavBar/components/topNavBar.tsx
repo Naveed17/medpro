@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 import {LangButton, NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {CipCard, setTimer, timerSelector} from "@features/card";
+import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
@@ -220,6 +220,8 @@ function TopNavBar({...props}) {
                     startTime: ongoing?.start_time,
                 })
             );
+        } else {
+            dispatch(resetTimer());
         }
     }, [dispatch, ongoing]);
 

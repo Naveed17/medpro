@@ -165,37 +165,9 @@ function WaitingRoom() {
     }
     const startConsultation = (row: any) => {
         if (!isActive) {
-            const event: any = {
-                publicId: (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string,
-                extendedProps: {
-                    ...(row?.extendedProps && {...row?.extendedProps}),
-                    ...(row?.patient && {patient: row?.patient})
-                }
-            };
-            const slugConsultation = `/dashboard/consultation/${event.publicId}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                const form = new FormData();
-                form.append('status', '4');
-                form.append('start_date', moment().format("DD-MM-YYYY"));
-                form.append('start_time', moment().format("HH:mm"));
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: form,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event.publicId}/status/${router.locale}`
-                }, {
-                    onSuccess: () => {
-                        dispatch(setTimer({
-                                isActive: true,
-                                isPaused: false,
-                                event,
-                                startTime: moment().utc().format("HH:mm")
-                            }
-                        ));
-                        // refresh on going api
-                        mutateOnGoing();
-                    }
-                });
-            });
+            const publicId = (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string
+            const slugConsultation = `/dashboard/consultation/${publicId}`;
+            router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
         } else {
             setError(true);
             setLoadingRequest(false);

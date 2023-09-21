@@ -95,6 +95,7 @@ function ConsultationInProgress() {
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const {inProgress} = router.query;
 
     const EventStepper = [
         {
@@ -328,9 +329,8 @@ function ConsultationInProgress() {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                setActions(false);
-                setTimeout(() => mutateOnGoing());
-                router.push("/dashboard/agenda");
+                setTimeout(() => mutateOnGoing(), 100);
+                router.push("/dashboard/agenda").then(() => setActions(false));
             }
         });
     }
@@ -523,6 +523,24 @@ function ConsultationInProgress() {
         if (tableState.patientId)
             setPatientDetailDrawer(true);
     }, [tableState.patientId]);
+
+
+    useEffect(() => {
+        if (inProgress) {
+            console.log("inProgress");
+            const form = new FormData();
+            form.append('status', '4');
+            form.append('start_date', moment().format("DD-MM-YYYY"));
+            form.append('start_time', moment().format("HH:mm"));
+            updateAppointmentStatus({
+                method: "PATCH",
+                data: form,
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
+            }, {
+                onSuccess: () => mutateOnGoing()
+            });
+        }
+    }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return (
@@ -990,7 +1008,7 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
+export const getStaticProps: GetStaticProps = async ({locale, ...rest}) => {
     return {
         props: {
             fallback: false,

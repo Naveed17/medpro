@@ -414,31 +414,8 @@ function Patient() {
 
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            const form = new FormData();
-            form.append("status", "4");
-            form.append("start_date", moment().format("DD-MM-YYYY"));
-            form.append("start_time", moment().format("HH:mm"));
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: form,
-                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-            }, {
-                onSuccess: () => {
-                    dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing();
-                }
-            });
-        })
-    };
+        router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+    }
 
     const onUpdateMoveAppointmentData = () => {
         const timeSplit = moveDialogTime.split(":");
