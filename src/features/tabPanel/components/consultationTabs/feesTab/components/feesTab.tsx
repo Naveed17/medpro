@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import {Box, InputAdornment, Stack, TextField} from "@mui/material";
 import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function FeesTab({...props}) {
 
@@ -77,14 +77,14 @@ function FeesTab({...props}) {
         isQuoteRequest
     } = props;
 
-    const {trigger} = useRequestMutation(null, "edit/fees");
-
-    const {data: httpAppointmentFees,mutate} = useRequest({
+    const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
+    const {data: httpAppointmentFees, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    },SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    const res = (httpAppointmentFees as HttpResponse)?.data
+    const res = (httpAppointmentFees as HttpResponse)?.data;
+
     useEffect(() => {
         if (res) {
             let _acts = [{
@@ -155,11 +155,13 @@ function FeesTab({...props}) {
         if (!isFree)
             form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
 
-        trigger({
+        triggerFeesEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
-        }).then(() => {mutate()})
+        }, {
+            onSuccess: () => mutate()
+        });
     }
     const editAct = (row: any, from: any) => {
         const act_index = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid)

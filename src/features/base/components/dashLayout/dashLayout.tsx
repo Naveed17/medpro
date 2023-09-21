@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequestMutation, useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -17,7 +17,6 @@ import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
 import {isAppleDevise} from "@lib/hooks/isAppleDevise";
-import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -37,7 +36,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
-    const {cache} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -54,15 +52,14 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const [loading, setLoading] = useState(false);
     const [mergeDialog, setMergeDialog] = useState(false);
     const [medicalEntityHasUser, setMedicalEntityHasUser] = useState<MedicalEntityHasUsersModel[] | null>(null);
-    const [agendasData, setAgendasData] = useState<AgendaConfigurationModel[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`)?.data?.data?.data) ?? null);
     const [agenda, setAgenda] = useState<AgendaConfigurationModel | null>(null);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const permission = !isAppleDevise() ? checkNotification() : false; // Check notification permission
 
-    const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
-    const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
+    const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");
+    const {trigger: noDuplicationsTrigger} = useRequestQueryMutation("/duplications/unMerge");
 
     const {data: httpUserResponse} = useRequestQuery({
         method: "GET",
@@ -98,6 +95,8 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
+
+    const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaConfigurationModel[];
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -143,12 +142,14 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/no-duplications/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoading(false);
-            dispatch(setDuplicated({openDialog: false}));
-            dispatch(resetDuplicated());
-            mutateDuplicationSource && mutateDuplicationSource();
-        })
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                dispatch(setDuplicated({openDialog: false}));
+                dispatch(resetDuplicated());
+                mutateDuplicationSource && mutateDuplicationSource();
+            }
+        });
     }
 
     const getPatientParamsKey = (param: string) => {
@@ -213,25 +214,26 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoading(false);
-            batch(() => {
-                dispatch(setSelectedRows([]));
-                dispatch(setDuplicated({openDialog: false}));
-                dispatch(resetDuplicated());
-            });
-            setTimeout(() => setMergeDialog(false));
-            mutateDuplicationSource && mutateDuplicationSource();
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                batch(() => {
+                    dispatch(setSelectedRows([]));
+                    dispatch(setDuplicated({openDialog: false}));
+                    dispatch(resetDuplicated());
+                });
+                setTimeout(() => setMergeDialog(false));
+                mutateDuplicationSource && mutateDuplicationSource();
+            }
         })
     }
 
     useEffect(() => {
         if (httpAgendasResponse) {
             const localAgendasData = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
-            setAgendasData(localAgendasData);
             const agendaUser = localAgendasData?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
             setAgenda(agendaUser);
-            dispatch(setConfig({...agendaUser, mutate: [mutateAgenda, mutatePendingAppointment]}));
+            dispatch(setConfig({...agendaUser}));
             dispatch(setAgendas(agendasData));
         }
     }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps

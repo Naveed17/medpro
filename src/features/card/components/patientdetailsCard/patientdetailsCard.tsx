@@ -25,7 +25,7 @@ import MaskedInput from "react-text-mask";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
 import {CropImage} from "@features/image";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
@@ -33,9 +33,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useSWRConfig} from "swr";
 import dynamic from "next/dynamic";
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 
@@ -73,7 +72,7 @@ function PatientDetailsCard({...props}) {
         },
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
@@ -85,7 +84,7 @@ function PatientDetailsCard({...props}) {
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update/photo");
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -105,20 +104,22 @@ function PatientDetailsCard({...props}) {
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientList && mutatePatientList();
-                mutateAgenda && mutateAgenda();
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
-                if (appointment) {
-                    const event = {
-                        ...appointment,
-                        extendedProps: {
-                            ...appointment.extendedProps,
-                            photo: values.picture.file
-                        }
-                    } as any;
-                    dispatch(setSelectedEvent(event));
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientList && mutatePatientList();
+                    mutateAgenda && mutateAgenda();
+                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    if (appointment) {
+                        const event = {
+                            ...appointment,
+                            extendedProps: {
+                                ...appointment.extendedProps,
+                                photo: values.picture.file
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(event));
+                    }
                 }
             });
         }
@@ -144,21 +145,24 @@ function PatientDetailsCard({...props}) {
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientList && mutatePatientList();
-                mutateAgenda && mutateAgenda();
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
-                if (appointment) {
-                    const event = {
-                        ...appointment,
-                        extendedProps: {
-                            ...appointment.extendedProps,
-                            photo: values.picture.file
-                        }
-                    } as any;
-                    dispatch(setSelectedEvent(event));
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientList && mutatePatientList();
+                    mutateAgenda && mutateAgenda();
+                    invalidateQueries([
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    if (appointment) {
+                        const event = {
+                            ...appointment,
+                            extendedProps: {
+                                ...appointment.extendedProps,
+                                photo: values.picture.file
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(event));
+                    }
                 }
             });
         }

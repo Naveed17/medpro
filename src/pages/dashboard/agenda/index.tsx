@@ -65,7 +65,7 @@ import {sideBarSelector} from "@features/menu";
 import {
     appointmentGroupByDate,
     appointmentPrepareEvent,
-    prepareSearchKeys,
+    prepareSearchKeys, useInvalidateQueries,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
@@ -76,7 +76,6 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
 import {DefaultCountry} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
-import {useSWRConfig} from "swr";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -104,9 +103,9 @@ function Agenda() {
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
@@ -647,7 +646,7 @@ function Agenda() {
                 // refresh on going api
                 mutateOnGoing();
                 // update pending notifications status
-                config?.mutate[1]();
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
             }
         });
     }
@@ -689,7 +688,7 @@ function Agenda() {
                 enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
                 dispatch(openDrawer({type: "view", open: false}));
                 // update pending notifications status
-                config?.mutate[1]();
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
                 setLoading(false);
             }
         });
@@ -782,7 +781,7 @@ function Agenda() {
                 refreshData();
                 setMoveDialogInfo({...moveDialogInfo, dialog: false});
                 // update pending notifications status
-                config?.mutate[1]();
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
             }
         });
     }
@@ -941,7 +940,7 @@ function Agenda() {
                 setLoadingRequest(false);
                 localStorage.removeItem(`Modeldata${event?.publicId}`);
                 setTimeout(() => setOpenPreConsultationDialog(false));
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
             }
         });
     }

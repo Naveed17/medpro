@@ -22,7 +22,7 @@ import {
 import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import IconUrl from "@themes/urlIcon";
@@ -72,12 +72,14 @@ function CertifDialog({...props}) {
         {name: '{cin}', title: 'cin', show: data.state.cin},
     ];
 
-    const {trigger} = useRequestMutation(null, "/certif-models");
+    const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
+    const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
 
-    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
+
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
@@ -87,23 +89,21 @@ function CertifDialog({...props}) {
         setSelectedColor([model.color])
         setSelectedModel(model);
     }
+
     const saveModel = () => {
         const form = new FormData();
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
-        trigger({
+        triggerModelsCreate({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form
         }, {
-            revalidate: true,
-            populateCache: true
-        }).then(() => {
-            mutate();
-        })
-
+            onSuccess: () => mutate()
+        });
     }
+
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -114,6 +114,7 @@ function CertifDialog({...props}) {
             startListening();
         }
     }
+
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -121,30 +122,37 @@ function CertifDialog({...props}) {
             setOldNote(value)
         })
     }
+
     const dialogSave = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(() => {
-                setOpenRemove(false);
-            })
+        triggerModelsUpdate(selected.request, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    setOpenRemove(false);
+                })
+            }
         });
     }
+
     const addVal = (val: string) => {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
     }
+
     const saveChanges = () => {
         const form = new FormData();
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
-        trigger({
+        triggerModelsUpdate({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${selectedModel.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutate().then(() => {
-                enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
-            });
-        })
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
+                });
+            }
+        });
     }
 
     useEffect(() => {

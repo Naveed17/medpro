@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
@@ -34,7 +34,10 @@ function AddNewRoleDialog({...props}) {
 
     const [loading, setLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>([]);
-    const {trigger} = useRequestMutation(null, "/profile");
+
+    const {trigger: triggerProfileCreate} = useRequestQueryMutation(null, "/profile/create");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation(null, "/profile/update");
+
     useEffect(() => {
         if (allPermissions) {
             const permissions = allPermissions.map((item: any) => {
@@ -110,35 +113,33 @@ function AddNewRoleDialog({...props}) {
             form.append("is_standard ", values.is_standard.toString());
             form.append("permissions", JSON.stringify(checkedPermissions.join(",")));
             if (selected) {
-                trigger({
+                triggerProfileUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/profile/${selected.uuid}`,
                     data: form
-                }).then(() => {
-                    enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
-                    handleMutate();
-                    handleClose();
-                    setLoading(false)
-                }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
-                    setLoading(false)
-
-                })
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
+                        handleMutate();
+                        handleClose();
+                        setLoading(false)
+                    },
+                    onError: () => setLoading(false)
+                });
             } else {
-                trigger({
+                triggerProfileCreate({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/profile`,
                     data: form
-                }).then(() => {
-                    enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
-                    handleMutate();
-                    handleClose();
-                    setLoading(false)
-                }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
-                    setLoading(false)
-
-                })
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
+                        handleMutate();
+                        handleClose();
+                        setLoading(false)
+                    },
+                    onError: () => setLoading(false)
+                });
             }
         },
         validationSchema: RoleSchema,

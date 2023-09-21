@@ -22,15 +22,13 @@ import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} 
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {sendRequest, useWidgetModels} from "@lib/hooks/rest";
 import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
 import {SubHeader} from "@features/subHeader";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
@@ -45,7 +43,6 @@ import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import useSWRMutation from "swr/mutation";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
 import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
@@ -56,22 +53,19 @@ import {MobileContainer} from "@themes/mobileContainer";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
-import useUsersList from "@lib/hooks/rest/useUsersList";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useWidgetModels} from "@lib/hooks/rest";
 
 function ConsultationInProgress() {
-
     const theme = useTheme();
     const router = useRouter();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models} = useWidgetModels({filter: ""})
 
     const {t} = useTranslation("consultation");
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-
     //***** SELECTORS ****//
     const {
         mutate: mutateOnGoing,
@@ -86,12 +80,16 @@ function ConsultationInProgress() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
 
+    const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
     const app_uuid = router.query["uuid-consultation"];
 
-    const {trigger} = useRequestMutation(null, "appointment/edit");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: usersList} = useUsersList()
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
+    const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
+    const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
+    const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
+
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -167,10 +165,10 @@ function ConsultationInProgress() {
     }
 
     // ********** Requests ********** \\
-    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequest(agenda && medicalEntityHasUser ? {
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -181,23 +179,25 @@ function ConsultationInProgress() {
         value: "patient history"
     }] : [], ...tabs]
 
-    const {data: httpPatientPreview, mutate: mutatePatient} = useRequest(sheet?.patient && medicalEntityHasUser ? {
+    const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpPreviousResponse} = useRequest(sheet?.hasHistory && agenda ? {
+    const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
         return isClose ? 1 : closeExam ? 11 : 5
     }
+
     const getExamSize = () => {
         return isClose ? 11 : closeExam ? 1 : 7;
     }
+
     const showDoc = (card: any) => {
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -261,10 +261,12 @@ function ConsultationInProgress() {
             });
             setOpenDialog(true);
         }
-    };
+    }
+
     const seeHistory = () => {
         setOpenHistoryDialog(true);
     }
+
     const openDialogue = (item: any) => {
         switch (item.id) {
             case 1:
@@ -274,20 +276,22 @@ function ConsultationInProgress() {
                 setDialog("draw_up_an_order");
                 break;
         }
-    };
+    }
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
         setActions(false);
-    };
+    }
+
     const closeHistory = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
-
         if (event) {
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
     }
+
     const clearData = () => {
         localStorage.removeItem(`Modeldata${app_uuid}`);
         localStorage.removeItem(`Model-${app_uuid}`);
@@ -296,6 +300,7 @@ function ConsultationInProgress() {
         localStorage.removeItem(`consultation-fees`);
         localStorage.removeItem(`consultation-acts-${app_uuid}`);
     }
+
     const handleTableActions = (action: string, event: any) => {
         switch (action) {
             case "onDetailPatient":
@@ -306,23 +311,27 @@ function ConsultationInProgress() {
                 setPatientDetailDrawer(true);
                 break;
         }
-    };
+    }
+
     const leave = () => {
         clearData();
+        const form = new FormData();
+        form.append("status", "11");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "11"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
-        } as any).then(() => {
-            router.push("/dashboard/agenda").then(() => {
-                dispatch(resetTimer());
-                setActions(false);
-                mutateOnGoing && mutateOnGoing();
-            });
+        }, {
+            onSuccess: () => {
+                router.push("/dashboard/agenda").then(() => {
+                    dispatch(resetTimer());
+                    setActions(false);
+                    mutateOnGoing && mutateOnGoing();
+                });
+            }
         });
-    };
+    }
+
     const DialogAction = () => {
         return (
             <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
@@ -363,59 +372,67 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     }
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
-    };
+    }
+
     const submitStepper = (index: number) => {
         if (EventStepper.length !== index) {
             EventStepper[index].disabled = false;
         } else {
             mutatePatient();
         }
-    };
+    }
+
     const closeImageViewer = () => {
         setIsViewerOpen("");
-    };
+    }
+
     const sendNotification = () => {
+        triggerUsers({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/users`
+        }, {
+            onSuccess: (r: any) => {
+                const secretary = (r?.data as HttpResponse).data;
+                if (secretary.length > 0 && patient) {
+                    const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+                    const form = new FormData();
+                    form.append("action", "end_consultation");
+                    form.append("root", "agenda");
+                    form.append(
+                        "content",
+                        JSON.stringify({
+                            fees: total,
+                            restAmount: restAmount,
+                            instruction: localInstr ? localInstr : "",
+                            control: checkedNext,
+                            edited: false,
+                            payed: transactions ? restAmount === 0 : restAmount !== 0,
+                            nextApp: meeting ? meeting : "0",
+                            appUuid: app_uuid,
+                            dayDate: sheet?.date,
+                            patient: {
+                                uuid: patient.uuid,
+                                email: patient.email,
+                                birthdate: patient.birthdate,
+                                firstName: patient.firstName,
+                                lastName: patient.lastName,
+                                gender: patient.gender,
+                            },
+                        })
+                    );
+                    triggerNotificationPush({
+                        method: "POST",
+                        url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
+                        data: form
+                    });
+                }
+            }
+        })
+    }
 
-                usersList().then(r => {
-                    const secretary = (r?.data as HttpResponse).data;
-                    if (secretary.length > 0 && patient) {
-                        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-                        const form = new FormData();
-                        form.append("action", "end_consultation");
-                        form.append("root", "agenda");
-                        form.append(
-                            "content",
-                            JSON.stringify({
-                                fees: total,
-                                restAmount: restAmount,
-                                instruction: localInstr ? localInstr : "",
-                                control: checkedNext,
-                                edited: false,
-                                payed: transactions ? restAmount === 0 : restAmount !== 0,
-                                nextApp: meeting ? meeting : "0",
-                                appUuid: app_uuid,
-                                dayDate: sheet?.date,
-                                patient: {
-                                    uuid: patient.uuid,
-                                    email: patient.email,
-                                    birthdate: patient.birthdate,
-                                    firstName: patient.firstName,
-                                    lastName: patient.lastName,
-                                    gender: patient.gender,
-                                },
-                            })
-                        );
-                        trigger({
-                            method: "POST",
-                            url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
-                            data: form
-                        });
-                    }
-                })
-
-    };
     const checkTransactions = () => {
         if (!transactions && app_uuid) {
             const form = new FormData();
@@ -427,7 +444,7 @@ function ConsultationInProgress() {
             form.append("appointment", app_uuid.toString());
             form.append("transaction_data", JSON.stringify([]));
 
-            trigger({
+            triggerTransactionCreate({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
                 data: form
@@ -439,21 +456,24 @@ function ConsultationInProgress() {
         router.push("/dashboard/agenda").then(() => {
             const form = new FormData();
             form.append("status", "5");
-            trigger({
+            triggerAppointmentEdit({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
                 data: form
-            }).then(() => {
-                dispatch(resetTimer());
-                mutateOnGoing && mutateOnGoing();
-                sendNotification();
-                checkTransactions();
-                clearData();
-                setActions(false);
+            }, {
+                onSuccess: () => {
+                    dispatch(resetTimer());
+                    mutateOnGoing && mutateOnGoing();
+                    sendNotification();
+                    checkTransactions();
+                    clearData();
+                    setActions(false);
+                }
             });
         });
 
     }
+
     const end = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
@@ -546,7 +566,7 @@ function ConsultationInProgress() {
                         anchorEl,
                         mutatePatient,
                         setAnchorEl,
-                        dialog,setDialog
+                        dialog, setDialog
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
@@ -576,7 +596,7 @@ function ConsultationInProgress() {
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,
-                                trigger
+                                trigger: triggerAppointmentEdit
                             }}
                         />
                     </TabPanel>
@@ -659,7 +679,8 @@ function ConsultationInProgress() {
                                         closed: closeExam,
                                         setCloseExam,
                                         isClose,
-                                        agenda, trigger
+                                        agenda,
+                                        trigger: triggerAppointmentEdit
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />

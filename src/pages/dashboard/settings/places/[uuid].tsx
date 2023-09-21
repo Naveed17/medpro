@@ -31,7 +31,7 @@ import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -42,14 +42,13 @@ import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry} from "@lib/constants";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useContactType} from "@lib/hooks/rest";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
@@ -124,9 +123,10 @@ function PlacesDetail() {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {contacts: contactTypes} = useContactType();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t} = useTranslation(["settings", "common"]);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -255,7 +255,7 @@ function PlacesDetail() {
                 onSuccess: (r: any) => {
                     if (r.status === 200 || r.status === 201) {
                         mutate();
-                        agendaConfig?.mutate[0]();
+                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`])
                         router.back();
                         setLoading(false);
                     }

@@ -54,16 +54,13 @@ import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import {AnimatePresence, motion} from "framer-motion";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {a11yProps, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
@@ -72,15 +69,14 @@ import {search} from "fast-fuzzy";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {useSession} from "next-auth/react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
     const refContainer = useRef(null);
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
@@ -89,15 +85,12 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {data: session} = useSession();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-
     const {direction} = useAppSelector(configSelector);
     const {drawerAction} = useAppSelector(dialogSelector);
-    const {name: modelName, parent: modelParent} =
-        useAppSelector(prescriptionSelector);
+    const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
     const [parentModelName, setParentModelName] = useState<string>("");
-
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
@@ -286,35 +279,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
 
-    const {trigger: triggerDrugList} = useRequestMutation(
-        null,
-        "consultation/drugs"
-    );
-    const {trigger: triggerPrescriptionModel} = useRequestMutation(
-        null,
-        "consultation/prescription/model"
-    );
-    const {trigger: triggerPrescriptionParent} = useRequestMutation(
-        null,
-        "consultation/prescription/model/parent"
-    );
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(
-        [
-            "/consultation/prescription/model/edit",
-            {Authorization: `Bearer ${session?.accessToken}`},
-        ],
-        sendRequest as any
-    );
+    const {trigger: triggerDrugList} = useRequestQueryMutation("consultation/drugs");
+    const {trigger: triggerPrescriptionModel} = useRequestQueryMutation("consultation/prescription/model");
+    const {trigger: triggerPrescriptionParent} = useRequestQueryMutation("consultation/prescription/model/parent");
+    const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
-    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(
-        urlMedicalProfessionalSuffix
-            ? {
-                method: "GET",
-                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
+    } : null, ReactQueryNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [
@@ -326,64 +299,66 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 block: "end",
             });
         });
-    };
+    }
 
     const switchPrescriptionModel = (drugs: DrugModel[]) => {
         setDrugs(drugs);
         setFieldValue("data", setInitData(drugs));
-    };
+    }
 
     const editPrescriptionModel = (props: any) => {
         setEditModel(props.node);
-    };
+    }
 
     const editPrescriptionAction = () => {
         setLoading(true);
+        const form = new FormData();
+        form.append('drugs', JSON.stringify(drugs));
+        form.append('name', editModel?.text);
+        form.append('parent', editModel?.parent);
         triggerEditPrescriptionModel({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${editModel?.id}/${router.locale}`,
-            data: {
-                drugs: JSON.stringify(drugs),
-                name: editModel?.text,
-                parent: editModel?.parent,
-            },
-        } as any).then((result) => {
-            mutateParentModel().then(() => {
-                setLoading(false);
-                setDrugsList((result?.data as HttpResponse)?.data);
-                setEditModel(null);
-                enqueueSnackbar(t("editWithsuccess"), {variant: "success"});
-            });
+            data: form,
+        }, {
+            onSuccess: (result) => {
+                mutateParentModel().then(() => {
+                    setLoading(false);
+                    setDrugsList((result?.data as HttpResponse)?.data);
+                    setEditModel(null);
+                    enqueueSnackbar(t("editWithsuccess"), {variant: "success"});
+                });
+            }
         });
-    };
+    }
 
     const handleRemoveCycle = (idx: number, value: any) => {
         const filtered = values.data[idx].cycles.filter(
             (item: any) => item !== value
         );
         setFieldValue(`data[${idx}].cycles`, filtered);
-    };
+    }
 
     const handleRemoveDrug = (idx: number) => {
         const filtered = values.data.filter(
             (item: any, index: number) => index !== idx
         );
         setFieldValue(`data`, filtered);
-    };
+    }
 
     const handAddCycle = (index: number) => {
         setFieldValue(`data[${index}].cycles`, [
             ...values.data[index].cycles,
             ...initPrescriptionCycleData.cycles,
         ]);
-    };
+    }
 
     const handlePrescriptionTabChange = (
         event: React.SyntheticEvent,
         newValue: number
     ) => {
         setPrescriptionTabIndex(newValue);
-    };
+    }
 
     const handleDosageQty = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
@@ -406,7 +381,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 );
             }
         }
-    };
+    }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
@@ -426,7 +401,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 values.data[idx].cycles[index].dosageDuration - 1
             );
         }
-    };
+    }
 
     const handleSaveDialog = () => {
         const form = new FormData();
@@ -438,14 +413,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
-        }).then(() =>
-            mutateParentModel().then(() => {
-                setInitialOpenData([modelParent]);
-                setPrescriptionTabIndex(1);
-            })
-        );
+        }, {
+            onSuccess: () =>
+                mutateParentModel().then(() => {
+                    setInitialOpenData([modelParent]);
+                    setPrescriptionTabIndex(1);
+                })
+        });
         setOpenDialog(false);
-    };
+    }
 
     const handleAddParentModel = () => {
         setLoading(true);
@@ -455,17 +431,19 @@ function MedicalPrescriptionCycleDialog({...props}) {
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
             data: form,
-        }).then(() => {
-            mutateParentModel().then((result) => {
-                const models = (result?.data as HttpResponse)
-                    ?.data as PrescriptionParentModel[];
-                dispatch(setParentModel(models[models.length - 1]?.uuid));
-                setOpenAddParentDialog(false);
-                setParentModelName("");
-                setLoading(false);
-            });
+        }, {
+            onSuccess: () => {
+                mutateParentModel().then((result) => {
+                    const models = (result?.data as HttpResponse)
+                        ?.data as PrescriptionParentModel[];
+                    dispatch(setParentModel(models[models.length - 1]?.uuid));
+                    setOpenAddParentDialog(false);
+                    setParentModelName("");
+                    setLoading(false);
+                });
+            }
         });
-    };
+    }
 
     const getFormUnitMedic: any = (form: string) => {
         const hasMultiValues = form.split("_");
@@ -491,7 +469,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 }) ?? form;
         }
         return formUnitMedic;
-    };
+    }
 
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
@@ -506,10 +484,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     : ""
             }`
             : "";
-    };
+    }
 
-    const models = (ParentModelResponse as HttpResponse)
-        ?.data as PrescriptionParentModel[];
+    const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
 
     useEffect(() => {
         if (models && models.length > 0) {
@@ -684,11 +661,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         triggerDrugList({
                                                                             method: "GET",
                                                                             url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                        }).then((cnx) =>
-                                                                            setDrugsList(
-                                                                                (cnx?.data as HttpResponse)?.data ?? []
-                                                                            )
-                                                                        );
+                                                                        }, {
+                                                                            onSuccess: (cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
+                                                                        });
                                                                     }
                                                                 }}
                                                                 placeholder={t("placeholder_drug_name")}

@@ -33,9 +33,8 @@ import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
-import {useSWRConfig} from "swr";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 
@@ -53,8 +52,8 @@ function FcmLayout({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -128,7 +127,7 @@ function FcmLayout({...props}) {
                                 dispatch(setOngoing({notifications}));
                             } else if (data.body.action === "update") {
                                 // update pending notifications status
-                                agendaConfig?.mutate[1]();
+                                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
                             }
                             break;
                         case "waiting-room":
@@ -162,7 +161,7 @@ function FcmLayout({...props}) {
                             ));
                             break;
                         default:
-                            data.body.mutate && mutate(data.body.mutate);
+                            data.body.mutate && invalidateQueries([data.body.mutate]);
                             break;
                     }
                 }

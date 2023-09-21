@@ -21,7 +21,7 @@ import dynamic from "next/dynamic";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {useState} from "react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useRouter} from "next/router";
@@ -42,26 +42,28 @@ function ConsultationPopupAction({...props}) {
     const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n` : ""}, ${data.instruction}`);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {trigger: triggerTransactions} = useRequestMutation(null, "agenda/appointment/transactions");
+    const {trigger: triggerTransactions} = useRequestQueryMutation("agenda/appointment/transactions");
 
     const getAllTransactions = () => {
         setLoadingRequest(true);
         triggerTransactions({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.appUuid}/transactions/${router.locale}`,
-        }).then((result) => {
-            const transactionsData = (result?.data as HttpResponse)?.data;
-            dispatch(setSelectedEvent({
-                ...appointment,
-                extendedProps: {
-                    ...appointment?.extendedProps,
-                    patient: transactionsData.transactions[0]?.appointment?.patient,
-                    total: data.fees,
-                    transactions: transactionsData.transactions
-                }
-            } as any));
-            OnPay();
-            setLoadingRequest(false);
+        }, {
+            onSuccess: (result: any) => {
+                const transactionsData = (result?.data as HttpResponse)?.data;
+                dispatch(setSelectedEvent({
+                    ...appointment,
+                    extendedProps: {
+                        ...appointment?.extendedProps,
+                        patient: transactionsData.transactions[0]?.appointment?.patient,
+                        total: data.fees,
+                        transactions: transactionsData.transactions
+                    }
+                } as any));
+                OnPay();
+                setLoadingRequest(false);
+            }
         });
     }
 

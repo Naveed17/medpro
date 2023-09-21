@@ -32,11 +32,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
-import {useSWRConfig} from "swr";
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
 
@@ -51,21 +50,19 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
     const {insurances, mutateTransctions, pmList, hideName} = data;
-
+    const router = useRouter();
+    const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {mutate} = useSWRConfig();
-
-    const router = useRouter();
-    const theme = useTheme();
-    const {enqueueSnackbar} = useSnackbar();
 
     const [selected, setSelected] = useState<any>([]);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -83,7 +80,7 @@ function PaymentRow({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
@@ -97,13 +94,16 @@ function PaymentRow({...props}) {
             );
         }
         setSelected(newSelected);
-    };
+    }
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     }
+
     const mutatePatientWallet = () => {
-        medicalEntityHasUser && row.appointment && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
+        medicalEntityHasUser && row.appointment && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`]);
     }
+
     const handleSubmit = () => {
         setLoadingRequest(true)
         triggerTransactionEdit(selectedPayment,
@@ -127,11 +127,13 @@ function PaymentRow({...props}) {
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutateTransctions()
-            mutatePatientWallet()
-            setLoadingDeleteTransaction(false);
-            setOpenDeleteTransactionDialog(false);
+        }, {
+            onSuccess: () => {
+                mutateTransctions()
+                mutatePatientWallet()
+                setLoadingDeleteTransaction(false);
+                setOpenDeleteTransactionDialog(false);
+            }
         });
 
     }

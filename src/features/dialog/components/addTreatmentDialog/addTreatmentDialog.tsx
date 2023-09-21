@@ -12,7 +12,7 @@ import {
 import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useRef, useState} from 'react';
 import dynamic from "next/dynamic";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {arrayUniqueByKey} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
@@ -22,17 +22,21 @@ import SearchIcon from "@mui/icons-material/Search";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function AddTreatmentDialog({...props}) {
-
     const {data} = props;
+    const router = useRouter();
+    const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
+
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug] = useState<string | null>("");
     const [traitments, setTraitments] = useState<DrugModel[]>([]);
     const [anchorElPopover, setAnchorElPopover] = useState<HTMLDivElement | null>(null);
 
-    const router = useRouter();
-    const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
     const textFieldRef = createRef<HTMLDivElement>();
     const openPopover = Boolean(anchorElPopover);
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
 
     const addTraitment = (event: any, newValue: any) => {
         if (newValue) {
@@ -53,24 +57,22 @@ function AddTreatmentDialog({...props}) {
 
     const debouncedOnChange = debounce(addTraitment, 500);
 
-    const {trigger} = useRequestMutation(null, "/drugs");
-
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-
     const searchInDrug = (value: string) => {
         if (value.length >= 2) {
-            trigger({
+            triggerDrugsGet({
                 method: "GET",
                 url: `/api/drugs/${router.locale}?name=${value}`
-            }).then((cnx) => cnx?.data && setDrugsList((cnx.data as HttpResponse)?.data ?? []))
+            }, {
+                onSuccess: (cnx: any) => cnx?.data && setDrugsList((cnx.data as HttpResponse)?.data ?? [])
+            });
         }
     }
     const handleClickPopover = useCallback(() => {
         setAnchorElPopover(textFieldRef.current);
     }, [textFieldRef]);
 
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <Stack spacing={1}>
             <Box>

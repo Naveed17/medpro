@@ -2,7 +2,7 @@ import {Box, Chip, Fab, IconButton, Stack, TextField} from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {useEffect, useRef, useState} from 'react';
 import dynamic from "next/dynamic";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
@@ -25,17 +25,15 @@ function ChatDiscussionDialog({...props}) {
         router,
         setOpenDialog
     } = data
-    const {trigger: triggerChat} = useRequestMutation(null, "/chat/ai");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const listRef = useRef<any>();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [text, setText] = useState<string>("");
     const [messages, setMessages] = useState<any[]>([]);
     const [loadingResponse, setLoadingResponse] = useState<boolean>(false);
     const [loadingContainer, setLoadingContainer] = useState<boolean>(true);
-
-    const {trigger} = useRequestMutation(null, "/chat/document");
-
-    const listRef = useRef<any>();
 
     const suggestions = [
         {name: 'opinion', message: 'opinion', isDocument: false},
@@ -46,9 +44,9 @@ function ChatDiscussionDialog({...props}) {
         {name: 'ro', message: 'ro_content', isDocument: true}
     ]
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-
-    const {data: httpChatResponse} = useRequest({
+    const {trigger: triggerChat} = useRequestQueryMutation("/chat/ai");
+    const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
+    const {data: httpChatResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient}/chat`
     }, SWRNoValidateConfig);
@@ -137,11 +135,18 @@ function ChatDiscussionDialog({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/chat`,
             data: form
-        }).then((r) => {
-            const res = (r?.data as HttpResponse).data;
-            setMessages([{from: 'chat', to: 'me', message: res.message, short: short ? short : ""}, msg, ...messages])
-            setLoadingResponse(false)
-        })
+        }, {
+            onSuccess: (r: any) => {
+                const res = (r?.data as HttpResponse).data;
+                setMessages([{
+                    from: 'chat',
+                    to: 'me',
+                    message: res.message,
+                    short: short ? short : ""
+                }, msg, ...messages])
+                setLoadingResponse(false)
+            }
+        });
     }
     const send = () => {
         setMessages([{from: 'me', to: 'chat', message: text}, ...messages])
@@ -154,29 +159,31 @@ function ChatDiscussionDialog({...props}) {
         form.append("content", msg.text);
         form.append("title", msg.short);
 
-        trigger({
+        triggerDocumentChat({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`,
             data: form
-        }).then((r) => {
-            const res = (r?.data as HttpResponse).data;
-            setInfo("document_detail");
-            setState({
-                certifUuid: res.uuid,
-                uuid: res.uuid,
-                content: msg.text,
-                doctor: '',
-                patient: null,
-                birthdate: '',
-                cin: '',
-                createdAt: moment().format('DD/MM/YYYY'),
-                description: "",
-                title: msg.short,
-                days: '',
-                name: "certif",
-                type: "write_certif",
-            });
-            setOpenDialog(true);
+        }, {
+            onSuccess: (r: any) => {
+                const res = (r?.data as HttpResponse).data;
+                setInfo("document_detail");
+                setState({
+                    certifUuid: res.uuid,
+                    uuid: res.uuid,
+                    content: msg.text,
+                    doctor: '',
+                    patient: null,
+                    birthdate: '',
+                    cin: '',
+                    createdAt: moment().format('DD/MM/YYYY'),
+                    description: "",
+                    title: msg.short,
+                    days: '',
+                    name: "certif",
+                    type: "write_certif",
+                });
+                setOpenDialog(true);
+            }
         });
     }
 

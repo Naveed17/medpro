@@ -25,7 +25,7 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -179,9 +179,9 @@ function DocumentDetailDialog({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/documents");
-
-    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
+    const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
@@ -319,14 +319,16 @@ function DocumentDetailDialog({...props}) {
         const form = new FormData();
         form.append('attribute', attribute);
         form.append('value', value);
-        trigger({
+        triggerDocumentUpdate({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            state?.mutate()
-            state?.mutateDetails && state?.mutateDetails()
-            //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+        }, {
+            onSuccess: () => {
+                state?.mutate()
+                state?.mutateDetails && state?.mutateDetails()
+                //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+            }
         });
     }
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
@@ -338,29 +340,33 @@ function DocumentDetailDialog({...props}) {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
         if (state?.type === "quote") {
-            medicalEntityHasUser && trigger({
+            medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
-            }).then(() => {
-                state?.mutate && state?.mutate();
-                setOpenRemove(false);
-                setLoading(false);
-                setLoadingRequest && setLoadingRequest(false);
-                setOpenDialog && setOpenDialog(false);
+            }, {
+                onSuccess: () => {
+                    state?.mutate && state?.mutate();
+                    setOpenRemove(false);
+                    setLoading(false);
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog && setOpenDialog(false);
+                }
             });
 
         } else {
-            medicalEntityHasUser && trigger({
+            medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
                 url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
-            }).then(() => {
-                state?.mutate && state?.mutate();
-                state?.mutateDetails && state?.mutateDetails()
-                setOpenRemove(false);
-                setLoading(false);
-                (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
-                setLoadingRequest && setLoadingRequest(false);
-                setOpenDialog && setOpenDialog(false);
+            }, {
+                onSuccess: () => {
+                    state?.mutate && state?.mutate();
+                    state?.mutateDetails && state?.mutateDetails()
+                    setOpenRemove(false);
+                    setLoading(false);
+                    (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog && setOpenDialog(false);
+                }
             });
         }
     }

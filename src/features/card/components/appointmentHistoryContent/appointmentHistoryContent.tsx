@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Box, Button, Grid, IconButton, List, ListItemIcon, Stack, TextField, Typography} from "@mui/material";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -26,20 +26,17 @@ function AppointmentHistoryContent({...props}) {
         patient,
         t
     } = props;
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: user} = session as Session;
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {trigger} = useRequestMutation(null, "/editRA");
     const [collapse, setCollapse] = useState<any>("");
     const [app, setApp] = useState<any>();
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
-    const router = useRouter();
-
     const [selected, setSelected] = useState<string>('')
 
-    const {data: httpPatientHistory} = useRequest(medicalEntityHasUser && patient ? {
+    const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
+    const {data: httpPatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/${appuuid}/data/${router.locale}`
     } : null);
@@ -47,6 +44,7 @@ function AppointmentHistoryContent({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+
     const printFees = (app: any) => {
 
         let type = "";
@@ -78,6 +76,7 @@ function AppointmentHistoryContent({...props}) {
         });
         setOpenDialog(true);
     }
+
     const reqSheetChange = (rs: any, ev: any, appID: number, sheetID: number, sheetAnalysisID: number) => {
 
         const data = {...rs}
@@ -91,18 +90,21 @@ function AppointmentHistoryContent({...props}) {
 
         setApp(capp)
     }
+
     const editReqSheet = (iid: number, idx: number) => {
         const selectedRA = app.appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
-        trigger({
+        triggerRaEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
             data: form,
-        }).then(() => {
-            if (medicalEntityHasUser) {
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+        }, {
+            onSuccess: () => {
+                if (medicalEntityHasUser) {
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                }
             }
         });
     }

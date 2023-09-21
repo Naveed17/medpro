@@ -14,10 +14,9 @@ import {
 import {DndProvider} from "react-dnd";
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import TreeStyled from "./overrides/treeStyled";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSWRConfig} from "swr";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Dialog} from "@features/dialog";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
@@ -29,9 +28,9 @@ import {configSelector} from "@features/base";
 function ModelPrescriptionList({...props}) {
     const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel} = props;
     const router = useRouter();
-    const {mutate} = useSWRConfig();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const theme = useTheme();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {direction} = useAppSelector(configSelector);
 
@@ -40,8 +39,8 @@ function ModelPrescriptionList({...props}) {
     const [dialogAction, setDialogAction] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<any | null>(null);
-    const {trigger: triggerPrescriptionEdit} = useRequestMutation(null, "/prescription/model/edit");
-    const {trigger: triggerDeleteModel} = useRequestMutation(null, "/prescription/model/delete");
+    const {trigger: triggerPrescriptionEdit} = useRequestQueryMutation("/prescription/model/edit");
+    const {trigger: triggerDeleteModel} = useRequestQueryMutation("/prescription/model/delete");
 
     const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
         const form = new FormData();
@@ -50,7 +49,9 @@ function ModelPrescriptionList({...props}) {
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
             data: form
-        }).then(() => mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`));
+        }, {
+            onSuccess: () => invalidateQueries([`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`])
+        });
         setTreeData(newTree);
     }
 
@@ -71,14 +72,16 @@ function ModelPrescriptionList({...props}) {
         triggerDeleteModel({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals${selectedModel.parent === 0 ? "/parents/" : "/"}${selectedModel.id}/${router.locale}`
-        }).then(() => {
-            setSelectedModel(null);
-            mutate(`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`).then(
-                () => {
-                    setLoading(false);
-                    setDeleteModelDialog(false);
-                });
-        })
+        }, {
+            onSuccess: () => {
+                setSelectedModel(null);
+                invalidateQueries([`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`]).then(
+                    () => {
+                        setLoading(false);
+                        setDeleteModelDialog(false);
+                    });
+            }
+        });
     }
 
     useEffect(() => {

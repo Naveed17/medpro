@@ -28,7 +28,7 @@ import {
     setAppointmentInstruction,
     setAppointmentSubmit
 } from "@features/tabPanel";
-import {useRequestMutation, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import moment from "moment-timezone";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";

@@ -25,8 +25,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions} from "@lib/hooks";
-import {useSWRConfig} from "swr";
+import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
 import {debounce} from "lodash";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
@@ -41,7 +40,7 @@ function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -55,7 +54,7 @@ function AppointmentCard({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        variables: {query: "?sort=true"}
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
     });
 
     const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
@@ -91,11 +90,11 @@ function AppointmentCard({...props}) {
                 if (onDataUpdated) {
                     onDataUpdated();
                 } else {
-                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
+                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
                 }
             }
         });
-    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});

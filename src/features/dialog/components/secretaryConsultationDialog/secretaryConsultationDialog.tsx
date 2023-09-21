@@ -35,7 +35,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -61,7 +61,7 @@ function SecretaryConsultationDialog({...props}) {
             setCheckedNext
         },
     } = props;
-
+    const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {data: session} = useSession();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
@@ -71,8 +71,6 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-
-    const router = useRouter();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -85,10 +83,7 @@ function SecretaryConsultationDialog({...props}) {
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
-
-
-    const {data: httpAppointmentTransactions, mutate} = useRequest({
+    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });

@@ -52,7 +52,7 @@ function Consultation() {
     const [drawer, setDrawer] = useState(false);
     const [collapse, setCollapse] = useState(false);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <>
             <SubHeader>

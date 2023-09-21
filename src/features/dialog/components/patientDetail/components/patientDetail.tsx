@@ -171,7 +171,10 @@ function PatientDetail({...props}) {
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequestQuery(medicalEntityHasUser && patientId ? {
+    const {
+        data: httpAntecedentsResponse,
+        mutate: mutateAntecedents
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -315,7 +318,7 @@ function PatientDetail({...props}) {
                 // mutate ongoing api
                 mutateOnGoing();
                 // update pending notifications status
-                agenda?.mutate[1]();
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
                 closePatientDialog();
             }
         });

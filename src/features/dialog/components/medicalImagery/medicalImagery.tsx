@@ -13,28 +13,29 @@ import BalanceSheetDialogStyled from '../balanceSheet/overrides/balanceSheetDial
 import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {NoDataCard, NoteCardCollapse} from "@features/card";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import {debounce} from "lodash";
 import {arrayUniqueByKey} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
     const router = useRouter();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [miList, setMiList] = useState<MIModel[]>([]);
     const [miListLocal, setMiListLocal] = useState<MIModel[]>([]);
     const [defaultMiList, setDefaultMiList] = useState<MIModel[]>([]);
     const [mi, setMi] = useState<MIModel[]>([...data.state]);
     const [loading, setLoading] = useState<boolean>(true);
-    const {trigger} = useRequestMutation(null, "/medicalImagery");
     const [name, setName] = useState('');
     const [imageryValue] = useState<MIModel | null>(null);
     const [anchorElPopover, setAnchorElPopover] = useState<HTMLDivElement | null>(null);
@@ -42,7 +43,6 @@ function MedicalImageryDialog({...props}) {
     const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
     const openPopover = Boolean(anchorElPopover);
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
             name: ''
@@ -55,10 +55,11 @@ function MedicalImageryDialog({...props}) {
 
     const initialData = Array.from(new Array(10));
 
-    const {data: httpAnalysisResponse} = useRequest({
+    const {trigger: triggerMedicalImagery} = useRequestQueryMutation("/medicalImagery/get");
+    const {data: httpAnalysisResponse} = useRequestQuery({
         method: "GET",
-        url: "/api/private/medical-imaging/" + router.locale
-    }, SWRNoValidateConfig);
+        url: `/api/private/medical-imaging/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
     const addImage = (value: MIModel) => {
         setName('')
@@ -78,13 +79,15 @@ function MedicalImageryDialog({...props}) {
     const searchInMedicalImagery = (medicalImagery: string) => {
         setName(medicalImagery);
         if (medicalImagery.length >= 2) {
-            trigger({
+            triggerMedicalImagery({
                 method: "GET",
                 url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`
-            }).then((r) => {
-                const res = (r?.data as HttpResponse).data;
-                setMiList(res)
-            })
+            }, {
+                onSuccess: (r: any) => {
+                    const res = (r?.data as HttpResponse).data;
+                    setMiList(res)
+                }
+            });
         } else {
             const recent = localStorage.getItem("medical-imagery-recent") ? JSON.parse(localStorage.getItem("medical-imagery-recent") as string) : [] as AnalysisModel[];
             setMiList([

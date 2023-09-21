@@ -20,10 +20,9 @@ import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToo
 import {consultationSelector} from "@features/toolbar";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -31,6 +30,7 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import dynamic from "next/dynamic";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -66,13 +66,16 @@ function CIPPatientHistoryCard({...props}) {
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
+    const {trigger: triggerAddReason} = useRequestQueryMutation(null, "/motif/add");
+    const {trigger: triggerDiseases} = useRequestQueryMutation(null, "/diseases");
 
-    const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+    });
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
 
@@ -138,29 +141,35 @@ function CIPPatientHistoryCard({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params
-        }).then(() => mutateReasonsData().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                handleReasonChange([...reasons.filter((reason: {
-                    uuid: any;
-                }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
-            }
-            setLoadingReq(false);
-        }));
+        }, {
+            onSuccess: () => mutateReasonsData().then((result: any) => {
+                const {status} = result?.data;
+                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                if (status === "success") {
+                    handleReasonChange([...reasons.filter((reason: {
+                        uuid: any;
+                    }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                }
+                setLoadingReq(false);
+            })
+        });
     }
+
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
             url: `/api/private/diseases/${router.locale}?name=${name}`
-        }).then(res => {
-            let resultats: any[] = [];
-            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
-                resultats.push(r.data.title['@value']);
-            });
-            setDiseases(resultats);
-        })
+        }, {
+            onSuccess: res => {
+                let resultats: any[] = [];
+                (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
+                    resultats.push(r.data.title['@value']);
+                });
+                setDiseases(resultats);
+            }
+        });
     }
+
     const handleOnChange = (event: string, newValue: any) => {
         setFieldValue(event, newValue);
         // set data data from local storage to redux

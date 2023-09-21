@@ -11,7 +11,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import PreviewA4 from "@features/files/components/previewA4";
 import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
@@ -29,7 +29,7 @@ function CertifModelDrawer({...props}) {
 
     let colors = ["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"];
 
-    const {trigger} = useRequestMutation(null, "/settings/certifModel");
+    const {trigger: triggerSettingsModel} = useRequestQueryMutation("/settings/certifModel");
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
     const loading = false;
@@ -60,18 +60,21 @@ function CertifModelDrawer({...props}) {
             form.append('color', modelColor);
             form.append('title', values.title);
             let url = `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
-            if (data)
+            if (data) {
                 url = `${urlMedicalProfessionalSuffix}/certificate-modals/${data.uuid}/${router.locale}`
-            trigger({
+            }
+            triggerSettingsModel({
                 method: data ? "PUT" : "POST",
                 url,
                 data: form,
-            }).then(() => {
-                props.closeDraw();
-                props.mutate();
-                enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
+            }, {
+                onSuccess: () => {
+                    props.closeDraw();
+                    props.mutate();
+                    enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
 
-            })
+                }
+            });
         },
     });
 
