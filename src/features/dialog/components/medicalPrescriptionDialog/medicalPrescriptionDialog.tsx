@@ -65,10 +65,10 @@ function MedicalPrescriptionDialog({...props}) {
 
     const open = Boolean(anchorEl);
 
-    const {trigger: triggerDrugsCreate} = useRequestQueryMutation(null, "/drugs/create");
-    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation(null, "/drugs/update");
-    const {trigger: triggerDrugsDelete} = useRequestQueryMutation(null, "/drugs/delete");
-    const {trigger: triggerDrugsGet} = useRequestQueryMutation(null, "/drugs/get");
+    const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
+    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerDrugsDelete} = useRequestQueryMutation("/drugs/delete");
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
     const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`

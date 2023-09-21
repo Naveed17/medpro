@@ -314,8 +314,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
         setLoading(true);
         const form = new FormData();
         form.append('drugs', JSON.stringify(drugs));
-        form.append('name', editModel?.text);
-        form.append('parent', editModel?.parent);
+        editModel?.text && form.append('name', editModel.text);
+        editModel?.parent && form.append('parent', editModel.parent.toString());
         triggerEditPrescriptionModel({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${editModel?.id}/${router.locale}`,
@@ -433,7 +433,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             data: form,
         }, {
             onSuccess: () => {
-                mutateParentModel().then((result) => {
+                mutateParentModel().then((result: any) => {
                     const models = (result?.data as HttpResponse)
                         ?.data as PrescriptionParentModel[];
                     dispatch(setParentModel(models[models.length - 1]?.uuid));
