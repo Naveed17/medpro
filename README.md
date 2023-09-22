@@ -89,8 +89,8 @@ Open `http://localhost:3000` with your browser to see the result.
 
 ## API
 
-- [useRequestQuery](#userequestrequest-config)
-- [useRequestQueryMutation](#userequestmutationrequest-config)
+- [useRequestQuery](#userequestqueryrequest-config)
+- [useRequestQueryMutation](#userequestquerymutationrequest-config)
 
 ### useRequestQuery(request, config)
 
