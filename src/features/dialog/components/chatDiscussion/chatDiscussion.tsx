@@ -7,9 +7,9 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import moment from "moment-timezone";
 import {Player} from "@lottiefiles/react-lottie-player";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -49,7 +49,7 @@ function ChatDiscussionDialog({...props}) {
     const {data: httpChatResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient}/chat`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
     /*
         const msgGenerator = (todo: string) => {
             let msg = '';

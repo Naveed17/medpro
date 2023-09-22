@@ -199,7 +199,7 @@ function Agenda() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(query && {variables: {query: `?mode=mini&${query.queryData}`}})
+        ...(agenda && query && {variables: {query: `?mode=mini&${query.queryData}`}})
     });
 
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");

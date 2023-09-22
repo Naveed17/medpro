@@ -91,7 +91,6 @@ function ConsultationInProgress() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
 
-
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
@@ -224,7 +223,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
-                documentHeader:card.certificate[0].documentHeader
+                documentHeader: card.certificate[0].documentHeader
                 /*mutate: mutateDoc,
                 mutateDetails: mutate*/
             });
@@ -327,12 +326,13 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
+                setActions(false);
                 batch(() => {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                setTimeout(() => mutateOnGoing(), 100);
-                router.push("/dashboard/agenda").then(() => setActions(false));
+                mutateOnGoing();
+                router.push("/dashboard/agenda");
             }
         });
     }
@@ -466,15 +466,15 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
+                setActions(false);
                 batch(() => {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                setTimeout(() => mutateOnGoing());
                 sendNotification();
                 checkTransactions();
                 clearData();
-                setActions(false);
+                mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
         });
@@ -526,11 +526,11 @@ function ConsultationInProgress() {
             setPatientDetailDrawer(true);
     }, [tableState.patientId]);
 
-    useEffect(()=>{
+    useEffect(() => {
         if (switchTab && selectedTab === "consultation_form")
             mutateSheetData()
         setSwitchTab(true)
-    },[selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inProgress) {
@@ -1014,7 +1014,7 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale, ...rest}) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,

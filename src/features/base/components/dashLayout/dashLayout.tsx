@@ -270,7 +270,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 demo = localStorage.getItem('newCashbox') === "1";
 
             dispatch(setOngoing({
-                mutate,
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
                 newCashBox: demo,
