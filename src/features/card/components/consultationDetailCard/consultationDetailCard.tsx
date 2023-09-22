@@ -31,6 +31,7 @@ import dynamic from "next/dynamic";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Editor} from "@tinymce/tinymce-react";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -39,14 +40,14 @@ function CIPPatientHistoryCard({...props}) {
         exam: defaultExam,
         changes,
         setChanges,
-        patient,
         app_uuid,
         hasDataHistory,
         seeHistory,
         closed,
         handleClosePanel,
         isClose,
-        agenda, trigger
+        agenda,
+        trigger: triggerAppointmentEdit
     } = props;
     const router = useRouter();
     const theme = useTheme();
@@ -65,6 +66,8 @@ function CIPPatientHistoryCard({...props}) {
     let [diseases, setDiseases] = useState<string[]>([]);
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
+    const [editNote, setEditNote] = useState<boolean>(false);
+    const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
     const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
@@ -178,15 +181,18 @@ function CIPPatientHistoryCard({...props}) {
                 [`${event}`]: newValue
             })
         );
-        const form = new FormData();
-        form.append(event === 'diagnosis' ? 'diagnostic' : event, newValue);
+        saveChanges(event, newValue);
+    }
 
-        trigger({
+    const saveChanges = (ev: string, newValue: any) => {
+        const form = new FormData();
+        form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
+
+        triggerAppointmentEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
-        }).then(() => {
-        });
+        })
     }
 
     const debouncedOnChange = debounce(handleOnChange, 2000);
@@ -376,17 +382,34 @@ function CIPPatientHistoryCard({...props}) {
                                         }}/>
                                 </Stack>
                             </Stack>
-                            <TextField
-                                fullWidth
-                                multiline
-                                size="small"
-                                maxRows={8}
-                                defaultValue={values.notes}
-                                onChange={event => {
-                                    debouncedOnChange("notes", event.target.value)
+                            {
+                                !editNote && <div className={"contentPreview"}
+                                               onClick={() => {
+                                                   setEditNote(true)
+                                               }}
+                                               dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
+                            }
+                            {
+                                editNote && <Editor
+                                value={values.notes}
+                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                onEditorChange={(event) => {
+                                    setFieldValue("notes", event);
                                 }}
-                                placeholder={t("hint_text")}
-                            />
+                                onBlur={()=>{
+                                    saveChanges("notes",values.notes)
+                                }}
+                                init={{
+                                    branding: false,
+                                    statusbar: false,
+                                    menubar: false,
+                                    height: 200,
+                                    toolbar_mode: 'scrolling',
+                                    plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
+                                    toolbar: "bold italic underline forecolor backcolor  |fontsize fontfamily|  align lineheight checklist bullist numlist  ",
+                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                }}/>
+                            }
                         </Box>
                         <Box width={1}>
                             <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
@@ -394,18 +417,32 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
                             </Stack>
-
-                            <TextField
-                                fullWidth
-                                id={"diagnosis"}
-                                size="small"
-                                defaultValue={values.diagnosis}
-                                multiline
-                                maxRows={8}
-                                placeholder={t("hint_text")}
-                                onChange={event => {
-                                    debouncedOnChange("diagnosis", event.target.value)
-                                }}/>
+                            {
+                                !editDiagnosic && <div className={"contentPreview"}
+                                                  onClick={() => {
+                                                      setEditDiagnosic(true)
+                                                  }}
+                                                  dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
+                            }
+                            {
+                                editDiagnosic && <Editor
+                                    value={values.diagnosis}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        setFieldValue("diagnosis", event)
+                                    }}
+                                    onBlur={()=>{saveChanges("diagnosis",values.diagnosis)}}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
+                                        toolbar: "bold italic underline forecolor backcolor  |fontsize fontfamily|  align lineheight checklist bullist numlist  ",
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            }
                         </Box>
                         <Box width={1}>
                             <Typography variant="body2" paddingBottom={1} fontWeight={500}>

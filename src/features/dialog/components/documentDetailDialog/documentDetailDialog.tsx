@@ -384,44 +384,62 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-                const templates: any[] = [];
-                const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
-                docInfo.map((di: { types: any[]; }) => {
-                    if (di.types.find(type => type.slug === slug))
-                        templates.push(di)
-                })
-                if (templates.length > 0) {
-                    setSelectedTemplate(templates[0].uuid)
-                    setData({
-                        ...templates[0].header.data,
-                        background: {
-                            show: templates[0].header.data.background.show,
-                            content: templates[0].file ? templates[0].file : ''
-                        }
+
+
+                if (state.documentHeader) {
+                    setSelectedTemplate(state.documentHeader)
+                    const _template = docInfo.find((template: { uuid: string; }) => template.uuid === state.documentHeader)
+                    if (_template){
+                        setData({
+                            ..._template.header.data,
+                            background: {
+                                show: _template.header.data.background.show,
+                                content: _template.file ? _template.file : ''
+                            }
+                        })
+                        setHeader(_template.header.header)
+                    }
+                }
+                else {
+                    const templates: any[] = [];
+                    const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
+                    docInfo.map((di: { types: any[]; }) => {
+                        if (di.types.find(type => type.slug === slug))
+                            templates.push(di)
                     })
-                    setHeader(templates[0].header.header)
-                } else {
-                    const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
-                    if (defaultdoc) {
-                        setSelectedTemplate(defaultdoc.uuid)
+                    if (templates.length > 0) {
+                        setSelectedTemplate(templates[0].uuid)
                         setData({
-                            ...defaultdoc.header.data,
+                            ...templates[0].header.data,
                             background: {
-                                show: defaultdoc.header.data.background.show,
-                                content: defaultdoc.file ? defaultdoc.file : ''
+                                show: templates[0].header.data.background.show,
+                                content: templates[0].file ? templates[0].file : ''
                             }
                         })
-                        setHeader(defaultdoc.header.header)
+                        setHeader(templates[0].header.header)
                     } else {
-                        setSelectedTemplate(docInfo[0].uuid)
-                        setData({
-                            ...docInfo[0].header.data,
-                            background: {
-                                show: docInfo.header?.data.background.show,
-                                content: docInfo.file ? docInfo.file : ''
-                            }
-                        })
-                        setHeader(docInfo[0].header.header)
+                        const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                        if (defaultdoc) {
+                            setSelectedTemplate(defaultdoc.uuid)
+                            setData({
+                                ...defaultdoc.header.data,
+                                background: {
+                                    show: defaultdoc.header.data.background.show,
+                                    content: defaultdoc.file ? defaultdoc.file : ''
+                                }
+                            })
+                            setHeader(defaultdoc.header.header)
+                        } else {
+                            setSelectedTemplate(docInfo[0].uuid)
+                            setData({
+                                ...docInfo[0].header.data,
+                                background: {
+                                    show: docInfo.header?.data.background.show,
+                                    content: docInfo.file ? docInfo.file : ''
+                                }
+                            })
+                            setHeader(docInfo[0].header.header)
+                        }
                     }
                 }
                 setLoading(false)

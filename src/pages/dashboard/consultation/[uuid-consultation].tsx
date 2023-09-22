@@ -161,6 +161,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
+    const [switchTab, setSwitchTab] = useState(false);
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -223,6 +224,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
+                documentHeader:card.certificate[0].documentHeader
                 /*mutate: mutateDoc,
                 mutateDetails: mutate*/
             });
@@ -524,6 +526,11 @@ function ConsultationInProgress() {
             setPatientDetailDrawer(true);
     }, [tableState.patientId]);
 
+    useEffect(()=>{
+        if (switchTab && selectedTab === "consultation_form")
+            mutateSheetData()
+        setSwitchTab(true)
+    },[selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inProgress) {
@@ -695,7 +702,6 @@ function ConsultationInProgress() {
                                         setChanges,
                                         app_uuid,
                                         exam: sheetExam,
-                                        patient: "",
                                         hasDataHistory,
                                         seeHistory,
                                         closed: closeExam,
