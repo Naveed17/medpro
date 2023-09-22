@@ -1,29 +1,32 @@
 import * as Yup from "yup";
 import {FormikProvider, useFormik} from "formik";
-import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography,} from "@mui/material";
-import React, {useState} from "react";
+import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography, useTheme,} from "@mui/material";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
 import {useRequestQueryMutation} from "@lib/axios";
 import PreviewA4 from "@features/files/components/previewA4";
 import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
 import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperStyled";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 
 function CertifModelDrawer({...props}) {
     const router = useRouter();
+    const theme = useTheme();
+
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {data, action, isdefault} = props;
     const {enqueueSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
@@ -32,6 +35,8 @@ function CertifModelDrawer({...props}) {
     const {trigger: triggerSettingsModel} = useRequestQueryMutation("/settings/certifModel");
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
+    const [selectedSugg, setSelectedSugg] = useState(-1);
+    const [suggestions, setSuggestions] = useState<{ title: string, color: string, content: string }[]>([]);
     const loading = false;
 
     const contentBtns = [
@@ -39,6 +44,12 @@ function CertifModelDrawer({...props}) {
         {name: '{doctor}', title: 'doctor', desc: "Nom du doctor"},
         {name: '{aujourd\'hui}', title: 'today', desc: "Date aujourd'hui"},
     ];
+
+    const {data: httpSuggestions} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/default-document`
+    }, ReactQueryNoValidateConfig);
+
 
     const validationSchema = Yup.object().shape({
         title: Yup.string()
@@ -90,6 +101,11 @@ function CertifModelDrawer({...props}) {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
     }
 
+    useEffect(() => {
+        if (httpSuggestions)
+            setSuggestions((httpSuggestions as HttpResponse).data)
+    }, [httpSuggestions])
+
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -123,7 +139,67 @@ function CertifModelDrawer({...props}) {
                     </Typography>
                 </Box>
 
-                <Card style={{margin: 20, marginBottom: 60,maxWidth: 650}}>
+                {suggestions.length > 0 && <><Box style={{marginTop: 20, marginRight: 20, marginLeft: 20}}>
+                    <Typography
+                        variant="body2"
+                        marginTop={2}
+                        marginBottom={1}
+                        gutterBottom>
+                        {t("suggestions")}
+                    </Typography>
+
+                    <Box style={{overflowX: "auto", marginBottom: 10, maxWidth: 570}}>
+                        <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                            {suggestions.map((sug, index) => (
+                                <div key={`sug${index}`}>
+                                    <Card style={{
+                                        width: "fit-content",
+                                        border: selectedSugg === index ? `2px solid${theme.palette.primary.main}` : ''
+                                    }}
+                                          onClick={() => {
+                                              setFieldValue("title", sug.title)
+                                              setModelColor(sug.color)
+                                              setFieldValue('content', sug.content)
+                                              setSelectedSugg(index);
+                                          }}>
+                                        <Stack direction={"row"} spacing={1} padding={2}>
+                                            <ModelDot
+                                                key={sug.color}
+                                                color={sug.color}
+                                                size={20}
+                                                sizedot={12}
+                                                padding={3} marginRight={5}
+                                                selected={false}/>
+                                            <Typography variant="body2" style={{cursor: "pointer"}}>
+                                                {sug.title}
+                                            </Typography>
+                                        </Stack>
+                                    </Card>
+                                </div>
+
+                            ))}
+                        </Stack>
+                    </Box>
+                </Box>
+
+                    <Box style={{marginRight: 20, marginLeft: 20}}>
+                        <Typography
+                            variant="body2"
+                            marginTop={2}
+                            marginBottom={1}
+                            gutterBottom>
+                            {t("info")}
+                            {selectedSugg > -1 && <span onClick={
+                                () => {
+                                    setSelectedSugg(-1)
+                                    setFieldValue("title", "")
+                                    setModelColor("")
+                                    setFieldValue('content', "")
+                                }}
+                                   style={{color: theme.palette.primary.main,cursor:"pointer"}}>{` ${suggestions[selectedSugg]?.title}`} (x)</span>}
+                        </Typography>
+                    </Box></>}
+                <Card style={{margin: 20, marginBottom: 60, maxWidth: 650}}>
                     <CardContent>
                         <Typography
                             variant="body2"
