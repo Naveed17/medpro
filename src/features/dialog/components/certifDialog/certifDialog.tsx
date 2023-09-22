@@ -3,9 +3,11 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Box,
-    Button, Checkbox,
-    DialogActions, DialogContent,
-    Divider, FormControlLabel,
+    Button,
+    Checkbox,
+    DialogActions,
+    Divider,
+    FormControlLabel,
     Grid,
     IconButton,
     List,
@@ -36,7 +38,6 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
-import Dialog from "@mui/material/Dialog";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -64,7 +65,6 @@ function CertifDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
     const [templates, setTemplates] = useState([]);
-    const [openAlert, setOpenAlert] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState("");
 
     const {enqueueSnackbar} = useSnackbar();
@@ -95,6 +95,7 @@ function CertifDialog({...props}) {
         data.state.documentHeader = model.documentHeader
         data.setState(data.state)
         setTitle(model.title)
+        setSelectedTemplate(model.documentHeader)
         setSelectedColor([model.color])
         setSelectedModel(model);
     }
@@ -113,7 +114,6 @@ function CertifDialog({...props}) {
             populateCache: true
         }).then(() => {
             mutate().then(() => {
-                setOpenAlert(false)
                 setSelectedTemplate('')
             });
         })
@@ -175,7 +175,7 @@ function CertifDialog({...props}) {
                     title: model.title ? model.title : 'Sans titre',
                     name: model.title ? model.title : 'Sans titre',
                     content: model.content,
-                    documentHeader:model.documentHeader,
+                    documentHeader: model.documentHeader,
                     preview: (stringToHTML as HTMLElement)?.innerHTML
                 });
             });
@@ -194,12 +194,12 @@ function CertifDialog({...props}) {
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(()=>{
+    useEffect(() => {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setTemplates(docInfo)
         }
-    },[httpDocumentHeader])
+    }, [httpDocumentHeader])
     const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -242,6 +242,25 @@ function CertifDialog({...props}) {
                                     </ModelDot>
                                 ))}
                             </Stack>
+                            <div style={{display: "flex"}}>
+                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                            mb={1}>{t('consultationIP.alertTitle')}</Typography>
+                                <div style={{marginLeft: 15}}>
+                                    {templates.map((doc: any) => (<FormControlLabel
+                                        key={doc.uuid}
+                                        control={
+                                            <Checkbox checked={selectedTemplate === doc.uuid}
+                                                      onChange={() => {
+                                                          setSelectedTemplate(doc.uuid)
+                                                          data.state.documentHeader = doc.uuid
+                                                          data.setState(data.state)
+                                                      }} name={doc.uuid}/>
+                                        }
+                                        label={doc.title}
+                                    />))}
+                                </div>
+                            </div>
+
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
@@ -285,7 +304,9 @@ function CertifDialog({...props}) {
                         <Button sx={{ml: 'auto', height: 1}}
                                 size='small'
                                 disabled={title.length === 0 || value.length === 0}
-                                onClick={()=>{setOpenAlert(true)}}
+                                onClick={() => {
+                                    saveModel()
+                                }}
                                 startIcon={<AddIcon/>}>
                             {t('consultationIP.createAsModel')}
                         </Button>
@@ -398,32 +419,6 @@ function CertifDialog({...props}) {
                               </DialogActions>
                           }
             />
-
-            <Dialog
-                open={openAlert}
-                onClose={()=>{setOpenAlert(false)}}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description">
-                <DialogContent>
-                    <Typography variant={"h6"} mb={2}>{t('consultationIP.alertTitle')}</Typography>
-                    {templates.map((doc: any) => (<FormControlLabel
-                        key={doc.uuid}
-                        control={
-                            <Checkbox checked={selectedTemplate === doc.uuid}
-                                      onChange={() => {
-                                          setSelectedTemplate(doc.uuid)
-                                      }} name={doc.uuid}/>
-                        }
-                        label={doc.title}
-                    />))}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={()=>{setOpenAlert(false)}}>{t('consultationIP.notNow')}</Button>
-                    <Button disabled={selectedTemplate === ''} onClick={saveModel} autoFocus>
-                        {t('consultationIP.now')}
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     )
 }
