@@ -617,6 +617,7 @@
         "named": "Please name the template",
         "select": "Please select your variables",
         "info": "Template Information",
+        "suggestions": "Suggestions",
         "patient": "Patient",
         "doctor": "Doctor",
         "today": "Today",
